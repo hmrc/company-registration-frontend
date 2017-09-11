@@ -348,7 +348,6 @@ page.reg.Dashboard.PAYE.continueRegistrationLink=Continue registration
 
 page.reg.Dashboard.PAYE.pendingText=We''ve received your application but can''t process it until we''ve set up your limited company.
 
-
 page.reg.Dashboard.PAYE.employerHelpTextParagraph1=Use this service to register a company if it will do either of the following in the next 2 months:
 page.reg.Dashboard.PAYE.employerHelpTextParagraph2=pay any employees - including company directors - £113 or more a week (this is the same as £490 a month or £5,876 a year)
 page.reg.Dashboard.PAYE.employerHelpTextParagraph3=use subcontractors for construction work
@@ -387,3 +386,20 @@ page.reg.cancelpaye.heading=Are you sure you''d like to cancel this PAYE applica
 page.reg.cancelpaye.warning=All the information you''ve provided will be deleted.
 page.reg.cancelpaye.radioYesLabel=Yes
 page.reg.cancelpaye.radioNoLabel=No
+
+## Failed Submission
+errorPages.failedSubmission.title                        = We couldn''t process your application
+errorPages.failedSubmission.p1                           = Sorry, there is a technical problem and we couldn''t process your application. Any details you entered have been saved.
+errorPages.failedSubmission.p2                           = Fill out the form below so we can help you complete your application.
+errorPages.failedSubmission.header                       = Your details
+errorPages.failedSubmission.detail                       = Don''t include any personal or financial information. For example, your National Insurance or credit card numbers.
+errorPages.failedSubmission.q1                           = Name
+errorPages.failedSubmission.q2                           = Email
+errorPages.failedSubmission.q3                           = What were you doing?
+errorPages.failedSubmission.button                       = Send
+
+## Retry Submission
+errorPages.retrySubmission.title                        = We couldn''t process your application
+errorPages.retrySubmission.p1                           = Sorry, there is a technical problem and we couldn''t process your application. Any details you entered have been saved.
+errorPages.retrySubmission.p2                           = Please resend your application.
+errorPages.retrySubmission.button                       = Resend

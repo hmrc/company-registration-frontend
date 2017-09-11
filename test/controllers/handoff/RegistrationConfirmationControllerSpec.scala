@@ -22,8 +22,9 @@ import connectors.KeystoreConnector
 import controllers.handoff.HO6AuthenticationProvider.RegistrationConfirmationController
 import fixtures.{LoginFixture, PayloadFixture}
 import helpers.SCRSSpec
+import models.connectors.ConfirmationReferences
 import models.handoff.NavLinks
-import models.RegistrationConfirmationPayload
+import models.{ConfirmationReferencesSuccessResponse, DESFailureDeskpro, DESFailureRetriable, RegistrationConfirmationPayload}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.HandBackService
@@ -75,8 +76,11 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
 
     "return a SEE_OTHER if sending a valid request with authorisation" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("1"))
-      when(mockHandBackService.processConfirmationHandBack(Matchers.eq(confirmationPayload))(Matchers.any(), Matchers.any()))
+      when(mockHandBackService.decryptConfirmationHandback(Matchers.eq(confirmationPayload))(Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(Success(payload)))
+
+      when(mockHandBackService.storeConfirmationHandOff(Matchers.any(), Matchers.any())(Matchers.any()))
+        .thenReturn(Future.successful(ConfirmationReferencesSuccessResponse(ConfirmationReferences("test", "test", "test", "test"))))
 
       AuthBuilder.showWithAuthorisedUser(TestController.registrationConfirmation(confirmationPayload), mockAuthConnector) {
         result =>
@@ -84,9 +88,40 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
           redirectLocation(result) shouldBe Some("/register-your-company/confirmation")
       }
     }
+
+    "return a SEE_OTHER if sending a request with authorisation but has a deskpro error" in new Setup {
+      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      when(mockHandBackService.decryptConfirmationHandback(Matchers.eq(confirmationPayload))(Matchers.any(), Matchers.any()))
+        .thenReturn(Future.successful(Success(payload)))
+
+      when(mockHandBackService.storeConfirmationHandOff(Matchers.any(), Matchers.any())(Matchers.any()))
+        .thenReturn(Future.successful(DESFailureDeskpro))
+
+      AuthBuilder.showWithAuthorisedUser(TestController.registrationConfirmation(confirmationPayload), mockAuthConnector) {
+        result =>
+          status(result) shouldBe SEE_OTHER
+          redirectLocation(result) shouldBe Some("/register-your-company/something-went-wrong")
+      }
+    }
+
+    "return a SEE_OTHER if sending a request with authorisation but is put into a retriable state" in new Setup {
+      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      when(mockHandBackService.decryptConfirmationHandback(Matchers.eq(confirmationPayload))(Matchers.any(), Matchers.any()))
+        .thenReturn(Future.successful(Success(payload)))
+
+      when(mockHandBackService.storeConfirmationHandOff(Matchers.any(), Matchers.any())(Matchers.any()))
+        .thenReturn(Future.successful(DESFailureRetriable))
+
+      AuthBuilder.showWithAuthorisedUser(TestController.registrationConfirmation(confirmationPayload), mockAuthConnector) {
+        result =>
+          status(result) shouldBe SEE_OTHER
+          redirectLocation(result) shouldBe Some("/register-your-company/submission-failure")
+      }
+    }
+
     "return a SEE_OTHER if sending a valid request with auth but keystore does not exist" in new Setup {
       mockKeystoreFetchAndGet("registrationID", None)
-      when(mockHandBackService.processConfirmationHandBack(Matchers.eq(confirmationPayload))(Matchers.any(), Matchers.any()))
+      when(mockHandBackService.decryptConfirmationHandback(Matchers.eq(confirmationPayload))(Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(Success(payload)))
 
       AuthBuilder.showWithAuthorisedUser(TestController.registrationConfirmation(confirmationPayload), mockAuthConnector) {
@@ -96,21 +131,9 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
       }
     }
 
-    "return a BAD_REQUEST if payload is invalid" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
-      when(mockHandBackService.processConfirmationHandBack(Matchers.eq(""))(Matchers.any[AuthContext], Matchers.any[HeaderCarrier]))
-        .thenReturn(Future.successful(Failure(PayloadError)))
-
-      AuthBuilder.showWithAuthorisedUser(TestController.registrationConfirmation(""), mockAuthConnector) {
-        result =>
-          status(result) shouldBe BAD_REQUEST
-          redirectLocation(result) shouldBe None
-      }
-    }
-
     "return a BAD_REQUEST if payload cant be decrypted" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("1"))
-      when(mockHandBackService.processConfirmationHandBack(Matchers.eq(""))(Matchers.any[AuthContext], Matchers.any[HeaderCarrier]))
+      when(mockHandBackService.decryptConfirmationHandback(Matchers.eq(""))(Matchers.any[AuthContext], Matchers.any[HeaderCarrier]))
         .thenReturn(Future.successful(Failure(DecryptionError)))
 
       AuthBuilder.showWithAuthorisedUser(TestController.registrationConfirmation(""), mockAuthConnector) {

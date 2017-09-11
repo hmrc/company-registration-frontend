@@ -19,6 +19,8 @@ package controllers.handoff
 import config.FrontendAuthConnector
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.handoff.HO6AuthenticationProvider.RegistrationConfirmationController
+import forms.errors.DeskproForm
+import models.{ConfirmationReferencesSuccessResponse, DESFailureDeskpro, DESFailureRetriable}
 import play.api.Logger
 import play.api.mvc.{Action, AnyContent, Request}
 import services.{HandBackService, NavModelNotFoundException}
@@ -62,18 +64,22 @@ object  HO6AuthenticationProvider extends GovernmentGateway {
     def registrationConfirmation(requestData: String): Action[AnyContent] = AuthorisedFor(taxRegime = HO6Regime(""), pageVisibility = GGConfidence).async {
       implicit user =>
         implicit request =>
-          registered { a =>
-            handBackService.processConfirmationHandBack(requestData) map {
-              case Success(_) => Redirect(controllers.reg.routes.ConfirmationController.show())
-              case Failure(PayloadError) => BadRequest(error_template_restart("6", "PayloadError"))
-              case Failure(DecryptionError) => BadRequest(error_template_restart("6", "DecryptionError"))
-              case unknown => {
-                Logger.warn(s"[RegistrationConfirmationController][registrationConfirmation] HO6 Unexpected result, sending to post-sign-in : ${unknown}")
-                Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))
+          registered {
+            regid =>
+              handBackService.decryptConfirmationHandback(requestData) flatMap {
+                case Success(s) => handBackService.storeConfirmationHandOff(s, regid).map {
+                  case ConfirmationReferencesSuccessResponse(_) => Redirect(controllers.reg.routes.ConfirmationControllerImpl.show())
+                  case DESFailureRetriable => Redirect(controllers.reg.routes.ConfirmationControllerImpl.resubmitPage())
+                  case _ => Redirect(controllers.reg.routes.ConfirmationControllerImpl.deskproPage())
+                }
+                case Failure(DecryptionError) => Future.successful(BadRequest(error_template_restart("6", "DecryptionError")))
+                case unknown => Future.successful{
+                  Logger.warn(s"[RegistrationConfirmationController][registrationConfirmation] HO6 Unexpected result, sending to post-sign-in : ${unknown}")
+                  Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))
+                }
+              } recover {
+                case ex: NavModelNotFoundException => Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))
               }
-            }recover {
-              case ex: NavModelNotFoundException => Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))
-            }
           }
     }
   }

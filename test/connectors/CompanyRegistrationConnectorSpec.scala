@@ -391,35 +391,23 @@ class CompanyRegistrationConnectorSpec extends SCRSSpec with CTDataFixture with 
       mockHttpPUT[JsValue, ConfirmationReferences]("testUrl", validConfirmationReferences)
       await(connector.updateReferences("12345", validConfirmationReferences)) shouldBe ConfirmationReferencesSuccessResponse(validConfirmationReferences)
     }
-    "return a 400" in new Setup {
-      when(mockWSHttp.PUT[JsValue, ConfirmationReferences](Matchers.anyString(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[HeaderCarrier]()))
-        .thenReturn(Future.failed(new BadRequestException("400")))
-
-      await(connector.updateReferences("12345", validConfirmationReferences)) shouldBe ConfirmationReferencesBadRequestResponse
-    }
-    "return a 404" in new Setup {
-      when(mockWSHttp.PUT[JsValue, ConfirmationReferences](Matchers.anyString(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[HeaderCarrier]()))
-        .thenReturn(Future.failed(new NotFoundException("404")))
-
-      await(connector.updateReferences("12345", validConfirmationReferences)) shouldBe ConfirmationReferencesNotFoundResponse
-    }
-    "return a 4xx" in new Setup {
+    "return a 4xx as a DESFailureDeskpro response" in new Setup {
       when(mockWSHttp.PUT[JsValue, ConfirmationReferences](Matchers.anyString(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[HeaderCarrier]()))
         .thenReturn(Future.failed(Upstream4xxResponse("429", 429, 429)))
 
-      await(connector.updateReferences("12345", validConfirmationReferences)) shouldBe ConfirmationReferencesErrorResponse
+      await(connector.updateReferences("12345", validConfirmationReferences)) shouldBe DESFailureDeskpro
     }
-    "return a 5xx" in new Setup {
+    "return a 5xx as retriable DESFailure response" in new Setup {
       when(mockWSHttp.PUT[JsValue, ConfirmationReferences](Matchers.anyString(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[HeaderCarrier]()))
         .thenReturn(Future.failed(Upstream5xxResponse("500", 500, 500)))
 
-      await(connector.updateReferences("12345", validConfirmationReferences)) shouldBe ConfirmationReferencesErrorResponse
+      await(connector.updateReferences("12345", validConfirmationReferences)) shouldBe DESFailureRetriable
     }
-    "return any other exception" in new Setup {
+    "return any other exception as DESFailureDeskpro response" in new Setup {
       when(mockWSHttp.PUT[JsValue, ConfirmationReferences](Matchers.anyString(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[HeaderCarrier]()))
         .thenReturn(Future.failed(new NullPointerException))
 
-      await(connector.updateReferences("12345", validConfirmationReferences)) shouldBe ConfirmationReferencesErrorResponse
+      await(connector.updateReferences("12345", validConfirmationReferences)) shouldBe DESFailureDeskpro
     }
   }
 
@@ -541,6 +529,7 @@ class CompanyRegistrationConnectorSpec extends SCRSSpec with CTDataFixture with 
   }
 
   "fetchAcknowledgementReference" should {
+
     "return a succcess response when an Ack ref is found" in new Setup {
       mockHttpGet("testUrl", ConfirmationReferences("a", "b", "c", "BRCT00000000123"))
 

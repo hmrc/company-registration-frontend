@@ -130,18 +130,8 @@ trait HandBackService extends CommonService with SCRSExceptions with HandOffNavi
     }
   }
 
-  def processConfirmationHandBack(request : String)(implicit user : AuthContext, hc : HeaderCarrier) : Future[Try[RegistrationConfirmationPayload]] = {
-    decryptHandBackRequest[RegistrationConfirmationPayload](request){
-      payload =>
-        storeConfirmationHandOff(payload) map {
-          case false =>
-            Logger.error("[HandBackService] [processConfirmationHandBack] CH handoff payload wasn't stored")
-            Failure(PayloadNotSavedError)
-          case _ =>
-            Logger.info(s"[HO6] Transaction_ID: ${payload.transaction_id} - Journey_ID: ${payload.journey_id}")
-            Success(payload)
-        }
-    }
+  def decryptConfirmationHandback(request : String)(implicit user : AuthContext, hc : HeaderCarrier) : Future[Try[RegistrationConfirmationPayload]] = {
+    decryptHandBackRequest[RegistrationConfirmationPayload](request){res => Future.successful(Success(res))}
   }
 
   private[services] def updateCompanyDetails(registrationID: String, handoff: CompanyNameHandOffIncoming)(implicit hc: HeaderCarrier): Future[CompanyDetails] = {
@@ -173,17 +163,7 @@ trait HandBackService extends CommonService with SCRSExceptions with HandOffNavi
     } yield true
   }
 
-  private[services] def storeConfirmationHandOff(payload : RegistrationConfirmationPayload)(implicit hc: HeaderCarrier): Future[Boolean] = {
-    for {
-      regID <- fetchRegistrationID
-
-      //TODO Clear out NavModel
-
-      //chUpdated <- handOffConnector.updateCHData(regID, CompanyNameHandOffInformation("full-data", DateTime.now, payload.ch))
-      updatedAckRef <- compRegConnector.updateReferences(regID, RegistrationConfirmationPayload.getReferences(payload))
-    } yield {
-      //TODO : Change return
-      true
-    }
+  def storeConfirmationHandOff(payload : RegistrationConfirmationPayload, regID : String)(implicit hc: HeaderCarrier): Future[ConfirmationReferencesResponse] = {
+    compRegConnector.updateReferences(regID, RegistrationConfirmationPayload.getReferences(payload))
   }
 }

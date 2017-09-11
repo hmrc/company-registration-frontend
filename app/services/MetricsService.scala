@@ -51,6 +51,8 @@ object MetricsService extends MetricsService with MicroserviceMetrics {
   override val saveFootprintToCRTimer = metrics.defaultRegistry.timer("save-footprint-to-cr-timer")
 
   override val retrieveCompanyProfileIITimer = metrics.defaultRegistry.timer("retrieve-company-profile-from-ii-timer")
+
+  override val deskproResponseTimer = metrics.defaultRegistry.timer("deskpro-call-timer")
 }
 
 trait MetricsService {
@@ -65,6 +67,7 @@ trait MetricsService {
   val identityVerificationFailedCounter: Counter
   val citizenDetailsTimer: Timer
   val numberOfQuestionnairesSubmitted : Counter
+  val deskproResponseTimer: Timer
 
   val blockedByEnrollment : Counter
 
