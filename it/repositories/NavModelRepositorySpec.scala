@@ -150,7 +150,7 @@ class NavModelRepositorySpec extends UnitSpec with MongoSpecSupport with WithFak
     navModelReturn.get shouldBe handOffNavModelUpdated
   }
 
-  "Indexes" should {
+  "Indexes" ignore {
 
     val additionalIndex = List(Index(
       key = Seq("test" -> IndexType.Ascending),
