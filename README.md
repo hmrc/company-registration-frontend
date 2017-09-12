@@ -41,7 +41,7 @@ sbt 'run 9973'
 To test the application execute:
 
 ```
-sbt test
+sbt test it:test
 ```
 
 License
