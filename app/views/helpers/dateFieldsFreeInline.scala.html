@@ -1,0 +1,70 @@
+@(formItem:Form[_],
+  fieldName: String,
+  errorArgs: Seq[Any],
+  args: (Symbol,Any)*)(implicit request: Request[_], lang: play.api.i18n.Lang, messages: Messages)
+
+@import uk.gov.hmrc.play.views.html.helpers.input
+
+@fieldSetClasses = @{if(formItem.hasErrors){
+                        if(formItem(fieldName).hasErrors){
+                            "form-group-error"
+                        } else {
+                            formItem.errors.map {
+                                error => error.args.nonEmpty match {
+                                    case true => if(errorArgs.filter(_ == error.args(0)).nonEmpty){ "form-group-error" }
+                                    case false => " "
+                                }
+                            }
+                        }
+                    }}
+
+<fieldset class="form-group form-date @fieldSetClasses" id="@fieldName-fieldset">
+<legend style="display:none">@Messages("common.dateMessage")</legend>
+    @if(formItem.hasErrors){
+        @if(formItem(fieldName).hasErrors){
+            <span class="error-notification">@Messages(formItem(fieldName).error.get.message)</span>
+        } else {
+           @formItem.errors.map { error =>
+                @if(error.args.nonEmpty){
+                    @if(errorArgs.filter(_ == error.args(0)).nonEmpty){
+                        <span id=@error.args.head style="display:block" class="error-notification">@Messages(error.message)</span>
+                    }
+                } else {
+                    @{""}
+                }
+            }
+        }
+    }
+
+    @input(
+        formItem(s"$fieldName.day"),
+        '_label -> Messages("date.fields.day"),
+        '_labelClass -> "form-group form-group-day",
+        '_inputClass -> "form-control input--xsmall",
+        '_emptyValueText -> " ",
+        '_maxlength -> "2"
+    )
+    @input(
+        formItem(s"$fieldName.month"),
+        '_label -> Messages("date.fields.month"),
+        '_labelClass -> "form-group form-group-month",
+        '_inputClass -> "form-control input--xsmall",
+        '_emptyValueText -> " ",
+        '_maxlength -> "2"
+    )
+    @input(
+        formItem(s"$fieldName.year"),
+        '_label -> Messages("date.fields.year"),
+        '_labelClass -> "form-group form-group-year",
+        '_inputClass -> "form-control input--xsmall",
+        '_emptyValueText -> " ",
+        '_maxlength -> "4"
+    )
+
+</fieldset>
+
+@args.toMap.get('_inputHint).map { hint =>
+    <p class="form-hint">
+        @hint
+    </p>
+}

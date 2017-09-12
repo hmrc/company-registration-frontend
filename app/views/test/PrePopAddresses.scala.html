@@ -1,0 +1,23 @@
+@(addresses: Seq[Address])(implicit request: Request[_], lang: Lang, messages: Messages)
+
+@main_template(title = "Feature switch", mainClass = Some("full-width")) {
+
+<div class="grid-row">
+    <div class="column-one-third">
+        <header class="page-header">
+            <h1 class="form-title heading-xlarge" id="main-heading">Pre-pop addresses</h1>
+        </header>
+    </div>
+
+    @addresses.zipWithIndex.map{ address =>
+        <h3>Address @{address._2 + 1}</h3>
+        <p>address line 1 : <span id="address-line-1-@{address._2}">@{address._1.addressLine1}</span></p>
+        <p>address line 2 : <span id="address-line-2-@{address._2}">@{address._1.addressLine2}</span></p>
+        @address._1.addressLine3.map{l3 => <p>address line 3 : <span id="address-line-3-@{address._2}">@l3</span></p>}
+        @address._1.addressLine4.map{l4 => <p>address line 4 : <span id="address-line-4-@{address._2}">@l4</span></p>}
+        @address._1.postCode.map{pc => <p>postcode : <span id="postcode-@{address._2}">@pc</span></p>}
+        @address._1.country.map{c => <p>country : <span id="country-@{address._2}">@c</span></p>}
+    <br>
+    }
+</div>
+}

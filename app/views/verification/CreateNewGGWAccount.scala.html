@@ -1,0 +1,27 @@
+@import uk.gov.hmrc.play.views.html.helpers.form
+@import controllers.CRLanguageController
+@import play.api.Application
+
+@(newAccountUrl:String)(implicit request: Request[_], lang: Lang, messages: Messages)
+
+@main_template(title = Messages("page.verification.create-new-ggw-account.title"), mainClass = None) {
+
+<a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
+
+<div class="form-group">
+    <h1 class="form-title heading-xlarge" id="main-heading">@Messages("page.verification.create-new-ggw-account.main-title")</h1>
+
+    <div class="form-group">
+        <p id="para-one">@Messages("page.verification.create-new-ggw-account.para.one")</p>
+
+        <p id="para-two">@Messages("page.verification.create-new-ggw-account.para.two")</p>
+
+        <p id="para-three">@Messages("page.verification.create-new-ggw-account.para.three")</p>
+    </div>
+
+    <div class="form-group">
+        <a class="button" id="continue" href=@newAccountUrl>@Messages("common.button.continue")</a>
+    </div>
+
+</div>
+}

@@ -1,0 +1,59 @@
+@import models.AboutYouChoiceForm
+@import uk.gov.hmrc.play.views.html.helpers.{form, input}
+@import uk.gov.hmrc.play.views.html.{helpers => govHelpers}
+@import views.html.helpers.{inputRadioGroupHidden, errorSummary}
+@import controllers.CRLanguageController
+@import play.api.Application
+
+@(aboutYou : Form[AboutYouChoiceForm])(implicit request: Request[_], lang: Lang, messages: Messages)
+
+@otherHidden = {
+    @govHelpers.input(
+        aboutYou("completionCapacityOther"),
+        '_inputClass -> "form-control-1-2",
+        '_labelClass -> "form-label cascading",
+        '_label -> Messages("page.reg.AboutYou.radio3.more")
+    )
+}
+
+@main_template(title = Messages("page.reg.AboutYou.title")) {
+
+    <a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
+
+    <div class="grid-row">
+        <div class="column-one-third">
+
+            @errorSummary(
+                Messages("common.errorSummary.label"),
+                aboutYou
+            )
+
+            <header class="page-header">
+                <h1 class="form-title heading-xlarge" id="main-heading">@Messages("page.reg.AboutYou.heading")</h1>
+            </header>
+
+
+
+        @form(action = controllers.reg.routes.CompletionCapacityController.submit()) {
+                <div class="form-group">
+                    @inputRadioGroupHidden(
+                        aboutYou("completionCapacity"),
+                        Seq("director" -> Messages("page.reg.AboutYou.radio1"),
+                            "agent"    -> Messages("page.reg.AboutYou.radio2"),
+                            "other"    -> Messages("page.reg.AboutYou.radio3")),
+                        Seq("other" -> otherHidden),
+                        '_idHidden -> "other",
+                        '_classHidden -> "panel panel-indent",
+                        '_labelClass -> "block-label radio-label",
+                        '_legend -> Messages("page.reg.AboutYou.heading"),
+                        '_legendClass -> "visuallyhidden"
+                    )
+                </div>
+
+                <div class="form-group">
+                    <button class="btn button" id="next">@Messages("common.button.snc")</button>
+                </div>
+            }
+        </div>
+    </div>
+}

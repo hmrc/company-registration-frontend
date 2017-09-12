@@ -1,0 +1,11 @@
+@(incorpStatus : Option[List[IncorporationResponse]])(implicit request: Request[_], lang: Lang, messages: Messages)
+
+@import models.IncorporationResponse
+
+@main_template(title = Messages("page.reg.Confirmation.title"), mainClass = Some("full-width")) {
+    <p id="incorpID">@incorpStatus.get.head._id</p>
+    <p id="status">@incorpStatus.get.head.status</p>
+    <p id="crn">@incorpStatus.get.head.crn</p>
+}
+
+

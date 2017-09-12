@@ -1,0 +1,57 @@
+@import models.test.ETMPNotification
+@(etmp : Form[ETMPNotification])(implicit request: Request[_], lang: Lang, messages: Messages)
+
+@import controllers.reg.routes._
+@import uk.gov.hmrc.play.views.html.helpers.{form, input}
+@import config.FrontendAppConfig
+
+@main_template(title = "ETMP/DES Data", mainClass = Some("full-width")) {
+
+    <div class="grid-row">
+        <div class="column-one-third">
+            <header class="page-header">
+                <h1 class="form-title heading-xlarge" id="main-heading">ETMP/DES Data</h1>
+            </header>
+        </div>
+
+        @form(action = controllers.test.routes.ETMPNotificationTestController.submit()) {
+
+            <div class="form-group">
+                @input(
+                    etmp("ackRef"),
+                    '_label -> "Acknowledgment Reference",
+                    '_labelClass -> "heading-small",
+                    '_inputClass -> "form-control form-control--block"
+                )
+                @input(
+                    etmp("timestamp"),
+                    '_label -> "Timestamp",
+                    '_labelClass -> "heading-small",
+                    '_inputClass -> "form-control form-control--block"
+                )
+                @input(
+                    etmp("regime"),
+                    '_label -> "Tax Regime",
+                    '_labelClass -> "heading-small",
+                    '_inputClass -> "form-control form-control--block"
+                )
+                @input(
+                    etmp("business-tax-identifier"),
+                    '_label -> "Business tax identifier",
+                    '_labelClass -> "heading-small",
+                    '_inputClass -> "form-control form-control--block"
+                )
+                @input(
+                    etmp("status"),
+                    '_label -> "ETMP Status",
+                    '_labelClass -> "heading-small",
+                    '_inputClass -> "form-control form-control--block"
+                )
+            </div>
+
+            <div class="form-group">
+                <button class="btn button" id="next">@Messages("common.button.snc")</button>
+            </div>
+        }
+    </div>
+}

@@ -1,0 +1,46 @@
+GET        /get-s4l                                      controllers.test.TestEndpointController.getAllS4LEntries
+POST       /post-s4l                                     controllers.test.TestEndpointController.postAllS4LEntries
+GET        /clear-s4l                                    controllers.test.TestEndpointController.clearAllS4LEntries
+
+GET        /clear-keystore                               controllers.test.TestEndpointController.clearKeystore
+
+GET        /get-submission                               controllers.test.SubmissionEndpointController.getAllS4LEntries
+
+GET        /feature-switch                               controllers.test.TestEndpointController.showFeatureSwitch
+POST       /feature-switch                               controllers.test.TestEndpointController.updateFeatureSwitch
+
+GET        /get-incorp-status/:id                        controllers.test.IncorporationStatusController.getIncorporationStatus(id : String)
+
+GET        /feature-flag/:featureName/:featureStatus     controllers.test.FeatureSwitchController.handOffFeatureSwitch(featureName: String, featureStatus: String)
+
+GET       /modify-users-in/:usersIn                      controllers.test.ModifyThrottledUsersController.modifyThrottledUsers(usersIn: Int)
+
+GET       /drop-ct-collection                            controllers.test.CTMongoTestController.dropCollection
+
+GET       /setup-nav-model                               controllers.test.TestEndpointController.setupTestNavModel
+
+GET       /submission-check-trigger                      controllers.test.SubmissionTriggerController.triggerSubmissionCheck
+
+GET       /check-submission-status                       controllers.test.TestEndpointController.checkSubmissionStatus
+GET       /update-timepoint/:timepoint                   controllers.test.TestEndpointController.updateTimepoint(timepoint: String)
+
+GET       /scheduler-feature-flag/:state                 controllers.test.TestEndpointController.schedulerFeatureFlag(state: String)
+
+GET       /post-etmp                                     controllers.test.ETMPNotificationTestController.show
+POST      /post-etmp                                     controllers.test.ETMPNotificationTestController.submit
+
+GET       /get-acknowledged-ct-record                    controllers.test.ETMPNotificationTestController.showCTRecordUpdates
+
+GET       /simulate-des-post/:ackRef                     controllers.test.TestEndpointController.simulateDesPost(ackRef: String)
+
+GET       /verify-email/:verified                        controllers.test.TestEndpointController.verifyEmail(verified: Boolean)
+
+GET       /test-endpoints                                controllers.test.TestEndpointController.testEndpointSummary
+
+
+GET       /fetch-addresses                               controllers.test.TestEndpointController.fetchPrePopAddresses
+GET       /fetch-contact-details                         controllers.test.TestEndpointController.fetchPrePopCompanyContactDetails
+
+GET      /dashboardStubbed                               controllers.test.TestEndpointController.dashboardStubbed(payeStatus:String ?= "draft",incorpCTStatus:String ?= "held",cancelURL:String ?= "true",restartURL:String ?="true")
+
+GET      /hand-off-6                                     controllers.test.TestEndpointController.handOff6(transactionId ?= "TRANS_ID-92836405817")

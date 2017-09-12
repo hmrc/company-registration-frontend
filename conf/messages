@@ -1,0 +1,389 @@
+
+
+#global
+global.error.title=Sorry, we''re experiencing technical difficulties
+global.error.heading=Sorry, we''re experiencing technical difficulties
+global.error.message=Please try again in a few minutes.
+
+#common
+common.button.next=Next
+common.button.continue=Continue
+common.button.submit=Submit
+common.button.save=Save and continue
+common.button.snc=Save and continue
+common.button.sign-in=Sign in
+common.button.back=Back
+common.button.start=Start now
+common.errorSummary.label=This page has errors
+common.err.postcode.required=Please enter a valid postcode
+common.home=Home
+common.signInOut=Sign in/out
+common.feedbackFirst=This is a new service - your
+common.feedbackSecond=feedback
+common.feedbackLinkText=feedback
+common.feedbackThird=will help us to improve it.
+common.day=Day
+common.month=Month
+common.year=Year
+common.dateMessage=Enter the date in format dd mm yyyy
+common.dateExample=For example,
+common.button.ConfirmAndContinue=Confirm and continue
+
+#Welcome page
+page.reg.welcome.title=Register a limited company
+page.reg.welcome.heading=Register a limited company
+page.reg.welcome.description.one=Use this service to:
+page.reg.welcome.bullet.inc=register a limited company with Companies House
+page.reg.welcome.bullet.ct=register for Corporation Tax with HM Revenue and Customs (HMRC)
+page.reg.welcome.bullet.inc_ct=set up a limited company and register it for Corporation Tax
+page.reg.welcome.bullet.paye=register as an employer for PAYE
+page.reg.welcome.heading.beforeyoubegin=Register a limited company and set up Corporation Tax
+page.reg.welcome.yourapp=Your application:
+page.reg.welcome.bullet.30-mins=shouldn''t take more than 30 minutes to complete
+page.reg.welcome.bullet.one-go=doesn''t have to be done in one go - you can save your details and finish it later
+page.reg.welcome.bullet.90-days=must be completed within 90 days of starting - any information you''ve entered won''t be saved after that time
+page.reg.welcome.cost=It costs £12 to set up a company. Your information will be shared between Companies House and HMRC during the application process.
+
+#Returning User
+page.reg.returningUser.title=Are you starting a new registration?
+page.reg.returningUser.heading=Are you starting a new registration?
+page.reg.returningUser.radioYesLabel=Yes
+page.reg.returningUser.radioNoLabel=No - I''m continuing with an existing registration
+error.returningUser.required=Tell us if you''re setting up a new limited company
+
+#About you
+page.reg.AboutYou.title=What is your relationship to the company?
+page.reg.AboutYou.heading=What is your relationship to the company?
+page.reg.AboutYou.radio1=Director
+page.reg.AboutYou.radio2=Agent - for example, an accountant
+page.reg.AboutYou.radio3=Other - for example, a friend of the director
+page.reg.AboutYou.radio3.more=Enter your relationship to the company
+error.completionCapacity.required=Tell us your relationship to the company
+
+
+#CreateAccount form
+page.reg.CreateAccount.title=Create an account
+page.reg.CreateAccount.heading=Create an account
+page.reg.CreateAccount.description=Please provide the following information
+page.reg.CreateAccount.forename.label=Forename
+page.reg.CreateAccount.surname.label=Surname
+page.reg.CreateAccount.email.label=Email address
+page.reg.CreateAccount.email.error=Enter a valid email address
+
+#Confirmation
+page.reg.Confirmation.title=Application submitted
+page.reg.Confirmation.heading=Application submitted
+page.reg.Confirmation.you-have=You have:
+page.reg.Confirmation.bullet.ltd=applied to set up a limited company
+page.reg.Confirmation.bullet.inc=applied to be registered for Corporation Tax
+page.reg.Confirmation.bullet.payment=made a payment of
+page.reg.Confirmation.ref-number=reference number
+page.reg.Confirmation.next-steps=What happens next?
+page.reg.Confirmation.next-steps.email=You''ll receive an email within 2 working days letting you know the outcome of your application
+page.reg.Confirmation.next-steps.certificate=If your application is successful, this email will have the company''s registration number and Certificate of Incorporation.
+page.reg.Confirmation.next-steps.security=For security reasons, you''ll get a letter within 15 working days with the company''s Unique Taxpayer Reference (UTR). If the letter asks you to send more information to us, ignore this as we already have it from your online application.
+page.reg.finish.btn=Finish
+page.reg.Confirmation.keep-safe.text=Keep the company''s UTR safe, you''ll need it to file Company Tax Returns.
+page.reg.Confirmation.btn=Your business registration overview
+page.reg.Confirmation.questionnaire.link=What did you think of the service?
+
+#Accounting Dates
+page.reg.accountingDates.title=When will the company start doing business?
+page.reg.accountingDates.heading=When will the company start doing business?
+page.reg.accountingDates.lede1=The company is doing business if it''s earning income or trading with a view to making a profit.
+page.reg.accountingDates.radioOne=The date it''s registered
+page.reg.accountingDates.radioTwo=On a future date
+page.reg.accountingDates.radioThree=Not planning to start yet
+page.reg.accountingDates.date.notFound=Enter a date that''s at least 2 working days in the future (or 3 if it''s after 2pm)
+page.reg.accountingDates.day.notFound=Enter a day
+page.reg.accountingDates.month.notFound=Enter a month
+page.reg.accountingDates.year.notFound=Enter a year
+page.reg.accountingDates.date.future=Enter a date that''s at least 2 working days in the future (or 3 if it''s after 2pm)
+page.reg.accountingDates.date.invalid-date=You have not entered a valid date
+page.reg.accountingDates.date.invalid-day=Enter a valid day
+page.reg.accountingDates.date.invalid-month=Enter a valid month
+page.reg.accountingDates.date.invalid-year=Enter a valid year
+page.reg.accountingDates.warning=As soon as you start doing business you need to let HMRC know.
+page.reg.accountingDates.help=Enter a date that''s at least 2 working days in the future (or 3 if it''s after 2pm)
+error.businessStartDate.required=Tell us when the company will start doing business
+
+
+
+#Prepare Account end Date
+page.reg.prepareAccount.title=Company''s year end
+page.reg.prepareAccount.heading=Do you want to change your company''s year end?
+page.reg.prepareAccount.info=If your company was registered on 5 January 2015 its year end would fall on 31 January 2016. It would then fall on 31 January every following year.
+page.reg.prepareAccount.link=change your company''s year end
+page.reg.prepareAccount.date.end.heading=Your company''s year end date
+
+#Company contact details
+page.reg.company-contact-details.title=Who should we contact about the company''s Corporation Tax?
+page.reg.company-contact-details.heading=Who should we contact about the company''s Corporation Tax?
+page.reg.company-contact-details.description=We may need to get in touch for further information about the company once you''ve completed your registration.
+page.reg.company-contact-details.label-one=Contact name
+page.reg.company-contact-details.label-two=Email address
+page.reg.company-contact-details.label-three=Contact number
+page.reg.company-contact-details.label-four=Other contact number
+page.reg.company-contact-details.validation.chooseOne=Enter at least one of the following contact details
+page.reg.company-contact-details.helpMessage1=Provide at least one of the following contact details.
+#General validation messages
+validation.name=This name is not valid
+validation.name.noSurname=A surname is required
+validation.name.full-stop=Enter a name without using full stops
+validation.maxLength=Maximum length is 300
+validation.email=Enter a valid email address
+validation.emailtoolong=Enter an email address using 70 characters or less
+validation.phone-number=The phone number you have provided is invalid
+validation.mobile-number=The mobile number you have provided is invalid
+validation.postcode=Please enter a valid postcode
+validation.nonEmpty=This field is required
+validation.invalid=Describe your relationship to the company
+
+#Address lookup
+page.reg.addressLookup.warning.maxResults.heading=More than x addresses found
+page.reg.addressLookup.warning.maxResults.body=Enter a house name or number to refine the search
+page.reg.addressLookup.warning.noResults.heading=No addresses found
+page.reg.addressLookup.warning.noResults.body=Change your postcode or enter an address manually
+
+#PPOB
+page.reg.ppob.title=Where will the company carry out most of its business activities?
+page.reg.ppob.heading=Where will the company carry out most of its business activities?
+page.reg.ppob.description-one=This is where the majority of your business activities will be carried out.
+page.reg.ppob.postcode=Postcode
+page.reg.ppob.addressLine1=Address line 1
+page.reg.ppob.addressLine2=Address line 2
+page.reg.ppob.addressLine3=Address line 3
+page.reg.ppob.addressLine4=Address line 4
+page.reg.ppob.manualEntry=A different address
+page.reg.ppob.other=A different address
+page.reg.ppob.lookup=Find your address
+page.reg.ppob.mobileBusiness=For mobile businesses, it''s usually where the company keeps its stock or equipment.
+page.reg.ppob.location=This can be your home, a commercial office, a studio or workshop. You or the company don’t need to own the property.
+error.addressChoice.required=Tell us where you''ll carry out most of your business activities
+
+#TradingDetails
+page.reg.ct61.title=Will the company make or receive any of these types of payments?
+page.reg.ct61.heading=Will the company make or receive any of these types of payments?
+page.reg.ct61.lede=Tell us if your company will:
+page.reg.ct61.bullet1=pay interest on director''s loans
+page.reg.ct61.bullet2=make royalty payments to clients
+page.reg.ct61.bullet3=receive interest on dividends from business investments outside the UK
+page.reg.ct61.whyAsked=Why am I being asked this?
+page.reg.ct61.directorsLoan=What is a director''s loan?
+page.reg.ct61.dL.p1=A director''s loan is when you get money from the company that isn''t:
+page.reg.ct61.dL.bullet1=a salary, dividend or expense repayment
+page.reg.ct61.dL.bullet2=money you''ve previously paid into or loaned the company
+page.reg.ct61.dL.p2=If you loan money to the company and you charge interest, the company must:
+page.reg.ct61.dL.bullet3=pay you the interest less Income Tax at the basic rate of 20%
+page.reg.ct61.dL.bullet4=report and pay the Income Tax every quarter to HMRC
+page.reg.ct61.p1=Certain types of payments need to have Income Tax deducted before they''re made. Any Income Tax collected from these payments then needs to be paid to HMRC.
+page.reg.ct61.p2=HMRC needs to know if you''ll make or receive any of these types of payments so you can complete the right return.
+page.reg.ct61.p3=You must tell HMRC if you start making or receiving any of these types of payments in the future.
+page.reg.ct61.radioNoLabel=No, the company won''t make or receive any of these types of payments
+page.reg.ct61.radioYesLabel=Yes, the company will make or receive at least one of these types of payments
+error.regularPayments.required=Tell us if over the next 3 months, your company will make or receive any of these payments
+
+#Review address
+page.reg.review-address.title=Review and confirm
+page.reg.review-address.heading=Confirm where you''ll carry out most of your business activities
+page.reg.review-address.change=Change address
+
+#Summary Page
+page.reg.summary.header.question=We asked
+page.reg.summary.header.answer=You said
+page.reg.summary.header.change=You can
+page.reg.summary.title=Check and confirm your answers
+page.reg.summary.page=Page 1 of 2
+page.reg.summary.heading=Check and confirm your answers
+page.reg.summary.heading.one=Company details
+page.reg.summary.heading.applicant=Applicant
+page.reg.summary.companyNameText=What is the company name?
+page.reg.summary.companyName.change=the company name
+page.reg.summary.jurisdictionText=Where will the company be registered?
+page.reg.summary.jurisdiction.change=where the company will be registered
+page.reg.summary.applicantText=What is your relationship to the company?
+page.reg.summary.applicant.change=your relationship to the company
+page.reg.summary.ROAddressText=What is the company''s registered office address?
+page.reg.summary.ROAddress.change=the company''s registered office address
+page.reg.summary.PPOBAddressText=Where will the company carry out most of its business activities?
+page.reg.summary.PPOBAddress.change=where the company will carry out most of its business activities
+page.reg.summary.heading.two=Company accounting
+page.reg.summary.startDate=When will you start doing business?
+page.reg.summary.startDate.change=when you will start doing business
+page.reg.summary.accountPrepDate=Accounting period end date
+page.reg.summary.heading.one.b=Company contact
+page.reg.summary.companyContactName=What is the name of the company''s contact for Corporation Tax?
+page.reg.summary.companyContactName.change=the name of the company''s contact for Corporation Tax
+page.reg.summary.companyContactEmail=What is the email address of the company''s contact for Corporation Tax?
+page.reg.summary.companyContactEmail.change=the email address of the company''s contact for Corporation Tax
+page.reg.summary.companyContactDaytimeTelephoneNumber=What is the phone number of the company''s contact for Corporation Tax?
+page.reg.summary.companyContactDaytimeTelephoneNumber.change=the phone number of the company''s contact for Corporation Tax
+page.reg.summary.companycontactMobileNumber=What is the mobile number of the company''s contact for Corporation Tax?
+page.reg.summary.companycontactMobileNumber.change=the mobile number of the company''s contact for Corporation Tax
+page.reg.summary.tradingDetails=Will the company make or receive interest on director''s loans, royalty payments to clients or interest on dividends from business investments outside the UK?
+page.reg.summary.tradingDetails.change=whether the company will make or receive interest on director''s loans, royalty payments to clients or interest on dividends from business investments outside the UK?
+page.reg.summary.notPlanningToStartYet=Not planning to start doing business yet
+page.reg.summary.dateRegistered=The date that I''m registered
+page.reg.summary.PPOBSameAsRO=Registered Office Address
+page.reg.summary.pleaseReview=Please review the information you have provided and then continue
+page.reg.summary.information.indent=Your answers should reflect your current business activities. You''ll need to tell HMRC about any changes to your business in the future.
+#Limit reached
+page.reg.limit-reached.title=Service limit reached
+page.reg.limit-reached.main-title=We''ve reached our maximum number of users for today
+page.reg.limit-reached.para.one=Sorry, we''ve already reached our limit for new users of the service today.
+page.reg.limit-reached.para.two=Please try again tomorrow, or you can use the existing Companies House service to register your company.
+page.reg.limit-reached.link=Register your company on the Companies House website
+
+#Create GGW Account
+page.verification.create-ggw-account.title=Create Government Gateway Account
+page.verification.create-ggw-account.main-title=You''ve signed in with the wrong type of account
+page.verification.create-ggw-account.para.one=This service only works with Government Gateway accounts that have been set up for organisations.
+page.verification.create-ggw-account.para.two=To use this service you''ll need to sign out and log back in as an organisation. If you don''t have an organisation account, you can create one on Government Gateway.
+
+#Create New GGW Account
+page.verification.create-new-ggw-account.title=Create Government Gateway Account
+page.verification.create-new-ggw-account.main-title=You need to create a new Government Gateway account
+page.verification.create-new-ggw-account.para.one=The Government Gateway account you signed in with has already been used to register for other services.
+page.verification.create-new-ggw-account.para.two=If you use this account to register a new limited company it will cancel any existing enrolments you have.
+page.verification.create-new-ggw-account.para.three=You need to create a new account to use this service.
+
+#Feedback page
+page.feedback.title=Feedback
+page.feedback.heading=Send your feedback
+
+#Error page
+error.heading.restart=Something went wrong
+error.message.restart=Sorry, we''re having technical issues.
+error.message.restart-2=Please
+error.message.restart-url=check we''ve recorded your details correctly.
+
+#Email verification
+page.verification.create-new-account.title=You need to create a new Government Gateway account
+page.verification.create-new-account.description.one=The Government Gateway account you signed in with doesn''t have an email address linked to it.
+page.verification.create-new-account.description.two=You need to create a new Government Gateway account including your email address to use this service.
+page.verification.create-new-account.bottomLink=Create a new Government Gateway account
+page.verification.verify-your-email.title=We''ve sent you an email
+page.verification.verify-your-email.description.one=We''ve sent an email to
+page.verification.verify-your-email.description.two=. It contains a link you''ll need to continue your company registration.
+page.verification.verify-your-email.dropdown-title=If you don''t get an email
+page.verification.verify-your-email.dropdown-text1=Check the email address you''ve entered. If it''s wrong you''ll need to
+page.verification.verify-your-email.dropdown-text2=If it''s right, check for the email in your spam folder. If you''re having problems you can ask us to
+page.verification.verify-your-email.dropdown-link=send it again
+page.verification.verify-your-email.dropdown-link2=start again
+page.verification.verify-your-email.dropdown-textend=.
+page.verification.verify-your-email.dropdown-textend2=.
+page.verification.verify-your-email.paragraph2=We''ll send you another email shortly after with a link you can use to access the service in future.
+
+#Questionnaire
+page.reg.questionnaire.title=Send your feedback
+page.reg.questionnaire.q1=Were you able to achieve what you wanted today?
+page.reg.questionnaire.q1.a1=Yes
+page.reg.questionnaire.q1.a2=No
+page.reg.questionnaire.q2=What were you trying to do today?
+page.reg.questionnaire.q2.a1=Register a company
+page.reg.questionnaire.q2.a2=Register as an employer
+page.reg.questionnaire.q2.a3=Both
+page.reg.questionnaire.q3=Overall, how do you feel about the service you used today?
+page.reg.questionnaire.q3.a1=Very satisfied
+page.reg.questionnaire.q3.a2=Satisfied
+page.reg.questionnaire.q3.a3=Neither satisfied nor dissatisfied
+page.reg.questionnaire.q3.a4=Dissatisfied
+page.reg.questionnaire.q3.a5=Very dissatisfied
+page.reg.questionnaire.q4=How well did the service meet your needs?
+page.reg.questionnaire.q5=How likely are you to recommend this service to someone you know?
+page.reg.questionnaire.q5.a1=Very likely
+page.reg.questionnaire.q5.a2=Likely
+page.reg.questionnaire.q5.a3=Not sure
+page.reg.questionnaire.q5.a4=Unlikely
+page.reg.questionnaire.q5.a5=Very unlikely
+page.reg.questionnaire.q6=How could we improve this service?
+page.reg.questionnaire.send=Send feedback
+
+#Incomplete Registration
+page.reg.incompleteReg.heading=Your application isn''t complete yet
+page.reg.incompleteReg.title=Incomplete registration
+page.reg.incompleteReg.description.one=To complete your application you need to sign in again now.
+page.reg.incompleteReg.description.two=We''ll then confirm that we''ve received your application and you''ll get your registration reference numbers.
+page.reg.incompleteReg.warning=You were logged out before you submitted your application.
+
+page.reg.Dashboard.title=Your business registration overview
+page.reg.Dashboard.heading=Company registration overview
+page.reg.Dashboard.incorporation=Incorporation
+page.reg.Dashboard.corporation=Corporation Tax
+page.reg.Dashboard.status=Status:
+page.reg.Dashboard.submissionDate=Submission date:
+page.reg.Dashboard.ref=Reference number:
+page.reg.Dashboard.paymentRef=Payment reference:
+page.reg.Dashboard.crn=Company registration number:
+page.reg.Dashboard.wycd=What you can do:
+
+page.reg.Dashboard.submitted=Pending
+page.reg.Dashboard.pending=Pending
+page.reg.Dashboard.registered=Registered
+page.reg.Dashboard.rejected=Unsuccessful
+
+page.reg.Dashboard.incChangeDetailsPrefix=If you need to change the company''s Incorporation details,
+page.reg.Dashboard.incChangeDetailsLinkText=contact Companies House
+page.reg.Dashboard.incChangeDetailsSuffix=.
+page.reg.Dashboard.incSubmittedLineOne=If your application is successful we''ll send you an email with the company registration number and certificate within 2 working days of the submission date.
+page.reg.Dashboard.CTPendingLineOne=We''ve received your application but can''t process it until we''ve set up the limited company.
+page.reg.Dashboard.CTSubmittedLineOne=If your application is successful we''ll send you:
+page.reg.Dashboard.CTSubmittedLineTwo=a letter with the company''s Unique Taxpayer Reference (UTR) within 15 working days of the submission date
+page.reg.Dashboard.CTSubmittedLineThree=an activation pin for Corporation Tax online within 7 days of being successfully registered for Corporation Tax
+page.reg.Dashboard.CTUnsuccessful=Register using HMRC''s existing service
+page.reg.Dashboard.CTRegistered=We''ve sent you an activation pin in the post. Use this to activate your Corporation Tax enrolment so you can manage Corporation Tax online.
+
+page.reg.Dashboard.PAYE.subHeading=PAYE
+
+page.reg.Dashboard.PAYE.notEligible=Not eligible
+page.reg.Dashboard.PAYE.notEligibleWords=You''re already registered as an employer with this account. You need to set up a new Government Gateway organisation account and
+page.reg.Dashboard.PAYE.notEligibleLink=register using another HMRC service.
+
+page.reg.Dashboard.PAYE.notStarted=Register
+
+page.reg.Dashboard.PAYE.incomplete=Incomplete
+page.reg.Dashboard.PAYE.whatYouCanDo=What you can do:
+page.reg.Dashboard.PAYE.cancelRegistrationLink=Cancel registration
+page.reg.Dashboard.PAYE.continueRegistrationLink=Continue registration
+
+page.reg.Dashboard.PAYE.pendingText=We''ve received your application but can''t process it until we''ve set up your limited company.
+
+
+page.reg.Dashboard.PAYE.employerHelpTextParagraph1=Use this service to register a company if it will do either of the following in the next 2 months:
+page.reg.Dashboard.PAYE.employerHelpTextParagraph2=pay any employees - including company directors - £113 or more a week (this is the same as £490 a month or £5,876 a year)
+page.reg.Dashboard.PAYE.employerHelpTextParagraph3=use subcontractors for construction work
+
+page.reg.Dashboard.PAYE.submitted=Pending
+page.reg.Dashboard.PAYE.submittedParagraph1=It normally takes 5 working days to process your PAYE application. If your application is successful we''ll send you:
+page.reg.Dashboard.PAYE.submittedParagraph2=a letter with your employer reference number and accounts office reference number within 5 working days of the submission date
+page.reg.Dashboard.PAYE.submittedParagraph3=an activation PIN for PAYE Online within 7 days of your registration being successful
+
+page.reg.Dashboard.PAYE.acknowledged=Registered
+
+page.reg.Dashboard.PAYE.unsuccessfulLink=Register again
+page.reg.Dashboard.PAYE.unavailable=Temporarily unavailable
+
+page.reg.Dashboard.VAT.title=VAT
+page.reg.Dashboard.VAT.registerText=Register using another HMRC service
+page.reg.Dashboard.VAT.helpLink=Do you need to register for VAT?
+page.reg.Dashboard.VAT.helpTextParagraph1=You must register if:
+page.reg.Dashboard.VAT.helpTextParagraph2=your taxable sales were over £85,000 at the end of any month in the last year
+page.reg.Dashboard.VAT.helpTextParagraph3=you expect your taxable sales to go over £85,000 in the next 30-day period
+page.reg.Dashboard.VAT.helpTextParagraph4=If you were registered for VAT as a sole trader but have switched to a limited company, you''ll need to register your limited company for VAT if any of the above applies.
+page.reg.Dashboard.VAT.helpTextParagraph5=You can register voluntarily if the company''s annual taxable sales are less than £85,000.
+
+
+
+page.reg.registrationUnsuccessful.title=Company registration unsuccessful
+page.reg.registrationUnsuccessful.heading=Company registration unsuccessful
+page.reg.registrationUnsuccessful.subHeading=What happens next?
+page.reg.registrationUnsuccessful.yourCompany=Your application to register your company was unsuccessful.
+page.reg.registrationUnsuccessful.emailConfirmation=We''ve sent you an email confirming that your application was unsuccessful. If you started to register the company for taxes these applications have been discarded.
+page.reg.registrationUnsuccessful.detailsEntered=Any details you entered during the application haven''t been saved. If you still want to register a company you''ll need to
+page.reg.registrationUnsuccessful.paymentRefund=Any payments will have been refunded within 24 hours. This can take up to 4 days to show on your bank statement.
+
+page.reg.cancelpaye.title=Are you sure you''d like to cancel this PAYE application?
+page.reg.cancelpaye.heading=Are you sure you''d like to cancel this PAYE application?
+page.reg.cancelpaye.warning=All the information you''ve provided will be deleted.
+page.reg.cancelpaye.radioYesLabel=Yes
+page.reg.cancelpaye.radioNoLabel=No

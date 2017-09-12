@@ -1,0 +1,37 @@
+@(field: Field,
+  fieldName : String,
+  questionText : Option[String] = None,
+  helpText : Option[String] = None,
+  radioTextOne : String,
+  radioTextTwo : String,
+  content : Html,
+  inline : Boolean = false)(implicit lang: play.api.i18n.Lang)
+
+@import views.html.helper._
+
+<fieldset class="form-group" data-hidden='hidden'>
+
+    @if(questionText.isDefined) {
+        <legend><span style="display: none">@questionText.get</span></legend>
+    }
+
+    @if(helpText.isDefined) {
+        <span class="form-hint">@helpText.get</span>
+    }
+
+    <div class="@if(inline == true){inline}">
+        <label class="block-label" for='@{fieldName + "-yes"}'>
+            <input id='@{fieldName + "-yes"}' type="radio" name="@fieldName" value="Yes">
+            @radioTextOne
+        </label>
+        <label class="block-label" for='@{fieldName + "-no"}'>
+            <input id='@{fieldName + "-no"}' type="hidden" name="@fieldName" value="No" checked>
+            @radioTextTwo
+        </label>
+
+        <div class="panel panel-indent" id="hidden">
+            @content
+        </div>
+    </div>
+
+</fieldset>

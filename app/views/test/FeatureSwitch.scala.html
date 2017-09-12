@@ -1,0 +1,32 @@
+@import controllers.reg.routes._
+@import uk.gov.hmrc.play.views.html.helpers.{form, inputRadioGroup}
+@import config.FrontendAppConfig
+
+@(featureSwitchForm: Form[models.test.FeatureSwitch])(implicit request: Request[_], lang: Lang, messages: Messages)
+
+@main_template(title = "Feature switch", mainClass = Some("full-width")) {
+
+<div class="grid-row">
+    <div class="column-one-third">
+        <header class="page-header">
+            <h1 class="form-title heading-xlarge" id="main-heading">Feature switch</h1>
+        </header>
+
+        @form(action = controllers.test.routes.TestEndpointController.updateFeatureSwitch()) {
+
+            <h2>First hand off</h2>
+            @inputRadioGroup(
+                featureSwitchForm("firstHandOff"),
+                Seq("true" -> "CoHo", "false" -> "Stub"),
+                '_labelClass -> "block-label radio-label",
+                '_groupClass -> "form-group inline"
+            )
+
+            <div class="form-group">
+                <button class="button btn" role="button" id="next">Submit</button>
+            </div>
+        }
+    </div>
+
+</div>
+}

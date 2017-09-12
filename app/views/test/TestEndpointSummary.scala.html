@@ -1,0 +1,34 @@
+@()(implicit request: Request[_], lang: Lang, messages: Messages)
+
+@main_template(title = "Feature switch", mainClass = Some("full-width")) {
+
+<div class="grid-row">
+    <div class="column-one-third">
+        <header class="page-header">
+            <h1 class="form-title heading-xlarge" id="main-heading">Test Endpoints</h1>
+        </header>
+
+        <div>
+            <a class="button btn" role="button" href="feature-switch">Feature flags</a>
+        </div>
+        <br>
+        <div>
+            <a class="button btn" role="button" href="verify-email/true">Verify email</a>
+        </div>
+        <br>
+        <div>
+            <a class="button btn" role="button" href="get-s4l">Test endpoint</a>
+        </div>
+        <br>
+        <div>
+            <a class="button btn" role="button" href="check-submission-status">Check submission status</a>
+        </div>
+        <br>
+        <div>
+            <a class="button btn" role="button" href="submission-check-trigger">Submission trigger</a>
+        </div>
+
+    </div>
+
+</div>
+}

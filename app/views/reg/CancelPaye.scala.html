@@ -1,0 +1,42 @@
+@import uk.gov.hmrc.play.views.html.helpers.form
+@import uk.gov.hmrc.play.views.html.helpers.inputRadioGroup
+@import uk.gov.hmrc.play.views.html.helpers.input
+@import controllers.CRLanguageController
+@import play.api.Application
+@import models.CancelPayeModel
+
+@(cancelPaye : Form[CancelPayeModel])(implicit request: Request[_], lang: Lang, messages: Messages)
+
+@main_template(title = Messages("page.reg.returningUser.title"), mainClass = None){
+
+<a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
+
+<div class="grid-row">
+    <div class="column-two-thirds">
+        <header class="page-header">
+            <h1 id="main-heading" class="heading-xlarge">@Messages("page.reg.cancelpaye.heading")</h1>
+        </header>
+        <div class="notice">
+            <div class="important-notice">
+                @Messages("page.reg.cancelpaye.warning")<br>
+                <BR>
+            </div>
+        </div>
+        @form(action = controllers.reg.routes.CancelPayeController.submit()) {
+
+        @inputRadioGroup(
+            cancelPaye("cancelPaye"),
+            Seq(("true",Messages("page.reg.cancelpaye.radioYesLabel")),("false",Messages("page.reg.cancelpaye.radioNoLabel"))),
+            '_fieldsetId -> "cancel-paye",
+            '_groupClass -> "form-group inline",
+            '_labelClass -> "block-label radio-label",
+            '_legend -> Messages("page.reg.cancelpaye.heading"),
+            '_legendClass -> "visuallyhidden"
+        )
+        <div class="form-group">
+            <button class="button" type="submit" id="next">@Messages("common.button.save")</button>
+        </div>
+        }
+    </div>
+</div>
+}

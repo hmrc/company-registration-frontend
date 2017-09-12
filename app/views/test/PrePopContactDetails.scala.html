@@ -1,0 +1,19 @@
+@(contactDetails: CompanyContactDetailsMongo)(implicit request: Request[_], lang: Lang, messages: Messages)
+
+@main_template(title = "Feature switch", mainClass = Some("full-width")) {
+
+<div class="grid-row">
+    <div class="column-one-third">
+        <header class="page-header">
+            <h1 class="form-title heading-xlarge" id="main-heading">Pre-pop company contact details</h1>
+        </header>
+    </div>
+
+    <p>first name : <span id="first-name">@contactDetails.contactFirstName</span></p>
+    <p>middle : <span id="middle-name">@contactDetails.contactMiddleName</span></p>
+    <p>surname : <span id="surname">@contactDetails.contactSurname</span></p>
+    <p>telephone number : <span  id="tel-number">@contactDetails.contactDaytimeTelephoneNumber</span></p>
+    <p>mobile number : <span id="mobile-number">@contactDetails.contactMobileNumber</span></p>
+    <p>email : <span id="email">@contactDetails.contactEmail</span></p>
+</div>
+}

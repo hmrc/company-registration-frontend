@@ -1,0 +1,41 @@
+@(status: String, ctData: Seq[String], heldSubmission: Seq[String], ctRecord: String)(implicit request: Request[_], lang: Lang, messages: Messages)
+
+@import controllers.reg.routes._
+@import uk.gov.hmrc.play.views.html.helpers.{form, inputRadioGroup}
+@import config.FrontendAppConfig
+@import play.api.libs.json._
+@import play.twirl.api.Html
+
+@main_template(title = "Feature switch", mainClass = Some("full-width")) {
+
+<div class="grid-row">
+    <div class="column-one-third">
+        <header class="page-header">
+            <h1 class="form-title heading-xlarge" id="main-heading">Submission status</h1>
+        </header>
+    </div>
+
+    <p>Submission status: <span id="submission-status">@status</span></p>
+
+    <h3>CT Data</h3>
+
+    <p id="ct-data">@if(ctData.isEmpty){ All CT data cleared } else {
+            @ctData.map{ str =>
+                @{str + " still exists "}
+                <br>
+            }
+        }
+    </p>
+
+        <p>
+            @{ Html(ctRecord) }
+        </p>
+
+    <h3>Held data</h3>
+
+    <p id="held-data">@{if(heldSubmission.isEmpty){ "All held data cleared" } else { "Held submission still exists" }}</p>
+
+    @{ heldSubmission.map(Html(_)) }
+
+</div>
+}

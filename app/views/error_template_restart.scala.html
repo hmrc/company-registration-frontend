@@ -1,0 +1,17 @@
+@(handOffNumber: String, errorType: String)(implicit request: Request[_], messages: Messages)
+
+@import utils.{DecryptionError, PayloadError}
+
+@pageScripts = {
+    <script type="text/javascript" src=@controllers.routes.Assets.at("javascripts/LoggingService.js")></script>
+}
+
+@main_template(title = "Error", pageScripts = Some(pageScripts), bodyClasses = None) {
+  <h1 class="main-heading">@Messages("error.heading.restart")</h1>
+  <p>@Messages("error.message.restart")</p>
+  <p>@Messages("error.message.restart-2") <a href=@controllers.reg.routes.WelcomeController.show>@Messages("error.message.restart-url")</a></p>
+
+  <div id="errorEvent" class="@handOffNumber">
+      <span id="@errorType"></span>
+  </div>
+}

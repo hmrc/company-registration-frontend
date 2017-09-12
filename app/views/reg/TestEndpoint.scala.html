@@ -1,0 +1,173 @@
+@import controllers.reg.routes._
+@import models._
+@import models.handoff._
+@import uk.gov.hmrc.play.views.html.helpers.{form, input, errorSummary}
+@import config.FrontendAppConfig
+@import controllers.CRLanguageController
+@import play.api.Application
+
+@(accountingDatesForm: Form[AccountingDatesModel],
+  firstHandBackForm: Form[models.handoff.CompanyNameHandOffFormModel],
+  companyContactForm: Form[CompanyContactDetailsMongo],
+  companyDetailsForm: Form[models.CompanyDetails],
+  tradingDetailsForm : Form[TradingDetails],
+  applicantForm : Form[AboutYouChoice])(implicit request: Request[_], lang: Lang, messages: Messages)
+
+@main_template(title = Messages("page.reg.Confirmation.title"), mainClass = Some("full-width")) {
+
+    @errorSummary(
+        Messages("common.errorSummary.label"),
+        applicantForm
+    )
+
+    @form(action = controllers.test.routes.TestEndpointController.postAllS4LEntries) {
+        <h1>Mongo</h1>
+
+        <h2>Applicant</h2>
+        @input(
+            applicantForm("completionCapacity"),
+            '_label -> "Applicant : "
+        )
+
+        <h2>Company details</h2>
+        @input(
+            companyDetailsForm("companyName"),
+            '_label -> "Company name : "
+        )
+
+        <h3>CH RO Address</h3>
+        @input(
+        companyDetailsForm("chROAddress.premises"),
+        '_label -> "Premises : "
+        )
+        @input(
+        companyDetailsForm("chROAddress.address_line_1"),
+        '_label -> "Address line 1 : "
+        )
+        @input(
+        companyDetailsForm("chROAddress.address_line_2"),
+        '_label -> "Address line 2 : "
+        )
+        @input(
+        companyDetailsForm("chROAddress.country"),
+        '_label -> "Country : "
+        )
+        @input(
+        companyDetailsForm("chROAddress.locality"),
+        '_label -> "Locality : "
+        )
+        @input(
+        companyDetailsForm("chROAddress.po_box"),
+        '_label -> "PO box : "
+        )
+        @input(
+        companyDetailsForm("chROAddress.postal_code"),
+        '_label -> "Post code : "
+        )
+        @input(
+        companyDetailsForm("chROAddress.region"),
+        '_label -> "Region : "
+        )
+
+        <h2>Jurisdiction</h2>
+        @input(
+        companyDetailsForm("jurisdiction"),
+        '_label -> "Jurisdiction : "
+        )
+
+        <h3>PPOB Address</h3>
+        @input(
+            companyDetailsForm("pPOBAddress.type"),
+            '_label -> "Type : "
+        )
+        @input(
+        companyDetailsForm("pPOBAddress.address.houseNameNumber"),
+        '_label -> "House Name Number : "
+        )
+        @input(
+        companyDetailsForm("pPOBAddress.address.addressLine1"),
+        '_label -> "Address line 1 : "
+        )
+        @input(
+        companyDetailsForm("pPOBAddress.address.addressLine2"),
+        '_label -> "Address line 2 : "
+        )
+        @input(
+        companyDetailsForm("pPOBAddress.address.addressLine3"),
+        '_label -> "Address line 3 : "
+        )
+        @input(
+            companyDetailsForm("pPOBAddress.address.addressLine4"),
+            '_label -> "Address line 4 : "
+        )
+        @input(
+            companyDetailsForm("pPOBAddress.address.postCode"),
+            '_label -> "Postcode : "
+        )
+        @input(
+            companyDetailsForm("pPOBAddress.address.country"),
+            '_label -> "Country : "
+        )
+
+        <h3>Company contact details </h3>
+        @input(
+            companyContactForm("contactFirstName"),
+            '_label -> "Contact name : "
+        )
+        @input(
+            companyContactForm("contactMiddleName"),
+            '_label -> "Contact name : "
+        )
+        @input(
+            companyContactForm("contactLastName"),
+            '_label -> "Contact name : "
+        )
+        @input(
+            companyContactForm("contactEmail"),
+            '_label -> "Contact email : "
+        )
+        @input(
+            companyContactForm("contactDaytimeTelephoneNumber"),
+            '_label -> "Contact daytime phone number : "
+        )
+        @input(
+            companyContactForm("contactMobileNumber"),
+            '_label -> "Contact mobile number : "
+        )
+
+        <h3>Accounting dates</h3>
+        @input(
+            accountingDatesForm("businessStartDate"),
+            '_label -> "Business start date : "
+        )
+        @input(
+            accountingDatesForm("businessStartDate-futureDate.day"),
+            '_label -> "Accounting Dates : ",
+            '_labelClass -> "inline-block",
+            '_inputClass -> "input--xxsmall"
+        )
+        @input(
+            accountingDatesForm("businessStartDate-futureDate.month"),
+            '_labelClass -> "inline-block",
+            '_inputClass -> "input--xxsmall"
+        )
+        @input(
+            accountingDatesForm("businessStartDate-futureDate.year"),
+            '_labelClass -> "inline-block",
+            '_inputClass -> "input--small"
+        )
+
+        <h3>Trading details </h3>
+        @input(
+            tradingDetailsForm("regularPayments"),
+            '_label -> "Regular payment choice : "
+        )
+
+        <br>
+
+        <div class="form-group">
+            <button class="btn button" id="next">@Messages("common.button.snc")</button>
+        </div>
+    }
+
+}

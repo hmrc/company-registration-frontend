@@ -1,0 +1,21 @@
+@import models._
+@import uk.gov.hmrc.play.views.html.helpers.{form, input}
+@import controllers.CRLanguageController
+@import play.api.Application
+
+@(submissionForm: Form[SubmissionModel])(implicit request: Request[_], lang: Lang, messages: Messages)
+
+@main_template(title = Messages(""), mainClass = Some("full-width")) {
+
+    @form(action = controllers.test.routes.SubmissionEndpointController.getAllS4LEntries) {
+        <h2>Submission</h2>
+        @input(
+            submissionForm("submissionStatus"),
+            '_label -> "Submission Status : "
+        )
+        @input(
+            submissionForm("submissionRef"),
+            '_label -> "Submission reference number : "
+        )
+    }
+}

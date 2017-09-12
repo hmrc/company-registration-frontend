@@ -1,0 +1,73 @@
+@import models.CompanyContactViewModel
+@import uk.gov.hmrc.play.views.html.helpers.{form, errorInline}
+@import views.html.helpers.{errorSummary, input}
+@import controllers.CRLanguageController
+@import play.api.Application
+
+@(contactDetails: Form[CompanyContactViewModel])(implicit request: Request[_], messages: Messages, lang: Lang)
+
+@fieldSetClasses =  @{if(contactDetails.hasErrors && (contactDetails.errors.exists(_.args.nonEmpty))) "form-group-error" else "" }
+
+@main_template(title = Messages("page.reg.company-contact-details.title"), bodyClasses=None) {
+
+    <a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
+
+    @errorSummary(
+        Messages("common.errorSummary.label"),
+        contactDetails,
+        Seq("chooseOne")
+    )
+
+    <h1 class="form-title heading-xlarge" id="main-heading">@Messages("page.reg.company-contact-details.heading")</h1>
+
+    @form(action = controllers.reg.routes.CompanyContactDetailsController.submit()) {
+
+    <div class ="form-field">
+        @input(
+            contactDetails("contactName"),
+            '_label -> Messages("page.reg.company-contact-details.label-one"),
+            '_labelDataAttributes -> "id=contactNameLabel",
+            '_inputClass -> "form-control form-control--block"
+        )
+    </div>
+        <div class="indent">
+            <p id="helpMessage1">@Messages("page.reg.company-contact-details.helpMessage1")</p>
+        </div>
+        <fieldset id="chooseOne" class="form-group @fieldSetClasses">
+
+            @{if(contactDetails.errors.exists(_.args.nonEmpty)){
+                errorInline("chooseOne", Messages("page.reg.company-contact-details.validation.chooseOne"))
+            }}
+            <div class ="form-field">
+                @input(
+                    contactDetails("contactEmail"),
+                    '_label -> Messages("page.reg.company-contact-details.label-two"),
+                    '_labelDataAttributes -> "id=contactEmailLabel",
+                    '_inputClass -> "form-control form-control--block"
+                )
+            </div>
+            <div class ="form-field">
+                @input(
+                    contactDetails("contactDaytimeTelephoneNumber"),
+                    '_label -> Messages("page.reg.company-contact-details.label-three"),
+                    '_labelDataAttributes -> "id=contactDaytimePhoneLabel",
+                    '_inputClass -> "form-control form-control--block"
+                )
+            </div>
+            <div class ="form-field">
+                @input(
+                    contactDetails("contactMobileNumber"),
+                    '_label -> Messages("page.reg.company-contact-details.label-four"),
+                    '_labelDataAttributes -> "id=contactMobileLabel",
+                    '_inputClass -> "form-control form-control--block"
+                )
+            </div>
+        </fieldset>
+
+        <br>
+        <div class="form-group">
+            <button class="btn button" id="next">@Messages("common.button.snc")</button>
+        </div>
+    }
+
+}

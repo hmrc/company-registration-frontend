@@ -1,0 +1,28 @@
+@()(implicit request: Request[_], lang: Lang, messages: Messages)
+
+@import uk.gov.hmrc.play.views.html.helpers.form
+
+@main_template(title = Messages("page.verification.create-new-account.title"), mainClass = None) {
+
+<a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
+
+<div class="grid-row">
+    <div class="column-one-third">
+        <header class="page-header">
+            <h1 class="form-title heading-xlarge" id="main-heading">@Messages("page.verification.create-new-account.title")</h1>
+        </header>
+        <div class="form-group">
+            <p id="description-one">@Messages("page.verification.create-new-account.description.one")</p>
+        </div>
+        <div class="form-group">
+            <p id="description-two">@Messages("page.verification.create-new-account.description.two")</p>
+        </div>
+        @form(action = controllers.verification.routes.EmailVerificationController.createSubmit()) {
+        <div class="form-group">
+            <button class="button button--link">@Messages("page.verification.create-new-account.bottomLink")</button>
+        </div>
+        }
+    </div>
+
+</div>
+}

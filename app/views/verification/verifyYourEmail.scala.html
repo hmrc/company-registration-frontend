@@ -1,0 +1,27 @@
+@(email: String)(implicit request: Request[_], lang: Lang, messages: Messages)
+
+@import uk.gov.hmrc.play.views.html.helpers.form
+
+@main_template(title = Messages("page.verification.verify-your-email.title"), mainClass = None) {
+
+<a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
+
+<div class="grid-row">
+    <div class="column-one-third">
+        <header class="page-header">
+            <h1 class="form-title heading-xlarge" id="main-heading">@Messages("page.verification.verify-your-email.title")</h1>
+        </header>
+
+        <div class="form-group">
+            <p id="description-one">@Messages("page.verification.verify-your-email.description.one") @email@Messages("page.verification.verify-your-email.description.two")</p>
+            <p id="paragraph2">@Messages("page.verification.verify-your-email.paragraph2")</p>
+        </div>
+
+        <details>
+            <summary class="summary">@Messages("page.verification.verify-your-email.dropdown-title")</summary>
+            <p class="panel-indent panel-indent--gutter">@Messages("page.verification.verify-your-email.dropdown-text1") <a href="@controllers.verification.routes.EmailVerificationController.startAgain">@Messages("page.verification.verify-your-email.dropdown-link2")</a>@Messages("page.verification.verify-your-email.dropdown-textend") @Messages("page.verification.verify-your-email.dropdown-text2") <a href="@controllers.reg.routes.SignInOutController.postSignIn(Some(true))"> @Messages("page.verification.verify-your-email.dropdown-link")</a>@Messages("page.verification.verify-your-email.dropdown-textend")</p>
+        </details>
+    </div>
+
+</div>
+}

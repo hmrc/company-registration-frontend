@@ -1,0 +1,70 @@
+@import controllers.reg.routes._
+@import uk.gov.hmrc.play.views.html.helpers.form
+@import views.html.helpers.{inputRadioGroupHidden, dateFieldsFreeInline, errorSummary}
+@import scala.collection.immutable.Seq
+@import controllers.CRLanguageController
+@import play.api.Application
+
+@(accountingDatesForm : Form[AccountingDatesModel], date: String)(implicit request: Request[_], messages: Messages, lang: Lang)
+
+@hiddenContent = {
+    <span class="form-hint">@Messages("page.reg.accountingDates.help")</span>
+    <span class="form-hint">@Messages("common.dateExample") @date</span>
+    @dateFieldsFreeInline(
+        accountingDatesForm,
+        "businessStartDate-futureDate",
+        Seq("notFuture", "dateNotFoundDay","dateNotFoundMonth","dateNotFoundYear","invalidDay","invalidMonth","invalidYear","invalidDate")
+    )
+}
+
+@notPlanningToYetHiddenContent = {
+    <!--<br>-->
+    <div class="notice">
+       <div class="important-notice">
+           @Messages("page.reg.accountingDates.warning")
+           <!--<BR>-->
+       </div>
+    </div>
+}
+
+@main_template(title = Messages("page.reg.accountingDates.title"), bodyClasses=None) {
+
+<a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
+
+<div class="grid-row">
+        @errorSummary(
+            Messages("common.errorSummary.label"),
+            accountingDatesForm,
+            Seq("notFuture", "dateNotFoundDay","dateNotFoundMonth","dateNotFoundYear","invalidDay","invalidMonth","invalidYear","invalidDate")
+        )
+
+        <header class="page-header">
+            <h1 class="form-title heading-xlarge" id="main-heading">@Messages("page.reg.accountingDates.heading")</h1>
+        </header>
+        <div class ="form-group">
+            <p class="lede">@Messages("page.reg.accountingDates.lede1")</p>
+        </div>
+
+        @form(action = AccountingDatesController.submit()) {
+            @inputRadioGroupHidden(
+                accountingDatesForm("businessStartDate"),
+                Seq("whenRegistered" -> Messages("page.reg.accountingDates.radioOne"),
+                    "futureDate" -> Messages("page.reg.accountingDates.radioTwo"),
+                    "notPlanningToYet" -> Messages("page.reg.accountingDates.radioThree")),
+                Seq("futureDate" -> hiddenContent,
+                    "notPlanningToYet" -> notPlanningToYetHiddenContent),
+                '_idHidden -> "startBusinessDate",
+                '_classHidden -> "panel panel-indent",
+                '_labelClass -> "block-label radio-label",
+                '_legend -> Messages("page.reg.accountingDates.heading"),
+                '_legendClass -> "visuallyhidden"
+            )
+
+            <br>
+
+            <div class="form-group">
+                <button class="btn button" id="next">@Messages("common.button.snc")</button>
+            </div>
+        }
+</div>
+}
