@@ -24,7 +24,7 @@ This service is written in [Scala](http://www.scala-lang.org/) and [Play](http:/
 
 ## Run the application.
 
-To run the application execute
+To run the application execute:
 
 ```
 sbt 'run 9970' 
@@ -38,7 +38,7 @@ sbt 'run 9973'
 
 ## Test the application
 
-To test the application execute
+To test the application execute:
 
 ```
 sbt test
@@ -54,3 +54,4 @@ This code is open source software licensed under the [Apache 2.0 License]("http:
 [API]: https://en.wikipedia.org/wiki/Application_programming_interface
 [URL]: https://en.wikipedia.org/wiki/Uniform_Resource_Locator
 [JSON]: http://json.org/
+
