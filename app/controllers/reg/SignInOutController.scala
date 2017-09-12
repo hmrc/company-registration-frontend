@@ -65,7 +65,7 @@ trait SignInOutController extends FrontendController with Actions with Controlle
         implicit request =>
           hasOrgAffinity {
             hasFootprint { response =>
-              whenMissingConfirmationReferences(response) {
+              whenRegistrationIsDraft(response) {
                 checkHO5Progress(response) {
                   processDeferredHandoff(handOffID, payload, response) {
                     hasNoEnrolments {
@@ -93,15 +93,16 @@ trait SignInOutController extends FrontendController with Actions with Controlle
           }
   }
 
-  private def whenMissingConfirmationReferences(throttleResponse: ThrottleResponse)(f: => Future[Result])
-                                               (implicit hc : HeaderCarrier, user : AuthContext, req: Request[_]) : Future[Result] = {
-    compRegConnector.fetchConfirmationReferences(throttleResponse.registrationId) flatMap {
-        case ConfirmationReferencesSuccessResponse(refs) =>
-          handOffService.cacheRegistrationID(throttleResponse.registrationId) map {
-            _ => Redirect(routes.DashboardController.show())
-          }
-        case ConfirmationReferencesNotFoundResponse => f
-        case _ => Future.successful(InternalServerError(defaultErrorPage))
+  private def whenRegistrationIsDraft(throttleResponse: ThrottleResponse)(f: => Future[Result])
+                                     (implicit hc : HeaderCarrier, user : AuthContext, req: Request[_]) : Future[Result] = {
+    compRegConnector.fetchRegistrationStatus(throttleResponse.registrationId) flatMap {
+      case Some("draft") => f
+      case Some(_) => handOffService.cacheRegistrationID(throttleResponse.registrationId) map {
+        _ => Redirect(routes.DashboardController.show())
+      }
+      case _ => f
+    } recover {
+      case _: Exception => InternalServerError(defaultErrorPage)
     }
   }
 

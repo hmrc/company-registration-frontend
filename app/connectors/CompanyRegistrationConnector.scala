@@ -45,6 +45,14 @@ trait CompanyRegistrationConnector {
   val companyRegUrl: String
   val http: HttpGet with HttpPut with HttpPost with HttpDelete
 
+  def fetchRegistrationStatus(regId: String)(implicit hc: HeaderCarrier): Future[Option[String]] = {
+    retrieveCorporationTaxRegistration(regId) map {
+      json => (json \ "status").asOpt[String]
+    } recover {
+      case _: NotFoundException => None
+    }
+  }
+
   def retrieveCorporationTaxRegistration(registrationID: String)(implicit hc: HeaderCarrier): Future[JsValue] = {
     http.GET[JsValue](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/corporation-tax-registration") recover {
         case ex: BadRequestException =>

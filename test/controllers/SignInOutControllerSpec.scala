@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package controllers.reg
+package controllers
 
 import builders.AuthBuilder
 import connectors._
+import controllers.reg.SignInOutController
 import fixtures._
 import helpers.SCRSSpec
 import mocks.MetricServiceMock
@@ -82,8 +83,8 @@ class SignInOutControllerSpec extends SCRSSpec
       when(mockEmailService.sendWelcomeEmail(Matchers.any(),Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(Some(true)))
 
-      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(Matchers.eq("12345"))(Matchers.any()))
-        .thenReturn(Future.successful(ConfirmationReferencesNotFoundResponse))
+      when(mockCompanyRegistrationConnector.fetchRegistrationStatus(Matchers.any())(Matchers.any()))
+        .thenReturn(Future.successful(None))
 
       when(mockHandOffService.cacheRegistrationID(Matchers.eq(registrationID))(Matchers.any()))
         .thenReturn(Future.successful(cacheMap))
@@ -104,8 +105,8 @@ class SignInOutControllerSpec extends SCRSSpec
       when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(Matchers.any()))
         .thenReturn(Future.successful(FootprintFound(expected)))
 
-      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(Matchers.eq("12345"))(Matchers.any()))
-        .thenReturn(Future.successful(ConfirmationReferencesNotFoundResponse))
+      when(mockCompanyRegistrationConnector.fetchRegistrationStatus(Matchers.any())(Matchers.any()))
+        .thenReturn(Future.successful(None))
 
       when(mockHandOffService.cacheRegistrationID(Matchers.eq(registrationID))(Matchers.any()))
         .thenReturn(Future.successful(cacheMap))
@@ -127,8 +128,8 @@ class SignInOutControllerSpec extends SCRSSpec
       when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(Matchers.any()))
         .thenReturn(Future.successful(FootprintFound(expected)))
 
-      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(Matchers.eq("12345"))(Matchers.any()))
-        .thenReturn(Future.successful(ConfirmationReferencesNotFoundResponse))
+      when(mockCompanyRegistrationConnector.fetchRegistrationStatus(Matchers.any())(Matchers.any()))
+        .thenReturn(Future.successful(None))
 
       when(mockHandOffService.cacheRegistrationID(Matchers.eq(registrationID))(Matchers.any()))
         .thenReturn(Future.successful(cacheMap))
@@ -153,8 +154,8 @@ class SignInOutControllerSpec extends SCRSSpec
       when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(Matchers.any()))
         .thenReturn(Future.successful(FootprintFound(expected)))
 
-      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(Matchers.eq("12345"))(Matchers.any()))
-        .thenReturn(Future.successful(ConfirmationReferencesSuccessResponse(ConfirmationReferences("transact","ref","amount", "ack"))))
+      when(mockCompanyRegistrationConnector.fetchRegistrationStatus(Matchers.any())(Matchers.any()))
+        .thenReturn(Future.successful(Some("held")))
 
       when(mockHandOffService.cacheRegistrationID(Matchers.eq(registrationID))(Matchers.any()))
         .thenReturn(Future.successful(cacheMap))
@@ -181,8 +182,8 @@ class SignInOutControllerSpec extends SCRSSpec
       when(mockEmailService.isVerified(Matchers.any(),Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful((Some(true), Some("String"))))
 
-      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(Matchers.eq("12345"))(Matchers.any()))
-        .thenReturn(Future.successful(ConfirmationReferencesNotFoundResponse))
+      when(mockCompanyRegistrationConnector.fetchRegistrationStatus(Matchers.any())(Matchers.any()))
+        .thenReturn(Future.successful(None))
 
       when(mockHandOffService.cacheRegistrationID(Matchers.eq(registrationID))(Matchers.any()))
         .thenReturn(Future.successful(cacheMap))

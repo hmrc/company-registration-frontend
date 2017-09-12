@@ -24,8 +24,9 @@ import fixtures._
 import helpers.SCRSSpec
 import models.connectors.ConfirmationReferences
 import org.mockito.Matchers
+import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito._
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.{JsObject, JsValue, Json}
 import uk.gov.hmrc.play.http._
 import play.api.http.Status._
 
@@ -718,6 +719,40 @@ class CompanyRegistrationConnectorSpec extends SCRSSpec with CTDataFixture with 
         .thenReturn(Future.failed(new BadRequestException("400")))
 
       await(connector.retrieveEmail(registrationId)) shouldBe None
+    }
+  }
+
+  "fetchRegistrationStatus" should {
+
+    val testStatus = "testStatus"
+    val registration = buildCorporationTaxModel(status = testStatus)
+    val registrationNoStatus = buildCorporationTaxModel().as[JsObject] - "status"
+
+    "return the status from the fetched registration" in new Setup {
+      when(mockWSHttp.GET[JsValue](any())(any(), any()))
+        .thenReturn(Future.successful(registration))
+
+      val result: Option[String] = await(connector.fetchRegistrationStatus(regID))
+
+      result shouldBe Some(testStatus)
+    }
+
+    "return None when a registration document doesn't exist" in new Setup {
+      when(mockWSHttp.GET[JsValue](any())(any(), any()))
+        .thenReturn(Future.failed(new NotFoundException("")))
+
+      val result: Option[String] = await(connector.fetchRegistrationStatus(regID))
+
+      result shouldBe None
+    }
+
+    "return None when a registration document exists but doesn't contain a status" in new Setup {
+      when(mockWSHttp.GET[JsValue](any())(any(), any()))
+        .thenReturn(Future.successful(registrationNoStatus))
+
+      val result: Option[String] = await(connector.fetchRegistrationStatus(regID))
+
+      result shouldBe None
     }
   }
 }
