@@ -403,3 +403,9 @@ errorPages.retrySubmission.title                        = We couldn''t process y
 errorPages.retrySubmission.p1                           = Sorry, there is a technical problem and we couldn''t process your application. Any details you entered have been saved.
 errorPages.retrySubmission.p2                           = Please resend your application.
 errorPages.retrySubmission.button                       = Resend
+
+## Deskpro Submitted
+errorPages.deskproSubmitted.title                        = Thank you
+errorPages.deskproSubmitted.heading                      = Thank you
+errorPages.deskproSubmitted.p1                           = Your submission has been received.
+errorPages.deskproSubmitted.p2                           = We''ll be in touch as soon as we can to help you complete your application.
