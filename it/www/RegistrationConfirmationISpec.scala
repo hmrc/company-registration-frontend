@@ -21,27 +21,27 @@ import java.util.UUID
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, stubFor, urlMatching}
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import itutil.{FakeAppConfig, IntegrationSpecBase, LoginStub, WiremockHelper}
+import models.RegistrationConfirmationPayload
 import models.connectors.ConfirmationReferences
 import org.jsoup.Jsoup
 import play.api.http.HeaderNames
+import play.api.libs.json.Json
 import play.api.libs.ws.WS
 import play.api.test.FakeApplication
+import utils.Jwe
 
 class RegistrationConfirmationISpec extends IntegrationSpecBase with LoginStub with FakeAppConfig {
 
   val mockHost = WiremockHelper.wiremockHost
   val mockPort = WiremockHelper.wiremockPort
+  val testkey = "Fak3-t0K3n-f0r-pUBLic-r3p0SiT0rY"
 
-  override implicit lazy val app = FakeApplication(additionalConfiguration = fakeConfig())
+  override implicit lazy val app = FakeApplication(additionalConfiguration = fakeConfig("microservice.services.JWE.key" -> testkey))
 
   private def client(path: String) = ws.url(s"http://localhost:$port/register-your-company$path").withFollowRedirects(false)
 
   val userId = "/bar/foo"
-  val confirmationEncryptedRequest = "/registration-confirmation?request=eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..fc5Rl2" +
-    "24BB_ZZRSTNXefWw.5FT1fmnDh6ptqlxo0D7oaMiAGOT35bt-RNf5HwyDDkLofd6JSNONcPR-O-nbOE43qrtIM40C6RZfF2oQwh4KcImvdzbSRa" +
-    "cXDwxN-nTX-ULYFRuKTzKCpsojNsPv-kEe4SVBzFGB77z6fQ_zKKvp4355sG-wnVK2aQNzXy9Pe5n6SCK2bnKxsLPxEDkhfZvbaceUHs3FwzxTi" +
-    "MKiTlVaURcGJjHn-2pWJdrfNpEfO-iCqfbl-JYNcgi4-z05QJ1ZqGB70ILwL07EdhNJR1vZD8OHLBKMc7eaUS_N8GRLbN9uAEovT8M6LK-R4mAn" +
-    "277sGmXe0fv2nzLcUpHHPfu6VeQZftX7JltrbhoJy7TyYeZSMhw7aUboUcxeVcMcRkMz.B7YzOSxg0DJE4bWbQi3Y2A"
+  def confirmationEncryptedRequest(encrypted : String) = s"/registration-confirmation?request=$encrypted"
 
   def setupSimpleAuthMocks(): StubMapping = {
     stubPost("/write/audit", 200, """{"x":2}""")
@@ -76,6 +76,21 @@ class RegistrationConfirmationISpec extends IntegrationSpecBase with LoginStub w
 
   "HO6" should {
 
+    val transID = "1551551"
+    val paymentRef = "TEST-PAYMENTREF"
+    val paymentAmount = "12"
+
+    lazy val encryptedPayload = Jwe.encrypt(RegistrationConfirmationPayload(
+      userId,
+      "journeyid",
+      transID,
+      paymentRef,
+      paymentAmount,
+      Json.obj(),
+      Json.obj(),
+      Json.obj()
+    ))
+
     "Return a redirect to a new page when not authenticated" in {
       val response = await(client("/registration-confirmation?request=xxx").get())
 
@@ -93,16 +108,19 @@ class RegistrationConfirmationISpec extends IntegrationSpecBase with LoginStub w
       stubKeystore(SessionId, "5")
 
       val crResponse =
-        """
+        s"""
           |{
           |"acknowledgement-reference" : "TEST-ACKREF",
-          |"payment-reference" : "TEST-PAYMENTREF",
-          |"payment-amount": "12",
-          |"transaction-id" : "1551551"
+          |"payment-reference" : "$paymentRef",
+          |"payment-amount": "$paymentAmount",
+          |"transaction-id" : "$transID"
           |}""".stripMargin
       stubPut("/company-registration/corporation-tax-registration/5/confirmation-references", 200, crResponse)
 
-      val fResponse = client(confirmationEncryptedRequest).
+      println(System.getProperty("microservice.services.JWE.key"))
+      println("============================ " + app.configuration.getString("microservice.services.JWE.key"))
+
+      val fResponse = client(confirmationEncryptedRequest(encryptedPayload.get)).
         withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").
         get()
 
@@ -121,7 +139,7 @@ class RegistrationConfirmationISpec extends IntegrationSpecBase with LoginStub w
       stubKeystore(SessionId, "5")
       stubPut("/company-registration/corporation-tax-registration/5/confirmation-references", 502, "")
 
-      val fResponse = client(confirmationEncryptedRequest).
+      val fResponse = client(confirmationEncryptedRequest(encryptedPayload.get)).
         withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").
         get()
 
@@ -140,7 +158,7 @@ class RegistrationConfirmationISpec extends IntegrationSpecBase with LoginStub w
       stubKeystore(SessionId, "5")
       stubPut("/company-registration/corporation-tax-registration/5/confirmation-references", 403, "")
 
-      val fResponse = client(confirmationEncryptedRequest).
+      val fResponse = client(confirmationEncryptedRequest(encryptedPayload.get)).
         withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").
         get()
 
