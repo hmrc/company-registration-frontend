@@ -117,9 +117,6 @@ class RegistrationConfirmationISpec extends IntegrationSpecBase with LoginStub w
           |}""".stripMargin
       stubPut("/company-registration/corporation-tax-registration/5/confirmation-references", 200, crResponse)
 
-      println(System.getProperty("microservice.services.JWE.key"))
-      println("============================ " + app.configuration.getString("microservice.services.JWE.key"))
-
       val fResponse = client(confirmationEncryptedRequest(encryptedPayload.get)).
         withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").
         get()
