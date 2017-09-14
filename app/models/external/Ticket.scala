@@ -14,16 +14,22 @@
  * limitations under the License.
  */
 
-package controllers.reg
+package models.external
 
-import play.api.i18n.Messages
-import play.api.mvc.Request
+import play.api.libs.json.Json
 
-trait ControllerErrorHandler {
+case class Ticket (name: String,
+                   email: String,
+                   subject: String,
+                   message: String,
+                   referrer: String,
+                   javascriptEnabled: String,
+                   userAgent: String,
+                   authId: String,
+                   areaOfTax: String,
+                   sessionId: String,
+                   service: String)
 
-  def defaultErrorPage(implicit request: Request[_], message: Messages) = views.html.error_template(
-    Messages("global.error.title"),
-    Messages("global.error.heading"),
-    Messages("global.error.message")
-  )
+object Ticket {
+  implicit val format = Json.format[Ticket]
 }

@@ -24,8 +24,9 @@ import fixtures._
 import helpers.SCRSSpec
 import models.connectors.ConfirmationReferences
 import org.mockito.Matchers
+import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito._
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.{JsObject, JsValue, Json}
 import uk.gov.hmrc.play.http._
 import play.api.http.Status._
 
@@ -391,35 +392,23 @@ class CompanyRegistrationConnectorSpec extends SCRSSpec with CTDataFixture with 
       mockHttpPUT[JsValue, ConfirmationReferences]("testUrl", validConfirmationReferences)
       await(connector.updateReferences("12345", validConfirmationReferences)) shouldBe ConfirmationReferencesSuccessResponse(validConfirmationReferences)
     }
-    "return a 400" in new Setup {
-      when(mockWSHttp.PUT[JsValue, ConfirmationReferences](Matchers.anyString(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[HeaderCarrier]()))
-        .thenReturn(Future.failed(new BadRequestException("400")))
-
-      await(connector.updateReferences("12345", validConfirmationReferences)) shouldBe ConfirmationReferencesBadRequestResponse
-    }
-    "return a 404" in new Setup {
-      when(mockWSHttp.PUT[JsValue, ConfirmationReferences](Matchers.anyString(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[HeaderCarrier]()))
-        .thenReturn(Future.failed(new NotFoundException("404")))
-
-      await(connector.updateReferences("12345", validConfirmationReferences)) shouldBe ConfirmationReferencesNotFoundResponse
-    }
-    "return a 4xx" in new Setup {
+    "return a 4xx as a DESFailureDeskpro response" in new Setup {
       when(mockWSHttp.PUT[JsValue, ConfirmationReferences](Matchers.anyString(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[HeaderCarrier]()))
         .thenReturn(Future.failed(Upstream4xxResponse("429", 429, 429)))
 
-      await(connector.updateReferences("12345", validConfirmationReferences)) shouldBe ConfirmationReferencesErrorResponse
+      await(connector.updateReferences("12345", validConfirmationReferences)) shouldBe DESFailureDeskpro
     }
-    "return a 5xx" in new Setup {
+    "return a 5xx as retriable DESFailure response" in new Setup {
       when(mockWSHttp.PUT[JsValue, ConfirmationReferences](Matchers.anyString(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[HeaderCarrier]()))
         .thenReturn(Future.failed(Upstream5xxResponse("500", 500, 500)))
 
-      await(connector.updateReferences("12345", validConfirmationReferences)) shouldBe ConfirmationReferencesErrorResponse
+      await(connector.updateReferences("12345", validConfirmationReferences)) shouldBe DESFailureRetriable
     }
-    "return any other exception" in new Setup {
+    "return any other exception as DESFailureDeskpro response" in new Setup {
       when(mockWSHttp.PUT[JsValue, ConfirmationReferences](Matchers.anyString(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[HeaderCarrier]()))
         .thenReturn(Future.failed(new NullPointerException))
 
-      await(connector.updateReferences("12345", validConfirmationReferences)) shouldBe ConfirmationReferencesErrorResponse
+      await(connector.updateReferences("12345", validConfirmationReferences)) shouldBe DESFailureDeskpro
     }
   }
 
@@ -541,6 +530,7 @@ class CompanyRegistrationConnectorSpec extends SCRSSpec with CTDataFixture with 
   }
 
   "fetchAcknowledgementReference" should {
+
     "return a succcess response when an Ack ref is found" in new Setup {
       mockHttpGet("testUrl", ConfirmationReferences("a", "b", "c", "BRCT00000000123"))
 
@@ -729,6 +719,40 @@ class CompanyRegistrationConnectorSpec extends SCRSSpec with CTDataFixture with 
         .thenReturn(Future.failed(new BadRequestException("400")))
 
       await(connector.retrieveEmail(registrationId)) shouldBe None
+    }
+  }
+
+  "fetchRegistrationStatus" should {
+
+    val testStatus = "testStatus"
+    val registration = buildCorporationTaxModel(status = testStatus)
+    val registrationNoStatus = buildCorporationTaxModel().as[JsObject] - "status"
+
+    "return the status from the fetched registration" in new Setup {
+      when(mockWSHttp.GET[JsValue](any())(any(), any()))
+        .thenReturn(Future.successful(registration))
+
+      val result: Option[String] = await(connector.fetchRegistrationStatus(regID))
+
+      result shouldBe Some(testStatus)
+    }
+
+    "return None when a registration document doesn't exist" in new Setup {
+      when(mockWSHttp.GET[JsValue](any())(any(), any()))
+        .thenReturn(Future.failed(new NotFoundException("")))
+
+      val result: Option[String] = await(connector.fetchRegistrationStatus(regID))
+
+      result shouldBe None
+    }
+
+    "return None when a registration document exists but doesn't contain a status" in new Setup {
+      when(mockWSHttp.GET[JsValue](any())(any(), any()))
+        .thenReturn(Future.successful(registrationNoStatus))
+
+      val result: Option[String] = await(connector.fetchRegistrationStatus(regID))
+
+      result shouldBe None
     }
   }
 }

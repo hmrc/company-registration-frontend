@@ -12,8 +12,15 @@ POST       /about-you                               controllers.reg.CompletionCa
 GET        /accounting-dates                        controllers.reg.AccountingDatesController.show
 POST       /accounting-dates                        controllers.reg.AccountingDatesController.submit
 
-GET        /confirmation                            controllers.reg.ConfirmationController.show
-POST       /confirmation                            controllers.reg.ConfirmationController.submit
+GET        /confirmation                            controllers.reg.ConfirmationControllerImpl.show
+POST       /confirmation                            controllers.reg.ConfirmationControllerImpl.submit
+
+GET        /something-went-wrong                    controllers.reg.ConfirmationControllerImpl.deskproPage
+POST       /something-went-wrong                    controllers.reg.ConfirmationControllerImpl.submitTicket
+
+GET        /ticket-submitted                        controllers.reg.ConfirmationControllerImpl.submittedTicket
+
+GET        /submission-failure                      controllers.reg.ConfirmationControllerImpl.resubmitPage
 
 GET        /company-contact-details                 controllers.reg.CompanyContactDetailsController.show
 POST       /company-contact-details                 controllers.reg.CompanyContactDetailsController.submit

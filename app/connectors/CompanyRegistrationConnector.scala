@@ -45,6 +45,14 @@ trait CompanyRegistrationConnector {
   val companyRegUrl: String
   val http: HttpGet with HttpPut with HttpPost with HttpDelete
 
+  def fetchRegistrationStatus(regId: String)(implicit hc: HeaderCarrier): Future[Option[String]] = {
+    retrieveCorporationTaxRegistration(regId) map {
+      json => (json \ "status").asOpt[String]
+    } recover {
+      case _: NotFoundException => None
+    }
+  }
+
   def retrieveCorporationTaxRegistration(registrationID: String)(implicit hc: HeaderCarrier): Future[JsValue] = {
     http.GET[JsValue](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/corporation-tax-registration") recover {
         case ex: BadRequestException =>
@@ -310,15 +318,15 @@ trait CompanyRegistrationConnector {
     http.PUT[JsValue, ConfirmationReferences](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/confirmation-references", Json.toJson(payload)) map {
       res => ConfirmationReferencesSuccessResponse(res)
     } recover {
-      case e: BadRequestException =>
-        Logger.error(s"[CompanyRegistrationConnector] [updateReferences] - Received a Bad Request status code when expecting acknowledgement ref from Company-Registration")
-        ConfirmationReferencesBadRequestResponse
-      case e: NotFoundException =>
-        Logger.info(s"[CompanyRegistrationConnector] [updateReferences] - Received a Not Found status code when expecting acknowledgement ref from Company-Registration")
-        ConfirmationReferencesNotFoundResponse
+      case e: Upstream4xxResponse =>
+        Logger.error(s"[CompanyRegistrationConnector] [updateReferences] - Received a upstream 4xx code when expecting acknowledgement ref from Company-Registration")
+        DESFailureDeskpro
+      case e: Upstream5xxResponse =>
+        Logger.info(s"[CompanyRegistrationConnector] [updateReferences] - Received a upstream 5xx status code when expecting acknowledgement ref from Company-Registration")
+        DESFailureRetriable
       case e: Exception =>
-        Logger.error(s"[CompanyRegistrationConnector] [updateReferences] - Received an error when expecting acknowledgement ref from Company-Registration - ${e.getMessage}")
-        ConfirmationReferencesErrorResponse
+        Logger.error(s"[CompanyRegistrationConnector] [updateReferences] - Received an unknown error when expecting acknowledgement ref from Company-Registration - ${e.getMessage}")
+        DESFailureDeskpro
     }
   }
 

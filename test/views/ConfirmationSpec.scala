@@ -25,17 +25,23 @@ import models.ConfirmationReferencesSuccessResponse
 import org.jsoup.Jsoup
 import org.mockito.Matchers
 import org.mockito.Mockito._
+import play.api.i18n.MessagesApi
 import play.api.test.Helpers._
+import services.DeskproService
 
 import scala.concurrent.Future
 
 class ConfirmationSpec extends SCRSSpec with CompanyDetailsFixture {
 
+  val mockDeskproService = mock[DeskproService]
+
   class SetupPage {
     val controller = new ConfirmationController {
       override val authConnector = mockAuthConnector
-      override val compRegConnector = mockCompanyRegistrationConnector
+      override val companyRegistrationConnector = mockCompanyRegistrationConnector
       override val keystoreConnector = mockKeystoreConnector
+      override val deskproService = mockDeskproService
+      implicit val messagesApi: MessagesApi = fakeApplication.injector.instanceOf[MessagesApi]
     }
   }
 

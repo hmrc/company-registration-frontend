@@ -14,16 +14,19 @@
  * limitations under the License.
  */
 
-package controllers.reg
+package forms.errors
 
-import play.api.i18n.Messages
-import play.api.mvc.Request
+import models.Ticket
+import play.api.data.Form
+import play.api.data.Forms._
+import utils.SCRSValidators.emailValidation
 
-trait ControllerErrorHandler {
-
-  def defaultErrorPage(implicit request: Request[_], message: Messages) = views.html.error_template(
-    Messages("global.error.title"),
-    Messages("global.error.heading"),
-    Messages("global.error.message")
+object DeskproForm {
+  val form = Form(
+    mapping(
+      "name" -> nonEmptyText,
+      "email" -> text.verifying(emailValidation),
+      "message" -> nonEmptyText
+    )(Ticket.apply)(Ticket.unapply)
   )
 }
