@@ -17,7 +17,7 @@ system for streamlined company registration. This is to include registration in 
 For the purposes of the legislation, streamlined means that all registration information can be provided on a 
 single occasion to a single recipient and by electronic means.
 
-Requirements
+Requirements 
 ------------
 
 This service is written in [Scala](http://www.scala-lang.org/) and [Play](http://playframework.com/), so needs at least a [JRE] to run.
