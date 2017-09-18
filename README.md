@@ -22,7 +22,7 @@ Requirements
 
 This service is written in [Scala](http://www.scala-lang.org/) and [Play](http://playframework.com/), so needs at least a [JRE] to run.
 
-## Run the application.
+## Run the application
 
 To run the application execute:
 
