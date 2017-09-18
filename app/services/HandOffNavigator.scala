@@ -38,7 +38,7 @@ trait HandOffNavigator extends CommonService with SCRSExceptions {
   _: ServicesConfig =>
 
   val navModelMongo : NavModelRepository
-  val compRegFrontendUrl = FrontendConfig.self
+  val compRegFrontendUrl = getConfString("comp-reg-frontend.www", throw new Exception("Could not find config for comp-reg-frontend external (www) url"))
 
   private def buildUrl(call: Call) = {
     val url = call.url
