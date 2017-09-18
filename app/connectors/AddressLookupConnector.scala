@@ -16,7 +16,7 @@
 
 package connectors
 
-import config.WSHttp
+import config.{FrontendConfig, WSHttp}
 import models.NewAddress
 import play.api.Logger
 import play.api.libs.json.{JsObject, Json}
@@ -30,7 +30,7 @@ import scala.util.control.NoStackTrace
 
 object AddressLookupConnector extends AddressLookupConnector with ServicesConfig {
   val addressLookupFrontendURL: String = baseUrl("address-lookup-frontend")
-  val companyRegistrationFrontendURL: String = baseUrl("comp-reg-frontend")
+  val companyRegistrationFrontendURL: String = FrontendConfig.self
   val http = WSHttp
 }
 

@@ -16,6 +16,7 @@
 
 package services
 
+import config.FrontendConfig
 import connectors.KeystoreConnector
 import models.handoff.{HandOffNavModel, NavLinks, Receiver, Sender}
 import play.api.mvc.{Call, Result}
@@ -37,7 +38,7 @@ trait HandOffNavigator extends CommonService with SCRSExceptions {
   _: ServicesConfig =>
 
   val navModelMongo : NavModelRepository
-  val compRegFrontendUrl = baseUrl("comp-reg-frontend")
+  val compRegFrontendUrl = FrontendConfig.self
 
   private def buildUrl(call: Call) = {
     val url = call.url

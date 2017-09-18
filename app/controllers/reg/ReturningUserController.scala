@@ -17,7 +17,8 @@
 package controllers.reg
 
 import java.net.URLEncoder
-import config.FrontendAuthConnector
+
+import config.{FrontendAuthConnector, FrontendConfig}
 import forms.ReturningUserForm
 import models.ReturningUser
 import play.api.mvc.Action
@@ -30,7 +31,7 @@ import scala.concurrent.Future
 
 object ReturningUserController extends ReturningUserController with ServicesConfig{
   val createGGWAccountUrl = getConfString("gg-reg-fe.url", throw new Exception("Could not find config for gg-reg-fe url"))
-  val compRegFeUrl = baseUrl("comp-reg-frontend")
+  val compRegFeUrl = FrontendConfig.self
   val authConnector = FrontendAuthConnector
 }
 
