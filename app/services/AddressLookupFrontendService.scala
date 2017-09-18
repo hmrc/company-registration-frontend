@@ -16,7 +16,6 @@
 
 package services
 
-import config.FrontendConfig
 import connectors.AddressLookupConnector
 import models.NewAddress
 import play.api.mvc.{Call, Request}
@@ -29,14 +28,12 @@ import scala.util.control.NoStackTrace
 case class QueryStringMissingException() extends NoStackTrace
 
 object AddressLookupFrontendService extends AddressLookupFrontendService with ServicesConfig {
-  override val companyRegistrationURL: String = FrontendConfig.self
   override val addressLookupFrontendConnector = AddressLookupConnector
   override val metricsService = MetricsService
 }
 
 trait AddressLookupFrontendService {
 
-  val companyRegistrationURL: String
   val addressLookupFrontendConnector: AddressLookupConnector
   val metricsService: MetricsService
 

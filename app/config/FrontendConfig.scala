@@ -21,6 +21,7 @@ import uk.gov.hmrc.play.config.ServicesConfig
 object FrontendConfig extends ServicesConfig {
 
   lazy val self = getConfString("comp-reg-frontend.url", throw new Exception("Could not find config for comp-reg-frontend url"))
+  lazy val selfFull = getConfString("comp-reg-frontend.fullurl", self)
 
   lazy val incorporationInfoUrl = baseUrl("incorp-info")
 }

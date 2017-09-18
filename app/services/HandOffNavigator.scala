@@ -17,12 +17,11 @@
 package services
 
 import config.FrontendConfig
-import connectors.KeystoreConnector
 import models.handoff.{HandOffNavModel, NavLinks, Receiver, Sender}
 import play.api.mvc.{Call, Result}
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http.HeaderCarrier
-import utils.{SCRSException, SCRSExceptions, SCRSFeatureSwitches}
+import utils.{SCRSExceptions, SCRSFeatureSwitches}
 import controllers.handoff._
 import repositories._
 import uk.gov.hmrc.http.cache.client.CacheMap
@@ -38,7 +37,7 @@ trait HandOffNavigator extends CommonService with SCRSExceptions {
   _: ServicesConfig =>
 
   val navModelMongo : NavModelRepository
-  val compRegFrontendUrl = FrontendConfig.self
+  val compRegFrontendUrl = FrontendConfig.selfFull
 
   private def buildUrl(call: Call) = {
     val url = call.url

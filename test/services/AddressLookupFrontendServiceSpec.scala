@@ -35,7 +35,6 @@ class AddressLookupFrontendServiceSpec extends UnitSpec with MockitoSugar with A
 
   class Setup {
     val service = new AddressLookupFrontendService {
-      override val companyRegistrationURL: String = "testUrl"
       override val addressLookupFrontendConnector: AddressLookupConnector = mockAddressLookupConnector
       override val metricsService: MetricsService = mockMetricsService
     }
