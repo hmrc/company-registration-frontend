@@ -16,7 +16,7 @@
 
 package controllers.verification
 
-import config.FrontendAuthConnector
+import config.{FrontendAuthConnector, FrontendConfig}
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.SCRSRegime
 import play.api.mvc.Action
@@ -33,7 +33,7 @@ object EmailVerificationController extends EmailVerificationController with Serv
   val keystoreConnector = KeystoreConnector
   val createGGWAccountUrl = getConfString("gg-reg-fe.url", throw new Exception("Could not find config for gg-reg-fe url"))
   val callbackUrl = getConfString("auth.login-callback.url", throw new Exception("Could not find config for callback url"))
-  val frontEndUrl=baseUrl("comp-reg-frontend")
+  val frontEndUrl=FrontendConfig.self
   val companyRegistrationConnector = CompanyRegistrationConnector
 }
 

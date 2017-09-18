@@ -45,7 +45,7 @@ object SignInOutController extends SignInOutController with ServicesConfig{
   val emailService = EmailVerificationService
   val enrolmentsService = EnrolmentsService
   val metrics = MetricsService
-  val cRFEBaseUrl = baseUrl("comp-reg-frontend")
+  val cRFEBaseUrl = FrontendConfig.self
   val keystoreConnector = KeystoreConnector
 }
 

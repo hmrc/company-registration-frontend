@@ -16,7 +16,7 @@
 
 package services
 
-import config.{FrontendAuditConnector, FrontendAuthConnector}
+import config.{FrontendAuditConnector, FrontendAuthConnector, FrontendConfig}
 import connectors.{CompanyRegistrationConnector, EmailVerificationConnector, KeystoreConnector, SendTemplatedEmailConnector}
 import models.{Email, _}
 import play.api.mvc.{AnyContent, Request}
@@ -40,7 +40,7 @@ object EmailVerificationService extends EmailVerificationService with ServicesCo
   val emailConnector = EmailVerificationConnector
   val templatedEmailConnector = SendTemplatedEmailConnector
   val crConnector = CompanyRegistrationConnector
-  val returnUrl = baseUrl("comp-reg-frontend")
+  val returnUrl = FrontendConfig.self
   val keystoreConnector = KeystoreConnector
   val auditConnector = FrontendAuditConnector
   val sendTemplatedEmailURL = getConfString("email.returnToSCRSURL", throw new Exception("email.returnToSCRSURL not found"))

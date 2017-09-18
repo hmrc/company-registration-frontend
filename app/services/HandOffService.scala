@@ -16,7 +16,7 @@
 
 package services
 
-import config.FrontendAuthConnector
+import config.{FrontendAuthConnector, FrontendConfig}
 import models.handoff.{BusinessActivitiesModel, CompanyNameHandOffModel, HandoffPPOB}
 import models.{SummaryHandOff, UserDetailsModel, UserIDs}
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
@@ -34,7 +34,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 object HandOffService extends HandOffService {
   val keystoreConnector = KeystoreConnector
-  val returnUrl = s"${baseUrl("comp-reg-frontend")}"
+  val returnUrl = FrontendConfig.self
   val compRegConnector = CompanyRegistrationConnector
   val encryptor = Jwe
   val authConnector = FrontendAuthConnector
