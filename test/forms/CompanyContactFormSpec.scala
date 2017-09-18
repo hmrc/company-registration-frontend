@@ -60,16 +60,16 @@ class CompanyContactFormSpec extends SCRSSpec with CompanyContactDetailsFixture 
           List(("contactName", "This name is not valid"))
       }
     }
-    "the daytime telephone field is invalid" should {
+    "the contact number field is invalid" should {
       "have an error" in {
         bindFromRequestWithErrors(invalidCompanyContactDetailsDaytimeTelephoneFormData, companyContactForm).map(x => (x.key, x.message)) shouldBe
-          List(("contactDaytimeTelephoneNumber", "validation.phone-number"))
+          List(("contactDaytimeTelephoneNumber", "validation.contactNum"))
       }
     }
-    "the mobile telephone field is invalid" should {
+    "the other contact number field is invalid" should {
       "have an error" in {
         bindFromRequestWithErrors(invalidCompanyContactDetailsMobileFormData, companyContactForm).map(x => (x.key, x.message)) shouldBe
-          List(("contactMobileNumber", "validation.mobile-number"))
+          List(("contactMobileNumber", "validation.contactNum"))
         }
       }
 
@@ -413,7 +413,7 @@ class CompanyContactFormSpec extends SCRSSpec with CompanyContactDetailsFixture 
       }
     }
   }
-  "The Company daytime phone number" should {
+  "The Company contact number" should {
     val form = CompanyContactForm.form
     val validContactName = "Daveo G"
     val validContactEmail = "goodemail@email.com"
@@ -464,7 +464,7 @@ class CompanyContactFormSpec extends SCRSSpec with CompanyContactDetailsFixture 
           "contactDaytimeTelephoneNumber" -> "$0123 456 7890",
           "contactMobileNumber" -> validContactMobileNumber
         )
-        form.bind(formData).error("contactDaytimeTelephoneNumber").map(x => (x.key, x.message)) shouldBe Some(("contactDaytimeTelephoneNumber" ,"validation.phone-number"))
+        form.bind(formData).error("contactDaytimeTelephoneNumber").map(x => (x.key, x.message)) shouldBe Some(("contactDaytimeTelephoneNumber" ,"validation.contactNum"))
       }
     }
 
@@ -475,7 +475,7 @@ class CompanyContactFormSpec extends SCRSSpec with CompanyContactDetailsFixture 
         "contactDaytimeTelephoneNumber" -> "ABCDE",
         "contactMobileNumber" -> validContactMobileNumber
       )
-      form.bind(formData).error("contactDaytimeTelephoneNumber").map(x => (x.key, x.message)) shouldBe Some(("contactDaytimeTelephoneNumber" ,"validation.phone-number"))
+      form.bind(formData).error("contactDaytimeTelephoneNumber").map(x => (x.key, x.message)) shouldBe Some(("contactDaytimeTelephoneNumber" ,"validation.contactNum"))
     }
 
     "it contains letters and numbers" in {
@@ -485,7 +485,7 @@ class CompanyContactFormSpec extends SCRSSpec with CompanyContactDetailsFixture 
         "contactDaytimeTelephoneNumber" -> "ABC 123",
         "contactMobileNumber" -> validContactMobileNumber
       )
-      form.bind(formData).error("contactDaytimeTelephoneNumber").map(x => (x.key, x.message)) shouldBe Some(("contactDaytimeTelephoneNumber" ,"validation.phone-number"))
+      form.bind(formData).error("contactDaytimeTelephoneNumber").map(x => (x.key, x.message)) shouldBe Some(("contactDaytimeTelephoneNumber" ,"validation.contactNum"))
     }
 
     "it exceeds 20 digits" in {
@@ -495,7 +495,7 @@ class CompanyContactFormSpec extends SCRSSpec with CompanyContactDetailsFixture 
         "contactDaytimeTelephoneNumber" -> "123456789012345678901",
         "contactMobileNumber" -> validContactMobileNumber
       )
-      form.bind(formData).error("contactDaytimeTelephoneNumber").map(x => (x.key, x.message)) shouldBe Some(("contactDaytimeTelephoneNumber" ,"validation.phone-number"))
+      form.bind(formData).error("contactDaytimeTelephoneNumber").map(x => (x.key, x.message)) shouldBe Some(("contactDaytimeTelephoneNumber" ,"validation.contactNum.tooLong"))
     }
 
     "it contains brackets" in {
@@ -505,7 +505,7 @@ class CompanyContactFormSpec extends SCRSSpec with CompanyContactDetailsFixture 
         "contactDaytimeTelephoneNumber" -> "(01234) 567 890",
         "contactMobileNumber" -> validContactMobileNumber
       )
-      form.bind(formData).error("contactDaytimeTelephoneNumber").map(x => (x.key, x.message)) shouldBe Some(("contactDaytimeTelephoneNumber" ,"validation.phone-number"))
+      form.bind(formData).error("contactDaytimeTelephoneNumber").map(x => (x.key, x.message)) shouldBe Some(("contactDaytimeTelephoneNumber" ,"validation.contactNum"))
     }
 
     "it has 6 digits with no area code" in {
@@ -515,11 +515,11 @@ class CompanyContactFormSpec extends SCRSSpec with CompanyContactDetailsFixture 
         "contactDaytimeTelephoneNumber" -> "123456",
         "contactMobileNumber" -> "0123456789012"
       )
-      form.bind(formData).error("contactDaytimeTelephoneNumber").map(x => (x.key, x.message)) shouldBe Some(("contactDaytimeTelephoneNumber" ,"validation.phone-number"))
+      form.bind(formData).error("contactDaytimeTelephoneNumber").map(x => (x.key, x.message)) shouldBe Some(("contactDaytimeTelephoneNumber" ,"validation.contactNum.tooShort"))
     }
   }
 
-  "The Company mobile phone number" should {
+  "The Company other contact number" should {
     val form = CompanyContactForm.form
     val validContactName = "Foo B"
     val validContactEmail = "foo@bar.wibble"
@@ -585,7 +585,7 @@ class CompanyContactFormSpec extends SCRSSpec with CompanyContactDetailsFixture 
           "contactDaytimeTelephoneNumber" -> validContactDaytimeTelephoneNumber,
           "contactMobileNumber" -> "$07123 456789"
         )
-        form.bind(formData).error("contactMobileNumber").map(x => (x.key, x.message)) shouldBe Some(("contactMobileNumber" ,"validation.mobile-number"))
+        form.bind(formData).error("contactMobileNumber").map(x => (x.key, x.message)) shouldBe Some(("contactMobileNumber" ,"validation.contactNum"))
       }
     }
 
@@ -596,7 +596,7 @@ class CompanyContactFormSpec extends SCRSSpec with CompanyContactDetailsFixture 
         "contactDaytimeTelephoneNumber" -> validContactDaytimeTelephoneNumber,
         "contactMobileNumber" -> "ABCde"
       )
-      form.bind(formData).error("contactMobileNumber").map(x => (x.key, x.message)) shouldBe Some(("contactMobileNumber" ,"validation.mobile-number"))
+      form.bind(formData).error("contactMobileNumber").map(x => (x.key, x.message)) shouldBe Some(("contactMobileNumber" ,"validation.contactNum"))
     }
 
     "it contains letters and numbers" in {
@@ -606,7 +606,7 @@ class CompanyContactFormSpec extends SCRSSpec with CompanyContactDetailsFixture 
         "contactDaytimeTelephoneNumber" -> validContactDaytimeTelephoneNumber,
         "contactMobileNumber" -> "07123 abcDE"
       )
-      form.bind(formData).error("contactMobileNumber").map(x => (x.key, x.message)) shouldBe Some(("contactMobileNumber" ,"validation.mobile-number"))
+      form.bind(formData).error("contactMobileNumber").map(x => (x.key, x.message)) shouldBe Some(("contactMobileNumber" ,"validation.contactNum"))
     }
 
     "it exceeds 20 digits" in {
@@ -616,7 +616,7 @@ class CompanyContactFormSpec extends SCRSSpec with CompanyContactDetailsFixture 
         "contactDaytimeTelephoneNumber" -> validContactDaytimeTelephoneNumber,
         "contactMobileNumber" -> "012345678901234567890"
       )
-      form.bind(formData).error("contactMobileNumber").map(x => (x.key, x.message)) shouldBe Some(("contactMobileNumber" ,"validation.mobile-number"))
+      form.bind(formData).error("contactMobileNumber").map(x => (x.key, x.message)) shouldBe Some(("contactMobileNumber" ,"validation.contactNum.tooLong"))
     }
 
     "it has 6 digits for mobile number" in {
@@ -626,7 +626,7 @@ class CompanyContactFormSpec extends SCRSSpec with CompanyContactDetailsFixture 
         "contactDaytimeTelephoneNumber" -> "1234567890",
         "contactMobileNumber" -> "01234"
       )
-      form.bind(formData).error("contactMobileNumber").map(x => (x.key, x.message)) shouldBe Some(("contactMobileNumber" ,"validation.mobile-number"))
+      form.bind(formData).error("contactMobileNumber").map(x => (x.key, x.message)) shouldBe Some(("contactMobileNumber" ,"validation.contactNum.tooShort"))
     }
 
     "it contains brackets" in {
@@ -636,7 +636,7 @@ class CompanyContactFormSpec extends SCRSSpec with CompanyContactDetailsFixture 
         "contactDaytimeTelephoneNumber" -> validContactDaytimeTelephoneNumber,
         "contactMobileNumber" -> "(07123) 456 789"
       )
-      form.bind(formData).error("contactMobileNumber").map(x => (x.key, x.message)) shouldBe Some(("contactMobileNumber" ,"validation.mobile-number"))
+      form.bind(formData).error("contactMobileNumber").map(x => (x.key, x.message)) shouldBe Some(("contactMobileNumber" ,"validation.contactNum"))
     }
   }
 }

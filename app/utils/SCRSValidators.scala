@@ -151,17 +151,18 @@ object SCRSValidators {
       if (errors.isEmpty) Valid else Invalid(errors)
   })
 
-  def isValidPhoneNo(phone: String, errMsg: String): Either[String, String] = {
-    def canBeValidPhoneNumber(s: String) = s.replaceAll(" ", "").matches("[0-9]{10,20}")
-    def isValidPhoneNumber(s: String) = phone.trim.matches(phoneNumberRegex.toString)
+  def isValidPhoneNo(phone: String): Either[String, String] = {
+    def isValidNumber(s: String) = s.replaceAll(" ", "").matches("[0-9]+")
+    val digitCount = phone.trim.replaceAll(" ", "").length
 
-    (canBeValidPhoneNumber(phone), isValidPhoneNumber(phone)) match {
-      case (true, true)   => Right(phone.trim)
-      case (true, false)  => Right(phone.replaceAll(" ", ""))
-      case (false, _)     => Left(errMsg)
+    (isValidNumber(phone), phone.trim.matches(phoneNumberRegex.toString())) match {
+      case (true, _) if digitCount > 20      => Left("validation.contactNum.tooLong")
+      case (true, _) if digitCount < 10      => Left("validation.contactNum.tooShort")
+      case (true, true)                      => Right(phone.trim)
+      case (true, false)                     => Right(phone.replaceAll(" ", ""))
+      case _                                 => Left("validation.contactNum")
     }
   }
-
 
   val completionCapacityValidation: Constraint[String] = Constraint("constraints.completionCapacity")({
     text =>
