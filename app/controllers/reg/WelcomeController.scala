@@ -16,6 +16,7 @@
 
 package controllers.reg
 
+import play.api.Logger
 import play.api.mvc.Action
 import uk.gov.hmrc.play.frontend.controller.FrontendController
 import views.html.reg.Welcome
@@ -28,6 +29,8 @@ object WelcomeController extends WelcomeController
 trait WelcomeController extends FrontendController with MessagesSupport {
 
   val show = Action.async { implicit request =>
+    val absoluteURL = controllers.reg.routes.WelcomeController.show().absoluteURL()
+    Logger.info(s"Welcome absolute URL is '${absoluteURL}'")
     Future.successful(Ok(Welcome(SCRSFeatureSwitches.paye.enabled)))
   }
   val submit = Action.async { implicit request =>
