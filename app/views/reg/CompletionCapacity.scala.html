@@ -12,7 +12,7 @@
         aboutYou("completionCapacityOther"),
         '_inputClass -> "form-control-1-2",
         '_labelClass -> "form-label cascading",
-        '_label -> Messages("page.reg.AboutYou.radio3.more")
+        '_label -> Messages("page.reg.AboutYou.radio4.more")
     )
 }
 
@@ -39,8 +39,9 @@
                     @inputRadioGroupHidden(
                         aboutYou("completionCapacity"),
                         Seq("director" -> Messages("page.reg.AboutYou.radio1"),
-                            "agent"    -> Messages("page.reg.AboutYou.radio2"),
-                            "other"    -> Messages("page.reg.AboutYou.radio3")),
+                            "secretary"-> Messages("page.reg.AboutYou.radio2"),
+                            "agent"    -> Messages("page.reg.AboutYou.radio3"),
+                            "other"    -> Messages("page.reg.AboutYou.radio4")),
                         Seq("other" -> otherHidden),
                         '_idHidden -> "other",
                         '_classHidden -> "panel panel-indent",

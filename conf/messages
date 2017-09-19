@@ -55,9 +55,10 @@ error.returningUser.required=Tell us if you''re setting up a new limited company
 page.reg.AboutYou.title=What is your relationship to the company?
 page.reg.AboutYou.heading=What is your relationship to the company?
 page.reg.AboutYou.radio1=Director
-page.reg.AboutYou.radio2=Agent - for example, an accountant
-page.reg.AboutYou.radio3=Other - for example, a friend of the director
-page.reg.AboutYou.radio3.more=Enter your relationship to the company
+page.reg.AboutYou.radio2=Secretary
+page.reg.AboutYou.radio3=Agent - for example, an accountant
+page.reg.AboutYou.radio4=Other - for example, a friend of the director
+page.reg.AboutYou.radio4.more=Enter your relationship to the company
 error.completionCapacity.required=Tell us your relationship to the company
 
 

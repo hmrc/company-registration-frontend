@@ -38,12 +38,13 @@ object AboutYouForm extends EmptyStringValidator {
 
   def aboutYouFilled = form.fill(AboutYouChoiceForm("", ""))
 
-  def populateForm(capcity : String) : Form[AboutYouChoiceForm] = {
-    capcity match {
-      case "director" => form.fill(AboutYouChoiceForm(capcity, ""))
-      case "agent" => form.fill(AboutYouChoiceForm(capcity, ""))
+  def populateForm(capacity : String) : Form[AboutYouChoiceForm] = {
+    capacity match {
+      case "director" => form.fill(AboutYouChoiceForm(capacity, ""))
+      case "agent" => form.fill(AboutYouChoiceForm(capacity, ""))
+      case "secretary" => form.fill(AboutYouChoiceForm(capacity, ""))
       case "" => form.fill(AboutYouChoiceForm("", ""))
-      case _ => form.fill(AboutYouChoiceForm("other", capcity))
+      case _ => form.fill(AboutYouChoiceForm("other", capacity))
     }
   }
 

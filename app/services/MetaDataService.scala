@@ -45,7 +45,7 @@ trait MetaDataService extends CommonService with SCRSExceptions {
 
   def getItemToSave(completionCapacity : AboutYouChoiceForm) : String = {
     completionCapacity.completionCapacity match {
-      case "director" | "agent"  => completionCapacity.completionCapacity
+      case "director" | "agent" | "secretary"  => completionCapacity.completionCapacity
       case _ => completionCapacity.completionCapacityOther
     }
   }
