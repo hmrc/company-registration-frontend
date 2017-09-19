@@ -30,8 +30,8 @@ object CompanyContactForm extends PhoneNoForm {
     mapping(
       "contactName" -> text.verifying(StopOnFirstFail(nonEmpty, nameValidation)),
       "contactEmail" -> optional(text.verifying(emailValidation)),
-      "contactDaytimeTelephoneNumber" -> phoneNoField("validation.phone-number"),
-      "contactMobileNumber" -> phoneNoField("validation.mobile-number")
+      "contactDaytimeTelephoneNumber" -> phoneNoField,
+      "contactMobileNumber" -> phoneNoField
     )(CompanyContactViewModel.apply)(CompanyContactViewModel.unapply).verifying(companyContactDetailsValidation)
   )
 }
