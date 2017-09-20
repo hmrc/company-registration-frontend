@@ -34,7 +34,7 @@ private object AppDependencies {
     "uk.gov.hmrc" %% "play-config" % "4.3.0",
     "uk.gov.hmrc" %% "logback-json-logger" % "3.1.0",
     "uk.gov.hmrc" %% "govuk-template" % "5.2.0",
-    "uk.gov.hmrc" %% "play-ui" % "7.4.0",
+    "uk.gov.hmrc" %% "play-ui" % "7.6.0",
     "uk.gov.hmrc" %% "http-caching-client" % "6.2.0",
     "uk.gov.hmrc" %% "play-conditional-form-mapping" % "0.2.0",
     "org.bitbucket.b_c" % "jose4j" % "0.5.0",

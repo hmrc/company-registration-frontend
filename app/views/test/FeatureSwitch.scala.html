@@ -1,5 +1,6 @@
 @import controllers.reg.routes._
-@import uk.gov.hmrc.play.views.html.helpers.{form, inputRadioGroup}
+@import uk.gov.hmrc.play.views.html.helpers.form
+@import views.html.helpers.inputRadioGroup
 @import config.FrontendAppConfig
 
 @(featureSwitchForm: Form[models.test.FeatureSwitch])(implicit request: Request[_], lang: Lang, messages: Messages)
