@@ -1,6 +1,7 @@
 @(ppobForm: Form[PPOBChoice], ROAddress: NewAddress, PPOBAddress: Option[NewAddress])(implicit request: Request[_], messages: Messages)
 
-@import uk.gov.hmrc.play.views.html.helpers.{form, inputRadioGroup, errorSummary, input}
+@import uk.gov.hmrc.play.views.html.helpers.{form, errorSummary, input}
+@import views.html.helpers.inputRadioGroup
 
 @PPOBIsEqualToRO = @{PPOBAddress match {
     case Some(ppob) => ppob.isEqualTo(ROAddress)
