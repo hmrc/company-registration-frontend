@@ -18,7 +18,7 @@ package models.test
 
 import play.api.libs.json.Json
 
-case class FeatureSwitch(firstHandOff: String)
+case class FeatureSwitch(firstHandOff: String, legacyEnv: String)
 
 object FeatureSwitch {
   implicit val format = Json.format[FeatureSwitch]

@@ -24,7 +24,8 @@ object FeatureSwitchForm {
 
   val form = Form(
     mapping(
-      "firstHandOff" -> nonEmptyText
+      "firstHandOff" -> nonEmptyText,
+      "legacyEnv" -> nonEmptyText
     )(FeatureSwitch.apply)(FeatureSwitch.unapply)
   )
 }

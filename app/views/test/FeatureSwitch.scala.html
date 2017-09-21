@@ -23,6 +23,13 @@
                 '_groupClass -> "form-group inline"
             )
 
+            <h2>Legacy Env</h2>
+            @inputRadioGroup(
+            featureSwitchForm("legacyEnv"),
+            Seq("true" -> "DCD (Legacy)", "false" -> "AWS"),
+            '_labelClass -> "block-label radio-label",
+            '_groupClass -> "form-group inline"
+            )
             <div class="form-group">
                 <button class="button btn" role="button" id="next">Submit</button>
             </div>

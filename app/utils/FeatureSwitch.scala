@@ -84,15 +84,18 @@ object SCRSFeatureSwitches extends SCRSFeatureSwitches {
 trait SCRSFeatureSwitches {
 
   val COHO: String
+  val LEGACY_ENV: String = "legacyEnv"
 
   def cohoFirstHandOff = FeatureSwitch.getProperty(COHO)
   def businessActivitiesHandOff = FeatureSwitch.getProperty("businessActivitiesHandOff")
   def paye = FeatureSwitch.getProperty("paye")
+  def legacyEnv = FeatureSwitch.getProperty(LEGACY_ENV)
 
   def apply(name: String): Option[FeatureSwitch] = name match {
-    case "cohoFirstHandOff" => Some(cohoFirstHandOff)
+    case COHO => Some(cohoFirstHandOff)
     case "businessActivitiesHandOff" => Some(businessActivitiesHandOff)
     case "paye" => Some(paye)
+    case LEGACY_ENV => Some(legacyEnv)
     case _ => None
   }
 }
