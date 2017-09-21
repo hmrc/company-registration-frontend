@@ -165,8 +165,9 @@ trait TestEndpointController extends FrontendController with Actions with Common
 
   def showFeatureSwitch = Action.async {
     implicit request =>
-      val firstHandOffSwitch = fetchFirstHandOffSwitch
-      val form = FeatureSwitchForm.form.fill(FeatureSwitch(firstHandOffSwitch.toString))
+      val firstHandOffSwitch = fetchFirstHandOffSwitch.toString
+      val legacyEnvSwitch = fetchLegacyEnvSwitch.toString
+      val form = FeatureSwitchForm.form.fill(FeatureSwitch(firstHandOffSwitch, legacyEnvSwitch))
 
       Future.successful(Ok(views.html.test.FeatureSwitch(form)))
   }
@@ -176,8 +177,14 @@ trait TestEndpointController extends FrontendController with Actions with Common
       FeatureSwitchForm.form.bindFromRequest().fold(
         errors => Future.successful(BadRequest(views.html.test.FeatureSwitch(errors))),
         success => {
-          success.firstHandOff match {
-            case "true" => FeatureSwitchUtil.enable(BooleanFeatureSwitch("cohoFirstHandOff", true))
+          Seq(
+            BooleanFeatureSwitch(SCRSFeatureSwitches.COHO, success.firstHandOff.toBoolean),
+            BooleanFeatureSwitch(SCRSFeatureSwitches.LEGACY_ENV, success.legacyEnv.toBoolean)
+          ) foreach { fs =>
+            fs.enabled match {
+              case true => FeatureSwitchUtil.enable(fs)
+              case false => FeatureSwitchUtil.disable(fs)
+            }
           }
 
           val form = FeatureSwitchForm.form.fill(success)
@@ -187,7 +194,16 @@ trait TestEndpointController extends FrontendController with Actions with Common
   }
 
   private[test] def fetchFirstHandOffSwitch: Boolean = {
-    scrsFeatureSwitches("cohoFirstHandOff") match {
+    import SCRSFeatureSwitches.COHO
+    scrsFeatureSwitches(COHO) match {
+      case Some(fs) => fs.enabled
+      case _ => false
+    }
+  }
+
+  private[test] def fetchLegacyEnvSwitch: Boolean = {
+    import SCRSFeatureSwitches.LEGACY_ENV
+    scrsFeatureSwitches(LEGACY_ENV) match {
       case Some(fs) => fs.enabled
       case _ => false
     }

@@ -37,7 +37,10 @@ trait HandOffNavigator extends CommonService with SCRSExceptions {
   _: ServicesConfig =>
 
   val navModelMongo : NavModelRepository
-  val compRegFrontendUrl = FrontendConfig.selfFull
+  def compRegFrontendUrl = SCRSFeatureSwitches.legacyEnv.enabled match {
+    case false => FrontendConfig.selfFull
+    case true => FrontendConfig.selfFullLegacy
+  }
 
   private def buildUrl(call: Call) = {
     val url = call.url
@@ -45,14 +48,14 @@ trait HandOffNavigator extends CommonService with SCRSExceptions {
     s"$compRegFrontendUrl${url.substring(0, url.length - stripLen)}"
   }
 
-  val corporationTaxDetails = buildUrl(routes.CorporationTaxDetailsController.corporationTaxDetails(""))
-  val aboutYouUrl = buildUrl(routes.BasicCompanyDetailsController.returnToAboutYou(""))
+  def corporationTaxDetails = buildUrl(routes.CorporationTaxDetailsController.corporationTaxDetails(""))
+  def aboutYouUrl = buildUrl(routes.BasicCompanyDetailsController.returnToAboutYou(""))
 
-  val regularPaymentsBackUrl = buildUrl(routes.BusinessActivitiesController.businessActivitiesBack(""))
-  val summaryUrl = buildUrl(routes.CorporationTaxSummaryController.corporationTaxSummary(""))
+  def regularPaymentsBackUrl = buildUrl(routes.BusinessActivitiesController.businessActivitiesBack(""))
+  def summaryUrl = buildUrl(routes.CorporationTaxSummaryController.corporationTaxSummary(""))
 
-  val returnSummaryUrl = buildUrl(routes.IncorporationSummaryController.returnToCorporationTaxSummary(""))
-  val confirmationURL = buildUrl(routes.RegistrationConfirmationController.registrationConfirmation(""))
+  def returnSummaryUrl = buildUrl(routes.IncorporationSummaryController.returnToCorporationTaxSummary(""))
+  def confirmationURL = buildUrl(routes.RegistrationConfirmationController.registrationConfirmation(""))
 
   val postSignInCall = controllers.reg.routes.SignInOutController.postSignIn(None)
   val postSignInUrl = postSignInCall.url
