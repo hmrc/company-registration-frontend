@@ -6,48 +6,36 @@
 @import uk.gov.hmrc.play.views.html.helpers.form
 
 @main_template(title = Messages("page.reg.Confirmation.title"), mainClass = None) {
-
     <div class="govuk-box-highlight">
-        <h1 id="heading-application-submitted" class="transaction-banner__heading" style="color: #fff">@Messages("page.reg.Confirmation.heading")</h1>
-        <p align="center">@Messages("page.reg.Confirmation.you-have")</p>
-        <ul class="list list-bullet" style="text-align: left; width:65%; margin: 0 auto;">
-            <li id="ltd-ref"><strong class="heading-small">@Messages("page.reg.Confirmation.bullet.ltd")</strong>
-                <br>
-                (@Messages("page.reg.Confirmation.ref-number") <strong class="heading-small">@confirmationRefs.transactionId)</strong></li>
-                <br>
-            <li id="ct-ref"><strong class="heading-small">@Messages("page.reg.Confirmation.bullet.inc")</strong>
-                <br>
-                (@Messages("page.reg.Confirmation.ref-number") <strong id="ackref" class="heading-small">@confirmationRefs.acknowledgementReference</strong>)</li>
-            <br>
-            <li id="payment-ref"><strong class="heading-small">@Messages("page.reg.Confirmation.bullet.payment") £@confirmationRefs.paymentAmount</strong>
-                <br>
-                (@Messages("page.reg.Confirmation.ref-number") <strong class="heading-small">@confirmationRefs.paymentReference</strong>)</li>
-                <br>
+        <h1 id="heading-application-submitted" class="form-title heading-large" style="color: #fff">@Messages("page.reg.Confirmation.heading")</h1>
+
+        <ul class="list-bullet heading-small" style="text-align: left; width:65%; margin: 0 auto;">
+            <p align="center">@Messages("page.reg.Confirmation.your.limited")<br><strong id="ltd-ref" class="heading-small">@confirmationRefs.transactionId</strong></p>
+            <p align="center">@Messages("page.reg.Confirmation.your.refnumber")<br><strong id="ct-ref" class="heading-small">@confirmationRefs.acknowledgementReference</strong></p>
         </ul>
     </div>
-<br>
+    <br>
     <h2 id="next-steps">@Messages("page.reg.Confirmation.next-steps")</h2>
 
-
-
-<br>
+    <p>@Messages("page.reg.Confirmation.next-steps.receive")</p>
+    <ul class="list list-bullet">
+        <li>@Messages("page.reg.Confirmation.next-steps.point1")</li>
+        <li>@Messages("page.reg.Confirmation.next-steps.point2")</li>
+    </ul>
 
     <div>
-        <p id="email">@Messages("page.reg.Confirmation.next-steps.email")</p>
-
         <p id="certificate">@Messages("page.reg.Confirmation.next-steps.certificate")</p>
 
         <p id="security">@Messages("page.reg.Confirmation.next-steps.security")</p>
 
         <p id="keep-safe-text">@Messages("page.reg.Confirmation.keep-safe.text")</p>
-
     </div>
 
     <br>
     @form(action = controllers.reg.routes.ConfirmationControllerImpl.submit()) {
-        <div class="form-group">
-            <button class="button" role="button" id="next">@Messages("page.reg.finish.btn")</button>
-        </div>
+    <div class="form-group">
+        <button class="btn button" role="button" id="next">@Messages("page.reg.finish.btn")</button>
+    </div>
     }
     <div class="form-group">
         <a href="questionnaire">@Messages("page.reg.Confirmation.questionnaire.link")</a>
