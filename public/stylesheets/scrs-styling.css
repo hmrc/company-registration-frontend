@@ -1,2 +1,22 @@
 @import 'form-validation.css';
 @import 'header.css';
+
+
+/* All the styles below can be deleted when HMRC AF moves to version 3 and/or 4 */
+@media (min-width: 641px) {
+	/*
+		Temporary reset width to 2/3's overidding HMRC AF which sets the width explicitly at 61.666667%
+		https://github.com/hmrc/assets-frontend/blob/3610585baeb96bb4ad9d73d20cfb73864e095b50/assets/scss/layouts/_page.scss#L60
+	*/
+	.content__body {
+		width: 66.66%;
+	}
+
+	/*
+		Overriding HMRC AF that has 'temporary' which is overriding govuk_frontend_static
+		https://github.com/hmrc/assets-frontend/blob/3610585baeb96bb4ad9d73d20cfb73864e095b50/assets/scss/base/typography/_headings.scss#L41
+	*/
+	.heading-medium {
+    margin-top: 1.875em !important;
+  }
+}

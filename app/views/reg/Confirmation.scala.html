@@ -7,15 +7,18 @@
 
 @main_template(title = Messages("page.reg.Confirmation.title"), mainClass = None) {
     <div class="govuk-box-highlight">
-        <h1 id="heading-application-submitted" class="form-title heading-large" style="color: #fff">@Messages("page.reg.Confirmation.heading")</h1>
-
-        <ul class="list-bullet heading-small" style="text-align: left; width:65%; margin: 0 auto;">
-            <p align="center">@Messages("page.reg.Confirmation.your.limited")<br><strong id="ltd-ref" class="heading-small">@confirmationRefs.transactionId</strong></p>
-            <p align="center">@Messages("page.reg.Confirmation.your.refnumber")<br><strong id="ackref" class="heading-small">@confirmationRefs.acknowledgementReference</strong></p>
-        </ul>
+        <h1 id="heading-application-submitted" class="heading-xlarge">@Messages("page.reg.Confirmation.heading")</h1>
+        <p class="font-large">
+            @Messages("page.reg.Confirmation.your.limited")<br>
+            <strong id="ltd-ref">@confirmationRefs.transactionId</strong>
+        </p>
+        <p class="font-large">
+            @Messages("page.reg.Confirmation.your.refnumber")<br>
+            <strong id="ackref">@confirmationRefs.acknowledgementReference</strong></p>
+        </p>
     </div>
-    <br>
-    <h2 id="next-steps">@Messages("page.reg.Confirmation.next-steps")</h2>
+
+    <h2 class="heading-medium" id="next-steps">@Messages("page.reg.Confirmation.next-steps")</h2>
 
     <p>@Messages("page.reg.Confirmation.next-steps.receive")</p>
     <ul class="list list-bullet">
@@ -25,9 +28,7 @@
 
     <div>
         <p id="certificate">@Messages("page.reg.Confirmation.next-steps.certificate")</p>
-
         <p id="security">@Messages("page.reg.Confirmation.next-steps.security")</p>
-
         <p id="keep-safe-text">@Messages("page.reg.Confirmation.keep-safe.text")</p>
     </div>
 
