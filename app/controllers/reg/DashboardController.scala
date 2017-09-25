@@ -20,6 +20,7 @@ import config.FrontendAuthConnector
 import controllers.auth.SCRSRegime
 import play.api.mvc.Action
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
+import play.api.Logger
 import uk.gov.hmrc.play.frontend.controller.FrontendController
 import services._
 import uk.gov.hmrc.play.frontend.auth.Actions
@@ -48,7 +49,8 @@ trait DashboardController extends FrontendController with Actions with CommonSer
             case CouldNotBuild => Redirect(controllers.handoff.routes.BasicCompanyDetailsController.basicCompanyDetails())
             case RejectedIncorp => Ok(views.html.reg.RegistrationUnsuccessful())
           } recover {
-            case _ => InternalServerError(defaultErrorPage)
+            case ex => Logger.error(s"[Dashboard Controller] [Show] buildDashboard returned an error ${ex.getMessage}")
+                       InternalServerError(defaultErrorPage)
           }
         }
   }
