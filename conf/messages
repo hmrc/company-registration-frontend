@@ -75,18 +75,23 @@ page.reg.CreateAccount.email.error=Enter a valid email address
 page.reg.Confirmation.title=Application submitted
 page.reg.Confirmation.heading=Application submitted
 page.reg.Confirmation.you-have=You have:
+page.reg.Confirmation.your.limited=Your limited company reference number is
+page.reg.Confirmation.your.refnumber=Your Corporation Tax reference number is
 page.reg.Confirmation.bullet.ltd=applied to set up a limited company
 page.reg.Confirmation.bullet.inc=applied to be registered for Corporation Tax
 page.reg.Confirmation.bullet.payment=made a payment of
 page.reg.Confirmation.ref-number=reference number
 page.reg.Confirmation.next-steps=What happens next?
 page.reg.Confirmation.next-steps.email=You''ll receive an email within 2 working days letting you know the outcome of your application
-page.reg.Confirmation.next-steps.certificate=If your application is successful, this email will have the company''s registration number and Certificate of Incorporation.
+page.reg.Confirmation.next-steps.certificate=If your application is successful, the second email will have the company''s registration number and Certificate of Incorporation.
 page.reg.Confirmation.next-steps.security=For security reasons, you''ll get a letter within 15 working days with the company''s Unique Taxpayer Reference (UTR). If the letter asks you to send more information to us, ignore this as we already have it from your online application.
 page.reg.finish.btn=Finish
 page.reg.Confirmation.keep-safe.text=Keep the company''s UTR safe, you''ll need it to file Company Tax Returns.
 page.reg.Confirmation.btn=Your business registration overview
 page.reg.Confirmation.questionnaire.link=What did you think of the service?
+page.reg.Confirmation.next-steps.receive=You''ll receive:
+page.reg.Confirmation.next-steps.point1=an email now with your application reference numbers
+page.reg.Confirmation.next-steps.point2=another email within 2 working days letting you know the outcome of your application
 
 #Accounting Dates
 page.reg.accountingDates.title=When will the company start doing business?
