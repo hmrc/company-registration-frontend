@@ -65,7 +65,7 @@ class ConfirmationSpec extends SCRSSpec with CompanyDetailsFixture {
           Map(
             "heading-application-submitted" -> "Application submitted",
             "ltd-ref" -> txId,
-            "ct-ref" -> ackref,
+            "ackref" -> ackref,
             "next-steps" -> "What happens next?"
           ) foreach { case (element, message) =>
             document.getElementById(element).text() shouldBe message
