@@ -81,7 +81,7 @@ class DashboardControllerSpec extends SCRSSpec {
       }
     }
 
-    "return a 500 if the dashboard case class could not be created" in new Setup {
+    "return a 303 and redirect to HO1 if the dashboard case class could not be created, i.e. the ct document is in draft" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some(regId))
       when(mockDashboardService.buildDashboard(eqTo(regId))(any(), any()))
         .thenReturn(Future.successful(CouldNotBuild))
@@ -89,7 +89,21 @@ class DashboardControllerSpec extends SCRSSpec {
       AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
         fRes =>
           val res = await(fRes)
+          status(res) shouldBe 303
+          redirectLocation(res) shouldBe Some("/register-your-company/basic-company-details")
+      }
+    }
+
+    "return a 500 if build dashboard returns something unexpected" in new Setup {
+      mockKeystoreFetchAndGet("registrationID", Some(regId))
+      when(mockDashboardService.buildDashboard(eqTo(regId))(any(), any()))
+        .thenReturn(Future.failed(new RuntimeException("")))
+
+      AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
+        fRes =>
+          val res = await(fRes)
           status(res) shouldBe 500
+
       }
     }
   }

@@ -45,8 +45,10 @@ trait DashboardController extends FrontendController with Actions with CommonSer
         registered { regId =>
           dashboardService.buildDashboard(regId) map {
             case DashboardBuilt(dash) => Ok(views.html.reg.Dashboard(dash))
-            case CouldNotBuild => InternalServerError(defaultErrorPage)
+            case CouldNotBuild => Redirect(controllers.handoff.routes.BasicCompanyDetailsController.basicCompanyDetails())
             case RejectedIncorp => Ok(views.html.reg.RegistrationUnsuccessful())
+          } recover {
+            case _ => InternalServerError(defaultErrorPage)
           }
         }
   }
