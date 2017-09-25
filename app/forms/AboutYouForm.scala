@@ -42,7 +42,7 @@ object AboutYouForm extends EmptyStringValidator {
     capacity match {
       case "director" => form.fill(AboutYouChoiceForm(capacity, ""))
       case "agent" => form.fill(AboutYouChoiceForm(capacity, ""))
-      case "secretary" => form.fill(AboutYouChoiceForm(capacity, ""))
+      case "company secretary" => form.fill(AboutYouChoiceForm(capacity, ""))
       case "" => form.fill(AboutYouChoiceForm("", ""))
       case _ => form.fill(AboutYouChoiceForm("other", capacity))
     }

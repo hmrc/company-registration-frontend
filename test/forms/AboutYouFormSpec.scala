@@ -42,9 +42,9 @@ class AboutYouFormSpec extends UnitSpec with WithFakeApplication{
     }
 
     "have secretary and empty" in {
-      val result = AboutYouForm.populateForm("secretary")
+      val result = AboutYouForm.populateForm("company secretary")
 
-      result.get.completionCapacity shouldBe "secretary"
+      result.get.completionCapacity shouldBe "company secretary"
       result.get.completionCapacityOther shouldBe ""
     }
 
