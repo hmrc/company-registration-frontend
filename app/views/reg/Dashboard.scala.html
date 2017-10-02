@@ -1,4 +1,4 @@
-@(dash: models.Dashboard)(implicit request: Request[_], lang: Lang, messages: Messages)
+@(dash: models.Dashboard, cohoSignIn: String)(implicit request: Request[_], lang: Lang, messages: Messages)
 
 @import uk.gov.hmrc.play.views.html.helpers.form
 @import play.twirl.api.Html
@@ -283,7 +283,7 @@
 
                         <tbody>
                             <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
-                                <td id="incorpRegisteredText" colspan="2">@Messages("page.reg.Dashboard.incChangeDetailsPrefix") <a href="https://ewf.companieshouse.gov.uk//seclogin?tc=1">@Messages("page.reg.Dashboard.incChangeDetailsLinkText")</a>@Messages("page.reg.Dashboard.incChangeDetailsSuffix")</td>
+                                <td id="incorpRegisteredText" colspan="2">@Messages("page.reg.Dashboard.incChangeDetailsPrefix") <a href="@cohoSignIn">@Messages("page.reg.Dashboard.incChangeDetailsLinkText")</a>@Messages("page.reg.Dashboard.incChangeDetailsSuffix")</td>
                             </tr>
                         </tbody>
                     }

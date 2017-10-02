@@ -23,6 +23,7 @@ import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import play.api.Logger
 import uk.gov.hmrc.play.frontend.controller.FrontendController
 import services._
+import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.frontend.auth.Actions
 import utils.{MessagesSupport, SCRSExceptions, SessionRegistration}
 
@@ -36,7 +37,8 @@ object DashboardController extends DashboardController {
 
 }
 
-trait DashboardController extends FrontendController with Actions with CommonService with SCRSExceptions with ControllerErrorHandler with SessionRegistration with MessagesSupport {
+trait DashboardController extends FrontendController with Actions with CommonService with SCRSExceptions
+  with ControllerErrorHandler with SessionRegistration with MessagesSupport with ServicesConfig {
 
   val dashboardService: DashboardService
 
@@ -45,7 +47,7 @@ trait DashboardController extends FrontendController with Actions with CommonSer
       implicit request =>
         registered { regId =>
           dashboardService.buildDashboard(regId) map {
-            case DashboardBuilt(dash) => Ok(views.html.reg.Dashboard(dash))
+            case DashboardBuilt(dash) => Ok(views.html.reg.Dashboard(dash, getConfString("coho-service.sign-in", throw new Exception("Could not find config for coho-sign-in url"))))
             case CouldNotBuild => Redirect(controllers.handoff.routes.BasicCompanyDetailsController.basicCompanyDetails())
             case RejectedIncorp => Ok(views.html.reg.RegistrationUnsuccessful())
           } recover {

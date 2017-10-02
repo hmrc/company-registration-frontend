@@ -362,7 +362,7 @@ trait TestEndpointController extends FrontendController with Actions with Common
       val payeLinks = PAYELinks("regURL","otrsURL",restartUrl,cancelUrl)
       val payeDash = PAYEDashboard(payeStatus,Some("lastUpdateDate"),Some("ackrefPaye"),payeLinks)
       val dash = Dashboard(incorpAndCTDash,payeDash,"companyNameStubbed")
-      Future.successful(Ok(views.html.reg.Dashboard(dash)))
+      Future.successful(Ok(views.html.reg.Dashboard(dash, getConfString("coho-service.sign-in", throw new Exception("Could not find config for coho-sign-in url")))))
 
   }
 
