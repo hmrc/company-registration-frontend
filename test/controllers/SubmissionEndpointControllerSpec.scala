@@ -29,13 +29,14 @@ import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.http.{HeaderCarrier, HttpReads}
 import org.mockito.Mockito._
 import org.mockito.Matchers
+import uk.gov.hmrc.play.test.WithFakeApplication
 
 import scala.concurrent.Future
 
 /**
   * Created by crispy on 11/07/16.
   */
-class SubmissionEndpointControllerSpec extends SCRSSpec with SCRSFixtures {
+class SubmissionEndpointControllerSpec extends SCRSSpec with SCRSFixtures with WithFakeApplication {
 
   val cacheMap = CacheMap("", Map("" -> Json.toJson("")))
 

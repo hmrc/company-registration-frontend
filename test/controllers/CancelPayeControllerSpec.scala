@@ -29,9 +29,11 @@ import org.mockito.Mockito._
 import play.api.http.Status._
 import uk.gov.hmrc.play.http.ws.WSHttp
 import play.api.test.FakeRequest
+import uk.gov.hmrc.play.test.WithFakeApplication
+
 import scala.concurrent.Future
 
-class CancelPayeControllerSpec extends SCRSSpec with MockitoSugar {
+class CancelPayeControllerSpec extends SCRSSpec with MockitoSugar with WithFakeApplication {
   val mockHttp = mock[WSHttp]
 
   val mockPayeConnector = mock[PAYEConnector]

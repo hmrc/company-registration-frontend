@@ -34,10 +34,11 @@ import org.mockito.Matchers
 import org.mockito.Mockito._
 import play.api.libs.json.{JsObject, Json}
 import uk.gov.hmrc.play.http.HeaderCarrier
+import uk.gov.hmrc.play.test.WithFakeApplication
 
 import scala.concurrent.Future
 
-class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixture with TradingDetailsFixtures with CorporationTaxFixture with navModelRepoMock {
+class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with WithFakeApplication with AccountingDetailsFixture with TradingDetailsFixtures with CorporationTaxFixture with navModelRepoMock {
 
   val mockMetaDataService = mock[MetaDataService]
 

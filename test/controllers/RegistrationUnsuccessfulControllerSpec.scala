@@ -28,10 +28,11 @@ import uk.gov.hmrc.play.http.{HeaderCarrier, HttpReads, HttpResponse}
 import play.api.test.Helpers._
 import org.mockito.Mockito._
 import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
+import uk.gov.hmrc.play.test.WithFakeApplication
 
 import scala.concurrent.Future
 
-class RegistrationUnsuccessfulControllerSpec extends SCRSSpec {
+class RegistrationUnsuccessfulControllerSpec extends SCRSSpec with WithFakeApplication {
 
   class Setup {
     val controller = new RegistrationUnsuccessfulController {

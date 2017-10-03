@@ -32,11 +32,12 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.{EmailVerificationService, EnrolmentsService}
 import uk.gov.hmrc.http.cache.client.CacheMap
+import uk.gov.hmrc.play.test.WithFakeApplication
 
 import scala.concurrent.Future
 
 class SignInOutControllerSpec extends SCRSSpec
-  with UserDetailsFixture with PayloadFixture with PPOBFixture with BusinessRegistrationFixture with CompanyDetailsFixture {
+  with UserDetailsFixture with PayloadFixture with PPOBFixture with BusinessRegistrationFixture with CompanyDetailsFixture with WithFakeApplication {
 
   val mockEmailService = mock[EmailVerificationService]
   val mockEnrolmentsService = mock[EnrolmentsService]

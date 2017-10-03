@@ -26,9 +26,7 @@ import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.util.Random
 
-trait SCRSSpec extends UnitSpec with MockitoSugar with SCRSMocks with BeforeAndAfterEach
-  with WithFakeApplication with JsonHelpers {
-
+trait SCRSSpec extends UnitSpec with MockitoSugar with SCRSMocks with BeforeAndAfterEach with JsonHelpers {
   implicit val hc = HeaderCarrier()
 
   override def beforeEach() {
