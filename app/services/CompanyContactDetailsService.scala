@@ -91,8 +91,8 @@ trait CompanyContactDetailsService extends CommonService with SCRSExceptions {
           case true =>
             for {
               userIds <- authConnector.getIds[UserIDs](user)
-              regId <- fetchRegistrationID
-              _ <- auditChangeInContactDetails(userIds.externalId, userDetails.authProviderId, regId, originalContactDetails, userContactDetails)
+              regId   <- fetchRegistrationID
+              _        = auditChangeInContactDetails(userIds.externalId, userDetails.authProviderId, regId, originalContactDetails, userContactDetails)
             } yield true
           case false => Future.successful(false)
         }
