@@ -23,21 +23,24 @@ import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import play.api.Logger
 import uk.gov.hmrc.play.frontend.controller.FrontendController
 import services._
+import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.frontend.auth.Actions
 import utils.{MessagesSupport, SCRSExceptions, SessionRegistration}
 
 import scala.concurrent.Future
 
-object DashboardController extends DashboardController {
+object DashboardController extends DashboardController with ServicesConfig {
   val authConnector = FrontendAuthConnector
   val keystoreConnector = KeystoreConnector
   val dashboardService = DashboardService
   val companyRegistrationConnector = CompanyRegistrationConnector
-
+  val companiesHouseURL = getConfString("coho-service.sign-in", throw new Exception("Could not find config for coho-sign-in url"))
 }
 
-trait DashboardController extends FrontendController with Actions with CommonService with SCRSExceptions with ControllerErrorHandler with SessionRegistration with MessagesSupport {
+trait DashboardController extends FrontendController with Actions with CommonService with SCRSExceptions
+  with ControllerErrorHandler with SessionRegistration with MessagesSupport {
 
+  val companiesHouseURL: String
   val dashboardService: DashboardService
 
   val show = AuthorisedFor(taxRegime = SCRSRegime("post-sign-in"), pageVisibility = GGConfidence).async {
@@ -45,7 +48,7 @@ trait DashboardController extends FrontendController with Actions with CommonSer
       implicit request =>
         registered { regId =>
           dashboardService.buildDashboard(regId) map {
-            case DashboardBuilt(dash) => Ok(views.html.reg.Dashboard(dash))
+            case DashboardBuilt(dash) => Ok(views.html.reg.Dashboard(dash, companiesHouseURL))
             case CouldNotBuild => Redirect(controllers.handoff.routes.BasicCompanyDetailsController.basicCompanyDetails())
             case RejectedIncorp => Ok(views.html.reg.RegistrationUnsuccessful())
           } recover {

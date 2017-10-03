@@ -55,7 +55,7 @@ object TestEndpointController extends TestEndpointController {
 }
 
 trait TestEndpointController extends FrontendController with Actions with CommonService
-  with SCRSExceptions with HandOffNavigator with ServicesConfig with SessionRegistration with MessagesSupport {
+  with SCRSExceptions with ServicesConfig with HandOffNavigator with SessionRegistration with MessagesSupport {
 
   val s4LConnector: S4LConnector
   val keystoreConnector: KeystoreConnector
@@ -64,6 +64,7 @@ trait TestEndpointController extends FrontendController with Actions with Common
   val metaDataService : MetaDataService
   val dynStubConnector: DynamicStubConnector
   val brConnector: BusinessRegistrationConnector
+  val coHoURL = getConfString("coho-service.sign-in", throw new Exception("Could not find config for coho-sign-in url"))
 
   private def convertToForm(data: CompanyNameHandOffIncoming) : CompanyNameHandOffFormModel = {
     CompanyNameHandOffFormModel(
@@ -345,7 +346,7 @@ trait TestEndpointController extends FrontendController with Actions with Common
   //http:localhost:9870/register-blah/restart
   //register-for-blah/restart
 
-  def dashboardStubbed(payeStatus:String="draft",incorpCTStatus:String ="held",cancelURL:String="true",restartURL:String="true") = Action.async {
+  def dashboardStubbed(payeStatus:String="draft",incorpCTStatus:String ="held",cancelURL:String="true",restartURL:String="true") = Action {
     implicit request =>
       val incorpAndCTDash = IncorpAndCTDashboard(
         incorpCTStatus,
@@ -362,8 +363,7 @@ trait TestEndpointController extends FrontendController with Actions with Common
       val payeLinks = PAYELinks("regURL","otrsURL",restartUrl,cancelUrl)
       val payeDash = PAYEDashboard(payeStatus,Some("lastUpdateDate"),Some("ackrefPaye"),payeLinks)
       val dash = Dashboard(incorpAndCTDash,payeDash,"companyNameStubbed")
-      Future.successful(Ok(views.html.reg.Dashboard(dash)))
-
+      Ok(views.html.reg.Dashboard(dash, coHoURL))
   }
 
   def handOff6(transactionId: String): Action[AnyContent] = AuthorisedFor(taxRegime = SCRSRegime("test-only/get-s4l"), pageVisibility = GGConfidence).async {
