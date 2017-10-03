@@ -40,6 +40,7 @@ class DashboardSpec extends SCRSSpec {
       override val keystoreConnector = mockKeystoreConnector
       override val dashboardService = mockDashboardService
       override val companyRegistrationConnector = mockCompanyRegistrationConnector
+      override val companiesHouseURL = "testUrl"
       }
   }
 
