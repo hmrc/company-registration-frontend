@@ -28,10 +28,11 @@ import org.mockito.Mockito._
 import play.api.i18n.MessagesApi
 import play.api.test.Helpers._
 import services.DeskproService
+import uk.gov.hmrc.play.test.WithFakeApplication
 
 import scala.concurrent.Future
 
-class ConfirmationSpec extends SCRSSpec with CompanyDetailsFixture {
+class ConfirmationSpec extends SCRSSpec with CompanyDetailsFixture with WithFakeApplication {
 
   val mockDeskproService = mock[DeskproService]
 

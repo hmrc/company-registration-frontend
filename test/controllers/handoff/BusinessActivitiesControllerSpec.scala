@@ -30,12 +30,13 @@ import services.{HandOffService, NavModelNotFoundException}
 import uk.gov.hmrc.play.frontend.auth.AuthContext
 import uk.gov.hmrc.play.http.HeaderCarrier
 import play.api.test.Helpers._
+import uk.gov.hmrc.play.test.WithFakeApplication
 import utils.{DecryptionError, PayloadError}
 
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
-class BusinessActivitiesControllerSpec extends SCRSSpec with PayloadFixture with LoginFixture {
+class BusinessActivitiesControllerSpec extends SCRSSpec with PayloadFixture with LoginFixture with WithFakeApplication {
 
   class Setup {
     val controller = new BusinessActivitiesController {

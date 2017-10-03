@@ -30,6 +30,7 @@ import org.scalatest.BeforeAndAfterEach
 import play.api.libs.json.{JsObject, Json}
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.play.test.WithFakeApplication
 import utils.JweEncryptor
 
 import scala.concurrent.Future
@@ -39,7 +40,8 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
     with UserDetailsFixture
     with CompanyDetailsFixture
     with KeystoreMock
-    with navModelRepoMock {
+    with navModelRepoMock
+    with WithFakeApplication {
 
   val mockNavModelRepoObj = mockNavModelRepo
   val mockEncryptor = mock[JweEncryptor]

@@ -31,11 +31,12 @@ import play.api.i18n.MessagesApi
 import play.api.mvc.Result
 import services.DeskproService
 import uk.gov.hmrc.play.http.HeaderCarrier
+import uk.gov.hmrc.play.test.WithFakeApplication
 import utils.Messages
 
 import scala.concurrent.Future
 
-class ConfirmationControllerSpec extends SCRSSpec with CompanyDetailsFixture {
+class ConfirmationControllerSpec extends SCRSSpec with CompanyDetailsFixture with WithFakeApplication {
 
   val mockDeskproService = mock[DeskproService]
 

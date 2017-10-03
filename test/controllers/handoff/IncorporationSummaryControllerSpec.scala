@@ -29,12 +29,13 @@ import play.api.test.Helpers._
 import services.{HandBackService, HandOffService}
 import uk.gov.hmrc.play.frontend.auth.AuthContext
 import uk.gov.hmrc.play.http.HeaderCarrier
+import uk.gov.hmrc.play.test.WithFakeApplication
 import utils.{DecryptionError, Jwe, PayloadError}
 
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
-class IncorporationSummaryControllerSpec extends SCRSSpec with PayloadFixture {
+class IncorporationSummaryControllerSpec extends SCRSSpec with PayloadFixture with WithFakeApplication {
 
   class Setup {
     object TestController extends IncorporationSummaryController {

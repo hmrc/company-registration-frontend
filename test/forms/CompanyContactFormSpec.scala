@@ -21,11 +21,11 @@ import helpers.{FormTestHelpers, SCRSSpec}
 import models.CompanyContactViewModel
 import play.api.data.FormError
 import play.api.test.FakeRequest
-import uk.gov.hmrc.play.test.UnitSpec
+import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.util.Random
 
-class CompanyContactFormSpec extends SCRSSpec with CompanyContactDetailsFixture with FormTestHelpers {
+class CompanyContactFormSpec extends SCRSSpec with CompanyContactDetailsFixture with FormTestHelpers with WithFakeApplication {
 
   "Creating a form with valid data" should {
     "have no errors" in  {

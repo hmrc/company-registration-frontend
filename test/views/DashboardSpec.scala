@@ -27,10 +27,11 @@ import play.api.test.Helpers._
 import services.{DashboardBuilt, DashboardService}
 import org.mockito.Matchers.any
 import play.twirl.api.Html
+import uk.gov.hmrc.play.test.WithFakeApplication
 
 import scala.concurrent.Future
 
-class DashboardSpec extends SCRSSpec {
+class DashboardSpec extends SCRSSpec with WithFakeApplication {
 
   val mockDashboardService = mock[DashboardService]
 

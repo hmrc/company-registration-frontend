@@ -28,11 +28,12 @@ import org.mockito.Matchers
 import play.api.test.Helpers._
 import services.MetaDataService
 import uk.gov.hmrc.play.http.HeaderCarrier
+import uk.gov.hmrc.play.test.WithFakeApplication
 
 import scala.concurrent.Future
 
 class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixture
-  with CorporationTaxFixture with navModelRepoMock{
+  with CorporationTaxFixture with navModelRepoMock with WithFakeApplication {
 
   implicit val hcWithExtraHeaders: HeaderCarrier = HeaderCarrier().withExtraHeaders("Accept" -> "application/vnd.hmrc.1.0+json")
 

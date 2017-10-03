@@ -28,10 +28,11 @@ import services.MetricsService
 import org.mockito.Mockito._
 import org.mockito.Matchers.any
 import mocks.MetricServiceMock
+import uk.gov.hmrc.play.test.WithFakeApplication
 
 import scala.concurrent.Future
 
-class CompanyContactDetailsControllerSpec extends SCRSSpec with UserDetailsFixture with CompanyContactDetailsFixture {
+class CompanyContactDetailsControllerSpec extends SCRSSpec with UserDetailsFixture with CompanyContactDetailsFixture with WithFakeApplication {
 
   class Setup {
     val controller = new CompanyContactDetailsController {

@@ -33,10 +33,11 @@ import services.{MetricsService, TradingDetailsService}
 import play.api.test.Helpers._
 import uk.gov.hmrc.play.frontend.auth.AuthContext
 import uk.gov.hmrc.play.http.HeaderCarrier
+import uk.gov.hmrc.play.test.WithFakeApplication
 
 import scala.concurrent.Future
 
-class TradingDetailsControllerSpec extends SCRSSpec with AuthBuilder with TradingDetailsFixtures {
+class TradingDetailsControllerSpec extends SCRSSpec with WithFakeApplication with AuthBuilder with TradingDetailsFixtures {
 
   val mockTradingDetailsService = mock[TradingDetailsService]
   val mockKeyStoreConnector = mock[KeystoreConnector]
