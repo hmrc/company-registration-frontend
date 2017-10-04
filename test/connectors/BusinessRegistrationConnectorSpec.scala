@@ -19,15 +19,16 @@ package connectors
 import config.WSHttp
 import fixtures.BusinessRegistrationFixture
 import helpers.SCRSSpec
-import models.{Address, CompanyContactDetailsMongo, BusinessRegistration}
+import models.{Address, BusinessRegistration, CompanyContactDetailsMongo}
 import org.mockito.Matchers
 import org.mockito.Mockito._
-import play.api.libs.json.{Writes, JsValue}
+import play.api.libs.json.{JsValue, Writes}
 import uk.gov.hmrc.play.http._
+import uk.gov.hmrc.play.test.WithFakeApplication
 
 import scala.concurrent.Future
 
-class BusinessRegistrationConnectorSpec extends SCRSSpec with BusinessRegistrationFixture {
+class BusinessRegistrationConnectorSpec extends SCRSSpec with BusinessRegistrationFixture with WithFakeApplication {
 
   val mockBusRegConnector = mock[BusinessRegistrationConnector]
 
