@@ -27,8 +27,9 @@ import play.api.libs.json.Json
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.cache.client.CacheMap
 import services.{AccountingService, MetricsService, TimeService}
+import uk.gov.hmrc.play.test.WithFakeApplication
 
-class AccountingDatesControllerSpec extends SCRSSpec with AccountingDatesFixture with AccountingDetailsFixture with LoginFixture {
+class AccountingDatesControllerSpec extends SCRSSpec with WithFakeApplication with AccountingDatesFixture with AccountingDetailsFixture with LoginFixture {
 
   val cacheMap: CacheMap = CacheMap("", Map("" -> Json.toJson(validAccountingDatesModelCRN)))
 

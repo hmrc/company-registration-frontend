@@ -20,11 +20,12 @@ import controllers.reg.WelcomeController
 import helpers.SCRSSpec
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import uk.gov.hmrc.play.test.WithFakeApplication
 
 /**
   * Created by crispy on 20/06/16.
   */
-class WelcomeControllerSpec extends SCRSSpec {
+class WelcomeControllerSpec extends SCRSSpec with WithFakeApplication {
 
 	class Setup {
 		object TestController extends WelcomeController

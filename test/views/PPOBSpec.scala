@@ -26,15 +26,17 @@ import mocks.navModelRepoMock
 import org.jsoup.Jsoup
 import org.mockito.Mockito._
 import org.mockito.Matchers
+import play.api.i18n.MessagesApi
 import play.api.libs.json.Json
 import play.api.test.Helpers._
 import services.AddressLookupFrontendService
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.http.{HeaderCarrier, HttpReads}
+import uk.gov.hmrc.play.test.WithFakeApplication
 
 import scala.concurrent.Future
 
-class PPOBSpec extends SCRSSpec with PPOBFixture with navModelRepoMock {
+class PPOBSpec extends SCRSSpec with PPOBFixture with navModelRepoMock with WithFakeApplication {
   val mockNavModelRepoObj = mockNavModelRepo
   val mockBusinessRegConnector = mock[BusinessRegistrationConnector]
   val mockAddressLookupFrontendService = mock[AddressLookupFrontendService]
@@ -51,6 +53,7 @@ class PPOBSpec extends SCRSSpec with PPOBFixture with navModelRepoMock {
       override val navModelMongo = mockNavModelRepoObj
       override val businessRegConnector = mockBusinessRegConnector
       override val addressLookupFrontendService = mockAddressLookupFrontendService
+      implicit val messagesApi: MessagesApi = fakeApplication.injector.instanceOf[MessagesApi]
     }
   }
 

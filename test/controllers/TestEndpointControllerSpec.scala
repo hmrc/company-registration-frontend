@@ -36,11 +36,12 @@ import services.MetaDataService
 import org.mockito.Mockito._
 import org.mockito.Matchers
 import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
+import uk.gov.hmrc.play.test.WithFakeApplication
 
 import scala.concurrent.Future
 
 class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with MockitoSugar
-  with TestActorSystem with CorporationTaxFixture with navModelRepoMock {
+  with TestActorSystem with CorporationTaxFixture with navModelRepoMock with WithFakeApplication {
 
   val mockNavModelRepoObj = mockNavModelRepo
   val applicantData = AboutYouChoice("Director")

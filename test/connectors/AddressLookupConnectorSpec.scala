@@ -23,10 +23,11 @@ import org.mockito.Mockito._
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Call
 import uk.gov.hmrc.play.http.{ForbiddenException, HeaderCarrier, HttpResponse, NotFoundException}
+import uk.gov.hmrc.play.test.WithFakeApplication
 
 import scala.concurrent.Future
 
-class AddressLookupConnectorSpec extends SCRSSpec {
+class AddressLookupConnectorSpec extends SCRSSpec with WithFakeApplication {
 
   trait Setup {
     val connector = new AddressLookupConnector {

@@ -35,10 +35,11 @@ import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Matchers
 import mocks.navModelRepoMock
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
+import uk.gov.hmrc.play.test.WithFakeApplication
 
 import scala.concurrent.Future
 
-class PPOBControllerSpec extends SCRSSpec with PPOBFixture with navModelRepoMock with AuthBuilder {
+class PPOBControllerSpec extends SCRSSpec with PPOBFixture with navModelRepoMock with AuthBuilder with WithFakeApplication {
 
   val mockNavModelRepoObj = mockNavModelRepo
   val mockBusinessRegConnector = mock[BusinessRegistrationConnector]

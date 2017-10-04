@@ -27,15 +27,16 @@ import org.mockito.Mockito._
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services.{HandBackService}
+import services.HandBackService
 import uk.gov.hmrc.play.frontend.auth.AuthContext
 import uk.gov.hmrc.play.http.HeaderCarrier
+import uk.gov.hmrc.play.test.WithFakeApplication
 import utils.{DecryptionError, Jwe, PayloadError}
 
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
-class CorporationTaxSummaryControllerSpec extends SCRSSpec with LoginFixture {
+class CorporationTaxSummaryControllerSpec extends SCRSSpec with LoginFixture with WithFakeApplication {
 
   class Setup {
     object TestController extends CorporationTaxSummaryController {
