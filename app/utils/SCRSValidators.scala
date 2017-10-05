@@ -33,7 +33,7 @@ object SCRSValidators {
   private val addresslinelongRegex = """^$|[a-zA-Z0-9,.\(\)/&'"\-]{1}[a-zA-Z0-9, .\(\)/&'"\-]{0,26}$""".r
   private val addressline4Regex = """^$|[a-zA-Z0-9,.\(\)/&'"\-]{1}[a-zA-Z0-9, .\(\)/&'"\-]{0,17}$""".r
   private val nonEmptyRegex = """^(?=\s*\S).*$""".r
-  private val completionCapacityRegex = """^[A-Za-z0-9 '\\-]{1,100}$""".r
+  private val completionCapacityRegex = """^[A-Za-z0-9 '\-]{1,100}$""".r
 
   implicit val bHS = TimeService.bHS
 
