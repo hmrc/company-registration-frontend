@@ -203,230 +203,220 @@
 
 @main_template(title = Messages("page.reg.Dashboard.title"), mainClass = None) {
 
-    <style>
-        td.right {
-            text-align: right;
+    <a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
+
+    <style type="text/css">
+        td:first-child {
+            width: 50%;
         }
-         td.bottom {
-            text-align: center;
-        }
-        .check-your-answers td {
-            font-size: 19px;
-            margin: 0;
-            vertical-align: middle;
+        td:only-child {
+            width: 100%;
         }
     </style>
 
-    <a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
-
     <div class="form-group">
+        <header>
+            <h1 class="heading-xlarge" id="main-heading">@Messages("page.reg.Dashboard.heading")</h1>
+        </header>
 
-        <div class="grid-row">
-            <div class="column-two-thirds">
-                <header>
-                    <h1 class="heading-xlarge" id="main-heading">@Messages("page.reg.Dashboard.heading")</h1>
-                </header>
+        <!--<h2 class="heading-medium">@dash.companyName</h2>-->
+        <h2 class="heading-medium" id="subheading">@Messages("page.reg.Dashboard.incorporation")</h2>
 
-                <!--<h2 class="heading-medium">@dash.companyName</h2>-->
-                <h2 class="heading-medium" id="subheading">@Messages("page.reg.Dashboard.incorporation")</h2>
+        <div class="form-group">
 
-            <div class="form-group">
+            <table class="check-your-answers">
 
-                <table class="check-your-answers">
+                <tbody>
+                    <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
+                        <td class="check-your-answers">@Messages("page.reg.Dashboard.status")</td>
+                        <td id="incorpStatusText">@incorpStatus</td>
+                    </tr>
+                </tbody>
 
+                @if(dash.incDash.status == "held") {
                     <tbody>
                         <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
-                            <td class="check-your-answers">@Messages("page.reg.Dashboard.status")</td>
-                            <td id="incorpStatusText" style="width:50%">@incorpStatus</td>
+                            <td>@Messages("page.reg.Dashboard.submissionDate")</td>
+                            <td id="incorpSubmissionDate">@dash.incDash.submissionDate</td>
+
                         </tr>
                     </tbody>
 
-                    @if(dash.incDash.status == "held") {
-                        <tbody>
-                            <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
-                                <td>@Messages("page.reg.Dashboard.submissionDate")</td>
-                                <td id="incorpSubmissionDate" style="width:50%">@dash.incDash.submissionDate</td>
+                    <tbody>
+                        <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
+                            <td>@Messages("page.reg.Dashboard.ref")</td>
+                            <td id="incorpTransID">@dash.incDash.transId</td>
 
-                            </tr>
-                        </tbody>
+                        </tr>
+                    </tbody>
 
-                        <tbody>
-                            <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
-                                <td>@Messages("page.reg.Dashboard.ref")</td>
-                                <td id="incorpTransID" style="width:50%">@dash.incDash.transId</td>
+                    <tbody>
+                        <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
+                            <td>@Messages("page.reg.Dashboard.paymentRef")</td>
+                            <td id="incorpPaymentReference">@dash.incDash.paymentRef</td>
 
-                            </tr>
-                        </tbody>
+                        </tr>
+                    </tbody>
 
-                        <tbody>
-                            <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
-                                <td>@Messages("page.reg.Dashboard.paymentRef")</td>
-                                <td id="incorpPaymentReference" style="width:50%">@dash.incDash.paymentRef</td>
+                    <tbody>
+                        <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
+                           <td id="incorpSubmittedText" colspan="2">@Messages("page.reg.Dashboard.incSubmittedLineOne")</td>
 
-                            </tr>
-                        </tbody>
+                        </tr>
+                    </tbody>
 
-                        <tbody>
-                            <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
-                               <td id="incorpSubmittedText" colspan="2">@Messages("page.reg.Dashboard.incSubmittedLineOne")</td>
+                } else {
+                    <tbody>
+                        <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
+                            <td>@Messages("page.reg.Dashboard.crn")</td>
+                            <td id="crn">@dash.incDash.crn</td>
+                        </tr>
+                    </tbody>
 
-                            </tr>
-                        </tbody>
-
-                    } else {
-                        <tbody>
-                            <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
-                                <td>@Messages("page.reg.Dashboard.crn")</td>
-                                <td id="crn">@dash.incDash.crn</td>
-                            </tr>
-                        </tbody>
-
-                        <tbody>
-                            <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
-                                <td id="incorpRegisteredText" colspan="2">@Messages("page.reg.Dashboard.incChangeDetailsPrefix") <a href="@cohoSignIn">@Messages("page.reg.Dashboard.incChangeDetailsLinkText")</a>@Messages("page.reg.Dashboard.incChangeDetailsSuffix")</td>
-                            </tr>
-                        </tbody>
-                    }
-                </table>
+                    <tbody>
+                        <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
+                            <td id="incorpRegisteredText" colspan="2">@Messages("page.reg.Dashboard.incChangeDetailsPrefix") <a href="@cohoSignIn">@Messages("page.reg.Dashboard.incChangeDetailsLinkText")</a>@Messages("page.reg.Dashboard.incChangeDetailsSuffix")</td>
+                        </tr>
+                    </tbody>
+                }
+            </table>
 
 
-                <!--Corporation Block-->
-                <h3 class="heading-medium" id="corporationSubheading">@Messages("page.reg.Dashboard.corporation")</h3>
-                <table class="check-your-answers">
+            <!--Corporation Block-->
+            <h3 class="heading-medium" id="corporationSubheading">@Messages("page.reg.Dashboard.corporation")</h3>
+            <table class="check-your-answers">
 
-                    <!-- CT Status -->
+                <!-- CT Status -->
+                <thead>
+                    <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
+                        <td>@Messages("page.reg.Dashboard.status")</td>
+                        <td  id="ctStatusText">@ctStatus</td>
+
+                    </tr>
+                </thead>
+                <!-- CT Status end -->
+
+                @if(dash.incDash.status == "held") {
                     <thead>
-                        <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
-                            <td>@Messages("page.reg.Dashboard.status")</td>
-                            <td  id="ctStatusText" style="width:50%">@ctStatus</td>
+                    <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
+                        <td>@Messages("page.reg.Dashboard.ref")</td>
+                        <td id="ackRef">@dash.incDash.ackRef</td>
 
-                        </tr>
+                    </tr>
                     </thead>
-                    <!-- CT Status end -->
-
-                    @if(dash.incDash.status == "held") {
-                        <thead>
-                        <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
-                            <td>@Messages("page.reg.Dashboard.ref")</td>
-                            <td id="ackRef" style="width:50%">@dash.incDash.ackRef</td>
-
-                        </tr>
-                        </thead>
 
 
-                        <thead>
-                        <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
-                            <td id="ctPendingText" colspan="2">@Messages("page.reg.Dashboard.CTPendingLineOne")</td>
+                    <thead>
+                    <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
+                        <td id="ctPendingText" colspan="2">@Messages("page.reg.Dashboard.CTPendingLineOne")</td>
 
-                        </tr>
-                        </thead>
-                    } @if(dash.incDash.status == "submitted"){
-                        <thead>
-                        <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
-                            <td>@Messages("page.reg.Dashboard.submissionDate")</td>
-                            <td id="ctSubmissionDate" style="width:50%">@dash.incDash.ctSubmissionDate</td>
+                    </tr>
+                    </thead>
+                } @if(dash.incDash.status == "submitted"){
+                    <thead>
+                    <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
+                        <td>@Messages("page.reg.Dashboard.submissionDate")</td>
+                        <td id="ctSubmissionDate">@dash.incDash.ctSubmissionDate</td>
 
-                        </tr>
-                        </thead>
+                    </tr>
+                    </thead>
 
-                        <thead>
-                        <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
-                            <td>@Messages("page.reg.Dashboard.ref")</td>
-                            <td id="submittedAckRef" style="width:50%">@dash.incDash.ackRef</td>
+                    <thead>
+                    <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
+                        <td>@Messages("page.reg.Dashboard.ref")</td>
+                        <td id="submittedAckRef">@dash.incDash.ackRef</td>
 
-                        </tr>
-                        </thead>
+                    </tr>
+                    </thead>
 
-                        <thead>
-                        <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
-                            <td colspan="2">
-                                <p id="CTifSuccess">@Messages("page.reg.Dashboard.CTSubmittedLineOne")</p>
-                                <ul class="list list-bullet">
-                                    <li>@Messages("page.reg.Dashboard.CTSubmittedLineTwo")</li>
-                                    <li>@Messages("page.reg.Dashboard.CTSubmittedLineThree")</li>
-                                </ul>
-                            </td>
-
-                        </tr>
-                        </thead>
-                    } @if(dash.incDash.status == "acknowledged"){
                     <thead>
                     <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
                         <td colspan="2">
-                            <p>@Messages("page.reg.Dashboard.CTRegistered")</p>
+                            <p id="CTifSuccess">@Messages("page.reg.Dashboard.CTSubmittedLineOne")</p>
+                            <ul class="list list-bullet">
+                                <li>@Messages("page.reg.Dashboard.CTSubmittedLineTwo")</li>
+                                <li>@Messages("page.reg.Dashboard.CTSubmittedLineThree")</li>
+                            </ul>
                         </td>
 
                     </tr>
                     </thead>
-                    }
-                    @if(dash.incDash.ackRefStatus.fold(false)(_ == "06")){
+                } @if(dash.incDash.status == "acknowledged"){
+                <thead>
+                <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
+                    <td colspan="2">
+                        <p>@Messages("page.reg.Dashboard.CTRegistered")</p>
+                    </td>
 
-                        <thead>
-                        <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
-                            <td>@Messages("page.reg.Dashboard.wycd")</td>
-                            <td colspan="2" style="width:50%"><a href="https://online.hmrc.gov.uk/registration/newbusiness/introduction">
-                                @Messages("page.reg.Dashboard.CTUnsuccessful")</a></td>
-                        </tr>
-                        </thead>
-                    }
-                </table>
-
-                <!--PAYE Block-->
-                @if(dash.payeDash.status != "notEnabled"){
-                    <h4 class="heading-medium" id="payeSubheading">@Messages("page.reg.Dashboard.PAYE.subHeading")</h4>
-
-                    @if(dash.payeDash.status == "notStarted"){
-                        <table class="check-your-answers">
-
-                            @payeMap
-                            <!-- PAYE Status -->
-                            <thead>
-                            <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
-                                <td>@Messages("page.reg.Dashboard.status")</td>
-                                <td  id="payeStatusText" style="width:50%">@payeStatus</td>
-
-                            </tr>
-                            </thead>
-                            <!-- PAYE Status end -->
-                        </table>
-                    } else {
-                        <table class="check-your-answers">
-
-                            <!-- PAYE Status -->
-                            <thead>
-                            <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
-                                <td>@Messages("page.reg.Dashboard.status")</td>
-                                <td  id="payeStatusText" style="width:50%">@payeStatus</td>
-
-                            </tr>
-                            </thead>
-                            <!-- PAYE Status end -->
-
-                            @payeMap
-                        </table>
-                    }
+                </tr>
+                </thead>
                 }
+                @if(dash.incDash.ackRefStatus.fold(false)(_ == "06")){
 
-                <!--VAT Block-->
-                @if(showVATBlock){
-                <h4 class="heading-medium" id="vatSubheading">@Messages("page.reg.Dashboard.VAT.title")</h4>
-                <table class="check-your-answers">
-                    <!-- VAT Status -->
                     <thead>
                     <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
-                        <td>@Messages("page.reg.Dashboard.status")</td>
-                        <td id="vatStatusText" style="width:50%"><a id="vatUrl" href="https://online.hmrc.gov.uk/registration/newbusiness/introduction">@Messages("page.reg.Dashboard.VAT.registerText")</a></td>
-
+                        <td>@Messages("page.reg.Dashboard.wycd")</td>
+                        <td colspan="2"><a href="https://online.hmrc.gov.uk/registration/newbusiness/introduction">
+                            @Messages("page.reg.Dashboard.CTUnsuccessful")</a></td>
                     </tr>
                     </thead>
-                    <!-- VAT Status end -->
-                    @doYouNeedToRegisterForVATHelp
-                </table>
                 }
-            </div>
+            </table>
+
+            <!--PAYE Block-->
+            @if(dash.payeDash.status != "notEnabled"){
+                <h4 class="heading-medium" id="payeSubheading">@Messages("page.reg.Dashboard.PAYE.subHeading")</h4>
+
+                @if(dash.payeDash.status == "notStarted"){
+                    <table class="check-your-answers">
+
+                        @payeMap
+                        <!-- PAYE Status -->
+                        <thead>
+                        <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
+                            <td>@Messages("page.reg.Dashboard.status")</td>
+                            <td  id="payeStatusText">@payeStatus</td>
+
+                        </tr>
+                        </thead>
+                        <!-- PAYE Status end -->
+                    </table>
+                } else {
+                    <table class="check-your-answers">
+
+                        <!-- PAYE Status -->
+                        <thead>
+                        <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
+                            <td>@Messages("page.reg.Dashboard.status")</td>
+                            <td  id="payeStatusText">@payeStatus</td>
+
+                        </tr>
+                        </thead>
+                        <!-- PAYE Status end -->
+
+                        @payeMap
+                    </table>
+                }
+            }
+
+            <!--VAT Block-->
+            @if(showVATBlock){
+            <h4 class="heading-medium" id="vatSubheading">@Messages("page.reg.Dashboard.VAT.title")</h4>
+            <table class="check-your-answers">
+                <!-- VAT Status -->
+                <thead>
+                <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
+                    <td>@Messages("page.reg.Dashboard.status")</td>
+                    <td id="vatStatusText"><a id="vatUrl" href="https://online.hmrc.gov.uk/registration/newbusiness/introduction">@Messages("page.reg.Dashboard.VAT.registerText")</a></td>
+
+                </tr>
+                </thead>
+                <!-- VAT Status end -->
+                @doYouNeedToRegisterForVATHelp
+            </table>
+            }
         </div>
     </div>
-</div>
 
 }
 
