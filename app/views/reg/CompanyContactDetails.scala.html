@@ -22,14 +22,14 @@
 
     @form(action = controllers.reg.routes.CompanyContactDetailsController.submit()) {
 
-    <div class ="form-field">
-        @input(
-            contactDetails("contactName"),
-            '_label -> Messages("page.reg.company-contact-details.label-one"),
-            '_labelDataAttributes -> "id=contactNameLabel",
-            '_inputClass -> "form-control form-control--block"
-        )
-    </div>
+        <div class ="form-field">
+            @input(
+                contactDetails("contactName"),
+                '_label -> Messages("page.reg.company-contact-details.label-one"),
+                '_labelDataAttributes -> "id=contactNameLabel",
+                '_inputClass -> "form-control form-control--block"
+            )
+        </div>
         <div class="indent">
             <p id="helpMessage1">@Messages("page.reg.company-contact-details.helpMessage1")</p>
         </div>
@@ -64,7 +64,6 @@
             </div>
         </fieldset>
 
-        <br>
         <div class="form-group">
             <button class="btn button" id="next">@Messages("common.button.snc")</button>
         </div>

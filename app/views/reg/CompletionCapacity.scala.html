@@ -20,41 +20,34 @@
 
     <a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
 
-    <div class="grid-row">
-        <div class="column-one-third">
+    @errorSummary(
+        Messages("common.errorSummary.label"),
+        aboutYou
+    )
 
-            @errorSummary(
-                Messages("common.errorSummary.label"),
-                aboutYou
+    <header class="page-header">
+        <h1 class="form-title heading-xlarge" id="main-heading">@Messages("page.reg.AboutYou.heading")</h1>
+    </header>
+
+    @form(action = controllers.reg.routes.CompletionCapacityController.submit()) {
+        <div class="form-group">
+            @inputRadioGroupHidden(
+                aboutYou("completionCapacity"),
+                Seq("director"          -> Messages("page.reg.AboutYou.radio1"),
+                    "company secretary" -> Messages("page.reg.AboutYou.radio2"),
+                    "agent"             -> Messages("page.reg.AboutYou.radio3"),
+                    "other"             -> Messages("page.reg.AboutYou.radio4")),
+                Seq("other" -> otherHidden),
+                '_idHidden -> "other",
+                '_classHidden -> "panel panel-indent",
+                '_labelClass -> "block-label radio-label",
+                '_legend -> Messages("page.reg.AboutYou.heading"),
+                '_legendClass -> "visuallyhidden"
             )
-
-            <header class="page-header">
-                <h1 class="form-title heading-xlarge" id="main-heading">@Messages("page.reg.AboutYou.heading")</h1>
-            </header>
-
-
-
-        @form(action = controllers.reg.routes.CompletionCapacityController.submit()) {
-                <div class="form-group">
-                    @inputRadioGroupHidden(
-                        aboutYou("completionCapacity"),
-                        Seq("director"          -> Messages("page.reg.AboutYou.radio1"),
-                            "company secretary" -> Messages("page.reg.AboutYou.radio2"),
-                            "agent"             -> Messages("page.reg.AboutYou.radio3"),
-                            "other"             -> Messages("page.reg.AboutYou.radio4")),
-                        Seq("other" -> otherHidden),
-                        '_idHidden -> "other",
-                        '_classHidden -> "panel panel-indent",
-                        '_labelClass -> "block-label radio-label",
-                        '_legend -> Messages("page.reg.AboutYou.heading"),
-                        '_legendClass -> "visuallyhidden"
-                    )
-                </div>
-
-                <div class="form-group">
-                    <button class="btn button" id="next">@Messages("common.button.snc")</button>
-                </div>
-            }
         </div>
-    </div>
+
+        <div class="form-group">
+            <button class="btn button" id="next">@Messages("common.button.snc")</button>
+        </div>
+    }
 }

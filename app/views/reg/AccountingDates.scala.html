@@ -18,11 +18,9 @@
 }
 
 @notPlanningToYetHiddenContent = {
-    <!--<br>-->
     <div class="notice">
        <div class="important-notice">
            @Messages("page.reg.accountingDates.warning")
-           <!--<BR>-->
        </div>
     </div>
 }
@@ -31,21 +29,21 @@
 
 <a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
 
-<div class="grid-row">
-        @errorSummary(
-            Messages("common.errorSummary.label"),
-            accountingDatesForm,
-            Seq("notFuture", "dateNotFoundDay","dateNotFoundMonth","dateNotFoundYear","invalidDay","invalidMonth","invalidYear","invalidDate")
-        )
+    @errorSummary(
+        Messages("common.errorSummary.label"),
+        accountingDatesForm,
+        Seq("notFuture", "dateNotFoundDay","dateNotFoundMonth","dateNotFoundYear","invalidDay","invalidMonth","invalidYear","invalidDate")
+    )
 
-        <header class="page-header">
-            <h1 class="form-title heading-xlarge" id="main-heading">@Messages("page.reg.accountingDates.heading")</h1>
-        </header>
-        <div class ="form-group">
-            <p class="lede">@Messages("page.reg.accountingDates.lede1")</p>
-        </div>
+    <header class="page-header">
+        <h1 class="form-title heading-xlarge" id="main-heading">@Messages("page.reg.accountingDates.heading")</h1>
+    </header>
+    <div class ="form-group">
+        <p class="lede">@Messages("page.reg.accountingDates.lede1")</p>
+    </div>
 
-        @form(action = AccountingDatesController.submit()) {
+    @form(action = AccountingDatesController.submit()) {
+        <div class="form-group">
             @inputRadioGroupHidden(
                 accountingDatesForm("businessStartDate"),
                 Seq("whenRegistered" -> Messages("page.reg.accountingDates.radioOne"),
@@ -59,12 +57,10 @@
                 '_legend -> Messages("page.reg.accountingDates.heading"),
                 '_legendClass -> "visuallyhidden"
             )
+        </div>
 
-            <br>
-
-            <div class="form-group">
-                <button class="btn button" id="next">@Messages("common.button.snc")</button>
-            </div>
-        }
-</div>
+        <div class="form-group">
+            <button class="btn button" id="next">@Messages("common.button.snc")</button>
+        </div>
+    }
 }
