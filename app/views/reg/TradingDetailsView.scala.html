@@ -55,21 +55,21 @@
         </div>
     </details>
     @form(action = controllers.reg.routes.TradingDetailsController.submit()) {
+        <div class="form-group">
+            @inputRadioGroup(
+                tradingDetails("regularPayments"),
+                Seq(("true",Messages("page.reg.ct61.radioYesLabel")),("false",Messages("page.reg.ct61.radioNoLabel"))),
+                '_fieldsetId -> "regular-payments",
+                '_groupClass -> "inline",
+                '_labelClass -> "block-label radio-label",
+                '_legend -> "Do you expect to make or receive payments?",
+                '_legend -> Messages("page.reg.ct61.heading"),
+                '_legendClass -> "visuallyhidden"
+            )
+        </div>
 
-    @inputRadioGroup(
-        tradingDetails("regularPayments"),
-        Seq(("true",Messages("page.reg.ct61.radioYesLabel")),("false",Messages("page.reg.ct61.radioNoLabel"))),
-        '_fieldsetId -> "regular-payments",
-        '_groupClass -> "form-group inline",
-        '_labelClass -> "block-label radio-label",
-        '_legend -> "Do you expect to make or receive payments?",
-        '_legend -> Messages("page.reg.ct61.heading"),
-        '_legendClass -> "visuallyhidden"
-
-    )
-
-    <div class="form-group">
-        <button class="button" type="submit" id="next">@Messages("common.button.save")</button>
-    </div>
+        <div class="form-group">
+            <button class="button" type="submit" id="next">@Messages("common.button.save")</button>
+        </div>
     }
 }
