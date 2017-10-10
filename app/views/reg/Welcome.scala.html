@@ -6,45 +6,39 @@
 
     <a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
 
-    <div class="grid-row">
-        <div class="column-one-third">
-            <header class="page-header">
-                <h1 class="form-title heading-xlarge" id="main-heading">@Messages("page.reg.welcome.heading")</h1>
-            </header>
-            <div class="form-group">
-                <h2 class="heading-medium" id="description-one">@Messages("page.reg.welcome.description.one")</h2>
+    <header class="page-header">
+        <h1 class="form-title heading-xlarge" id="main-heading">@Messages("page.reg.welcome.heading")</h1>
+    </header>
+    <div class="form-group">
+        <h2 class="heading-medium" id="description-one">@Messages("page.reg.welcome.description.one")</h2>
 
-                @{if (PAYESwitch) {
-                <ul class="list list-bullet">
-                    <li id="inc_ct">{Messages("page.reg.welcome.bullet.inc_ct")}</li>
-                    <li id="paye">{Messages("page.reg.welcome.bullet.paye")}</li>
-                </ul>
-                } else
-                {
-                <ul class="list list-bullet">
-                    <li id="inc">{Messages("page.reg.welcome.bullet.inc")}</li>
-                    <li id="ct">{Messages("page.reg.welcome.bullet.ct")}</li>
-                </ul>
-                }
-                }
-            </div>
-            <div class="form-group">
-                <h3 class="heading-medium" id="subheading">@Messages("page.reg.welcome.heading.beforeyoubegin")</h3>
-                <p id="cost">@Messages("page.reg.welcome.cost")</p>
-                <p id="app">@Messages("page.reg.welcome.yourapp")</p>
-                <ul class="list list-bullet">
-                    <li id="30">@Messages("page.reg.welcome.bullet.30-mins")</li>
-                    <li id="one">@Messages("page.reg.welcome.bullet.one-go")</li>
-                    <li id="90">@Messages("page.reg.welcome.bullet.90-days")</li>
-                </ul>
-                @form(action = controllers.reg.routes.WelcomeController.submit()) {
-                <div class="form-group">
-                    <button class="button button--get-started" role="button" id="next">@Messages("common.button.start")</button>
-                </div>
-                }
-            </div>
-
+        @{if (PAYESwitch) {
+        <ul class="list list-bullet">
+            <li id="inc_ct">{Messages("page.reg.welcome.bullet.inc_ct")}</li>
+            <li id="paye">{Messages("page.reg.welcome.bullet.paye")}</li>
+        </ul>
+        } else
+        {
+        <ul class="list list-bullet">
+            <li id="inc">{Messages("page.reg.welcome.bullet.inc")}</li>
+            <li id="ct">{Messages("page.reg.welcome.bullet.ct")}</li>
+        </ul>
+        }
+        }
+    </div>
+    <div class="form-group">
+        <h3 class="heading-medium" id="subheading">@Messages("page.reg.welcome.heading.beforeyoubegin")</h3>
+        <p id="cost">@Messages("page.reg.welcome.cost")</p>
+        <p id="app">@Messages("page.reg.welcome.yourapp")</p>
+        <ul class="list list-bullet">
+            <li id="30">@Messages("page.reg.welcome.bullet.30-mins")</li>
+            <li id="one">@Messages("page.reg.welcome.bullet.one-go")</li>
+            <li id="90">@Messages("page.reg.welcome.bullet.90-days")</li>
+        </ul>
+        @form(action = controllers.reg.routes.WelcomeController.submit()) {
+        <div class="form-group">
+            <button class="button button--get-started" role="button" id="next">@Messages("common.button.start")</button>
         </div>
-
+        }
     </div>
 }
