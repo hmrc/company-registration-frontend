@@ -7,37 +7,33 @@
 
 @main_template(title = Messages("page.reg.returningUser.title"), mainClass = None){
 
-<a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
+    <a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
 
-<div class="grid-row">
     @errorSummary(
     Messages("common.errorSummary.label"),
     returningUser
     )
 
-    <div class="column-two-thirds">
-        <header class="page-header">
-            <h1 id="main-heading" class="heading-xlarge">@Messages("page.reg.returningUser.heading")</h1>
-        </header>
+    <header class="page-header">
+        <h1 id="main-heading" class="heading-xlarge">@Messages("page.reg.returningUser.heading")</h1>
+    </header>
 
-        @form(action = controllers.reg.routes.ReturningUserController.submit()) {
+    @form(action = controllers.reg.routes.ReturningUserController.submit()) {
 
-        @inputRadioGroup(
-            returningUser("returningUser"),
-            Seq(("true",Messages("page.reg.returningUser.radioYesLabel")),("false",Messages("page.reg.returningUser.radioNoLabel"))),
-            '_fieldsetId -> "returning-user",
-            '_groupClass -> "form-group",
-            '_labelClass -> "block-label radio-label",
-            '_legend -> "Are you starting a new registration?",
-            '_legend -> Messages("page.reg.returningUser.heading"),
-            '_legendClass -> "visuallyhidden"
+    @inputRadioGroup(
+        returningUser("returningUser"),
+        Seq(("true",Messages("page.reg.returningUser.radioYesLabel")),("false",Messages("page.reg.returningUser.radioNoLabel"))),
+        '_fieldsetId -> "returning-user",
+        '_groupClass -> "form-group",
+        '_labelClass -> "block-label radio-label",
+        '_legend -> "Are you starting a new registration?",
+        '_legend -> Messages("page.reg.returningUser.heading"),
+        '_legendClass -> "visuallyhidden"
 
-        )
+    )
 
-        <div class="form-group">
-            <button class="button" type="submit" id="next">@Messages("common.button.save")</button>
-        </div>
-        }
+    <div class="form-group">
+        <button class="button" type="submit" id="next">@Messages("common.button.save")</button>
     </div>
-</div>
+    }
 }
