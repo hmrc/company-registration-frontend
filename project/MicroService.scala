@@ -5,7 +5,7 @@ import sbt._
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin
 
-import play.sbt.routes.RoutesKeys.routesGenerator
+import play.sbt.routes.RoutesKeys.{routesGenerator, routesImport}
 
 trait MicroService {
 
@@ -48,7 +48,8 @@ trait MicroService {
       parallelExecution in Test := false,
       fork in Test := false,
       retrieveManaged := true,
-      routesGenerator := StaticRoutesGenerator
+      routesGenerator := StaticRoutesGenerator,
+      routesImport ++= Seq("uk.gov.hmrc.play.binders._")
     )
     .configs(IntegrationTest)
     .settings(inConfig(IntegrationTest)(Defaults.itSettings): _*)

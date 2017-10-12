@@ -18,7 +18,7 @@ package controllers.reg
 
 import javax.inject.Inject
 
-import config.{FrontendConfig, FrontendAuthConnector}
+import config.{FrontendAuthConnector, FrontendConfig}
 import connectors._
 import controllers.auth.{SCRSExternalUrls, SCRSRegime}
 import models._
@@ -35,6 +35,7 @@ import controllers.verification.{routes => emailRoutes}
 import uk.gov.hmrc.http.cache.client.CacheMap
 import play.api.i18n.Messages.Implicits._
 import play.api.Play.current
+import uk.gov.hmrc.play.binders.ContinueUrl
 
 import scala.concurrent.Future
 
@@ -177,10 +178,10 @@ trait SignInOutController extends FrontendController with Actions with Controlle
     }
   }
 
-  def signOut(continueUrl: Option[String] = None) = Action.async {
+  def signOut(continueUrl: Option[ContinueUrl] = None) = Action.async {
     implicit request =>
       val c = continueUrl match {
-        case Some(str) => str
+        case Some(str) => str.url
         case None => s"$cRFEBaseUrl${controllers.reg.routes.QuestionnaireController.show().url}"
       }
       Future.successful(Redirect(SCRSExternalUrls.logoutURL, Map("continue" -> Seq(c))))

@@ -45,7 +45,7 @@ class EmailVerificationControllerSpec extends CompanyRegistrationConnectorMock w
 
       val createGGWAccountUrl = "testURL"
       val callbackUrl = "testCallBack"
-      val frontEndUrl = "testFrontEndUrl"
+      val frontEndUrl = "/testFrontEndUrl"
     }
   }
 
