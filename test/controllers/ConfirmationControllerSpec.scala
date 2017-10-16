@@ -58,7 +58,7 @@ class ConfirmationControllerSpec extends SCRSSpec with CompanyDetailsFixture wit
 
     "Return a 200 and display the Confirmation page" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("testRegID"))
-      CTRegistrationConnectorMocks.fetchAcknowledgementReference("testRegID", ConfirmationReferencesSuccessResponse(ConfirmationReferences("a","b","c","ABCDEFG0000")))
+      CTRegistrationConnectorMocks.fetchAcknowledgementReference("testRegID", ConfirmationReferencesSuccessResponse(ConfirmationReferences("a",Some("b"),Some("c"),"ABCDEFG0000")))
       when(mockCompanyRegistrationConnector.retrieveCompanyDetails(Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(Some(validCompanyDetailsResponse)))
 

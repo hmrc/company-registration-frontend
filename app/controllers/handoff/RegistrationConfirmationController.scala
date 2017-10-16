@@ -20,16 +20,18 @@ import config.FrontendAuthConnector
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.handoff.HO6AuthenticationProvider.RegistrationConfirmationController
 import forms.errors.DeskproForm
-import models.{ConfirmationReferencesSuccessResponse, DESFailureDeskpro, DESFailureRetriable}
+import models.handoff.PaymentHandoff
+import models.{ConfirmationReferencesSuccessResponse, DESFailureDeskpro, DESFailureRetriable, RegistrationConfirmationPayload}
 import play.api.Logger
-import play.api.mvc.{Action, AnyContent, Request}
-import services.{HandBackService, NavModelNotFoundException}
+import play.api.mvc.{Action, AnyContent, Request, Result}
+import services.{HandBackService, HandOffService, NavModelNotFoundException}
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.Accounts
-import uk.gov.hmrc.play.frontend.auth.{Actions, AuthenticationProvider, GovernmentGateway, TaxRegime}
+import uk.gov.hmrc.play.frontend.auth._
 import uk.gov.hmrc.play.frontend.controller.FrontendController
-import utils.{DecryptionError, MessagesSupport, PayloadError, SessionRegistration}
-import views.html.error_template_restart
+import utils._
+import views.html.{error_template, error_template_restart}
 import play.api.mvc.Results.Redirect
+import uk.gov.hmrc.play.http.HeaderCarrier
 
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
@@ -37,9 +39,9 @@ import scala.util.{Failure, Success}
 object RegistrationConfirmationController extends RegistrationConfirmationController {
   val authConnector = FrontendAuthConnector
   val keystoreConnector = KeystoreConnector
+  val handOffService = HandOffService
   val handBackService = HandBackService
   val companyRegistrationConnector = CompanyRegistrationConnector
-
 }
 
 object  HO6AuthenticationProvider extends GovernmentGateway {
@@ -59,18 +61,20 @@ object  HO6AuthenticationProvider extends GovernmentGateway {
   trait RegistrationConfirmationController extends FrontendController with Actions with MessagesSupport with SessionRegistration {
 
     val handBackService: HandBackService
+    val handOffService: HandOffService
 
-    //HO6
+    //HO5.1 & old HO6
     def registrationConfirmation(requestData: String): Action[AnyContent] = AuthorisedFor(taxRegime = HO6Regime(""), pageVisibility = GGConfidence).async {
       implicit user =>
         implicit request =>
           registered {
             regid =>
               handBackService.decryptConfirmationHandback(requestData) flatMap {
-                case Success(s) => handBackService.storeConfirmationHandOff(s, regid).map {
-                  case ConfirmationReferencesSuccessResponse(_) => Redirect(controllers.reg.routes.ConfirmationControllerImpl.show())
-                  case DESFailureRetriable => Redirect(controllers.reg.routes.ConfirmationControllerImpl.resubmitPage())
-                  case _ => Redirect(controllers.reg.routes.ConfirmationControllerImpl.deskproPage())
+                case Success(s) => handBackService.storeConfirmationHandOff(s, regid).flatMap {
+                  case _ if handBackService.payloadHasForwardLinkAndNoPaymentRefs(s) => getPaymentHandoffResult
+                  case ConfirmationReferencesSuccessResponse(_) => Future.successful(Redirect(controllers.reg.routes.ConfirmationControllerImpl.show()))
+                  case DESFailureRetriable => Future.successful(Redirect(controllers.reg.routes.ConfirmationControllerImpl.resubmitPage()))
+                  case _ => Future.successful(Redirect(controllers.reg.routes.ConfirmationControllerImpl.deskproPage()))
                 }
                 case Failure(DecryptionError) => Future.successful(BadRequest(error_template_restart("6", "DecryptionError")))
                 case unknown => Future.successful{
@@ -78,9 +82,22 @@ object  HO6AuthenticationProvider extends GovernmentGateway {
                   Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))
                 }
               } recover {
-                case ex: NavModelNotFoundException => Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))
+                case _: NavModelNotFoundException =>
+                  Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))
               }
           }
+    }
+
+    def paymentConfirmation(requestData: String): Action[AnyContent] = {
+      Logger.info("[RegistrationConfirmationController][paymentConfirmation] New Handoff 6")
+      registrationConfirmation(requestData)
+    }
+
+    private def getPaymentHandoffResult(implicit hc: HeaderCarrier, ac: AuthContext, request: Request[AnyContent]): Future[Result] = {
+      handOffService.buildPaymentConfirmationHandoff.map {
+        case Some((url, payloadString)) => Redirect(handOffService.buildHandOffUrl(url, payloadString))
+        case None => BadRequest(error_template("", "", ""))
+      }
     }
   }
 

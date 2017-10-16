@@ -20,16 +20,16 @@ import play.api.libs.functional.syntax._
 import play.api.libs.json.__
 
 case class ConfirmationReferences(transactionId : String,
-                                  paymentReference : String,
-                                  paymentAmount : String,
+                                  paymentReference : Option[String],
+                                  paymentAmount : Option[String],
                                   acknowledgementReference : String
                                  )
 
 object ConfirmationReferences {
   implicit val format = (
       ( __ \ "transaction-id" ).format[String] and
-      ( __ \ "payment-reference" ).format[String] and
-      ( __ \ "payment-amount" ).format[String] and
+      ( __ \ "payment-reference" ).formatNullable[String] and
+      ( __ \ "payment-amount" ).formatNullable[String] and
       ( __ \ "acknowledgement-reference" ).format[String]
     )(ConfirmationReferences.apply, unlift(ConfirmationReferences.unapply))
 }

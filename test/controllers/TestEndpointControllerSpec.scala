@@ -385,7 +385,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
 
     "return a 200 and display the confirmation refs as Json" in new Setup {
 
-      val response = ConfirmationReferencesSuccessResponse(ConfirmationReferences(transId, "pay-ref-123", "12", ""))
+      val response = ConfirmationReferencesSuccessResponse(ConfirmationReferences(transId, Some("pay-ref-123"), Some("12"), ""))
 
       mockKeystoreFetchAndGet("registrationID", Some(registrationID))
 

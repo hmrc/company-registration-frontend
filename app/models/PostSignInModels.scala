@@ -23,6 +23,7 @@ case class ThrottleResponse(
      registrationId: String,
      created: Boolean,
      confRefs: Boolean,
+     paymentRefs: Boolean,
      emailData: Option[Email] = None,
      registrationProgress: Option[String] = None
 )
@@ -33,6 +34,7 @@ object ThrottleResponse {
      (JsPath \ "registration-id").format[String] and
      (JsPath \ "created").format[Boolean] and
      (JsPath \ "confirmation-reference").format[Boolean] and
+     (JsPath \ "payment-reference").format[Boolean] and
      (JsPath \ "email").formatNullable[Email] and
      (JsPath \ "registration-progress").formatNullable[String]
     )(ThrottleResponse.apply, unlift(ThrottleResponse.unapply))

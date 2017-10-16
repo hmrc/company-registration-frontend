@@ -370,7 +370,7 @@ trait TestEndpointController extends FrontendController with Actions with Common
     implicit user =>
       implicit request =>
       registered { regId =>
-        val confRefs = ConfirmationReferences(transactionId, "PAY_REF-123456789", "12", "")
+        val confRefs = ConfirmationReferences(transactionId, Some("PAY_REF-123456789"), Some("12"), "")
         compRegConnector.updateReferences(regId, confRefs) map {
           case ConfirmationReferencesSuccessResponse(refs) => Ok(Json.toJson(refs)(ConfirmationReferences.format))
           case _ => BadRequest

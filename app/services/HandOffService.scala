@@ -18,9 +18,10 @@ package services
 
 import config.{FrontendAuthConnector, FrontendConfig}
 import models.handoff.{BusinessActivitiesModel, CompanyNameHandOffModel, HandoffPPOB}
-import models.{SummaryHandOff, UserDetailsModel, UserIDs}
+import models.{ConfirmationReferencesSuccessResponse, SummaryHandOff, UserDetailsModel, UserIDs}
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import models.handoff._
+import play.api.Logger
 import play.api.libs.json.{JsObject, JsString, Json}
 import repositories.NavModelRepo
 import uk.gov.hmrc.play.config.ServicesConfig
@@ -166,6 +167,34 @@ trait HandOffService extends CommonService with SCRSExceptions with ServicesConf
           Json.toJson[NavLinks](links).as[JsObject]
         )
       encryptor.encrypt[SummaryHandOff](payloadModel).map((url, _))
+    }
+  }
+
+  def buildPaymentConfirmationHandoff(implicit hc : HeaderCarrier, ac : AuthContext): Future[Option[(String,String)]] = {
+    def navModel = {
+      fetchNavModel() map {
+        implicit model =>
+          (forwardTo("5-2"), hmrcLinks("5-2"), model.receiver.chData)
+      }
+    }
+    for {
+      userID              <- externalUserId
+      regId               <- fetchRegistrationID
+      (url, navLinks, _)  <- navModel
+      ctReference         <- compRegConnector.fetchConfirmationReferences(regId) map {
+        case ConfirmationReferencesSuccessResponse(refs) => refs.acknowledgementReference
+        case _ => throw new ComfirmationRefsNotFoundException
+      }
+    } yield {
+      val payloadModel = PaymentHandoff(
+        userID,
+        regId,
+        ctReference,
+        Json.obj(),
+        Json.obj(),
+        Json.obj("forward" -> navLinks.forward)
+      )
+      encryptor.encrypt[PaymentHandoff](payloadModel).map((url,_))
     }
   }
 

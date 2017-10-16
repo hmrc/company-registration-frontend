@@ -93,8 +93,11 @@ GET        /corporation-tax-summary                 controllers.handoff.Corporat
 GET        /incorporation-summary                   controllers.handoff.IncorporationSummaryController.incorporationSummary
 GET        /return-to-corporation-tax-summary       controllers.handoff.IncorporationSummaryController.returnToCorporationTaxSummary(request : String)
 
-#HO6
+#HO5.1
 GET        /registration-confirmation               controllers.handoff.RegistrationConfirmationController.registrationConfirmation(request : String)
+
+#HO6
+GET        /payment-complete                        controllers.handoff.RegistrationConfirmationController.paymentConfirmation(request : String)
 
 GET        /application-in-progress                 controllers.reg.ApplicationInProgressController.redirect
 

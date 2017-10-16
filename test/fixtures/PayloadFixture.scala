@@ -42,15 +42,15 @@ trait PayloadFixture extends AddressFixture with JweFixture {
       "HMRC616",
       "testReturnUrl",
       "transactionID",
-      "BRCT-SC123456",
-      "123",
+      Some("BRCT-SC123456"),
+      Some("123"),
       Json.obj(),
       Json.obj(),
       Json.obj()
     )
 
   lazy val emptyHandBackData =
-    RegistrationConfirmationPayload("HMRC616","testReturnUrl","", "","",Json.obj(),Json.obj(),Json.obj())
+    RegistrationConfirmationPayload("HMRC616","testReturnUrl","", Some(""), Some(""),Json.obj(),Json.obj(),Json.obj())
 
   lazy val returnCacheMap = CacheMap("", Map("" -> Json.toJson(testHandBackData)))
   lazy val returnCacheMap3 = CacheMap("", Map("" -> Json.toJson(testHandBackData3)))
@@ -127,6 +127,19 @@ trait PayloadFixture extends AddressFixture with JweFixture {
     None
   )
 
+  val confirmationHandoffPayload = RegistrationConfirmationPayload(
+    user_id = "1",
+    journey_id = "123",
+    transaction_id = "fake-t",
+    payment_reference = None,
+    payment_amount = None,
+    ch = Json.obj(),
+    hmrc = Json.obj(),
+    links = Json.obj("forward" -> "/redirect-url")
+  )
+
+  val registrationConfirmationPayload = confirmationHandoffPayload.copy(payment_amount = Some("50.00"),payment_reference = Some("fake-reference"), links = Json.obj())
+
   lazy val firstHandBackEncrypted = Jwe.encrypt[HandBackPayloadModel](validFirstHandBack)
 
   lazy val secondHandOffWithAddressJson = """{"OID":"testOID","return_url":"testReturnUrl","address":{"houseNameNumber":"testHouseNumber","street":"testStreet","area":"testArea","postTown":"testPostTown","region":"testRegion","country":"testCountry","postCode":"FX1 1ZZ"}}"""
@@ -144,5 +157,5 @@ trait PayloadFixture extends AddressFixture with JweFixture {
 
   lazy val validEncryptedBusinessActivities = Jwe.encrypt[BusinessActivitiesModel](validBusinessActivitiesPayload).get
 
-  lazy val confirmationPayload = Jwe.encrypt[RegistrationConfirmationPayload](RegistrationConfirmationPayload("user","journey","transaction","ref","amount", Json.obj(), Json.obj(), Json.obj())).get
+  lazy val confirmationPayload = Jwe.encrypt[RegistrationConfirmationPayload](RegistrationConfirmationPayload("user","journey","transaction",Some("ref"),Some("amount"), Json.obj(), Json.obj(), Json.obj())).get
 }

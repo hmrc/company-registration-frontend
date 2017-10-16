@@ -19,12 +19,13 @@ package services
 import builders.AuthBuilder
 import fixtures.{CompanyDetailsFixture, PayloadFixture, SubmissionFixture}
 import helpers.SCRSSpec
-import models.{CHROAddress, CompanyDetails}
+import models.{CompanyDetails, RegistrationConfirmationPayload}
 import models.handoff._
 import org.mockito.{ArgumentCaptor, Matchers}
 import org.mockito.Mockito._
 import play.api.libs.json.{JsObject, JsValue, Json}
 import uk.gov.hmrc.http.cache.client.CacheMap
+import uk.gov.hmrc.play.binders.ContinueUrl
 import uk.gov.hmrc.play.http.HeaderCarrier
 import utils._
 
@@ -43,6 +44,7 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
       override val s4LConnector = mockS4LConnector
       override val navModelMongo = mockNavModelRepo
       override val jwe = testJwe
+      val continueUrl = mock[ContinueUrl]
     }
   }
 
@@ -82,7 +84,8 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
     Sender(Map(
       "1" -> NavLinks("returnFromCoho", "aboutYOu"),
       "3" -> NavLinks("summary", "regularPayments"),
-      "5" -> NavLinks("confirmation", "summary"))),
+      "5" -> NavLinks("confirmation", "summary"),
+      "5-2" -> NavLinks("confirmation",""))),
     Receiver(Map(
       "0" -> NavLinks("firstHandOff", "/ho1"),
       "1" -> NavLinks("SIC codes", "/ho3")
@@ -257,6 +260,51 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
       val result = await(service.processCompanyNameReverseHandBack(encryptedPayload))
 
       result shouldBe Success(payload)
+    }
+  }
+
+  "decryptConfirmationHandback" should {
+
+    "return a RegistrationConfirmationPayload with no link and a payment reference and amount if it is an old HO6" in new Setup {
+      val encryptedPayloadString = testJwe.encrypt[RegistrationConfirmationPayload](registrationConfirmationPayload).get
+
+      val result = await(service.decryptConfirmationHandback(encryptedPayloadString)(user,hc)).get
+      result shouldBe registrationConfirmationPayload
+      result.links shouldBe Json.obj()
+      result.payment_reference.isDefined shouldBe true
+      result.payment_amount.isDefined shouldBe true
+    }
+
+    "return a RegistrationConfirmationPayload with a link and no payment reference and amount if it is a HO5.1" in new Setup {
+      mockKeystoreFetchAndGet("registrationID", Some("12345"))
+      mockNavRepoGet("12345",testNavModel)
+      mockNavRepoInsert("12345",testNavModel)
+
+      val encryptedPayloadString = testJwe.encrypt[RegistrationConfirmationPayload](confirmationHandoffPayload).get
+
+      val result = await(service.decryptConfirmationHandback(encryptedPayloadString)(user,hc)).get
+      result shouldBe confirmationHandoffPayload
+      result.links shouldBe Json.obj("forward" -> "/redirect-url")
+      result.payment_reference.isDefined shouldBe false
+      result.payment_amount.isDefined shouldBe false
+    }
+  }
+
+  "getNextUrl" should {
+    "return an optional string if a next url is present in the payload" in new Setup {
+      await(service.getForwardUrl(confirmationHandoffPayload)) shouldBe Some("/redirect-url")
+    }
+    "return None if a next url is not present in the payload" in new Setup {
+      await(service.getForwardUrl(registrationConfirmationPayload)) shouldBe None
+    }
+  }
+
+  "payloadHasForwardLinkAndNoPaymentRefs" should {
+    "return true if there is a forward link and no payment refernce and amount" in new Setup {
+      await(service.payloadHasForwardLinkAndNoPaymentRefs(confirmationHandoffPayload)) shouldBe true
+    }
+    "return false if there is no forward link and a payment refernce and amount" in new Setup {
+      await(service.payloadHasForwardLinkAndNoPaymentRefs(registrationConfirmationPayload)) shouldBe false
     }
   }
 }

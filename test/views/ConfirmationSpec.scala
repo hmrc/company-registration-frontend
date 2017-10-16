@@ -53,7 +53,7 @@ class ConfirmationSpec extends SCRSSpec with CompanyDetailsFixture with WithFake
       val paymentRef = "pref"
       val ackref = "ABCD00000000123"
       val txId = "tx123"
-      CTRegistrationConnectorMocks.fetchAcknowledgementReference("testRegID", ConfirmationReferencesSuccessResponse(ConfirmationReferences(txId,paymentRef,payment,ackref)))
+      CTRegistrationConnectorMocks.fetchAcknowledgementReference("testRegID", ConfirmationReferencesSuccessResponse(ConfirmationReferences(txId,Some(paymentRef),Some(payment),ackref)))
       when(mockCompanyRegistrationConnector.retrieveCompanyDetails(Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(Some(validCompanyDetailsResponse)))
 

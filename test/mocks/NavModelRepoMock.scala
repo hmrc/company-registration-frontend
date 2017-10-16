@@ -41,6 +41,10 @@ trait NavModelRepoMock {
         "3" -> NavLinks(
           "testForwardLinkFromSender3",
           "testReverseLinkFromSender3"
+        ),
+        "5-2" -> NavLinks(
+          "testForwardLinkFromSender5.2",
+          ""
         )
       )
     ),
@@ -53,6 +57,10 @@ trait NavModelRepoMock {
         "2" -> NavLinks(
           "testForwardLinkFromReceiver2",
           "testReverseLinkFromReceiver2"
+        ),
+        "5-1" -> NavLinks(
+          "testForwardLinkFromReceiver5.1",
+          ""
         )
       ),
       Map("testJumpKey" -> "testJumpLink"),
