@@ -24,7 +24,6 @@ import connectors.S4LConnector
 import controllers.reg.SummaryController
 import fixtures.{AccountingDetailsFixture, CorporationTaxFixture, SCRSFixtures, TradingDetailsFixtures}
 import helpers.SCRSSpec
-import mocks.navModelRepoMock
 import models._
 import models.handoff._
 import play.api.test.FakeRequest
@@ -38,7 +37,7 @@ import uk.gov.hmrc.play.test.WithFakeApplication
 
 import scala.concurrent.Future
 
-class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with WithFakeApplication with AccountingDetailsFixture with TradingDetailsFixtures with CorporationTaxFixture with navModelRepoMock {
+class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with WithFakeApplication with AccountingDetailsFixture with TradingDetailsFixtures with CorporationTaxFixture {
 
   val mockMetaDataService = mock[MetaDataService]
 

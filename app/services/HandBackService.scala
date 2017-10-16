@@ -24,19 +24,21 @@ import play.api.libs.json.{Format, JsValue}
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.frontend.auth.AuthContext
 import uk.gov.hmrc.play.http.HeaderCarrier
-import utils.{DecryptionError, Jwe, SCRSExceptions}
+import utils._
 
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.control.NoStackTrace
 import scala.util.{Failure, Success, Try}
 import repositories._
+import uk.gov.hmrc.play.binders.ContinueUrl
 
 object HandBackService extends HandBackService{
   val compRegConnector = CompanyRegistrationConnector
   val keystoreConnector = KeystoreConnector
   val s4LConnector = S4LConnector
   val navModelMongo =  NavModelRepo.repository
+  val jwe = Jwe
 }
 
 case object PayloadNotSavedError extends NoStackTrace
@@ -46,14 +48,14 @@ trait HandBackService extends CommonService with SCRSExceptions with HandOffNavi
   val compRegConnector: CompanyRegistrationConnector
   val keystoreConnector: KeystoreConnector
   val s4LConnector : S4LConnector
-
+  val jwe : JweEncryptor with JweDecryptor
 
   private[services] def decryptHandBackRequest[T](request: String)(f: T => Future[Try[T]])(implicit user: AuthContext, hc: HeaderCarrier, formats: Format[T]): Future[Try[T]] = {
     request.isEmpty match {
       case true =>
         Logger.error(s"[HandBackService] [decryptHandBackRequest] Encrypted hand back payload was empty")
         Future.successful(Failure(DecryptionError))
-      case false => Jwe.decrypt[T](request) match {
+      case false => jwe.decrypt[T](request) match {
         case Success(payload) => f(payload)
         case Failure(ex) =>
           Logger.error(s"[HandBackService] [decryptHandBackRequest] Payload could not be decrypted: ${ex}")
@@ -77,56 +79,81 @@ trait HandBackService extends CommonService with SCRSExceptions with HandOffNavi
     }
   }
 
+  private def validateLink(link: String): Unit = {
+    ContinueUrl(link)
+  }
+
+  private def validateLinks(links: NavLinks) {
+    validateLink(links.forward)
+    validateLink(links.reverse)
+  }
+
+  private def validateLinks(links: JumpLinks) {
+    validateLink(links.company_address)
+    validateLink(links.company_jurisdiction)
+    validateLink(links.company_name)
+  }
+
+
   def processCompanyDetailsHandBack(request : String)(implicit user : AuthContext, hc : HeaderCarrier) : Future[Try[CompanyNameHandOffIncoming]] = {
+    def processNavModel(model: HandOffNavModel, payload: CompanyNameHandOffIncoming) = {
+      val navLinks = payload.links.as[NavLinks]
+      val jumpLinks = payload.links.as[JumpLinks]
+      validateLinks(navLinks)
+      validateLinks(jumpLinks)
+      val updatedNavModel = model.copy(
+        receiver = model.receiver.copy(
+          nav = model.receiver.nav ++ Map("2" -> navLinks),
+          chData = Some(payload.ch),
+          jump = Map(
+            "company_name" -> jumpLinks.company_name,
+            "company_address" -> jumpLinks.company_address,
+            "company_jurisdiction" -> jumpLinks.company_jurisdiction
+          )
+        )
+      )
+      cacheNavModel(updatedNavModel, hc)
+    }
+
     decryptHandBackRequest[CompanyNameHandOffIncoming](request){
       payload =>
-        fetchNavModel() map {
-          model =>
-            val jumpLinks = payload.links.as[JumpLinks]
-            implicit val updatedNavModel = model.copy(
-              receiver = model.receiver.copy(
-                nav = model.receiver.nav ++ Map("2" -> payload.links.as[NavLinks]),
-                chData = Some(payload.ch),
-                jump = Map(
-                  "company_name" -> jumpLinks.company_name,
-                  "company_address" -> jumpLinks.company_address,
-                  "company_jurisdiction" -> jumpLinks.company_jurisdiction
-                )
-              )
-            )
-            cacheNavModel
+        for {
+          model <- fetchNavModel()
+          navResult <- processNavModel(model, payload)
+          storeResult <- storeCompanyDetails(payload)
+        } yield {
+          Success(payload)
         }
-
-        storeCompanyDetails(payload) map {
-//          case false =>
-//            Logger.error("[HandBackService] [processCompanyDetailsHandOff] CH handoff payload wasn't stored")
-//            Failure(PayloadNotSavedError)
-          case _ => Success(payload)
-      }
     }
   }
 
   def processSummaryPage1HandBack(request : String)(implicit user : AuthContext, hc : HeaderCarrier) : Future[Try[SummaryPage1HandOffIncoming]] = {
+    def processNavModel(model: HandOffNavModel, payload: SummaryPage1HandOffIncoming) = {
+      validateLinks(payload.links)
+      implicit val updatedModel = model.copy(
+        receiver = {
+          model.receiver.copy(
+            nav = model.receiver.nav ++ Map("4" -> payload.links),
+            chData = Some(payload.ch)
+          )
+        })
+      cacheNavModel
+    }
+
     decryptHandBackRequest[SummaryPage1HandOffIncoming](request){
       payload =>
-        fetchNavModel() map {
-          model =>
-            implicit val updatedModel = model.copy(
-              receiver = {
-                model.receiver.copy(
-                  nav = model.receiver.nav ++ Map("4" -> payload.links),
-                  chData = Some(payload.ch)
-                )
-              })
-            cacheNavModel
+        for {
+          model <- fetchNavModel()
+          navResult <- processNavModel(model, payload)
+          storeResult <- storeSimpleHandOff(payload)
+        } yield {
+          storeResult match {
+            case false =>
+              Logger.error("[HandBackService] [processSummaryPage1Handback] CH handoff payload wasn't stored")
+              Failure(PayloadNotSavedError)
+            case _ => Success(payload)
+          }
         }
-
-        storeSimpleHandOff(payload) map {
-          case false =>
-            Logger.error("[HandBackService] [processSummaryPage1Handback] CH handoff payload wasn't stored")
-            Failure(PayloadNotSavedError)
-          case _ => Success(payload)
-      }
     }
   }
 

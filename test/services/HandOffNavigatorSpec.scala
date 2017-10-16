@@ -17,7 +17,7 @@
 package services
 
 import connectors.KeystoreConnector
-import mocks.navModelRepoMock
+import mocks.NavModelRepoMock
 import models.handoff.{HandOffNavModel, NavLinks, Receiver, Sender}
 import org.mockito.Matchers
 import org.scalatest.BeforeAndAfterEach
@@ -28,11 +28,10 @@ import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import org.mockito.Mockito._
-import repositories.NavModelRepository
 
 import scala.concurrent.Future
 
-class HandOffNavigatorSpec extends UnitSpec with MockitoSugar with WithFakeApplication with BeforeAndAfterEach with navModelRepoMock{
+class HandOffNavigatorSpec extends UnitSpec with MockitoSugar with WithFakeApplication with BeforeAndAfterEach with NavModelRepoMock{
 
   val mockNavModelRepoObj = mockNavModelRepo
   val mockKeyStoreConnector = mock[KeystoreConnector]

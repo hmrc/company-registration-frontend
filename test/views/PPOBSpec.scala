@@ -22,21 +22,19 @@ import builders.AuthBuilder
 import controllers.reg.PPOBController
 import models._
 import fixtures.PPOBFixture
-import mocks.navModelRepoMock
+import mocks.NavModelRepoMock
 import org.jsoup.Jsoup
 import org.mockito.Mockito._
 import org.mockito.Matchers
 import play.api.i18n.MessagesApi
-import play.api.libs.json.Json
 import play.api.test.Helpers._
 import services.AddressLookupFrontendService
-import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.http.{HeaderCarrier, HttpReads}
 import uk.gov.hmrc.play.test.WithFakeApplication
 
 import scala.concurrent.Future
 
-class PPOBSpec extends SCRSSpec with PPOBFixture with navModelRepoMock with WithFakeApplication {
+class PPOBSpec extends SCRSSpec with PPOBFixture with NavModelRepoMock with WithFakeApplication {
   val mockNavModelRepoObj = mockNavModelRepo
   val mockBusinessRegConnector = mock[BusinessRegistrationConnector]
   val mockAddressLookupFrontendService = mock[AddressLookupFrontendService]

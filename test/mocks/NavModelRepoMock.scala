@@ -26,7 +26,7 @@ import org.mockito.Mockito._
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
-trait navModelRepoMock {
+trait NavModelRepoMock {
   this: MockitoSugar =>
 
   val mockNavModelRepo = mock[NavModelRepoMongo]
