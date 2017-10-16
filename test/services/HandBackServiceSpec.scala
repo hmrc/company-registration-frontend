@@ -19,7 +19,6 @@ package services
 import builders.AuthBuilder
 import fixtures.{CompanyDetailsFixture, PayloadFixture, SubmissionFixture}
 import helpers.SCRSSpec
-import mocks.{KeystoreMock, navModelRepoMock}
 import models.{CHROAddress, CompanyDetails}
 import models.handoff._
 import org.mockito.{ArgumentCaptor, Matchers}
@@ -27,88 +26,73 @@ import org.mockito.Mockito._
 import play.api.libs.json.{JsObject, JsValue, Json}
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.http.HeaderCarrier
-import utils.{DecryptionError, Jwe, PayloadError, SCRSExceptions}
+import utils._
 
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
 class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetailsFixture
-  with SubmissionFixture with SCRSExceptions with KeystoreMock with navModelRepoMock {
-  val mockNavModelRepoObj = mockNavModelRepo
+  with SubmissionFixture with SCRSExceptions {
+
+  val testJwe = new JweEncryptor with JweDecryptor { val key = "Fak3-t0K3n-f0r-pUBLic-r3p0SiT0rY" }
+
   trait Setup {
     val service = new HandBackService {
       override val compRegConnector = mockCompanyRegistrationConnector
       override val keystoreConnector = mockKeystoreConnector
       override val s4LConnector = mockS4LConnector
-      override val navModelMongo = mockNavModelRepoObj
-
+      override val navModelMongo = mockNavModelRepo
+      override val jwe = testJwe
     }
   }
+
+  def mockNavRepoGet(regId: String, navModel: HandOffNavModel) =
+    when(mockNavModelRepo.getNavModel(Matchers.eq(regId)))
+      .thenReturn(Future.successful(Some(navModel)))
+
+  def mockNavRepoInsert(regId: String, navModel: HandOffNavModel) =
+    when(mockNavModelRepo.insertNavModel(Matchers.eq(regId), Matchers.any[HandOffNavModel]))
+      .thenReturn(Future.successful(Some(navModel)))
+
+  def mockCrRetrieve(regId: String, details: Option[CompanyDetails]) =
+    when(mockCompanyRegistrationConnector.retrieveCompanyDetails(Matchers.eq(regId))(Matchers.any[HeaderCarrier])).
+      thenReturn(Future.successful(details))
+
+  def mockCrUpdate(regId: String, details: CompanyDetails) =
+    when(mockCompanyRegistrationConnector.updateCompanyDetails(Matchers.eq(regId), Matchers.any[CompanyDetails])(Matchers.any[HeaderCarrier]))
+      .thenReturn(Future.successful(details))
+
+  def simpleRequest(user: String = "xxx",
+                    regId: String = "12345",
+                    forward: String = "/testForward",
+                    reverse: String = "/testReverse") = Json.obj(
+    "user_id" -> user,
+    "journey_id" -> regId,
+    "hmrc" -> Json.obj(),
+    "ch" -> Json.obj("a"->1),
+    "links" -> Json.obj("forward"->forward, "reverse"->reverse)
+  )
 
   implicit val user = AuthBuilder.createTestUser
 
   val registrationID = "12345"
   val cacheMap = CacheMap("", Map("" -> Json.toJson("12345")))
 
-  "CompanyNameHandoffIncoming" should {
-    "be able to construct the expected Json" in  {
-
-      val json =
-        """
-          |{"journey_id":"xxx",
-          |"user_id":"xxx",
-          |"company_name":"name",
-          |"registered_office_address":{
-          |"premises":"x",
-          |"address_line_1":"x",
-          |"address_line_2":"x",
-          |"locality":"x",
-          |"country":"x",
-          |"po_box":"x",
-          |"postal_code":"x",
-          |"region":"x"},
-          |"jurisdiction":"x",
-          |"ch":{"a":1},
-          |"hmrc":{},
-          |"links":{
-          | "forward":"testForward",
-          | "reverse":"testReverse"
-          |}
-          |}
-        """.stripMargin
-
-      val x =
-        CompanyNameHandOffIncoming(
-          Some("xxx"),
-          "xxx",
-          "name",
-          CHROAddress(
-            "x",
-            "x",
-            Some("x"),
-            "x",
-            "x",
-            Some("x"),
-            Some("x"),
-            Some("x")
-          ),
-          "x",
-          Json.parse("""{"a":1}""").as[JsObject],
-          Json.parse("{}").as[JsObject],
-          Json.parse("""{"forward":"testForward","reverse":"testReverse"}""").as[JsObject])
-
-      CompanyNameHandOffIncoming.format.writes(x) shouldBe Json.parse(json)
-
-
-    }
-  }
+  val testNavModel = HandOffNavModel(
+    Sender(Map(
+      "1" -> NavLinks("returnFromCoho", "aboutYOu"),
+      "3" -> NavLinks("summary", "regularPayments"),
+      "5" -> NavLinks("confirmation", "summary"))),
+    Receiver(Map(
+      "0" -> NavLinks("firstHandOff", "/ho1"),
+      "1" -> NavLinks("SIC codes", "/ho3")
+    )))
 
   "updateCompanyDetails" should {
     "update Company Details" in new Setup {
-      when(mockCompanyRegistrationConnector.retrieveCompanyDetails(Matchers.eq(registrationID))(Matchers.any[HeaderCarrier])).thenReturn(Future.successful(Some(ho2CompanyDetailsResponse)))
 
-      when(mockCompanyRegistrationConnector.updateCompanyDetails(Matchers.eq(registrationID), Matchers.any[CompanyDetails])(Matchers.any[HeaderCarrier]))
-        .thenReturn(Future.successful(ho2UpdatedRequest))
+      mockCrRetrieve(registrationID, Some(ho2CompanyDetailsResponse))
+      mockCrUpdate(registrationID, ho2UpdatedRequest)
 
       await(service.updateCompanyDetails(registrationID, validCompanyNameHandOffIncoming)) shouldBe ho2UpdatedRequest
 
@@ -118,76 +102,100 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
       verify(mockCompanyRegistrationConnector).updateCompanyDetails(Matchers.eq(registrationID), captor.capture())(hcCaptor.capture())
 
       captor.getValue shouldBe ho2UpdatedRequest
-
     }
   }
 
   "processCompanyDetailsHandOff" should {
+    def companyDetails(name: String) = Json.obj(
+      "company_name" -> name,
+      "registered_office_address" -> Json.obj(
+        "premises" -> "testPremises",
+        "address_line_1" -> "testAddressLine1",
+        "address_line_2" -> "testAddressLine2",
+        "locality" -> "testLocality",
+        "postal_code" -> "testPostcode",
+        "country" -> "testCountry"
+      ),
+      "jurisdiction" -> "testJurisdiction"
+    )
+
+    def companyDetailsLinks(forward: String = "/testForward",
+                            reverse: String = "/testReverse",
+                            name: String = "/company-name",
+                            address: String = "/address",
+                            jurisdiction: String = "/jurisdiction") = Json.obj("links" -> Json.obj(
+      "forward" -> forward,
+      "reverse" -> reverse,
+      "company_name" -> name,
+      "company_address" -> address,
+      "company_jurisdiction" -> jurisdiction
+    ))
+
     "return a DecryptionError if the encrypted payload is empty" in new Setup {
       await(service.processCompanyDetailsHandBack("")) shouldBe Failure(DecryptionError)
     }
 
     "return a PayloadError if the decrypted payload is empty" in new Setup {
-
-      val payload = Jwe.encrypt[String]("")
+      val payload = testJwe.encrypt[String]("")
       payload shouldBe defined
       await(service.processCompanyDetailsHandBack(payload.get)) shouldBe Failure(PayloadError)
     }
 
     "Decrypt and store the CH payload" in new Setup {
 
-      val testNavModel = HandOffNavModel(
-        Sender(Map(
-          "1" -> NavLinks("returnFromCoho", "aboutYOu"),
-          "3" -> NavLinks("summary", "regularPayments"),
-          "5" -> NavLinks("confirmation", "summary"))),
-        Receiver(Map(
-          "0" -> NavLinks("firstHandOff", ""),
-          "1" -> NavLinks("SIC codes", "firstHandoff")
-        )))
-
       val returnCacheMap = CacheMap("", Map("" -> Json.toJson(testNavModel)))
 
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
+      mockKeystoreFetchAndGet("HandOffNavigation", Some(testNavModel))
 
-      when(mockKeystoreConnector.fetchAndGet[HandOffNavModel](Matchers.eq("HandOffNavigation"))(Matchers.any(), Matchers.any()))
-        .thenReturn(Future.successful(Some(testNavModel)))
+      mockCrRetrieve("12345", None)
+      mockCrUpdate("12345", ho2UpdatedRequest)
 
-      when(mockKeystoreConnector.cache[HandOffNavModel](Matchers.eq(""), Matchers.eq(testNavModel))(Matchers.any(), Matchers.any()))
-        .thenReturn(Future.successful(returnCacheMap))
+      mockNavRepoGet("12345", testNavModel)
+      mockNavRepoInsert("12345", testNavModel)
 
-      when(mockCompanyRegistrationConnector.retrieveCompanyDetails(Matchers.eq("12345"))(Matchers.any()))
-        .thenReturn(Future.successful(None))
-
-      when(mockCompanyRegistrationConnector.updateCompanyDetails(Matchers.eq("12345"), Matchers.any())(Matchers.any()))
-        .thenReturn(Future.successful(ho2UpdatedRequest))
-
-      val request = Json.parse(
-        """
-          | {
-          |   "journey_id" : "12345",
-          |   "user_id" : "xxx",
-          |   "company_name" : "xxx",
-          |   "registered_office_address" : {
-          |      "premises" : "testPremises",
-          |      "address_line_1" : "testAddressLine1",
-          |      "address_line_2" : "testAddressLine2",
-          |      "locality" : "testLocality",
-          |      "postal_code" : "testPostcode",
-          |      "country" : "testCountry"
-          |   },
-          |   "jurisdiction": "testJurisdiction",
-          |   "hmrc" : {},
-          |   "ch" : { "a" : 1 },
-          |   "links":{"forward":"testForward","reverse":"testReverse"}
-          | }
-        """.stripMargin)
-
-      val encryptedRequest = Jwe.encrypt[JsValue](request)
+      val name = "Foo Name"
+      val r = simpleRequest() ++ companyDetails(name) ++ companyDetailsLinks()
+      val encryptedRequest = testJwe.encrypt[JsValue](r)
 
       encryptedRequest shouldBe defined
 
-      await(service.processCompanyDetailsHandBack(encryptedRequest.get)) shouldBe Success(Json.fromJson[CompanyNameHandOffIncoming](request).get)
+      val result = await(service.processCompanyDetailsHandBack(encryptedRequest.get))
+      result shouldBe Success(Json.fromJson[CompanyNameHandOffIncoming](r).get)
+
+      val captor = ArgumentCaptor.forClass(classOf[CompanyDetails])
+      val hcCaptor = ArgumentCaptor.forClass(classOf[HeaderCarrier])
+
+      verify(mockCompanyRegistrationConnector).updateCompanyDetails(Matchers.eq(registrationID), captor.capture())(hcCaptor.capture())
+
+      val details = captor.getValue
+      details.companyName shouldBe name
+    }
+
+    Map(
+      "Forward URL" -> companyDetailsLinks(forward = "//foo.com/bar"),
+      "Reverse URL" -> companyDetailsLinks(reverse = "//foo.com/bar"),
+      "Name URL" -> companyDetailsLinks(name = "//foo.com/bar"),
+      "Address URL" -> companyDetailsLinks(address = "//foo.com/bar"),
+      "Jurisdiction URL" -> companyDetailsLinks(jurisdiction = "//foo.com/bar")
+    ).foreach{
+      case (description, links) =>
+        s"Fail if the ${description} is invalid" in new Setup {
+
+          val returnCacheMap = CacheMap("", Map("" -> Json.toJson(testNavModel)))
+
+          mockKeystoreFetchAndGet("registrationID", Some("12345"))
+          mockNavRepoGet("12345", testNavModel)
+
+          val r = simpleRequest() ++ companyDetails("Url Name") ++ links
+          val encryptedRequest = testJwe.encrypt[JsValue](r)
+
+          encryptedRequest shouldBe defined
+
+          intercept[IllegalArgumentException] {
+            await(service.processCompanyDetailsHandBack(encryptedRequest.get))
+          }
+        }
     }
   }
 
@@ -198,57 +206,53 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
     }
 
     "return a PayloadError if the decrypted payload is empty" in new Setup {
-
-      val payload = Jwe.encrypt[String]("")
+      val payload = testJwe.encrypt[String]("")
       payload shouldBe defined
       await(service.processSummaryPage1HandBack(payload.get)) shouldBe Failure(PayloadError)
     }
 
     "Decrypt and store the CH payload" in new Setup {
-
-      val testNavModel = HandOffNavModel(
-        Sender(Map(
-          "1" -> NavLinks("returnFromCoho", "aboutYOu"),
-          "3" -> NavLinks("summary", "regularPayments"),
-          "5" -> NavLinks("confirmation", "summary"))),
-        Receiver(Map(
-          "0" -> NavLinks("firstHandOff", ""),
-          "1" -> NavLinks("SIC codes", "firstHandoff")
-        )))
-
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
       mockKeystoreFetchAndGet[HandOffNavModel]("HandOffNavigation", Some(testNavModel))
 
-      val request = Json.parse(
-        """
-          |{
-          |"user_id":"xxx",
-          |"journey_id":"12345",
-          |"hmrc":{},
-          |"ch":{"a":1},
-          |"links":{"forward":"test","reverse":"test2"}
-          |}
-        """.stripMargin)
+      mockNavRepoGet("12345", testNavModel)
+      mockNavRepoInsert("12345", testNavModel)
 
-      val encryptedRequest = Jwe.encrypt[JsValue](request)
+      val r = simpleRequest()
+      val encryptedRequest = testJwe.encrypt[JsValue](r)
 
       encryptedRequest shouldBe defined
 
-      await(service.processSummaryPage1HandBack(encryptedRequest.get)) shouldBe Success(Json.fromJson[SummaryPage1HandOffIncoming](request).get)
+      await(service.processSummaryPage1HandBack(encryptedRequest.get)) shouldBe Success(Json.fromJson[SummaryPage1HandOffIncoming](r).get)
+    }
+
+    Map(
+      "Forward URL" -> simpleRequest(forward = "//foo.com/bar"),
+      "Reverse URL" -> simpleRequest(reverse = "//foo.com/bar")
+    ).foreach {
+      case (description, request) =>
+        s"fail if the ${description} is invalid" in new Setup {
+          val returnCacheMap = CacheMap("", Map("" -> Json.toJson(testNavModel)))
+
+          mockKeystoreFetchAndGet("registrationID", Some("12345"))
+          mockNavRepoGet("12345", testNavModel)
+
+          val encryptedRequest = testJwe.encrypt[JsValue](request)
+
+          encryptedRequest shouldBe defined
+
+          intercept[IllegalArgumentException] {
+            await(service.processSummaryPage1HandBack(encryptedRequest.get))
+          }
+        }
     }
   }
 
   "processCompanyNameReverseHandOff" should {
     "return a successful response" in new Setup {
-      val payload = Json.obj(
-        "user_id" -> Json.toJson("testUserID"),
-        "journey_id" -> Json.toJson("testJourneyID"),
-        "hmrc" -> Json.obj(),
-        "ch" -> Json.obj(),
-        "links" -> Json.obj()
-      )
+      val payload = simpleRequest(user = "foo", regId = "54321")
 
-      val encryptedPayload = Jwe.encrypt[JsValue](payload).get
+      val encryptedPayload = testJwe.encrypt[JsValue](payload).get
 
       val result = await(service.processCompanyNameReverseHandBack(encryptedPayload))
 

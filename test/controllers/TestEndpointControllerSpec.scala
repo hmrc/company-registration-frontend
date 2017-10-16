@@ -21,7 +21,6 @@ import controllers.test.TestEndpointController
 import fixtures.{CorporationTaxFixture, SCRSFixtures}
 import helpers.{SCRSSpec, TestActorSystem}
 import _root_.connectors._
-import mocks.navModelRepoMock
 import models._
 import models.connectors.ConfirmationReferences
 import org.scalatest.mockito.MockitoSugar
@@ -41,7 +40,7 @@ import uk.gov.hmrc.play.test.WithFakeApplication
 import scala.concurrent.Future
 
 class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with MockitoSugar
-  with TestActorSystem with CorporationTaxFixture with navModelRepoMock with WithFakeApplication {
+  with TestActorSystem with CorporationTaxFixture with WithFakeApplication {
 
   val mockNavModelRepoObj = mockNavModelRepo
   val applicantData = AboutYouChoice("Director")

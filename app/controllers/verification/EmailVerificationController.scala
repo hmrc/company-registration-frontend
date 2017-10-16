@@ -20,6 +20,7 @@ import config.{FrontendAuthConnector, FrontendConfig}
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.SCRSRegime
 import play.api.mvc.Action
+import uk.gov.hmrc.play.binders.ContinueUrl
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.frontend.controller.FrontendController
 import utils.{MessagesSupport, SessionRegistration}
@@ -70,7 +71,7 @@ trait EmailVerificationController extends FrontendController with Actions with S
   val createGGWAccountAffinityShow = Action.async {
     implicit request =>
       val redirect = controllers.reg.routes.WelcomeController.show().url
-      val url = controllers.reg.routes.SignInOutController.signOut(Some(s"$frontEndUrl$redirect")).url
+      val url = controllers.reg.routes.SignInOutController.signOut(Some(ContinueUrl(s"$frontEndUrl$redirect"))).url
       Future.successful(Ok(CreateGGWAccount(url)))
 
   }
@@ -83,7 +84,7 @@ trait EmailVerificationController extends FrontendController with Actions with S
   val createNewGGWAccountShow = Action.async {
     implicit request =>
       val redirect = controllers.reg.routes.WelcomeController.show().url
-      val url = controllers.reg.routes.SignInOutController.signOut(Some(s"$frontEndUrl$redirect")).url
+      val url = controllers.reg.routes.SignInOutController.signOut(Some(ContinueUrl(s"$frontEndUrl$redirect"))).url
       Future.successful(Ok(CreateNewGGWAccount(url)))
   }
 

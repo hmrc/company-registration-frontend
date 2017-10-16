@@ -40,7 +40,8 @@ trait SCRSMocks
     with SaveForLaterMock
     with WSHTTPMock
     with HandOffServiceMock
-    with HandBackServiceMock {
+    with HandBackServiceMock
+    with NavModelRepoMock {
   this: MockitoSugar =>
 
   lazy val mockAuthConnector = mock[AuthConnector]
@@ -75,5 +76,6 @@ trait SCRSMocks
     reset(mockHandOffService)
     reset(mockCompanyContactDetailsService)
     reset(mockAudit)
+    reset(mockNavModelRepo)
   }
 }

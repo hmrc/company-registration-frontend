@@ -21,7 +21,7 @@ import java.util.UUID
 import builders.AuthBuilder
 import fixtures._
 import helpers.SCRSSpec
-import mocks.{KeystoreMock, navModelRepoMock}
+import mocks.{KeystoreMock, NavModelRepoMock}
 import models.{UserDetailsModel, UserIDs}
 import models.handoff._
 import org.mockito.{ArgumentCaptor, Matchers}
@@ -40,7 +40,7 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
     with UserDetailsFixture
     with CompanyDetailsFixture
     with KeystoreMock
-    with navModelRepoMock
+    with NavModelRepoMock
     with WithFakeApplication {
 
   val mockNavModelRepoObj = mockNavModelRepo

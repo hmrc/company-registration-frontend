@@ -46,7 +46,7 @@ POST       /feedback                                controllers.feedback.Feedbac
 GET        /thankyou                                controllers.feedback.FeedbackController.thankyou
 
 GET        /post-sign-in                            controllers.reg.SignInOutController.postSignIn(resend: Option[Boolean], handOffID: Option[String] ?= None, payload: Option[String] ?= None)
-GET        /sign-out                                controllers.reg.SignInOutController.signOut(continueUrl: Option[String])
+GET        /sign-out                                controllers.reg.SignInOutController.signOut(continueUrl: Option[ContinueUrl])
 
 GET        /verify-your-email                       controllers.verification.EmailVerificationController.verifyShow
 POST       /verify-your-email                       controllers.verification.EmailVerificationController.verifySubmit

@@ -20,7 +20,7 @@ import _root_.helpers.SCRSSpec
 import builders.AuthBuilder
 import controllers.reg.SummaryController
 import fixtures.{AccountingDetailsFixture, CorporationTaxFixture, SCRSFixtures}
-import mocks.navModelRepoMock
+import mocks.NavModelRepoMock
 import models._
 import org.jsoup.Jsoup
 import org.mockito.Mockito._
@@ -33,7 +33,7 @@ import uk.gov.hmrc.play.test.WithFakeApplication
 import scala.concurrent.Future
 
 class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixture
-  with CorporationTaxFixture with navModelRepoMock with WithFakeApplication {
+  with CorporationTaxFixture with NavModelRepoMock with WithFakeApplication {
 
   implicit val hcWithExtraHeaders: HeaderCarrier = HeaderCarrier().withExtraHeaders("Accept" -> "application/vnd.hmrc.1.0+json")
 
