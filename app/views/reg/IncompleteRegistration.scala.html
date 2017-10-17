@@ -20,9 +20,8 @@
 
         <p id="description-two">@Messages("page.reg.incompleteReg.description.two")</p>
     </div>
-    @form(action = controllers.reg.routes.IncompleteRegistrationController.submit()) {
+
     <div class="form-group">
-        <button class="button-get-started" role="button" id="next">@Messages("common.button.sign-in")</button>
+        <a class="button--get-started" href="@controllers.reg.routes.CompletionCapacityController.show()" role="button" id="next">@Messages("common.button.sign-in")</a>
     </div>
-    }
 }
