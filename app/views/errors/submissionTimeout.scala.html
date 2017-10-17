@@ -11,7 +11,7 @@
 <p class="spaced-below">@Messages("errorPages.retrySubmission.p2")</p>
 
 @govHelpers.form(action = controllers.handoff.routes.BasicCompanyDetailsController.basicCompanyDetails) {
-<button class="button" type="submit" id="continue" >@Messages("errorPages.retrySubmission.button")</button>
+<input class="button" type="submit" id="continue" name="action" value="@Messages("errorPages.retrySubmission.button")">
 }
 
 }
