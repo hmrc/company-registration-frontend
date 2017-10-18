@@ -54,6 +54,7 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
       override val encryptor = mockEncryptor
       override val authConnector = mockAuthConnector
       override val navModelMongo = mockNavModelRepoObj
+      override lazy val timeout = "100"
     }
   }
 
@@ -152,6 +153,14 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
 
       val result = await(service.externalUserId)
       result shouldBe "testExternalID"
+    }
+  }
+  "renewSessionObject" should {
+    "return a jsObject" in new Setup {
+      service.renewSessionObject shouldBe JsObject(Map(
+        "timeout" -> Json.toJson("100"),
+        "keepalive_url" -> Json.toJson(controllers.reg.routes.SignInOutController.renewSession().url),
+        "signedout_url" -> Json.toJson(controllers.reg.routes.SignInOutController.destroySession().url)))
     }
   }
 

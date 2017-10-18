@@ -40,6 +40,7 @@ object HandOffService extends HandOffService {
   val encryptor = Jwe
   val authConnector = FrontendAuthConnector
   val navModelMongo =  NavModelRepo.repository
+  lazy val timeout = getConfString("timeoutInSeconds", "900")
 }
 
 trait HandOffService extends CommonService with SCRSExceptions with ServicesConfig with HandOffNavigator {
@@ -49,6 +50,7 @@ trait HandOffService extends CommonService with SCRSExceptions with ServicesConf
   val compRegConnector: CompanyRegistrationConnector
   val encryptor : JweEncryptor
   val authConnector: AuthConnector
+  val timeout:String
 
   def buildHandOffUrl(url: String, payload: String) = url match {
     case u if u.endsWith("request=") => s"$url$payload"
@@ -109,11 +111,18 @@ trait HandOffService extends CommonService with SCRSExceptions with ServicesConf
         journey_id = Some(regId),
         user_id = extUserID,
         name = userDetails.name,
-        hmrc = JsObject(Seq()),
+        hmrc = renewSessionObject,
         ch = chData,
         links = links)
       encryptor.encrypt[CompanyNameHandOffModel](payload) map { (url, _) }
     }
+  }
+
+  val renewSessionObject ={
+    JsObject(Map(
+      "timeout" -> Json.toJson(timeout),
+      "keepalive_url" -> Json.toJson(controllers.reg.routes.SignInOutController.renewSession().url),
+      "signedout_url" -> Json.toJson(controllers.reg.routes.SignInOutController.destroySession().url)))
   }
 
   def buildLinksObject(navLinks : NavLinks, jumpLinks: Option[JumpLinks]) : JsObject = {

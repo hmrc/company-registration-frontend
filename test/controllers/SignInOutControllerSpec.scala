@@ -16,6 +16,9 @@
 
 package controllers
 
+import akka.actor.ActorSystem
+import akka.stream.ActorMaterializer
+import akka.util.ByteString
 import builders.AuthBuilder
 import connectors._
 import controllers.reg.SignInOutController
@@ -26,9 +29,9 @@ import models.{ThrottleResponse, UserDetailsModel}
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import play.api.libs.json.Json
-import play.api.mvc.Results
+import play.api.mvc.{Headers, Results}
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.{contentType, _}
 import services.{EmailVerificationService, EnrolmentsService}
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.binders.ContinueUrl
@@ -43,6 +46,7 @@ class SignInOutControllerSpec extends SCRSSpec
   val mockEnrolmentsService = mock[EnrolmentsService]
 
   class Setup {
+
     val controller = new SignInOutController {
       override val authConnector = mockAuthConnector
       override val compRegConnector = mockCompanyRegistrationConnector
@@ -78,10 +82,10 @@ class SignInOutControllerSpec extends SCRSSpec
       when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(Matchers.any()))
         .thenReturn(Future.successful(FootprintFound(expected)))
 
-      when(mockEmailService.isVerified(Matchers.any(),Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any()))
+      when(mockEmailService.isVerified(Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful((Some(true), Some("String"))))
 
-      when(mockEmailService.sendWelcomeEmail(Matchers.any(),Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any()))
+      when(mockEmailService.sendWelcomeEmail(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(Some(true)))
 
       when(mockCompanyRegistrationConnector.fetchRegistrationStatus(Matchers.any())(Matchers.any()))
@@ -120,7 +124,9 @@ class SignInOutControllerSpec extends SCRSSpec
     }
 
     "return a 303 if accessing with authorisation for an existing journey that has been as far as HO5 and redirect to HO1" in new Setup {
+
       import constants.RegistrationProgressValues.HO5
+
       val expected = ThrottleResponse("12345", false, false, false, registrationProgress = Some(HO5))
 
       when(mockAuthConnector.getUserDetails[UserDetailsModel](Matchers.any())(Matchers.any(), Matchers.any()))
@@ -226,7 +232,7 @@ class SignInOutControllerSpec extends SCRSSpec
       when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(Matchers.any()))
         .thenReturn(Future.successful(FootprintFound(expected)))
 
-      when(mockEmailService.isVerified(Matchers.any(),Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any()))
+      when(mockEmailService.isVerified(Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful((Some(true), Some("String"))))
 
       when(mockCompanyRegistrationConnector.fetchRegistrationStatus(Matchers.any())(Matchers.any()))
@@ -386,6 +392,35 @@ class SignInOutControllerSpec extends SCRSSpec
       val handOffID = "xxx"
       val ex = intercept[NoSuchElementException](await(controller.processDeferredHandoff(Some(handOffID), Some(payload), throttleResponse)(Future.successful(Results.Ok))))
       ex.getMessage shouldBe s"key not found: $handOffID"
+    }
+  }
+
+  "renewSession" should {
+    "return 200 when hit with Authorised User" in new Setup {
+      AuthBuilder.showWithAuthorisedUser(controller.renewSession(),mockAuthConnector){a =>
+      status(a) shouldBe 200
+        contentType(a) shouldBe Some("image")
+        await(a.body.dataStream.toString).contains("""public/images/renewSession.jpg""")  shouldBe true
+      }
+    }
+  }
+
+  "destroySession" should {
+    "return redirect to timeout show and get rid of headers" in new Setup {
+
+      val fr = FakeRequest().withHeaders(("playFoo","no more"))
+
+      val res = await(controller.destroySession()(fr))
+      status(res) shouldBe 303
+      headers(res).contains("playFoo") shouldBe false
+
+      redirectLocation(res) shouldBe Some(controllers.reg.routes.SignInOutController.timeoutShow().url)
+    }
+  }
+  "timeoutShow" should {
+    "return 200" in new Setup {
+      val res = await(controller.timeoutShow()(FakeRequest()))
+      status(res) shouldBe 200
     }
   }
 }

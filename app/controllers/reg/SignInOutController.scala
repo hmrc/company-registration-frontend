@@ -16,13 +16,11 @@
 
 package controllers.reg
 
-import javax.inject.Inject
-
 import config.{FrontendAuthConnector, FrontendConfig}
 import connectors._
 import controllers.auth.{SCRSExternalUrls, SCRSRegime}
 import models._
-import play.api.{Application, Logger}
+import play.api.Logger
 import play.api.mvc.{Action, AnyContent, Request, Result}
 import services._
 import uk.gov.hmrc.play.config.ServicesConfig
@@ -30,11 +28,11 @@ import uk.gov.hmrc.play.frontend.auth.{Actions, AuthContext}
 import uk.gov.hmrc.play.frontend.controller.FrontendController
 import uk.gov.hmrc.play.http.HeaderCarrier
 import utils.SCRSExceptions
-import views.html.error_template
+import java.io.File
 import controllers.verification.{routes => emailRoutes}
-import uk.gov.hmrc.http.cache.client.CacheMap
 import play.api.i18n.Messages.Implicits._
 import play.api.Play.current
+
 import uk.gov.hmrc.play.binders.ContinueUrl
 import controllers.handoff.{routes => handoffRoutes}
 
@@ -192,5 +190,20 @@ trait SignInOutController extends FrontendController with Actions with Controlle
         case None => s"$cRFEBaseUrl${controllers.reg.routes.QuestionnaireController.show().url}"
       }
       Future.successful(Redirect(SCRSExternalUrls.logoutURL, Map("continue" -> Seq(c))))
+  }
+
+  def renewSession: Action[AnyContent] = AuthorisedFor(taxRegime = SCRSRegime("post-sign-in"), pageVisibility = GGConfidence) {
+    implicit user =>
+      implicit request =>
+        Ok.sendFile(new File(("public/images/renewSession.jpg"))).as("image")
+  }
+
+  def destroySession: Action[AnyContent] = Action {
+    Redirect(routes.SignInOutController.timeoutShow()).withNewSession
+  }
+
+  def timeoutShow = Action.async {
+    implicit request =>
+      Future.successful(Ok(views.html.timeout()))
   }
 }

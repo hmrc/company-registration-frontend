@@ -3,6 +3,11 @@ GET        /language/:lang                          @controllers.CRLanguageContr
 
 GET        /                                        controllers.reg.IndexController.index
 
+GET        /renew-session                           controllers.reg.SignInOutController.renewSession
+
+GET        /error/destroy-session                   controllers.reg.SignInOutController.destroySession
+GET        /error/timeout                           controllers.reg.SignInOutController.timeoutShow
+
 GET        /welcome                                 controllers.reg.WelcomeController.show
 POST       /welcome                                 controllers.reg.WelcomeController.submit
 

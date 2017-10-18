@@ -29,6 +29,14 @@ common.dateMessage=Enter the date in format dd mm yyyy
 common.dateExample=For example,
 common.button.ConfirmAndContinue=Confirm and continue
 
+#timeout page
+page.timeout.title = Your session has timed out due to inactivity
+page.timeout.heading = Your session has timed out due to inactivity
+page.timeout.p1 = Your answers have been saved.
+page.timeout.p2 = Sign in to
+page.timeout.url = continue registration
+
+
 #Welcome page
 page.reg.welcome.title=Register a limited company
 page.reg.welcome.heading=Register a limited company
