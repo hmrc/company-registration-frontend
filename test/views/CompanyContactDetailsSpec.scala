@@ -64,7 +64,7 @@ class CompanyContactDetailsSpec extends SCRSSpec with CompanyContactDetailsFixtu
           document.getElementById("contactEmailLabel").text() shouldBe "Email address"
           document.getElementById("contactDaytimePhoneLabel").text() shouldBe "Contact number"
           document.getElementById("contactMobileLabel").text() shouldBe "Other contact number"
-          document.getElementById("next").text() shouldBe "Save and continue"
+          document.getElementById("next").attr("value") shouldBe "Save and continue"
           document.getElementById("helpMessage1").text() shouldBe "Provide at least one of the following contact details."
       }
     }

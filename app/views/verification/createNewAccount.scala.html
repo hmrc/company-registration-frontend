@@ -19,7 +19,7 @@
         </div>
         @form(action = controllers.verification.routes.EmailVerificationController.createSubmit()) {
         <div class="form-group">
-            <button class="button button--link">@Messages("page.verification.create-new-account.bottomLink")</button>
+            <input class="button button--link" type="submit" value="@Messages("page.verification.create-new-account.bottomLink")">
         </div>
         }
     </div>

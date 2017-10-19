@@ -34,9 +34,9 @@
 
     <br>
     @form(action = controllers.reg.routes.ConfirmationControllerImpl.submit()) {
-    <div class="form-group">
-        <button class="btn button" role="button" id="next">@Messages("page.reg.finish.btn")</button>
-    </div>
+        <div class="form-group">
+            <input class="button" type="submit" id="next" value="@Messages("page.reg.finish.btn")">
+        </div>
     }
     <div class="form-group">
         <a href="questionnaire">@Messages("page.reg.Confirmation.questionnaire.link")</a>

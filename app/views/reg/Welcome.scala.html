@@ -35,10 +35,9 @@
             <li id="one">@Messages("page.reg.welcome.bullet.one-go")</li>
             <li id="90">@Messages("page.reg.welcome.bullet.90-days")</li>
         </ul>
-        @form(action = controllers.reg.routes.WelcomeController.submit()) {
+
         <div class="form-group">
-            <button class="button button--get-started" role="button" id="next">@Messages("common.button.start")</button>
+            <a class="button button--get-started" href="@controllers.reg.routes.ReturningUserController.show()" role="button" id="next">@Messages("common.button.start")</a>
         </div>
-        }
     </div>
 }
