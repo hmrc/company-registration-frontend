@@ -40,7 +40,8 @@ object HandOffService extends HandOffService {
   val encryptor = Jwe
   val authConnector = FrontendAuthConnector
   val navModelMongo =  NavModelRepo.repository
-  lazy val timeout = getConfString("timeoutInSeconds", "900")
+  lazy val timeout = getConfInt("timeoutInSeconds", 900)
+  lazy val timeoutDisplayLength = getConfInt("timeoutDisplayLength", 30)
 }
 
 trait HandOffService extends CommonService with SCRSExceptions with ServicesConfig with HandOffNavigator {
@@ -50,7 +51,8 @@ trait HandOffService extends CommonService with SCRSExceptions with ServicesConf
   val compRegConnector: CompanyRegistrationConnector
   val encryptor : JweEncryptor
   val authConnector: AuthConnector
-  val timeout:String
+  val timeout : Int
+  val timeoutDisplayLength : Int
 
   def buildHandOffUrl(url: String, payload: String) = url match {
     case u if u.endsWith("request=") => s"$url$payload"
@@ -111,7 +113,8 @@ trait HandOffService extends CommonService with SCRSExceptions with ServicesConf
         journey_id = Some(regId),
         user_id = extUserID,
         name = userDetails.name,
-        hmrc = renewSessionObject,
+        hmrc = Json.obj(),
+        session = renewSessionObject,
         ch = chData,
         links = links)
       encryptor.encrypt[CompanyNameHandOffModel](payload) map { (url, _) }
@@ -120,10 +123,13 @@ trait HandOffService extends CommonService with SCRSExceptions with ServicesConf
 
   val renewSessionObject ={
     JsObject(Map(
-      "timeout" -> Json.toJson(timeout),
-      "keepalive_url" -> Json.toJson(controllers.reg.routes.SignInOutController.renewSession().url),
-      "signedout_url" -> Json.toJson(controllers.reg.routes.SignInOutController.destroySession().url)))
+      "timeout" -> Json.toJson(timeout - timeoutDisplayLength),
+      "keepalive_url" -> Json.toJson(buildUrlString(controllers.reg.routes.SignInOutController.renewSession().url)),
+      "signedout_url" -> Json.toJson(buildUrlString(controllers.reg.routes.SignInOutController.destroySession().url)))
+    )
   }
+
+  def buildUrlString(path: String): String = baseUrl("comp-reg-frontend") + path
 
   def buildLinksObject(navLinks : NavLinks, jumpLinks: Option[JumpLinks]) : JsObject = {
     val obj = Json.obj("forward" -> navLinks.forward,"reverse" -> navLinks.reverse)

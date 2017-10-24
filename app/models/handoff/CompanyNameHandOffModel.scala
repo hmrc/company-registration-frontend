@@ -27,6 +27,7 @@ case class CompanyNameHandOffModel(email_address : String,
                                    user_id : String,
                                    name : String,
                                    hmrc: JsObject,
+                                   session: JsObject,
                                    ch: Option[JsObject],
                                    links: NavLinks)
 
