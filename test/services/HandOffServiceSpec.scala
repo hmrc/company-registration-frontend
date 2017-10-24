@@ -78,7 +78,8 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
         Sender(Map(
           "1" -> NavLinks("returnFromCoho", "aboutYOu"),
           "3" -> NavLinks("summary", "regularPayments"),
-          "5" -> NavLinks("confirmation", "summary"))),
+          "5" -> NavLinks("confirmation", "summary"),
+          "5-2" -> NavLinks("confirmation",""))),
         Receiver(Map(
           "0" -> NavLinks("firstHandOff", ""),
           "2" -> NavLinks("SIC codes", "firstHandoff")

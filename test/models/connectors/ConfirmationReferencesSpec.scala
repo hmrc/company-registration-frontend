@@ -34,14 +34,14 @@ class ConfirmationReferencesSpec extends UnitSpec {
            |}
        """.stripMargin
 
-      val testModel1 = ConfirmationReferences("a", "b", "c", "")
+      val testModel1 = ConfirmationReferences("a", Some("b"), Some("c"), "")
 
       val result = Json.toJson[ConfirmationReferences](testModel1)
       result.getClass shouldBe classOf[JsObject]
       result shouldBe Json.parse(json1)
     }
-    "Be able to parsed into the correct JSON format with AckRef" in {
 
+    "Be able to parsed into the correct JSON format with AckRef" in {
       val json1: String =
         s"""
            |{
@@ -52,7 +52,23 @@ class ConfirmationReferencesSpec extends UnitSpec {
            |}
        """.stripMargin
 
-      val testModel1 = ConfirmationReferences("a", "b", "c", "d")
+      val testModel1 = ConfirmationReferences("a", Some("b"), Some("c"), "d")
+
+      val result = Json.toJson[ConfirmationReferences](testModel1)
+      result.getClass shouldBe classOf[JsObject]
+      result shouldBe Json.parse(json1)
+    }
+
+    "Be able to parsed into the correct JSON format without a payment reference or amount" in {
+      val json1: String =
+        s"""
+           |{
+           |  "transaction-id" : "a",
+           |  "acknowledgement-reference" : "d"
+           |}
+       """.stripMargin
+
+      val testModel1 = ConfirmationReferences("a", None, None, "d")
 
       val result = Json.toJson[ConfirmationReferences](testModel1)
       result.getClass shouldBe classOf[JsObject]

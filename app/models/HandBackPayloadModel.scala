@@ -35,8 +35,8 @@ object HandBackPayloadModel {
 case class RegistrationConfirmationPayload(user_id : String,
                                            journey_id : String,
                                            transaction_id : String,
-                                           payment_reference : String,
-                                           payment_amount : String,
+                                           payment_reference : Option[String],
+                                           payment_amount : Option[String],
                                            ch : JsObject,
                                            hmrc : JsObject,
                                            links : JsObject)

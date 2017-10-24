@@ -36,6 +36,7 @@ import uk.gov.hmrc.http.cache.client.CacheMap
 import play.api.i18n.Messages.Implicits._
 import play.api.Play.current
 import uk.gov.hmrc.play.binders.ContinueUrl
+import controllers.handoff.{routes => handoffRoutes}
 
 import scala.concurrent.Future
 
@@ -98,6 +99,8 @@ trait SignInOutController extends FrontendController with Actions with Controlle
                                      (implicit hc : HeaderCarrier, user : AuthContext, req: Request[_]) : Future[Result] = {
     compRegConnector.fetchRegistrationStatus(throttleResponse.registrationId) flatMap {
       case Some("draft") => f
+      case Some("locked") => Future.successful(Redirect(handoffRoutes.BasicCompanyDetailsController.basicCompanyDetails()))
+      case Some("held") if !throttleResponse.paymentRefs => Future.successful(Redirect(handoffRoutes.BasicCompanyDetailsController.basicCompanyDetails()))
       case Some(_) => handOffService.cacheRegistrationID(throttleResponse.registrationId) map {
         _ => Redirect(routes.DashboardController.show())
       }

@@ -74,11 +74,20 @@ trait LoginStub extends SessionCookieBaker {
                |    "levelOfAssurance": "2",
                |    "confidenceLevel" : 50,
                |    "credentialStrength": "strong",
+               |    "ids": "/auth/oid/1234567890/ids",
                |    "legacyOid":"1234567890"
                |}
                |
             """.stripMargin
           )))
+
+    stubFor(get(urlMatching(s"/auth/oid/1234567890/ids"))
+      .willReturn(
+        aResponse().
+          withStatus(200).
+          withBody("""{"internalId":"Int-xxx","externalId":"Ext-xxx"}""")
+      )
+    )
   }
 
   def setupSimpleAuthMocks(userId: String = defaultUser) = {

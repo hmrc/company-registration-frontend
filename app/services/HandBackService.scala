@@ -20,7 +20,7 @@ import connectors.{CompanyRegistrationConnector, KeystoreConnector, S4LConnector
 import models._
 import models.handoff._
 import play.api.Logger
-import play.api.libs.json.{Format, JsValue}
+import play.api.libs.json.{Format, JsObject, JsValue}
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.frontend.auth.AuthContext
 import uk.gov.hmrc.play.http.HeaderCarrier
@@ -158,7 +158,31 @@ trait HandBackService extends CommonService with SCRSExceptions with HandOffNavi
   }
 
   def decryptConfirmationHandback(request : String)(implicit user : AuthContext, hc : HeaderCarrier) : Future[Try[RegistrationConfirmationPayload]] = {
-    decryptHandBackRequest[RegistrationConfirmationPayload](request){res => Future.successful(Success(res))}
+
+    def processNavModel(model: HandOffNavModel, payload: RegistrationConfirmationPayload) = {
+      validateLink(getForwardUrl(payload).get)
+      val navLinks = NavLinks(getForwardUrl(payload).get,"")
+      implicit val updatedModel = model.copy(
+        receiver = {
+          model.receiver.copy(
+            nav = model.receiver.nav ++ Map("5-1" -> navLinks),
+            chData = Some(payload.ch)
+          )
+        })
+      cacheNavModel
+    }
+
+    decryptHandBackRequest[RegistrationConfirmationPayload](request){
+      payload =>
+        if(payloadHasForwardLinkAndNoPaymentRefs(payload)) {
+          for {
+            model   <- fetchNavModel()
+            _       <- processNavModel(model, payload)
+          } yield Success(payload)
+        } else {
+          Future.successful(Success(payload))
+        }
+    }
   }
 
   private[services] def updateCompanyDetails(registrationID: String, handoff: CompanyNameHandOffIncoming)(implicit hc: HeaderCarrier): Future[CompanyDetails] = {
@@ -192,5 +216,13 @@ trait HandBackService extends CommonService with SCRSExceptions with HandOffNavi
 
   def storeConfirmationHandOff(payload : RegistrationConfirmationPayload, regID : String)(implicit hc: HeaderCarrier): Future[ConfirmationReferencesResponse] = {
     compRegConnector.updateReferences(regID, RegistrationConfirmationPayload.getReferences(payload))
+  }
+
+  def payloadHasForwardLinkAndNoPaymentRefs(payload : RegistrationConfirmationPayload) : Boolean = {
+    getForwardUrl(payload).nonEmpty && payload.payment_reference.isEmpty && payload.payment_amount.isEmpty
+  }
+
+  def getForwardUrl(payload: RegistrationConfirmationPayload) : Option[String] = {
+    (payload.links \ "forward").asOpt[String]
   }
 }

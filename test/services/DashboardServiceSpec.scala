@@ -358,7 +358,7 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers {
 
   "getCompanyName" should {
 
-    val confRefs = ConfirmationReferences(transId, payRef, "12", ackRef)
+    val confRefs = ConfirmationReferences(transId, Some(payRef), Some("12"), ackRef)
     val companyName = "testCompanyName"
 
     "return the company name returned from incorporation information" in new Setup {

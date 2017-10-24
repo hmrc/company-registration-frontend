@@ -48,14 +48,16 @@ trait HandOffNavigator extends CommonService with SCRSExceptions {
     s"$compRegFrontendUrl${url.substring(0, url.length - stripLen)}"
   }
 
-  def corporationTaxDetails = buildUrl(routes.CorporationTaxDetailsController.corporationTaxDetails(""))
-  def aboutYouUrl = buildUrl(routes.BasicCompanyDetailsController.returnToAboutYou(""))
+  def corporationTaxDetails   = buildUrl(routes.CorporationTaxDetailsController.corporationTaxDetails(""))
+  def aboutYouUrl             = buildUrl(routes.BasicCompanyDetailsController.returnToAboutYou(""))
 
-  def regularPaymentsBackUrl = buildUrl(routes.BusinessActivitiesController.businessActivitiesBack(""))
-  def summaryUrl = buildUrl(routes.CorporationTaxSummaryController.corporationTaxSummary(""))
+  def regularPaymentsBackUrl  = buildUrl(routes.BusinessActivitiesController.businessActivitiesBack(""))
+  def summaryUrl              = buildUrl(routes.CorporationTaxSummaryController.corporationTaxSummary(""))
 
-  def returnSummaryUrl = buildUrl(routes.IncorporationSummaryController.returnToCorporationTaxSummary(""))
-  def confirmationURL = buildUrl(routes.RegistrationConfirmationController.registrationConfirmation(""))
+  def returnSummaryUrl        = buildUrl(routes.IncorporationSummaryController.returnToCorporationTaxSummary(""))
+  def confirmationURL         = buildUrl(routes.RegistrationConfirmationController.registrationConfirmation(""))
+
+  def forwardConfirmationUrl  = buildUrl(routes.RegistrationConfirmationController.paymentConfirmation(""))
 
   val postSignInCall = controllers.reg.routes.SignInOutController.postSignIn(None)
   val postSignInUrl = postSignInCall.url
@@ -75,9 +77,10 @@ trait HandOffNavigator extends CommonService with SCRSExceptions {
   private def initNavModel(implicit hc: HeaderCarrier): Future[HandOffNavModel] = {
     val model = HandOffNavModel(
       Sender(Map(
-        "1" -> NavLinks(corporationTaxDetails, aboutYouUrl),
-        "3" -> NavLinks(summaryUrl, regularPaymentsBackUrl),
-        "5" -> NavLinks(confirmationURL, returnSummaryUrl))),
+        "1"   -> NavLinks(corporationTaxDetails, aboutYouUrl),
+        "3"   -> NavLinks(summaryUrl, regularPaymentsBackUrl),
+        "5"   -> NavLinks(confirmationURL, returnSummaryUrl),
+        "5-2" -> NavLinks(forwardConfirmationUrl,""))),
       Receiver(Map("0" -> NavLinks(firstHandoffURL, "")).withDefaultValue(NavLinks(postSignInUrl,postSignInUrl))))
 
     cacheNavModel(model, hc) map (_ => model)
@@ -87,6 +90,17 @@ trait HandOffNavigator extends CommonService with SCRSExceptions {
     fetchRegistrationID flatMap  { reg =>
       navModelMongo.insertNavModel(reg, navModel).map(Left(_))
     }
+  }
+
+
+  private def previous(nav: String) = nav match {
+    case s if s.contains("-") => val numbers = s.split('-').map(_.toInt)
+      (numbers.dropRight(1):+numbers.last-1).mkString("-")
+    case s => (s.toInt - 1).toString
+  }
+
+  def forwardTo(navPosition: String)(implicit navModel: HandOffNavModel, hc: HeaderCarrier) = {
+    navModel.receiver.nav(previous(navPosition)).forward
   }
 
   def forwardTo(navPosition: Int)(implicit navModel: HandOffNavModel, hc: HeaderCarrier) = {
@@ -99,6 +113,10 @@ trait HandOffNavigator extends CommonService with SCRSExceptions {
 
   def jumpTo(jumpTarget: String)(implicit navModel: HandOffNavModel, hc: HeaderCarrier) = {
     navModel.receiver.jump(jumpTarget)
+  }
+
+  def hmrcLinks(navPosition: String)(implicit navModel: HandOffNavModel, hc: HeaderCarrier) = {
+    navModel.sender.nav(navPosition)
   }
 
   def hmrcLinks(navPosition: Int)(implicit navModel: HandOffNavModel, hc: HeaderCarrier) = {

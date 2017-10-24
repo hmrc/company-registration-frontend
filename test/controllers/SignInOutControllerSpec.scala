@@ -67,7 +67,7 @@ class SignInOutControllerSpec extends SCRSSpec
     }
 
     "return a 303 if accessing with authorisation for a new journey" in new Setup {
-      val expected = ThrottleResponse("12345", true, false)
+      val expected = ThrottleResponse("12345", true, false, false)
 
       when(mockAuthConnector.getUserDetails[UserDetailsModel](Matchers.any())(Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(userDetailsModel))
@@ -98,7 +98,7 @@ class SignInOutControllerSpec extends SCRSSpec
     }
 
     "return a 303 if accessing with authorisation for an existing journey" in new Setup {
-      val expected = ThrottleResponse("12345", false, false)
+      val expected = ThrottleResponse("12345", false, false, false)
 
       when(mockAuthConnector.getUserDetails[UserDetailsModel](Matchers.any())(Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(userDetailsModel))
@@ -121,7 +121,7 @@ class SignInOutControllerSpec extends SCRSSpec
 
     "return a 303 if accessing with authorisation for an existing journey that has been as far as HO5 and redirect to HO1" in new Setup {
       import constants.RegistrationProgressValues.HO5
-      val expected = ThrottleResponse("12345", false, false, registrationProgress = Some(HO5))
+      val expected = ThrottleResponse("12345", false, false, false, registrationProgress = Some(HO5))
 
       when(mockAuthConnector.getUserDetails[UserDetailsModel](Matchers.any())(Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(userDetailsModel))
@@ -146,8 +146,48 @@ class SignInOutControllerSpec extends SCRSSpec
       }
     }
 
+    "return a 303 if accessing with authorisation for an existing journey that has locked status and redirect to HO1" in new Setup {
+      import constants.RegistrationProgressValues.HO5
+      val expected = ThrottleResponse("12345", false, true, false, registrationProgress = Some(HO5))
+
+      when(mockAuthConnector.getUserDetails[UserDetailsModel](Matchers.any())(Matchers.any(), Matchers.any()))
+        .thenReturn(Future.successful(userDetailsModel))
+
+      when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(Matchers.any()))
+        .thenReturn(Future.successful(FootprintFound(expected)))
+
+      when(mockCompanyRegistrationConnector.fetchRegistrationStatus(Matchers.any())(Matchers.any()))
+        .thenReturn(Future.successful(Some("locked")))
+
+      AuthBuilder.showWithAuthorisedUser(controller.postSignIn(None), mockAuthConnector) {
+        result =>
+          status(result) shouldBe SEE_OTHER
+          redirectLocation(result) shouldBe Some("/register-your-company/basic-company-details")
+      }
+    }
+
+    "return a 303 if accessing with authorisation for an existing journey that has been as far as HO5.1 and redirect to HO1" in new Setup {
+      import constants.RegistrationProgressValues.HO5
+      val expected = ThrottleResponse("12345", false, true, false, registrationProgress = Some(HO5))
+
+      when(mockAuthConnector.getUserDetails[UserDetailsModel](Matchers.any())(Matchers.any(), Matchers.any()))
+        .thenReturn(Future.successful(userDetailsModel))
+
+      when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(Matchers.any()))
+        .thenReturn(Future.successful(FootprintFound(expected)))
+
+      when(mockCompanyRegistrationConnector.fetchRegistrationStatus(Matchers.any())(Matchers.any()))
+        .thenReturn(Future.successful(Some("held")))
+
+      AuthBuilder.showWithAuthorisedUser(controller.postSignIn(None), mockAuthConnector) {
+        result =>
+          status(result) shouldBe SEE_OTHER
+          redirectLocation(result) shouldBe Some("/register-your-company/basic-company-details")
+      }
+    }
+
     "return a 303 if accessing with authorisation for a complete journey" in new Setup {
-      val expected = ThrottleResponse("12345", false, false)
+      val expected = ThrottleResponse("12345", false, true, true)
 
       when(mockAuthConnector.getUserDetails[UserDetailsModel](Matchers.any())(Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(userDetailsModel))
@@ -169,7 +209,7 @@ class SignInOutControllerSpec extends SCRSSpec
     }
 
     "return a 303 if accessing with authorised but that account has restricted enrolments" in new Setup {
-      val expected = ThrottleResponse("12345", true, false)
+      val expected = ThrottleResponse("12345", true, false, false)
 
       when(mockAuthConnector.getUserDetails[UserDetailsModel](Matchers.any())(Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(userDetailsModel))
@@ -274,7 +314,7 @@ class SignInOutControllerSpec extends SCRSSpec
 
     val regId = "reg-12345"
     val payload = "testPayload"
-    val throttleResponse = ThrottleResponse(regId, created = true, confRefs = false)
+    val throttleResponse = ThrottleResponse(regId, created = true, confRefs = false, paymentRefs = false)
 
     "process a deferred hand off 1 back" in new Setup {
       mockCacheRegistrationID(regId, mockKeystoreConnector)

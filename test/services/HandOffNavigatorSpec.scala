@@ -64,21 +64,24 @@ class HandOffNavigatorSpec extends UnitSpec with MockitoSugar with WithFakeAppli
     Sender(Map(
       "1" -> NavLinks("http://localhost:9970/register-your-company/corporation-tax-details", "http://localhost:9970/register-your-company/return-to-about-you"),
       "3" -> NavLinks("http://localhost:9970/register-your-company/corporation-tax-summary", "http://localhost:9970/register-your-company/business-activities-back"),
-      "5" -> NavLinks("http://localhost:9970/register-your-company/registration-confirmation", "http://localhost:9970/register-your-company/return-to-corporation-tax-summary"))),
+      "5" -> NavLinks("http://localhost:9970/register-your-company/registration-confirmation", "http://localhost:9970/register-your-company/return-to-corporation-tax-summary"),
+      "5-2" -> NavLinks("http://localhost:9970/register-your-company/payment-complete",""))),
     Receiver(Map("0" -> NavLinks("http://localhost:9986/incorporation-frontend-stubs/basic-company-details", "")))
   )
 
   val handOffNavModel = HandOffNavModel(
     Sender(
       Map(
-        "1" -> NavLinks("testForwardLinkFromSender1", "testReverseLinkFromSender1"),
-        "3" -> NavLinks("testForwardLinkFromSender3", "testReverseLinkFromSender3")
+        "1"   -> NavLinks("testForwardLinkFromSender1", "testReverseLinkFromSender1"),
+        "3"   -> NavLinks("testForwardLinkFromSender3", "testReverseLinkFromSender3"),
+        "5-2" -> NavLinks("testForwardLinkFromSender5.2","")
       )
     ),
     Receiver(
       Map(
-        "0" -> NavLinks("testForwardLinkFromReceiver0", "testReverseLinkFromReceiver0"),
-        "2" -> NavLinks("testForwardLinkFromReceiver2", "testReverseLinkFromReceiver2")
+        "0"   -> NavLinks("testForwardLinkFromReceiver0", "testReverseLinkFromReceiver0"),
+        "2"   -> NavLinks("testForwardLinkFromReceiver2", "testReverseLinkFromReceiver2"),
+        "5-1" -> NavLinks("testForwardLinkFromReceiver5.1","")
       ),
       Map("testJumpKey" -> "testJumpLink"),
       Some(Json.parse("""{"testCHBagKey": "testValue"}""").as[JsObject])
@@ -109,7 +112,6 @@ class HandOffNavigatorSpec extends UnitSpec with MockitoSugar with WithFakeAppli
     "return the nav model found in Nav Model Repo" in new SetupWithMongoRepo {
       mockGetNavModel(handOffNavModel = Some(handOffNavModel))
       val res =  await(navigator.fetchNavModel())
-      println(res)
       res shouldBe handOffNavModel
     }
 
@@ -140,13 +142,21 @@ class HandOffNavigatorSpec extends UnitSpec with MockitoSugar with WithFakeAppli
 
     "return a forward link from the previous receiver" in new Setup {
       val result = await(navigator.forwardTo(1)(handOffNavModel, hc))
-
       result shouldBe "testForwardLinkFromReceiver0"
+    }
+
+    "return a forward link from the previous receiver if a string is passed in" in new Setup {
+      val result = await(navigator.forwardTo("1")(handOffNavModel, hc))
+      result shouldBe "testForwardLinkFromReceiver0"
+    }
+
+    "return a forward link from receiver 5-1 if 5-2 is passed in" in new Setup {
+      val result = await(navigator.forwardTo("5-2")(handOffNavModel, hc))
+      result shouldBe "testForwardLinkFromReceiver5.1"
     }
 
     "return a NoSuchElementException if an unknown key is passed" in new Setup {
       val ex = intercept[NoSuchElementException](await(navigator.forwardTo(-1)(handOffNavModel, hc)))
-
       ex.getMessage shouldBe "key not found: -2"
     }
   }
@@ -176,10 +186,18 @@ class HandOffNavigatorSpec extends UnitSpec with MockitoSugar with WithFakeAppli
   }
 
   "hmrcLinks" should {
-
     "return a HandOffNavModel with a forward and reverse link" in new Setup {
       val result = await(navigator.hmrcLinks(1)(handOffNavModel, hc))
       result shouldBe NavLinks("testForwardLinkFromSender1", "testReverseLinkFromSender1")
+    }
+
+    "return a HandOffNavModel with a forward and reverse link if a string is passed in" in new Setup {
+      val result = await(navigator.hmrcLinks("1")(handOffNavModel, hc))
+      result shouldBe NavLinks("testForwardLinkFromSender1", "testReverseLinkFromSender1")
+    }
+    "return the HO5.2 links if '5.2' is passed in" in new Setup {
+      val result = await(navigator.hmrcLinks("5-2")(initNavModel, hc))
+      result shouldBe NavLinks("http://localhost:9970/register-your-company/payment-complete","")
     }
   }
 

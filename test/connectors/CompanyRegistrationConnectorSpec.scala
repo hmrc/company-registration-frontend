@@ -112,13 +112,13 @@ class CompanyRegistrationConnectorSpec extends SCRSSpec with CTDataFixture with 
          |  }""".stripMargin
 
     "return a new footprint" in new Setup {
-      mockHttpGet[ThrottleResponse]("testUrl", ThrottleResponse("12345", true, false))
-      val expected = ThrottleResponse("12345", true, false)
+      mockHttpGet[ThrottleResponse]("testUrl", ThrottleResponse("12345", true, false, false))
+      val expected = ThrottleResponse("12345", true, false, false)
       await(connector.retrieveOrCreateFootprint()) shouldBe FootprintFound(expected)
     }
     "return an existing footprint" in new Setup {
-      mockHttpGet[ThrottleResponse]("testUrl", ThrottleResponse("12345", false, false))
-      val expected = ThrottleResponse("12345", false, false)
+      mockHttpGet[ThrottleResponse]("testUrl", ThrottleResponse("12345", false, false, false))
+      val expected = ThrottleResponse("12345", false, false, false)
       await(connector.retrieveOrCreateFootprint()) shouldBe FootprintFound(expected)
     }
     "return an FootprintForbiddenResponse" in new Setup {
@@ -386,7 +386,7 @@ class CompanyRegistrationConnectorSpec extends SCRSSpec with CTDataFixture with 
 
   "updateReferences" should {
 
-    val validConfirmationReferences = ConfirmationReferences("transID", "paymentRef", "paymentAmount", "ackRef")
+    val validConfirmationReferences = ConfirmationReferences("transID", Some("paymentRef"), Some("paymentAmount"), "ackRef")
 
     "update references on mongoDB and return a unit" in new Setup {
       mockHttpPUT[JsValue, ConfirmationReferences]("testUrl", validConfirmationReferences)
@@ -532,9 +532,9 @@ class CompanyRegistrationConnectorSpec extends SCRSSpec with CTDataFixture with 
   "fetchAcknowledgementReference" should {
 
     "return a succcess response when an Ack ref is found" in new Setup {
-      mockHttpGet("testUrl", ConfirmationReferences("a", "b", "c", "BRCT00000000123"))
+      mockHttpGet("testUrl", ConfirmationReferences("a", Some("b"), Some("c"), "BRCT00000000123"))
 
-      await(connector.fetchConfirmationReferences("testRegID")) shouldBe ConfirmationReferencesSuccessResponse(ConfirmationReferences("a", "b", "c", "BRCT00000000123"))
+      await(connector.fetchConfirmationReferences("testRegID")) shouldBe ConfirmationReferencesSuccessResponse(ConfirmationReferences("a", Some("b"), Some("c"), "BRCT00000000123"))
     }
 
     "return a bad request response if a there is a bad request to company registration" in new Setup {

@@ -27,7 +27,7 @@ import models.handoff.NavLinks
 import models.{ConfirmationReferencesSuccessResponse, DESFailureDeskpro, DESFailureRetriable, RegistrationConfirmationPayload}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services.HandBackService
+import services.{HandBackService, NavModelNotFoundException}
 import org.mockito.Mockito._
 import org.mockito.Matchers
 import play.api.libs.json.Json
@@ -41,7 +41,7 @@ import scala.util.{Failure, Success}
 
 class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixture with LoginFixture with WithFakeApplication {
 
-  val payload = RegistrationConfirmationPayload("user","journey","transaction","ref","amount", Json.obj(), Json.obj(), Json.obj())
+  val payload = RegistrationConfirmationPayload("user","journey","transaction",Some("ref"),Some("amount"), Json.obj(), Json.obj(), Json.obj())
 
   class Setup {
     object TestController extends RegistrationConfirmationController {
@@ -49,6 +49,7 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
       val keystoreConnector = mockKeystoreConnector
       val handBackService = mockHandBackService
       val companyRegistrationConnector = mockCompanyRegistrationConnector
+      val handOffService = mockHandOffService
     }
   }
 
@@ -81,12 +82,68 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
         .thenReturn(Future.successful(Success(payload)))
 
       when(mockHandBackService.storeConfirmationHandOff(Matchers.any(), Matchers.any())(Matchers.any()))
-        .thenReturn(Future.successful(ConfirmationReferencesSuccessResponse(ConfirmationReferences("test", "test", "test", "test"))))
+        .thenReturn(Future.successful(ConfirmationReferencesSuccessResponse(ConfirmationReferences("test", Some("test"), Some("test"), "test"))))
+      //TODO: add mock
+      when(mockHandBackService.payloadHasForwardLinkAndNoPaymentRefs(Matchers.any()))
+        .thenReturn(false)
 
       AuthBuilder.showWithAuthorisedUser(TestController.registrationConfirmation(confirmationPayload), mockAuthConnector) {
         result =>
           status(result) shouldBe SEE_OTHER
           redirectLocation(result) shouldBe Some("/register-your-company/confirmation")
+      }
+    }
+
+    "redirect to next url if Handoff 5.1 and if sending a valid request with authorisation" in new Setup {
+      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      when(mockHandBackService.decryptConfirmationHandback(Matchers.eq(confirmationPayload))(Matchers.any(), Matchers.any()))
+        .thenReturn(Future.successful(Success(payload)))
+
+      when(mockHandBackService.storeConfirmationHandOff(Matchers.any(), Matchers.any())(Matchers.any()))
+        .thenReturn(Future.successful(ConfirmationReferencesSuccessResponse(ConfirmationReferences("test", None, None, "test"))))
+
+      when(mockHandBackService.payloadHasForwardLinkAndNoPaymentRefs(Matchers.any()))
+        .thenReturn(true)
+
+      when(mockHandOffService.buildPaymentConfirmationHandoff(Matchers.any(),Matchers.any())).thenReturn(Some(("coho-url","encrypted-payload")))
+
+      when(mockHandOffService.buildHandOffUrl(Matchers.any(),Matchers.any())).thenReturn("coho-url?request=encrypted-payload")
+
+      AuthBuilder.showWithAuthorisedUser(TestController.registrationConfirmation(confirmationPayload), mockAuthConnector) {
+        result =>
+          status(result) shouldBe SEE_OTHER
+          redirectLocation(result) shouldBe Some("coho-url?request=encrypted-payload")
+      }
+    }
+
+    "redirect to signInOutController if no nav model is found" in new Setup {
+      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      when(mockHandBackService.decryptConfirmationHandback(Matchers.eq(confirmationPayload))(Matchers.any(), Matchers.any()))
+        .thenReturn(Future.failed(new NavModelNotFoundException))
+
+      AuthBuilder.showWithAuthorisedUser(TestController.registrationConfirmation(confirmationPayload), mockAuthConnector) {
+        result =>
+          status(result) shouldBe SEE_OTHER
+          redirectLocation(result) shouldBe Some("/register-your-company/post-sign-in")
+      }
+    }
+
+    "return a BadRequest if a confirmation handoff cannot be built" in new Setup {
+      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      when(mockHandBackService.decryptConfirmationHandback(Matchers.eq(confirmationPayload))(Matchers.any(), Matchers.any()))
+        .thenReturn(Future.successful(Success(payload)))
+
+      when(mockHandBackService.storeConfirmationHandOff(Matchers.any(), Matchers.any())(Matchers.any()))
+        .thenReturn(Future.successful(ConfirmationReferencesSuccessResponse(ConfirmationReferences("test", None, None, "test"))))
+
+      when(mockHandBackService.payloadHasForwardLinkAndNoPaymentRefs(Matchers.any()))
+        .thenReturn(true)
+
+      when(mockHandOffService.buildPaymentConfirmationHandoff(Matchers.any(),Matchers.any())).thenReturn(Future.successful(None))
+
+      AuthBuilder.showWithAuthorisedUser(TestController.registrationConfirmation(confirmationPayload), mockAuthConnector) {
+        result =>
+          status(result) shouldBe BAD_REQUEST
       }
     }
 
@@ -141,6 +198,26 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
         result =>
           status(result) shouldBe BAD_REQUEST
           redirectLocation(result) shouldBe None
+      }
+    }
+  }
+
+  "paymentConfirmation" should {
+    "redirect to the Confirmation page" in new Setup {
+      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      when(mockHandBackService.decryptConfirmationHandback(Matchers.eq(confirmationPayload))(Matchers.any(), Matchers.any()))
+        .thenReturn(Future.successful(Success(payload)))
+
+      when(mockHandBackService.storeConfirmationHandOff(Matchers.any(), Matchers.any())(Matchers.any()))
+        .thenReturn(Future.successful(ConfirmationReferencesSuccessResponse(ConfirmationReferences("test", Some("test"), Some("test"), "test"))))
+
+      when(mockHandBackService.payloadHasForwardLinkAndNoPaymentRefs(Matchers.any()))
+        .thenReturn(false)
+
+      AuthBuilder.showWithAuthorisedUser(TestController.paymentConfirmation(confirmationPayload), mockAuthConnector) {
+        result =>
+          status(result) shouldBe SEE_OTHER
+          redirectLocation(result) shouldBe Some("/register-your-company/confirmation")
       }
     }
   }
