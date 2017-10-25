@@ -99,8 +99,8 @@ trait SignInOutController extends FrontendController with Actions with Controlle
                                      (implicit hc : HeaderCarrier, user : AuthContext, req: Request[_]) : Future[Result] = {
     compRegConnector.fetchRegistrationStatus(throttleResponse.registrationId) flatMap {
       case Some("draft") => f
-      case Some("locked") => Future.successful(Redirect(handoffRoutes.BasicCompanyDetailsController.basicCompanyDetails()))
-      case Some("held") if !throttleResponse.paymentRefs => Future.successful(Redirect(handoffRoutes.BasicCompanyDetailsController.basicCompanyDetails()))
+      case Some("locked") => redirectToHo1WithCachedRegistrationId(throttleResponse.registrationId)
+      case Some("held") if !throttleResponse.paymentRefs => redirectToHo1WithCachedRegistrationId(throttleResponse.registrationId)
       case Some(_) => handOffService.cacheRegistrationID(throttleResponse.registrationId) map {
         _ => Redirect(routes.DashboardController.show())
       }
@@ -108,6 +108,10 @@ trait SignInOutController extends FrontendController with Actions with Controlle
     } recover {
       case _: Exception => InternalServerError(defaultErrorPage)
     }
+  }
+
+  private def redirectToHo1WithCachedRegistrationId(regid: String)(implicit hc: HeaderCarrier, request : Request[_]) = handOffService.cacheRegistrationID(regid) map { _ =>
+    Redirect(handoffRoutes.BasicCompanyDetailsController.basicCompanyDetails())
   }
 
   private def hasFootprint(f: ThrottleResponse => Future[Result])(implicit hc: HeaderCarrier, request : Request[AnyContent]) : Future[Result] = {

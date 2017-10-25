@@ -111,7 +111,6 @@ trait HandOffService extends CommonService with SCRSExceptions with ServicesConf
         name = userDetails.name,
         hmrc = JsObject(Seq()),
         ch = chData,
-        return_url = url,
         links = links)
       encryptor.encrypt[CompanyNameHandOffModel](payload) map { (url, _) }
     }
@@ -178,10 +177,10 @@ trait HandOffService extends CommonService with SCRSExceptions with ServicesConf
       }
     }
     for {
-      userID              <- externalUserId
-      regId               <- fetchRegistrationID
-      (url, navLinks, _)  <- navModel
-      ctReference         <- compRegConnector.fetchConfirmationReferences(regId) map {
+      userID                    <- externalUserId
+      regId                     <- fetchRegistrationID
+      (url, navLinks, chData)   <- navModel
+      ctReference               <- compRegConnector.fetchConfirmationReferences(regId) map {
         case ConfirmationReferencesSuccessResponse(refs) => refs.acknowledgementReference
         case _ => throw new ComfirmationRefsNotFoundException
       }
@@ -191,7 +190,7 @@ trait HandOffService extends CommonService with SCRSExceptions with ServicesConf
         regId,
         ctReference,
         Json.obj(),
-        Json.obj(),
+        chData.get,
         Json.obj("forward" -> navLinks.forward)
       )
       encryptor.encrypt[PaymentHandoff](payloadModel).map((url,_))

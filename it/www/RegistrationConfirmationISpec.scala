@@ -27,12 +27,12 @@ import play.api.http.HeaderNames
 import play.api.libs.json.{JsObject, Json}
 import play.api.test.FakeApplication
 import play.modules.reactivemongo.ReactiveMongoComponent
-import repositories.{NavModelRepo, NavModelRepoMongo}
+import repositories.NavModelRepo
 import uk.gov.hmrc.mongo.MongoSpecSupport
 import utils.Jwe
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration.Duration
+
 
 class RegistrationConfirmationISpec extends IntegrationSpecBase with MongoSpecSupport with LoginStub with FakeAppConfig {
 
@@ -66,10 +66,27 @@ class RegistrationConfirmationISpec extends IntegrationSpecBase with MongoSpecSu
        |  "links" : {
        |    "forward" : "link-to-confirmation-on-ct"
        |  }
-       |}"
-         """.stripMargin
+       |}
+      """.stripMargin
+
+  val forwardPayloadWithChString =
+    s"""
+       |{
+       |  "user_id" : "Ext-xxx",
+       |  "journey_id" : "$regId",
+       |  "ct_reference" : "TEST-ACKREF",
+       |  "hmrc" : {},
+       |  "ch" : {
+       |    "data" : "test-data"
+       |  },
+       |  "links" : {
+       |    "forward" : "link-to-confirmation-on-ct"
+       |  }
+       |}
+      """.stripMargin
 
   val forwardPayloadJson = Json.parse(forwardPayloadString).as[JsObject]
+  val forwardPayloadWithChJson = Json.parse(forwardPayloadWithChString).as[JsObject]
 
   val handOffNavModel = HandOffNavModel(
     Sender(
@@ -159,17 +176,62 @@ class RegistrationConfirmationISpec extends IntegrationSpecBase with MongoSpecSu
 
       val response = await(fResponse)
       val encryptedHandOffString  = response.header(HeaderNames.LOCATION).get.split("request=").takeRight(1)(0)
-      val decryptedHandoffString  = Jwe.decrypt[JsObject](encryptedHandOffString).get
+      val decryptedHandoffJson  = Jwe.decrypt[JsObject](encryptedHandOffString).get
 
 
       response.status shouldBe 303
       response.header(HeaderNames.LOCATION).get should include("/link-to-before-you-pay-coho")
-      decryptedHandoffString shouldBe forwardPayloadJson
+      decryptedHandoffJson shouldBe forwardPayloadJson
+    }
+
+    "redirect with the same ch data that was recieved" in new Setup {
+      setupSimpleAuthMocks()
+      stubSuccessfulLogin(userId = userId)
+
+      val encryptedForwardWithChPayload = Jwe.encrypt(RegistrationConfirmationPayload(
+        userId,
+        "journeyid",
+        transID,
+        None,
+        None,
+        Json.obj("data" -> "test-data"),
+        Json.obj(),
+        Json.obj("forward" -> "/link-to-before-you-pay-coho")
+      ))
+
+
+      val csrfToken = UUID.randomUUID().toString
+      val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
+
+      stubKeystore(SessionId, regId)
+      await(repo.repository.insertNavModel(regId,handOffNavModel))
+
+      val crResponse =
+        s"""
+           |{
+           |"acknowledgement-reference" : "TEST-ACKREF",
+           |"transaction-id" : "$transID"
+           |}""".stripMargin
+      stubPut(s"/company-registration/corporation-tax-registration/$regId/confirmation-references", 200, crResponse)
+      stubGet(s"/company-registration/corporation-tax-registration/$regId/confirmation-references", 200, crResponse)
+
+      val fResponse = client(confirmationEncryptedRequest(encryptedForwardWithChPayload.get)).
+        withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").
+        get()
+
+      val response = await(fResponse)
+      val encryptedHandOffString  = response.header(HeaderNames.LOCATION).get.split("request=").takeRight(1)(0)
+      val decryptedHandoffJson  = Jwe.decrypt[JsObject](encryptedHandOffString).get
+
+      response.status shouldBe 303
+      response.header(HeaderNames.LOCATION).get should include("/link-to-before-you-pay-coho")
+      decryptedHandoffJson shouldBe forwardPayloadWithChJson
     }
 
     "redirect to the forward url if there is a 502 on submission" in new Setup {
       setupSimpleAuthMocks()
       stubSuccessfulLogin(userId = userId)
+
 
       val csrfToken = UUID.randomUUID().toString
       val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
@@ -192,11 +254,11 @@ class RegistrationConfirmationISpec extends IntegrationSpecBase with MongoSpecSu
 
       val response = await(fResponse)
       val encryptedHandOffString  = response.header(HeaderNames.LOCATION).get.split("request=").takeRight(1)(0)
-      val decryptedHandoffString  = Jwe.decrypt[JsObject](encryptedHandOffString).get
+      val decryptedHandoffJson  = Jwe.decrypt[JsObject](encryptedHandOffString).get
 
       response.status shouldBe 303
       response.header(HeaderNames.LOCATION).get should include("/link-to-before-you-pay-coho")
-      decryptedHandoffString shouldBe forwardPayloadJson
+      decryptedHandoffJson shouldBe forwardPayloadJson
     }
 
     "redirect to the forward url if there is 403 on submission" in new Setup {
@@ -224,11 +286,11 @@ class RegistrationConfirmationISpec extends IntegrationSpecBase with MongoSpecSu
 
       val response = await(fResponse)
       val encryptedHandOffString  = response.header(HeaderNames.LOCATION).get.split("request=").takeRight(1)(0)
-      val decryptedHandoffString  = Jwe.decrypt[JsObject](encryptedHandOffString).get
+      val decryptedHandoffJson  = Jwe.decrypt[JsObject](encryptedHandOffString).get
 
       response.status shouldBe 303
       response.header(HeaderNames.LOCATION).get should include("/link-to-before-you-pay-coho")
-      decryptedHandoffString shouldBe forwardPayloadJson
+      decryptedHandoffJson shouldBe forwardPayloadJson
     }
   }
 

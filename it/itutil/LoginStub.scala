@@ -75,9 +75,9 @@ trait LoginStub extends SessionCookieBaker {
                |    "confidenceLevel" : 50,
                |    "credentialStrength": "strong",
                |    "ids": "/auth/oid/1234567890/ids",
+               |    "userDetailsLink":"/user-details/id/$userId",
                |    "legacyOid":"1234567890"
                |}
-               |
             """.stripMargin
           )))
 

@@ -159,6 +159,9 @@ class SignInOutControllerSpec extends SCRSSpec
       when(mockCompanyRegistrationConnector.fetchRegistrationStatus(Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(Some("locked")))
 
+      when(mockHandOffService.cacheRegistrationID(Matchers.eq(registrationID))(Matchers.any()))
+        .thenReturn(Future.successful(cacheMap))
+
       AuthBuilder.showWithAuthorisedUser(controller.postSignIn(None), mockAuthConnector) {
         result =>
           status(result) shouldBe SEE_OTHER
@@ -178,6 +181,9 @@ class SignInOutControllerSpec extends SCRSSpec
 
       when(mockCompanyRegistrationConnector.fetchRegistrationStatus(Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(Some("held")))
+
+      when(mockHandOffService.cacheRegistrationID(Matchers.eq(registrationID))(Matchers.any()))
+        .thenReturn(Future.successful(cacheMap))
 
       AuthBuilder.showWithAuthorisedUser(controller.postSignIn(None), mockAuthConnector) {
         result =>
