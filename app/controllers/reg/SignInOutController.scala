@@ -195,7 +195,7 @@ trait SignInOutController extends FrontendController with Actions with Controlle
   def renewSession: Action[AnyContent] = AuthorisedFor(taxRegime = SCRSRegime("post-sign-in"), pageVisibility = GGConfidence) {
     implicit user =>
       implicit request =>
-        Ok.sendFile(new File(("public/images/renewSession.jpg"))).as("image")
+        Ok.sendFile(new File(("public/images/renewSession.jpg"))).as("image/jpeg")
   }
 
   def destroySession: Action[AnyContent] = Action {
