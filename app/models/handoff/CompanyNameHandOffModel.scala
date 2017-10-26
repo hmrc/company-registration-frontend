@@ -28,7 +28,6 @@ case class CompanyNameHandOffModel(email_address : String,
                                    name : String,
                                    hmrc: JsObject,
                                    ch: Option[JsObject],
-                                   return_url : String,
                                    links: NavLinks)
 
 object CompanyNameHandOffModel {
