@@ -51,7 +51,6 @@ class BasicCompanyDetailsControllerISpec extends IntegrationSpecBase with MongoS
        |    "keepalive_url" : "http://localhost:9970/register-your-company${controllers.reg.routes.SignInOutController.renewSession().url}",
        |    "signedout_url" : "http://localhost:9970/register-your-company${controllers.reg.routes.SignInOutController.destroySession().url}"
        |  },
-       |  "return_url" : "/initial-coho-link",
        |  "links" : {
        |    "forward" : "link-to-about-you",
        |    "reverse" : "link-to-principal-place"
