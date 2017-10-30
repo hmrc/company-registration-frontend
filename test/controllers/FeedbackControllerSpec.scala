@@ -75,6 +75,7 @@ class FeedbackControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
         override val analyticsAutoLink: String = ""
         override val reportAProblemPartialUrl: String = ""
         override val serviceId: String = "SCRS"
+        override val timeoutInSeconds: String = ""
       }
     }
   }

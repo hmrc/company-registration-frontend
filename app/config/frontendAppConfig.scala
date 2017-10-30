@@ -33,6 +33,8 @@ trait AppConfig {
 
   val contactFrontendPartialBaseUrl : String
   val serviceId : String
+
+  val timeoutInSeconds: String
 }
 
 object FrontendAppConfig extends AppConfig with ServicesConfig {
@@ -50,6 +52,8 @@ object FrontendAppConfig extends AppConfig with ServicesConfig {
 
   override lazy val contactFrontendPartialBaseUrl = baseUrl("contact-frontend")
   override lazy val serviceId = contactFormServiceIdentifier
+
+  override val timeoutInSeconds: String = loadConfig("timeoutInSeconds")
 
   private def whitelistConfig(key: String): Seq[String] = Some(new String(Base64.getDecoder
     .decode(configuration.getString(key).getOrElse("")), "UTF-8"))

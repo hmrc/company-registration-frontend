@@ -110,6 +110,7 @@ trait LoginStub extends SessionCookieBaker {
                       |"levelOfAssurance": "2",
                       |"confidenceLevel" : 50,
                       |"credentialStrength": "strong",
+                      |"userDetailsUri" : "/user-details/id$userId",
                       |"legacyOid":"1234567890"
                       |}""".stripMargin)
       )
