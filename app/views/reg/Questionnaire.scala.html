@@ -15,7 +15,7 @@
 <a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
 
     @errorSummary(
-        Messages("common.errorSummary.label"), qForm
+        Messages("common.errorSummary.label"), qForm, dataJourney = Some("Questionnaire")
     )
 @form(action = controllers.reg.routes.QuestionnaireController.submit()){
 
