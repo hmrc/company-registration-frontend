@@ -50,6 +50,7 @@ object TestEndpointController extends TestEndpointController {
   val metaDataService = MetaDataService
   val dynStubConnector = DynamicStubConnector
   val brConnector = BusinessRegistrationConnector
+  val govUkConnector = GovUkConnector
   val navModelMongo =  NavModelRepo.repository
   val companyRegistrationConnector = CompanyRegistrationConnector
 }
@@ -61,12 +62,13 @@ trait TestEndpointController extends FrontendController with Actions with Common
   val keystoreConnector: KeystoreConnector
   val compRegConnector: CompanyRegistrationConnector
   val scrsFeatureSwitches: SCRSFeatureSwitches
-  val metaDataService : MetaDataService
+  val metaDataService: MetaDataService
   val dynStubConnector: DynamicStubConnector
   val brConnector: BusinessRegistrationConnector
+  val govUkConnector: GovUkConnector
   val coHoURL = getConfString("coho-service.sign-in", throw new Exception("Could not find config for coho-sign-in url"))
 
-  private def convertToForm(data: CompanyNameHandOffIncoming) : CompanyNameHandOffFormModel = {
+  private def convertToForm(data: CompanyNameHandOffIncoming): CompanyNameHandOffFormModel = {
     CompanyNameHandOffFormModel(
       registration_id = data.journey_id,
       openidconnectid = data.user_id,
@@ -81,7 +83,7 @@ trait TestEndpointController extends FrontendController with Actions with Common
   val getAllS4LEntries = AuthorisedFor(taxRegime = SCRSRegime("test-only/get-s4l"), pageVisibility = GGConfidence).async {
     implicit user =>
       implicit request =>
-        for{
+        for {
           regID <- keystoreConnector.fetchAndGet[String]("registrationID") map {
             case Some(res) => res
             case None => cacheRegistrationID("1"); "1"
@@ -95,7 +97,7 @@ trait TestEndpointController extends FrontendController with Actions with Common
           handBackData <- s4LConnector.fetchAndGet[CompanyNameHandOffIncoming](userIds.internalId, "HandBackData")
           cTRecord <- compRegConnector.retrieveCorporationTaxRegistration(regID)
         } yield {
-          val applicantForm = AboutYouForm.endpointForm.fill(if(applicantDetails.completionCapacity == "") {
+          val applicantForm = AboutYouForm.endpointForm.fill(if (applicantDetails.completionCapacity == "") {
             AboutYouChoice("Director")
           } else {
             applicantDetails
@@ -112,7 +114,7 @@ trait TestEndpointController extends FrontendController with Actions with Common
           })
           val handBackForm = FirstHandBackForm.form.fill(handBackData match {
             case Some(data) => convertToForm(data)
-            case _ => CompanyNameHandOffFormModel(None, "", "", CHROAddress("","",Some(""),"","",Some(""),Some(""),Some("")), "", "", "")
+            case _ => CompanyNameHandOffFormModel(None, "", "", CHROAddress("", "", Some(""), "", "", Some(""), Some(""), Some("")), "", "", "")
           })
           val companyContactForm = CompanyContactTestEndpointForm.form.fill(contactDetails match {
             case CompanyContactDetailsSuccessResponse(x) => x
@@ -212,29 +214,29 @@ trait TestEndpointController extends FrontendController with Actions with Common
 
   val setupTestNavModel = Action.async {
     implicit request =>
-        val nav = HandOffNavModel(
-          Sender(
-            nav = Map(
-              "1" -> NavLinks("http://localhost:9970/register-your-company/corporation-tax-details", "http://localhost:9970/register-your-company/return-to-about-you"),
-              "3" -> NavLinks("http://localhost:9970/register-your-company/corporation-tax-summary", "http://localhost:9970/register-your-company/trading-details"),
-              "5" -> NavLinks("http://localhost:9970/register-your-company/registration-confirmation", "http://localhost:9970/register-your-company/corporation-tax-summary")
-            )
+      val nav = HandOffNavModel(
+        Sender(
+          nav = Map(
+            "1" -> NavLinks("http://localhost:9970/register-your-company/corporation-tax-details", "http://localhost:9970/register-your-company/return-to-about-you"),
+            "3" -> NavLinks("http://localhost:9970/register-your-company/corporation-tax-summary", "http://localhost:9970/register-your-company/trading-details"),
+            "5" -> NavLinks("http://localhost:9970/register-your-company/registration-confirmation", "http://localhost:9970/register-your-company/corporation-tax-summary")
+          )
+        ),
+        Receiver(
+          nav = Map(
+            "0" -> NavLinks("http://localhost:9986/incorporation-frontend-stubs/basic-company-details", ""),
+            "2" -> NavLinks("http://localhost:9986/incorporation-frontend-stubs/business-activities", "http://localhost:9986/incorporation-frontend-stubs/company-name-back"),
+            "4" -> NavLinks("http://localhost:9986/incorporation-frontend-stubs/incorporation-summary", "http://localhost:9986/incorporation-frontend-stubs/business-activities")
           ),
-          Receiver(
-            nav = Map(
-              "0" -> NavLinks("http://localhost:9986/incorporation-frontend-stubs/basic-company-details", ""),
-              "2" -> NavLinks("http://localhost:9986/incorporation-frontend-stubs/business-activities", "http://localhost:9986/incorporation-frontend-stubs/company-name-back"),
-              "4" -> NavLinks("http://localhost:9986/incorporation-frontend-stubs/incorporation-summary", "http://localhost:9986/incorporation-frontend-stubs/business-activities")
-            ),
-            jump = Map(
-              "company_name" -> "http://localhost:9986/incorporation-frontend-stubs/company-name-back",
-              "company_address" -> "http://localhost:9986/incorporation-frontend-stubs/company-name-back",
-              "company_jurisdiction" -> "http://localhost:9986/incorporation-frontend-stubs/company-name-back"
-            )
+          jump = Map(
+            "company_name" -> "http://localhost:9986/incorporation-frontend-stubs/company-name-back",
+            "company_address" -> "http://localhost:9986/incorporation-frontend-stubs/company-name-back",
+            "company_jurisdiction" -> "http://localhost:9986/incorporation-frontend-stubs/company-name-back"
           )
         )
-          cacheNavModel(nav, hc) map (_ => Ok("NavModel created"))
-      }
+      )
+      cacheNavModel(nav, hc) map (_ => Ok("NavModel created"))
+  }
 
   def checkSubmissionStatus: Action[AnyContent] = AuthorisedFor(taxRegime = SCRSRegime("test-only/get-s4l"), pageVisibility = GGConfidence).async {
     implicit user =>
@@ -278,7 +280,7 @@ trait TestEndpointController extends FrontendController with Actions with Common
 
   def schedulerFeatureFlag(state: String) = Action.async {
     implicit request =>
-      compRegConnector.scheduleFeatureFlag(state).map{ res =>
+      compRegConnector.scheduleFeatureFlag(state).map { res =>
         Ok(res)
       }
   }
@@ -346,7 +348,7 @@ trait TestEndpointController extends FrontendController with Actions with Common
   //http:localhost:9870/register-blah/restart
   //register-for-blah/restart
 
-  def dashboardStubbed(payeStatus:String="draft",incorpCTStatus:String ="held",cancelURL:String="true",restartURL:String="true") = Action {
+  def dashboardStubbed(payeStatus: String = "draft", incorpCTStatus: String = "held", cancelURL: String = "true", restartURL: String = "true") = Action {
     implicit request =>
       val incorpAndCTDash = IncorpAndCTDashboard(
         incorpCTStatus,
@@ -358,23 +360,31 @@ trait TestEndpointController extends FrontendController with Actions with Common
         Some("ackRef"),
         Some("ackrefStatuses")
       )
-      val cancelUrl = if(cancelURL == "true") Some("foo") else None
-      val restartUrl = if(restartURL=="true") Some("foo") else None
-      val payeLinks = PAYELinks("regURL","otrsURL",restartUrl,cancelUrl)
-      val payeDash = PAYEDashboard(payeStatus,Some("lastUpdateDate"),Some("ackrefPaye"),payeLinks)
-      val dash = Dashboard(incorpAndCTDash,payeDash,"companyNameStubbed")
+      val cancelUrl = if (cancelURL == "true") Some("foo") else None
+      val restartUrl = if (restartURL == "true") Some("foo") else None
+      val payeLinks = PAYELinks("regURL", "otrsURL", restartUrl, cancelUrl)
+      val payeDash = PAYEDashboard(payeStatus, Some("lastUpdateDate"), Some("ackrefPaye"), payeLinks)
+      val dash = Dashboard(incorpAndCTDash, payeDash, "companyNameStubbed")
       Ok(views.html.reg.Dashboard(dash, coHoURL))
   }
 
   def handOff6(transactionId: String): Action[AnyContent] = AuthorisedFor(taxRegime = SCRSRegime("test-only/get-s4l"), pageVisibility = GGConfidence).async {
     implicit user =>
       implicit request =>
-      registered { regId =>
-        val confRefs = ConfirmationReferences(transactionId, Some("PAY_REF-123456789"), Some("12"), "")
-        compRegConnector.updateReferences(regId, confRefs) map {
-          case ConfirmationReferencesSuccessResponse(refs) => Ok(Json.toJson(refs)(ConfirmationReferences.format))
-          case _ => BadRequest
+        registered { regId =>
+          val confRefs = ConfirmationReferences(transactionId, Some("PAY_REF-123456789"), Some("12"), "")
+          compRegConnector.updateReferences(regId, confRefs) map {
+            case ConfirmationReferencesSuccessResponse(refs) => Ok(Json.toJson(refs)(ConfirmationReferences.format))
+            case _ => BadRequest
+          }
         }
-      }
+  }
+
+  val testSquid = Action.async { implicit request =>
+    govUkConnector.retrieveBankHolidaysForEnglandAndWales.map { _ =>
+      Ok("squid ok")
+    } recover {
+      case e : Exception => BadRequest("squid failure")
+    }
   }
 }
