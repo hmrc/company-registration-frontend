@@ -44,3 +44,5 @@ GET       /fetch-contact-details                         controllers.test.TestEn
 GET      /dashboardStubbed                               controllers.test.TestEndpointController.dashboardStubbed(payeStatus:String ?= "draft",incorpCTStatus:String ?= "held",cancelURL:String ?= "true",restartURL:String ?="true")
 
 GET      /hand-off-6                                     controllers.test.TestEndpointController.handOff6(transactionId ?= "TRANS_ID-92836405817")
+
+GET       /test-squid                                    controllers.test.TestEndpointController.testSquid

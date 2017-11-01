@@ -27,6 +27,7 @@ import org.scalatest.mockito.MockitoSugar
 import play.api.libs.json.Json
 import play.api.test.Helpers._
 import models.handoff._
+import org.joda.time.LocalDate
 import uk.gov.hmrc.play.http.{HeaderCarrier, HttpResponse}
 import play.api.test.FakeRequest
 import uk.gov.hmrc.http.cache.client.CacheMap
@@ -36,6 +37,7 @@ import org.mockito.Mockito._
 import org.mockito.Matchers
 import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
 import uk.gov.hmrc.play.test.WithFakeApplication
+import uk.gov.hmrc.time.workingdays.{BankHoliday, BankHolidaySet}
 
 import scala.concurrent.Future
 
@@ -56,6 +58,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
   val mockMetaDataService = mock[MetaDataService]
   val mockDynamicStubConnector = mock[DynamicStubConnector]
   val mockBusinessRegistrationConnector = mock[BusinessRegistrationConnector]
+  val mockGovUkConnector = mock[GovUkConnector]
 
   class Setup {
     val controller = new TestEndpointController {
@@ -69,6 +72,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
       val brConnector = mockBusinessRegistrationConnector
       val navModelMongo = mockNavModelRepoObj
       override val companyRegistrationConnector = mockCompanyRegistrationConnector
+      val govUkConnector = mockGovUkConnector
     }
 
     implicit val user = AuthBuilder.createTestUser
@@ -411,6 +415,27 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
         result =>
           status(result) shouldBe 400
       }
+    }
+  }
+
+  "test-squid" should {
+    val bankHoliday = BankHoliday("testHoliday", LocalDate.now())
+    val bankHolidaySet = BankHolidaySet("testdivision", List(bankHoliday))
+
+    "return a 200 if squid is operational" in new Setup {
+      when(mockGovUkConnector.retrieveBankHolidaysForEnglandAndWales(Matchers.any[HeaderCarrier]()))
+        .thenReturn(Future.successful(bankHolidaySet))
+
+      val result = await(controller.testSquid(FakeRequest()))
+      status(result) shouldBe 200
+    }
+
+    "return a 400 if squid is not operational" in new Setup {
+      when(mockGovUkConnector.retrieveBankHolidaysForEnglandAndWales(Matchers.any[HeaderCarrier]()))
+        .thenReturn(Future.failed(new Exception("err")))
+
+      val result = await(controller.testSquid(FakeRequest()))
+      status(result) shouldBe 400
     }
   }
 }
