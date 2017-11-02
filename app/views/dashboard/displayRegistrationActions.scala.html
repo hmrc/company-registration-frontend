@@ -1,0 +1,31 @@
+@(dash: ServiceDashboard, prefixHtmlId: String)(implicit request: Request[_], messages: Messages)
+@import models.external.Statuses._
+
+@inProgressActions = {
+    <p style="font-size: 16px"><a id="@{prefixHtmlId}StartLink" href="@dash.links.startURL">@Messages("page.reg.Dashboard.actions.continueRegistrationLink")</a></p>
+    @if(dash.links.cancelURL.isDefined) {
+        <p style="font-size: 16px">
+            <a id="@{prefixHtmlId}CancelLink" href="@dash.links.cancelURL">@Messages("page.reg.Dashboard.actions.cancelRegistrationLink")</a>
+        </p>
+    }
+}
+
+@rejectedActions = {
+    @if(dash.links.restartURL.isDefined) {
+        <a id="@{prefixHtmlId}Rej" href="@dash.links.restartURL">@Messages("page.reg.Dashboard.actions.unsuccessfulLink")</a>
+    }
+}
+
+@if(dash.status != NOT_STARTED) {
+    <tr class="tabular-data__cell--centred status--confirm-success">
+        <td>@Messages("page.reg.Dashboard.whatYouCanDo")</td>
+        <td>
+            @{
+                dash.status match {
+                    case "draft" | "invalid" => inProgressActions
+                    case "rejected" => rejectedActions
+                }
+            }
+        </td>
+    </tr>
+}

@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-package controllers.reg
+package controllers.dashboard
 
 import config.FrontendAuthConnector
-import controllers.auth.SCRSRegime
-import play.api.mvc.Action
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
+import controllers.auth.SCRSRegime
+import controllers.reg.ControllerErrorHandler
 import play.api.Logger
-import uk.gov.hmrc.play.frontend.controller.FrontendController
+import play.api.mvc.Action
 import services._
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.frontend.auth.Actions
+import uk.gov.hmrc.play.frontend.controller.FrontendController
 import utils.{MessagesSupport, SCRSExceptions, SessionRegistration}
 
 import scala.concurrent.Future
@@ -48,7 +49,7 @@ trait DashboardController extends FrontendController with Actions with CommonSer
       implicit request =>
         registered { regId =>
           dashboardService.buildDashboard(regId) map {
-            case DashboardBuilt(dash) => Ok(views.html.reg.Dashboard(dash, companiesHouseURL))
+            case DashboardBuilt(dash) => Ok(views.html.dashboard.Dashboard(dash, companiesHouseURL))
             case CouldNotBuild => Redirect(controllers.handoff.routes.BasicCompanyDetailsController.basicCompanyDetails())
             case RejectedIncorp => Ok(views.html.reg.RegistrationUnsuccessful())
           } recover {
@@ -60,7 +61,7 @@ trait DashboardController extends FrontendController with Actions with CommonSer
 
 
   def submit = Action.async { implicit request =>
-    Future.successful(Redirect(routes.SignInOutController.postSignIn(None, None, None)))
+    Future.successful(Redirect(controllers.reg.routes.SignInOutController.postSignIn(None, None, None)))
   }
 
 }

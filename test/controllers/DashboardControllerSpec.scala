@@ -17,7 +17,7 @@
 package controllers
 
 import builders.AuthBuilder
-import controllers.reg.DashboardController
+import controllers.dashboard.DashboardController
 import helpers.SCRSSpec
 import models._
 import play.api.test.FakeRequest
@@ -51,10 +51,12 @@ class DashboardControllerSpec extends SCRSSpec with WithFakeApplication {
     val regId = "12345"
 
     val dashboard = Dashboard(
+      companyName = "testCompanyName",
       IncorpAndCTDashboard(
         "held", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), None, None, Some("ack-12345"), None
-      ), PAYEDashboard("draft", None, None,PAYELinks("", "", None, Some(""))),
-      companyName = "testCompanyName"
+      ),
+      ServiceDashboard("draft", None, None,ServiceLinks("", "", None, Some(""))),
+      None
     )
 
     "return a 200 and render the dashboard view" in new Setup {

@@ -48,16 +48,6 @@ class TradingDetailsServiceSpec extends SCRSSpec with SCRSMocks with TradingDeta
     }
   }
 
-  "TradingDetailsService" should {
-    "be using the correct KeyStoreConnector" in {
-      TradingDetailsService.keystoreConnector shouldBe KeystoreConnector
-    }
-
-    "be using the correct CompRegConnector" in {
-      TradingDetailsService.compRegConnector shouldBe CompanyRegistrationConnector
-    }
-  }
-
   "Updating the trading details data for a given user" should {
     "return a TradingDetailsSuccessResponse" in new Setup {
       when(mockKeyStoreConnector.fetchAndGet[String](Matchers.eq("registrationID"))(Matchers.any[HeaderCarrier](), Matchers.any[Format[String]]()))

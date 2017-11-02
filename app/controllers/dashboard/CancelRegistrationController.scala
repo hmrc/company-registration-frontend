@@ -14,46 +14,47 @@
  * limitations under the License.
  */
 
-package controllers.reg
+package controllers.dashboard
 
 import config.FrontendAuthConnector
 import connectors._
 import controllers.auth.SCRSRegime
 import forms.CancelPayeForm
 import models.CancelPayeModel
-import uk.gov.hmrc.play.frontend.controller.FrontendController
-import views.html.reg.CancelPaye
+import play.api.mvc.{Action, AnyContent}
 import uk.gov.hmrc.play.frontend.auth.Actions
+import uk.gov.hmrc.play.frontend.controller.FrontendController
 import utils.{MessagesSupport, SessionRegistration}
+import views.html.dashboard.CancelPaye
 
 import scala.concurrent.Future
 
-object CancelPayeController extends CancelPayeController{
+object CancelRegistrationController extends CancelRegistrationController{
   val payeConnector = PAYEConnector
   val authConnector = FrontendAuthConnector
   val keystoreConnector = KeystoreConnector
   val companyRegistrationConnector = CompanyRegistrationConnector
 }
 
-trait CancelPayeController extends FrontendController with Actions with SessionRegistration with MessagesSupport {
+trait CancelRegistrationController extends FrontendController with Actions with SessionRegistration with MessagesSupport {
 
-  val payeConnector: PAYEConnector
+  val payeConnector: ServiceConnector
   val keystoreConnector : KeystoreConnector
   val companyRegistrationConnector : CompanyRegistrationConnector
 
-  def show = AuthorisedFor(taxRegime = SCRSRegime(), pageVisibility = GGConfidence).async {
+  def showCancelPAYE: Action[AnyContent] = AuthorisedFor(taxRegime = SCRSRegime(), pageVisibility = GGConfidence).async {
     implicit user =>
       implicit request =>
         checkStatuses { regID =>
           payeConnector.canStatusBeCancelled(regID)(payeConnector.getStatus)(hc).map {a =>
-          Ok(views.html.reg.CancelPaye(CancelPayeForm.form.fill(CancelPayeModel(false))))
+          Ok(views.html.dashboard.CancelPaye(CancelPayeForm.form.fill(CancelPayeModel(false))))
           }
         }recover{
-          case a:cantCancelT => Redirect(routes.SignInOutController.postSignIn(None))
+          case a:cantCancelT => Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))
         }
   }
 
-  val submit = AuthorisedFor(taxRegime = SCRSRegime(), pageVisibility = GGConfidence).async {
+  val submitCancelPAYE: Action[AnyContent] = AuthorisedFor(taxRegime = SCRSRegime(), pageVisibility = GGConfidence).async {
     implicit user =>
       implicit request =>
         checkStatuses { regID =>
@@ -73,4 +74,6 @@ trait CancelPayeController extends FrontendController with Actions with SessionR
           )
         }
   }
+
+  def showCancelVAT: Action[AnyContent] = ???
 }

@@ -1,0 +1,26 @@
+@(vatDash: ServiceDashboard)(implicit request: Request[_], messages: Messages)
+@import models.external.Statuses._
+
+@displayHelpText = {
+    <tr class="tabular-data__cell--centred status--confirm-success" role="row">
+        <td colspan="2">
+            @Messages("page.reg.Dashboard.VAT.helpTextListHeader")
+            <ul class="list list-bullet" style="font-size: 16px">
+                <li style="font-size: 16px">@Messages("page.reg.Dashboard.VAT.helpTextBullet1")</li>
+                <li style="font-size: 16px">@Messages("page.reg.Dashboard.VAT.helpTextBullet2")</li>
+            </ul>
+            <p style="font-size: 16px" id="vatThreshold"><strong>@Messages("page.reg.Dashboard.VAT.helpTextThreshold")</strong></p>
+            <p style="font-size: 16px">@Messages("page.reg.Dashboard.VAT.helpTextParagraph1")</p>
+        </td>
+    </tr>
+}
+
+<h4 class="heading-medium" id="vatSubheading">@Messages("page.reg.Dashboard.VAT.title")</h4>
+<table class="check-your-answers">
+    <thead>
+        @if(vatDash.status == NOT_STARTED) { @displayHelpText }
+        @displayRegistrationStatus(vatDash, "vat")
+        @displayRegistrationActions(vatDash, "vat")
+        @if(vatDash.status != NOT_STARTED) { @displayHelpText }
+    </thead>
+</table>

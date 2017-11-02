@@ -18,8 +18,9 @@ package views
 
 import _root_.helpers.SCRSSpec
 import builders.AuthBuilder
-import controllers.reg.DashboardController
+import controllers.dashboard.DashboardController
 import models._
+import models.external.Statuses
 import org.jsoup.Jsoup
 import org.mockito.Mockito._
 import org.mockito.Matchers
@@ -52,11 +53,12 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
     "make sure that the dashboard has the correct elements when the registration status is held" in new Setup {
 
       val dashboard = Dashboard(
+        "testCompanyName",
         IncorpAndCTDashboard(
           "held", Some("10 October 2017"), Some("trans-12345"), Some("pay-12345"), None, None, Some("ack-12345"), None
         ),
-        PAYEDashboard("notStarted", None, None, PAYELinks("payeURL", "otrsUrl", None, Some("foo"))),
-        "testCompanyName"
+        ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo"))),
+        None
       )
 
       when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
@@ -88,11 +90,12 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
     "make sure that the dashboard has the correct elements when the registration status is submitted" in new Setup {
 
       val dashboard = Dashboard(
+        "testCompanyName",
         IncorpAndCTDashboard(
           "submitted", Some("10 October 2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11 October 2017"), Some("ack-12345"), None
         ),
-        PAYEDashboard("notStarted", None, None, PAYELinks("payeURL", "otrsUrl", None, Some("foo"))),
-        "testCompanyName"
+        ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo"))),
+        None
       )
 
       when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
@@ -121,11 +124,12 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
     "make sure that the dashboard has the correct elements when ETMP has approved the CT submission" in new Setup {
 
       val dashboard = Dashboard(
+        "testCompanyName",
         IncorpAndCTDashboard(
           "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), None
         ),
-        PAYEDashboard("notStarted", None, None, PAYELinks("payeURL", "otrsUrl", None, Some("foo"))),
-        "testCompanyName"
+        ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo"))),
+        None
       )
 
       when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
@@ -152,11 +156,12 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
     "make sure that the dashboard has the correct elements when ETMP has rejected the CT submission" in new Setup {
 
       val dashboard = Dashboard(
+        "testCompanyName",
         IncorpAndCTDashboard(
           "submitted", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("06")
         ),
-        PAYEDashboard("notStarted", None, None, PAYELinks("payeURL", "otrsUrl", None, Some("foo"))),
-        "testCompanyName"
+        ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo"))),
+        None
       )
 
       when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
@@ -184,11 +189,12 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
     "make sure that the dashboard has the correct elements when ETMP has accepted the CT submission" in new Setup {
 
       val dashboard = Dashboard(
+        "testCompanyName",
         IncorpAndCTDashboard(
           "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04")
         ),
-        PAYEDashboard("notStarted", None, None, PAYELinks("payeURL", "otrsUrl", None, Some("foo"))),
-        "testCompanyName"
+        ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo"))),
+        None
       )
 
       when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
@@ -215,11 +221,12 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
     "make sure that the dashboard has the correct elements for a PAYE not eligible status" in new Setup {
 
       val dashboard = Dashboard(
+        "testCompanyName",
         IncorpAndCTDashboard(
           "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04")
         ),
-        PAYEDashboard("notEligible", None, None, PAYELinks("payeURL", "otrsUrl", None, Some("foo"))),
-        "testCompanyName"
+        ServiceDashboard("notEligible", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo"))),
+        None
       )
 
       when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
@@ -239,11 +246,12 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
     "make sure that the dashboard has the correct elements for a PAYE unavailable status" in new Setup {
 
       val dashboard = Dashboard(
+        "testCompanyName",
         IncorpAndCTDashboard(
           "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04")
         ),
-        PAYEDashboard(PAYEStatuses.UNAVAILABLE, None, None, PAYELinks("payeURL", "otrsUrl", None, Some("foo"))),
-        "testCompanyName"
+        ServiceDashboard(Statuses.UNAVAILABLE, None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo"))),
+        None
       )
 
       when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
@@ -263,11 +271,12 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
     "make sure that the dashboard has the correct elements for a PAYE not started status" in new Setup {
 
       val dashboard = Dashboard(
+        "testCompanyName",
         IncorpAndCTDashboard(
           "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04")
         ),
-        PAYEDashboard("notStarted", None, None, PAYELinks("payeURL", "otrsUrl", None, Some("foo"))),
-        "testCompanyName"
+        ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo"))),
+        None
       )
 
       when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
@@ -281,18 +290,19 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
           val document = Jsoup.parse(contentAsString(result))
           document.title() shouldBe "Your business registration overview"
           document.getElementById("payeStatusText").text() shouldBe "Register"
-          document.getElementById("payeRegUrl").attr("href") shouldBe dashboard.payeDash.links.payeRegUrl
+          document.getElementById("payeRegUrl").attr("href") shouldBe dashboard.payeDash.links.startURL
       }
     }
 
     "make sure that the dashboard has the correct elements for a PAYE draft status" in new Setup {
 
       val dashboard = Dashboard(
+        "testCompanyName",
         IncorpAndCTDashboard(
           "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04")
         ),
-        PAYEDashboard("draft", None, None, PAYELinks("payeURL", "otrsUrl", None, Some("foo"))),
-        "testCompanyName"
+        ServiceDashboard("draft", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo"))),
+        None
       )
 
       when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
@@ -313,11 +323,12 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
     "make sure that the dashboard has the correct elements for a PAYE held status" in new Setup {
 
       val dashboard = Dashboard(
+        "testCompanyName",
         IncorpAndCTDashboard(
           "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04")
         ),
-        PAYEDashboard("held", None, Some("ABCD12345678901"), PAYELinks("payeURL", "otrsUrl", None, Some("foo"))),
-        "testCompanyName"
+        ServiceDashboard("held", None, Some("ABCD12345678901"), ServiceLinks("payeURL", "otrsUrl", None, Some("foo"))),
+        None
       )
 
       when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
@@ -343,11 +354,12 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
     "make sure that the dashboard has the correct elements for a PAYE submitted status" in new Setup {
 
       val dashboard = Dashboard(
+        "testCompanyName",
         IncorpAndCTDashboard(
           "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04")
         ),
-        PAYEDashboard("submitted", Some("15 May 2017"), Some("ABCD12345678901"), PAYELinks("payeURL", "otrsUrl", None, Some("foo"))),
-        "testCompanyName"
+        ServiceDashboard("submitted", Some("15 May 2017"), Some("ABCD12345678901"), ServiceLinks("payeURL", "otrsUrl", None, Some("foo"))),
+        None
       )
 
       when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
@@ -374,11 +386,12 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
     "make sure that the dashboard has the correct elements for a PAYE acknowledged status" in new Setup {
 
       val dashboard = Dashboard(
+        "testCompanyName",
         IncorpAndCTDashboard(
           "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04")
         ),
-        PAYEDashboard("acknowledged", None, None, PAYELinks("payeURL", "otrsUrl", None, Some("foo"))),
-        "testCompanyName"
+        ServiceDashboard("acknowledged", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo"))),
+        None
       )
 
       when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
@@ -400,11 +413,12 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
     "make sure that the dashboard has the correct elements for a PAYE invalid status" in new Setup {
 
       val dashboard = Dashboard(
+        "testCompanyName",
         IncorpAndCTDashboard(
           "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04")
         ),
-        PAYEDashboard("invalid", None, None, PAYELinks("payeURL", "otrsUrl", None, Some("foo"))),
-        "testCompanyName"
+        ServiceDashboard("invalid", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo"))),
+        None
       )
 
       when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
@@ -426,11 +440,12 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
     "make sure that the dashboard has the correct elements for a PAYE rejected status" in new Setup {
 
       val dashboard = Dashboard(
+        "testCompanyName",
         IncorpAndCTDashboard(
           "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04")
         ),
-        PAYEDashboard("rejected", None, None, PAYELinks("payeURL", "otrsUrl", Some("bar"), None)),
-        "testCompanyName"
+        ServiceDashboard("rejected", None, None, ServiceLinks("payeURL", "otrsUrl", Some("bar"), None)),
+        None
       )
 
       when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
@@ -444,19 +459,19 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
           val document = Jsoup.parse(contentAsString(result))
           document.title() shouldBe "Your business registration overview"
           document.getElementById("payeStatusText").text() shouldBe "Unsuccessful"
-          document.getElementById("PAYERej").attr("href") shouldBe "bar"
+          document.getElementById("payeRej").attr("href") shouldBe "bar"
       }
     }
 
-    "make sure that the dashboard has the correct elements when the VAT section is displayed and CT status is acknowledgeed" in new Setup {
+    "make sure that the dashboard has the correct elements when the VAT section is displayed and CT status is acknowledged" in new Setup {
       val dashboard = Dashboard(
+        "testCompanyName",
         IncorpAndCTDashboard(
           "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), None
         ),
-        PAYEDashboard("notStarted", None, None, PAYELinks("payeURL", "otrsUrl", None, None)),
-        "testCompanyName",
+        ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, None)),
+        None,
         hasVATCred = false
-
       )
 
       when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
@@ -469,18 +484,19 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
         result =>
           val document = Jsoup.parse(contentAsString(result))
           document.title() shouldBe "Your business registration overview"
-          document.getElementById("vatStatusText").text() shouldBe "Register using another HMRC service"
+          document.getElementById("legacyVATStatusText").text() shouldBe "Register using another HMRC service"
           document.getElementById("vatUrl").attr("href") shouldBe "https://online.hmrc.gov.uk/registration/newbusiness/introduction"
       }
     }
 
     "make sure that the dashboard shows the VAT section when the CT submission status is rejected (06 ETMP status)" in new Setup {
       val dashboard = Dashboard(
+        "testCompanyName",
         IncorpAndCTDashboard(
           "submitted", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("06")
         ),
-        PAYEDashboard("notStarted", None, None, PAYELinks("payeURL", "otrsUrl", None, None)),
-        "testCompanyName",
+        ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, None)),
+        None,
         hasVATCred = false
       )
 
@@ -494,18 +510,19 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
         result =>
           val document = Jsoup.parse(contentAsString(result))
           document.title() shouldBe "Your business registration overview"
-          document.getElementById("vatStatusText").text() shouldBe "Register using another HMRC service"
+          document.getElementById("legacyVATStatusText").text() shouldBe "Register using another HMRC service"
           document.getElementById("vatUrl").attr("href") shouldBe "https://online.hmrc.gov.uk/registration/newbusiness/introduction"
       }
     }
 
     "make sure that the dashboard shows the VAT section when the CT submission status is submitted" in new Setup {
       val dashboard = Dashboard(
+        "testCompanyName",
         IncorpAndCTDashboard(
           "submitted", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), None
         ),
-        PAYEDashboard("notStarted", None, None, PAYELinks("payeURL", "otrsUrl", None, None)),
-        "testCompanyName",
+        ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, None)),
+        None,
         hasVATCred = false
       )
 
@@ -519,18 +536,19 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
         result =>
           val document = Jsoup.parse(contentAsString(result))
           document.title() shouldBe "Your business registration overview"
-          document.getElementById("vatStatusText").text() shouldBe "Register using another HMRC service"
+          document.getElementById("legacyVATStatusText").text() shouldBe "Register using another HMRC service"
           document.getElementById("vatUrl").attr("href") shouldBe "https://online.hmrc.gov.uk/registration/newbusiness/introduction"
       }
     }
 
     "make sure that the dashboard does not display the VAT block if the user has a VAT cred" in new Setup {
       val dashboard = Dashboard(
+        "testCompanyName",
         IncorpAndCTDashboard(
           "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), None
         ),
-        PAYEDashboard("notStarted", None, None, PAYELinks("payeURL", "otrsUrl", None, None)),
-        "testCompanyName",
+        ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, None)),
+        None,
         hasVATCred = true
       )
 
@@ -551,11 +569,12 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
 
     "make sure that the dashboard does not display the VAT block if the company is not incorporated yet" in new Setup {
       val dashboard = Dashboard(
+        "testCompanyName",
         IncorpAndCTDashboard(
           "held", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), None
         ),
-        PAYEDashboard("notStarted", None, None, PAYELinks("payeURL", "otrsUrl", None, None)),
-        "testCompanyName",
+        ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, None)),
+        None,
         hasVATCred = false
       )
 
@@ -575,14 +594,14 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
       }
     }
 
-
     "make sure payeCancel link is in view if cancelURL is defined" in new Setup {
       val dashboard = Dashboard(
+        "testCompanyName",
         IncorpAndCTDashboard(
           "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04")
         ),
-        PAYEDashboard("draft", None, None, PAYELinks("payeURL", "otrsUrl", None, Some("cancelURL"))),
-        "testCompanyName"
+        ServiceDashboard("draft", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("cancelURL"))),
+        None
       )
 
       when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
@@ -596,18 +615,19 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
           val document = Jsoup.parse(contentAsString(result))
           document.title() shouldBe "Your business registration overview"
           document.getElementById("payeStatusText").text() shouldBe "Incomplete"
-          document.getElementById("cancelPayeLink").text() shouldBe "Cancel registration"
-          document.getElementById("cancelPayeLink").attr("href") shouldBe "/register-your-company/cancel-paye"
+          document.getElementById("payeCancelLink").text() shouldBe "Cancel registration"
+          document.getElementById("payeCancelLink").attr("href") shouldBe "cancelURL"
       }
     }
 
     "make sure payeCancel link is not in view if cancelURL is not defined" in new Setup {
       val dashboard = Dashboard(
+        "testCompanyName",
         IncorpAndCTDashboard(
           "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04")
         ),
-        PAYEDashboard("draft", None, None, PAYELinks("payeURL", "otrsUrl", None, None)),
-        "testCompanyName"
+        ServiceDashboard("draft", None, None, ServiceLinks("payeURL", "otrsUrl", None, None)),
+        None
       )
 
       when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
@@ -621,7 +641,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
           val document = Jsoup.parse(contentAsString(result))
           document.title() shouldBe "Your business registration overview"
           document.getElementById("payeStatusText").text() shouldBe "Incomplete"
-          document.getElementById("cancelPayeLink") shouldBe null
+          document.getElementById("payeCancelLink") shouldBe null
       }
     }
 

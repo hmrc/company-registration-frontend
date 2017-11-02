@@ -20,14 +20,16 @@ import config.FrontendAuthConnector
 import _root_.connectors._
 import models._
 import models.auth.Enrolment
+import models.external.{OtherRegStatus, Statuses}
 import org.joda.time.DateTime
 import play.api.Logger
 import play.api.libs.json.JsValue
+import play.api.mvc.Call
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.frontend.auth.AuthContext
 import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
 import uk.gov.hmrc.play.http.{HeaderCarrier, HttpException}
-import utils.{SCRSFeatureSwitches, SCRSExceptions}
+import utils.{SCRSExceptions, SCRSFeatureSwitches}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -38,10 +40,13 @@ object DashboardService extends DashboardService with ServicesConfig {
   val companyRegistrationConnector = CompanyRegistrationConnector
   val incorpInfoConnector = IncorpInfoConnector
   val payeConnector = PAYEConnector
+  val vatConnector = VATConnector
   val authConnector = FrontendAuthConnector
-  val otrsPAYEUrl = getConfString("otrs.url", throw new Exception("Could not find config for key: otrs.url"))
+  val otrsUrl = getConfString("otrs.url", throw new Exception("Could not find config for key: otrs.url"))
   val payeBaseUrl = getConfString("paye-registration-www.url-prefix", throw new Exception("Could not find config for key: paye-registration-www.url-prefix"))
   val payeUri = getConfString("paye-registration-www.start-url", throw new Exception("Could not find config for key: paye-registration-www.start-url"))
+  val vatBaseUrl = getConfString("vat-registration-www.url-prefix", throw new Exception("Could not find config for key: vat-registration-www.url-prefix"))
+  val vatUri = getConfString("vat-registration-www.start-url", throw new Exception("Could not find config for key: vat-registration-www.start-url"))
   val featureFlag = SCRSFeatureSwitches
 }
 
@@ -53,77 +58,86 @@ case object CouldNotBuild extends DashboardStatus
 class ComfirmationRefsNotFoundException extends NoStackTrace
 
 trait DashboardService extends SCRSExceptions with CommonService {
+  import scala.language.implicitConversions
 
   val companyRegistrationConnector : CompanyRegistrationConnector
-  val payeConnector: PAYEConnector
+  val payeConnector, vatConnector: ServiceConnector
   val incorpInfoConnector: IncorpInfoConnector
   val authConnector: AuthConnector
-  val otrsPAYEUrl: String
+  val otrsUrl: String
   val payeBaseUrl: String
-  val featureFlag: SCRSFeatureSwitches
   val payeUri: String
+  val vatBaseUrl: String
+  val vatUri: String
+  val featureFlag: SCRSFeatureSwitches
+
+  implicit def toDashboard(s: OtherRegStatus)(implicit startURL: String, cancelURL: Call): ServiceDashboard = {
+    ServiceDashboard(s.status, s.lastUpdate.map(_.toString("dd MMMM yyyy")), s.ackRef,
+      ServiceLinks(startURL, otrsUrl, s.restartURL, s.cancelURL.map(_ => cancelURL.url)))
+  }
 
   def buildDashboard(regId:String)(implicit hc: HeaderCarrier, auth: AuthContext): Future[DashboardStatus] = {
     for {
       incorpCTDash <- buildIncorpCTDashComponent(regId)
       payeDash <- buildPAYEDashComponent(regId)
-      hasVatCred <- hasVATEnrollment
+      hasVatCred <- hasEnrolment(List("HMCE-VATDEC-ORG", "HMCE-VATVAR-ORG"))
+      vatDash <- buildVATDashComponent(regId)
     } yield {
       incorpCTDash.status match {
         case "draft" => CouldNotBuild
         case "rejected" => RejectedIncorp
         //case _ => getCompanyName(regId) map(cN => DashboardBuilt(Dashboard(incorpCTDash, payeDash, cN)))
-        case _ => DashboardBuilt(Dashboard(incorpCTDash, payeDash, "", hasVatCred)) //todo: leaving company name blank until story gets played to add it back
+        case _ => DashboardBuilt(Dashboard("", incorpCTDash, payeDash, vatDash, hasVatCred)) //todo: leaving company name blank until story gets played to add it back
       }
     }
   }
 
-  private[services] def buildPAYEDashComponent(regId: String)(implicit hc: HeaderCarrier, auth: AuthContext): Future[PAYEDashboard] = {
-    import scala.language.implicitConversions
-    implicit def toDashboard(paye: PAYEStatus): PAYEDashboard = {
-      PAYEDashboard(paye.status, paye.lastUpdate.map(_.toString("dd MMMM yyyy")), paye.ackRef,
-        PAYELinks(s"$payeBaseUrl$payeUri", otrsPAYEUrl,paye.restartURL,paye.cancelURL))
-    }
-
-    featureFlag.paye.enabled match {
-      case true => payeConnector.getStatus(regId) flatMap {
-        case PAYESuccessfulResponse(paye) => Future.successful(paye)
-        case PAYEErrorResponse => Future.successful(PAYEStatus(PAYEStatuses.UNAVAILABLE, None, None, None,None))
-        case PAYENotStarted =>
-          hasPAYEEnrollment map {
-            case true => PAYEStatus(PAYEStatuses.NOT_ELIGIBLE, None, None,None,None)
-            case false => PAYEStatus(PAYEStatuses.NOT_STARTED, None, None,None,None)
-          }
-      }
-      case false => Future.successful(PAYEStatus(PAYEStatuses.NOT_ENABLED, None, None,None,None))
-    }
-  }
-
-  private[services] def hasPAYEEnrollment(implicit hc: HeaderCarrier, auth: AuthContext): Future[Boolean] = {
+  private[services] def hasEnrolment(enrolmentKeys: Seq[String])(implicit hc: HeaderCarrier, auth: AuthContext): Future[Boolean] = {
     authConnector.getEnrolments[Option[Seq[Enrolment]]](auth) map {
-      case Some(e) => e exists (_.key == "IR-PAYE")
+      case Some(enrolments) => enrolments exists (e => enrolmentKeys.contains(e.key))
       case None => false
     } recover {
       case ex: HttpException =>
-        Logger.error(s"[AuthConnector] [getEnrollments] - ${ex.responseCode} was returned - reason : ${ex.message}", ex)
+        Logger.error(s"[AuthConnector] [getEnrolments] - ${ex.responseCode} was returned - reason : ${ex.message}", ex)
         false
       case ex: Throwable =>
-        Logger.error(s"[AuthConnector] [getEnrollments] - An exception was thrown", ex)
+        Logger.error(s"[AuthConnector] [getEnrolments] - An exception was thrown", ex)
         false
     }
   }
 
-  private[services] def hasVATEnrollment(implicit hc: HeaderCarrier, auth: AuthContext): Future[Boolean] = {
-    authConnector.getEnrolments[Option[Seq[Enrolment]]](auth) map {
-      case Some(e) => e exists (enrolment => enrolment.key == "HMCE-VATDEC-ORG" || enrolment.key == "HMCE-VATVAR-ORG")
-      case None => false
-    } recover {
-      case ex: HttpException =>
-        Logger.error(s"[AuthConnector] [getEnrollments] - ${ex.responseCode} was returned - reason : ${ex.message}", ex)
-        false
-      case ex: Throwable =>
-        Logger.error(s"[AuthConnector] [getEnrollments] - An exception was thrown", ex)
-        false
+  private[services] def statusToServiceDashboard(res: Future[StatusResponse], enrolments: Seq[String])
+                                                (implicit hc: HeaderCarrier, auth: AuthContext, startURL: String, cancelURL: Call): Future[ServiceDashboard] = {
+    res flatMap {
+      case SuccessfulResponse(status) => Future.successful(status)
+      case ErrorResponse => Future.successful(OtherRegStatus(Statuses.UNAVAILABLE, None, None, None, None))
+      case NotStarted =>
+        hasEnrolment(enrolments) map {
+          case true => OtherRegStatus(Statuses.NOT_ELIGIBLE, None, None, None, None)
+          case false => OtherRegStatus(Statuses.NOT_STARTED, None, None, None, None)
+        }
+    }
+  }
+
+  private[services] def buildPAYEDashComponent(regId: String)(implicit hc: HeaderCarrier, auth: AuthContext): Future[ServiceDashboard] = {
+    implicit val startURL: String = s"$payeBaseUrl$payeUri"
+    implicit val cancelURL: Call = controllers.dashboard.routes.CancelRegistrationController.showCancelPAYE()
+
+    if (featureFlag.paye.enabled) {
+      statusToServiceDashboard(payeConnector.getStatus(regId), List("IR-PAYE"))
+    } else {
+      Future.successful(OtherRegStatus(Statuses.NOT_ENABLED, None, None, None, None))
+    }
+  }
+
+  private[services] def buildVATDashComponent(regId: String)(implicit hc: HeaderCarrier, auth: AuthContext): Future[Option[ServiceDashboard]] = {
+    implicit val startURL: String = s"$vatBaseUrl$vatUri"
+    implicit val cancelURL: Call = controllers.dashboard.routes.CancelRegistrationController.showCancelVAT()
+
+      if (featureFlag.vat.enabled) {
+      statusToServiceDashboard(vatConnector.getStatus(regId), List("HMCE-VATDEC-ORG", "HMCE-VATVAR-ORG")).map(Some(_))
+    } else {
+      Future.successful(None)
     }
   }
 
@@ -133,11 +147,9 @@ trait DashboardService extends SCRSExceptions with CommonService {
         (ctReg \ "status").as[String] match {
           case "held" => buildHeld(regId, ctReg)
           case _ => Future.successful(ctReg.as[IncorpAndCTDashboard](IncorpAndCTDashboard.reads(None)))
-
         }
     }
   }
-
 
   private[services] def getCompanyName(regId: String)(implicit hc: HeaderCarrier): Future[String] = {
     for {
@@ -158,7 +170,6 @@ trait DashboardService extends SCRSExceptions with CommonService {
       ctReg.as[IncorpAndCTDashboard](IncorpAndCTDashboard.reads(Option(submissionDate)))
     }
   }
-
 
   private[services] def extractSubmissionDate(jsonDate: JsValue): String = {
 

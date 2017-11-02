@@ -14,18 +14,17 @@
  * limitations under the License.
  */
 
-package models
+package models.external
 
 import java.time.ZonedDateTime
 
 import org.joda.time.DateTime
-import play.api.libs.json.{JsPath, Json}
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 
-case class PAYEStatus(status: String, lastUpdate: Option[DateTime], ackRef: Option[String], cancelURL:Option[String], restartURL:Option[String])
+case class OtherRegStatus(status: String, lastUpdate: Option[DateTime], ackRef: Option[String], cancelURL:Option[String], restartURL:Option[String])
 
-object PAYEStatus {
+object OtherRegStatus {
 
   implicit val reads = (
     (__ \ "status").read[String] and
@@ -33,7 +32,7 @@ object PAYEStatus {
     (__ \ "ackRef").readNullable[String] and
     (__ \ "cancelURL").readNullable[String] and
     (__ \ "restartURL").readNullable[String]
-  )(PAYEStatus.apply _)
+  )(OtherRegStatus.apply _)
 
   def dateTimeReads: Reads[DateTime] = new Reads[DateTime] {
     override def reads(json: JsValue): JsResult[DateTime] = {
@@ -43,7 +42,7 @@ object PAYEStatus {
   }
 }
 
-object PAYEStatuses {
+object Statuses {
   final val NOT_ENABLED = "notEnabled"
   final val NOT_STARTED = "notStarted"
   final val NOT_ELIGIBLE = "notEligible"

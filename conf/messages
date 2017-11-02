@@ -329,10 +329,10 @@ page.reg.Dashboard.paymentRef=Payment reference:
 page.reg.Dashboard.crn=Company registration number:
 page.reg.Dashboard.wycd=What you can do:
 
-page.reg.Dashboard.submitted=Pending
-page.reg.Dashboard.pending=Pending
-page.reg.Dashboard.registered=Registered
-page.reg.Dashboard.rejected=Unsuccessful
+page.reg.Dashboard.status.submitted=Pending
+page.reg.Dashboard.status.pending=Pending
+page.reg.Dashboard.status.registered=Registered
+page.reg.Dashboard.status.rejected=Unsuccessful
 
 page.reg.Dashboard.incChangeDetailsPrefix=If you need to change the company''s Incorporation details,
 page.reg.Dashboard.incChangeDetailsLinkText=contact Companies House
@@ -351,12 +351,9 @@ page.reg.Dashboard.PAYE.notEligible=Not eligible
 page.reg.Dashboard.PAYE.notEligibleWords=You''re already registered as an employer with this account. You need to set up a new Government Gateway organisation account and
 page.reg.Dashboard.PAYE.notEligibleLink=register using another HMRC service.
 
-page.reg.Dashboard.PAYE.notStarted=Register
-
-page.reg.Dashboard.PAYE.incomplete=Incomplete
-page.reg.Dashboard.PAYE.whatYouCanDo=What you can do:
-page.reg.Dashboard.PAYE.cancelRegistrationLink=Cancel registration
-page.reg.Dashboard.PAYE.continueRegistrationLink=Continue registration
+page.reg.Dashboard.whatYouCanDo=What you can do:
+page.reg.Dashboard.actions.cancelRegistrationLink=Cancel registration
+page.reg.Dashboard.actions.continueRegistrationLink=Continue registration
 
 page.reg.Dashboard.PAYE.pendingText=We''ve received your application but can''t process it until we''ve set up your limited company.
 
@@ -369,10 +366,10 @@ page.reg.Dashboard.PAYE.submittedParagraph1=It normally takes 5 working days to 
 page.reg.Dashboard.PAYE.submittedParagraph2=a letter with your employer reference number and accounts office reference number within 5 working days of the submission date
 page.reg.Dashboard.PAYE.submittedParagraph3=an activation PIN for PAYE Online within 7 days of your registration being successful
 
-page.reg.Dashboard.PAYE.acknowledged=Registered
+page.reg.Dashboard.status.acknowledged=Registered
 
-page.reg.Dashboard.PAYE.unsuccessfulLink=Register again
-page.reg.Dashboard.PAYE.unavailable=Temporarily unavailable
+page.reg.Dashboard.actions.unsuccessfulLink=Register again
+page.reg.Dashboard.status.unavailable=Temporarily unavailable
 
 page.reg.Dashboard.VAT.title=VAT
 page.reg.Dashboard.VAT.registerText=Register using another HMRC service
@@ -383,7 +380,14 @@ page.reg.Dashboard.VAT.helpTextParagraph3=you expect your taxable sales to go ov
 page.reg.Dashboard.VAT.helpTextParagraph4=If you were registered for VAT as a sole trader but have switched to a limited company, you''ll need to register your limited company for VAT if any of the above applies.
 page.reg.Dashboard.VAT.helpTextParagraph5=You can register voluntarily if the company''s annual taxable sales are less than £85,000.
 
+page.reg.Dashboard.registerText=Register
+page.reg.Dashboard.VAT.helpTextListHeader=Use this service to register a company if:
+page.reg.Dashboard.VAT.helpTextBullet1=its VAT taxable sales were more than the VAT registration threshold in any 12-month period
+page.reg.Dashboard.VAT.helpTextBullet2=you thought its VAT taxable sales would be more than the VAT registration threshold in any 30-day period (including the next 30 days)
+page.reg.Dashboard.VAT.helpTextThreshold=The current VAT registration threshold is £85,000.
+page.reg.Dashboard.VAT.helpTextParagraph1=If a company doesn''t meet these criteria, you can register a company voluntarily if it sells or intends to sell VAT taxable goods or services.
 
+page.reg.Dashboard.status.incomplete=Incomplete
 
 page.reg.registrationUnsuccessful.title=Company registration unsuccessful
 page.reg.registrationUnsuccessful.heading=Company registration unsuccessful

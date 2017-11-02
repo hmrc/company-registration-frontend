@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-package models
+package models.external
 
 import org.joda.time.DateTime
 import play.api.libs.json.{JsResultException, JsSuccess, Json}
 import uk.gov.hmrc.play.test.UnitSpec
 
 
-class PAYEStatusSpec extends UnitSpec {
+class OtherRegStatusSpec extends UnitSpec {
 
-  "Passing a Z date to PAYEStatus" should {
+  "Passing a Z date to Status" should {
 
     "return a JsSuccess" in {
 
@@ -37,7 +37,7 @@ class PAYEStatusSpec extends UnitSpec {
           |}
         """.stripMargin)
 
-      json.validate[PAYEStatus] shouldBe JsSuccess(PAYEStatus("held", Some(dt), None, None, None))
+      json.validate[OtherRegStatus] shouldBe JsSuccess(OtherRegStatus("held", Some(dt), None, None, None))
     }
     "return a JsSuccess with a CancelRegUrl" in {
       val dateTime = "2017-05-16T16:01:55Z"
@@ -51,7 +51,7 @@ class PAYEStatusSpec extends UnitSpec {
            |}
         """.stripMargin)
 
-      json.validate[PAYEStatus] shouldBe JsSuccess(PAYEStatus("foo", Some(dt), None, Some("foo"), None))
+      json.validate[OtherRegStatus] shouldBe JsSuccess(OtherRegStatus("foo", Some(dt), None, Some("foo"), None))
     }
 
     "return a JsSuccess with a restartURL" in {
@@ -66,7 +66,7 @@ class PAYEStatusSpec extends UnitSpec {
            |}
         """.stripMargin)
 
-      json.validate[PAYEStatus] shouldBe JsSuccess(PAYEStatus("foo", Some(dt), None, None, Some("bar")))
+      json.validate[OtherRegStatus] shouldBe JsSuccess(OtherRegStatus("foo", Some(dt), None, None, Some("bar")))
     }
 
     "return a JsError when an non ISOFormat date is parsed" in {
@@ -79,7 +79,7 @@ class PAYEStatusSpec extends UnitSpec {
            |}
         """.stripMargin)
 
-      val ex = intercept[JsResultException](json.validate[PAYEStatus])
+      val ex = intercept[JsResultException](json.validate[OtherRegStatus])
       ex.errors.head._2.head.messages shouldBe Seq("error.expected.date.isoformat")
     }
   }

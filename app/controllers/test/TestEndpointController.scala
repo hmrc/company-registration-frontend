@@ -360,10 +360,10 @@ trait TestEndpointController extends FrontendController with Actions with Common
       )
       val cancelUrl = if(cancelURL == "true") Some("foo") else None
       val restartUrl = if(restartURL=="true") Some("foo") else None
-      val payeLinks = PAYELinks("regURL","otrsURL",restartUrl,cancelUrl)
-      val payeDash = PAYEDashboard(payeStatus,Some("lastUpdateDate"),Some("ackrefPaye"),payeLinks)
-      val dash = Dashboard(incorpAndCTDash,payeDash,"companyNameStubbed")
-      Ok(views.html.reg.Dashboard(dash, coHoURL))
+      val payeLinks = ServiceLinks("regURL","otrsURL",restartUrl,cancelUrl)
+      val payeDash = ServiceDashboard(payeStatus,Some("lastUpdateDate"),Some("ackrefPaye"),payeLinks)
+      val dash = Dashboard("companyNameStubbed", incorpAndCTDash, payeDash, None)
+      Ok(views.html.dashboard.Dashboard(dash, coHoURL))
   }
 
   def handOff6(transactionId: String): Action[AnyContent] = AuthorisedFor(taxRegime = SCRSRegime("test-only/get-s4l"), pageVisibility = GGConfidence).async {
