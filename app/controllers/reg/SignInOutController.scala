@@ -100,7 +100,7 @@ trait SignInOutController extends FrontendController with Actions with Controlle
       case Some("locked") => redirectToHo1WithCachedRegistrationId(throttleResponse.registrationId)
       case Some("held") if !throttleResponse.paymentRefs => redirectToHo1WithCachedRegistrationId(throttleResponse.registrationId)
       case Some(_) => handOffService.cacheRegistrationID(throttleResponse.registrationId) map {
-        _ => Redirect(routes.DashboardController.show())
+        _ => Redirect(controllers.dashboard.routes.DashboardController.show())
       }
       case _ => f
     } recover {

@@ -28,7 +28,8 @@ trait IntegrationSpecBase extends UnitSpec
 
   def setupFeatures(cohoFirstHandOff: Boolean = false,
                     businessActivitiesHandOff: Boolean = false,
-                    paye: Boolean = false) = {
+                    paye: Boolean = false,
+                    vat: Boolean = false) = {
     def enableFeature(fs: FeatureSwitch, enabled: Boolean) = {
       enabled match {
         case true => FeatureSwitch.enable(fs)
@@ -38,6 +39,7 @@ trait IntegrationSpecBase extends UnitSpec
     enableFeature(SCRSFeatureSwitches.cohoFirstHandOff, cohoFirstHandOff)
     enableFeature(SCRSFeatureSwitches.businessActivitiesHandOff, businessActivitiesHandOff)
     enableFeature(SCRSFeatureSwitches.paye, paye)
+    enableFeature(SCRSFeatureSwitches.vat, vat)
   }
 
   override def beforeEach() = {

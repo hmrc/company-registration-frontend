@@ -20,9 +20,9 @@
 
 @incorpStatus = {
     @{dash.incDash.status match {
-        case "held" => Messages("page.reg.Dashboard.submitted")
-        case "submitted" => Messages("page.reg.Dashboard.registered")
-        case "acknowledged" => Messages("page.reg.Dashboard.registered")
+        case "held" => Messages("page.reg.Dashboard.status.submitted")
+        case "submitted" => Messages("page.reg.Dashboard.status.registered")
+        case "acknowledged" => Messages("page.reg.Dashboard.status.registered")
     }}
 }
 
@@ -30,10 +30,10 @@
     @{
         val rejected = dash.incDash.ackRefStatus.fold(false)(_ == "06")
         dash.incDash.status match {
-            case _ if rejected => Messages("page.reg.Dashboard.rejected")
-            case "held" => Messages("page.reg.Dashboard.pending")
-            case "submitted" => Messages("page.reg.Dashboard.submitted")
-            case "acknowledged" => Messages("page.reg.Dashboard.registered")
+            case _ if rejected => Messages("page.reg.Dashboard.status.rejected")
+            case "held" => Messages("page.reg.Dashboard.status.pending")
+            case "submitted" => Messages("page.reg.Dashboard.status.submitted")
+            case "acknowledged" => Messages("page.reg.Dashboard.status.registered")
         }
     }
 }
@@ -42,10 +42,10 @@
 <thead>
     <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
         <td colspan="2">
-            <p>@Messages("page.reg.Dashboard.PAYE.employerHelpTextParagraph1")</p>
+            <span>@Messages("page.reg.Dashboard.PAYE.employerHelpTextParagraph1")</span>
             <ul class="list list-bullet">
-                <li>@Messages("page.reg.Dashboard.PAYE.employerHelpTextParagraph2")</li>
-                <li>@Messages("page.reg.Dashboard.PAYE.employerHelpTextParagraph3")</li>
+                <li style="font-size: 16px">@Messages("page.reg.Dashboard.PAYE.employerHelpTextParagraph2")</li>
+                <li style="font-size: 16px">@Messages("page.reg.Dashboard.PAYE.employerHelpTextParagraph3")</li>
             </ul>
         </td>
     </tr>
@@ -59,13 +59,13 @@
         <details>
             <summary class="summary">@Messages("page.reg.Dashboard.VAT.helpLink")</summary>
             <div class="panel-indent panel-indent--gutter">
-                <p>@Messages("page.reg.Dashboard.VAT.helpTextParagraph1")</p>
+                @Messages("page.reg.Dashboard.VAT.helpTextParagraph1")
                 <ul class="list list-bullet">
-                    <li>@Messages("page.reg.Dashboard.VAT.helpTextParagraph2")</li>
-                    <li>@Messages("page.reg.Dashboard.VAT.helpTextParagraph3")</li>
+                    <li style="font-size: 16px">@Messages("page.reg.Dashboard.VAT.helpTextParagraph2")</li>
+                    <li style="font-size: 16px">@Messages("page.reg.Dashboard.VAT.helpTextParagraph3")</li>
                 </ul>
-                <p>@Messages("page.reg.Dashboard.VAT.helpTextParagraph4")</p>
-                <p>@Messages("page.reg.Dashboard.VAT.helpTextParagraph5")</p>
+                <p style="font-size: 16px">@Messages("page.reg.Dashboard.VAT.helpTextParagraph4")</p>
+                <p style="font-size: 16px">@Messages("page.reg.Dashboard.VAT.helpTextParagraph5")</p>
             </div>
         </details>
     </td>
@@ -73,47 +73,11 @@
 </thead>
 }
 
-
 @notEligiblePAYE = {
 <thead>
     <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
         <td colspan="2">
-            <p>@Messages("page.reg.Dashboard.PAYE.notEligibleWords") <a href=@dash.payeDash.links.otrsUrl>@Messages("page.reg.Dashboard.PAYE.notEligibleLink")</a></p>
-        </td>
-    </tr>
-</thead>
-}
-
-@whatYouCanDoPAYE = {
-<thead>
-    <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
-        <td>
-            <p>@Messages("page.reg.Dashboard.PAYE.whatYouCanDo")</p>
-        </td>
-        <td>
-            @if(dash.payeDash.links.cancelURL.isDefined) {
-                <p>
-                    <a id="cancelPayeLink" href="@{
-                    controllers.reg.routes.CancelPayeController.show()
-                }">@Messages("page.reg.Dashboard.PAYE.cancelRegistrationLink")</a>
-                </p>
-            }
-            <p><a href="@dash.payeDash.links.payeRegUrl">@Messages("page.reg.Dashboard.PAYE.continueRegistrationLink")</a></p>
-        </td>
-    </tr>
-</thead>
-}
-
-@whatYouCanDoPAYERej = {
-<thead>
-    <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
-        <td>
-            <p>@Messages("page.reg.Dashboard.PAYE.whatYouCanDo")</p>
-        </td>
-        <td>
-            @if(dash.payeDash.links.payeStartAgain.isDefined) {
-                <a id="PAYERej" href="@dash.payeDash.links.payeStartAgain">@Messages("page.reg.Dashboard.PAYE.unsuccessfulLink")</a>
-            }
+            @Messages("page.reg.Dashboard.PAYE.notEligibleWords") <a href=@dash.payeDash.links.otrsURL>@Messages("page.reg.Dashboard.PAYE.notEligibleLink")</a>
         </td>
     </tr>
 </thead>
@@ -122,12 +86,8 @@
 @PAYERef = {
 <thead>
     <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
-        <td>
-            <p>@Messages("page.reg.Dashboard.ref")</p>
-        </td>
-        <td>
-            <p id="PAYERef">@dash.payeDash.ackRef.fold("NONE")(ref => ref)</p>
-        </td>
+        <td>@Messages("page.reg.Dashboard.ref")</td>
+        <td><span id="PAYERef">@dash.payeDash.ackRef.fold("NONE")(ref => ref)</span></td>
     </tr>
 </thead>
 }
@@ -135,12 +95,8 @@
 @PAYEDate = {
 <thead>
     <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
-        <td>
-            <p>@Messages("page.reg.Dashboard.submissionDate")</p>
-        </td>
-        <td>
-            <p id="PAYEDate">@dash.payeDash.lastUpdate.fold("NONE")(ref => ref)</p>
-        </td>
+        <td>@Messages("page.reg.Dashboard.submissionDate")</td>
+        <td><span id="PAYEDate">@dash.payeDash.lastUpdate.fold("NONE")(ref => ref)</span></td>
     </tr>
 </thead>
 }
@@ -148,9 +104,7 @@
 @PAYEPending = {
 <thead>
     <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
-        <td colspan="2">
-            <p>@Messages("page.reg.Dashboard.PAYE.pendingText")</p>
-        </td>
+        <td colspan="2">@Messages("page.reg.Dashboard.PAYE.pendingText")</td>
     </tr>
 </thead>
 }
@@ -159,29 +113,14 @@
 <thead>
     <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
         <td colspan="2">
-            <p>@Messages("page.reg.Dashboard.PAYE.submittedParagraph1")</p>
+            @Messages("page.reg.Dashboard.PAYE.submittedParagraph1")
             <ul class="list list-bullet">
-                <li>@Messages("page.reg.Dashboard.PAYE.submittedParagraph2")</li>
-                <li>@Messages("page.reg.Dashboard.PAYE.submittedParagraph3")</li>
+                <li style="font-size: 16px">@Messages("page.reg.Dashboard.PAYE.submittedParagraph2")</li>
+                <li style="font-size: 16px">@Messages("page.reg.Dashboard.PAYE.submittedParagraph3")</li>
             </ul>
         </td>
     </tr>
 </thead>
-}
-
-@payeStatus = {
-    @{dash.payeDash.status match {
-        case "notEligible" => {<p>{Messages("page.reg.Dashboard.PAYE.notEligible")}</p>}
-        case "notStarted" => {<a id="payeRegUrl" href={dash.payeDash.links.payeRegUrl}>{Messages("page.reg.Dashboard.PAYE.notStarted")}</a>}
-        case "draft" => {<p>{Messages("page.reg.Dashboard.PAYE.incomplete")}</p>}
-        case "held" => {<p>{Messages("page.reg.Dashboard.pending")}</p>}
-        case "submitted" => {<p>{Messages("page.reg.Dashboard.submitted")}</p>}
-        case "acknowledged" => {<p>{Messages("page.reg.Dashboard.PAYE.acknowledged")}</p>}
-        case "invalid" => {<p>{Messages("page.reg.Dashboard.PAYE.incomplete")}</p>}
-        case "rejected" => {<p>{Messages("page.reg.Dashboard.rejected")}</p>}
-        case "notEnabled" => {""}
-        case "unavailable" => {<p>{Messages("page.reg.Dashboard.PAYE.unavailable")}</p>}
-    }}
 }
 
 @showVATBlock = @{(dash.incDash.status == "submitted" || dash.incDash.status == "acknowledged" || dash.incDash.ackRefStatus.fold(false)(_ == "06")) && dash.hasVATCred == false}
@@ -190,12 +129,12 @@
     @{dash.payeDash.status match {
        case "notStarted" => doYouNeedToRegisterHelp
        case "notEligible" => notEligiblePAYE
-       case "draft" => HtmlFormat.fill(Seq(whatYouCanDoPAYE, doYouNeedToRegisterHelp))
+       case "draft" => HtmlFormat.fill(Seq(displayRegistrationActions(dash.payeDash, "paye"), doYouNeedToRegisterHelp))
        case "held" => HtmlFormat.fill(Seq(PAYERef, PAYEPending))
        case "submitted" => HtmlFormat.fill(Seq(PAYEDate, PAYERef, PAYESubmitted))
        case "acknowledged" => {""}
-       case "invalid" => HtmlFormat.fill(Seq(whatYouCanDoPAYE, doYouNeedToRegisterHelp))
-       case "rejected" => HtmlFormat.fill(Seq(whatYouCanDoPAYERej, doYouNeedToRegisterHelp))
+       case "invalid" => HtmlFormat.fill(Seq(displayRegistrationActions(dash.payeDash, "paye"), doYouNeedToRegisterHelp))
+       case "rejected" => HtmlFormat.fill(Seq(displayRegistrationActions(dash.payeDash, "paye"), doYouNeedToRegisterHelp))
        case "notEnabled" => {""}
        case "unavailable" => {""}
     }}
@@ -332,10 +271,10 @@
                     <thead>
                     <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
                         <td colspan="2">
-                            <p id="CTifSuccess">@Messages("page.reg.Dashboard.CTSubmittedLineOne")</p>
+                            <span id="CTifSuccess">@Messages("page.reg.Dashboard.CTSubmittedLineOne")</span>
                             <ul class="list list-bullet">
-                                <li>@Messages("page.reg.Dashboard.CTSubmittedLineTwo")</li>
-                                <li>@Messages("page.reg.Dashboard.CTSubmittedLineThree")</li>
+                                <li style="font-size: 16px">@Messages("page.reg.Dashboard.CTSubmittedLineTwo")</li>
+                                <li style="font-size: 16px">@Messages("page.reg.Dashboard.CTSubmittedLineThree")</li>
                             </ul>
                         </td>
 
@@ -363,57 +302,48 @@
                 }
             </table>
 
-            <!--PAYE Block-->
             @if(dash.payeDash.status != "notEnabled"){
                 <h4 class="heading-medium" id="payeSubheading">@Messages("page.reg.Dashboard.PAYE.subHeading")</h4>
 
                 @if(dash.payeDash.status == "notStarted"){
                     <table class="check-your-answers">
-
                         @payeMap
-                        <!-- PAYE Status -->
-                        <thead>
-                        <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
-                            <td>@Messages("page.reg.Dashboard.status")</td>
-                            <td  id="payeStatusText">@payeStatus</td>
 
-                        </tr>
+                        <thead>
+                        @displayRegistrationStatus(dash.payeDash, "paye")
                         </thead>
-                        <!-- PAYE Status end -->
                     </table>
                 } else {
                     <table class="check-your-answers">
-
-                        <!-- PAYE Status -->
                         <thead>
-                        <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
-                            <td>@Messages("page.reg.Dashboard.status")</td>
-                            <td  id="payeStatusText">@payeStatus</td>
-
-                        </tr>
+                        @displayRegistrationStatus(dash.payeDash, "paye")
                         </thead>
-                        <!-- PAYE Status end -->
 
                         @payeMap
                     </table>
                 }
             }
 
-            <!--VAT Block-->
-            @if(showVATBlock){
-            <h4 class="heading-medium" id="vatSubheading">@Messages("page.reg.Dashboard.VAT.title")</h4>
-            <table class="check-your-answers">
-                <!-- VAT Status -->
-                <thead>
-                <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
-                    <td>@Messages("page.reg.Dashboard.status")</td>
-                    <td id="vatStatusText"><a id="vatUrl" href="https://online.hmrc.gov.uk/registration/newbusiness/introduction">@Messages("page.reg.Dashboard.VAT.registerText")</a></td>
-
-                </tr>
-                </thead>
-                <!-- VAT Status end -->
-                @doYouNeedToRegisterForVATHelp
-            </table>
+            @if(dash.vatDash.nonEmpty) {
+                @vatDashboard(dash.vatDash.get)
+            } else {
+                @if(showVATBlock) {
+                    <!--VAT Block-->
+                    <h4 class="heading-medium" id="vatSubheading">@Messages("page.reg.Dashboard.VAT.title")</h4>
+                    <table class="check-your-answers">
+                        <!-- VAT Status -->
+                        <thead>
+                        <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
+                            <td>@Messages("page.reg.Dashboard.status")</td>
+                            <td id="legacyVATStatusText">
+                                <a id="vatUrl" href="https://online.hmrc.gov.uk/registration/newbusiness/introduction">@Messages("page.reg.Dashboard.VAT.registerText")</a>
+                            </td>
+                        </tr>
+                        </thead>
+                        <!-- VAT Status end -->
+                        @doYouNeedToRegisterForVATHelp
+                    </table>
+                }
             }
         </div>
     </div>

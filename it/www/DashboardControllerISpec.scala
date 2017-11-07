@@ -28,6 +28,12 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub with F
   override implicit lazy val app = FakeApplication(additionalConfiguration = fakeConfig(
     "microservice.services.paye-registration.host" -> s"$mockHost",
     "microservice.services.paye-registration.port" -> s"$mockPort",
+    "microservice.services.vat-registration.host" -> s"$mockHost",
+    "microservice.services.vat-registration.port" -> s"$mockPort",
+    "microservice.services.paye-registration-www.url-prefix" -> "paye-url",
+    "microservice.services.paye-registration-www.start-url" -> "/start",
+    "microservice.services.vat-registration-www.url-prefix" -> "vat-url",
+    "microservice.services.vat-registration-www.start-url" -> "/start",
     "auditing.consumer.baseUri.host" -> s"$mockHost",
     "auditing.consumer.baseUri.port" -> s"$mockPort",
 
@@ -35,8 +41,16 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub with F
     "auditing.traceRequests" -> s"true"
   ))
 
+  val regId = "5"
   val userId = "/bar/foo"
   val enrolmentsURI = "/test/enrolments"
+  val timestamp = "2017-05-16T16:01:55Z"
+
+  val jsonOtherRegStatusDraft = s"""{
+                |   "status": "draft",
+                |   "lastUpdate": "$timestamp",
+                |   "cancelURL": "testCancelURL/$regId/del"
+                |}""".stripMargin
 
   def statusResponseFromCR(status:String = "draft", rID:String = "5") =
     s"""
@@ -85,8 +99,6 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub with F
   }
 
   "GET Dashboard" should {
-    val regId = "5"
-
     "display the dashboard with a restart URL for PAYE if it is Rejected status" in {
       val payeRestartURL = "/test/restarturl"
       val payeRejected =
@@ -121,8 +133,110 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub with F
 
       val doc = Jsoup.parse(response.body)
       doc.title shouldBe "Your business registration overview"
-      doc.getElementById("PAYERej").attr("href") shouldBe payeRestartURL
-      doc.getElementById("PAYERej").text shouldBe "Register again"
+      doc.getElementById("payeRej").attr("href") shouldBe payeRestartURL
+      doc.getElementById("payeRej").text shouldBe "Register again"
+    }
+
+    "not display the VAT block when the vat feature switch is OFF" in {
+      setupFeatures(paye = true)
+
+      stubSuccessfulLogin(userId=userId)
+      setupSimpleAuthWithEnrolmentsMocks(enrolmentsURI)
+
+      stubKeystore(SessionId, regId)
+      stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR("submitted", regId))
+      stubGet(s"/company-registration/corporation-tax-registration/$regId/fetch-held-time", 200, "1504774767050")
+      stubGet(s"/paye-registration/$regId/status", 200, jsonOtherRegStatusDraft)
+      stubGet(s"$enrolmentsURI", 200, """[]""")
+
+      val fResponse = buildClient("/dashboard").
+        withHeaders(HeaderNames.COOKIE -> getSessionCookie(userId=userId)).
+        get()
+
+      val response = await(fResponse)
+      response.status shouldBe 200
+
+      val doc = Jsoup.parse(response.body)
+      doc.getElementById("legacyVATStatusText").text() shouldBe "Register using another HMRC service"
+      a[NullPointerException] shouldBe thrownBy(doc.getElementById("vatThreshold").text)
+    }
+
+    "correctly display the VAT block" when {
+      "the vat feature switch is ON" in {
+        setupFeatures(paye = true, vat = true)
+
+        stubSuccessfulLogin(userId = userId)
+        setupSimpleAuthWithEnrolmentsMocks(enrolmentsURI)
+
+        stubKeystore(SessionId, regId)
+        stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR("held", regId))
+        stubGet(s"/company-registration/corporation-tax-registration/$regId/fetch-held-time", 200, "1504774767050")
+        stubGet(s"/paye-registration/$regId/status", 200, jsonOtherRegStatusDraft)
+        stubGet(s"/vatreg/$regId/status", 200, jsonOtherRegStatusDraft)
+        stubGet(s"$enrolmentsURI", 200, "[]")
+
+        val fResponse = buildClient("/dashboard").
+          withHeaders(HeaderNames.COOKIE -> getSessionCookie(userId = userId)).
+          get()
+
+        val response = await(fResponse)
+        response.status shouldBe 200
+
+        val doc = Jsoup.parse(response.body)
+        doc.getElementById("vatThreshold").text shouldBe "The current VAT registration threshold is £85,000."
+      }
+
+      "there is no VAT registration" in {
+        setupFeatures(paye = true, vat = true)
+
+        stubSuccessfulLogin(userId = userId)
+        setupSimpleAuthWithEnrolmentsMocks(enrolmentsURI)
+
+        stubKeystore(SessionId, regId)
+        stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR("held", regId))
+        stubGet(s"/company-registration/corporation-tax-registration/$regId/fetch-held-time", 200, "1504774767050")
+        stubGet(s"/paye-registration/$regId/status", 200, jsonOtherRegStatusDraft)
+        stubGet(s"/vatreg/$regId/status", 404, "")
+        stubGet(s"$enrolmentsURI", 200, "[]")
+
+        val fResponse = buildClient("/dashboard").
+          withHeaders(HeaderNames.COOKIE -> getSessionCookie(userId = userId)).
+          get()
+
+        val response = await(fResponse)
+        response.status shouldBe 200
+
+        val doc = Jsoup.parse(response.body)
+        doc.getElementById("vatSubheading").text shouldBe "VAT"
+        doc.getElementById("vatRegUrl").attr("href") shouldBe "vat-url/start"
+      }
+
+      "there is a VAT registration in draft status" in {
+        setupFeatures(paye = true, vat = true)
+
+        stubSuccessfulLogin(userId = userId)
+        setupSimpleAuthWithEnrolmentsMocks(enrolmentsURI)
+
+        stubKeystore(SessionId, regId)
+        stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR("held", regId))
+        stubGet(s"/company-registration/corporation-tax-registration/$regId/fetch-held-time", 200, "1504774767050")
+        stubGet(s"/paye-registration/$regId/status", 200, jsonOtherRegStatusDraft)
+        stubGet(s"/vatreg/$regId/status", 200, jsonOtherRegStatusDraft)
+        stubGet(s"$enrolmentsURI", 200, "[]")
+
+        val fResponse = buildClient("/dashboard").
+          withHeaders(HeaderNames.COOKIE -> getSessionCookie(userId = userId)).
+          get()
+
+        val response = await(fResponse)
+        response.status shouldBe 200
+
+        val doc = Jsoup.parse(response.body)
+        doc.getElementById("vatStatusText").text shouldBe "Incomplete"
+        a[NullPointerException] shouldBe thrownBy(doc.getElementById("vatRegUrl").text)
+        doc.getElementById("vatStartLink").attr("href") shouldBe "vat-url/start"
+        doc.getElementById("vatCancelLink").attr("href") shouldBe "/register-your-company/cancel-vat"
+      }
     }
   }
 }

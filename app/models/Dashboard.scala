@@ -23,7 +23,11 @@ import play.api.libs.json.Json
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 
-case class Dashboard(incDash: IncorpAndCTDashboard, payeDash: PAYEDashboard, companyName: String, hasVATCred: Boolean = false)
+case class Dashboard(companyName: String,
+                     incDash: IncorpAndCTDashboard,
+                     payeDash: ServiceDashboard,
+                     vatDash: Option[ServiceDashboard],
+                     hasVATCred: Boolean = false)
 
 case class IncorpAndCTDashboard(status : String,
                                 submissionDate : Option[String],
@@ -56,6 +60,6 @@ object IncorpAndCTDashboard {
   }
 }
 
-case class PAYELinks(payeRegUrl: String, otrsUrl: String, payeStartAgain: Option[String], cancelURL:Option[String])
+case class ServiceLinks(startURL: String, otrsURL: String, restartURL: Option[String], cancelURL:Option[String])
 
-case class PAYEDashboard(status: String, lastUpdate: Option[String], ackRef: Option[String], links: PAYELinks)
+case class ServiceDashboard(status: String, lastUpdate: Option[String], ackRef: Option[String], links: ServiceLinks)

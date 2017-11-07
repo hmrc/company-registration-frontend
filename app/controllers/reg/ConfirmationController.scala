@@ -58,7 +58,7 @@ trait ConfirmationController extends FrontendController with Actions with Sessio
   val submit = AuthorisedFor(taxRegime = SCRSRegime("first-hand-off"), pageVisibility = GGConfidence).async {
     implicit user =>
       implicit request =>
-        Future.successful(Redirect(controllers.reg.routes.DashboardController.show()))
+        Future.successful(Redirect(controllers.dashboard.routes.DashboardController.show()))
   }
 
   val resubmitPage = AuthorisedFor(taxRegime = SCRSRegime("first-hand-off"), pageVisibility = GGConfidence) {

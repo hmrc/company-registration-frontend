@@ -16,10 +16,10 @@
 
 package mocks
 
-import connectors.{KeystoreConnector, IncorpInfoConnector}
+import connectors.{IncorpInfoConnector, KeystoreConnector, ServiceConnector}
 import org.mockito.Matchers
 import org.mockito.Mockito._
-import org.mockito.Matchers.{eq => eqTo, any}
+import org.mockito.Matchers.{any, eq => eqTo}
 import org.scalatest.mockito.MockitoSugar
 import play.api.libs.json.JsValue
 import services._
@@ -51,7 +51,7 @@ trait SCRSMocks
   lazy val mockIncorpInfoConnector = mock[IncorpInfoConnector]
   lazy val mockDeleteSubmissionService = mock[DeleteSubmissionService]
   lazy val mockPPOBService = mock[PPOBService]
-
+  lazy val mockServiceConnector = mock[ServiceConnector]
 
   def mockFetchRegistrationID[T <: CommonService](response: String, mock : T) = {
     when(mock.fetchRegistrationID(Matchers.any[HeaderCarrier]()))
@@ -77,5 +77,6 @@ trait SCRSMocks
     reset(mockCompanyContactDetailsService)
     reset(mockAudit)
     reset(mockNavModelRepo)
+    reset(mockServiceConnector)
   }
 }

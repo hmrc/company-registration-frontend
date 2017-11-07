@@ -17,7 +17,7 @@
 package connectors
 
 import helpers.SCRSSpec
-import models.PAYEStatus
+import models.external.OtherRegStatus
 import org.joda.time.DateTime
 import uk.gov.hmrc.play.http._
 import uk.gov.hmrc.play.http.ws.WSHttp
@@ -27,65 +27,67 @@ import play.api.http.Status._
 
 import scala.concurrent.Future
 
-class PAYEConnectorSpec extends SCRSSpec {
+class ServiceConnectorSpec extends SCRSSpec {
 
   val mockHttp = mock[WSHttp]
 
-  val baseUrl = "test-paye-base-url"
+  val baseUrl = "test-service-base-url"
+  val baseUri = "/test-service-base-uri"
   val regId = "test-regId"
 
   trait Setup {
-    val connector = new PAYEConnector {
-      override val payeBaseUrl = baseUrl
+    val connector = new ServiceConnector {
+      override val serviceBaseUrl = baseUrl
+      override val serviceUri = baseUri
       override val http = mockHttp
     }
   }
 
   "getStatus" should {
 
-    val url = s"$baseUrl/paye-registration/$regId/status"
+    val url = s"$baseUrl$baseUri/$regId/status"
     val localDate = DateTime.now()
     val ackRef = "testAckRef"
-    val payeStatus = PAYEStatus("testStatus", Some(localDate), Some(ackRef), Some("foo"), Some("bar"))
+    val status = OtherRegStatus("testStatus", Some(localDate), Some(ackRef), Some("foo"), Some("bar"))
 
-    "return a PAYESuccessfulResponse when a 200 is received" in new Setup {
-      when(mockHttp.GET[PAYEStatus](eqTo(url))(any(), any())).thenReturn(Future.successful(payeStatus))
+    "return a SuccessfulResponse when a 200 is received" in new Setup {
+      when(mockHttp.GET[OtherRegStatus](eqTo(url))(any(), any())).thenReturn(Future.successful(status))
 
       val result = await(connector.getStatus(regId))
-      result shouldBe PAYESuccessfulResponse(payeStatus)
+      result shouldBe SuccessfulResponse(status)
     }
 
-    "return a PAYENotStarted when a 404 is received" in new Setup {
-      when(mockHttp.GET[PAYEStatus](eqTo(url))(any(), any())).thenReturn(Future.failed(new NotFoundException("")))
+    "return a NotStarted when a 404 is received" in new Setup {
+      when(mockHttp.GET[OtherRegStatus](eqTo(url))(any(), any())).thenReturn(Future.failed(new NotFoundException("")))
 
       val result = await(connector.getStatus(regId))
-      result shouldBe PAYENotStarted
+      result shouldBe NotStarted
     }
 
-    "return a PAYEErrorResponse when any other http response code is returned" in new Setup {
-      when(mockHttp.GET[PAYEStatus](eqTo(url))(any(), any())).thenReturn(Future.failed(new HttpException("", 500)))
+    "return a ErrorResponse when any other http response code is returned" in new Setup {
+      when(mockHttp.GET[OtherRegStatus](eqTo(url))(any(), any())).thenReturn(Future.failed(new HttpException("", 500)))
 
       val result = await(connector.getStatus(regId))
-      result shouldBe PAYEErrorResponse
+      result shouldBe ErrorResponse
     }
 
-    "return a PAYEErrorResponse when a non-http exception is thrown" in new Setup {
-      when(mockHttp.GET[PAYEStatus](eqTo(url))(any(), any())).thenReturn(Future.failed(new Throwable("")))
+    "return a ErrorResponse when a non-http exception is thrown" in new Setup {
+      when(mockHttp.GET[OtherRegStatus](eqTo(url))(any(), any())).thenReturn(Future.failed(new Throwable("")))
 
       val result = await(connector.getStatus(regId))
-      result shouldBe PAYEErrorResponse
+      result shouldBe ErrorResponse
     }
   }
 
   "canStatusBeCancelled" should {
     val localDate = DateTime.now()
     val ackRef = "testAckRef"
-    val payeStatus = PAYEStatus("testStatus", Some(localDate), Some(ackRef), Some("foo"), None)
+    val status = OtherRegStatus("testStatus", Some(localDate), Some(ackRef), Some("foo"), None)
 
-      "return cancelURL if user has regID and paye getStatus returns a payeStatus containing the cancelURL" in new Setup {
+      "return cancelURL if user has regID and paye getStatus returns a status containing the cancelURL" in new Setup {
 
       val result = connector.canStatusBeCancelled("test-regId")(f => Future.successful(
-        PAYESuccessfulResponse(payeStatus)))
+        SuccessfulResponse(status)))
          val response = await(result)
 
         response shouldBe "foo"
@@ -93,13 +95,13 @@ class PAYEConnectorSpec extends SCRSSpec {
 
     "throw cantCancel if no response is returned from getStatus" in new Setup {
       val result = connector.canStatusBeCancelled("test-regId")(f => Future.successful(
-        PAYEErrorResponse))
+        ErrorResponse))
       val response = intercept[cantCancelT] {await(result)}
        response shouldBe cantCancel
     }
     "throw cantCancel if response  is returned from getStatus with NO cancelURL" in new Setup {
       val result = connector.canStatusBeCancelled("test-regId")(f => Future.successful(
-        PAYESuccessfulResponse(PAYEStatus("test-regId", Some(localDate), Some(ackRef),None, Some("bar")))))
+        SuccessfulResponse(OtherRegStatus("test-regId", Some(localDate), Some(ackRef),None, Some("bar")))))
       val response = intercept[cantCancelT] {await(result)}
       response shouldBe cantCancel
     }
@@ -108,11 +110,11 @@ class PAYEConnectorSpec extends SCRSSpec {
 
     val localDate = DateTime.now()
     val ackRef = "testAckRef"
-    val payeStatus = PAYEStatus("testStatus", Some(localDate), Some(ackRef), Some("foo"), None)
+    val status = OtherRegStatus("testStatus", Some(localDate), Some(ackRef), Some("foo"), None)
     "return Cancelled if user has cancelURL in paye status and delete is successful" in new Setup {
 
       when(mockHttp.DELETE[HttpResponse](any[String])(any(),any())).thenReturn(Future.successful(HttpResponse(200)))
-      val s = (t: String) => Future.successful(PAYESuccessfulResponse(payeStatus))
+      val s = (t: String) => Future.successful(SuccessfulResponse(status))
        val result = connector.cancelReg("test-regId")(s)
 
       val response = await(result)
@@ -123,7 +125,7 @@ class PAYEConnectorSpec extends SCRSSpec {
 
       when(mockHttp.DELETE[HttpResponse](any[String])(any(),any()))
         .thenReturn(Future.successful(HttpResponse(OK,None,Map("" -> Seq("")),None)))
-      val s = (t: String) => Future.successful(PAYESuccessfulResponse(payeStatus))
+      val s = (t: String) => Future.successful(SuccessfulResponse(status))
       val result = connector.cancelReg("test-regId")(s)
 
       val response = await(result)
@@ -133,7 +135,7 @@ class PAYEConnectorSpec extends SCRSSpec {
       when(mockHttp.DELETE[HttpResponse](any[String])(any(),any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST,None,Map("" -> Seq("")),None)))
 
       val result = connector.cancelReg("test-regId")(f => Future.successful(
-        PAYESuccessfulResponse(payeStatus)))
+        SuccessfulResponse(status)))
 
       val response = await(result)
       response shouldBe NotCancelled
@@ -142,7 +144,7 @@ class PAYEConnectorSpec extends SCRSSpec {
       when(mockHttp.DELETE[HttpResponse](any[String])(any(),any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST,None,Map("" -> Seq("")),None)))
 
       val result = connector.cancelReg("test-regId")(f => Future.successful(
-        PAYESuccessfulResponse(PAYEStatus("", None, None, None, None))))
+        SuccessfulResponse(OtherRegStatus("", None, None, None, None))))
 
       val response = await(result)
       response shouldBe NotCancelled
@@ -152,7 +154,7 @@ class PAYEConnectorSpec extends SCRSSpec {
       when(mockHttp.DELETE[HttpResponse](any[String])(any(),any())).thenReturn(Future.failed(new BadRequestException("")))
 
       val result = connector.cancelReg("test-regId")(f => Future.successful(
-        PAYESuccessfulResponse(PAYEStatus("", None, None, None, None))))
+        SuccessfulResponse(OtherRegStatus("", None, None, None, None))))
 
       val response = await(result)
       response shouldBe NotCancelled

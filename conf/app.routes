@@ -72,8 +72,6 @@ POST       /questionnaire                           controllers.reg.Questionnair
 GET        /application-not-complete                controllers.reg.IncompleteRegistrationController.show
 POST       /application-not-complete                controllers.reg.IncompleteRegistrationController.submit
 
-GET        /dashboard                               controllers.reg.DashboardController.show
-POST       /dashboard                               controllers.reg.DashboardController.submit
 
 GET        /registration-unsuccessful               controllers.reg.RegistrationUnsuccessfulController.show
 POST       /registration-unsuccessful               controllers.reg.RegistrationUnsuccessfulController.submit
@@ -109,6 +107,11 @@ GET        /application-in-progress                 controllers.reg.ApplicationI
 GET        /returning-user                          controllers.reg.ReturningUserController.show
 POST       /returning-user                          controllers.reg.ReturningUserController.submit
 
-GET        /cancel-paye                             controllers.reg.CancelPayeController.show
-POST       /cancel-paye                             controllers.reg.CancelPayeController.submit
+#DASHBOARD
+GET        /dashboard                               controllers.dashboard.DashboardController.show
+POST       /dashboard                               controllers.dashboard.DashboardController.submit
 
+GET        /cancel-paye                             controllers.dashboard.CancelRegistrationController.showCancelPAYE
+POST       /cancel-paye                             controllers.dashboard.CancelRegistrationController.submitCancelPAYE
+
+GET        /cancel-vat                              controllers.dashboard.CancelRegistrationController.showCancelVAT

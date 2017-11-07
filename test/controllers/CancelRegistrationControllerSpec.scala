@@ -18,9 +18,9 @@ package controllers
 
 import builders.AuthBuilder
 import connectors._
-import controllers.reg.CancelPayeController
+import controllers.dashboard.CancelRegistrationController
 import helpers.SCRSSpec
-import models.PAYEStatus
+import models.external.OtherRegStatus
 import org.joda.time.DateTime
 import org.scalatest.mockito.MockitoSugar
 import org.mockito._
@@ -33,24 +33,22 @@ import uk.gov.hmrc.play.test.WithFakeApplication
 
 import scala.concurrent.Future
 
-class CancelPayeControllerSpec extends SCRSSpec with MockitoSugar with WithFakeApplication {
+class CancelRegistrationControllerSpec extends SCRSSpec with MockitoSugar with WithFakeApplication {
   val mockHttp = mock[WSHttp]
 
-  val mockPayeConnector = mock[PAYEConnector]
-
   class Setup {
-    val controller = new CancelPayeController {
+    val controller = new CancelRegistrationController {
       override val authConnector = mockAuthConnector
       override val companyRegistrationConnector = mockCompanyRegistrationConnector
       override val keystoreConnector= mockKeystoreConnector
-      override val payeConnector = mockPayeConnector
+      override val payeConnector = mockServiceConnector
     }
   }
 
   val localDate = DateTime.now()
   val ackRef = "testAckRef"
-  val payeStatus = PAYEStatus("testStatus", Some(localDate), Some(ackRef),Some("foo"), None)
-  val url = s"${mockPayeConnector.payeBaseUrl}/paye-registration/1/status"
+  val payeStatus = OtherRegStatus("testStatus", Some(localDate), Some(ackRef),Some("foo"), None)
+  val url = s"${mockServiceConnector.serviceBaseUrl + mockServiceConnector.serviceUri}/1/status"
 
   "show" should {
 
@@ -59,16 +57,16 @@ class CancelPayeControllerSpec extends SCRSSpec with MockitoSugar with WithFakeA
       mockKeystoreFetchAndGet("registrationID", Some("1"))
       CTRegistrationConnectorMocks.retrieveCTRegistration(buildCorporationTaxModel(status = "foo"))
 
-      when(mockHttp.GET[PAYEStatus](Matchers.any[String])(Matchers.any[HttpReads[PAYEStatus]], Matchers.any[HeaderCarrier])).thenReturn(Future.successful(payeStatus))
+      when(mockHttp.GET[OtherRegStatus](Matchers.any[String])(Matchers.any[HttpReads[OtherRegStatus]], Matchers.any[HeaderCarrier])).thenReturn(Future.successful(payeStatus))
 
-      when(mockPayeConnector.getStatus(Matchers.any[String])
+      when(mockServiceConnector.getStatus(Matchers.any[String])
       (Matchers.any[HeaderCarrier]))
-        .thenReturn(Future.successful(PAYESuccessfulResponse(PAYEStatus("", None, None, Some("foo"), None))))
-      when(mockPayeConnector.canStatusBeCancelled(Matchers.any[String])
-      (Matchers.any[Function1[String, Future[PAYEResponse]]]())(Matchers.any[HeaderCarrier])).thenReturn(
+        .thenReturn(Future.successful(SuccessfulResponse(OtherRegStatus("", None, None, Some("foo"), None))))
+      when(mockServiceConnector.canStatusBeCancelled(Matchers.any[String])
+      (Matchers.any[Function1[String, Future[StatusResponse]]]())(Matchers.any[HeaderCarrier])).thenReturn(
         Future.successful("foo"))
 
-      AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
+      AuthBuilder.showWithAuthorisedUser(controller.showCancelPAYE, mockAuthConnector) {
         result =>
           status(result) shouldBe OK
       }
@@ -78,7 +76,7 @@ class CancelPayeControllerSpec extends SCRSSpec with MockitoSugar with WithFakeA
 
       mockKeystoreFetchAndGet("registrationID", None)
 
-      AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
+      AuthBuilder.showWithAuthorisedUser(controller.showCancelPAYE, mockAuthConnector) {
         result =>
           status(result) shouldBe SEE_OTHER
       }
@@ -87,7 +85,7 @@ class CancelPayeControllerSpec extends SCRSSpec with MockitoSugar with WithFakeA
 
       mockKeystoreFetchAndGet("registrationID", Some("1"))
       CTRegistrationConnectorMocks.retrieveCTRegistration()
-      AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
+      AuthBuilder.showWithAuthorisedUser(controller.showCancelPAYE, mockAuthConnector) {
         result =>
           status(result) shouldBe SEE_OTHER
       }
@@ -96,7 +94,7 @@ class CancelPayeControllerSpec extends SCRSSpec with MockitoSugar with WithFakeA
 
       mockKeystoreFetchAndGet("registrationID", Some("1"))
       CTRegistrationConnectorMocks.retrieveCTRegistration(buildCorporationTaxModel(status="rejected"))
-      AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
+      AuthBuilder.showWithAuthorisedUser(controller.showCancelPAYE, mockAuthConnector) {
         result =>
           status(result) shouldBe SEE_OTHER
       }
@@ -105,15 +103,15 @@ class CancelPayeControllerSpec extends SCRSSpec with MockitoSugar with WithFakeA
 
       mockKeystoreFetchAndGet("registrationID", Some("1"))
       CTRegistrationConnectorMocks.retrieveCTRegistration(buildCorporationTaxModel(status = "foo"))
-      when(mockPayeConnector.getStatus(Matchers.any[String])
+      when(mockServiceConnector.getStatus(Matchers.any[String])
       (Matchers.any[HeaderCarrier]))
-        .thenReturn(Future.successful(PAYESuccessfulResponse(PAYEStatus("", None, None, None, None))))
+        .thenReturn(Future.successful(SuccessfulResponse(OtherRegStatus("", None, None, None, None))))
 
-      when(mockPayeConnector.canStatusBeCancelled(Matchers.any[String])
-      (Matchers.any[Function1[String, Future[PAYEResponse]]]())(Matchers.any[HeaderCarrier])).thenReturn(
+      when(mockServiceConnector.canStatusBeCancelled(Matchers.any[String])
+      (Matchers.any[Function1[String, Future[StatusResponse]]]())(Matchers.any[HeaderCarrier])).thenReturn(
         Future.failed(cantCancel))
 
-      AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
+      AuthBuilder.showWithAuthorisedUser(controller.showCancelPAYE, mockAuthConnector) {
         result =>
           status(result) shouldBe SEE_OTHER
       }
@@ -125,14 +123,14 @@ class CancelPayeControllerSpec extends SCRSSpec with MockitoSugar with WithFakeA
       mockKeystoreFetchAndGet("registrationID", Some("1"))
       CTRegistrationConnectorMocks.retrieveCTRegistration(buildCorporationTaxModel(status = "foo"))
 
-      when(mockPayeConnector.getStatus(Matchers.any[String])
+      when(mockServiceConnector.getStatus(Matchers.any[String])
       (Matchers.any[HeaderCarrier]))
-        .thenReturn(Future.successful(PAYESuccessfulResponse(PAYEStatus("", None, None, None, None))))
+        .thenReturn(Future.successful(SuccessfulResponse(OtherRegStatus("", None, None, None, None))))
 
 
-      when(mockPayeConnector.cancelReg(Matchers.any[String])(Matchers.any[Function1[String, Future[PAYEResponse]]]())(Matchers.any[HeaderCarrier])).thenReturn(Future.successful(NotCancelled))
+      when(mockServiceConnector.cancelReg(Matchers.any[String])(Matchers.any[Function1[String, Future[StatusResponse]]]())(Matchers.any[HeaderCarrier])).thenReturn(Future.successful(NotCancelled))
 
-      AuthBuilder.submitWithAuthorisedUser(controller.submit, mockAuthConnector, FakeRequest().withFormUrlEncodedBody("cancelPaye" -> "true")) {
+      AuthBuilder.submitWithAuthorisedUser(controller.submitCancelPAYE, mockAuthConnector, FakeRequest().withFormUrlEncodedBody("cancelPaye" -> "true")) {
         result =>
           status(result) shouldBe SEE_OTHER
 
@@ -145,14 +143,14 @@ class CancelPayeControllerSpec extends SCRSSpec with MockitoSugar with WithFakeA
       mockKeystoreFetchAndGet("registrationID", Some("1"))
       CTRegistrationConnectorMocks.retrieveCTRegistration(buildCorporationTaxModel(status = "foo"))
 
-      when(mockPayeConnector.getStatus(Matchers.any[String])
+      when(mockServiceConnector.getStatus(Matchers.any[String])
       (Matchers.any[HeaderCarrier]))
-        .thenReturn(Future.successful(PAYESuccessfulResponse(PAYEStatus("", None, None, Some("foo"), None))))
+        .thenReturn(Future.successful(SuccessfulResponse(OtherRegStatus("", None, None, Some("foo"), None))))
 
 
-      when(mockPayeConnector.cancelReg(Matchers.any[String])(Matchers.any[Function1[String, Future[PAYEResponse]]]())(Matchers.any[HeaderCarrier])).thenReturn(Future.successful(Cancelled))
+      when(mockServiceConnector.cancelReg(Matchers.any[String])(Matchers.any[Function1[String, Future[StatusResponse]]]())(Matchers.any[HeaderCarrier])).thenReturn(Future.successful(Cancelled))
 
-      AuthBuilder.submitWithAuthorisedUser(controller.submit, mockAuthConnector, FakeRequest().withFormUrlEncodedBody("cancelPaye" -> "true")) {
+      AuthBuilder.submitWithAuthorisedUser(controller.submitCancelPAYE, mockAuthConnector, FakeRequest().withFormUrlEncodedBody("cancelPaye" -> "true")) {
         result =>
           status(result) shouldBe SEE_OTHER
 
@@ -164,14 +162,14 @@ class CancelPayeControllerSpec extends SCRSSpec with MockitoSugar with WithFakeA
       mockKeystoreFetchAndGet("registrationID", Some("1"))
       CTRegistrationConnectorMocks.retrieveCTRegistration()
 
-      when(mockPayeConnector.getStatus(Matchers.any[String])
+      when(mockServiceConnector.getStatus(Matchers.any[String])
       (Matchers.any[HeaderCarrier]))
-      .thenReturn(Future.successful(PAYESuccessfulResponse(PAYEStatus("", None, None, Some("foo"), None))))
+      .thenReturn(Future.successful(SuccessfulResponse(OtherRegStatus("", None, None, Some("foo"), None))))
 
 
-      when(mockPayeConnector.cancelReg(Matchers.any[String])(Matchers.any[Function1[String, Future[PAYEResponse]]]())(Matchers.any[HeaderCarrier])).thenReturn(Future.successful(Cancelled))
+      when(mockServiceConnector.cancelReg(Matchers.any[String])(Matchers.any[Function1[String, Future[StatusResponse]]]())(Matchers.any[HeaderCarrier])).thenReturn(Future.successful(Cancelled))
 
-      AuthBuilder.submitWithAuthorisedUser(controller.submit, mockAuthConnector, FakeRequest().withFormUrlEncodedBody("cancelPaye" -> "true")) {
+      AuthBuilder.submitWithAuthorisedUser(controller.submitCancelPAYE, mockAuthConnector, FakeRequest().withFormUrlEncodedBody("cancelPaye" -> "true")) {
       result =>
       status(result) shouldBe SEE_OTHER
 
