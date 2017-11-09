@@ -23,8 +23,9 @@ import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http._
 import play.api.http.Status._
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 import scala.concurrent.Future
+import uk.gov.hmrc.http._
 
 object PAYEConnector extends ServiceConnector with ServicesConfig  {
   val http = WSHttp
@@ -39,7 +40,7 @@ object VATConnector extends ServiceConnector with ServicesConfig  {
 }
 
 trait ServiceConnector {
-  val http: HttpGet with HttpDelete
+  val http: HttpGet with HttpDelete with CoreGet with CoreDelete
   val serviceBaseUrl: String
   val serviceUri: String
 

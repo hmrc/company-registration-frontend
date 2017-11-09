@@ -18,12 +18,12 @@ package services
 
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import models.{AccountingDetailsRequest, AccountingDatesModel, AccountingDetailsResponse, AccountingDetailsSuccessResponse}
-import uk.gov.hmrc.play.http.HeaderCarrier
 import utils.SCRSExceptions
 import models.AccountingDatesModel.{FUTURE_DATE, WHEN_REGISTERED, NOT_PLANNING_TO_YET}
 
 import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
+import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
+import uk.gov.hmrc.http.HeaderCarrier
 
 object AccountingService extends AccountingService {
   val companyRegistrationConnector = CompanyRegistrationConnector

@@ -18,47 +18,61 @@ package config
 
 import akka.actor.ActorSystem
 import akka.stream.{ActorMaterializer, Materializer}
-import play.api.Logger
 import play.api.mvc.Call
 import uk.gov.hmrc.crypto.ApplicationCrypto
+import uk.gov.hmrc.http._
 import uk.gov.hmrc.http.cache.client.{SessionCache, ShortLivedCache, ShortLivedHttpCaching}
-import uk.gov.hmrc.play.audit.http.config.LoadAuditingConfig
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector => Auditing}
 import uk.gov.hmrc.play.config.{AppName, RunMode, ServicesConfig}
 import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
 import uk.gov.hmrc.play.audit.http.HttpAuditing
 import uk.gov.hmrc.play.http.ws._
+import uk.gov.hmrc.http.hooks.HttpHooks
 import uk.gov.hmrc.play.partials.CachedStaticHtmlPartialRetriever
 import uk.gov.hmrc.whitelist.AkamaiWhitelistFilter
+import uk.gov.hmrc.play.frontend.config.LoadAuditingConfig
 
+
+trait Hooks extends HttpHooks with HttpAuditing {
+  override val hooks = NoneRequired
+  override lazy val auditConnector: Auditing = FrontendAuditConnector
+}
+
+object WSHttp extends WSHttp
+
+trait WSHttp extends
+  WSGet with HttpGet with
+  WSPut with HttpPut with
+  WSPost with HttpPost with
+  WSDelete with HttpDelete with
+  WSPatch with HttpPatch with AppName with Hooks
+
+//object WSHttp extends WSGet with WSPut with WSPost with WSDelete with RunMode {
+//  override val hooks = NoneRequired
+//}
 object FrontendAuditConnector extends Auditing with AppName with RunMode {
   override lazy val auditingConfig = LoadAuditingConfig(s"auditing")
 }
-
-object WSHttp extends WSGet with WSPut with WSPost with WSDelete with RunMode {
-  override val hooks = NoneRequired
+object FrontendAuthConnector extends AuthConnector with ServicesConfig with WSHttp {
+  override val serviceUrl = baseUrl("auth")
+  override def http: CoreGet = WSHttpProxy
 }
 
 object WSHttpProxy extends WSHttp with WSProxy with RunMode with HttpAuditing with ServicesConfig {
   override val appName = getString("appName")
   override val wsProxyServer = WSProxyConfiguration(s"proxy")
-  override val hooks = Seq(AuditingHook)
-  override val auditConnector = FrontendAuditConnector
+  override lazy val auditConnector = FrontendAuditConnector
 }
 
-object WSHttpWithAudit extends WSGet with WSPut with WSPost with WSDelete with AppName with HttpAuditing with RunMode{
+object WSHttpWithAudit extends WSHttp with RunMode with AppName with HttpAuditing{
   override val hooks = Seq(AuditingHook)
-  override val auditConnector = FrontendAuditConnector
+  override lazy val auditConnector = FrontendAuditConnector
 }
 
 object CachedStaticHtmlPartialProvider extends CachedStaticHtmlPartialRetriever {
   override val httpGet = WSHttp
 }
 
-object FrontendAuthConnector extends AuthConnector with ServicesConfig {
-  override val serviceUrl = baseUrl("auth")
-  override lazy val http = WSHttp
-}
 
 object SCRSShortLivedHttpCaching extends ShortLivedHttpCaching with AppName with ServicesConfig {
   override lazy val http = WSHttp

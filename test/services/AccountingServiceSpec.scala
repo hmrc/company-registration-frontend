@@ -21,7 +21,6 @@ import fixtures.AccountingDetailsFixture
 import helpers.SCRSSpec
 import models._
 import org.joda.time.{DateTime, LocalDate}
-import uk.gov.hmrc.play.http.HeaderCarrier
 
 class AccountingServiceSpec extends SCRSSpec with AccountingDetailsFixture {
 

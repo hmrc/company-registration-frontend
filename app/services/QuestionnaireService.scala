@@ -21,10 +21,10 @@ import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import audit.events.QuestionnaireAuditEvent
 import models.QuestionnaireModel
 import play.api.mvc.{AnyContent, Request}
-import uk.gov.hmrc.play.http.HeaderCarrier
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 import scala.concurrent.Future
+import uk.gov.hmrc.http.HeaderCarrier
 
 object QuestionnaireService extends QuestionnaireService {
   val auditConnector = FrontendAuditConnector
@@ -36,7 +36,7 @@ trait QuestionnaireService {
 
   def sendAuditEventOnSuccessfulSubmission(questionnaire: QuestionnaireModel)(implicit hc: HeaderCarrier, request:Request[AnyContent]): Future[AuditResult] = {
     val event = new QuestionnaireAuditEvent(questionnaire)
-    auditConnector.sendEvent(event)
+    auditConnector.sendExtendedEvent(event)
   }
 
 }

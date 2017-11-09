@@ -24,13 +24,13 @@ import models.UserIDs
 import org.mockito.Matchers
 import play.api.test.FakeRequest
 import services.DeleteSubmissionService
-import uk.gov.hmrc.play.http.{HeaderCarrier, HttpReads, HttpResponse}
 import play.api.test.Helpers._
 import org.mockito.Mockito._
 import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
 import uk.gov.hmrc.play.test.WithFakeApplication
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse}
 
 class RegistrationUnsuccessfulControllerSpec extends SCRSSpec with WithFakeApplication {
 
@@ -60,7 +60,7 @@ class RegistrationUnsuccessfulControllerSpec extends SCRSSpec with WithFakeAppli
   "show" should {
     "return a 200 when the address type is RO" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
-      when(mockAuthConnector.getIds[UserIDs](Matchers.any())(Matchers.any[HeaderCarrier](), Matchers.any[HttpReads[UserIDs]]()))
+      when(mockAuthConnector.getIds[UserIDs](Matchers.any())(Matchers.any[HeaderCarrier](), Matchers.any[HttpReads[UserIDs]](), Matchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(UserIDs("1", "2")))
       when(mockDeleteSubmissionService.deleteSubmission(Matchers.eq("12345"))(Matchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(true))
@@ -75,7 +75,7 @@ class RegistrationUnsuccessfulControllerSpec extends SCRSSpec with WithFakeAppli
   "submit" should {
     "return a 303" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
-      when(mockAuthConnector.getIds[UserIDs](Matchers.any())(Matchers.any[HeaderCarrier](), Matchers.any[HttpReads[UserIDs]]()))
+      when(mockAuthConnector.getIds[UserIDs](Matchers.any())(Matchers.any[HeaderCarrier](), Matchers.any[HttpReads[UserIDs]](), Matchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(UserIDs("1", "2")))
       when(mockDeleteSubmissionService.deleteSubmission(Matchers.eq("12345"))(Matchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(true))

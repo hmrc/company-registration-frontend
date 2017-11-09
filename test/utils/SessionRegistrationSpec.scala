@@ -23,13 +23,13 @@ import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfter, LoneElement}
 import play.api.mvc.Results
 import play.api.test.Helpers._
-import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.{LogCapturing, UnitSpec, WithFakeApplication}
 import org.scalatest.concurrent.Eventually
 import ch.qos.logback.classic.{Level}
 import play.api.Logger
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.HeaderCarrier
 
 class SessionRegistrationSpec extends UnitSpec with CompanyRegistrationConnectorMock with KeystoreMock with MockitoSugar with BeforeAndAfter with LogCapturing with LoneElement with Eventually {
 

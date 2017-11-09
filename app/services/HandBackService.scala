@@ -23,15 +23,15 @@ import play.api.Logger
 import play.api.libs.json.{Format, JsObject, JsValue}
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.frontend.auth.AuthContext
-import uk.gov.hmrc.play.http.HeaderCarrier
 import utils._
 
 import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
+import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 import scala.util.control.NoStackTrace
 import scala.util.{Failure, Success, Try}
 import repositories._
 import uk.gov.hmrc.play.binders.ContinueUrl
+import uk.gov.hmrc.http.HeaderCarrier
 
 object HandBackService extends HandBackService{
   val compRegConnector = CompanyRegistrationConnector

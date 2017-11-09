@@ -31,10 +31,10 @@ import uk.gov.hmrc.play.frontend.controller.FrontendController
 import utils._
 import views.html.{error_template, error_template_restart}
 import play.api.mvc.Results.Redirect
-import uk.gov.hmrc.play.http.HeaderCarrier
 
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
+import uk.gov.hmrc.http.HeaderCarrier
 
 object RegistrationConfirmationController extends RegistrationConfirmationController {
   val authConnector = FrontendAuthConnector

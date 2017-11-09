@@ -26,11 +26,12 @@ import uk.gov.hmrc.play.http._
 import play.api.http.Status._
 
 import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
+import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
+import uk.gov.hmrc.http._
 
 object CompanyRegistrationConnector extends CompanyRegistrationConnector with ServicesConfig {
   val companyRegUrl = baseUrl("company-registration")
-  val http = WSHttp
+  val http : CorePut with CoreGet with CoreDelete = WSHttp
 }
 
 sealed trait FootprintResponse
@@ -43,7 +44,7 @@ case class FootprintErrorResponse(err: Exception) extends FootprintResponse
 trait CompanyRegistrationConnector {
 
   val companyRegUrl: String
-  val http: HttpGet with HttpPut with HttpPost with HttpDelete
+  val http: CoreGet with CorePut with CoreDelete
 
   def fetchRegistrationStatus(regId: String)(implicit hc: HeaderCarrier): Future[Option[String]] = {
     retrieveCorporationTaxRegistration(regId) map {

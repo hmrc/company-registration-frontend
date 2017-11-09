@@ -22,11 +22,11 @@ import play.api.Logger
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Call
 import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.http.{HeaderCarrier, HttpGet, HttpPost, HttpResponse}
 
 import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
+import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 import scala.util.control.NoStackTrace
+import uk.gov.hmrc.http._
 
 object AddressLookupConnector extends AddressLookupConnector with ServicesConfig {
   val addressLookupFrontendURL: String = baseUrl("address-lookup-frontend")
@@ -40,7 +40,7 @@ trait AddressLookupConnector {
 
   val addressLookupFrontendURL : String
   val companyRegistrationFrontendURL : String
-  val http : HttpGet with HttpPost
+  val http : CoreGet with CorePost
 
   def getOnRampURL(query: String, call: Call)(implicit hc: HeaderCarrier): Future[String] = {
     val onRampUrl = s"$addressLookupFrontendURL/api/init/$query"

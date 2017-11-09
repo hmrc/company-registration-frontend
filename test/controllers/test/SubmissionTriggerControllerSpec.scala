@@ -23,10 +23,10 @@ import org.mockito.Matchers.any
 import org.scalatest.mockito.MockitoSugar
 import org.mockito.Mockito._
 import play.api.test.FakeRequest
-import uk.gov.hmrc.play.http.HttpResponse
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.HttpResponse
 
 class SubmissionTriggerControllerSpec extends UnitSpec with MockitoSugar {
 

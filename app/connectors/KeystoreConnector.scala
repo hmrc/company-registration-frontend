@@ -19,9 +19,11 @@ package connectors
 import config.SCRSSessionCache
 import play.api.libs.json.Format
 import uk.gov.hmrc.http.cache.client.{SessionCache, CacheMap}
-import uk.gov.hmrc.play.http.{HeaderCarrier, HttpResponse}
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.{ HeaderCarrier, HttpResponse }
+
+import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 
 object KeystoreConnector extends KeystoreConnector
 

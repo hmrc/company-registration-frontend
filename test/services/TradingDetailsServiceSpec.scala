@@ -26,10 +26,10 @@ import mocks.SCRSMocks
 import models.TradingDetails
 import org.mockito.Mockito._
 import org.mockito.Matchers
-import uk.gov.hmrc.play.http.HeaderCarrier
 import play.api.libs.json.Format
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.HeaderCarrier
 
 class TradingDetailsServiceSpec extends SCRSSpec with SCRSMocks with TradingDetailsFixtures with AuthBuilder {
 

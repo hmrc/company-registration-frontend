@@ -32,10 +32,10 @@ import play.api.test.FakeRequest
 import services.{MetricsService, TradingDetailsService}
 import play.api.test.Helpers._
 import uk.gov.hmrc.play.frontend.auth.AuthContext
-import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.WithFakeApplication
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.HeaderCarrier
 
 class TradingDetailsControllerSpec extends SCRSSpec with WithFakeApplication with AuthBuilder with TradingDetailsFixtures {
 

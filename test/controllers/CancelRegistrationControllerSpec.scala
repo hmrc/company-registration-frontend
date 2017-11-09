@@ -24,14 +24,14 @@ import models.external.OtherRegStatus
 import org.joda.time.DateTime
 import org.scalatest.mockito.MockitoSugar
 import org.mockito._
-import uk.gov.hmrc.play.http.{HeaderCarrier, HttpReads}
 import org.mockito.Mockito._
 import play.api.http.Status._
 import uk.gov.hmrc.play.http.ws.WSHttp
 import play.api.test.FakeRequest
 import uk.gov.hmrc.play.test.WithFakeApplication
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpReads}
 
 class CancelRegistrationControllerSpec extends SCRSSpec with MockitoSugar with WithFakeApplication {
   val mockHttp = mock[WSHttp]
@@ -57,7 +57,8 @@ class CancelRegistrationControllerSpec extends SCRSSpec with MockitoSugar with W
       mockKeystoreFetchAndGet("registrationID", Some("1"))
       CTRegistrationConnectorMocks.retrieveCTRegistration(buildCorporationTaxModel(status = "foo"))
 
-      when(mockHttp.GET[OtherRegStatus](Matchers.any[String])(Matchers.any[HttpReads[OtherRegStatus]], Matchers.any[HeaderCarrier])).thenReturn(Future.successful(payeStatus))
+      when(mockHttp.GET[OtherRegStatus](Matchers.any[String])(Matchers.any[HttpReads[OtherRegStatus]](), Matchers.any[HeaderCarrier], Matchers.any[ExecutionContext]()))
+        .thenReturn(Future.successful(payeStatus))
 
       when(mockServiceConnector.getStatus(Matchers.any[String])
       (Matchers.any[HeaderCarrier]))

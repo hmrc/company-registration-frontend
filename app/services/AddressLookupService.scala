@@ -21,10 +21,10 @@ import play.api.Logger
 import play.api.libs.json.JsValue
 import address.client.{AddressRecord, RecordSet}
 import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.http.{HttpGet, HttpReads, HeaderCarrier}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import uk.gov.hmrc.http.{CoreGet, HeaderCarrier, HttpGet, HttpReads}
 
 sealed trait AddressLookupResponse
 case class AddressLookupSuccessResponse(addressList: RecordSet) extends AddressLookupResponse
@@ -36,20 +36,20 @@ object AddressLookupService extends AddressLookupService with ServicesConfig {
 }
 
 trait AddressLookupService extends AddressConverter {
-  val http: HttpGet
+  val http: CoreGet
   val addressLookupUrl: String
 
   def lookup(postcode: String, optFilter: Option[String] = None)(implicit hc: HeaderCarrier): Future[AddressLookupResponse] = {
     val scrsHc = hc.withExtraHeaders("X-Hmrc-Origin" -> "SCRS")
     val trimmedPostcode = postcode.replaceAll(" ", "")
     val filter = checkFilter(optFilter)
-    val addressJson = http.GET[JsValue](s"$addressLookupUrl/uk/addresses?postcode=$trimmedPostcode$filter")(implicitly[HttpReads[JsValue]], scrsHc)
+    val addressJson = http.GET[JsValue](s"$addressLookupUrl/uk/addresses?postcode=$trimmedPostcode$filter")(implicitly[HttpReads[JsValue]], scrsHc, implicitly)
     handleResponse(addressJson)
   }
 
   def lookup(uprn: String)(implicit hc: HeaderCarrier): Future[AddressRecord] = {
     val scrsHc = hc.withExtraHeaders("X-Hmrc-Origin" -> "SCRS")
-    http.GET[AddressRecord](s"$addressLookupUrl/v2/uk/addresses/$uprn")(implicitly[HttpReads[AddressRecord]], scrsHc)
+    http.GET[AddressRecord](s"$addressLookupUrl/v2/uk/addresses/$uprn")(implicitly[HttpReads[AddressRecord]], scrsHc, implicitly)
   }
 
   private[services] def handleResponse(addressJson: Future[JsValue]): Future[AddressLookupResponse] = {

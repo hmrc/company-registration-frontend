@@ -32,13 +32,13 @@ import services.{CommonService, HandOffNavigator, MetaDataService}
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.frontend.auth.Actions
 import uk.gov.hmrc.play.frontend.controller.FrontendController
-import uk.gov.hmrc.play.http.{HeaderCarrier, HttpReads}
 import utils.{BooleanFeatureSwitch, SCRSExceptions, SCRSFeatureSwitches, SessionRegistration, FeatureSwitch => FeatureSwitchUtil}
 import views.html.reg.TestEndpoint
 import repositories.NavModelRepo
 import utils.MessagesSupport
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.{ HeaderCarrier, HttpReads }
 
 
 object TestEndpointController extends TestEndpointController {

@@ -27,10 +27,10 @@ import org.mockito.Mockito._
 import org.mockito.Matchers
 import play.api.test.Helpers._
 import services.MetaDataService
-import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.WithFakeApplication
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.HeaderCarrier
 
 class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixture
   with CorporationTaxFixture with NavModelRepoMock with WithFakeApplication {

@@ -24,7 +24,7 @@ import repositories.{NavModelRepoMongo, NavModelRepository}
 import org.mockito.Mockito._
 
 import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
+import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 
 trait NavModelRepoMock {
   this: MockitoSugar =>

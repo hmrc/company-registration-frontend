@@ -18,8 +18,9 @@ package audit.events
 
 import play.api.libs.json.{JsObject, Json}
 import play.api.test.FakeRequest
-import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.audit.model.ExtendedDataEvent
 
 class EmailVerifiedEventSpec extends UnitSpec {
 
@@ -62,6 +63,7 @@ class EmailVerifiedEventSpec extends UnitSpec {
       "populated with event detail" in {
 
         implicit val hc = HeaderCarrier()
+        implicit val format = Json.format[ExtendedDataEvent]
 
         val testModel =
           EmailVerifiedEventDetail(

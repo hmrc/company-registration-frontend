@@ -22,9 +22,10 @@ import org.mockito.Mockito._
 import play.api.libs.json.Json
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.cache.client.CacheMap
-import uk.gov.hmrc.play.http.{HeaderCarrier, HttpResponse}
 
 import scala.concurrent.Future
+import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 class KeystoreConnectorSpec extends SCRSSpec {
 
@@ -44,10 +45,10 @@ class KeystoreConnectorSpec extends SCRSSpec {
 
       val returnCacheMap = CacheMap("", Map("" -> Json.toJson(testModel)))
 
-      when(mockSessionCache.cache[TestModel](Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
+      when(mockSessionCache.cache[TestModel](Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(returnCacheMap))
 
-      val result = connector.cache[TestModel](Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())
+      val result = connector.cache[TestModel]("testKey", testModel)
       await(result) shouldBe returnCacheMap
     }
   }
@@ -57,10 +58,10 @@ class KeystoreConnectorSpec extends SCRSSpec {
       val testModel = TestModel("test")
       val list = List(testModel)
 
-      when(mockSessionCache.fetchAndGetEntry[List[TestModel]](Matchers.any())(Matchers.any(), Matchers.any()))
+      when(mockSessionCache.fetchAndGetEntry[List[TestModel]](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(Some(list)))
 
-      val result = connector.fetchAndGet[List[TestModel]](Matchers.any())(Matchers.any(), Matchers.any())
+      val result = connector.fetchAndGet[List[TestModel]]("testKey")
       await(result) shouldBe Some(list)
     }
   }
@@ -71,20 +72,20 @@ class KeystoreConnectorSpec extends SCRSSpec {
 
       val returnCacheMap = CacheMap("", Map("" -> Json.toJson(testModel)))
 
-      when(mockSessionCache.fetch()(Matchers.any()))
+      when(mockSessionCache.fetch()(Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(Some(returnCacheMap)))
 
-      val result = connector.fetch()(Matchers.any())
+      val result = connector.fetch()
       await(result) shouldBe Some(returnCacheMap)
     }
   }
 
   "Removing from KeyStore" should {
     "return a HTTP Response" in {
-      when(mockSessionCache.remove()(Matchers.any()))
+      when(mockSessionCache.remove()(Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(HttpResponse(OK)))
 
-      val result = connector.remove()(Matchers.any())
+      val result = connector.remove()
       await(result).status shouldBe HttpResponse(OK).status
     }
   }

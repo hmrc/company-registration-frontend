@@ -24,19 +24,20 @@ import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http._
 
 import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
+import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 import scala.util.control.NoStackTrace
+import uk.gov.hmrc.http._
 
 private[connectors] class TemplateEmailErrorResponse(s: String) extends NoStackTrace
 
 object SendTemplatedEmailConnector extends SendTemplatedEmailConnector with ServicesConfig {
-  val http = WSHttp
+  val http : CorePost = WSHttp
   val sendTemplatedEmailURL = getConfString("email.sendAnEmailURL", throw new Exception("email.sendAnEmailURL not found"))
 
 }
 
 trait SendTemplatedEmailConnector extends HttpErrorFunctions {
-  val http : HttpPost with HttpPut
+  val http : CorePost
   val sendTemplatedEmailURL : String
 
 

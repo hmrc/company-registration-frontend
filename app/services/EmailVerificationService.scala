@@ -24,14 +24,14 @@ import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.frontend.auth.AuthContext
 import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
-import uk.gov.hmrc.play.http.HeaderCarrier
 
 import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
+import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 import scala.util.control.NoStackTrace
 import Email.GG
 import audit.events.{EmailVerifiedEvent, EmailVerifiedEventDetail}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
+import uk.gov.hmrc.http.HeaderCarrier
 
 private[services] class EmailBlockNotFound extends NoStackTrace
 
@@ -188,7 +188,7 @@ trait EmailVerificationService {
     for {
       userIds <- feAuthConnector.getIds[UserIDs](user)
       userDetails <- feAuthConnector.getUserDetails[UserDetailsModel](user)
-      result <- auditConnector.sendEvent(
+      result <- auditConnector.sendExtendedEvent(
         new EmailVerifiedEvent(
           EmailVerifiedEventDetail(
             userIds.externalId,
