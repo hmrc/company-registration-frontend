@@ -24,7 +24,7 @@ import play.api.libs.json.JsValue
 import play.api.mvc.Action
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.frontend.controller.FrontendController
-import uk.gov.hmrc.play.http.HttpGet
+import uk.gov.hmrc.http.{CoreGet}
 
 
 object ModifyThrottledUsersController extends ModifyThrottledUsersController with ServicesConfig {
@@ -34,7 +34,7 @@ object ModifyThrottledUsersController extends ModifyThrottledUsersController wit
 
 trait ModifyThrottledUsersController extends FrontendController {
 
-  val http: HttpGet
+  val http: CoreGet
   val crUrl: String
 
   def modifyThrottledUsers(usersIn: Int) = Action.async {

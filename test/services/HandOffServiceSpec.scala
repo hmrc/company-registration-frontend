@@ -29,11 +29,11 @@ import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
 import play.api.libs.json.{JsObject, Json}
 import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.test.WithFakeApplication
 import utils.JweEncryptor
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture with CorporationTaxFixture
     with BeforeAndAfterEach
@@ -89,7 +89,7 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
 
       mockGetNavModel(None)
 
-      when(mockAuthConnector.getIds[UserIDs](Matchers.any())(Matchers.any(), Matchers.any()))
+      when(mockAuthConnector.getIds[UserIDs](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(userIDs))
 
       mockKeystoreFetchAndGet("registrationID",Some(registrationID))
@@ -139,7 +139,7 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
     "return a forward url and encrypted payload when there is no nav model in keystore" in new Setup {
       mockKeystoreFetchAndGet("HandOffNavigation", None)
       mockInsertNavModel("testRegID",Some(initNavModel))
-      when(mockAuthConnector.getUserDetails[UserDetailsModel](Matchers.any())(Matchers.any(), Matchers.any()))
+      when(mockAuthConnector.getUserDetails[UserDetailsModel](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(userDetailsModel))
       mockGetNavModel(None)
       val result = await(service.companyNamePayload("testRegID"))
@@ -149,7 +149,7 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
 
   "externalUserId" should {
     "return an external UserID fetched from auth/authority" in new Setup {
-      when(mockAuthConnector.getIds[UserIDs](Matchers.any())(Matchers.any(), Matchers.any()))
+      when(mockAuthConnector.getIds[UserIDs](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(userIDs))
 
       val result = await(service.externalUserId)

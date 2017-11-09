@@ -19,9 +19,11 @@ package connectors
 import config.SCRSShortLivedCache
 import play.api.libs.json.Format
 import uk.gov.hmrc.http.cache.client.{ShortLivedCache, CacheMap}
-import uk.gov.hmrc.play.http.{HttpResponse, HeaderCarrier}
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.{ HeaderCarrier, HttpResponse }
+
+import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 
 object S4LConnector extends S4LConnector
 

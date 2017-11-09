@@ -30,12 +30,12 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.{HandBackService, HandOffService}
 import uk.gov.hmrc.play.frontend.auth.AuthContext
-import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.WithFakeApplication
 import utils.{DecryptionError, PayloadError}
 
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
+import uk.gov.hmrc.http.HeaderCarrier
 
 class CorporationTaxDetailsControllerSpec extends SCRSSpec with PayloadFixture with LoginFixture with WithFakeApplication {
 

@@ -32,12 +32,12 @@ import org.mockito.Mockito._
 import org.mockito.Matchers
 import play.api.libs.json.Json
 import uk.gov.hmrc.play.frontend.auth.AuthContext
-import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.WithFakeApplication
 import utils.{DecryptionError, Jwe, PayloadError}
 
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
+import uk.gov.hmrc.http.HeaderCarrier
 
 class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixture with LoginFixture with WithFakeApplication {
 

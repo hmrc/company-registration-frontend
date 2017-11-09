@@ -22,10 +22,10 @@ import play.api.Logger
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import play.api.mvc.Results.Redirect
 import uk.gov.hmrc.play.audit.http.connector.AuditResult.Success
-import uk.gov.hmrc.play.http.HeaderCarrier
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 import scala.concurrent.Future
+import uk.gov.hmrc.http.HeaderCarrier
 
 trait SessionRegistration {
 

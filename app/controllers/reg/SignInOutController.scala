@@ -26,7 +26,6 @@ import services._
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.frontend.auth.{Actions, AuthContext}
 import uk.gov.hmrc.play.frontend.controller.FrontendController
-import uk.gov.hmrc.play.http.HeaderCarrier
 import utils.SCRSExceptions
 import java.io.File
 import controllers.verification.{routes => emailRoutes}
@@ -37,6 +36,7 @@ import uk.gov.hmrc.play.binders.ContinueUrl
 import controllers.handoff.{routes => handoffRoutes}
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.HeaderCarrier
 
 object SignInOutController extends SignInOutController with ServicesConfig{
   val authConnector = FrontendAuthConnector

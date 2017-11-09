@@ -20,10 +20,10 @@ import connectors.AddressLookupConnector
 import models.NewAddress
 import play.api.mvc.{Call, Request}
 import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.http.HeaderCarrier
 
 import scala.concurrent.Future
 import scala.util.control.NoStackTrace
+import uk.gov.hmrc.http.HeaderCarrier
 
 case class QueryStringMissingException() extends NoStackTrace
 

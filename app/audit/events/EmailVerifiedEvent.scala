@@ -18,7 +18,7 @@ package audit.events
 
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{AnyContent, Request}
-import uk.gov.hmrc.play.http.HeaderCarrier
+import uk.gov.hmrc.http.HeaderCarrier
 
 case class EmailVerifiedEventDetail(externalUserId : String,
                                     authProviderId : String,

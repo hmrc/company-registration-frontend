@@ -20,17 +20,17 @@ import org.scalatest.LoneElement
 import org.scalatest.mockito.MockitoSugar
 import play.api.Logger
 import play.api.libs.json.Writes
-import uk.gov.hmrc.play.http.{HttpReads, HttpResponse, HeaderCarrier}
 import uk.gov.hmrc.play.http.ws.WSPost
-import org.mockito.Matchers.{eq => eqTo, any}
+import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito._
 import org.scalatest.prop.Tables.Table
-import uk.gov.hmrc.play.test.{UnitSpec, LogCapturing}
+import uk.gov.hmrc.play.test.{LogCapturing, UnitSpec}
 import org.scalatest.prop.TableDrivenPropertyChecks._
 import org.scalatest.concurrent.Eventually
 import ch.qos.logback.classic.Level
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.http._
 
 class PlatformAnalyticsConnectorSpec extends UnitSpec with MockitoSugar with LogCapturing with LoneElement with Eventually {
 
@@ -40,7 +40,7 @@ class PlatformAnalyticsConnectorSpec extends UnitSpec with MockitoSugar with Log
     val aServiceUrl = "service-url"
     implicit val hc = HeaderCarrier()
 
-    val httpMock = mock[WSPost]
+    val httpMock = mock[HttpPost with CorePost]
     val analyticsPlatformConnector = new PlatformAnalyticsConnector {
       override val serviceUrl = aServiceUrl
       override val http = httpMock
@@ -60,13 +60,14 @@ class PlatformAnalyticsConnectorSpec extends UnitSpec with MockitoSugar with Log
       s"send a GA event to platform-analytics - $scenario" in new Setup {
         when(
           httpMock.POST[AnalyticsRequest, HttpResponse]
-            (eqTo(s"$aServiceUrl/platform-analytics/event"), eqTo(data), any[Seq[(String, String)]])(any[Writes[AnalyticsRequest]](), any[HttpReads[HttpResponse]](), any[HeaderCarrier])
+            (eqTo(s"$aServiceUrl/platform-analytics/event"), eqTo(data), any[Seq[(String, String)]])
+            (any[Writes[AnalyticsRequest]](), any[HttpReads[HttpResponse]](), any[HeaderCarrier], any[ExecutionContext])
         ).thenReturn(response)
 
         noException should be thrownBy await(analyticsPlatformConnector.sendEvents(event))
 
         verify(httpMock).POST[AnalyticsRequest, HttpResponse](eqTo(s"$aServiceUrl/platform-analytics/event"), eqTo(data),
-          eqTo(Seq.empty))(any[Writes[AnalyticsRequest]](), any[HttpReads[HttpResponse]](), any[HeaderCarrier])
+          eqTo(Seq.empty))(any[Writes[AnalyticsRequest]](), any[HttpReads[HttpResponse]](), any[HeaderCarrier], any[ExecutionContext])
       }
     }
 
@@ -74,13 +75,13 @@ class PlatformAnalyticsConnectorSpec extends UnitSpec with MockitoSugar with Log
       withCaptureOfLoggingFrom(Logger) { logEvents =>
         when(
           httpMock.POST[AnalyticsRequest, HttpResponse](eqTo(s"$aServiceUrl/platform-analytics/event"), eqTo(data),
-            any[Seq[(String, String)]])(any[Writes[AnalyticsRequest]](), any[HttpReads[HttpResponse]](), any[HeaderCarrier])
+            any[Seq[(String, String)]])(any[Writes[AnalyticsRequest]](), any[HttpReads[HttpResponse]](), any[HeaderCarrier], any[ExecutionContext])
         ).thenReturn(Future.failed(new RuntimeException("blow up")))
 
         noException should be thrownBy await(analyticsPlatformConnector.sendEvents(event))
 
         verify(httpMock).POST[AnalyticsRequest, HttpResponse](eqTo(s"$aServiceUrl/platform-analytics/event"), eqTo(data),
-          eqTo(Seq.empty))(any[Writes[AnalyticsRequest]](), any[HttpReads[HttpResponse]](), any[HeaderCarrier])
+          eqTo(Seq.empty))(any[Writes[AnalyticsRequest]](), any[HttpReads[HttpResponse]](), any[HeaderCarrier], any[ExecutionContext])
 
         eventually {
           logEvents.filter(_.getLevel == Level.ERROR).loneElement.getMessage should include(s"Couldn't send analytics event")

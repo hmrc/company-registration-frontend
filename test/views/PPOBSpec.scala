@@ -29,10 +29,10 @@ import org.mockito.Matchers
 import play.api.i18n.MessagesApi
 import play.api.test.Helpers._
 import services.AddressLookupFrontendService
-import uk.gov.hmrc.play.http.{HeaderCarrier, HttpReads}
 import uk.gov.hmrc.play.test.WithFakeApplication
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpReads}
 
 class PPOBSpec extends SCRSSpec with PPOBFixture with NavModelRepoMock with WithFakeApplication {
   val mockNavModelRepoObj = mockNavModelRepo
@@ -59,7 +59,7 @@ class PPOBSpec extends SCRSSpec with PPOBFixture with NavModelRepoMock with With
     "make sure that PPOB page has the correct elements" in new SetupPage {
       CTRegistrationConnectorMocks.retrieveCTRegistration()
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
-      when(mockAuthConnector.getIds[UserIDs](Matchers.any())(Matchers.any[HeaderCarrier](), Matchers.any[HttpReads[UserIDs]]()))
+      when(mockAuthConnector.getIds[UserIDs](Matchers.any())(Matchers.any[HeaderCarrier](), Matchers.any[HttpReads[UserIDs]](), Matchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(UserIDs("1", "2")))
 
 

@@ -19,9 +19,9 @@ package audit.events
 import play.api.libs.json.JsObject
 import play.api.mvc.{Request, AnyContent}
 import uk.gov.hmrc.play.audit.model.ExtendedDataEvent
-import uk.gov.hmrc.play.http.HeaderCarrier
 
 import RegistrationAuditEvent.buildTags
+import uk.gov.hmrc.http.HeaderCarrier
 
 case class TagSet(clientIP : Boolean,
                   clientPort : Boolean,

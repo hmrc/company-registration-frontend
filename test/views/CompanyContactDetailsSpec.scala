@@ -28,7 +28,7 @@ import play.api.test.Helpers._
 import services.MetricsService
 import uk.gov.hmrc.play.test.WithFakeApplication
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class CompanyContactDetailsSpec extends SCRSSpec with CompanyContactDetailsFixture with UserDetailsFixture
   with WithFakeApplication {
@@ -51,7 +51,7 @@ class CompanyContactDetailsSpec extends SCRSSpec with CompanyContactDetailsFixtu
       CompanyContactDetailsServiceMocks.fetchContactDetails(validCompanyContactDetailsModel)
       mockKeystoreFetchAndGet("registrationID", Some("1"))
       CTRegistrationConnectorMocks.retrieveCTRegistration()
-      when(mockAuthConnector.getUserDetails[UserDetailsModel](Matchers.any())(Matchers.any(), Matchers.any()))
+      when(mockAuthConnector.getUserDetails[UserDetailsModel](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(userDetailsModel))
 
       AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector){

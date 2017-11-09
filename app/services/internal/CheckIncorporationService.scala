@@ -17,7 +17,7 @@
 package services.internal
 
 import connectors.CohoAPIConnector
-import uk.gov.hmrc.play.http.HeaderCarrier
+import uk.gov.hmrc.http.HeaderCarrier
 
 object CheckIncorporationService extends CheckIncorporationService {
   val cohoApiConnector = CohoAPIConnector

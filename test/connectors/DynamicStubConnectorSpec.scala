@@ -22,15 +22,15 @@ import org.mockito.Mockito._
 import org.mockito.Matchers
 import play.api.test.FakeRequest
 import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.http.ws.WSHttp
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.http.{CoreDelete, CoreGet, CorePost, HeaderCarrier}
 
 class DynamicStubConnectorSpec extends UnitSpec with WithFakeApplication with MockitoSugar with ServicesConfig {
 
-  val mockHttp = mock[WSHttp]
+  val mockHttp = mock[WSHttp with CoreGet]
 
   val resp = new IncorporationResponse("123456789","processing","n/a")
 
@@ -48,7 +48,7 @@ class DynamicStubConnectorSpec extends UnitSpec with WithFakeApplication with Mo
 
   "FetchAllClients" should {
     "return a list" in new Setup {
-      when(mockHttp.GET[Option[List[IncorporationResponse]]](Matchers.any())(Matchers.any(), Matchers.any[HeaderCarrier]()))
+      when(mockHttp.GET[Option[List[IncorporationResponse]]](Matchers.any())(Matchers.any(), Matchers.any[HeaderCarrier](), Matchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(Some(returnedList)))
       val response = TestConnector.getIncorporationStatus(resp._id)
       await(response).getClass shouldBe Some(returnedList).getClass

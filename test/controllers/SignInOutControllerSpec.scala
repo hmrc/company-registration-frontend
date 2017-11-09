@@ -37,7 +37,7 @@ import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.binders.ContinueUrl
 import uk.gov.hmrc.play.test.WithFakeApplication
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class SignInOutControllerSpec extends SCRSSpec
   with UserDetailsFixture with PayloadFixture with PPOBFixture with BusinessRegistrationFixture with CompanyDetailsFixture with WithFakeApplication {
@@ -73,7 +73,7 @@ class SignInOutControllerSpec extends SCRSSpec
     "return a 303 if accessing with authorisation for a new journey" in new Setup {
       val expected = ThrottleResponse("12345", true, false, false)
 
-      when(mockAuthConnector.getUserDetails[UserDetailsModel](Matchers.any())(Matchers.any(), Matchers.any()))
+      when(mockAuthConnector.getUserDetails[UserDetailsModel](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(userDetailsModel))
 
       when(mockEnrolmentsService.hasBannedRegimes(Matchers.any())(Matchers.any(), Matchers.any()))
@@ -104,7 +104,7 @@ class SignInOutControllerSpec extends SCRSSpec
     "return a 303 if accessing with authorisation for an existing journey" in new Setup {
       val expected = ThrottleResponse("12345", false, false, false)
 
-      when(mockAuthConnector.getUserDetails[UserDetailsModel](Matchers.any())(Matchers.any(), Matchers.any()))
+      when(mockAuthConnector.getUserDetails[UserDetailsModel](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(userDetailsModel))
 
       when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(Matchers.any()))
@@ -129,7 +129,7 @@ class SignInOutControllerSpec extends SCRSSpec
 
       val expected = ThrottleResponse("12345", false, false, false, registrationProgress = Some(HO5))
 
-      when(mockAuthConnector.getUserDetails[UserDetailsModel](Matchers.any())(Matchers.any(), Matchers.any()))
+      when(mockAuthConnector.getUserDetails[UserDetailsModel](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(userDetailsModel))
 
       when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(Matchers.any()))
@@ -156,7 +156,7 @@ class SignInOutControllerSpec extends SCRSSpec
       import constants.RegistrationProgressValues.HO5
       val expected = ThrottleResponse("12345", false, true, false, registrationProgress = Some(HO5))
 
-      when(mockAuthConnector.getUserDetails[UserDetailsModel](Matchers.any())(Matchers.any(), Matchers.any()))
+      when(mockAuthConnector.getUserDetails[UserDetailsModel](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(userDetailsModel))
 
       when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(Matchers.any()))
@@ -179,7 +179,7 @@ class SignInOutControllerSpec extends SCRSSpec
       import constants.RegistrationProgressValues.HO5
       val expected = ThrottleResponse("12345", false, true, false, registrationProgress = Some(HO5))
 
-      when(mockAuthConnector.getUserDetails[UserDetailsModel](Matchers.any())(Matchers.any(), Matchers.any()))
+      when(mockAuthConnector.getUserDetails[UserDetailsModel](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(userDetailsModel))
 
       when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(Matchers.any()))
@@ -201,7 +201,7 @@ class SignInOutControllerSpec extends SCRSSpec
     "return a 303 if accessing with authorisation for a complete journey" in new Setup {
       val expected = ThrottleResponse("12345", false, true, true)
 
-      when(mockAuthConnector.getUserDetails[UserDetailsModel](Matchers.any())(Matchers.any(), Matchers.any()))
+      when(mockAuthConnector.getUserDetails[UserDetailsModel](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(userDetailsModel))
 
       when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(Matchers.any()))
@@ -223,7 +223,7 @@ class SignInOutControllerSpec extends SCRSSpec
     "return a 303 if accessing with authorised but that account has restricted enrolments" in new Setup {
       val expected = ThrottleResponse("12345", true, false, false)
 
-      when(mockAuthConnector.getUserDetails[UserDetailsModel](Matchers.any())(Matchers.any(), Matchers.any()))
+      when(mockAuthConnector.getUserDetails[UserDetailsModel](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(userDetailsModel))
 
       when(mockEnrolmentsService.hasBannedRegimes(Matchers.any())(Matchers.any(), Matchers.any()))
@@ -249,7 +249,7 @@ class SignInOutControllerSpec extends SCRSSpec
     }
 
     "handle the too many requests case appropriately" in new Setup {
-      when(mockAuthConnector.getUserDetails[UserDetailsModel](Matchers.any())(Matchers.any(), Matchers.any()))
+      when(mockAuthConnector.getUserDetails[UserDetailsModel](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(userDetailsModel))
 
       when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(Matchers.any()))
@@ -261,7 +261,7 @@ class SignInOutControllerSpec extends SCRSSpec
     }
 
     "handle the forbidden error appropriately" in new Setup {
-      when(mockAuthConnector.getUserDetails[UserDetailsModel](Matchers.any())(Matchers.any(), Matchers.any()))
+      when(mockAuthConnector.getUserDetails[UserDetailsModel](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(userDetailsModel))
       when(mockEnrolmentsService.hasBannedRegimes(Matchers.any())(Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(false))
@@ -275,7 +275,7 @@ class SignInOutControllerSpec extends SCRSSpec
     }
 
     "handle an unexpected error appropriately" in new Setup {
-      when(mockAuthConnector.getUserDetails[UserDetailsModel](Matchers.any())(Matchers.any(), Matchers.any()))
+      when(mockAuthConnector.getUserDetails[UserDetailsModel](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(userDetailsModel))
 
       when(mockEnrolmentsService.hasBannedRegimes(Matchers.any())(Matchers.any(), Matchers.any()))

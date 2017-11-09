@@ -19,9 +19,9 @@ package audit.events
 import play.api.libs.json.{Json, JsObject}
 import play.api.test.FakeRequest
 import uk.gov.hmrc.play.audit.model.ExtendedDataEvent
-import uk.gov.hmrc.play.http.HeaderCarrier
-import uk.gov.hmrc.play.http.logging.{SessionId, ForwardedFor, Authorization, RequestId}
 import uk.gov.hmrc.play.test.UnitSpec
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.logging.{ Authorization, ForwardedFor, RequestId, SessionId }
 
 class RegistrationAuditEventSpec extends UnitSpec {
 
@@ -46,6 +46,8 @@ class RegistrationAuditEventSpec extends UnitSpec {
     )
 
     val emptyCarrier = HeaderCarrier()
+
+    implicit val format = Json.format[ExtendedDataEvent]
 
     val req = FakeRequest("GET", path)
 

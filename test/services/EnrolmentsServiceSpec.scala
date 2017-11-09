@@ -26,16 +26,16 @@ import org.mockito.Mockito.when
 import org.mockito.Matchers
 import org.scalatest.TestData
 import play.api.libs.json.{JsArray, Json}
-import uk.gov.hmrc.play.http.{HeaderCarrier, HttpReads}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.http.{CoreGet, HeaderCarrier, HttpReads}
 
 class EnrolmentsServiceSpec extends UnitSpec with WithFakeApplication with MockitoSugar with SCRSMocks {
 
   class Setup {
     object TestService extends EnrolmentsService {
       val authConnector = mockAuthConnector
-      val http = mockWSHttp
+      val http = mock[WSHttp with CoreGet]
     }
   }
 
@@ -65,7 +65,7 @@ class EnrolmentsServiceSpec extends UnitSpec with WithFakeApplication with Mocki
     "return a true" when {
       "any restricted enrolments are found in the enrolments record" in new Setup {
 
-        when(mockAuthConnector.getEnrolments[JsArray](Matchers.eq(testUser))(Matchers.any[HeaderCarrier](), Matchers.any[HttpReads[JsArray]]()))
+        when(mockAuthConnector.getEnrolments[JsArray](Matchers.eq(testUser))(Matchers.any[HeaderCarrier](), Matchers.any[HttpReads[JsArray]](), Matchers.any[ExecutionContext]()))
           .thenReturn(Future.successful(testData.as[JsArray]))
 
         val result = await(TestService.hasBannedRegimes(testUser))

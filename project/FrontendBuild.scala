@@ -10,10 +10,8 @@ object FrontendBuild extends Build with MicroService {
 
   override lazy val playSettings : Seq[Setting[_]] = Seq(
     dependencyOverrides += "org.scala-lang" % "scala-library" % "2.11.8",
-    dependencyOverrides += "uk.gov.hmrc" %% "domain" % "4.1.0",
-    dependencyOverrides += "uk.gov.hmrc" %% "crypto" % "4.2.0",
+    dependencyOverrides += "uk.gov.hmrc" %% "domain" % "5.0.0",
     dependencyOverrides += "uk.gov.hmrc" %% "secure" % "7.0.0",
-    dependencyOverrides += "uk.gov.hmrc" % "logback-json-logger" % "3.1.0",
     dependencyOverrides += "io.netty" % "netty" % "3.9.8.Final",
     dependencyOverrides += "com.typesafe.play" % "twirl-api_2.11" % "1.1.1"
 
@@ -26,19 +24,13 @@ private object AppDependencies {
 
   val compile = Seq(
     ws,
-    "uk.gov.hmrc" %% "frontend-bootstrap" % "7.26.0",
-    "uk.gov.hmrc" %% "play-partials" % "5.4.0",
-    "uk.gov.hmrc" %% "play-authorised-frontend" % "6.4.0",
+    "uk.gov.hmrc" %% "frontend-bootstrap" % "8.10.0",
+    "uk.gov.hmrc" %% "play-partials" % "6.1.0",
     "uk.gov.hmrc" %% "url-builder" % "2.1.0",
-    "uk.gov.hmrc" %% "play-health" % "2.1.0",
-    "uk.gov.hmrc" %% "play-config" % "4.3.0",
-    "uk.gov.hmrc" %% "logback-json-logger" % "3.1.0",
-    "uk.gov.hmrc" %% "govuk-template" % "5.2.0",
-    "uk.gov.hmrc" %% "play-ui" % "7.6.0",
-    "uk.gov.hmrc" %% "http-caching-client" % "6.2.0",
+    "uk.gov.hmrc" %% "http-caching-client" % "7.0.0",
     "uk.gov.hmrc" %% "play-conditional-form-mapping" % "0.2.0",
     "org.bitbucket.b_c" % "jose4j" % "0.5.0",
-    "uk.gov.hmrc" %% "time" % "3.0.0",
+    "uk.gov.hmrc" %% "time" % "3.1.0",
     "uk.gov.hmrc" %% "play-whitelist-filter" % "2.0.0",
     "uk.gov.hmrc" %% "play-language" % "3.4.0",
     "uk.gov.hmrc" %% "play-reactivemongo" % "5.2.0"

@@ -19,7 +19,7 @@ package audit.events
 import models.CHROAddress
 import play.api.libs.json.{Writes, Json, JsObject}
 import play.api.mvc.{AnyContent, Request}
-import uk.gov.hmrc.play.http.HeaderCarrier
+import uk.gov.hmrc.http.HeaderCarrier
 
 case class ROUsedAsPPOBAuditEventDetail(regId: String,
                                         credId: String,

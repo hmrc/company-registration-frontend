@@ -29,10 +29,10 @@ import org.mockito.Matchers
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.{MetaDataService, MetricsService}
-import uk.gov.hmrc.play.http.{HeaderCarrier, HttpReads}
 import uk.gov.hmrc.play.test.WithFakeApplication
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.{ HeaderCarrier, HttpReads }
 
 class CompletionCapacityControllerSpec extends SCRSSpec with WithFakeApplication with MockitoSugar with BusinessRegistrationFixture {
 

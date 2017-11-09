@@ -25,10 +25,10 @@ import play.api.mvc.{AnyContent, Request}
 import play.api.test.FakeRequest
 import services.{MetricsService, QuestionnaireService}
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
-import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.HeaderCarrier
 
 class QuestionnaireControllerSpec extends UnitSpec with WithFakeApplication with MockitoSugar {
 

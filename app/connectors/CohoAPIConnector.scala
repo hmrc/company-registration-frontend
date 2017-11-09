@@ -20,13 +20,14 @@ import config.{WSHttp, WSHttpProxy}
 import play.api.Logger
 import play.api.libs.json.JsValue
 import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.http.logging.Authorization
 import uk.gov.hmrc.play.http.ws.WSProxy
-import uk.gov.hmrc.play.http._
+import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 import utils.SCRSFeatureSwitches
 
 import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
+import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
+import uk.gov.hmrc.http._
+import uk.gov.hmrc.http.logging.Authorization
 
 sealed trait CohoApiResponse
 case class CohoApiSuccessResponse(json: JsValue) extends CohoApiResponse
@@ -48,8 +49,8 @@ trait CohoAPIConnector extends HttpErrorFunctions {
   val cohoAPIStubUrl: String
   val cohoAPIUrl: String
   val cohoApiAuthToken: String
-  val httpNoProxy: HttpGet
-  val httpProxy: HttpGet with WSProxy
+  val httpNoProxy: CoreGet
+  val httpProxy: CoreGet with WSProxy
   val featureSwitch: SCRSFeatureSwitches
 
   private[connectors] def httpResponseRead(http: String, url: String, response: HttpResponse) = {
@@ -77,7 +78,7 @@ trait CohoAPIConnector extends HttpErrorFunctions {
       case true => (httpProxy, appendAPIAuthHeader(hc, cohoApiAuthToken), s"$cohoAPIUrl$queryString")
       case false => (httpNoProxy, hc, s"$cohoAPIStubUrl$queryString")
     }
-    http.GET[HttpResponse](url)(httpRds, realHc) map {
+    http.GET[HttpResponse](url)(httpRds, realHc, implicitly) map {
       res =>
         res.status match {
         case 416 => CohoApiNoData

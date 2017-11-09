@@ -27,20 +27,20 @@ import uk.gov.hmrc.play.frontend.auth.AuthContext
 import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
 import uk.gov.hmrc.play.frontend.auth.connectors.domain._
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 object AuthBuilder extends AuthBuilder {}
 
 trait AuthBuilder {
 
   def mockAuthorisedUser(userId: String, mockAuthConnector : AuthConnector, accounts: Accounts = Accounts()) {
-    when(mockAuthConnector.currentAuthority(Matchers.any())) thenReturn {
+    when(mockAuthConnector.currentAuthority(Matchers.any(), Matchers.any[ExecutionContext])) thenReturn {
       Future.successful(Some(createUserAuthority(userId, accounts)))
     }
   }
 
   def mockUnauthorisedUser(userId: String, mockAuthConnector : AuthConnector) {
-    when(mockAuthConnector.currentAuthority(Matchers.any())) thenReturn {
+    when(mockAuthConnector.currentAuthority(Matchers.any(), Matchers.any[ExecutionContext])) thenReturn {
       Future.successful(None)
     }
   }
@@ -58,7 +58,7 @@ trait AuthBuilder {
   }
 
   def submitWithUnauthorisedUser(action: Action[AnyContent], mockAuthConnector: AuthConnector, request: FakeRequest[AnyContentAsFormUrlEncoded])(test: Future[Result] => Any) {
-    when(mockAuthConnector.currentAuthority(Matchers.any())).thenReturn(Future.successful(None))
+    when(mockAuthConnector.currentAuthority(Matchers.any(), Matchers.any[ExecutionContext])).thenReturn(Future.successful(None))
     val result = action.apply(SessionBuilder.updateRequestFormWithSession(request, ""))
     test(result)
   }

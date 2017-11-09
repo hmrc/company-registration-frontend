@@ -24,19 +24,20 @@ import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http._
 
 import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
+import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 import scala.util.control.NoStackTrace
+import uk.gov.hmrc.http._
 
 private[connectors] class EmailErrorResponse(s: String) extends NoStackTrace
 
 object EmailVerificationConnector extends EmailVerificationConnector with ServicesConfig {
-  val http = WSHttp
+  val http: CoreGet with CorePost with CorePut = WSHttp
   val sendVerificationEmailURL = getConfString("email-vs.sendVerificationEmailURL", throw new Exception("email.sendVerificationEmailURL not found"))
   val checkVerifiedEmailURL = getConfString("email-vs.checkVerifiedEmailURL", throw new Exception("email.checkVerifiedEmailURL not found"))
 }
 
 trait EmailVerificationConnector extends HttpErrorFunctions {
-  val http : HttpGet with HttpPost with HttpPut
+  val http : CoreGet with CorePost with CorePut
   val sendVerificationEmailURL : String
   val checkVerifiedEmailURL : String
 

@@ -33,7 +33,6 @@ import utils.Jwe
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-
 class RegistrationConfirmationISpec extends IntegrationSpecBase with MongoSpecSupport with LoginStub with FakeAppConfig {
 
   val mockHost = WiremockHelper.wiremockHost

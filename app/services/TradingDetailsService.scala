@@ -19,11 +19,11 @@ package services
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import models.{TradingDetails, TradingDetailsResponse}
 import uk.gov.hmrc.play.frontend.auth.AuthContext
-import uk.gov.hmrc.play.http.HeaderCarrier
 import utils.SCRSExceptions
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 import scala.concurrent.Future
+import uk.gov.hmrc.http.HeaderCarrier
 
 object TradingDetailsService extends TradingDetailsService {
   val keystoreConnector = KeystoreConnector

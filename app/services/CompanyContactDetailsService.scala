@@ -24,11 +24,11 @@ import play.api.mvc.{AnyContent, Request}
 import uk.gov.hmrc.play.audit.http.connector.{AuditResult, AuditConnector}
 import uk.gov.hmrc.play.frontend.auth.AuthContext
 import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
-import uk.gov.hmrc.play.http.HeaderCarrier
 import utils.SCRSExceptions
 
 import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
+import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
+import uk.gov.hmrc.http.HeaderCarrier
 
 object CompanyContactDetailsService extends CompanyContactDetailsService {
   val businessRegConnector = BusinessRegistrationConnector
@@ -134,6 +134,6 @@ trait CompanyContactDetailsService extends CommonService with SCRSExceptions {
                                                    (implicit hc: HeaderCarrier, req: Request[AnyContent]): Future[AuditResult] = {
 
     val event = new ContactDetailsAuditEvent(ContactDetailsAuditEventDetail(externalID, authProviderId, rID, originalContactDetails, amendedContactDetails))
-    auditConnector.sendEvent(event)
+    auditConnector.sendExtendedEvent(event)
   }
 }

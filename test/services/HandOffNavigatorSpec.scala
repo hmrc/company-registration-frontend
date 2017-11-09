@@ -25,11 +25,11 @@ import org.scalatest.mockito.MockitoSugar
 import play.api.libs.json.{JsObject, Json}
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import org.mockito.Mockito._
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.HeaderCarrier
 
 class HandOffNavigatorSpec extends UnitSpec with MockitoSugar with WithFakeApplication with BeforeAndAfterEach with NavModelRepoMock{
 

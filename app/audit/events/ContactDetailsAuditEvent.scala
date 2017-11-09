@@ -20,9 +20,9 @@ import audit.TransactionNames
 import models.CompanyContactDetails
 import play.api.libs.json.{Writes, JsObject, Json}
 import play.api.mvc.{Request, AnyContent}
-import uk.gov.hmrc.play.http.HeaderCarrier
 import TransactionNames.AMEND_PRE_POP_CONTACT_DETAILS
 import RegistrationAuditEvent.{AUTH_PROVIDER_ID, JOURNEY_ID, EXT_USER_ID}
+import uk.gov.hmrc.http.HeaderCarrier
 
 case class ContactDetailsAuditEventDetail(externalUserId: String,
                                           regId: String,
