@@ -57,7 +57,7 @@ class CompanyContactFormSpec extends SCRSSpec with CompanyContactDetailsFixture 
     "the name field is invalid" should {
       "have an error" in {
         bindFromRequestWithErrors(invalidCompanyContactDetailsNameFormData, companyContactForm).map(x => (x.key, x.message)) shouldBe
-          List(("contactName", "This name is not valid"))
+          List(("contactName", "Tell us the contact name using only letters (without accents), hyphens and apostrophes"))
       }
     }
     "the contact number field is invalid" should {
@@ -276,7 +276,7 @@ class CompanyContactFormSpec extends SCRSSpec with CompanyContactDetailsFixture 
           "contactMobileNumber" -> validContactMobileNumber
         )
 
-        val error = Seq(FormError("contactName", "This name is not valid"))
+        val error = Seq(FormError("contactName", "Tell us the contact name using only letters (without accents), hyphens and apostrophes"))
         assertFormError(form, formData, error)
       }
 
@@ -287,7 +287,8 @@ class CompanyContactFormSpec extends SCRSSpec with CompanyContactDetailsFixture 
           "contactDaytimeTelephoneNumber" -> validContactDaytimeTelephoneNumber,
           "contactMobileNumber" -> validContactMobileNumber
         )
-        form.bind(formData).error("contactName").map(x => (x.key, x.message)) shouldBe Some(("contactName" ,"This name is not valid"))
+        form.bind(formData).error("contactName").map(x => (x.key, x.message)) shouldBe
+          Some(("contactName" ,"Tell us the contact name using only letters (without accents), hyphens and apostrophes"))
       }
 
       "contains invalid characters" in {
@@ -297,7 +298,8 @@ class CompanyContactFormSpec extends SCRSSpec with CompanyContactDetailsFixture 
           "contactDaytimeTelephoneNumber" -> validContactDaytimeTelephoneNumber,
           "contactMobileNumber" -> validContactMobileNumber
         )
-        form.bind(formData).error("contactName").map(x => (x.key, x.message)) shouldBe Some(("contactName", "This name is not valid"))
+        form.bind(formData).error("contactName").map(x => (x.key, x.message)) shouldBe
+          Some(("contactName", "Tell us the contact name using only letters (without accents), hyphens and apostrophes"))
       }
 
       "contains .'s in name" in {
@@ -307,8 +309,9 @@ class CompanyContactFormSpec extends SCRSSpec with CompanyContactDetailsFixture 
         "contactDaytimeTelephoneNumber" -> validContactDaytimeTelephoneNumber,
         "contactMobileNumber" -> validContactMobileNumber
         )
-        form.bind(formData).error("contactName").map(x => (x.key, x.message)) shouldBe Some(("contactName" ,"Enter a name without using full stops"))
-        }
+        form.bind(formData).error("contactName").map(x => (x.key, x.message)) shouldBe
+          Some(("contactName" ,"Enter a name without using full stops"))
+      }
 
       "contains an illegal character of #" in {
         val formData = Map(
@@ -317,7 +320,8 @@ class CompanyContactFormSpec extends SCRSSpec with CompanyContactDetailsFixture 
           "contactDaytimeTelephoneNumber" -> validContactDaytimeTelephoneNumber,
           "contactMobileNumber" -> validContactMobileNumber
         )
-        form.bind(formData).error("contactName").map(x => (x.key, x.message)) shouldBe Some(("contactName" ,"This name is not valid"))
+        form.bind(formData).error("contactName").map(x => (x.key, x.message)) shouldBe
+          Some(("contactName" ,"Tell us the contact name using only letters (without accents), hyphens and apostrophes"))
       }
 
       "the first name has a length of over 100 characters (101)" in {
