@@ -136,13 +136,12 @@ page.reg.company-contact-details.label-four=Other contact number
 page.reg.company-contact-details.validation.chooseOne=Enter at least one of the following contact details
 page.reg.company-contact-details.helpMessage1=Provide at least one of the following contact details.
 #General validation messages
-validation.name=This name is not valid
+validation.name=Tell us the contact name using only letters (without accents), hyphens and apostrophes
 validation.name.noSurname=A surname is required
 validation.name.full-stop=Enter a name without using full stops
 validation.firstMaxLength=Enter a first name that’s 100 characters or less
 validation.middleMaxLength=Enter a middle name that’s 100 characters or less
 validation.surnameMaxLength=Enter a last name that’s 100 characters or less
-validation.maxLength=Maximum length is 300
 validation.email=Enter a valid email address
 validation.emailtoolong=Enter an email address using 70 characters or less
 validation.phone-number=The phone number you have provided is invalid
