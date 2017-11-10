@@ -147,18 +147,47 @@ class CompanyContactFormSpec extends SCRSSpec with CompanyContactDetailsFixture 
   "Company contact name" should {
 
     val form = CompanyContactForm.form
-    val contactName300 = randStr(150) + " " + randStr(149)
-    val contactName301 = randStr(301)
+    val contactNameFirst101 = randStr(101) + " " + "middle" + " " + "surname"
+    val contactNameFirst100 = randStr(100) + " " + "middle" + " " + "surname"
+    val contactNameMiddle101 = "first" + " " + randStr(101) + " " + "surname"
+    val contactNameMiddle100 = "first" + " " + randStr(100) + " " + "surname"
+    val contactSurname101 = "first" + " " + "middle" + " " + randStr(101)
+    val contactSurname100 = "first" + " " + "middle" + " " + randStr(100)
+
     val validContactEmail = "foo@bar.wibble"
     val validContactDaytimeTelephoneNumber = "0123 456 7890"
     val validContactMobileNumber = "07123 456 789"
 
     "will be successfully displayed" when {
 
-      "the name has a length of exactly 300 characters" in {
+      "the first name has a length of exactly 100 characters" in {
 
         val formData = Map(
-          "contactName" -> contactName300,
+          "contactName" -> contactNameFirst100,
+          "contactEmail" -> validContactEmail,
+          "contactDaytimeTelephoneNumber" -> validContactDaytimeTelephoneNumber,
+          "contactMobileNumber" -> validContactMobileNumber
+        )
+
+        assertFormSuccess(form, formData)
+      }
+
+      "the middle name has a length of exactly 100 characters" in {
+
+        val formData = Map(
+          "contactName" -> contactNameFirst100,
+          "contactEmail" -> validContactEmail,
+          "contactDaytimeTelephoneNumber" -> validContactDaytimeTelephoneNumber,
+          "contactMobileNumber" -> validContactMobileNumber
+        )
+
+        assertFormSuccess(form, formData)
+      }
+
+      "the surname has a length of exactly 100 characters" in {
+
+        val formData = Map(
+          "contactName" -> contactNameFirst100,
           "contactEmail" -> validContactEmail,
           "contactDaytimeTelephoneNumber" -> validContactDaytimeTelephoneNumber,
           "contactMobileNumber" -> validContactMobileNumber
@@ -261,6 +290,16 @@ class CompanyContactFormSpec extends SCRSSpec with CompanyContactDetailsFixture 
         form.bind(formData).error("contactName").map(x => (x.key, x.message)) shouldBe Some(("contactName" ,"This name is not valid"))
       }
 
+      "contains invalid characters" in {
+        val formData = Map(
+          "contactName" -> "Tést Füll Nàme",
+          "contactEmail" -> validContactEmail,
+          "contactDaytimeTelephoneNumber" -> validContactDaytimeTelephoneNumber,
+          "contactMobileNumber" -> validContactMobileNumber
+        )
+        form.bind(formData).error("contactName").map(x => (x.key, x.message)) shouldBe Some(("contactName", "This name is not valid"))
+      }
+
       "contains .'s in name" in {
         val formData = Map(
         "contactName" -> "F.oo .Bar W.ibble",
@@ -281,14 +320,36 @@ class CompanyContactFormSpec extends SCRSSpec with CompanyContactDetailsFixture 
         form.bind(formData).error("contactName").map(x => (x.key, x.message)) shouldBe Some(("contactName" ,"This name is not valid"))
       }
 
-      "Has a length of over 300 characters (301)" in {
+      "the first name has a length of over 100 characters (101)" in {
         val formData = Map(
-          "contactName" -> contactName301,
+          "contactName" -> contactNameFirst101,
           "contactEmail" -> validContactEmail,
           "contactDaytimeTelephoneNumber" -> validContactDaytimeTelephoneNumber,
           "contactMobileNumber" -> validContactMobileNumber
         )
-        val error = Seq(FormError("contactName", "Maximum length is 300"))
+        val error = Seq(FormError("contactName", "Enter a first name that’s 100 characters or less"))
+        assertFormError(form, formData, error)
+      }
+
+      "the middle name has a length of over 100 characters (101)" in {
+        val formData = Map(
+          "contactName" -> contactNameMiddle101,
+          "contactEmail" -> validContactEmail,
+          "contactDaytimeTelephoneNumber" -> validContactDaytimeTelephoneNumber,
+          "contactMobileNumber" -> validContactMobileNumber
+        )
+        val error = Seq(FormError("contactName", "Enter a middle name that’s 100 characters or less"))
+        assertFormError(form, formData, error)
+      }
+
+      "the surname has a length of over 100 characters (101)" in {
+        val formData = Map(
+          "contactName" -> contactSurname101,
+          "contactEmail" -> validContactEmail,
+          "contactDaytimeTelephoneNumber" -> validContactDaytimeTelephoneNumber,
+          "contactMobileNumber" -> validContactMobileNumber
+        )
+        val error = Seq(FormError("contactName", "Enter a last name that’s 100 characters or less"))
         assertFormError(form, formData, error)
       }
 

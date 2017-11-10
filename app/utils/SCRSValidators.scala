@@ -26,6 +26,7 @@ import scala.util.{Failure, Success, Try}
 object SCRSValidators {
 
   private val nameRegex = """^[a-zA-Z-]+(?:\W+[a-zA-Z-]+)+$""".r
+  private val contactNameRegex = """^[A-Za-z '\\-]{1,100}$""".r
   private val emailRegex = """^(?!.{71,})([-0-9a-zA-Z.+_]+@[-0-9a-zA-Z.+_]+\.[a-zA-Z]{1,11})$"""
   private val emailRegexDes = """^[A-Za-z0-9\-_.@]{1,70}$"""
   private val phoneNumberRegex = """^[0-9 ]{1,20}$""".r
@@ -129,13 +130,22 @@ object SCRSValidators {
     ).flatten
   }
 
-  val nameValidation: Constraint[String] = Constraint("constraints.nameCheck")({
-    text =>
-      val errors = text.trim match {
-        case t if t.length > MAX_NAME_LENGTH => Seq(ValidationError(Messages("validation.maxLength")))
-        case t if text.split(" ").count(_.length != 0) < 2 => Seq(ValidationError(Messages("validation.name.noSurname")))
-        case t if t.contains(".") => Seq(ValidationError(Messages("validation.name.full-stop")))
-        case nameRegex() => Nil
+  def validNameFormat(name: Name) : Boolean = {
+    val nameFormat: String = contactNameRegex.regex
+    name.firstName.matches(nameFormat) && name.middleName.fold(true)(_.matches(nameFormat)) && name.surname.fold(true)(_.matches(nameFormat))
+  }
+
+  val contactNameValidation: Constraint[String] = Constraint("constraints.nameCheck")({
+    fullName =>
+      val trimmedName = fullName.trim
+      val split: Name = SplitName.splitName(trimmedName)
+      val errors = split match {
+        case _ if trimmedName.contains(".") => Seq(ValidationError(Messages("validation.name.full-stop")))
+        case name if name.firstName.length > 100 => Seq(ValidationError(Messages("validation.firstMaxLength")))
+        case name if name.middleName.fold(false)(_.length > 100) => Seq(ValidationError(Messages("validation.middleMaxLength")))
+        case name if name.surname.isEmpty => Seq(ValidationError(Messages("validation.name.noSurname")))
+        case name if name.surname.get.length > 100 => Seq(ValidationError(Messages("validation.surnameMaxLength")))
+        case name if validNameFormat(name) => Nil
         case _ => Seq(ValidationError(Messages("validation.name")))
       }
       if (errors.isEmpty) Valid else Invalid(errors)
