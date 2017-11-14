@@ -137,8 +137,7 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with F
   }
 
 
-
-  "Sign In" should {
+  "Sign In" should  {
 
     "redirect to ho1 if status is held and no payment reference is present" in {
       setupSimpleAuthMocks()
@@ -147,11 +146,11 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with F
       val csrfToken = UUID.randomUUID().toString
       val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
 
-      stubKeystoreCache(SessionId,"registrationID")
-      stubKeystoreGet(SessionId,regId)
+      stubKeystoreCache(SessionId, "registrationID")
+      stubKeystoreGet(SessionId, regId)
 
-      stubGetRegistrationStatus(regId,"held")
-      stubGet("/company-registration/throttle/check-user-access",200,heldAndNoPaymeentRefsThrottle)
+      stubGetRegistrationStatus(regId, "held")
+      stubGet("/company-registration/throttle/check-user-access",200, heldAndNoPaymeentRefsThrottle)
 
       stubGetUserDetails(userId)
 
@@ -171,10 +170,10 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with F
       val csrfToken = UUID.randomUUID().toString
       val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
 
-      stubKeystoreCache(SessionId,"registrationID")
-      stubKeystoreGet(SessionId,regId)
+      stubKeystoreCache(SessionId, "registrationID")
+      stubKeystoreGet(SessionId, regId)
 
-      stubGetRegistrationStatus(regId,"locked")
+      stubGetRegistrationStatus(regId, "locked")
       stubGet("/company-registration/throttle/check-user-access",200, lockedThrottle)
 
       stubGetUserDetails(userId)
