@@ -346,7 +346,7 @@ trait TestEndpointController extends FrontendController with Actions with Common
   //http:localhost:9870/register-blah/restart
   //register-for-blah/restart
 
-  def dashboardStubbed(payeStatus:String="draft",incorpCTStatus:String ="held",cancelURL:String="true",restartURL:String="true") = Action {
+  def dashboardStubbed(payeStatus:String="draft",incorpCTStatus:String ="held",cancelURL:String="true",restartURL:String="true", ackRefStatus:String="ackrefStatuses") = Action {
     implicit request =>
       val incorpAndCTDash = IncorpAndCTDashboard(
         incorpCTStatus,
@@ -356,7 +356,7 @@ trait TestEndpointController extends FrontendController with Actions with Common
         Some("crn"),
         Some("submissionDate"),
         Some("ackRef"),
-        Some("ackrefStatuses")
+        Some(ackRefStatus)
       )
       val cancelUrl = if(cancelURL == "true") Some("foo") else None
       val restartUrl = if(restartURL=="true") Some("foo") else None

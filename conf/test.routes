@@ -41,6 +41,7 @@ GET       /test-endpoints                                controllers.test.TestEn
 GET       /fetch-addresses                               controllers.test.TestEndpointController.fetchPrePopAddresses
 GET       /fetch-contact-details                         controllers.test.TestEndpointController.fetchPrePopCompanyContactDetails
 
-GET      /dashboardStubbed                               controllers.test.TestEndpointController.dashboardStubbed(payeStatus:String ?= "draft",incorpCTStatus:String ?= "held",cancelURL:String ?= "true",restartURL:String ?="true")
+GET      /dashboardStubbed                               controllers.test.TestEndpointController.dashboardStubbed(payeStatus:String ?= "notEligible",incorpCTStatus:String ?= "acknowledged",cancelURL:String ?= "true",restartURL:String ?="true", ackRefStatus:String ?= "ackRefStatuses")
+GET      /dashboardStubbed/:ackRefStatus                               controllers.test.TestEndpointController.dashboardStubbed(payeStatus:String ?= "notEligible",incorpCTStatus:String ?= "acknowledged",cancelURL:String ?= "true",restartURL:String ?="true", ackRefStatus)
 
 GET      /hand-off-6                                     controllers.test.TestEndpointController.handOff6(transactionId ?= "TRANS_ID-92836405817")

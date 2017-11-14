@@ -484,7 +484,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
         result =>
           val document = Jsoup.parse(contentAsString(result))
           document.title() shouldBe "Your business registration overview"
-          document.getElementById("legacyVATStatusText").text() shouldBe "Register using another HMRC service"
+          document.getElementById("legacyVATStatusText").text() shouldBe "Register using another HMRC service (link opens in a new tab)"
           document.getElementById("vatUrl").attr("href") shouldBe "https://online.hmrc.gov.uk/registration/newbusiness/introduction"
       }
     }
@@ -510,7 +510,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
         result =>
           val document = Jsoup.parse(contentAsString(result))
           document.title() shouldBe "Your business registration overview"
-          document.getElementById("legacyVATStatusText").text() shouldBe "Register using another HMRC service"
+          document.getElementById("legacyVATStatusText").text() shouldBe "Register using another HMRC service (link opens in a new tab)"
           document.getElementById("vatUrl").attr("href") shouldBe "https://online.hmrc.gov.uk/registration/newbusiness/introduction"
       }
     }
@@ -536,7 +536,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
         result =>
           val document = Jsoup.parse(contentAsString(result))
           document.title() shouldBe "Your business registration overview"
-          document.getElementById("legacyVATStatusText").text() shouldBe "Register using another HMRC service"
+          document.getElementById("legacyVATStatusText").text() shouldBe "Register using another HMRC service (link opens in a new tab)"
           document.getElementById("vatUrl").attr("href") shouldBe "https://online.hmrc.gov.uk/registration/newbusiness/introduction"
       }
     }
