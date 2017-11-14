@@ -19,8 +19,9 @@ package audit.events
 import models.CHROAddress
 import play.api.libs.json.{JsDefined, JsString, JsValue, Json}
 import play.api.test.FakeRequest
-import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.audit.model.ExtendedDataEvent
 
 class ROUsedAsPPOBAuditEventSpec extends UnitSpec {
 
@@ -99,6 +100,8 @@ class ROUsedAsPPOBAuditEventSpec extends UnitSpec {
   "ROUsedAsPPOBAuditEvent" should {
 
     "have correct auditType and detail" in {
+      implicit val format = Json.format[ExtendedDataEvent]
+
       val detail = ROUsedAsPPOBAuditEventDetail(
         "regId12345", "credId12345", "testCompanyName",
         CHROAddress(

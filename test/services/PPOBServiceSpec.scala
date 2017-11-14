@@ -18,13 +18,12 @@ package services
 
 
 import builders.AuthBuilder
-import fixtures.{AddressFixture, UserDetailsFixture, CompanyDetailsFixture, PPOBFixture}
+import fixtures.{AddressFixture, CompanyDetailsFixture, PPOBFixture, UserDetailsFixture}
 import helpers.SCRSSpec
 import models._
 import play.api.test.FakeRequest
 import uk.gov.hmrc.play.audit.http.connector.AuditResult.Success
 import uk.gov.hmrc.play.frontend.auth.AuthContext
-import uk.gov.hmrc.play.http.HeaderCarrier
 import utils.{SCRSException, SCRSExceptions}
 import org.mockito.Mockito._
 import org.mockito.Matchers
@@ -33,7 +32,8 @@ import play.api.libs.json.Json
 import play.api.mvc.RequestHeader
 import uk.gov.hmrc.http.cache.client.CacheMap
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.http.HeaderCarrier
 
 class PPOBServiceSpec extends SCRSSpec with CompanyDetailsFixture with SCRSExceptions with PPOBFixture
   with UserDetailsFixture with AddressFixture {
@@ -68,10 +68,10 @@ class PPOBServiceSpec extends SCRSSpec with CompanyDetailsFixture with SCRSExcep
     )(Matchers.any[HeaderCarrier]()))
       .thenReturn(Future.successful(expectedDetails))
 
-    when(mockAuthConnector.getUserDetails[UserDetailsModel](Matchers.any[AuthContext]())(Matchers.any(), Matchers.any()))
+    when(mockAuthConnector.getUserDetails[UserDetailsModel](Matchers.any[AuthContext]())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]()))
       .thenReturn(Future.successful(userDetailsModel))
 
-    when(mockAuditConnector.sendEvent(Matchers.any())(Matchers.any(), Matchers.any()))
+    when(mockAuditConnector.sendExtendedEvent(Matchers.any())(Matchers.any(), Matchers.any()))
       .thenReturn(Future.successful(Success))
 
     mockS4LClear(mockS4LConnector)

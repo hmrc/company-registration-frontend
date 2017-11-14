@@ -28,12 +28,12 @@ import play.api.mvc.Call
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.frontend.auth.AuthContext
 import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
-import uk.gov.hmrc.play.http.{HeaderCarrier, HttpException}
 import utils.{SCRSExceptions, SCRSFeatureSwitches}
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 import scala.concurrent.Future
 import scala.util.control.NoStackTrace
+import uk.gov.hmrc.http.{ HeaderCarrier, HttpException }
 
 object DashboardService extends DashboardService with ServicesConfig {
   val keystoreConnector = KeystoreConnector

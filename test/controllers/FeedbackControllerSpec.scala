@@ -17,7 +17,9 @@
 package controllers.feedback
 
 import config.AppConfig
-//import controllers.feedback.FeedbackController
+import uk.gov.hmrc.play.http.ws.{WSPost}
+
+import scala.concurrent.ExecutionContext
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
@@ -27,17 +29,16 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
 import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
-import uk.gov.hmrc.play.http.{HttpGet, HttpPost, HttpResponse}
-import uk.gov.hmrc.play.http.ws.WSHttp
 import uk.gov.hmrc.play.partials.{CachedStaticHtmlPartialRetriever, FormPartialRetriever, HtmlPartial}
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.{ HttpGet, HttpPost, HttpResponse }
 
 class FeedbackControllerSpec extends UnitSpec with MockitoSugar with WithFakeApplication {
   val fakeRequest = FakeRequest("GET", "/")
 
-  val mockHttp = mock[WSHttp]
+  val mockHttp = mock[HttpPost with WSPost]
 
   trait Setup {
 
@@ -95,7 +96,7 @@ class FeedbackControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
   "POST /feedback" should {
     val fakePostRequest = FakeRequest("POST", "/register-your-company/feedback").withFormUrlEncodedBody("test" -> "test")
     "return form with thank you for valid selections" in new Setup {
-      when(mockHttp.POSTForm[HttpResponse](Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(
+      when(mockHttp.POSTForm[HttpResponse](Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]())).thenReturn(
         Future.successful(HttpResponse(Status.OK, responseString = Some("1234"))))
 
       val result = target.submit(fakePostRequest)
@@ -103,21 +104,21 @@ class FeedbackControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
     }
 
     "return form with errors for invalid selections" in new Setup {
-      when(mockHttp.POSTForm[HttpResponse](Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(
+      when(mockHttp.POSTForm[HttpResponse](Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]())).thenReturn(
         Future.successful(HttpResponse(Status.BAD_REQUEST, responseString = Some("<p>:^(</p>"))))
       val result = target.submit(fakePostRequest)
       status(result) shouldBe Status.BAD_REQUEST
     }
 
     "return error for other http code back from contact-frontend" in new Setup {
-      when(mockHttp.POSTForm[HttpResponse](Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(
+      when(mockHttp.POSTForm[HttpResponse](Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]())).thenReturn(
         Future.successful(HttpResponse(418))) // 418 - I'm a teapot
       val result = target.submit(fakePostRequest)
       status(result) shouldBe Status.INTERNAL_SERVER_ERROR
     }
 
     "return internal server error when there is an empty form" in new Setup {
-      when(mockHttp.POSTForm[HttpResponse](Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(
+      when(mockHttp.POSTForm[HttpResponse](Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]())).thenReturn(
         Future.successful(HttpResponse(Status.OK, responseString = Some("1234"))))
 
       val result = target.submit(fakeRequest)

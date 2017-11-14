@@ -18,14 +18,13 @@ package services
 
 import _root_.connectors.{BusinessRegistrationConnector, PlatformAnalyticsConnector}
 import builders.AuthBuilder
-import fixtures.{UserDetailsFixture, CompanyContactDetailsFixture}
+import fixtures.{CompanyContactDetailsFixture, UserDetailsFixture}
 import helpers.SCRSSpec
 import models._
 import org.mockito.Matchers
 import org.mockito.Mockito._
-import uk.gov.hmrc.play.http.HeaderCarrier
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class CompanyContactDetailsServiceSpec extends SCRSSpec with CompanyContactDetailsFixture with UserDetailsFixture {
 
@@ -56,7 +55,7 @@ class CompanyContactDetailsServiceSpec extends SCRSSpec with CompanyContactDetai
     "return a generated company contact model when no contact details record exists but user details retrieves a record" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
       CTRegistrationConnectorMocks.retrieveContactDetails(CompanyContactDetailsNotFoundResponse)
-      when(mockAuthConnector.getUserDetails[UserDetailsModel](Matchers.any())(Matchers.any(), Matchers.any()))
+      when(mockAuthConnector.getUserDetails[UserDetailsModel](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(userDetailsModel))
 
       await(service.fetchContactDetails) shouldBe companyContactModelFromUserDetails
@@ -65,7 +64,7 @@ class CompanyContactDetailsServiceSpec extends SCRSSpec with CompanyContactDetai
     "return a company contact model with no email when a record is retrieved from user details with a DES invalid email" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
       CTRegistrationConnectorMocks.retrieveContactDetails(CompanyContactDetailsNotFoundResponse)
-      when(mockAuthConnector.getUserDetails[UserDetailsModel](Matchers.any())(Matchers.any(), Matchers.any()))
+      when(mockAuthConnector.getUserDetails[UserDetailsModel](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(userDetailsModel.copy(email = "invalid+des@email.com")))
       when(mockPlatformAnalyticsConn.sendEvents(Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(()))
@@ -81,7 +80,7 @@ class CompanyContactDetailsServiceSpec extends SCRSSpec with CompanyContactDetai
 
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
       CTRegistrationConnectorMocks.retrieveContactDetails(CompanyContactDetailsNotFoundResponse)
-      when(mockAuthConnector.getUserDetails[UserDetailsModel](Matchers.any())(Matchers.any(), Matchers.any()))
+      when(mockAuthConnector.getUserDetails[UserDetailsModel](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(userDetailsModel.copy(email = email71chars)))
 
       val expected = CompanyContactViewModel("testFirstName testMiddleName testLastName", None, None, None)

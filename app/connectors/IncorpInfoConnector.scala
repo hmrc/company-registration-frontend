@@ -20,20 +20,20 @@ import config.WSHttp
 import play.api.libs.json.JsValue
 import services.MetricsService
 import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.http.{HeaderCarrier, HttpException, HttpGet}
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 import scala.concurrent.Future
+import uk.gov.hmrc.http.{CoreGet, HeaderCarrier, HttpException, HttpGet}
 
 object IncorpInfoConnector extends IncorpInfoConnector with ServicesConfig{
-  val http = WSHttp
+  val http : CoreGet = WSHttp
   val incorpInfoUrl = s"${baseUrl("incorp-info")}/incorporation-information"
 
   override val metricsService = MetricsService
 }
 
 trait IncorpInfoConnector {
-  val http: HttpGet
+  val http: CoreGet
   val incorpInfoUrl: String
 
   val metricsService: MetricsService

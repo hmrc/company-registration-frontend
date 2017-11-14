@@ -20,11 +20,11 @@ import config.WSHttp
 import play.api.Logger
 import play.api.libs.json.{Json, Writes}
 import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.http.{HttpResponse, HeaderCarrier, HttpPost}
 
 import scala.concurrent.Future
 import scala.util.Random
-import scala.concurrent.ExecutionContext.Implicits.global
+import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
+import uk.gov.hmrc.http.{CorePost, HeaderCarrier, HttpPost, HttpResponse}
 
 case class DimensionValue(index: String, value: String)
 
@@ -53,7 +53,7 @@ object PlatformAnalyticsConnector extends PlatformAnalyticsConnector with Servic
 
 trait PlatformAnalyticsConnector {
   val serviceUrl: String
-  val http: HttpPost
+  val http: HttpPost with CorePost
   val gaClientId: String
 
   def sendEvents(events: GAEvent*)(implicit hc: HeaderCarrier): Future[Unit] = sendEvents(AnalyticsRequest(gaClientId, events))

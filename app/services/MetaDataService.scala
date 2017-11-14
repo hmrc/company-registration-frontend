@@ -19,11 +19,11 @@ package services
 import connectors.{BusinessRegistrationConnector, BusinessRegistrationSuccessResponse, KeystoreConnector}
 import models.{AboutYouChoice, AboutYouChoiceForm, BusinessRegistration}
 import play.api.Logger
-import uk.gov.hmrc.play.http.HeaderCarrier
 import utils.SCRSExceptions
 
 import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
+import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
+import uk.gov.hmrc.http.HeaderCarrier
 
 object MetaDataService extends MetaDataService {
   val businessRegConnector = BusinessRegistrationConnector

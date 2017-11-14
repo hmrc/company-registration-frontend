@@ -25,10 +25,10 @@ import services.MetricsService
 import uk.gov.hmrc.play.http.ws.WSHttp
 import play.api.libs.json._
 import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.http.{HeaderCarrier, HttpPost}
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 import scala.concurrent.Future
+import uk.gov.hmrc.http.{ HeaderCarrier, HttpPost }
 
 object DeskproConnectorImpl extends DeskproConnector with ServicesConfig {
   val metricsService: MetricsService = MetricsService

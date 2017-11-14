@@ -27,12 +27,12 @@ import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.frontend.auth.AuthContext
 import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
-import uk.gov.hmrc.play.http.HeaderCarrier
 import utils.SCRSExceptions
 import models.{Address => OldAddress}
 
 import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
+import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
+import uk.gov.hmrc.http.HeaderCarrier
 
 object PPOBService extends PPOBService {
   val compRegConnector = CompanyRegistrationConnector
@@ -70,7 +70,7 @@ trait PPOBService extends SCRSExceptions {
   def auditROAddress(regId: String, userDetails: UserDetailsModel, companyName: String, chro: CHROAddress)
                     (implicit hc: HeaderCarrier, request: Request[AnyContent]): Future[AuditResult] = {
     val event = new ROUsedAsPPOBAuditEvent(ROUsedAsPPOBAuditEventDetail(regId, userDetails.authProviderId, companyName, chro))
-    auditConnector.sendEvent(event)
+    auditConnector.sendExtendedEvent(event)
   }
 
   def buildAddress(cD: CompanyDetails, addressType: String, optAddress: Option[NewAddress]): CompanyDetails = {

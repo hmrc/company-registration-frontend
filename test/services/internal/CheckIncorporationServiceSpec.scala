@@ -20,11 +20,11 @@ import connectors.{CohoApiSuccessResponse, CohoAPIConnector}
 import org.mockito.Matchers
 import org.scalatest.mockito.MockitoSugar
 import play.api.libs.json.Json
-import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
 import org.mockito.Mockito._
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.HeaderCarrier
 
 class CheckIncorporationServiceSpec extends UnitSpec with MockitoSugar {
 

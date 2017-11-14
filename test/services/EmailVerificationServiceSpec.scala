@@ -37,11 +37,11 @@ import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.frontend.auth.AuthContext
 import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
-import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import uk.gov.hmrc.play.audit.http.connector.AuditResult.Success
 
 import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.http.HeaderCarrier
 
 
 
@@ -178,7 +178,7 @@ class EmailVerificationServiceSpec extends UnitSpec with MockitoSugar with WithF
       await(emailService.getEmail("", Some(defaultEmail), None)) shouldBe defaultEmail
     }
     "return the email from session when none is provided" in new Setup {
-      when(mockAuthConnector.getUserDetails[UserDetailsModel](Matchers.any())(Matchers.any(), Matchers.any()))
+      when(mockAuthConnector.getUserDetails[UserDetailsModel](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]()))
         .thenReturn(userDetailsModel)
 
       when(mockCrConnector.updateEmail(Matchers.eq(regId), Matchers.any())(Matchers.any()))
@@ -198,13 +198,13 @@ class EmailVerificationServiceSpec extends UnitSpec with MockitoSugar with WithF
       when(mockEmailConnector.checkVerifiedEmail(Matchers.anyString())(Matchers.any()))
       .thenReturn(Future.successful(true))
 
-      when(mockAuthConnector.getIds[UserIDs](Matchers.any[AuthContext]())(Matchers.any[HeaderCarrier](), Matchers.any()))
+      when(mockAuthConnector.getIds[UserIDs](Matchers.any[AuthContext]())(Matchers.any[HeaderCarrier](), Matchers.any(), Matchers.any[ExecutionContext]()))
       .thenReturn(Future.successful(UserIDs("testEXID","testIID")))
 
       when(mockKsConnector.cache(Matchers.eq("email"), Matchers.any())(Matchers.any(), Matchers.any()))
       .thenReturn(Future.successful(CacheMap("x", Map())))
 
-      when(mockAuthConnector.getUserDetails[UserDetailsModel](Matchers.any())(Matchers.any(), Matchers.any()))
+      when(mockAuthConnector.getUserDetails[UserDetailsModel](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(userDetailsModel))
 
       when(mockCrConnector.updateEmail(Matchers.eq(regId), Matchers.any[Email]())(Matchers.any[HeaderCarrier]()))
@@ -212,7 +212,7 @@ class EmailVerificationServiceSpec extends UnitSpec with MockitoSugar with WithF
 
       val captor = ArgumentCaptor.forClass(classOf[EmailVerifiedEvent])
 
-      when(mockAuditConnector.sendEvent(captor.capture())(Matchers.any[HeaderCarrier](), Matchers.any[ExecutionContext]()))
+      when(mockAuditConnector.sendExtendedEvent(captor.capture())(Matchers.any[HeaderCarrier](), Matchers.any[ExecutionContext]()))
       .thenReturn(Future.successful(Success))
 
       await(emailService.verifyEmailAddress("testEmail", regId)) shouldBe Some(true)
@@ -223,7 +223,7 @@ class EmailVerificationServiceSpec extends UnitSpec with MockitoSugar with WithF
       when(mockEmailConnector.checkVerifiedEmail(Matchers.anyString())(Matchers.any()))
         .thenReturn(Future.successful(false))
 
-      when(mockAuthConnector.getIds[UserIDs](Matchers.any[AuthContext]())(Matchers.any[HeaderCarrier](), Matchers.any()))
+      when(mockAuthConnector.getIds[UserIDs](Matchers.any[AuthContext]())(Matchers.any[HeaderCarrier](), Matchers.any(), Matchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(UserIDs("testEXID","testIID")))
 
       when(mockKsConnector.cache(Matchers.eq("email"), Matchers.any())(Matchers.any(), Matchers.any()))
@@ -232,7 +232,7 @@ class EmailVerificationServiceSpec extends UnitSpec with MockitoSugar with WithF
       when(mockCrConnector.updateEmail(Matchers.eq(regId), Matchers.any[Email]())(Matchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(None))
 
-      when(mockAuditConnector.sendEvent(Matchers.any[EmailVerifiedEvent]())(Matchers.any[HeaderCarrier](), Matchers.any[ExecutionContext]()))
+      when(mockAuditConnector.sendExtendedEvent(Matchers.any[EmailVerifiedEvent]())(Matchers.any[HeaderCarrier](), Matchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(Success))
 
       await(emailService.verifyEmailAddress("testEmail", regId)) shouldBe Some(false)
@@ -263,15 +263,15 @@ class EmailVerificationServiceSpec extends UnitSpec with MockitoSugar with WithF
       when(mockCrConnector.updateEmail(Matchers.eq(regId), Matchers.any[Email]())(Matchers.any[HeaderCarrier]()))
         .thenAnswer( (i: InvocationOnMock) => Future.successful(Some(i.getArguments()(1).asInstanceOf[Email])) )
 
-      when(mockAuthConnector.getUserDetails[UserDetailsModel](Matchers.any())(Matchers.any(), Matchers.any()))
+      when(mockAuthConnector.getUserDetails[UserDetailsModel](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(userDetailsModel))
 
-      when(mockAuthConnector.getIds[UserIDs](Matchers.any[AuthContext]())(Matchers.any[HeaderCarrier](), Matchers.any()))
+      when(mockAuthConnector.getIds[UserIDs](Matchers.any[AuthContext]())(Matchers.any[HeaderCarrier](), Matchers.any(), Matchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(UserIDs("testEXID","testIID")))
 
       val captor = ArgumentCaptor.forClass(classOf[EmailVerifiedEvent])
 
-      when(mockAuditConnector.sendEvent(captor.capture())(Matchers.any[HeaderCarrier](), Matchers.any[ExecutionContext]()))
+      when(mockAuditConnector.sendExtendedEvent(captor.capture())(Matchers.any[HeaderCarrier](), Matchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(Success))
 
       await(emailService.sendVerificationLink("testEmail", regId)) shouldBe Some(true)

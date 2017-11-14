@@ -29,14 +29,14 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.{AddressLookupFrontendService, AddressLookupService}
 import uk.gov.hmrc.play.frontend.auth.AuthContext
-import uk.gov.hmrc.play.http.{HeaderCarrier, HttpReads}
 import org.mockito.Mockito._
 import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Matchers
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.test.WithFakeApplication
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpReads}
 
 class PPOBControllerSpec extends SCRSSpec with PPOBFixture with AuthBuilder with WithFakeApplication {
 
@@ -204,7 +204,7 @@ class PPOBControllerSpec extends SCRSSpec with PPOBFixture with AuthBuilder with
       mockCheckStatus()
       when(mockPPOBService.saveAddress(Matchers.anyString(), Matchers.anyString(), Matchers.any())(Matchers.any[HeaderCarrier](), Matchers.any()))
         .thenReturn(Future.successful(validCompanyDetails))
-      when(mockAuthConnector.getUserDetails[UserDetailsModel](Matchers.any[AuthContext]())(Matchers.any[HeaderCarrier](), Matchers.any()))
+      when(mockAuthConnector.getUserDetails[UserDetailsModel](Matchers.any[AuthContext]())(Matchers.any[HeaderCarrier](), Matchers.any(), Matchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(validUserDetails))
       when(mockPPOBService.retrieveCompanyDetails(Matchers.anyString())(Matchers.any(), Matchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(validCompanyDetails))
@@ -260,7 +260,7 @@ class PPOBControllerSpec extends SCRSSpec with PPOBFixture with AuthBuilder with
 
     "return a PPOBChoice with a value of PPOB if the supplied ppob option is defined" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
-      when(mockAuthConnector.getIds[UserIDs](Matchers.any())(Matchers.any[HeaderCarrier](), Matchers.any[HttpReads[UserIDs]]()))
+      when(mockAuthConnector.getIds[UserIDs](Matchers.any())(Matchers.any[HeaderCarrier](), Matchers.any[HttpReads[UserIDs]](), Matchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(UserIDs("1", "2")))
 
       when(mockAddressLookupFrontendService.getAddress(Matchers.any[HeaderCarrier](), Matchers.any()))

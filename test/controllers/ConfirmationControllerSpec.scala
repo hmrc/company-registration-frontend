@@ -30,11 +30,11 @@ import play.api.http.Status
 import play.api.i18n.MessagesApi
 import play.api.mvc.Result
 import services.DeskproService
-import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.WithFakeApplication
 import utils.Messages
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.HeaderCarrier
 
 class ConfirmationControllerSpec extends SCRSSpec with CompanyDetailsFixture with WithFakeApplication {
 

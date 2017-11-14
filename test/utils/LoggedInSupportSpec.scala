@@ -20,7 +20,7 @@ import builders.AuthBuilder
 import helpers.SCRSSpec
 import play.api.mvc.Results
 import play.api.test.Helpers._
-import uk.gov.hmrc.play.http.HeaderCarrier
+import uk.gov.hmrc.http.HeaderCarrier
 
 class LoggedInSupportSpec extends SCRSSpec with AuthBuilder {
 

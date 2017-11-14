@@ -26,12 +26,12 @@ import play.api.test.Helpers._
 import models._
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.cache.client.CacheMap
-import uk.gov.hmrc.play.http.{HeaderCarrier, HttpReads}
 import org.mockito.Mockito._
 import org.mockito.Matchers
 import uk.gov.hmrc.play.test.WithFakeApplication
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.http.HeaderCarrier
 
 /**
   * Created by crispy on 11/07/16.
@@ -65,7 +65,7 @@ class SubmissionEndpointControllerSpec extends SCRSSpec with SCRSFixtures with W
   "getAllS4LEntries" should {
     "Return a 200" in new Setup {
 
-      when(mockAuthConnector.getIds[UserIDs](Matchers.any())(Matchers.any(), Matchers.any()))
+      when(mockAuthConnector.getIds[UserIDs](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(userIds))
 
       mockS4LFetchAndGet[SubmissionModel]("SubmissionData", Some(validSubmissionModel))
@@ -77,7 +77,7 @@ class SubmissionEndpointControllerSpec extends SCRSSpec with SCRSFixtures with W
       }
     }
     "Also return a 200 when handback contains no payload" in new Setup {
-      when(mockAuthConnector.getIds[UserIDs](Matchers.any())(Matchers.any(), Matchers.any()))
+      when(mockAuthConnector.getIds[UserIDs](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(userIds))
 
       mockS4LFetchAndGet[SubmissionModel]("SubmissionData", None)

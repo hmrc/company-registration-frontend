@@ -22,11 +22,12 @@ import org.mockito.Mockito.when
 import org.mockito.Matchers
 import play.api.test.FakeRequest
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
-import uk.gov.hmrc.play.audit.model.AuditEvent
-import uk.gov.hmrc.play.http.HeaderCarrier
+import uk.gov.hmrc.play.audit.model.{DataEvent, ExtendedDataEvent}
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
+import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
+import uk.gov.hmrc.http.HeaderCarrier
 
 class QuestionnaireServiceSpec extends UnitSpec with MockitoSugar {
 
@@ -47,14 +48,14 @@ class QuestionnaireServiceSpec extends UnitSpec with MockitoSugar {
     val maximum = QuestionnaireModel("able",Some("why"),"trying","satisfaction",1,"recommend",Some("imp"))
 
     "successfully send a audit event of type QuestionnaireAuditEvent" in new Setup {
-      when(mockAuditConnector.sendEvent(Matchers.any[AuditEvent]())(Matchers.any[HeaderCarrier](), Matchers.any()))
+      when(mockAuditConnector.sendExtendedEvent(Matchers.any[ExtendedDataEvent]())(Matchers.any[HeaderCarrier](), Matchers.any()))
         .thenReturn(Future.successful(expected))
 
       await(service.sendAuditEventOnSuccessfulSubmission(minimum)(hc, FakeRequest())) shouldBe expected
     }
 
     "successfully send a audit event with min data" in new Setup {
-      when(mockAuditConnector.sendEvent(Matchers.any[AuditEvent]())(Matchers.any[HeaderCarrier](), Matchers.any()))
+      when(mockAuditConnector.sendExtendedEvent(Matchers.any[ExtendedDataEvent]())(Matchers.any[HeaderCarrier](), Matchers.any()))
         .thenReturn(Future.successful(expected))
 
       await(service.sendAuditEventOnSuccessfulSubmission(maximum)(hc, FakeRequest())) shouldBe expected

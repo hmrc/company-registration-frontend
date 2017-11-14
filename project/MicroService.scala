@@ -49,7 +49,8 @@ trait MicroService {
       fork in Test := false,
       retrieveManaged := true,
       routesGenerator := StaticRoutesGenerator,
-      routesImport ++= Seq("uk.gov.hmrc.play.binders._")
+      routesImport ++= Seq("uk.gov.hmrc.play.binders._"),
+      scalaVersion := "2.11.11"
     )
     .configs(IntegrationTest)
     .settings(inConfig(IntegrationTest)(Defaults.itSettings): _*)

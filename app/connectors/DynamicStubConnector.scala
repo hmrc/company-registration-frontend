@@ -24,7 +24,8 @@ import uk.gov.hmrc.play.http._
 import play.api.libs.json.{JsValue, Json}
 
 import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
+import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
+import uk.gov.hmrc.http._
 
 object DynamicStubConnector extends DynamicStubConnector with ServicesConfig {
   val http = WSHttp
@@ -34,7 +35,7 @@ object DynamicStubConnector extends DynamicStubConnector with ServicesConfig {
 
 trait DynamicStubConnector {
 
-  val http: HttpGet with HttpPost with HttpPut
+  val http: CoreGet with CorePost with CorePut
   val stubUrl: String
   val busRegDyUrl : String
 

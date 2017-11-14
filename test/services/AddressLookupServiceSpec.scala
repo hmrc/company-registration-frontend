@@ -19,8 +19,8 @@ package services
 import fixtures.AddressLookupFixture
 import helpers.SCRSSpec
 import address.client.RecordSet
-import uk.gov.hmrc.play.http.{HeaderCarrier, HttpReads}
 import play.api.libs.json.{JsResultException}
+import uk.gov.hmrc.http.{ HeaderCarrier, HttpReads }
 
 class AddressLookupServiceSpec extends SCRSSpec with AddressLookupFixture {
 

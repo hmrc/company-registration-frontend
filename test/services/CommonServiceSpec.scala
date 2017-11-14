@@ -19,7 +19,6 @@ package services
 import helpers.SCRSSpec
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.cache.client.CacheMap
-import uk.gov.hmrc.play.http.HeaderCarrier
 import utils.{SCRSException, SCRSExceptions}
 
 class CommonServiceSpec extends SCRSSpec {

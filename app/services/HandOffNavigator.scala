@@ -20,16 +20,16 @@ import config.FrontendConfig
 import models.handoff.{HandOffNavModel, NavLinks, Receiver, Sender}
 import play.api.mvc.{Call, Result}
 import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.http.HeaderCarrier
 import utils.{SCRSExceptions, SCRSFeatureSwitches}
 import controllers.handoff._
 import repositories._
 import uk.gov.hmrc.http.cache.client.CacheMap
 import play.api.mvc.Results.Redirect
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 import scala.concurrent.Future
 import scala.util.control.NoStackTrace
+import uk.gov.hmrc.http.HeaderCarrier
 
 class NavModelNotFoundException extends NoStackTrace
 

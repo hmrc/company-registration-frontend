@@ -21,10 +21,10 @@ import models.Enrolments
 import play.api.libs.json.JsArray
 import uk.gov.hmrc.play.frontend.auth.AuthContext
 import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
-import uk.gov.hmrc.play.http.{HeaderCarrier, HttpGet, HttpReads}
 
 import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
+import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
+import uk.gov.hmrc.http.{CoreGet, HeaderCarrier, HttpGet, HttpReads}
 
 object EnrolmentsService extends EnrolmentsService {
   val authConnector = FrontendAuthConnector
@@ -34,7 +34,7 @@ object EnrolmentsService extends EnrolmentsService {
 trait EnrolmentsService extends {
 
   val authConnector : AuthConnector
-  val http : HttpGet
+  val http : HttpGet with CoreGet
 
   def hasBannedRegimes(user : AuthContext)(implicit hc : HeaderCarrier, reads : HttpReads[List[Enrolments]]) : Future[Boolean] = {
     authConnector.getEnrolments[JsArray](user) map {

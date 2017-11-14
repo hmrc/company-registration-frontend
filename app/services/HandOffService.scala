@@ -27,11 +27,11 @@ import repositories.NavModelRepo
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.frontend.auth.AuthContext
 import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
-import uk.gov.hmrc.play.http.HeaderCarrier
 import utils.{Jwe, JweEncryptor, SCRSExceptions, SCRSFeatureSwitches}
 
 import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
+import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
+import uk.gov.hmrc.http.HeaderCarrier
 
 object HandOffService extends HandOffService {
   val keystoreConnector = KeystoreConnector

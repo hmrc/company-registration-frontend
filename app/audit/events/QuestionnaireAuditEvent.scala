@@ -19,7 +19,7 @@ package audit.events
 import models.QuestionnaireModel
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{AnyContent, Request}
-import uk.gov.hmrc.play.http.HeaderCarrier
+import uk.gov.hmrc.http.HeaderCarrier
 
 class QuestionnaireAuditEvent(questionnaireModel: QuestionnaireModel)(implicit hc:HeaderCarrier, request:Request[AnyContent])
   extends RegistrationAuditEvent(

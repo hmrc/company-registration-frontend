@@ -26,11 +26,11 @@ import org.mockito.Mockito._
 import play.api.libs.json.{JsObject, JsValue, Json}
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.binders.ContinueUrl
-import uk.gov.hmrc.play.http.HeaderCarrier
 import utils._
 
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
+import uk.gov.hmrc.http.HeaderCarrier
 
 class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetailsFixture
   with SubmissionFixture with SCRSExceptions {

@@ -20,13 +20,13 @@ import org.mockito.{ArgumentCaptor, Matchers}
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import play.api.libs.json.{JsValue, Json}
-import uk.gov.hmrc.play.http.logging.Authorization
 import uk.gov.hmrc.play.http.ws.{WSHttp, WSProxy}
-import uk.gov.hmrc.play.http.{BadRequestException, HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.test.UnitSpec
 import utils.{BooleanFeatureSwitch, SCRSFeatureSwitches}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.http.{BadRequestException, HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.http.logging.Authorization
 
 class CohoApiConnectorSpec extends UnitSpec with MockitoSugar {
 
@@ -95,7 +95,7 @@ class CohoApiConnectorSpec extends UnitSpec with MockitoSugar {
     "append the Coho API token to the HeaderCarrier as an Authorization header when using the proxy" in new SetupWithProxy(true) {
       val captor = ArgumentCaptor.forClass(classOf[HeaderCarrier])
 
-      when(mockHTTPProxy.GET[HttpResponse](Matchers.any())(Matchers.any(), captor.capture()))
+      when(mockHTTPProxy.GET[HttpResponse](Matchers.any())(Matchers.any(), captor.capture(), Matchers.any[ExecutionContext]))
         .thenReturn(Future.successful(HttpResponse(200, Some(incorporationDetails))))
 
       await(connector.fetchIncorporationStatus(timepoint, itemsPerPage))
@@ -105,28 +105,28 @@ class CohoApiConnectorSpec extends UnitSpec with MockitoSugar {
     }
 
     "return a CohoApiSuccessResponse with a json response containing details of an incorporation when using the proxy" in new SetupWithProxy(true) {
-      when(mockHTTPProxy.GET[HttpResponse](Matchers.any())(Matchers.any(), Matchers.any()))
+      when(mockHTTPProxy.GET[HttpResponse](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]))
         .thenReturn(Future.successful(HttpResponse(200, Some(incorporationDetails))))
 
       await(connector.fetchIncorporationStatus(timepoint, itemsPerPage)) shouldBe CohoApiSuccessResponse(incorporationDetails)
     }
 
     "return a CohoApiSuccessResponse with a json response containing details of an incorporation without using the proxy" in new SetupWithProxy(false) {
-      when(mockHTTP.GET[HttpResponse](Matchers.any())(Matchers.any(), Matchers.any()))
+      when(mockHTTP.GET[HttpResponse](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]))
         .thenReturn(Future.successful(HttpResponse(200, Some(incorporationDetails))))
 
       await(connector.fetchIncorporationStatus(timepoint, itemsPerPage)) shouldBe CohoApiSuccessResponse(incorporationDetails)
     }
 
     "return a CohoApiBadRequestResponse response when a bad request is returned from the http request when using the proxy" in new SetupWithProxy(true) {
-      when(mockHTTPProxy.GET[HttpResponse](Matchers.any())(Matchers.any(), Matchers.any()))
+      when(mockHTTPProxy.GET[HttpResponse](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]))
         .thenReturn(Future.failed(new BadRequestException("ex")))
 
       await(connector.fetchIncorporationStatus(timepoint, itemsPerPage)) shouldBe CohoApiBadRequestResponse
     }
 
     "return a CohoApiBadRequestResponse response when a bad request is returned from the http request without using the proxy" in new SetupWithProxy(false) {
-      when(mockHTTP.GET[HttpResponse](Matchers.any())(Matchers.any(), Matchers.any()))
+      when(mockHTTP.GET[HttpResponse](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]))
         .thenReturn(Future.failed(new BadRequestException("ex")))
 
       await(connector.fetchIncorporationStatus(timepoint, itemsPerPage)) shouldBe CohoApiBadRequestResponse
@@ -135,14 +135,14 @@ class CohoApiConnectorSpec extends UnitSpec with MockitoSugar {
     val ex = new Exception("")
 
     "return a CohoApiErrorResponse if an unexpected exception is caught when using the proxy" in new SetupWithProxy(true) {
-      when(mockHTTPProxy.GET[HttpResponse](Matchers.any())(Matchers.any(), Matchers.any()))
+      when(mockHTTPProxy.GET[HttpResponse](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]))
         .thenReturn(Future.failed(ex))
 
       await(connector.fetchIncorporationStatus(timepoint, itemsPerPage)) shouldBe CohoApiErrorResponse(ex)
     }
 
     "return a CohoApiErrorResponse if an unexpected exception is caught without using the proxy" in new SetupWithProxy(false) {
-      when(mockHTTP.GET[HttpResponse](Matchers.any())(Matchers.any(), Matchers.any()))
+      when(mockHTTP.GET[HttpResponse](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]))
         .thenReturn(Future.failed(ex))
 
       await(connector.fetchIncorporationStatus(timepoint, itemsPerPage)) shouldBe CohoApiErrorResponse(ex)

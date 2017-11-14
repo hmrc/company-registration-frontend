@@ -23,12 +23,13 @@ import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http._
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 import scala.concurrent.Future
+import uk.gov.hmrc.http._
 
 object BusinessRegistrationConnector extends BusinessRegistrationConnector with ServicesConfig {
   val businessRegUrl = baseUrl("business-registration")
-  val http = WSHttp
+  val http : CoreGet with CorePost = WSHttp
 }
 
 sealed trait BusinessRegistrationResponse
@@ -40,7 +41,7 @@ case class BusinessRegistrationErrorResponse(err: Exception) extends BusinessReg
 trait BusinessRegistrationConnector {
 
   val businessRegUrl: String
-  val http: HttpGet with HttpPost
+  val http: CoreGet with CorePost
 
   def createMetadataEntry(implicit hc: HeaderCarrier): Future[BusinessRegistration] = {
     val json = Json.toJson[BusinessRegistrationRequest](BusinessRegistrationRequest("en"))

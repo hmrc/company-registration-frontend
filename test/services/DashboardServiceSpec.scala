@@ -26,10 +26,10 @@ import org.joda.time.DateTime
 import play.api.libs.json.{JsObject, JsValue, Json}
 import org.mockito.Mockito._
 import org.mockito.Matchers.{any, eq => eqTo}
-import uk.gov.hmrc.play.http.{HeaderCarrier, HttpException}
 import utils.{BooleanFeatureSwitch, SCRSFeatureSwitches}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpException}
 
 class DashboardServiceSpec extends SCRSSpec with AuthHelpers {
 
@@ -160,7 +160,7 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers {
 
     "return a CouldNotBuild DashboardStatus when the status of the registration is draft" in new SetupWithDash(draftDash) {
       when(mockServiceConnector.getStatus(any())(any())).thenReturn(Future.successful(SuccessfulResponse(payeStatus)))
-      when(mockAuthConnector.getEnrolments[Option[Seq[Enrolment]]](any())(any(), any()))
+      when(mockAuthConnector.getEnrolments[Option[Seq[Enrolment]]](any())(any(), any(), any[ExecutionContext]()))
         .thenReturn(Future.successful(Some(Seq(vatEnrolment))))
 
       mockPayeFeature(true)
@@ -171,7 +171,7 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers {
 
     "return a RejectedIncorp DashboardStatus when the status of the registration is rejected" in new SetupWithDash(rejectedDash) {
       when(mockServiceConnector.getStatus(any())(any())).thenReturn(Future.successful(SuccessfulResponse(payeStatus)))
-      when(mockAuthConnector.getEnrolments[Option[Seq[Enrolment]]](any())(any(), any()))
+      when(mockAuthConnector.getEnrolments[Option[Seq[Enrolment]]](any())(any(), any(), any[ExecutionContext]()))
         .thenReturn(Future.successful(Some(Seq(vatEnrolment))))
 
       mockPayeFeature(true)
@@ -182,7 +182,7 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers {
 
     "return a DashboardBuilt DashboardStatus when the status of the registration is any other status" in new SetupWithDash(heldDash) {
       when(mockServiceConnector.getStatus(any())(any())).thenReturn(Future.successful(SuccessfulResponse(payeStatus)))
-      when(mockAuthConnector.getEnrolments[Option[Seq[Enrolment]]](any())(any(), any()))
+      when(mockAuthConnector.getEnrolments[Option[Seq[Enrolment]]](any())(any(), any(), any[ExecutionContext]()))
         .thenReturn(Future.successful(Some(Seq(vatEnrolment))))
 
       mockPayeFeature(true)
@@ -250,7 +250,7 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers {
       val payeDash = ServiceDashboard(Statuses.NOT_ELIGIBLE, None, None, payeLinks)
       mockPayeFeature(true)
       when(mockServiceConnector.getStatus(any())(any())).thenReturn(Future.successful(NotStarted))
-      when(mockAuthConnector.getEnrolments[Option[Seq[Enrolment]]](any())(any(), any()))
+      when(mockAuthConnector.getEnrolments[Option[Seq[Enrolment]]](any())(any(), any(), any[ExecutionContext]()))
         .thenReturn(Future.successful(Some(Seq(payeEnrolment))))
 
       val result = await(service.buildPAYEDashComponent(regId))
@@ -261,7 +261,7 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers {
       val payeDash = ServiceDashboard(Statuses.NOT_STARTED, None, None, payeLinks)
       mockPayeFeature(true)
       when(mockServiceConnector.getStatus(any())(any())).thenReturn(Future.successful(NotStarted))
-      when(mockAuthConnector.getEnrolments[Option[Seq[Enrolment]]](any())(any(), any()))
+      when(mockAuthConnector.getEnrolments[Option[Seq[Enrolment]]](any())(any(), any(), any[ExecutionContext]()))
         .thenReturn(Future.successful(Some(Seq())))
 
       val result = await(service.buildPAYEDashComponent(regId))
@@ -282,7 +282,7 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers {
     val otherEnrolment = Enrolment("OTHER", Seq(EnrolmentIdentifier("test-other-identifier", "test-other-value")), "testState")
 
     "return true when an enrolment already exists for the user" in new Setup {
-      when(mockAuthConnector.getEnrolments[Option[Seq[Enrolment]]](any())(any(), any()))
+      when(mockAuthConnector.getEnrolments[Option[Seq[Enrolment]]](any())(any(), any(), any[ExecutionContext]()))
         .thenReturn(Future.successful(Some(Seq(payeEnrolment))))
 
       val result = await(service.hasEnrolment(List("IR-PAYE")))
@@ -292,7 +292,7 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers {
     "return false" when {
 
       "enrolments are fetched but does not contain one for PAYE" in new Setup {
-        when(mockAuthConnector.getEnrolments[Option[Seq[Enrolment]]](any())(any(), any()))
+        when(mockAuthConnector.getEnrolments[Option[Seq[Enrolment]]](any())(any(), any(), any[ExecutionContext]()))
           .thenReturn(Future.successful(Some(Seq(otherEnrolment))))
 
         val result = await(service.hasEnrolment(List("IR-PAYE")))
@@ -300,7 +300,7 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers {
       }
 
       "a HttpException is thrown" in new Setup {
-        when(mockAuthConnector.getEnrolments[Option[Seq[Enrolment]]](any())(any(), any()))
+        when(mockAuthConnector.getEnrolments[Option[Seq[Enrolment]]](any())(any(), any(), any[ExecutionContext]()))
           .thenReturn(Future.failed(new HttpException("Not Found", 404)))
 
         val result = await(service.hasEnrolment(List("IR-PAYE")))
@@ -308,7 +308,7 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers {
       }
 
       "a unknown Throwable is thrown" in new Setup {
-        when(mockAuthConnector.getEnrolments[Option[Seq[Enrolment]]](any())(any(), any()))
+        when(mockAuthConnector.getEnrolments[Option[Seq[Enrolment]]](any())(any(), any(), any[ExecutionContext]()))
           .thenReturn(Future.failed(new Exception("something went wrong")))
 
         val result = await(service.hasEnrolment(List("IR-PAYE")))

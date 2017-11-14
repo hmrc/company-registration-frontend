@@ -20,13 +20,13 @@ import connectors.AddressLookupConnector
 import fixtures.AddressFixture
 import org.scalatest.mockito.MockitoSugar
 import play.api.test.FakeRequest
-import uk.gov.hmrc.play.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
 import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito.when
 import play.api.mvc.Call
 
 import scala.concurrent.Future
+import uk.gov.hmrc.http.HeaderCarrier
 
 class AddressLookupFrontendServiceSpec extends UnitSpec with MockitoSugar with AddressFixture {
 
