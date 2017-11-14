@@ -93,7 +93,11 @@
 <thead>
     <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
         <td colspan="2">
-            @Messages("page.reg.Dashboard.PAYE.notEligibleWords") <a href=@dash.payeDash.links.otrsURL>@Messages("page.reg.Dashboard.PAYE.notEligibleLink")</a>
+            @Messages("page.reg.Dashboard.PAYE.notEligibleWords")
+            <a href=@dash.payeDash.links.otrsURL target="_blank">
+                @Messages("page.reg.Dashboard.PAYE.notEligibleLink")
+                <div class="visually-hidden">@Messages("page.reg.Dashboard.hiddenOpenNewTab")</div>
+            </a>
         </td>
     </tr>
 </thead>
@@ -230,7 +234,13 @@
 
                     <tbody>
                         <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
-                            <td id="incorpRegisteredText" colspan="2">@Messages("page.reg.Dashboard.incChangeDetailsPrefix") <a href="@cohoSignIn">@Messages("page.reg.Dashboard.incChangeDetailsLinkText")</a>@Messages("page.reg.Dashboard.incChangeDetailsSuffix")</td>
+                            <td id="incorpRegisteredText" colspan="2">@Messages("page.reg.Dashboard.incChangeDetailsPrefix")
+                                <a href="@cohoSignIn" target="_blank">
+                                    @Messages("page.reg.Dashboard.incChangeDetailsLinkText")
+                                    <div class="visually-hidden">@Messages("page.reg.Dashboard.hiddenOpenNewTab")</div>
+                                </a>
+                                @Messages("page.reg.Dashboard.incChangeDetailsSuffix")
+                            </td>
                         </tr>
                     </tbody>
                 }
@@ -311,8 +321,12 @@
                     <thead>
                     <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
                         <td>@Messages("page.reg.Dashboard.wycd")</td>
-                        <td colspan="2"><a href="https://online.hmrc.gov.uk/registration/newbusiness/introduction">
-                            @Messages("page.reg.Dashboard.CTUnsuccessful")</a></td>
+                        <td colspan="2">
+                            <a href="https://online.hmrc.gov.uk/registration/newbusiness/introduction" target="_blank">
+                                @Messages("page.reg.Dashboard.CTUnsuccessful")
+                                <div class="visually-hidden">@Messages("page.reg.Dashboard.hiddenOpenNewTab")</div>
+                            </a>
+                        </td>
                     </tr>
                     </thead>
                 }
@@ -352,7 +366,10 @@
                         <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
                             <td>@Messages("page.reg.Dashboard.status")</td>
                             <td id="legacyVATStatusText">
-                                <a id="vatUrl" href="https://online.hmrc.gov.uk/registration/newbusiness/introduction">@Messages("page.reg.Dashboard.VAT.registerText")</a>
+                                <a id="vatUrl" href="https://online.hmrc.gov.uk/registration/newbusiness/introduction" target="_blank">
+                                    @Messages("page.reg.Dashboard.VAT.registerText")
+                                    <div class="visually-hidden">@Messages("page.reg.Dashboard.hiddenOpenNewTab")</div>
+                                </a>
                             </td>
                         </tr>
                         </thead>

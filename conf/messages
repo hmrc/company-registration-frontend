@@ -390,6 +390,7 @@ page.reg.Dashboard.VAT.helpTextThreshold=The current VAT registration threshold 
 page.reg.Dashboard.VAT.helpTextParagraph1=If a company doesn''t meet these criteria, you can register a company voluntarily if it sells or intends to sell VAT taxable goods or services.
 
 page.reg.Dashboard.status.incomplete=Incomplete
+page.reg.Dashboard.hiddenOpenNewTab=(link opens in a new tab)
 
 page.reg.registrationUnsuccessful.title=Company registration unsuccessful
 page.reg.registrationUnsuccessful.heading=Company registration unsuccessful

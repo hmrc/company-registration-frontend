@@ -157,7 +157,7 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub with F
       response.status shouldBe 200
 
       val doc = Jsoup.parse(response.body)
-      doc.getElementById("legacyVATStatusText").text() shouldBe "Register using another HMRC service"
+      doc.getElementById("legacyVATStatusText").text() shouldBe "Register using another HMRC service (link opens in a new tab)"
       a[NullPointerException] shouldBe thrownBy(doc.getElementById("vatThreshold").text)
     }
 
