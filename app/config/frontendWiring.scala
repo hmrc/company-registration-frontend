@@ -47,15 +47,12 @@ trait WSHttp extends
   WSDelete with HttpDelete with
   WSPatch with HttpPatch with AppName with Hooks
 
-//object WSHttp extends WSGet with WSPut with WSPost with WSDelete with RunMode {
-//  override val hooks = NoneRequired
-//}
 object FrontendAuditConnector extends Auditing with AppName with RunMode {
   override lazy val auditingConfig = LoadAuditingConfig(s"auditing")
 }
 object FrontendAuthConnector extends AuthConnector with ServicesConfig with WSHttp {
   override val serviceUrl = baseUrl("auth")
-  override def http: CoreGet = WSHttpProxy
+  override def http: CoreGet = WSHttp
 }
 
 object WSHttpProxy extends WSHttp with WSProxy with RunMode with HttpAuditing with ServicesConfig {
