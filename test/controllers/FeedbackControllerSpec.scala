@@ -67,15 +67,16 @@ class FeedbackControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
       override def contactFormReferer(implicit request: Request[AnyContent]): String = request.headers.get(REFERER).getOrElse("")
 
       override val applicationConfig: AppConfig = new AppConfig {
-        override val assetsPrefix: String = ""
-        override val reportAProblemNonJSUrl: String = ""
-        override val contactFrontendPartialBaseUrl: String = ""
-        override val analyticsHost: String = ""
-        override val analyticsToken: String = ""
-        override val analyticsAutoLink: String = ""
-        override val reportAProblemPartialUrl: String = ""
-        override val serviceId: String = "SCRS"
-        override val timeoutInSeconds: String = ""
+        override val assetsPrefix = ""
+        override val reportAProblemNonJSUrl = ""
+        override val contactFrontendPartialBaseUrl = ""
+        override val analyticsHost = ""
+        override val analyticsToken = ""
+        override val analyticsAutoLink = ""
+        override val reportAProblemPartialUrl = ""
+        override val serviceId = "SCRS"
+        override val corsRenewHost = Some("")
+        override val timeoutInSeconds = ""
       }
     }
   }

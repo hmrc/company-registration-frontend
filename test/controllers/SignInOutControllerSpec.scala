@@ -45,7 +45,7 @@ class SignInOutControllerSpec extends SCRSSpec
   val mockEmailService = mock[EmailVerificationService]
   val mockEnrolmentsService = mock[EnrolmentsService]
 
-  class Setup {
+  class Setup(val corsHost: Option[String] = None) {
 
     val controller = new SignInOutController {
       override val authConnector = mockAuthConnector
@@ -55,6 +55,7 @@ class SignInOutControllerSpec extends SCRSSpec
       override val enrolmentsService = mockEnrolmentsService
       val keystoreConnector = mockKeystoreConnector
       override val metrics = MetricServiceMock
+      override val corsRenewHost = corsHost
       val cRFEBaseUrl = "test-base-url"
     }
   }
@@ -397,10 +398,20 @@ class SignInOutControllerSpec extends SCRSSpec
 
   "renewSession" should {
     "return 200 when hit with Authorised User" in new Setup {
-      AuthBuilder.showWithAuthorisedUser(controller.renewSession(),mockAuthConnector){a =>
-      status(a) shouldBe 200
+      AuthBuilder.showWithAuthorisedUser(controller.renewSession(),mockAuthConnector){ a =>
+        status(a) shouldBe 200
         contentType(a) shouldBe Some("image/jpeg")
         await(a.body.dataStream.toString).contains("""renewSession.jpg""")  shouldBe true
+        header("Access-Control-Allow-Origin", a) shouldBe None
+        header("Access-Control-Allow-Credentials", a) shouldBe None
+      }
+    }
+
+    "return CORS headers when a cors host is supplied" in new Setup(Some("http://localhost:12345")) {
+      AuthBuilder.showWithAuthorisedUser(controller.renewSession(),mockAuthConnector) { a =>
+        status(a) shouldBe 200
+        header("Access-Control-Allow-Origin", a) shouldBe Some("http://localhost:12345")
+        header("Access-Control-Allow-Credentials", a) shouldBe Some("true")
       }
     }
   }
