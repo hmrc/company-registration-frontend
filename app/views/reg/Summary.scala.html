@@ -46,171 +46,133 @@
     }
 }
 
-@main_template(title = Messages("page.reg.summary.title"), pageScripts = Some(Html(s"""<link rel="stylesheet" href="${routes.Assets.at("stylesheets/summary.css")}">"""))){
+@main_template(title = Messages("page.reg.summary.title")){
 
-    <a id="back" class="link-back" href="@controllers.reg.routes.SummaryController.back()">@Messages("common.button.back")</a>
+  <a id="back" class="link-back" href="@controllers.reg.routes.SummaryController.back()">@Messages("common.button.back")</a>
 
-    <h1 id="main-heading" class="heading-xlarge">@Messages("page.reg.summary.heading")</h1>
+  <h1 id="main-heading" class="heading-large">@Messages("page.reg.summary.heading")</h1>
+  <h2 class="heading-24">@Messages("page.reg.summary.page")</h2>
 
-    <h2 class="heading-24">@Messages("page.reg.summary.page")</h2>
-    <div class="form-group">
-        <table class="check-your-answers multiple-sections">
-            <caption id="applicantTitle" class="heading-medium">@Messages("page.reg.summary.heading.applicant")</caption>
-            <thead class="visuallyhidden">
-                <tr>
-                    <th>@Messages("page.reg.summary.header.question")</th>
-                    <th>@Messages("page.reg.summary.header.answer")</th>
-                    <th>@Messages("page.reg.summary.header.change")</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td class="question">@Messages("page.reg.summary.applicantText")</td>
-                    <td id="applicant" class="answer">@applicant.completionCapacity.capitalize</td>
-                    <td class="change"><a href="about-you" id="change-applicant">@Messages("change")<span class="visuallyhidden">@Messages("page.reg.summary.applicant.change")</span></a></td>
-                </tr>
-            </tbody>
-        </table>
+  <h2 id="applicantTitle" class="heading-medium">@Messages("page.reg.summary.heading.applicant")</h2>
+  <dl class="govuk-check-your-answers cya-questions-short">
+    <div>
+      <dt class="cya-question">@Messages("page.reg.summary.applicantText")</dt>
+      <dd id="applicant" class="cya-answer">@applicant.completionCapacity.capitalize</dd>
+      <dd class="cya-change"><a href="about-you" id="change-applicant">@Messages("change")<span class="visuallyhidden">@Messages("page.reg.summary.applicant.change")</span></a></dd>
+    </div>
+  </dl>
 
-        <table class="check-your-answers multiple-sections">
-            <caption id="companyNameTitle" class="heading-medium">@Messages("page.reg.summary.heading.one")</caption>
-            <thead class="visuallyhidden">
-                <tr>
-                    <th>@Messages("page.reg.summary.header.question")</th>
-                    <th>@Messages("page.reg.summary.header.answer")</th>
-                    <th>@Messages("page.reg.summary.header.change")</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td class="question">@Messages("page.reg.summary.companyNameText")</td>
-                    <td id="companyName" class="answer">@companyName</td>
-                    <td class="change">
-                        <a href='@controllers.reg.routes.SummaryController.summaryBackLink("company_name")' id="change-companyname">@Messages("change")<span class="visuallyhidden">@Messages("page.reg.summary.companyName.change")</span></a>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="question">@Messages("page.reg.summary.ROAddressText")</td>
 
-                    <td id="ROAddress" class="answer">
-                        @{if(s"${roAddress.premises} ${roAddress.address_line_1}".length <= 27) {
-                        formatAddress(s"${roAddress.premises} ${roAddress.address_line_1}")
-                        } else {
-                        formatAddress(roAddress.premises)
-                        formatAddress(roAddress.address_line_1)
-                        }}
-                        @formatAddress(roAddress.address_line_2.fold[String]("")(s => s ))
-                        @formatAddress(roAddress.locality)
-                        @formatAddress(roAddress.region.fold[String]("")(s => s ))
-                        @formatAddress(roAddress.postal_code.fold[String]("")(s => s ))
-                        @formatAddress(roAddress.country)
-                    </td>
-                    <td class="change">
-                        <a href='@controllers.reg.routes.SummaryController.summaryBackLink("company_address")' id="change-roaddress">@Messages("change")<span class="visuallyhidden">@Messages("page.reg.summary.ROAddress.change")</span></a>
-                    </td>
-                </tr>
-
-                <tr>
-                    <td class="question">@Messages("page.reg.summary.jurisdictionText")</td>
-                    <td id="jurisdiction" class="answer">@jurisdiction</td>
-                    <td class="change">
-                        <a href='@controllers.reg.routes.SummaryController.summaryBackLink("company_jurisdiction")' id="change-jurisdiction">@Messages("change")<span class="visuallyhidden">@Messages("page.reg.summary.jurisdiction.change")</span></a>
-                    </td>
-                </tr>
-
-                <tr>
-                    <td class="question">@Messages("page.reg.summary.PPOBAddressText")</td>
-
-                    <td id="PPOBAddress" class="answer">
-                        @{
-                        if(ppob.ppob.addressType == "RO"){
-                        ppobMessage
-                        } else {
-                        Html(
-                        ppob.ppob.address.get.addressLine1 + "<br>" +
-                        ppob.ppob.address.get.addressLine2 + "<br>" +
-                        ppob.ppob.address.get.addressLine3.fold[String]("")(s => s + "<br>") +
-                        ppob.ppob.address.get.addressLine4.fold[String]("")(s => s + "<br>") +
-                        ppob.ppob.address.get.postCode.fold[String]("")(s => s + "<br>") +
-                        ppob.ppob.address.get.country.fold[String]("")(s => s )
-                        )
-                        }
-                        }
-                    </td>
-                    <td class="change"><a href="principal-place-of-business" id="change-ppob">@Messages("change")<span class="visuallyhidden">@Messages("page.reg.summary.PPOBAddress.change")</span></a></td>
-                </tr>
-            </tbody>
-        </table>
-
-        <table class="check-your-answers multiple-sections">
-            <caption id="companyContactDetails" class="heading-medium">@Messages("page.reg.summary.heading.one.b")</caption>
-            <thead class="visuallyhidden">
-                <tr>
-                    <th>@Messages("page.reg.summary.header.question")</th>
-                    <th>@Messages("page.reg.summary.header.answer")</th>
-                    <th>@Messages("page.reg.summary.header.change")</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td class="question">@Messages("page.reg.summary.companyContactName")</td>
-                    <td id="companyContactName" class="answer">@ctContactDets.contactName</td>
-                    <td class="change"><a href="company-contact-details" id="change-contact-details">@Messages("change")<span class="visuallyhidden">@Messages("page.reg.summary.companyContactName.change")</span></a></td>
-                </tr>
-                <tr>
-                    <td class="question">@Messages("page.reg.summary.companyContactEmail")</td>
-                    <td id="companyContactEmail" class="answer">@ctContactDets.contactEmail</td>
-                    <td class="change"><a href="company-contact-details" id="change-contact-details-email">@Messages("change")<span class="visuallyhidden">@Messages("page.reg.summary.companyContactEmail.change")</span></a></td>
-                </tr>
-                <tr>
-                    <td class="question">@Messages("page.reg.summary.companyContactDaytimeTelephoneNumber")</td>
-                    <td id="companyContactDaytimeTelephoneNumber" class="answer">@ctContactDets.contactDaytimeTelephoneNumber</td>
-                    <td class="change"><a href="company-contact-details" id="change-contact-details-phoneNumber">@Messages("change")<span class="visuallyhidden">@Messages("page.reg.summary.companyContactDaytimeTelephoneNumber.change")</span></a></td>
-                </tr>
-                <tr>
-                    <td class="question">@Messages("page.reg.summary.companycontactMobileNumber")</td>
-                    <td id="companycontactMobileNumber" class="answer">@ctContactDets.contactMobileNumber</td>
-                    <td class="change"><a href="company-contact-details" id="change-contact-details-mobileNumber">@Messages("change")<span class="visuallyhidden">@Messages("page.reg.summary.companycontactMobileNumber.change")</span></a></td>
-                </tr>
-            </tbody>
-        </table>
-
-        <table class="check-your-answers multiple-sections">
-            <caption id="companyAccountingTitle" class="heading-medium">@Messages("page.reg.summary.heading.two")</caption>
-            <thead class="visuallyhidden">
-                <tr>
-                    <th>@Messages("page.reg.summary.header.question")</th>
-                    <th>@Messages("page.reg.summary.header.answer")</th>
-                    <th>@Messages("page.reg.summary.header.change")</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td class="question">@Messages("page.reg.summary.startDate")</td>
-                    <td id="startDate" class="answer">@{if(accDate.crnDate == WHEN_REGISTERED){Messages("page.reg.summary.dateRegistered")}
-                        else if(accDate.crnDate == NOT_PLANNING_TO_YET){Messages("page.reg.summary.notPlanningToStartYet")}
-                        else {accDate.toSummaryDate}}</td>
-                    <td class="change"><a href="accounting-dates" id="change-accountingdates">@Messages("change")<span class="visuallyhidden">@Messages("page.reg.summary.startDate.change")</span></a></td>
-                </tr>
-                <tr>
-                    <td class="question">@Messages("page.reg.summary.tradingDetails")</td>
-                    <td id="tradingDetails" class="answer">@readableTrading(tradingDetails)</td>
-                    <td class="change"><a href="trading-details" id="change-trading-details">@Messages("change")<span class="visuallyhidden">@Messages("page.reg.summary.tradingDetails.change")</span></a></td>
-                </tr>
-            </tbody>
-        </table>
+  <h2 id="companyNameTitle" class="heading-medium">@Messages("page.reg.summary.heading.one")</h2>
+  <dl class="govuk-check-your-answers cya-questions-short">
+    <div>
+      <dt class="cya-question">@Messages("page.reg.summary.companyNameText")</dt>
+      <dd id="companyName" class="cya-answer">@companyName</dd>
+      <dd class="cya-change"><a href='@controllers.reg.routes.SummaryController.summaryBackLink("company_name")' id="change-companyname">@Messages("change")<span class="visuallyhidden">@Messages("page.reg.summary.companyName.change")</span></a></dd>
     </div>
 
-    <div class="form-group">
-        <p>@Messages("page.reg.summary.pleaseReview")</p>
-        <div class="indent">
-            <p>@messages("page.reg.summary.information.indent")</p>
-        </div>
+    <div>
+      <dt class="cya-question">@Messages("page.reg.summary.ROAddressText")</dt>
+      <dd id="ROAddress" class="cya-answer">
+        @{if(s"${roAddress.premises} ${roAddress.address_line_1}".length <= 27) {
+        formatAddress(s"${roAddress.premises} ${roAddress.address_line_1}")
+        } else {
+        formatAddress(roAddress.premises)
+        formatAddress(roAddress.address_line_1)
+        }}
+        @formatAddress(roAddress.address_line_2.fold[String]("")(s => s ))
+        @formatAddress(roAddress.locality)
+        @formatAddress(roAddress.region.fold[String]("")(s => s ))
+        @formatAddress(roAddress.postal_code.fold[String]("")(s => s ))
+        @formatAddress(roAddress.country)
+      </dd>
+      <dd class="cya-change"><a href='@controllers.reg.routes.SummaryController.summaryBackLink("company_address")' id="change-roaddress">@Messages("change")<span class="visuallyhidden">@Messages("page.reg.summary.ROAddress.change")</span></a></dd>
     </div>
-    @form(action = controllers.reg.routes.SummaryController.submit()) {
-    <div class="form-group">
-        <input class="button" type="submit" id="next" value="@Messages("common.button.ConfirmAndContinue")">
+
+    <div>
+      <dt class="cya-question">@Messages("page.reg.summary.jurisdictionText")</dt>
+      <dd id="jurisdiction" class="cya-answer">@jurisdiction</dd>
+      <dd class="cya-change"><a href='@controllers.reg.routes.SummaryController.summaryBackLink("company_jurisdiction")' id="change-jurisdiction">@Messages("change")<span class="visuallyhidden">@Messages("page.reg.summary.jurisdiction.change")</span></a></dd>
     </div>
-    }
+
+    <div>
+      <dt class="cya-question">@Messages("page.reg.summary.PPOBAddressText")</dt>
+      <dd id="PPOBAddress" class="cya-answer">
+        @{
+        if(ppob.ppob.addressType == "RO"){
+        ppobMessage
+        } else {
+        Html(
+        ppob.ppob.address.get.addressLine1 + "<br>" +
+        ppob.ppob.address.get.addressLine2 + "<br>" +
+        ppob.ppob.address.get.addressLine3.fold[String]("")(s => s + "<br>") +
+        ppob.ppob.address.get.addressLine4.fold[String]("")(s => s + "<br>") +
+        ppob.ppob.address.get.postCode.fold[String]("")(s => s + "<br>") +
+        ppob.ppob.address.get.country.fold[String]("")(s => s )
+        )
+        }
+        }
+      </dd>
+      <dd class="cya-change"><a href="principal-place-of-business" id="change-ppob">@Messages("change")<span class="visuallyhidden">@Messages("page.reg.summary.PPOBAddress.change")</span></a></dd>
+    </div>
+  </dl>
+
+  <h2 id="companyContactDetails" class="heading-medium">@Messages("page.reg.summary.heading.one.b")</h2>
+  <dl class="govuk-check-your-answers cya-questions-short">
+    <div>
+      <dt class="cya-question">@Messages("page.reg.summary.companyContactName")</dt>
+      <dd id="companyContactName" class="cya-answer">@ctContactDets.contactName</dd>
+      <dd class="cya-change"><a href="company-contact-details" id="change-contact-details">@Messages("change")<span class="visuallyhidden">@Messages("page.reg.summary.companyContactName.change")</span></a></dd>
+    </div>
+
+    <div>
+      <dt class="cya-question">@Messages("page.reg.summary.companyContactEmail")</dt>
+      <dd id="companyContactEmail" class="cya-answer">@ctContactDets.contactEmail</dd>
+      <dd class="cya-change"><a href="company-contact-details" id="change-contact-details-email">@Messages("change")<span class="visuallyhidden">@Messages("page.reg.summary.companyContactEmail.change")</span></a></dd>
+    </div>
+
+    <div>
+      <dt class="cya-question">@Messages("page.reg.summary.companyContactDaytimeTelephoneNumber")</dt>
+      <dd id="companyContactDaytimeTelephoneNumber" class="cya-answer">@ctContactDets.contactDaytimeTelephoneNumber</dd>
+      <dd class="cya-change"><a href="company-contact-details" id="change-contact-details-phoneNumber">@Messages("change")<span class="visuallyhidden">@Messages("page.reg.summary.companyContactDaytimeTelephoneNumber.change")</span></a></dd>
+    </div>
+
+    <div>
+      <dt class="cya-question">@Messages("page.reg.summary.companycontactMobileNumber")</dt>
+      <dd id="companycontactMobileNumber" class="cya-answer">@ctContactDets.contactMobileNumber</dd>
+      <dd class="cya-change"><a href="company-contact-details" id="change-contact-details-mobileNumber">@Messages("change")<span class="visuallyhidden">@Messages("page.reg.summary.companycontactMobileNumber.change")</span></a></dd>
+    </div>
+  </dl>
+
+  <h2 id="companyAccountingTitle" class="heading-medium">@Messages("page.reg.summary.heading.two")</h2>
+  <dl class="govuk-check-your-answers cya-questions-short">
+    <div>
+      <dt class="cya-question">@Messages("page.reg.summary.startDate")</dt>
+      <dd id="startDate" class="cya-answer">
+        @{if(accDate.crnDate == WHEN_REGISTERED){Messages("page.reg.summary.dateRegistered")}
+        else if(accDate.crnDate == NOT_PLANNING_TO_YET){Messages("page.reg.summary.notPlanningToStartYet")}
+        else {accDate.toSummaryDate}}
+      </dd>
+      <dd class="cya-change"><a href="accounting-dates" id="change-accountingdates">@Messages("change")<span class="visuallyhidden">@Messages("page.reg.summary.startDate.change")</span></a></dd>
+    </div>
+
+    <div>
+      <dt class="cya-question">@Messages("page.reg.summary.tradingDetails")</dt>
+      <dd id="tradingDetails" class="cya-answer">@readableTrading(tradingDetails)</dd>
+      <dd class="cya-change"><a href="trading-details" id="change-trading-details">@Messages("change")<span class="visuallyhidden">@Messages("page.reg.summary.tradingDetails.change")</span></a></dd>
+    </div>
+  </dl>
+
+  <div class="form-group">
+    <p>@Messages("page.reg.summary.pleaseReview")</p>
+    <div class="indent">
+      <p>@messages("page.reg.summary.information.indent")</p>
+    </div>
+  </div>
+  @form(action = controllers.reg.routes.SummaryController.submit()) {
+  <div class="form-group">
+    <input class="button" type="submit" id="next" value="@Messages("common.button.ConfirmAndContinue")">
+  </div>
+  }
 }
 
