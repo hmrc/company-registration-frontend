@@ -34,12 +34,15 @@ trait AppConfig {
   val contactFrontendPartialBaseUrl : String
   val serviceId : String
 
+  val corsRenewHost: Option[String]
+
   val timeoutInSeconds: String
 }
 
 object FrontendAppConfig extends AppConfig with ServicesConfig {
 
   private def loadConfig(key: String) = configuration.getString(key).getOrElse(throw new Exception(s"Missing configuration key: $key"))
+  private def loadOptionalConfig(key: String) = configuration.getString(key)
 
   private val contactFormServiceIdentifier = "SCRS"
 
@@ -52,6 +55,8 @@ object FrontendAppConfig extends AppConfig with ServicesConfig {
 
   override lazy val contactFrontendPartialBaseUrl = baseUrl("contact-frontend")
   override lazy val serviceId = contactFormServiceIdentifier
+
+  override lazy val corsRenewHost = loadOptionalConfig("cors-host.renew-session")
 
   override val timeoutInSeconds: String = loadConfig("timeoutInSeconds")
 

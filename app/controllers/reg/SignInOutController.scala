@@ -16,7 +16,7 @@
 
 package controllers.reg
 
-import config.{FrontendAuthConnector, FrontendConfig}
+import config.{FrontendAppConfig, FrontendAuthConnector, FrontendConfig}
 import connectors._
 import controllers.auth.{SCRSExternalUrls, SCRSRegime}
 import models._
@@ -28,10 +28,10 @@ import uk.gov.hmrc.play.frontend.auth.{Actions, AuthContext}
 import uk.gov.hmrc.play.frontend.controller.FrontendController
 import utils.SCRSExceptions
 import java.io.File
+
 import controllers.verification.{routes => emailRoutes}
 import play.api.i18n.Messages.Implicits._
 import play.api.Play.current
-
 import uk.gov.hmrc.play.binders.ContinueUrl
 import controllers.handoff.{routes => handoffRoutes}
 
@@ -47,6 +47,7 @@ object SignInOutController extends SignInOutController with ServicesConfig{
   val metrics = MetricsService
   val cRFEBaseUrl = FrontendConfig.self
   val keystoreConnector = KeystoreConnector
+  val corsRenewHost = FrontendAppConfig.corsRenewHost
 }
 
 trait SignInOutController extends FrontendController with Actions with ControllerErrorHandler with CommonService with SCRSExceptions {
@@ -58,6 +59,7 @@ trait SignInOutController extends FrontendController with Actions with Controlle
   val metrics : MetricsService
   val cRFEBaseUrl: String
   val keystoreConnector: KeystoreConnector
+  val corsRenewHost: Option[String]
 
   def postSignIn(resend: Option[Boolean], handOffID: Option[String] = None, payload: Option[String] = None) =
     AuthorisedFor(taxRegime = SCRSRegime("post-sign-in"), pageVisibility = GGConfidence).async {
@@ -195,7 +197,14 @@ trait SignInOutController extends FrontendController with Actions with Controlle
   def renewSession: Action[AnyContent] = AuthorisedFor(taxRegime = SCRSRegime("post-sign-in"), pageVisibility = GGConfidence) {
     implicit user =>
       implicit request =>
-        Ok.sendFile(new File(("conf/renewSession.jpg"))).as("image/jpeg")
+        type Headers = Seq[Tuple2[String, String]]
+        val headers = corsRenewHost.fold[Headers](Seq()){ host =>
+          Seq(
+            "Access-Control-Allow-Origin" -> host,
+            "Access-Control-Allow-Credentials" -> "true"
+          )
+        }
+        Ok.sendFile(new File(("conf/renewSession.jpg"))).as("image/jpeg").withHeaders(headers:_*)
   }
 
   def destroySession: Action[AnyContent] = Action {
