@@ -30,7 +30,7 @@ To run the application execute:
 sbt 'run 9970' 
 ```
 
-and our [API](https://github.com/HMRC/company-registration)
+and the supporting [API](https://github.com/HMRC/company-registration)
 
 ```
 sbt 'run 9973' 
