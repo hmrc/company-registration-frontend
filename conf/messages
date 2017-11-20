@@ -67,7 +67,7 @@ page.reg.AboutYou.radio2=Secretary
 page.reg.AboutYou.radio3=Agent - for example, an accountant
 page.reg.AboutYou.radio4=Other - for example, a friend of the director
 page.reg.AboutYou.radio4.more=Enter your relationship to the company
-error.completionCapacity.required=Tell us your relationship to the company
+error.completionCapacity.required=Tell us what your relationship is to the company
 
 
 #CreateAccount form
@@ -103,11 +103,11 @@ page.reg.accountingDates.lede1=The company is doing business if it''s earning in
 page.reg.accountingDates.radioOne=The date it''s registered
 page.reg.accountingDates.radioTwo=On a future date
 page.reg.accountingDates.radioThree=Not planning to start yet
-page.reg.accountingDates.date.notFound=Enter a date that''s at least 2 working days in the future (or 3 if it''s after 2pm)
+page.reg.accountingDates.date.notFound=Enter a date at least 3 working days from now
 page.reg.accountingDates.day.notFound=Enter a day
 page.reg.accountingDates.month.notFound=Enter a month
 page.reg.accountingDates.year.notFound=Enter a year
-page.reg.accountingDates.date.future=Enter a date that''s at least 2 working days in the future (or 3 if it''s after 2pm)
+page.reg.accountingDates.date.future=Enter a date at least 3 working days from now
 page.reg.accountingDates.date.invalid-date=You have not entered a valid date
 page.reg.accountingDates.date.invalid-day=Enter a valid day
 page.reg.accountingDates.date.invalid-month=Enter a valid month
@@ -133,25 +133,26 @@ page.reg.company-contact-details.label-one=Contact name
 page.reg.company-contact-details.label-two=Email address
 page.reg.company-contact-details.label-three=Contact number
 page.reg.company-contact-details.label-four=Other contact number
-page.reg.company-contact-details.validation.chooseOne=Enter at least one of the following contact details
+page.reg.company-contact-details.validation.chooseOne=Enter at least one contact detail for the company''s Corporation Tax
 page.reg.company-contact-details.helpMessage1=Provide at least one of the following contact details.
 #General validation messages
 validation.name=Tell us the contact name using only letters (without accents), hyphens and apostrophes
 validation.name.noSurname=A surname is required
 validation.name.full-stop=Enter a name without using full stops
+validation.name.required=Enter a contact name
 validation.firstMaxLength=Enter a first name that’s 100 characters or less
 validation.middleMaxLength=Enter a middle name that’s 100 characters or less
 validation.surnameMaxLength=Enter a last name that’s 100 characters or less
-validation.email=Enter a valid email address
+validation.email=Enter an email address using only letters, numbers and - . @ _ +
 validation.emailtoolong=Enter an email address using 70 characters or less
 validation.phone-number=The phone number you have provided is invalid
 validation.mobile-number=The mobile number you have provided is invalid
-validation.contactNum= Enter a contact number using only numbers
+validation.contactNum=Enter a valid contact number
 validation.contactNum.tooShort= Enter a contact number using 10 digits or more
 validation.contactNum.tooLong= Enter a contact number using 20 digits or less
 validation.postcode=Please enter a valid postcode
 validation.nonEmpty=This field is required
-validation.invalid=Describe your relationship to the company
+validation.invalid=Enter your relationship to the business using 100 characters or less
 
 #Address lookup
 page.reg.addressLookup.warning.maxResults.heading=More than x addresses found
@@ -171,9 +172,9 @@ page.reg.ppob.addressLine4=Address line 4
 page.reg.ppob.manualEntry=A different address
 page.reg.ppob.other=A different address
 page.reg.ppob.lookup=Find your address
-page.reg.ppob.mobileBusiness=For mobile businesses, it''s usually where the company keeps its stock or equipment.
+page.reg.ppob.mobileBusiness=If you work in different locations, use the address where the company keeps its stock or equipment.
 page.reg.ppob.location=This can be your home, a commercial office, a studio or workshop. You or the company don’t need to own the property.
-error.addressChoice.required=Tell us where you''ll carry out most of your business activities
+error.addressChoice.required=Tell us where the company will carry out most of its business activities
 
 #TradingDetails
 page.reg.ct61.title=Will the company make or receive any of these types of payments?
@@ -195,7 +196,7 @@ page.reg.ct61.p2=HMRC needs to know if you''ll make or receive any of these type
 page.reg.ct61.p3=You must tell HMRC if you start making or receiving any of these types of payments in the future.
 page.reg.ct61.radioNoLabel=No, the company won''t make or receive any of these types of payments
 page.reg.ct61.radioYesLabel=Yes, the company will make or receive at least one of these types of payments
-error.regularPayments.required=Tell us if over the next 3 months, your company will make or receive any of these payments
+error.regularPayments.required=Tell us if within the next 3 months the company will make or receive any of the following
 
 #Review address
 page.reg.review-address.title=Review and confirm
@@ -361,7 +362,8 @@ page.reg.Dashboard.PAYE.pendingText=We''ve received your application but can''t 
 
 page.reg.Dashboard.PAYE.employerHelpTextParagraph1=Use this service to register a company if it will do either of the following in the next 2 months:
 page.reg.Dashboard.PAYE.employerHelpTextParagraph2=pay any employees - including company directors - £113 or more a week (this is the same as £490 a month or £5,876 a year)
-page.reg.Dashboard.PAYE.employerHelpTextParagraph3=use subcontractors for construction work
+page.reg.Dashboard.PAYE.employerHelpTextParagraph3=pay any amount to employees - including company directors - who also receive pension payments or income from another job
+page.reg.Dashboard.PAYE.employerHelpTextParagraph4=use subcontractors for construction work
 
 page.reg.Dashboard.PAYE.submitted=Pending
 page.reg.Dashboard.PAYE.submittedParagraph1=It normally takes 5 working days to process your PAYE application. If your application is successful we''ll send you:

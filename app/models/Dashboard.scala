@@ -47,7 +47,7 @@ object IncorpAndCTDashboard {
       (__ \ "confirmationReferences" \ "transaction-id").readNullable[String].orElse(Reads.pure(None)) and
       (__ \ "confirmationReferences" \ "payment-reference").readNullable[String].orElse(Reads.pure(None)) and
       (__ \ "crn").readNullable[String] and
-      (__ \ "submissionTimestamp").readNullable[String].map(_.map(DateTime.parse(_).toString("dd MMMM yyyy"))) and
+      (__ \ "submissionTimestamp").readNullable[String].map(_.map(DateTime.parse(_).toString("d MMMM yyyy"))) and
       (__ \ "confirmationReferences" \ "acknowledgement-reference").readNullable[String].orElse(Reads.pure(None)) and
         (__ \ "acknowledgementReferences" \ "status").readNullable[String].orElse(Reads.pure(None))
     )(IncorpAndCTDashboard.apply _)

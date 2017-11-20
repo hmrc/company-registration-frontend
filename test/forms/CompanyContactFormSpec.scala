@@ -87,7 +87,7 @@ class CompanyContactFormSpec extends SCRSSpec with CompanyContactDetailsFixture 
 
       "return a 'choose at least one' error" in {
         val data = buildContactDetailsFormData(email = "", telephoneNumber = "", mobileNumber = "")
-        val error = Seq(FormError("", "Enter at least one of the following contact details", Seq("chooseOne")))
+        val error = Seq(FormError("", "Enter at least one contact detail for the company's Corporation Tax", Seq("chooseOne")))
 
         assertFormError(form, data, error)
       }
@@ -388,7 +388,7 @@ class CompanyContactFormSpec extends SCRSSpec with CompanyContactDetailsFixture 
           "contactDaytimeTelephoneNumber" -> "",
           "contactMobileNumber" -> "")
 
-        val error = Seq(FormError("contactEmail", "Enter a valid email address"))
+        val error = Seq(FormError("contactEmail", "Enter an email address using only letters, numbers and - . @ _ +"))
         assertFormError(form, formData, error)
       }
 
@@ -400,7 +400,7 @@ class CompanyContactFormSpec extends SCRSSpec with CompanyContactDetailsFixture 
           "contactDaytimeTelephoneNumber" -> validContactDaytimeTelephoneNumber,
           "contactMobileNumber" -> validContactMobileNumber
         )
-        val error = Seq(FormError("contactEmail", "Enter a valid email address"))
+        val error = Seq(FormError("contactEmail", "Enter an email address using only letters, numbers and - . @ _ +"))
         assertFormError(form, data, error)
       }
 
@@ -411,7 +411,7 @@ class CompanyContactFormSpec extends SCRSSpec with CompanyContactDetailsFixture 
           "contactDaytimeTelephoneNumber" -> validContactDaytimeTelephoneNumber,
           "contactMobileNumber" -> validContactMobileNumber
         )
-        form.bind(formData).error("contactEmail").map(x => (x.key, x.message)) shouldBe Some(("contactEmail", "Enter a valid email address"))
+        form.bind(formData).error("contactEmail").map(x => (x.key, x.message)) shouldBe Some(("contactEmail", "Enter an email address using only letters, numbers and - . @ _ +"))
       }
       "When it contains a single @ symbol but is 71 characters in length" in {
         val formData = Map(
@@ -429,7 +429,7 @@ class CompanyContactFormSpec extends SCRSSpec with CompanyContactDetailsFixture 
           "contactDaytimeTelephoneNumber" -> validContactDaytimeTelephoneNumber,
           "contactMobileNumber" -> validContactMobileNumber
         )
-        form.bind(formData).error("contactEmail").map(x => (x.key, x.message)) shouldBe Some(("contactEmail", "Enter a valid email address"))
+        form.bind(formData).error("contactEmail").map(x => (x.key, x.message)) shouldBe Some(("contactEmail", "Enter an email address using only letters, numbers and - . @ _ +"))
       }
     }
 
