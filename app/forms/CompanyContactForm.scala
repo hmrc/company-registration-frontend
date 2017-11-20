@@ -28,7 +28,7 @@ import utils.SCRSValidators._
 object CompanyContactForm extends PhoneNoForm {
   def form(implicit lang:Lang) = Form(
     mapping(
-      "contactName" -> text.verifying(StopOnFirstFail(nonEmpty, contactNameValidation)),
+      "contactName" -> text.verifying(StopOnFirstFail(nameRequiredValidation, contactNameValidation)),
       "contactEmail" -> optional(text.verifying(emailValidation)),
       "contactDaytimeTelephoneNumber" -> phoneNoField,
       "contactMobileNumber" -> phoneNoField

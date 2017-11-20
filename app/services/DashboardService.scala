@@ -72,7 +72,7 @@ trait DashboardService extends SCRSExceptions with CommonService {
   val featureFlag: SCRSFeatureSwitches
 
   implicit def toDashboard(s: OtherRegStatus)(implicit startURL: String, cancelURL: Call): ServiceDashboard = {
-    ServiceDashboard(s.status, s.lastUpdate.map(_.toString("dd MMMM yyyy")), s.ackRef,
+    ServiceDashboard(s.status, s.lastUpdate.map(_.toString("d MMMM yyyy")), s.ackRef,
       ServiceLinks(startURL, otrsUrl, s.restartURL, s.cancelURL.map(_ => cancelURL.url)))
   }
 
@@ -174,6 +174,6 @@ trait DashboardService extends SCRSExceptions with CommonService {
   private[services] def extractSubmissionDate(jsonDate: JsValue): String = {
 
     val dgdt : DateTime = jsonDate.as[DateTime]
-    dgdt.toString("dd MMMM yyyy")
+    dgdt.toString("d MMMM yyyy")
   }
 }

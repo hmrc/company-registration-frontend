@@ -151,6 +151,10 @@ object SCRSValidators {
       if (errors.isEmpty) Valid else Invalid(errors)
   })
 
+  val nameRequiredValidation: Constraint[String] = Constraint("constraints.nameRequired")({
+    name => if(name.trim == "") Invalid(ValidationError(Messages("validation.name.required"))) else Valid
+  })
+
   val emailValidation: Constraint[String] = Constraint("constraints.emailCheck")({
     text =>
       val errors = text match {
