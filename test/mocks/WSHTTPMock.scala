@@ -52,4 +52,14 @@ trait WSHTTPMock {
         (Matchers.any[Writes[I]](), Matchers.any[HttpReads[O]](), Matchers.any[HeaderCarrier](), Matchers.any()))
         .thenReturn(Future.successful(thenReturn))
     }
+
+    def mockHttpFailedGET[T](url: String, exception: Exception): OngoingStubbing[Future[T]] = {
+      when(mockWSHttp.GET[T](Matchers.anyString())(Matchers.any[HttpReads[T]](), Matchers.any[HeaderCarrier](), Matchers.any()))
+        .thenReturn(Future.failed(exception))
+    }
+
+    def mockHttpFailedPOST[I, O](url: String, exception: Exception, mockWSHttp: WSHttp = mockWSHttp): OngoingStubbing[Future[O]] = {
+      when(mockWSHttp.POST[I, O](Matchers.anyString(), Matchers.any[I](), Matchers.any())(Matchers.any[Writes[I]](), Matchers.any[HttpReads[O]](), Matchers.any[HeaderCarrier](), Matchers.any()))
+        .thenReturn(Future.failed(exception))
+  }
 }
