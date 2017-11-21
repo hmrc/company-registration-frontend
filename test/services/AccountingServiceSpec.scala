@@ -34,16 +34,6 @@ class AccountingServiceSpec extends SCRSSpec with AccountingDetailsFixture {
 
   val url = "http://test.url"
 
-
-  "AccountingService" should {
-    "use the correct Company Registration connector" in {
-      AccountingService.companyRegistrationConnector shouldBe CompanyRegistrationConnector
-    }
-    "use the correct Keystore connector" in {
-      AccountingService.keystoreConnector shouldBe KeystoreConnector
-    }
-  }
-
   "fetchAccountingDetails" should {
     "return an AccountingDatesModel for when registered" in new Setup {
         mockKeystoreFetchAndGet("registrationID", Some("12345"))
