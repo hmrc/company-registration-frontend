@@ -314,10 +314,10 @@ class RegistrationConfirmationISpec extends IntegrationSpecBase with MongoSpecSu
       val response = await(client("/registration-confirmation?request=xxx").get())
 
       response.status shouldBe 303
-      response.header(HeaderNames.LOCATION).get should include("/application-not-complete")
+      response.header(HeaderNames.LOCATION).get should include("/sign-in-complete-application")
     }
 
-    "updating confirmation references successfully should return a confirmation" in new Setup{
+    "updating confirmation references successfully should return the application submitted page" in new Setup{
       setupSimpleAuthMocks()
       stubSuccessfulLogin(userId=userId)
 
@@ -343,7 +343,7 @@ class RegistrationConfirmationISpec extends IntegrationSpecBase with MongoSpecSu
 
       val response = await(fResponse)
       response.status shouldBe 303
-      response.header(HeaderNames.LOCATION).get should include("/register-your-company/confirmation")
+      response.header(HeaderNames.LOCATION).get should include("/register-your-company/application-submitted")
     }
 
     "updating confirmation references with 502 should return a retry page" in new Setup {

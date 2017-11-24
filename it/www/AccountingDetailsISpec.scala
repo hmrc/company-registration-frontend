@@ -151,7 +151,7 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fak
       val response = await(fResponse)
 
       response.status shouldBe 303
-      response.allHeaders("Location") shouldBe Seq("/register-your-company/dashboard")
+      response.allHeaders("Location") shouldBe Seq("/register-your-company/company-registration-overview")
     }
 
   }

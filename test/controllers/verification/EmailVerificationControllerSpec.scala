@@ -105,7 +105,7 @@ class EmailVerificationControllerSpec extends CompanyRegistrationConnectorMock w
     "redirect the user to the welcome page from create new account" in new Setup {
       val result = controller.createSubmit(FakeRequest())
       status(result) shouldBe 303
-      redirectLocation(result) shouldBe Some("/register-your-company/welcome")
+      redirectLocation(result) shouldBe Some("/register-your-company/register")
     }
   }
 

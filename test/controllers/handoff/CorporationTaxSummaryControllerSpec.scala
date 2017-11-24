@@ -118,7 +118,7 @@ class CorporationTaxSummaryControllerSpec extends SCRSSpec with LoginFixture wit
         result =>
           status(result) shouldBe SEE_OTHER
           redirectLocation(result) shouldBe
-            Some("/register-your-company/summary")
+            Some("/register-your-company/check-confirm-answers")
       }
     }
     "return a SEE_OTHER if submitting with request data and with authorisation but keystore does not exist" in new Setup {

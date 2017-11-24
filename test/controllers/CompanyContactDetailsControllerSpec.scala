@@ -87,7 +87,7 @@ class CompanyContactDetailsControllerSpec extends SCRSSpec with UserDetailsFixtu
       AuthBuilder.submitWithAuthorisedUser(controller.submit, mockAuthConnector, request){
         result =>
           status(result) shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe Some("/register-your-company/accounting-dates")
+          redirectLocation(result) shouldBe Some("/register-your-company/when-start-business")
       }
     }
 

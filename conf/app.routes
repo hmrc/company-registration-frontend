@@ -8,17 +8,17 @@ GET        /renew-session                           controllers.reg.SignInOutCon
 GET        /error/destroy-session                   controllers.reg.SignInOutController.destroySession
 GET        /error/timeout                           controllers.reg.SignInOutController.timeoutShow
 
-GET        /welcome                                 controllers.reg.WelcomeController.show
-POST       /welcome                                 controllers.reg.WelcomeController.submit
+GET        /register                                controllers.reg.WelcomeController.show
+POST       /register                                controllers.reg.WelcomeController.submit
 
-GET        /about-you                               controllers.reg.CompletionCapacityController.show
-POST       /about-you                               controllers.reg.CompletionCapacityController.submit
+GET        /relationship-to-company                 controllers.reg.CompletionCapacityController.show
+POST       /relationship-to-company                 controllers.reg.CompletionCapacityController.submit
 
-GET        /accounting-dates                        controllers.reg.AccountingDatesController.show
-POST       /accounting-dates                        controllers.reg.AccountingDatesController.submit
+GET        /when-start-business                     controllers.reg.AccountingDatesController.show
+POST       /when-start-business                     controllers.reg.AccountingDatesController.submit
 
-GET        /confirmation                            controllers.reg.ConfirmationControllerImpl.show
-POST       /confirmation                            controllers.reg.ConfirmationControllerImpl.submit
+GET        /application-submitted                   controllers.reg.ConfirmationControllerImpl.show
+POST       /application-submitted                   controllers.reg.ConfirmationControllerImpl.submit
 
 GET        /something-went-wrong                    controllers.reg.ConfirmationControllerImpl.deskproPage
 POST       /something-went-wrong                    controllers.reg.ConfirmationControllerImpl.submitTicket
@@ -27,8 +27,8 @@ GET        /ticket-submitted                        controllers.reg.Confirmation
 
 GET        /submission-failure                      controllers.reg.ConfirmationControllerImpl.resubmitPage
 
-GET        /company-contact-details                 controllers.reg.CompanyContactDetailsController.show
-POST       /company-contact-details                 controllers.reg.CompanyContactDetailsController.submit
+GET        /contact-about-corporation-tax           controllers.reg.CompanyContactDetailsController.show
+POST       /contact-about-corporation-tax           controllers.reg.CompanyContactDetailsController.submit
 
 GET        /principal-place-of-business             controllers.reg.PPOBController.show
 POST       /principal-place-of-business             controllers.reg.PPOBController.submit
@@ -38,13 +38,13 @@ GET        /save-alf-address                        controllers.reg.PPOBControll
 GET        /trading-details                         controllers.reg.TradingDetailsController.show
 POST       /trading-details                         controllers.reg.TradingDetailsController.submit
 
-GET        /summary                                 controllers.reg.SummaryController.show
-POST       /summary                                 controllers.reg.SummaryController.submit
+GET        /check-confirm-answers                   controllers.reg.SummaryController.show
+POST       /check-confirm-answers                   controllers.reg.SummaryController.submit
 GET        /return-to-business-activities           controllers.reg.SummaryController.back
 GET        /summary-jump-back/:jumpKey              controllers.reg.SummaryController.summaryBackLink(jumpKey: String)
 
-GET        /limit-reached                           controllers.reg.LimitReachedController.show
-POST       /limit-reached                           controllers.reg.LimitReachedController.submit
+GET        /reached-maximum-users                   controllers.reg.LimitReachedController.show
+POST       /reached-maximum-users                   controllers.reg.LimitReachedController.submit
 
 GET        /feedback                                controllers.feedback.FeedbackController.show
 POST       /feedback                                controllers.feedback.FeedbackController.submit
@@ -53,11 +53,11 @@ GET        /thankyou                                controllers.feedback.Feedbac
 GET        /post-sign-in                            controllers.reg.SignInOutController.postSignIn(resend: Option[Boolean], handOffID: Option[String] ?= None, payload: Option[String] ?= None)
 GET        /sign-out                                controllers.reg.SignInOutController.signOut(continueUrl: Option[ContinueUrl])
 
-GET        /verify-your-email                       controllers.verification.EmailVerificationController.verifyShow
-POST       /verify-your-email                       controllers.verification.EmailVerificationController.verifySubmit
+GET        /sent-an-email                           controllers.verification.EmailVerificationController.verifyShow
+POST       /sent-an-email                           controllers.verification.EmailVerificationController.verifySubmit
 
-GET        /create-a-new-account                    controllers.verification.EmailVerificationController.createShow
-POST       /create-a-new-account                    controllers.verification.EmailVerificationController.createSubmit
+GET        /enter-your-details                      controllers.verification.EmailVerificationController.createShow
+POST       /enter-your-details                      controllers.verification.EmailVerificationController.createSubmit
 
 GET        /start-again                             controllers.verification.EmailVerificationController.startAgain
 
@@ -70,8 +70,8 @@ POST       /incorrect-service                       controllers.verification.Ema
 GET        /questionnaire                           controllers.reg.QuestionnaireController.show
 POST       /questionnaire                           controllers.reg.QuestionnaireController.submit
 
-GET        /application-not-complete                controllers.reg.IncompleteRegistrationController.show
-POST       /application-not-complete                controllers.reg.IncompleteRegistrationController.submit
+GET        /sign-in-complete-application            controllers.reg.IncompleteRegistrationController.show
+POST       /sign-in-complete-application            controllers.reg.IncompleteRegistrationController.submit
 
 GET        /registration-unsuccessful               controllers.reg.RegistrationUnsuccessfulController.show
 POST       /registration-unsuccessful               controllers.reg.RegistrationUnsuccessfulController.submit
@@ -104,52 +104,52 @@ GET        /payment-complete                        controllers.handoff.Registra
 
 GET        /application-in-progress                 controllers.reg.ApplicationInProgressController.redirect
 
-GET        /returning-user                          controllers.reg.ReturningUserController.show
-POST       /returning-user                          controllers.reg.ReturningUserController.submit
+GET        /setting-up-new-limited-company          controllers.reg.ReturningUserController.show
+POST       /setting-up-new-limited-company          controllers.reg.ReturningUserController.submit
 
 #DASHBOARD
-GET        /dashboard                               controllers.dashboard.DashboardController.show
-POST       /dashboard                               controllers.dashboard.DashboardController.submit
+GET        /company-registration-overview           controllers.dashboard.DashboardController.show
+POST       /company-registration-overview           controllers.dashboard.DashboardController.submit
 
 GET        /cancel-paye                             controllers.dashboard.CancelRegistrationController.showCancelPAYE
 POST       /cancel-paye                             controllers.dashboard.CancelRegistrationController.submitCancelPAYE
 
 GET        /cancel-vat                              controllers.dashboard.CancelRegistrationController.showCancelVAT
 
-##NEW URLS
+## DEPRECATED
 
-GET        /register                                controllers.reg.WelcomeController.show
-POST       /register                                controllers.reg.WelcomeController.submit
+GET        /welcome                                 controllers.reg.WelcomeController.show
+POST       /welcome                                 controllers.reg.WelcomeController.submit
 
-GET        /relationship-to-company                 controllers.reg.CompletionCapacityController.show
-POST       /relationship-to-company                 controllers.reg.CompletionCapacityController.submit
+GET        /about-you                               controllers.reg.CompletionCapacityController.show
+POST       /about-you                               controllers.reg.CompletionCapacityController.submit
 
-GET        /contact-about-corporation-tax           controllers.reg.CompanyContactDetailsController.show
-POST       /contact-about-corporation-tax           controllers.reg.CompanyContactDetailsController.submit
+GET        /company-contact-details                 controllers.reg.CompanyContactDetailsController.show
+POST       /company-contact-details                 controllers.reg.CompanyContactDetailsController.submit
 
-GET        /when-start-business                     controllers.reg.AccountingDatesController.show
-POST       /when-start-business                     controllers.reg.AccountingDatesController.submit
+GET        /accounting-dates                        controllers.reg.AccountingDatesController.show
+POST       /accounting-dates                        controllers.reg.AccountingDatesController.submit
 
-GET        /check-confirm-answers                   controllers.reg.SummaryController.show
-POST       /check-confirm-answers                   controllers.reg.SummaryController.submit
+GET        /summary                                 controllers.reg.SummaryController.show
+POST       /summary                                 controllers.reg.SummaryController.submit
 
-GET        /application-submitted                   controllers.reg.ConfirmationControllerImpl.show
-POST       /application-submitted                   controllers.reg.ConfirmationControllerImpl.submit
+GET        /confirmation                            controllers.reg.ConfirmationControllerImpl.show
+POST       /confirmation                            controllers.reg.ConfirmationControllerImpl.submit
 
-GET        /company-registration-overview           controllers.dashboard.DashboardController.show
-POST       /company-registration-overview           controllers.dashboard.DashboardController.submit
+GET        /dashboard                               controllers.dashboard.DashboardController.show
+POST       /dashboard                               controllers.dashboard.DashboardController.submit
 
-GET        /reached-maximum-users                   controllers.reg.LimitReachedController.show
-POST       /reached-maximum-users                   controllers.reg.LimitReachedController.submit
+GET        /limit-reached                           controllers.reg.LimitReachedController.show
+POST       /limit-reached                           controllers.reg.LimitReachedController.submit
 
-GET        /setting-up-new-limited-company          controllers.reg.ReturningUserController.show
-POST       /setting-up-new-limited-company          controllers.reg.ReturningUserController.submit
+GET        /returning-user                          controllers.reg.ReturningUserController.show
+POST       /returning-user                          controllers.reg.ReturningUserController.submit
 
-GET        /sent-an-email                           controllers.verification.EmailVerificationController.verifyShow
-POST       /sent-an-email                           controllers.verification.EmailVerificationController.verifySubmit
+GET        /verify-your-email                       controllers.verification.EmailVerificationController.verifyShow
+POST       /verify-your-email                       controllers.verification.EmailVerificationController.verifySubmit
 
-GET        /sign-in-complete-application            controllers.reg.IncompleteRegistrationController.show
-POST       /sign-in-complete-application            controllers.reg.IncompleteRegistrationController.submit
+GET        /application-not-complete                controllers.reg.IncompleteRegistrationController.show
+POST       /application-not-complete                controllers.reg.IncompleteRegistrationController.submit
 
-GET        /enter-your-details                      controllers.verification.EmailVerificationController.createShow
-POST       /enter-your-details                      controllers.verification.EmailVerificationController.createSubmit
+GET        /create-a-new-account                    controllers.verification.EmailVerificationController.createShow
+POST       /create-a-new-account                    controllers.verification.EmailVerificationController.createSubmit

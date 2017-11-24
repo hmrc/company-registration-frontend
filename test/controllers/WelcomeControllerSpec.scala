@@ -22,30 +22,25 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.play.test.WithFakeApplication
 
-/**
-  * Created by crispy on 20/06/16.
-  */
 class WelcomeControllerSpec extends SCRSSpec with WithFakeApplication {
+  class Setup {
+    object TestController extends WelcomeController
+  }
 
-	class Setup {
-		object TestController extends WelcomeController
-	}
+  "Sending a GET request to WelcomeController" should {
+    "return a 200" in new Setup {
 
-	"Sending a GET request to WelcomeController" should {
-		"return a 200" in new Setup {
+      val result = TestController.show()(FakeRequest())
+      status(result) shouldBe OK
+    }
+  }
 
-			val result = TestController.show()(FakeRequest())
-			status(result) shouldBe OK
-		}
-	}
+  "Sending a POST request to WelcomeController" should {
+    "return a 303 and send user to set up new limited company page when not signed in." in new Setup {
 
-	"Sending a POST request to WelcomeController" should {
-		"return a 303 and send user to returning-user page when not signed in." in new Setup {
-
-			val result = TestController.submit()(FakeRequest())
-			status(result) shouldBe SEE_OTHER
-			redirectLocation(result) shouldBe Some("/register-your-company/returning-user")
-		}
-	}
-
-	}
+      val result = TestController.submit()(FakeRequest())
+      status(result) shouldBe SEE_OTHER
+      redirectLocation(result) shouldBe Some("/register-your-company/setting-up-new-limited-company")
+    }
+  }
+}

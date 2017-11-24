@@ -21,27 +21,24 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
-/**
-  * Created by crispy on 20/06/16.
-  */
 class IncompleteRegistrationControllerSpec extends UnitSpec with WithFakeApplication {
 
-	class Setup {
-		object TestController extends IncompleteRegistrationController
-	}
+  class Setup {
+    object TestController extends IncompleteRegistrationController
+  }
 
-	"Sending a GET request to IncompleteRegistrationController" should {
-		"return a 200" in new Setup {
-			val result = TestController.show()(FakeRequest())
-			status(result) shouldBe OK
-		}
-	}
+  "Sending a GET request to IncompleteRegistrationController" should {
+    "return a 200" in new Setup {
+      val result = TestController.show()(FakeRequest())
+      status(result) shouldBe OK
+    }
+  }
 
-	"Sending a POST request to IncompleteRegistrationController" should {
-		"return a 303" in new Setup {
-			val result = TestController.submit()(FakeRequest())
-			status(result) shouldBe SEE_OTHER
-			redirectLocation(result) shouldBe Some("/register-your-company/about-you")
-		}
-	}
+  "Sending a POST request to IncompleteRegistrationController" should {
+    "return a 303" in new Setup {
+      val result = TestController.submit()(FakeRequest())
+      status(result) shouldBe SEE_OTHER
+      redirectLocation(result) shouldBe Some("/register-your-company/relationship-to-company")
+    }
+  }
 }

@@ -24,15 +24,15 @@ import uk.gov.hmrc.play.test.WithFakeApplication
 
 class ApplicationInProgressControllerSpec extends SCRSSpec with WithFakeApplication {
 
-	class Setup {
-		val controller = new ApplicationInProgressController{ }
-	}
+  class Setup {
+    val controller = new ApplicationInProgressController{ }
+  }
 
-	"Sending a REDIRECT request to ApplicationInProgressController" should {
-		"return a 303" in new Setup {
-			val result = controller.redirect()(FakeRequest())
-			status(result) shouldBe SEE_OTHER
-			redirectLocation(result) shouldBe Some("/register-your-company/application-not-complete")
-		}
-	}
+  "Sending a REDIRECT request to ApplicationInProgressController" should {
+    "return a 303" in new Setup {
+      val result = controller.redirect()(FakeRequest())
+      status(result) shouldBe SEE_OTHER
+      redirectLocation(result) shouldBe Some("/register-your-company/sign-in-complete-application")
+    }
+  }
 }

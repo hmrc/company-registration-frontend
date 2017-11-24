@@ -183,7 +183,7 @@ class BasicCompanyDetailsControllerISpec extends IntegrationSpecBase with MongoS
       val response = await(fResponse)
 
       response.status shouldBe 303
-      response.header(HeaderNames.LOCATION).get should include("/about-you")
+      response.header(HeaderNames.LOCATION).get should include("/relationship-to-company")
     }
 
     "return a bad request if there is an incorrect request" in new Setup {
