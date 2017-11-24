@@ -135,7 +135,7 @@ class ConfirmationControllerSpec extends SCRSSpec with CompanyDetailsFixture wit
       AuthBuilder.submitWithAuthorisedUser(controller.submit, mockAuthConnector, FakeRequest().withFormUrlEncodedBody(Nil: _*)) {
         result =>
           status(result) shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe Some("/register-your-company/dashboard")
+          redirectLocation(result) shouldBe Some("/register-your-company/company-registration-overview")
       }
     }
   }

@@ -73,7 +73,7 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
       val result = TestController.registrationConfirmation("requestData")(FakeRequest())
       status(result) shouldBe SEE_OTHER
       redirectLocation(result) shouldBe
-        Some("/register-your-company/application-not-complete")
+        Some("/register-your-company/sign-in-complete-application")
     }
 
     "return a SEE_OTHER if sending a valid request with authorisation" in new Setup {
@@ -90,7 +90,7 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
       AuthBuilder.showWithAuthorisedUser(TestController.registrationConfirmation(confirmationPayload), mockAuthConnector) {
         result =>
           status(result) shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe Some("/register-your-company/confirmation")
+          redirectLocation(result) shouldBe Some("/register-your-company/application-submitted")
       }
     }
 
@@ -217,7 +217,7 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
       AuthBuilder.showWithAuthorisedUser(TestController.paymentConfirmation(confirmationPayload), mockAuthConnector) {
         result =>
           status(result) shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe Some("/register-your-company/confirmation")
+          redirectLocation(result) shouldBe Some("/register-your-company/application-submitted")
       }
     }
   }

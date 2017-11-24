@@ -98,7 +98,7 @@ class SignInOutControllerSpec extends SCRSSpec
       AuthBuilder.showWithAuthorisedUser(controller.postSignIn(None), mockAuthConnector) {
         result =>
           status(result) shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe Some("/register-your-company/about-you")
+          redirectLocation(result) shouldBe Some("/register-your-company/relationship-to-company")
       }
     }
 
@@ -120,7 +120,7 @@ class SignInOutControllerSpec extends SCRSSpec
       AuthBuilder.showWithAuthorisedUser(controller.postSignIn(None), mockAuthConnector) {
         result =>
           status(result) shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe Some("/register-your-company/about-you")
+          redirectLocation(result) shouldBe Some("/register-your-company/relationship-to-company")
       }
     }
 
@@ -217,7 +217,7 @@ class SignInOutControllerSpec extends SCRSSpec
       AuthBuilder.showWithAuthorisedUser(controller.postSignIn(None), mockAuthConnector) {
         result =>
           status(result) shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe Some("/register-your-company/dashboard")
+          redirectLocation(result) shouldBe Some("/register-your-company/company-registration-overview")
       }
     }
 
