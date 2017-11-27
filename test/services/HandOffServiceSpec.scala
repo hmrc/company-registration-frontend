@@ -130,9 +130,9 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
 
     val initNavModel = HandOffNavModel(
       Sender(Map(
-        "1" -> NavLinks("http://localhost:9970/register-your-company/principal-place-of-business", "http://localhost:9970/register-your-company/welcome"),
+        "1" -> NavLinks("http://localhost:9970/register-your-company/principal-place-of-business", "http://localhost:9970/register-your-company/register"),
         "3" -> NavLinks("", "http://localhost:9970/register-your-company/trading-details"),
-        "5" -> NavLinks("", "http://localhost:9970/register-your-company/summary"))),
+        "5" -> NavLinks("", "http://localhost:9970/register-your-company/check-confirm-answers"))),
       Receiver(Map("0" -> NavLinks("companyNameUrl", "")))
     )
 

@@ -120,7 +120,7 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub with F
       stubGet(s"/paye-registration/$regId/status", 200, payeRejected)
       stubGet(s"$enrolmentsURI", 200, "[]")
 
-      val fResponse = buildClient("/dashboard").
+      val fResponse = buildClient("/company-registration-overview").
         withHeaders(HeaderNames.COOKIE -> getSessionCookie(userId=userId)).
         get()
 
@@ -149,7 +149,7 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub with F
       stubGet(s"/paye-registration/$regId/status", 200, jsonOtherRegStatusDraft)
       stubGet(s"$enrolmentsURI", 200, """[]""")
 
-      val fResponse = buildClient("/dashboard").
+      val fResponse = buildClient("/company-registration-overview").
         withHeaders(HeaderNames.COOKIE -> getSessionCookie(userId=userId)).
         get()
 
@@ -175,7 +175,7 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub with F
         stubGet(s"/vatreg/$regId/status", 200, jsonOtherRegStatusDraft)
         stubGet(s"$enrolmentsURI", 200, "[]")
 
-        val fResponse = buildClient("/dashboard").
+        val fResponse = buildClient("/company-registration-overview").
           withHeaders(HeaderNames.COOKIE -> getSessionCookie(userId = userId)).
           get()
 
@@ -199,7 +199,7 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub with F
         stubGet(s"/vatreg/$regId/status", 404, "")
         stubGet(s"$enrolmentsURI", 200, "[]")
 
-        val fResponse = buildClient("/dashboard").
+        val fResponse = buildClient("/company-registration-overview").
           withHeaders(HeaderNames.COOKIE -> getSessionCookie(userId = userId)).
           get()
 
@@ -224,7 +224,7 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub with F
         stubGet(s"/vatreg/$regId/status", 200, jsonOtherRegStatusDraft)
         stubGet(s"$enrolmentsURI", 200, "[]")
 
-        val fResponse = buildClient("/dashboard").
+        val fResponse = buildClient("/company-registration-overview").
           withHeaders(HeaderNames.COOKIE -> getSessionCookie(userId = userId)).
           get()
 
