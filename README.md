@@ -24,7 +24,7 @@ This service is written in [Scala](http://www.scala-lang.org/) and [Play](http:/
 
 ## Run the application
 
-To run the application execute:
+To run the application execute: 
 
 ```
 sbt 'run 9970' 
