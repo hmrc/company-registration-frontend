@@ -79,7 +79,7 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fak
       stubKeystore(SessionId, "5")
 
       stubGet("/company-registration/corporation-tax-registration/5/accounting-details", 404, "")
-      val fResponse = client("/accounting-dates").
+      val fResponse = client("/when-start-business").
         withHeaders(HeaderNames.COOKIE -> getSessionCookie(userId=userId)).
         get()
 
@@ -112,7 +112,7 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fak
 
       stubGet("/company-registration/corporation-tax-registration/5/accounting-details", 200, crResponse)
 
-      val fResponse = client("/accounting-dates").
+      val fResponse = client("/when-start-business").
         withHeaders(HeaderNames.COOKIE -> getSessionCookie(userId=userId)).
         get()
 
@@ -143,7 +143,7 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fak
 
       stubGet("/company-registration/corporation-tax-registration/5/accounting-details", 200, crResponse)
 
-      val fResponse = client("/accounting-dates").
+      val fResponse = client("/when-start-business").
         withHeaders(HeaderNames.COOKIE -> getSessionCookie(userId=userId)).
         get()
 
@@ -169,7 +169,7 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fak
 
       val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
 
-      val fResponse = client("/accounting-dates").
+      val fResponse = client("/when-start-business").
         withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").
         post(Map(
           "csrfToken"->Seq("xxx-ignored-xxx"),
