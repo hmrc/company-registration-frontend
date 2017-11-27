@@ -62,7 +62,7 @@ class VerifyYourEmailISpec extends IntegrationSpecBase with LoginStub with Befor
       val email = "foo@bar.wibble"
       stubKeystore(SessionId, "5",  email)
 
-      val fResponse = client("/verify-your-email").
+      val fResponse = client("/sent-an-email").
         withHeaders(HeaderNames.COOKIE -> getSessionCookie(userId=userId)).
         get()
 
@@ -78,7 +78,7 @@ class VerifyYourEmailISpec extends IntegrationSpecBase with LoginStub with Befor
     "redirect to sign-in when not logged in" in {
       setupSimpleAuthMocks(userId)
 
-      val response = await(client("/verify-your-email").get())
+      val response = await(client("/sent-an-email").get())
 
       response.status shouldBe 303
 
