@@ -63,7 +63,7 @@ trait SessionRegistration {
         ctReg =>
           (ctReg \ "status").as[String] match {
             case "draft" => f(regId)
-            case "locked" => Future.successful(Redirect(controllers.reg.routes.SignInOutController.postSignIn(None)))
+            case "locked" | "held" => Future.successful(Redirect(controllers.reg.routes.SignInOutController.postSignIn(None)))
             case _ => Future.successful(Redirect(controllers.dashboard.routes.DashboardController.show()))
           }
       }
