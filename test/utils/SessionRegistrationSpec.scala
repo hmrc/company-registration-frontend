@@ -147,15 +147,22 @@ class SessionRegistrationSpec extends UnitSpec with CompanyRegistrationConnector
 
     }
 
-    "checkStatus should redirect if status is not draft" in {
+    "checkStatus should redirect to dashboard if status is not draft or locked" in {
         mockKeystoreFetchAndGet("registrationID", Some("1"))
         CTRegistrationConnectorMocks.retrieveCTRegistration(buildCorporationTaxModel(status = "foo"))
         val result = SessionRegistration.checkStatus(f = redirect =>
             Future.successful(Results.Ok))
+        status(result) shouldBe SEE_OTHER
+        redirectLocation(result) shouldBe Some(controllers.dashboard.routes.DashboardController.show().toString)
+    }
 
-        val response = await(result)
-        response.header.status shouldBe SEE_OTHER
+    "checkStatus should redirect to post-sign-in if status is locked" in {
+        mockKeystoreFetchAndGet("registrationID", Some("1"))
+        CTRegistrationConnectorMocks.retrieveCTRegistration(buildCorporationTaxModel(status = "locked"))
+        val result = SessionRegistration.checkStatus(f = redirect =>
+            Future.successful(Results.Ok))
 
-
+        status(result) shouldBe SEE_OTHER
+        redirectLocation(result) shouldBe Some(controllers.reg.routes.SignInOutController.postSignIn(None).toString)
     }
 }

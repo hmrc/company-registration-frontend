@@ -20,10 +20,12 @@ import play.api.libs.json.JsValue
 import play.api.mvc.{Result, Results}
 import play.api.Logger
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
+import controllers.handoff.routes
+import controllers.reg.SignInOutController
 import play.api.mvc.Results.Redirect
 import uk.gov.hmrc.play.audit.http.connector.AuditResult.Success
-
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
+
 import scala.concurrent.Future
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -61,9 +63,11 @@ trait SessionRegistration {
         ctReg =>
           (ctReg \ "status").as[String] match {
             case "draft" => f(regId)
+            case "locked" => Future.successful(Redirect(controllers.reg.routes.SignInOutController.postSignIn(None)))
             case _ => Future.successful(Redirect(controllers.dashboard.routes.DashboardController.show()))
           }
       }
     }
   }
 }
+
