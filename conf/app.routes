@@ -120,36 +120,3 @@ GET        /cancel-vat                              controllers.dashboard.Cancel
 
 GET        /welcome                                 controllers.reg.WelcomeController.show
 POST       /welcome                                 controllers.reg.WelcomeController.submit
-
-GET        /about-you                               controllers.reg.CompletionCapacityController.show
-POST       /about-you                               controllers.reg.CompletionCapacityController.submit
-
-GET        /company-contact-details                 controllers.reg.CompanyContactDetailsController.show
-POST       /company-contact-details                 controllers.reg.CompanyContactDetailsController.submit
-
-GET        /accounting-dates                        controllers.reg.AccountingDatesController.show
-POST       /accounting-dates                        controllers.reg.AccountingDatesController.submit
-
-GET        /summary                                 controllers.reg.SummaryController.show
-POST       /summary                                 controllers.reg.SummaryController.submit
-
-GET        /confirmation                            controllers.reg.ConfirmationControllerImpl.show
-POST       /confirmation                            controllers.reg.ConfirmationControllerImpl.submit
-
-GET        /dashboard                               controllers.dashboard.DashboardController.show
-POST       /dashboard                               controllers.dashboard.DashboardController.submit
-
-GET        /limit-reached                           controllers.reg.LimitReachedController.show
-POST       /limit-reached                           controllers.reg.LimitReachedController.submit
-
-GET        /returning-user                          controllers.reg.ReturningUserController.show
-POST       /returning-user                          controllers.reg.ReturningUserController.submit
-
-GET        /verify-your-email                       controllers.verification.EmailVerificationController.verifyShow
-POST       /verify-your-email                       controllers.verification.EmailVerificationController.verifySubmit
-
-GET        /application-not-complete                controllers.reg.IncompleteRegistrationController.show
-POST       /application-not-complete                controllers.reg.IncompleteRegistrationController.submit
-
-GET        /create-a-new-account                    controllers.verification.EmailVerificationController.createShow
-POST       /create-a-new-account                    controllers.verification.EmailVerificationController.createSubmit
