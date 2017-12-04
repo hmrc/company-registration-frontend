@@ -390,6 +390,9 @@ page.reg.Dashboard.VAT.helpTextBullet1=its VAT taxable sales were more than the 
 page.reg.Dashboard.VAT.helpTextBullet2=you thought its VAT taxable sales would be more than the VAT registration threshold in any 30-day period (including the next 30 days)
 page.reg.Dashboard.VAT.helpTextThreshold=The current VAT registration threshold is £85,000.
 page.reg.Dashboard.VAT.helpTextParagraph1=If a company doesn''t meet these criteria, you can register a company voluntarily if it sells or intends to sell VAT taxable goods or services.
+page.reg.Dashboard.VAT.helpTextSubmittedHeader=If your application is successful we''ll send you:
+page.reg.Dashboard.VAT.helpTextSubmittedBullet1=an email to confirm the outcome of the application within 5 working days
+page.reg.Dashboard.VAT.helpTextSubmittedBullet2=a secure message with your VAT number to your business tax account
 
 page.reg.Dashboard.status.incomplete=Incomplete
 page.reg.Dashboard.hiddenOpenNewTab=(link opens in a new tab)
