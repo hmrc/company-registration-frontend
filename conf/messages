@@ -393,6 +393,7 @@ page.reg.Dashboard.VAT.helpTextParagraph1=If a company doesn''t meet these crite
 page.reg.Dashboard.VAT.helpTextSubmittedHeader=If your application is successful we''ll send you:
 page.reg.Dashboard.VAT.helpTextSubmittedBullet1=an email to confirm the outcome of the application within 5 working days
 page.reg.Dashboard.VAT.helpTextSubmittedBullet2=a secure message with your VAT number to your business tax account
+page.reg.Dashboard.VAT.pendingText=We''ve received your application but can''t process it until we''ve set up your limited company.
 
 page.reg.Dashboard.status.incomplete=Incomplete
 page.reg.Dashboard.hiddenOpenNewTab=(link opens in a new tab)
