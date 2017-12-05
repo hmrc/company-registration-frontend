@@ -46,6 +46,15 @@
     </tr>
 }
 
+@heldDetails = {
+<tr class="tabular-data__cell--centred status--confirm-success">
+    <td>@Messages("page.reg.Dashboard.ref")</td>
+    <td>
+        @dash.ackRef
+    </td>
+</tr>
+}
+
 @rejectedActions = {
     <tr class="tabular-data__cell--centred status--confirm-success">
         <td>@Messages("page.reg.Dashboard.whatYouCanDo")</td>
@@ -62,6 +71,7 @@
         dash.status match {
             case "draft" | "invalid" => inProgressActions
             case "submitted" => submittedDetails
+            case "held" => heldDetails
             case "rejected" => rejectedActions
         }
     }
