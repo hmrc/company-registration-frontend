@@ -23,25 +23,27 @@
 
 <a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
 
-        <h1 id="main-heading" class="heading-large">@Messages("page.reg.cancelpaye.heading")</h1>
+        <h1 id="main-heading" class="heading-large">@Messages("page.reg.cancelvat.heading")</h1>
+
     <div class="notice">
         <div class="important-notice">
             @Messages("page.reg.cancelservice.warning")<br>
             <BR>
         </div>
     </div>
-    @form(action = controllers.dashboard.routes.CancelRegistrationController.submitCancelPAYE()) {
+    @form(action = controllers.dashboard.routes.CancelRegistrationController.submitCancelVAT()) {
         <div class="form-group">
             @inputRadioGroup(
                 cancelSelection("cancelService"),
                 Seq(("true",Messages("page.reg.cancelservice.radioYesLabel")),("false",Messages("page.reg.cancelservice.radioNoLabel"))),
-                '_fieldsetId -> "cancel-paye",
+                '_fieldsetId -> "cancel-vat",
                 '_groupClass -> "inline",
                 '_labelClass -> "block-label radio-label",
-                '_legend -> Messages("page.reg.cancelpaye.heading"),
+                '_legend -> Messages("page.reg.cancelvat.heading"),
                 '_legendClass -> "visuallyhidden"
             )
         </div>
+
         <div class="form-group">
             <input class="button" type="submit" id="next" value="@Messages("common.button.save")">
         </div>

@@ -343,10 +343,21 @@ trait TestEndpointController extends FrontendController with Actions with Common
         }
   }
 
-  //http:localhost:9870/register-blah/restart
-  //register-for-blah/restart
+private[controllers] def links(cancelUrl:Boolean,restartUrl:Boolean) ={
+    ServiceLinks(
+      "regURL",
+      "otrsURL",
+      if(restartUrl) Some("restartUrl") else None,
+      if(cancelUrl) Some("cancelUrl") else None)
+  }
 
-  def dashboardStubbed(payeStatus:String="draft",incorpCTStatus:String ="held",cancelURL:String="true",restartURL:String="true", ackRefStatus:String="ackrefStatuses") = Action {
+  def dashboardStubbed(payeStatus:String="draft",
+                        incorpCTStatus:String  ="held",
+                        payeCancelUrl:String = "true",
+                        payeRestartUrl:String = "true",
+                        vatStatus:String= "draft",
+                        vatCancelUrl:String   = "true",
+                        ackRefStatus:String="ackrefStatuses") = Action {
     implicit request =>
       val incorpAndCTDash = IncorpAndCTDashboard(
         incorpCTStatus,
@@ -358,11 +369,13 @@ trait TestEndpointController extends FrontendController with Actions with Common
         Some("ackRef"),
         Some(ackRefStatus)
       )
-      val cancelUrl = if(cancelURL == "true") Some("foo") else None
-      val restartUrl = if(restartURL=="true") Some("foo") else None
-      val payeLinks = ServiceLinks("regURL","otrsURL",restartUrl,cancelUrl)
-      val payeDash = ServiceDashboard(payeStatus,Some("lastUpdateDate"),Some("ackrefPaye"),payeLinks)
-      val dash = Dashboard("companyNameStubbed", incorpAndCTDash, payeDash, None)
+      payeCancelUrl.toBoolean
+      val payeLinks = links(payeCancelUrl.toBoolean,payeRestartUrl.toBoolean)
+      val payeDash =  ServiceDashboard(payeStatus, Some("lastUpdateDate"), Some("ackrefPaye"),payeLinks)
+      val vatLinks = links(vatCancelUrl.toBoolean,false)
+      val vatDash = ServiceDashboard(vatStatus,Some("lastUpdateDate"),None,vatLinks)
+
+      val dash = Dashboard("companyNameStubbed", incorpAndCTDash, payeDash,Some(vatDash))
       Ok(views.html.dashboard.Dashboard(dash, coHoURL))
   }
 

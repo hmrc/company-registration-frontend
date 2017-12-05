@@ -174,7 +174,6 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
         result =>
           val document = Jsoup.parse(contentAsString(result))
           document.title() shouldBe "Your business registration overview"
-
           Map(
             "incorpStatusText" -> "Registered",
             "crn" -> "crn123",

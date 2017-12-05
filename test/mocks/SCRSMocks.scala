@@ -51,7 +51,6 @@ trait SCRSMocks
   lazy val mockIncorpInfoConnector = mock[IncorpInfoConnector]
   lazy val mockDeleteSubmissionService = mock[DeleteSubmissionService]
   lazy val mockPPOBService = mock[PPOBService]
-  lazy val mockServiceConnector = mock[ServiceConnector]
 
   def mockFetchRegistrationID[T <: CommonService](response: String, mock : T) = {
     when(mock.fetchRegistrationID(Matchers.any[HeaderCarrier]()))
@@ -77,6 +76,5 @@ trait SCRSMocks
     reset(mockCompanyContactDetailsService)
     reset(mockAudit)
     reset(mockNavModelRepo)
-    reset(mockServiceConnector)
   }
 }

@@ -19,18 +19,20 @@ package controllers.dashboard
 import config.FrontendAuthConnector
 import connectors._
 import controllers.auth.SCRSRegime
-import forms.CancelPayeForm
-import models.CancelPayeModel
-import play.api.mvc.{Action, AnyContent}
+import forms.CancelForm
+import play.api.data.Form
+import play.api.mvc.{Action, AnyContent, Request, Result}
+import play.twirl.api.Html
 import uk.gov.hmrc.play.frontend.auth.Actions
 import uk.gov.hmrc.play.frontend.controller.FrontendController
 import utils.{MessagesSupport, SessionRegistration}
-import views.html.dashboard.CancelPaye
+import views.html.dashboard.{CancelPaye, CancelVat}
 
 import scala.concurrent.Future
 
 object CancelRegistrationController extends CancelRegistrationController{
   val payeConnector = PAYEConnector
+  val vatConnector = VATConnector
   val authConnector = FrontendAuthConnector
   val keystoreConnector = KeystoreConnector
   val companyRegistrationConnector = CompanyRegistrationConnector
@@ -39,41 +41,59 @@ object CancelRegistrationController extends CancelRegistrationController{
 trait CancelRegistrationController extends FrontendController with Actions with SessionRegistration with MessagesSupport {
 
   val payeConnector: ServiceConnector
+  val vatConnector: ServiceConnector
   val keystoreConnector : KeystoreConnector
   val companyRegistrationConnector : CompanyRegistrationConnector
 
   def showCancelPAYE: Action[AnyContent] = AuthorisedFor(taxRegime = SCRSRegime(), pageVisibility = GGConfidence).async {
     implicit user =>
       implicit request =>
-        checkStatuses { regID =>
-          payeConnector.canStatusBeCancelled(regID)(payeConnector.getStatus)(hc).map {a =>
-          Ok(views.html.dashboard.CancelPaye(CancelPayeForm.form.fill(CancelPayeModel(false))))
-          }
-        }recover{
-          case a:cantCancelT => Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))
-        }
+        showCancelService(payeConnector,views.html.dashboard.CancelPaye(CancelForm.form.fill(false)))
   }
 
   val submitCancelPAYE: Action[AnyContent] = AuthorisedFor(taxRegime = SCRSRegime(), pageVisibility = GGConfidence).async {
     implicit user =>
       implicit request =>
-        checkStatuses { regID =>
-          CancelPayeForm.form.bindFromRequest.fold(
-            errors =>
-              Future.successful(BadRequest(CancelPaye(errors))),
-            success => {
-              if (success.cancelPaye) {
-                payeConnector.cancelReg(regID)(payeConnector.getStatus)(hc).map { a =>
-                  Redirect(routes.DashboardController.show())
-                }
-              }
-              else {
-                Future.successful(Redirect(routes.DashboardController.show()))
-              }
+            submitCancelService(payeConnector,
+              (a:Form[Boolean]) => views.html.dashboard.CancelPaye(a))
             }
-          )
-        }
+
+  def showCancelVAT: Action[AnyContent] = AuthorisedFor(taxRegime = SCRSRegime(), pageVisibility = GGConfidence).async {
+    implicit user =>
+    implicit request =>
+        showCancelService(vatConnector,views.html.dashboard.CancelVat(CancelForm.form.fill(false)))
   }
 
-  def showCancelVAT: Action[AnyContent] = ???
+  val submitCancelVAT: Action[AnyContent] = AuthorisedFor(taxRegime = SCRSRegime(), pageVisibility = GGConfidence).async{
+    implicit user =>
+      implicit request =>
+        submitCancelService(vatConnector,
+          (a:Form[Boolean]) => views.html.dashboard.CancelVat(a))
+  }
+
+  private[controllers] def showCancelService(service:ServiceConnector, cancelPage:Html) (implicit request: Request[AnyContent]):Future[Result] = {
+    checkStatuses { regID =>
+      service.canStatusBeCancelled(regID)(service.getStatus)(hc).map(_ =>
+        Ok(cancelPage))
+    } recoverWith {
+      case a: cantCancelT => Future.successful(Redirect(controllers.reg.routes.SignInOutController.postSignIn(None)))
+    }
+  }
+
+  private[controllers] def submitCancelService(service:ServiceConnector,cancelPage: (Form[Boolean]) => Html)(implicit request: Request[AnyContent]):Future[Result] = {
+    checkStatuses { regID =>
+      CancelForm.form.bindFromRequest.fold(
+        errors =>
+          Future.successful(BadRequest(cancelPage(errors))),
+        success =>
+          if(success) {
+            service.cancelReg(regID)(service.getStatus)(hc).map { _ =>
+              Redirect(routes.DashboardController.show())
+            }
+          }
+          else{
+            Future.successful(Redirect(routes.DashboardController.show()))
+          })
+    }
+  }
 }
