@@ -81,7 +81,7 @@ $(document).ready($(function() {
         ga('send', 'event', parts[0], parts[1], parts[2]);
     });
 
-    $('[link-analytics]').click(function() {
+    $('[link-analytics]').on('click auxclick contextmenu', function(e) {
         var metrics = $(this).attr('link-analytics');
         var parts = metrics.split(':');
 //                                            Page      Link

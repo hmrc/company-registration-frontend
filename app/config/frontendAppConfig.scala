@@ -27,6 +27,7 @@ trait AppConfig {
   val assetsPrefix: String
   val analyticsToken: String
   val analyticsHost: String
+  val piwikURL: Option[String]
   val analyticsAutoLink: String
   val reportAProblemPartialUrl: String
   val reportAProblemNonJSUrl: String
@@ -49,6 +50,7 @@ object FrontendAppConfig extends AppConfig with ServicesConfig {
   override lazy val assetsPrefix = loadConfig(s"assets.url") + loadConfig(s"assets.version")
   override lazy val analyticsToken = loadConfig(s"google-analytics.token")
   override lazy val analyticsHost = loadConfig(s"google-analytics.host")
+  override lazy val piwikURL = loadOptionalConfig(s"piwik.url")
   override lazy val analyticsAutoLink = loadConfig(s"google-analytics.autolink")
   override lazy val reportAProblemPartialUrl = s"/contact/problem_reports_ajax?service=$contactFormServiceIdentifier"
   override lazy val reportAProblemNonJSUrl = s"/contact/problem_reports_nonjs?service=$contactFormServiceIdentifier"

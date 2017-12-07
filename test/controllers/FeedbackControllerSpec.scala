@@ -72,6 +72,7 @@ class FeedbackControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
         override val reportAProblemNonJSUrl = ""
         override val contactFrontendPartialBaseUrl = ""
         override val analyticsHost = ""
+        override val piwikURL = Some("")
         override val analyticsToken = ""
         override val analyticsAutoLink = ""
         override val reportAProblemPartialUrl = ""
