@@ -81,4 +81,11 @@ $(document).ready($(function() {
         ga('send', 'event', parts[0], parts[1], parts[2]);
     });
 
+    $('[link-analytics]').click(function() {
+        var metrics = $(this).attr('link-analytics');
+        var parts = metrics.split(':');
+//                                            Page      Link
+        ga('send', 'event', 'LinkUsed', parts[0], parts[1]);
+    });
+
 }));
