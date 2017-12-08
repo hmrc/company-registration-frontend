@@ -367,15 +367,22 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
     }
   }
 
-
   "dashboardStubbed" should{
     "return the dashboard when no parameters are passed into the function" in new Setup {
       val result = await(controller.dashboardStubbed()(FakeRequest()))
       status(result) shouldBe 200
     }
     "return the dashboard when parameters are passed in" in new Setup {
-      val result = await(controller.dashboardStubbed("draft","held","false")(FakeRequest()))
+      val result = await(controller.dashboardStubbed("draft","held","true","true","draft","true","ackrefstatuses")(FakeRequest()))
       status(result) shouldBe 200
+    }
+  }
+  "links" should{
+    "return links when true true is passed in" in new Setup {
+      controller.links(true,true) shouldBe ServiceLinks("regURL", "otrsURL", Some("restartUrl"), Some("cancelUrl"))
+    }
+    "return no links when false false is passed in" in new Setup{
+      controller.links(false,false) shouldBe ServiceLinks("regURL", "otrsURL", None, None)
     }
   }
 

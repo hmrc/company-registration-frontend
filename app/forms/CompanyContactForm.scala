@@ -20,7 +20,6 @@ import forms.templates.PhoneNoForm
 import models.CompanyContactViewModel
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.data.validation.Constraints.nonEmpty
 import play.api.i18n.Lang
 import uk.gov.hmrc.play.mappers.StopOnFirstFail
 import utils.SCRSValidators._

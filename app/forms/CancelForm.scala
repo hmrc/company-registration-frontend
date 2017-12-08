@@ -16,16 +16,15 @@
 
 package forms
 
-import models.CancelPayeModel
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.i18n.Lang
 
-object CancelPayeForm {
+object CancelForm {
 
   def form(implicit lang:Lang) = Form(
     mapping(
-      "cancelPaye" -> boolean
-    )(CancelPayeModel.apply)(CancelPayeModel.unapply)
+      "cancelService" -> boolean
+    )(a => a)(a => Some(a))
   )
 }

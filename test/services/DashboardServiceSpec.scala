@@ -19,6 +19,7 @@ package services
 import helpers.{AuthHelpers, SCRSSpec}
 import models.auth.{Enrolment, EnrolmentIdentifier}
 import connectors.{NotStarted, SuccessfulResponse}
+import mocks.ServiceConnectorMock
 import models._
 import models.connectors.ConfirmationReferences
 import models.external.{OtherRegStatus, Statuses}
@@ -31,7 +32,7 @@ import utils.{BooleanFeatureSwitch, SCRSFeatureSwitches}
 import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpException}
 
-class DashboardServiceSpec extends SCRSSpec with AuthHelpers {
+class DashboardServiceSpec extends SCRSSpec with AuthHelpers with ServiceConnectorMock{
 
   implicit val auth = buildAuthContext
 
@@ -159,7 +160,7 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers {
     val payeStatus = OtherRegStatus("", None, None, Some("foo"), None)
 
     "return a CouldNotBuild DashboardStatus when the status of the registration is draft" in new SetupWithDash(draftDash) {
-      when(mockServiceConnector.getStatus(any())(any())).thenReturn(Future.successful(SuccessfulResponse(payeStatus)))
+     getStatusMock(SuccessfulResponse(payeStatus))
       when(mockAuthConnector.getEnrolments[Option[Seq[Enrolment]]](any())(any(), any(), any[ExecutionContext]()))
         .thenReturn(Future.successful(Some(Seq(vatEnrolment))))
 
@@ -170,7 +171,7 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers {
     }
 
     "return a RejectedIncorp DashboardStatus when the status of the registration is rejected" in new SetupWithDash(rejectedDash) {
-      when(mockServiceConnector.getStatus(any())(any())).thenReturn(Future.successful(SuccessfulResponse(payeStatus)))
+      getStatusMock(SuccessfulResponse(payeStatus))
       when(mockAuthConnector.getEnrolments[Option[Seq[Enrolment]]](any())(any(), any(), any[ExecutionContext]()))
         .thenReturn(Future.successful(Some(Seq(vatEnrolment))))
 
@@ -181,7 +182,7 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers {
     }
 
     "return a DashboardBuilt DashboardStatus when the status of the registration is any other status" in new SetupWithDash(heldDash) {
-      when(mockServiceConnector.getStatus(any())(any())).thenReturn(Future.successful(SuccessfulResponse(payeStatus)))
+      getStatusMock(SuccessfulResponse(payeStatus))
       when(mockAuthConnector.getEnrolments[Option[Seq[Enrolment]]](any())(any(), any(), any[ExecutionContext]()))
         .thenReturn(Future.successful(Some(Seq(vatEnrolment))))
 
@@ -230,7 +231,7 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers {
       val payeStatus = OtherRegStatus("held", None, None, Some("foo"), None)
       val payeDash = ServiceDashboard("held", None, None, ServiceLinks(payeUrl, testOtrsUrl, None, Some("/register-your-company/cancel-paye")))
       mockPayeFeature(true)
-      when(mockServiceConnector.getStatus(any())(any())).thenReturn(Future.successful(SuccessfulResponse(payeStatus)))
+      getStatusMock(SuccessfulResponse(payeStatus))
 
       val result = await(service.buildPAYEDashComponent(regId))
       result shouldBe payeDash
@@ -240,7 +241,7 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers {
       val payeStatus = OtherRegStatus("rejected", None, None, None, Some("bar"))
       val payeDash = ServiceDashboard("rejected", None, None, ServiceLinks(payeUrl, testOtrsUrl, Some("bar"), None))
       mockPayeFeature(true)
-      when(mockServiceConnector.getStatus(any())(any())).thenReturn(Future.successful(SuccessfulResponse(payeStatus)))
+      getStatusMock(SuccessfulResponse(payeStatus))
 
       val result = await(service.buildPAYEDashComponent(regId))
       result shouldBe payeDash
@@ -249,7 +250,7 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers {
     "return an ineligible Status when nothing is fetched from paye-registration and the user already has a PAYE enrolment" in new Setup {
       val payeDash = ServiceDashboard(Statuses.NOT_ELIGIBLE, None, None, payeLinks)
       mockPayeFeature(true)
-      when(mockServiceConnector.getStatus(any())(any())).thenReturn(Future.successful(NotStarted))
+      getStatusMock(NotStarted)
       when(mockAuthConnector.getEnrolments[Option[Seq[Enrolment]]](any())(any(), any(), any[ExecutionContext]()))
         .thenReturn(Future.successful(Some(Seq(payeEnrolment))))
 
@@ -260,7 +261,7 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers {
     "return a not started Status when nothing is fetched from paye-registration and the user does not have a PAYE enrolment" in new Setup {
       val payeDash = ServiceDashboard(Statuses.NOT_STARTED, None, None, payeLinks)
       mockPayeFeature(true)
-      when(mockServiceConnector.getStatus(any())(any())).thenReturn(Future.successful(NotStarted))
+      getStatusMock(NotStarted)
       when(mockAuthConnector.getEnrolments[Option[Seq[Enrolment]]](any())(any(), any(), any[ExecutionContext]()))
         .thenReturn(Future.successful(Some(Seq())))
 

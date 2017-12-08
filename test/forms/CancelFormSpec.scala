@@ -14,12 +14,24 @@
  * limitations under the License.
  */
 
-package models
+package forms
 
-import play.api.libs.json.Json
+import uk.gov.hmrc.play.test.UnitSpec
 
-case class CancelPayeModel(cancelPaye: Boolean = false)
+class CancelFormSpec extends UnitSpec{
 
-object CancelPayeModel {
-  implicit val format = Json.format[CancelPayeModel]
+  val form = CancelForm.form
+
+  "valid form" should {
+    "return no errors" in {
+      val data = Map("cancelService" -> "true")
+      form.bind(data).hasErrors shouldBe(false)
+    }
+  }
+  "invalid form" should {
+    "return errors" in {
+      val data = Map("cancelService" -> "foo")
+    form.bind(data).hasErrors shouldBe(true)
+    }
+  }
 }

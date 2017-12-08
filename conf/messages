@@ -29,6 +29,7 @@ common.dateMessage=Enter the date in format dd mm yyyy
 common.dateExample=For example,
 common.button.ConfirmAndContinue=Confirm and continue
 
+
 #timeout page
 page.timeout.title = Your session has timed out due to inactivity
 page.timeout.heading = Your session has timed out due to inactivity
@@ -405,12 +406,17 @@ page.reg.registrationUnsuccessful.yourCompany=Your application to register your 
 page.reg.registrationUnsuccessful.emailConfirmation=We''ve sent you an email confirming that your application was unsuccessful. If you started to register the company for taxes these applications have been discarded.
 page.reg.registrationUnsuccessful.detailsEntered=Any details you entered during the application haven''t been saved. If you still want to register a company you''ll need to
 page.reg.registrationUnsuccessful.paymentRefund=Any payments will have been refunded within 24 hours. This can take up to 4 days to show on your bank statement.
-
+#Common Cancel
+page.reg.cancelservice.warning=All the information you''ve provided will be deleted.
+page.reg.cancelservice.radioYesLabel=Yes
+page.reg.cancelservice.radioNoLabel=No
 page.reg.cancelpaye.title=Are you sure you''d like to cancel this PAYE application?
 page.reg.cancelpaye.heading=Are you sure you''d like to cancel this PAYE application?
-page.reg.cancelpaye.warning=All the information you''ve provided will be deleted.
-page.reg.cancelpaye.radioYesLabel=Yes
-page.reg.cancelpaye.radioNoLabel=No
+
+
+# Cancel VAT page
+page.reg.cancelvat.title=Are you sure you''d like to cancel this VAT application?
+page.reg.cancelvat.heading=Are you sure you''d like to cancel this VAT application?
 
 ## Failed Submission
 errorPages.failedSubmission.title                        = We couldn''t process your application

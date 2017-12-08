@@ -115,6 +115,9 @@ GET        /cancel-paye                             controllers.dashboard.Cancel
 POST       /cancel-paye                             controllers.dashboard.CancelRegistrationController.submitCancelPAYE
 
 GET        /cancel-vat                              controllers.dashboard.CancelRegistrationController.showCancelVAT
+POST       /cancel-vat                              controllers.dashboard.CancelRegistrationController.submitCancelVAT
+
+
 
 ## DEPRECATED
 
