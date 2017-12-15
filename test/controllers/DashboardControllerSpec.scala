@@ -68,7 +68,7 @@ class DashboardControllerSpec extends SCRSSpec with WithFakeApplication {
         fRes =>
           val res = await(fRes)
           status(res) shouldBe 200
-          contentAsString(res) should include("<title>Your business registration overview</title>")
+          contentAsString(res) should include("<title>Company registration overview</title>")
       }
     }
 

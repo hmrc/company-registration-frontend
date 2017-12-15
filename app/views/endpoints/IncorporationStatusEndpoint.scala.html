@@ -18,7 +18,7 @@
 
 @import models.IncorporationResponse
 
-@main_template(title = Messages("page.reg.Confirmation.title"), mainClass = Some("full-width")) {
+@main_template(title = Messages("page.reg.Confirmation.description"), mainClass = Some("full-width")) {
     <p id="incorpID">@incorpStatus.get.head._id</p>
     <p id="status">@incorpStatus.get.head.status</p>
     <p id="crn">@incorpStatus.get.head.crn</p>

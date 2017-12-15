@@ -18,12 +18,12 @@
 
 @import uk.gov.hmrc.play.views.html.helpers.form
 
-@main_template(title = Messages("page.reg.limit-reached.title"), mainClass = None) {
+@main_template(title = Messages("page.reg.limit-reached.description"), mainClass = None) {
 
     <a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
 
     <div class="form-group">
-        <h1 id="main-heading">@Messages("page.reg.limit-reached.main-title")</h1>
+        <h1 id="main-heading">@Messages("page.reg.limit-reached.description")</h1>
 
         <div class="form-group">
                 <p id="para-one">@Messages("page.reg.limit-reached.para.one")</p>

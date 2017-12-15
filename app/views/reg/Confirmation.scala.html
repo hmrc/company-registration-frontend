@@ -21,9 +21,9 @@
 
 @import uk.gov.hmrc.play.views.html.helpers.form
 
-@main_template(title = Messages("page.reg.Confirmation.title"), mainClass = None) {
+@main_template(title = Messages("page.reg.Confirmation.description"), mainClass = None) {
     <div class="govuk-box-highlight">
-        <h1 id="heading-application-submitted" class="heading-xlarge">@Messages("page.reg.Confirmation.heading")</h1>
+        <h1 id="heading-application-submitted" class="heading-xlarge">@Messages("page.reg.Confirmation.description")</h1>
         <p class="font-large">
             @Messages("page.reg.Confirmation.your.limited")<br>
             <strong id="ltd-ref">@confirmationRefs.transactionId</strong>

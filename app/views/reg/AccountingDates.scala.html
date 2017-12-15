@@ -41,7 +41,7 @@
     </div>
 }
 
-@main_template(title = Messages("page.reg.accountingDates.title"), bodyClasses=None) {
+@main_template(title = Messages("page.reg.accountingDates.description"), bodyClasses=None) {
 
 <a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
 
@@ -53,7 +53,7 @@
     )
 
     <header class="page-header">
-        <h1 class="form-title heading-xlarge" id="main-heading">@Messages("page.reg.accountingDates.heading")</h1>
+        <h1 class="form-title heading-xlarge" id="main-heading">@Messages("page.reg.accountingDates.description")</h1>
     </header>
     <div class ="form-group">
         <p class="lede">@Messages("page.reg.accountingDates.lede1")</p>
@@ -71,8 +71,8 @@
                 '_idHidden -> "startBusinessDate",
                 '_classHidden -> "panel panel-indent",
                 '_labelClass -> "block-label radio-label",
-                '_legend -> Messages("page.reg.accountingDates.heading"),
-                '_legendClass -> "visuallyhidden"
+                '_legend -> Messages("page.reg.accountingDates.description"),
+                '_legendClass -> "visually-hidden"
             )
         </div>
 

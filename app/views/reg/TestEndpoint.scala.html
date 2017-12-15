@@ -29,7 +29,7 @@
   tradingDetailsForm : Form[TradingDetails],
   applicantForm : Form[AboutYouChoice])(implicit request: Request[_], lang: Lang, messages: Messages)
 
-@main_template(title = Messages("page.reg.Confirmation.title"), mainClass = Some("full-width")) {
+@main_template(title = Messages("page.reg.Confirmation.description"), mainClass = Some("full-width")) {
 
     @errorSummary(
         Messages("common.errorSummary.label"),

@@ -21,7 +21,7 @@
 
 @(returningUser : Form[models.ReturningUser])(implicit request: Request[_], lang: Lang, messages: Messages)
 
-@main_template(title = Messages("page.reg.returningUser.title"), mainClass = None){
+@main_template(title = Messages("page.reg.returningUser.description"), mainClass = None){
 
     <a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
 
@@ -31,7 +31,7 @@
     )
 
     <header class="page-header">
-        <h1 id="main-heading" class="heading-xlarge">@Messages("page.reg.returningUser.heading")</h1>
+        <h1 id="main-heading" class="heading-xlarge">@Messages("page.reg.returningUser.description")</h1>
     </header>
 
     @form(action = controllers.reg.routes.ReturningUserController.submit()) {
@@ -42,9 +42,8 @@
         '_fieldsetId -> "returning-user",
         '_groupClass -> "form-group",
         '_labelClass -> "block-label radio-label",
-        '_legend -> "Are you starting a new registration?",
-        '_legend -> Messages("page.reg.returningUser.heading"),
-        '_legendClass -> "visuallyhidden"
+        '_legend -> Messages("page.reg.returningUser.description"),
+        '_legendClass -> "visually-hidden"
 
     )
 

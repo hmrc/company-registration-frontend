@@ -20,13 +20,13 @@
 
 @import uk.gov.hmrc.play.views.html.{helpers => govHelpers}
 
-@main_template(title = Messages("errorPages.failedSubmission.title")) {
+@main_template(title = Messages("errorPages.failedSubmission.description")) {
 
 @errorSummary(
     messages("common.errorSummary.label"), deskproForm
 )
 
-<h1 class="heading-xlarge">@Messages("errorPages.failedSubmission.title")</h1>
+<h1 class="heading-xlarge">@Messages("errorPages.failedSubmission.description")</h1>
 
 <div class="spaced-below">
     <p>@Messages("errorPages.failedSubmission.p1")</p>
@@ -39,7 +39,7 @@
 <h2 class="section-heading">@Messages("errorPages.failedSubmission.header")</h2>
 <p class="spaced-below">@Messages("errorPages.failedSubmission.detail")</p>
 <fieldset class="form-group">
-    <legend class="visuallyhidden">@Messages("errorPages.failedSubmission.detail")</legend>
+    <legend class="visually-hidden">@Messages("errorPages.failedSubmission.p2") @Messages("errorPages.failedSubmission.detail")</legend>
     <div class="form-field">
         @govHelpers.input(
         deskproForm("name"),

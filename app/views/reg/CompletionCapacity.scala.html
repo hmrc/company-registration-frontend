@@ -32,7 +32,7 @@
     )
 }
 
-@main_template(title = Messages("page.reg.AboutYou.title")) {
+@main_template(title = Messages("page.reg.AboutYou.description")) {
 
     <a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
 
@@ -42,7 +42,7 @@
     )
 
     <header class="page-header">
-        <h1 class="form-title heading-xlarge" id="main-heading">@Messages("page.reg.AboutYou.heading")</h1>
+        <h1 class="form-title heading-xlarge" id="main-heading">@Messages("page.reg.AboutYou.description")</h1>
     </header>
 
     @form(action = controllers.reg.routes.CompletionCapacityController.submit()) {
@@ -57,8 +57,8 @@
                 '_idHidden -> "other",
                 '_classHidden -> "panel panel-indent",
                 '_labelClass -> "block-label radio-label",
-                '_legend -> Messages("page.reg.AboutYou.heading"),
-                '_legendClass -> "visuallyhidden"
+                '_legend -> Messages("page.reg.AboutYou.description"),
+                '_legendClass -> "visually-hidden"
             )
         </div>
 

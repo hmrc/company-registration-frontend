@@ -46,11 +46,11 @@
     }
 }
 
-@main_template(title = Messages("page.reg.summary.title")){
+@main_template(title = Messages("page.reg.summary.description")){
 
   <a id="back" class="link-back" href="@controllers.reg.routes.SummaryController.back()">@Messages("common.button.back")</a>
 
-  <h1 id="main-heading" class="heading-large">@Messages("page.reg.summary.heading")</h1>
+  <h1 id="main-heading" class="heading-large">@Messages("page.reg.summary.description")</h1>
   <h2 class="heading-24">@Messages("page.reg.summary.page")</h2>
 
   <h2 id="applicantTitle" class="heading-medium">@Messages("page.reg.summary.heading.applicant")</h2>
@@ -58,7 +58,7 @@
     <div>
       <dt class="cya-question">@Messages("page.reg.summary.applicantText")</dt>
       <dd id="applicant" class="cya-answer">@applicant.completionCapacity.capitalize</dd>
-      <dd class="cya-change"><a href="@controllers.reg.routes.CompletionCapacityController.show" id="change-applicant">@Messages("change")<span class="visuallyhidden">@Messages("page.reg.summary.applicant.change")</span></a></dd>
+      <dd class="cya-change"><a href="@controllers.reg.routes.CompletionCapacityController.show" id="change-applicant">@Messages("change")<span class="visually-hidden">@Messages("page.reg.summary.applicant.change")</span></a></dd>
     </div>
   </dl>
 
@@ -68,7 +68,7 @@
     <div>
       <dt class="cya-question">@Messages("page.reg.summary.companyNameText")</dt>
       <dd id="companyName" class="cya-answer">@companyName</dd>
-      <dd class="cya-change"><a href='@controllers.reg.routes.SummaryController.summaryBackLink("company_name")' id="change-companyname">@Messages("change")<span class="visuallyhidden">@Messages("page.reg.summary.companyName.change")</span></a></dd>
+      <dd class="cya-change"><a href='@controllers.reg.routes.SummaryController.summaryBackLink("company_name")' id="change-companyname">@Messages("change")<span class="visually-hidden">@Messages("page.reg.summary.companyName.change")</span></a></dd>
     </div>
 
     <div>
@@ -86,13 +86,13 @@
         @formatAddress(roAddress.postal_code.fold[String]("")(s => s ))
         @formatAddress(roAddress.country)
       </dd>
-      <dd class="cya-change"><a href='@controllers.reg.routes.SummaryController.summaryBackLink("company_address")' id="change-roaddress">@Messages("change")<span class="visuallyhidden">@Messages("page.reg.summary.ROAddress.change")</span></a></dd>
+      <dd class="cya-change"><a href='@controllers.reg.routes.SummaryController.summaryBackLink("company_address")' id="change-roaddress">@Messages("change")<span class="visually-hidden">@Messages("page.reg.summary.ROAddress.change")</span></a></dd>
     </div>
 
     <div>
       <dt class="cya-question">@Messages("page.reg.summary.jurisdictionText")</dt>
       <dd id="jurisdiction" class="cya-answer">@jurisdiction</dd>
-      <dd class="cya-change"><a href='@controllers.reg.routes.SummaryController.summaryBackLink("company_jurisdiction")' id="change-jurisdiction">@Messages("change")<span class="visuallyhidden">@Messages("page.reg.summary.jurisdiction.change")</span></a></dd>
+      <dd class="cya-change"><a href='@controllers.reg.routes.SummaryController.summaryBackLink("company_jurisdiction")' id="change-jurisdiction">@Messages("change")<span class="visually-hidden">@Messages("page.reg.summary.jurisdiction.change")</span></a></dd>
     </div>
 
     <div>
@@ -113,7 +113,7 @@
         }
         }
       </dd>
-      <dd class="cya-change"><a href="@controllers.reg.routes.PPOBController.show" id="change-ppob">@Messages("change")<span class="visuallyhidden">@Messages("page.reg.summary.PPOBAddress.change")</span></a></dd>
+      <dd class="cya-change"><a href="@controllers.reg.routes.PPOBController.show" id="change-ppob">@Messages("change")<span class="visually-hidden">@Messages("page.reg.summary.PPOBAddress.change")</span></a></dd>
     </div>
   </dl>
 
@@ -122,25 +122,25 @@
     <div>
       <dt class="cya-question">@Messages("page.reg.summary.companyContactName")</dt>
       <dd id="companyContactName" class="cya-answer">@ctContactDets.contactName</dd>
-      <dd class="cya-change"><a href="@controllers.reg.routes.CompanyContactDetailsController.show" id="change-contact-details">@Messages("change")<span class="visuallyhidden">@Messages("page.reg.summary.companyContactName.change")</span></a></dd>
+      <dd class="cya-change"><a href="@controllers.reg.routes.CompanyContactDetailsController.show" id="change-contact-details">@Messages("change")<span class="visually-hidden">@Messages("page.reg.summary.companyContactName.change")</span></a></dd>
     </div>
 
     <div>
       <dt class="cya-question">@Messages("page.reg.summary.companyContactEmail")</dt>
       <dd id="companyContactEmail" class="cya-answer">@ctContactDets.contactEmail</dd>
-      <dd class="cya-change"><a href="@controllers.reg.routes.CompanyContactDetailsController.show" id="change-contact-details-email">@Messages("change")<span class="visuallyhidden">@Messages("page.reg.summary.companyContactEmail.change")</span></a></dd>
+      <dd class="cya-change"><a href="@controllers.reg.routes.CompanyContactDetailsController.show" id="change-contact-details-email">@Messages("change")<span class="visually-hidden">@Messages("page.reg.summary.companyContactEmail.change")</span></a></dd>
     </div>
 
     <div>
       <dt class="cya-question">@Messages("page.reg.summary.companyContactDaytimeTelephoneNumber")</dt>
       <dd id="companyContactDaytimeTelephoneNumber" class="cya-answer">@ctContactDets.contactDaytimeTelephoneNumber</dd>
-      <dd class="cya-change"><a href="@controllers.reg.routes.CompanyContactDetailsController.show" id="change-contact-details-phoneNumber">@Messages("change")<span class="visuallyhidden">@Messages("page.reg.summary.companyContactDaytimeTelephoneNumber.change")</span></a></dd>
+      <dd class="cya-change"><a href="@controllers.reg.routes.CompanyContactDetailsController.show" id="change-contact-details-phoneNumber">@Messages("change")<span class="visually-hidden">@Messages("page.reg.summary.companyContactDaytimeTelephoneNumber.change")</span></a></dd>
     </div>
 
     <div>
       <dt class="cya-question">@Messages("page.reg.summary.companycontactMobileNumber")</dt>
       <dd id="companycontactMobileNumber" class="cya-answer">@ctContactDets.contactMobileNumber</dd>
-      <dd class="cya-change"><a href="@controllers.reg.routes.CompanyContactDetailsController.show" id="change-contact-details-mobileNumber">@Messages("change")<span class="visuallyhidden">@Messages("page.reg.summary.companycontactMobileNumber.change")</span></a></dd>
+      <dd class="cya-change"><a href="@controllers.reg.routes.CompanyContactDetailsController.show" id="change-contact-details-mobileNumber">@Messages("change")<span class="visually-hidden">@Messages("page.reg.summary.companycontactMobileNumber.change")</span></a></dd>
     </div>
   </dl>
 
@@ -153,13 +153,13 @@
         else if(accDate.crnDate == NOT_PLANNING_TO_YET){Messages("page.reg.summary.notPlanningToStartYet")}
         else {accDate.toSummaryDate}}
       </dd>
-      <dd class="cya-change"><a href="@controllers.reg.routes.AccountingDatesController.show" id="change-accountingdates">@Messages("change")<span class="visuallyhidden">@Messages("page.reg.summary.startDate.change")</span></a></dd>
+      <dd class="cya-change"><a href="@controllers.reg.routes.AccountingDatesController.show" id="change-accountingdates">@Messages("change")<span class="visually-hidden">@Messages("page.reg.summary.startDate.change")</span></a></dd>
     </div>
 
     <div>
       <dt class="cya-question">@Messages("page.reg.summary.tradingDetails")</dt>
       <dd id="tradingDetails" class="cya-answer">@readableTrading(tradingDetails)</dd>
-      <dd class="cya-change"><a href="@controllers.reg.routes.TradingDetailsController.show" id="change-trading-details">@Messages("change")<span class="visuallyhidden">@Messages("page.reg.summary.tradingDetails.change")</span></a></dd>
+      <dd class="cya-change"><a href="@controllers.reg.routes.TradingDetailsController.show" id="change-trading-details">@Messages("change")<span class="visually-hidden">@Messages("page.reg.summary.tradingDetails.change")</span></a></dd>
     </div>
   </dl>
 
