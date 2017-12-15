@@ -23,9 +23,9 @@
 }
 
 @main_template(title = "Error", pageScripts = Some(pageScripts), bodyClasses = None) {
-  <h1 class="main-heading">@Messages("error.heading.restart")</h1>
-  <p>@Messages("error.message.restart")</p>
-  <p>@Messages("error.message.restart-2") <a href=@controllers.reg.routes.WelcomeController.show>@Messages("error.message.restart-url")</a></p>
+  <h1 class="main-heading">@Messages("error.restart.description")</h1>
+  <p>@Messages("error.restart.message")</p>
+  <p>@Messages("error.restart.message-2") <a href=@controllers.reg.routes.WelcomeController.show>@Messages("error.restart.message-url")</a></p>
 
   <div id="errorEvent" class="@handOffNumber">
       <span id="@errorType"></span>

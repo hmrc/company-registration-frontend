@@ -31,16 +31,14 @@ common.button.ConfirmAndContinue                                    = Confirm an
 
 
 ## Timeout page
-page.timeout.title                                                  = Your session has timed out due to inactivity
-page.timeout.heading                                                = Your session has timed out due to inactivity
+page.timeout.description                                            = Your session has timed out due to inactivity
 page.timeout.p1                                                     = Your answers have been saved.
 page.timeout.p2                                                     = Sign in to
 page.timeout.url                                                    = continue registration
 
 
 ## Welcome page
-page.reg.welcome.title                                              = Register a limited company
-page.reg.welcome.heading                                            = Register a limited company
+page.reg.welcome.description                                        = Register a limited company
 page.reg.welcome.description.one                                    = Use this service to:
 page.reg.welcome.bullet.inc                                         = register a limited company with Companies House
 page.reg.welcome.bullet.ct                                          = register for Corporation Tax with HM Revenue and Customs (HMRC)
@@ -54,15 +52,13 @@ page.reg.welcome.bullet.90-days                                     = must be co
 page.reg.welcome.cost                                               = It costs £12 to set up a company. Your information will be shared between Companies House and HMRC during the application process.
 
 ## Returning User
-page.reg.returningUser.title                                        = Are you starting a new registration?
-page.reg.returningUser.heading                                      = Are you starting a new registration?
+page.reg.returningUser.description                                  = Are you starting a new registration?
 page.reg.returningUser.radioYesLabel                                = Yes
 page.reg.returningUser.radioNoLabel                                 = No - I''m continuing with an existing registration
 error.returningUser.required                                        = Tell us if you''re setting up a new limited company
 
 ## About you
-page.reg.AboutYou.title                                             = What is your relationship to the company?
-page.reg.AboutYou.heading                                           = What is your relationship to the company?
+page.reg.AboutYou.description                                       = What is your relationship to the company?
 page.reg.AboutYou.radio1                                            = Director
 page.reg.AboutYou.radio2                                            = Secretary
 page.reg.AboutYou.radio3                                            = Agent - for example, an accountant
@@ -70,19 +66,8 @@ page.reg.AboutYou.radio4                                            = Other - fo
 page.reg.AboutYou.radio4.more                                       = Enter your relationship to the company
 error.completionCapacity.required                                   = Tell us what your relationship is to the company
 
-
-## CreateAccount form
-page.reg.CreateAccount.title                                        = Create an account
-page.reg.CreateAccount.heading                                      = Create an account
-page.reg.CreateAccount.description                                  = Please provide the following information
-page.reg.CreateAccount.forename.label                               = Forename
-page.reg.CreateAccount.surname.label                                = Surname
-page.reg.CreateAccount.email.label                                  = Email address
-page.reg.CreateAccount.email.error                                  = Enter a valid email address
-
 ## Confirmation
-page.reg.Confirmation.title                                         = Application submitted
-page.reg.Confirmation.heading                                       = Application submitted
+page.reg.Confirmation.description                                   = Application submitted
 page.reg.Confirmation.your.limited                                  = Your limited company reference number is
 page.reg.Confirmation.your.refnumber                                = Your Corporation Tax reference number is
 page.reg.Confirmation.next-steps                                    = What happens next?
@@ -98,8 +83,7 @@ page.reg.Confirmation.next-steps.point1                             = an email n
 page.reg.Confirmation.next-steps.point2                             = another email within 2 working days letting you know the outcome of your application
 
 ## Accounting Dates
-page.reg.accountingDates.title                                      = When will the company start doing business?
-page.reg.accountingDates.heading                                    = When will the company start doing business?
+page.reg.accountingDates.description                                = When will the company start doing business?
 page.reg.accountingDates.lede1                                      = The company is doing business if it''s earning income or trading with a view to making a profit.
 page.reg.accountingDates.radioOne                                   = The date it''s registered
 page.reg.accountingDates.radioTwo                                   = On a future date
@@ -117,17 +101,8 @@ page.reg.accountingDates.warning                                    = As soon as
 page.reg.accountingDates.help                                       = Enter a date that''s at least 2 working days in the future (or 3 if it''s after 2pm)
 error.businessStartDate.required                                    = Tell us when the company will start doing business
 
-## Prepare Account end Date
-page.reg.prepareAccount.title                                       = Company''s year end
-page.reg.prepareAccount.heading                                     = Do you want to change your company''s year end?
-page.reg.prepareAccount.info                                        = If your company was registered on 5 January 2015 its year end would fall on 31 January 2016. It would then fall on 31 January every following year.
-page.reg.prepareAccount.link                                        = change your company''s year end
-page.reg.prepareAccount.date.end.heading                            = Your company''s year end date
-
 ## Company contact details
-page.reg.company-contact-details.title                              = Who should we contact about the company''s Corporation Tax?
-page.reg.company-contact-details.heading                            = Who should we contact about the company''s Corporation Tax?
-page.reg.company-contact-details.description                        = We may need to get in touch for further information about the company once you''ve completed your registration.
+page.reg.company-contact-details.description                        = Who should we contact about the company''s Corporation Tax?
 page.reg.company-contact-details.label-one                          = Contact name
 page.reg.company-contact-details.label-two                          = Email address
 page.reg.company-contact-details.label-three                        = Contact number
@@ -154,31 +129,22 @@ validation.postcode                                                 = Please ent
 validation.nonEmpty                                                 = This field is required
 validation.invalid                                                  = Enter your relationship to the business using 100 characters or less
 
-## Address lookup
-page.reg.addressLookup.warning.maxResults.heading                   = More than x addresses found
-page.reg.addressLookup.warning.maxResults.body                      = Enter a house name or number to refine the search
-page.reg.addressLookup.warning.noResults.heading                    = No addresses found
-page.reg.addressLookup.warning.noResults.body                       = Change your postcode or enter an address manually
-
 ## PPOB
-page.reg.ppob.title                                                 = Where will the company carry out most of its business activities?
-page.reg.ppob.heading                                               = Where will the company carry out most of its business activities?
+page.reg.ppob.description                                           = Where will the company carry out most of its business activities?
 page.reg.ppob.description-one                                       = This is where the majority of your business activities will be carried out.
 page.reg.ppob.postcode                                              = Postcode
 page.reg.ppob.addressLine1                                          = Address line 1
 page.reg.ppob.addressLine2                                          = Address line 2
 page.reg.ppob.addressLine3                                          = Address line 3
 page.reg.ppob.addressLine4                                          = Address line 4
-page.reg.ppob.manualEntry                                           = A different address
-page.reg.ppob.other                                                 = A different address
+page.reg.ppob.differentAddress                                      = A different address
 page.reg.ppob.lookup                                                = Find your address
 page.reg.ppob.mobileBusiness                                        = If you work in different locations, use the address where the company keeps its stock or equipment.
 page.reg.ppob.location                                              = This can be your home, a commercial office, a studio or workshop. You or the company don’t need to own the property.
 error.addressChoice.required                                        = Tell us where the company will carry out most of its business activities
 
 ## TradingDetails
-page.reg.ct61.title                                                 = Will the company make or receive any of these types of payments?
-page.reg.ct61.heading                                               = Will the company make or receive any of these types of payments?
+page.reg.ct61.description                                           = Will the company make or receive any of these types of payments?
 page.reg.ct61.lede                                                  = Tell us if your company will:
 page.reg.ct61.bullet1                                               = pay interest on director''s loans
 page.reg.ct61.bullet2                                               = make royalty payments to clients
@@ -198,18 +164,9 @@ page.reg.ct61.radioNoLabel                                          = No, the co
 page.reg.ct61.radioYesLabel                                         = Yes, the company will make or receive at least one of these types of payments
 error.regularPayments.required                                      = Tell us if within the next 3 months the company will make or receive any of the following
 
-## Review address
-page.reg.review-address.title                                       = Review and confirm
-page.reg.review-address.heading                                     = Confirm where you''ll carry out most of your business activities
-page.reg.review-address.change                                      = Change address
-
 ## Summary Page
-page.reg.summary.header.question                                    = We asked
-page.reg.summary.header.answer                                      = You said
-page.reg.summary.header.change                                      = You can
-page.reg.summary.title                                              = Check and confirm your answers
+page.reg.summary.description                                        = Check and confirm your answers
 page.reg.summary.page                                               = Page 1 of 2
-page.reg.summary.heading                                            = Check and confirm your answers
 page.reg.summary.heading.one                                        = Company details
 page.reg.summary.heading.applicant                                  = Applicant
 page.reg.summary.companyNameText                                    = What is the company name?
@@ -244,8 +201,7 @@ page.reg.summary.pleaseReview                                       = Please rev
 page.reg.summary.information.indent                                 = Your answers should reflect your current business activities. You''ll need to tell HMRC about any changes to your business in the future.
 
 ## Limit reached
-page.reg.limit-reached.title                                        = Service limit reached
-page.reg.limit-reached.main-title                                   = We''ve reached our maximum number of users for today
+page.reg.limit-reached.description                                  = We''ve reached our maximum number of users for today
 page.reg.limit-reached.para.one                                     = Sorry, we''ve already reached our limit for new users of the service today.
 page.reg.limit-reached.para.two                                     = Please try again tomorrow, or you can use the existing Companies House service to register your company.
 page.reg.limit-reached.link                                         = Register your company on the Companies House website
@@ -264,14 +220,13 @@ page.verification.create-new-ggw-account.para.two                   = If you use
 page.verification.create-new-ggw-account.para.three                 = You need to create a new account to use this service.
 
 ## Feedback page
-page.feedback.title                                                 = Feedback
-page.feedback.heading                                               = Send your feedback
+page.feedback.description                                           = Send your feedback
 
-## Error page
-error.heading.restart                                               = Something went wrong
-error.message.restart                                               = Sorry, we''re having technical issues.
-error.message.restart-2                                             = Please
-error.message.restart-url                                           = check we''ve recorded your details correctly.
+## Error restart page
+error.restart.description                                           = Something went wrong
+error.restart.message                                               = Sorry, we''re having technical issues.
+error.restart.message-2                                             = Please
+error.restart.message-url                                           = check we''ve recorded your details correctly.
 
 ## Email verification
 page.verification.create-new-account.title                          = You need to create a new Government Gateway account
@@ -316,14 +271,13 @@ page.reg.questionnaire.q6                                           = How could 
 page.reg.questionnaire.send                                         = Send feedback
 
 ## Incomplete Registration
-page.reg.incompleteReg.heading                                      = Your application isn''t complete yet
-page.reg.incompleteReg.title                                        = Incomplete registration
+page.reg.incompleteReg.description                                  = Your application isn''t complete yet
 page.reg.incompleteReg.description.one                              = To complete your application you need to sign in again now.
 page.reg.incompleteReg.description.two                              = We''ll then confirm that we''ve received your application and you''ll get your registration reference numbers.
 page.reg.incompleteReg.warning                                      = You were logged out before you submitted your application.
 
-page.reg.Dashboard.title                                            = Your business registration overview
-page.reg.Dashboard.heading                                          = Company registration overview
+## Dashboard page
+page.reg.Dashboard.description                                      = Company registration overview
 page.reg.Dashboard.incorporation                                    = Incorporation
 page.reg.Dashboard.corporation                                      = Corporation Tax
 page.reg.Dashboard.status                                           = Status:
@@ -399,8 +353,8 @@ page.reg.Dashboard.VAT.pendingText                                  = We''ve rec
 page.reg.Dashboard.status.incomplete                                = Incomplete
 page.reg.Dashboard.hiddenOpenNewTab                                 = (link opens in a new tab)
 
-page.reg.registrationUnsuccessful.title                             = Company registration unsuccessful
-page.reg.registrationUnsuccessful.heading                           = Company registration unsuccessful
+## Registration unsuccessful
+page.reg.registrationUnsuccessful.description                       = Company registration unsuccessful
 page.reg.registrationUnsuccessful.subHeading                        = What happens next?
 page.reg.registrationUnsuccessful.yourCompany                       = Your application to register your company was unsuccessful.
 page.reg.registrationUnsuccessful.emailConfirmation                 = We''ve sent you an email confirming that your application was unsuccessful. If you started to register the company for taxes these applications have been discarded.
@@ -411,16 +365,13 @@ page.reg.registrationUnsuccessful.paymentRefund                     = Any paymen
 page.reg.cancelservice.warning                                      = All the information you''ve provided will be deleted.
 page.reg.cancelservice.radioYesLabel                                = Yes
 page.reg.cancelservice.radioNoLabel                                 = No
-page.reg.cancelpaye.title                                           = Are you sure you''d like to cancel this PAYE application?
-page.reg.cancelpaye.heading                                         = Are you sure you''d like to cancel this PAYE application?
-
+page.reg.cancelpaye.description                                     = Are you sure you''d like to cancel this PAYE application?
 
 ## Cancel VAT page
-page.reg.cancelvat.title                                            = Are you sure you''d like to cancel this VAT application?
-page.reg.cancelvat.heading                                          = Are you sure you''d like to cancel this VAT application?
+page.reg.cancelvat.description                                      = Are you sure you''d like to cancel this VAT application?
 
 ## Failed Submission
-errorPages.failedSubmission.title                                   = We couldn''t process your application
+errorPages.failedSubmission.description                             = We couldn''t process your application
 errorPages.failedSubmission.p1                                      = Sorry, there is a technical problem and we couldn''t process your application. Any details you entered have been saved.
 errorPages.failedSubmission.p2                                      = Fill out the form below so we can help you complete your application.
 errorPages.failedSubmission.header                                  = Your details
@@ -431,13 +382,12 @@ errorPages.failedSubmission.q3                                      = What were 
 errorPages.failedSubmission.button                                  = Send
 
 ## Retry Submission
-errorPages.retrySubmission.title                                    = We couldn''t process your application
+errorPages.retrySubmission.description                              = We couldn''t process your application
 errorPages.retrySubmission.p1                                       = Sorry, there is a technical problem and we couldn''t process your application. Any details you entered have been saved.
 errorPages.retrySubmission.p2                                       = Please resend your application.
 errorPages.retrySubmission.button                                   = Resend
 
 ## Deskpro Submitted
-errorPages.deskproSubmitted.title                                   = Thank you
-errorPages.deskproSubmitted.heading                                 = Thank you
+errorPages.deskproSubmitted.description                             = Thank you
 errorPages.deskproSubmitted.p1                                      = Your submission has been received.
 errorPages.deskproSubmitted.p2                                      = We''ll be in touch as soon as we can to help you complete your application.

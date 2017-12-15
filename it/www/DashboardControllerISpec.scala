@@ -132,7 +132,7 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub with F
       mdtpCookieData("userId") shouldBe userId
 
       val doc = Jsoup.parse(response.body)
-      doc.title shouldBe "Your business registration overview"
+      doc.title shouldBe "Company registration overview"
       doc.getElementById("payeRej").attr("href") shouldBe payeRestartURL
       doc.getElementById("payeRej").text shouldBe "Register again"
     }

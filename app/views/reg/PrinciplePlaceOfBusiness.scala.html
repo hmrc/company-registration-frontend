@@ -24,7 +24,7 @@
     case _ => false
 }}
 
-@main_template(title = Messages("page.reg.ppob.title")) {
+@main_template(title = Messages("page.reg.ppob.description")) {
 
     <a id="back" class="link-back" href="@controllers.reg.routes.PPOBController.back()">@Messages("common.button.back")</a>
 
@@ -34,7 +34,7 @@
     )
 
     <header class="page-header">
-        <h1 class="form-title heading-xlarge" id="main-heading">@Messages("page.reg.ppob.heading")</h1>
+        <h1 class="form-title heading-xlarge" id="main-heading">@Messages("page.reg.ppob.description")</h1>
     </header>
 
     <p>@Messages("page.reg.ppob.location")</p>
@@ -46,10 +46,10 @@
                 ppobForm("addressChoice"),
                 PPOBAddress.fold(Seq.empty[(String, String)])(PPOBAddr => Seq("PPOB" -> PPOBAddr.mkString))
                   ++ (if(PPOBIsEqualToRO) Seq.empty[(String, String)] else Seq("RO" -> ROAddress.mkString))
-                  ++ Seq("Other" -> messages("page.reg.ppob.other")),
+                  ++ Seq("Other" -> messages("page.reg.ppob.differentAddress")),
                 '_labelClass -> "block-label radio-label",
-                '_legend -> Messages("page.reg.ppob.heading"),
-                '_legendClass -> "visuallyhidden"
+                '_legend -> Messages("page.reg.ppob.description"),
+                '_legendClass -> "visually-hidden"
             )
         </div>
 

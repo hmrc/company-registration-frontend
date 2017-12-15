@@ -70,7 +70,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
       AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
-          document.title() shouldBe "Your business registration overview"
+          document.title() shouldBe "Company registration overview"
 
           Map(
             "incorpStatusText" -> "Pending",
@@ -107,7 +107,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
       AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
-          document.title() shouldBe "Your business registration overview"
+          document.title() shouldBe "Company registration overview"
 
           Map(
             "incorpStatusText" -> "Registered",
@@ -141,7 +141,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
       AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
-          document.title() shouldBe "Your business registration overview"
+          document.title() shouldBe "Company registration overview"
 
           Map(
             "incorpStatusText" -> "Registered",
@@ -173,7 +173,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
       AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
-          document.title() shouldBe "Your business registration overview"
+          document.title() shouldBe "Company registration overview"
           Map(
             "incorpStatusText" -> "Registered",
             "crn" -> "crn123",
@@ -205,7 +205,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
       AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
-          document.title() shouldBe "Your business registration overview"
+          document.title() shouldBe "Company registration overview"
 
           Map(
             "incorpStatusText" -> "Registered",
@@ -237,7 +237,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
       AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
-          document.title() shouldBe "Your business registration overview"
+          document.title() shouldBe "Company registration overview"
           document.getElementById("payeStatusText").text() shouldBe "Not eligible"
       }
     }
@@ -262,7 +262,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
       AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
-          document.title() shouldBe "Your business registration overview"
+          document.title() shouldBe "Company registration overview"
           document.getElementById("payeStatusText").text() shouldBe "Temporarily unavailable"
       }
     }
@@ -287,7 +287,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
       AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
-          document.title() shouldBe "Your business registration overview"
+          document.title() shouldBe "Company registration overview"
           document.getElementById("payeStatusText").text() shouldBe "Register"
           document.getElementById("payeRegUrl").attr("href") shouldBe dashboard.payeDash.links.startURL
       }
@@ -313,7 +313,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
       AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
-          document.title() shouldBe "Your business registration overview"
+          document.title() shouldBe "Company registration overview"
           document.getElementById("payeStatusText").text() shouldBe "Incomplete"
 
       }
@@ -339,7 +339,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
       AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
-          document.title() shouldBe "Your business registration overview"
+          document.title() shouldBe "Company registration overview"
 
           Map(
             "payeStatusText" -> "Pending",
@@ -370,7 +370,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
       AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
-          document.title() shouldBe "Your business registration overview"
+          document.title() shouldBe "Company registration overview"
 
           Map(
             "payeStatusText" -> "Pending",
@@ -402,7 +402,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
       AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
-          document.title() shouldBe "Your business registration overview"
+          document.title() shouldBe "Company registration overview"
           document.getElementById("payeStatusText").text() shouldBe "Registered"
 
 
@@ -429,7 +429,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
       AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
-          document.title() shouldBe "Your business registration overview"
+          document.title() shouldBe "Company registration overview"
           document.getElementById("payeStatusText").text() shouldBe "Incomplete"
 
 
@@ -456,7 +456,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
       AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
-          document.title() shouldBe "Your business registration overview"
+          document.title() shouldBe "Company registration overview"
           document.getElementById("payeStatusText").text() shouldBe "Unsuccessful"
           document.getElementById("payeRej").attr("href") shouldBe "bar"
       }
@@ -482,7 +482,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
       AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
-          document.title() shouldBe "Your business registration overview"
+          document.title() shouldBe "Company registration overview"
           document.getElementById("legacyVATStatusText").text() shouldBe "Register using another HMRC service (link opens in a new tab)"
           document.getElementById("vatUrl").attr("href") shouldBe "https://online.hmrc.gov.uk/registration/newbusiness/introduction"
       }
@@ -508,7 +508,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
       AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
-          document.title() shouldBe "Your business registration overview"
+          document.title() shouldBe "Company registration overview"
           document.getElementById("legacyVATStatusText").text() shouldBe "Register using another HMRC service (link opens in a new tab)"
           document.getElementById("vatUrl").attr("href") shouldBe "https://online.hmrc.gov.uk/registration/newbusiness/introduction"
       }
@@ -534,7 +534,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
       AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
-          document.title() shouldBe "Your business registration overview"
+          document.title() shouldBe "Company registration overview"
           document.getElementById("legacyVATStatusText").text() shouldBe "Register using another HMRC service (link opens in a new tab)"
           document.getElementById("vatUrl").attr("href") shouldBe "https://online.hmrc.gov.uk/registration/newbusiness/introduction"
       }
@@ -560,7 +560,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
       AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
-          document.title() shouldBe "Your business registration overview"
+          document.title() shouldBe "Company registration overview"
           document.getElementById("vatStatusText") shouldBe null
           document.getElementById("vatUrl") shouldBe null
       }
@@ -586,7 +586,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
       AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
-          document.title() shouldBe "Your business registration overview"
+          document.title() shouldBe "Company registration overview"
           document.getElementById("vatStatusText") shouldBe null
           document.getElementById("vatUrl") shouldBe null
 
@@ -612,7 +612,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
       AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
-          document.title() shouldBe "Your business registration overview"
+          document.title() shouldBe "Company registration overview"
           document.getElementById("payeStatusText").text() shouldBe "Incomplete"
           document.getElementById("payeCancelLink").text() shouldBe "Cancel registration"
           document.getElementById("payeCancelLink").attr("href") shouldBe "cancelURL"
@@ -638,7 +638,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
       AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
-          document.title() shouldBe "Your business registration overview"
+          document.title() shouldBe "Company registration overview"
           document.getElementById("payeStatusText").text() shouldBe "Incomplete"
           document.getElementById("payeCancelLink") shouldBe null
       }

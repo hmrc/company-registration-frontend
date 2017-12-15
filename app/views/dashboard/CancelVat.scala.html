@@ -19,11 +19,11 @@
 
 @(cancelSelection : Form[Boolean])(implicit request: Request[_], lang: Lang, messages: Messages)
 
-@main_template(title = Messages("page.reg.returningUser.title"), mainClass = None){
+@main_template(title = Messages("page.reg.cancelvat.description"), mainClass = None){
 
 <a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
 
-        <h1 id="main-heading" class="heading-large">@Messages("page.reg.cancelvat.heading")</h1>
+        <h1 id="main-heading" class="heading-large">@Messages("page.reg.cancelvat.description")</h1>
 
     <div class="notice">
         <div class="important-notice">
@@ -39,8 +39,8 @@
                 '_fieldsetId -> "cancel-vat",
                 '_groupClass -> "inline",
                 '_labelClass -> "block-label radio-label",
-                '_legend -> Messages("page.reg.cancelvat.heading"),
-                '_legendClass -> "visuallyhidden"
+                '_legend -> Messages("page.reg.cancelvat.description"),
+                '_legendClass -> "visually-hidden"
             )
         </div>
 

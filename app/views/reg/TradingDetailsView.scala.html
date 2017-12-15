@@ -23,7 +23,7 @@
 
 @(tradingDetails : Form[TradingDetails])(implicit request: Request[_], lang: Lang, messages: Messages)
 
-@main_template(title = Messages("page.reg.ct61.title"), mainClass = None){
+@main_template(title = Messages("page.reg.ct61.description"), mainClass = None){
 
     <a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
 
@@ -33,7 +33,7 @@
     )
 
     <header class="page-header">
-        <h1 id="main-heading" class="heading-xlarge">@Messages("page.reg.ct61.heading")</h1>
+        <h1 id="main-heading" class="heading-xlarge">@Messages("page.reg.ct61.description")</h1>
     </header>
 
     <div class="form-group">
@@ -78,9 +78,8 @@
                 '_fieldsetId -> "regular-payments",
                 '_groupClass -> "inline",
                 '_labelClass -> "block-label radio-label",
-                '_legend -> "Do you expect to make or receive payments?",
-                '_legend -> Messages("page.reg.ct61.heading"),
-                '_legendClass -> "visuallyhidden"
+                '_legend -> Messages("page.reg.ct61.description"),
+                '_legendClass -> "visually-hidden"
             )
         </div>
 
