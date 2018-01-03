@@ -1,5 +1,5 @@
 @*
- * Copyright 2017 HM Revenue & Customs
+ * Copyright 2018 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -54,6 +54,7 @@
 
     @input(
         formItem(s"$fieldName.day"),
+        '_type -> "tel",
         '_label -> Messages("date.fields.day"),
         '_labelClass -> "form-group form-group-day",
         '_inputClass -> "form-control input--xsmall",
@@ -62,6 +63,7 @@
     )
     @input(
         formItem(s"$fieldName.month"),
+        '_type -> "tel",
         '_label -> Messages("date.fields.month"),
         '_labelClass -> "form-group form-group-month",
         '_inputClass -> "form-control input--xsmall",
@@ -70,6 +72,7 @@
     )
     @input(
         formItem(s"$fieldName.year"),
+        '_type -> "tel",
         '_label -> Messages("date.fields.year"),
         '_labelClass -> "form-group form-group-year",
         '_inputClass -> "form-control input--xsmall",

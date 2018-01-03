@@ -139,7 +139,7 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fak
       stubKeystore(SessionId, "5")
       stubGet("/company-registration/corporation-tax-registration/5/accounting-details", 404, "")
       stubGet("/company-registration/corporation-tax-registration/5/corporation-tax-registration", 200, statusResponseFromCR(status = "NOTDRAFT"))
-      val crResponse = """{"accountingDateStatus":"FUTURE_DATE", "startDateOfBusiness":"2018-01-02", "links": []}"""
+      val crResponse = """{"accountingDateStatus":"FUTURE_DATE", "startDateOfBusiness":"2019-01-02", "links": []}"""
 
       stubGet("/company-registration/corporation-tax-registration/5/accounting-details", 200, crResponse)
 
@@ -174,7 +174,7 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fak
         post(Map(
           "csrfToken"->Seq("xxx-ignored-xxx"),
           "businessStartDate"->Seq("futureDate"),
-          "businessStartDate-futureDate.year"->Seq("2018"),
+          "businessStartDate-futureDate.year"->Seq("2019"),
           "businessStartDate-futureDate.month"->Seq("1"),
           "businessStartDate-futureDate.day"->Seq("2")
         ))
@@ -188,7 +188,7 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fak
       val captor = crPuts.get(0)
       val json = Json.parse(captor.getBodyAsString)
       (json \ "accountingDateStatus").as[String] shouldBe "FUTURE_DATE"
-      (json \ "startDateOfBusiness").as[String] shouldBe "2018-01-02"
+      (json \ "startDateOfBusiness").as[String] shouldBe "2019-01-02"
     }
   }
 
