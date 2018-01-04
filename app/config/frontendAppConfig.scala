@@ -69,10 +69,14 @@ object FrontendAppConfig extends AppConfig with ServicesConfig {
   lazy val whitelist = whitelistConfig("whitelist")
   lazy val whitelistExcluded = whitelistConfig("whitelist-excluded")
 
-  private val IR_CT = "IR-CT"
-  private val IR_PAYE = "IR-PAYE"
+  private val IR_CT           = "IR-CT"
+  private val IR_PAYE         = "IR-PAYE"
   private val HMCE_VATDEC_ORG = "HMCE-VATDEC-ORG"
   private val HMCE_VATVAR_ORG = "HMRC-VATVAR-ORG"
+  private val IR_SA_PART_ORG  = "IR-SA-PART-ORG"
+  private val IR_SA_TRUST_ORG = "IR-SA-TRUST-ORG"
+  private val IR_SA           = "IR-SA"
 
-  val restrictedEnrolments  = List(IR_CT, IR_PAYE, HMCE_VATDEC_ORG, HMCE_VATVAR_ORG)
+  val SAEnrolments         = List(IR_SA_PART_ORG, IR_SA_TRUST_ORG, IR_SA)
+  val restrictedEnrolments = List(IR_CT, IR_PAYE, HMCE_VATDEC_ORG, HMCE_VATVAR_ORG) ++ SAEnrolments
 }
