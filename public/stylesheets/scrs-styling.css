@@ -1,5 +1,6 @@
 @import 'form-validation.css';
 @import 'taas.css';
+@import 'dashboard.css';
 
 /* All the styles below can be deleted when HMRC AF moves to version 3 and/or 4 */
 @media (min-width: 641px) {

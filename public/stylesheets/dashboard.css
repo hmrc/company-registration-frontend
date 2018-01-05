@@ -1,0 +1,30 @@
+/* 
+
+The dashboard in unique and is not shared with other services apart from VAT registration and PAYE registration.
+So this code and styles do not need to be shared and therefore will not make it into HMRC AF
+
+Also, the dashboard may be a temporary feature (moving or being deleted in 2019).
+So I have made the decision to host the css here in a separate file so that it is self contained
+and easy to remove when required at a later date.
+
+*/
+
+.dashboard table p,
+table .list-bullet li {
+	font-size: 14px;
+}
+
+@media (min-width: 641px) {
+	.dashboard table p,
+	table .list-bullet li {
+		font-size: 16px;
+	}
+}
+
+.dashboard table td:first-child {
+	width: 50%;
+}
+
+.dashboard table td:only-child {
+	width: 100%;
+}
