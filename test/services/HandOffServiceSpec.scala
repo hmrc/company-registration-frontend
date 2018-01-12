@@ -28,12 +28,11 @@ import org.mockito.{ArgumentCaptor, Matchers}
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
 import play.api.libs.json.{JsObject, Json}
-import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.test.WithFakeApplication
 import utils.JweEncryptor
 
 import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.play.test.WithFakeApplication
 
 class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture with CorporationTaxFixture
     with BeforeAndAfterEach
@@ -47,15 +46,16 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
   val mockEncryptor = mock[JweEncryptor]
 
   trait Setup {
-    val service = new HandOffService with ServicesConfig {
-      override val compRegConnector = mockCompanyRegistrationConnector
-      override val returnUrl = "http://test"
-      override val keystoreConnector = mockKeystoreConnector
-      override val encryptor = mockEncryptor
-      override val authConnector = mockAuthConnector
-      override val navModelMongo = mockNavModelRepoObj
-      override lazy val timeout = 100
-      override lazy val timeoutDisplayLength = 30
+    val service = new HandOffService {
+      val compRegConnector = mockCompanyRegistrationConnector
+      val returnUrl = "http://test"
+      val externalUrl = "http://external"
+      val keystoreConnector = mockKeystoreConnector
+      val encryptor = mockEncryptor
+      val authConnector = mockAuthConnector
+      val navModelMongo = mockNavModelRepoObj
+      lazy val timeout = 100
+      lazy val timeoutDisplayLength = 30
     }
   }
 
@@ -160,8 +160,8 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
     "return a jsObject" in new Setup {
       service.renewSessionObject shouldBe JsObject(Map(
         "timeout" -> Json.toJson(service.timeout - service.timeoutDisplayLength),
-        "keepalive_url" -> Json.toJson(s"http://localhost:9970${controllers.reg.routes.SignInOutController.renewSession().url}"),
-        "signedout_url" -> Json.toJson(s"http://localhost:9970${controllers.reg.routes.SignInOutController.destroySession().url}")))
+        "keepalive_url" -> Json.toJson(s"http://external${controllers.reg.routes.SignInOutController.renewSession().url}"),
+        "signedout_url" -> Json.toJson(s"http://external${controllers.reg.routes.SignInOutController.destroySession().url}")))
     }
   }
 

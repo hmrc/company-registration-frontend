@@ -21,7 +21,7 @@ import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.{SCRSHandOffRegime, SCRSRegime}
 import controllers.reg.ControllerErrorHandler
 import play.api.mvc.{Action, AnyContent}
-import services.{HandBackService, HandOffService, NavModelNotFoundException}
+import services.{HandBackService, HandOffService, HandOffServiceImpl, NavModelNotFoundException}
 import uk.gov.hmrc.play.frontend.auth.Actions
 import uk.gov.hmrc.play.frontend.controller.FrontendController
 import utils.{DecryptionError, MessagesSupport, PayloadError, SessionRegistration}
@@ -31,7 +31,7 @@ import scala.util.{Failure, Success}
 
 object BusinessActivitiesController extends BusinessActivitiesController {
   val authConnector = FrontendAuthConnector
-  val handOffService = HandOffService
+  val handOffService = HandOffServiceImpl
   val keystoreConnector = KeystoreConnector
   val handBackService = HandBackService
   val companyRegistrationConnector = CompanyRegistrationConnector

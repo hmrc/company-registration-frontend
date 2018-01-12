@@ -46,7 +46,7 @@ object PPOBController extends PPOBController{
   val addressLookupFrontendService = AddressLookupFrontendService
   val companyRegistrationConnector = CompanyRegistrationConnector
   val pPOBService = PPOBService
-  val handOffService = HandOffService
+  val handOffService = HandOffServiceImpl
   val navModelMongo =  NavModelRepo.repository
   val businessRegConnector = BusinessRegistrationConnector
 }

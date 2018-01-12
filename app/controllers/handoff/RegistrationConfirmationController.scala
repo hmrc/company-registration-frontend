@@ -24,7 +24,7 @@ import models.handoff.PaymentHandoff
 import models.{ConfirmationReferencesSuccessResponse, DESFailureDeskpro, DESFailureRetriable, RegistrationConfirmationPayload}
 import play.api.Logger
 import play.api.mvc.{Action, AnyContent, Request, Result}
-import services.{HandBackService, HandOffService, NavModelNotFoundException}
+import services.{HandBackService, HandOffService, HandOffServiceImpl, NavModelNotFoundException}
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.Accounts
 import uk.gov.hmrc.play.frontend.auth._
 import uk.gov.hmrc.play.frontend.controller.FrontendController
@@ -39,7 +39,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 object RegistrationConfirmationController extends RegistrationConfirmationController {
   val authConnector = FrontendAuthConnector
   val keystoreConnector = KeystoreConnector
-  val handOffService = HandOffService
+  val handOffService = HandOffServiceImpl
   val handBackService = HandBackService
   val companyRegistrationConnector = CompanyRegistrationConnector
 }
