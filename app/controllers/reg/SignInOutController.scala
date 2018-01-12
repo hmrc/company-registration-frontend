@@ -41,7 +41,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 object SignInOutController extends SignInOutController with ServicesConfig{
   val authConnector = FrontendAuthConnector
   val compRegConnector = CompanyRegistrationConnector
-  val handOffService = HandOffService
+  val handOffService = HandOffServiceImpl
   val emailService = EmailVerificationService
   val enrolmentsService = EnrolmentsService
   val metrics = MetricsService

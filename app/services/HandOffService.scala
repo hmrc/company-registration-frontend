@@ -21,21 +21,21 @@ import models.handoff.{BusinessActivitiesModel, CompanyNameHandOffModel, Handoff
 import models.{ConfirmationReferencesSuccessResponse, SummaryHandOff, UserDetailsModel, UserIDs}
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import models.handoff._
-import play.api.Logger
 import play.api.libs.json.{JsObject, JsString, Json}
 import repositories.NavModelRepo
-import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.frontend.auth.AuthContext
 import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
-import utils.{Jwe, JweEncryptor, SCRSExceptions, SCRSFeatureSwitches}
+import utils.{Jwe, JweEncryptor, SCRSExceptions}
 
 import scala.concurrent.Future
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.config.ServicesConfig
 
-object HandOffService extends HandOffService {
+object HandOffServiceImpl extends HandOffService {
   val keystoreConnector = KeystoreConnector
   val returnUrl = FrontendConfig.self
+  val externalUrl = FrontendConfig.selfFull
   val compRegConnector = CompanyRegistrationConnector
   val encryptor = Jwe
   val authConnector = FrontendAuthConnector
@@ -48,6 +48,7 @@ trait HandOffService extends CommonService with SCRSExceptions with ServicesConf
 
   val keystoreConnector: KeystoreConnector
   val returnUrl: String
+  val externalUrl: String
   val compRegConnector: CompanyRegistrationConnector
   val encryptor : JweEncryptor
   val authConnector: AuthConnector
@@ -121,15 +122,13 @@ trait HandOffService extends CommonService with SCRSExceptions with ServicesConf
     }
   }
 
-  val renewSessionObject ={
+  lazy val renewSessionObject ={
     JsObject(Map(
       "timeout" -> Json.toJson(timeout - timeoutDisplayLength),
-      "keepalive_url" -> Json.toJson(buildUrlString(controllers.reg.routes.SignInOutController.renewSession().url)),
-      "signedout_url" -> Json.toJson(buildUrlString(controllers.reg.routes.SignInOutController.destroySession().url)))
-    )
+      "keepalive_url" -> Json.toJson(s"$externalUrl${controllers.reg.routes.SignInOutController.renewSession().url}"),
+      "signedout_url" -> Json.toJson(s"$externalUrl${controllers.reg.routes.SignInOutController.destroySession().url}")
+    ))
   }
-
-  def buildUrlString(path: String): String = baseUrl("comp-reg-frontend") + path
 
   def buildLinksObject(navLinks : NavLinks, jumpLinks: Option[JumpLinks]) : JsObject = {
     val obj = Json.obj("forward" -> navLinks.forward,"reverse" -> navLinks.reverse)

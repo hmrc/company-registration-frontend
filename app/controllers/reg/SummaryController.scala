@@ -39,7 +39,7 @@ object SummaryController extends SummaryController {
   val companyRegistrationConnector = CompanyRegistrationConnector
   val keystoreConnector = KeystoreConnector
   val metaDataService = MetaDataService
-  val handOffService = HandOffService
+  val handOffService = HandOffServiceImpl
   val navModelMongo =  NavModelRepo.repository
 }
 

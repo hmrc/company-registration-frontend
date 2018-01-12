@@ -26,7 +26,7 @@ import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito._
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
-import services.{HandOffService, NavModelNotFoundException}
+import services.{HandOffServiceImpl, NavModelNotFoundException}
 import uk.gov.hmrc.play.frontend.auth.AuthContext
 import play.api.test.Helpers._
 import uk.gov.hmrc.play.test.WithFakeApplication
@@ -58,7 +58,7 @@ class BusinessActivitiesControllerSpec extends SCRSSpec with PayloadFixture with
     }
 
     "use the correct hand off service" in {
-      BusinessActivitiesController.handOffService shouldBe HandOffService
+      BusinessActivitiesController.handOffService shouldBe HandOffServiceImpl
     }
   }
 

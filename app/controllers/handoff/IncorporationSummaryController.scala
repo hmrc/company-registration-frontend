@@ -22,7 +22,7 @@ import controllers.auth.{SCRSHandOffRegime, SCRSRegime}
 import controllers.reg.ControllerErrorHandler
 import play.api.Logger
 import play.api.mvc.{Action, AnyContent}
-import services.{HandBackService, HandOffService, NavModelNotFoundException}
+import services.{HandBackService, HandOffService, HandOffServiceImpl, NavModelNotFoundException}
 import uk.gov.hmrc.play.frontend.auth.Actions
 import uk.gov.hmrc.play.frontend.controller.FrontendController
 import utils.{DecryptionError, MessagesSupport, PayloadError, SessionRegistration}
@@ -33,7 +33,7 @@ import scala.util.{Failure, Success}
 object IncorporationSummaryController extends IncorporationSummaryController {
   val authConnector = FrontendAuthConnector
   val keystoreConnector = KeystoreConnector
-  val handOffService = HandOffService
+  val handOffService = HandOffServiceImpl
   val handBackService = HandBackService
   val companyRegistrationConnector = CompanyRegistrationConnector
 }
