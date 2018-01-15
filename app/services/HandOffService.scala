@@ -16,7 +16,7 @@
 
 package services
 
-import config.{FrontendAuthConnector, FrontendConfig}
+import config.{FrontendAppConfig, FrontendAuthConnector, FrontendConfig}
 import models.handoff.{BusinessActivitiesModel, CompanyNameHandOffModel, HandoffPPOB}
 import models.{ConfirmationReferencesSuccessResponse, SummaryHandOff, UserDetailsModel, UserIDs}
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
@@ -40,8 +40,8 @@ object HandOffServiceImpl extends HandOffService {
   val encryptor = Jwe
   val authConnector = FrontendAuthConnector
   val navModelMongo =  NavModelRepo.repository
-  lazy val timeout = getConfInt("timeoutInSeconds", 900)
-  lazy val timeoutDisplayLength = getConfInt("timeoutDisplayLength", 30)
+  lazy val timeout = FrontendAppConfig.timeoutInSeconds.toInt
+  lazy val timeoutDisplayLength = FrontendAppConfig.timeoutDisplayLength.toInt
 }
 
 trait HandOffService extends CommonService with SCRSExceptions with ServicesConfig with HandOffNavigator {
