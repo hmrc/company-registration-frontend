@@ -38,6 +38,7 @@ trait AppConfig {
   val corsRenewHost: Option[String]
 
   val timeoutInSeconds: String
+  val timeoutDisplayLength: String
 }
 
 object FrontendAppConfig extends AppConfig with ServicesConfig {
@@ -60,7 +61,8 @@ object FrontendAppConfig extends AppConfig with ServicesConfig {
 
   override lazy val corsRenewHost = loadOptionalConfig("cors-host.renew-session")
 
-  override val timeoutInSeconds: String = loadConfig("timeoutInSeconds")
+  override val timeoutInSeconds: String = loadConfig("microservice.timeoutInSeconds")
+  override val timeoutDisplayLength: String = loadConfig("microservice.timeoutDisplayLength")
 
   private def whitelistConfig(key: String): Seq[String] = Some(new String(Base64.getDecoder
     .decode(configuration.getString(key).getOrElse("")), "UTF-8"))
