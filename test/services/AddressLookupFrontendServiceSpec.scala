@@ -68,15 +68,15 @@ class AddressLookupFrontendServiceSpec extends UnitSpec with MockitoSugar with A
   "buildAddressLookupUrl" should {
 
     val id = "testID"
-    val journeyId = "testJourneyID"
-    val req = FakeRequest("GET", s"/test-uri?id=$journeyId")
+    val timeoutUrl = "/test/timeout/url"
+    val req = FakeRequest("GET", "/test-uri")
     val call = Call("testUrl", "")
 
     "return an address" in new Setup {
-      when(mockAddressLookupConnector.getOnRampURL(eqTo(journeyId), any[Call]())(any[HeaderCarrier]()))
+      when(mockAddressLookupConnector.getOnRampURL(any(), any[Call]())(any[HeaderCarrier]()))
         .thenReturn(Future.successful(id))
 
-      await(service.buildAddressLookupUrl(journeyId, call)) shouldBe id
+      await(service.buildAddressLookupUrl(timeoutUrl, call)) shouldBe id
     }
   }
 }

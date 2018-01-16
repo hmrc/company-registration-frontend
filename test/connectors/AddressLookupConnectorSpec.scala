@@ -34,6 +34,7 @@ class AddressLookupConnectorSpec extends SCRSSpec with WithFakeApplication {
       override val addressLookupFrontendURL = "testAddressLookupUrl"
       override val companyRegistrationFrontendURL = "testCompanyRegUrl"
       override val http = mockWSHttp
+      override val timeoutInSeconds= 22666
     }
   }
 
