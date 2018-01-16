@@ -37,8 +37,11 @@ trait AddressLookupFrontendService {
   val addressLookupFrontendConnector: AddressLookupConnector
   val metricsService: MetricsService
 
-  def buildAddressLookupUrl(query: String, call: Call)(implicit hc: HeaderCarrier): Future[String] = {
-    addressLookupFrontendConnector.getOnRampURL(query, call)
+  def buildAddressLookupUrl(signOutUrl: String, call: Call)(implicit hc: HeaderCarrier): Future[String] = {
+    addressLookupFrontendConnector.getOnRampURL(
+      controllers.reg.routes.SignInOutController.timeoutShow().url,
+      call
+    )
   }
 
   def getAddress(implicit hc: HeaderCarrier, request: Request[_]): Future[NewAddress] = {
