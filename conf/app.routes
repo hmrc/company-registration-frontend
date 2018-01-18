@@ -76,6 +76,8 @@ POST       /sign-in-complete-application            controllers.reg.IncompleteRe
 GET        /registration-unsuccessful               controllers.reg.RegistrationUnsuccessfulController.show
 POST       /registration-unsuccessful               controllers.reg.RegistrationUnsuccessfulController.submit
 
+GET        /cookies-privacy-terms                   controllers.PolicyController.policyLinks
+
 ## HANDOFF / HANDBACK ROUTES ##
 
 #HO1 / HO1b

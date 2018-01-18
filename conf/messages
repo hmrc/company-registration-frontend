@@ -416,3 +416,17 @@ page.addressLookup.edit.line3                                       = Address li
 page.addressLookup.confirm.description                              = Confirm where the company will carry out most of its business activities
 page.addressLookup.confirm.continue                                 = Confirm and continue
 page.addressLookup.confirm.change                                   = Change
+
+## Cookies, Policy, Terms and Conditions
+page.policy.title                                                   = Policies
+page.policy.heading                                                 = Cookies, privacy and terms
+page.policy.p1                                                      = This is a joint service from Companies House and HM Revenue & Customs (HMRC). The departments have their own cookie policies, privacy policies and terms and conditions.
+page.policy.cookies                                                 = Cookie policies
+page.policy.cookies.li1                                             = Companies House cookie policy
+page.policy.cookies.li2                                             = HMRC cookie policy
+page.policy.privacy                                                 = Privacy policies
+page.policy.privacy.li1                                             = Companies House personal information charter
+page.policy.privacy.li2                                             = HMRC privacy policy
+page.policy.termsAndConditions                                      = Terms and conditions
+page.policy.termsAndConditions.li1                                  = Companies House service information
+page.policy.termsAndConditions.li2                                  = HMRC service information
