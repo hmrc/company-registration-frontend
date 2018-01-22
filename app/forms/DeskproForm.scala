@@ -34,12 +34,14 @@ object DeskproForm {
   val form = Form(
     mapping(
       "name" -> text
+        .verifying("errorPages.failedSubmission.error.name_required", action => !action.trim.isEmpty)
         .verifying("errorPages.failedSubmission.error.name_too_long", name => name.size <= 70)
         .verifying("errorPages.failedSubmission.error.name_invalid_characters", name => name.matches( """^[A-Za-z\-.,()'"\s]+$""")),
       "email" -> text
         .verifying("errorPages.failedSubmission.error.email_format", validateEmail)
         .verifying("errorPages.failedSubmission.error.email_too_long", email => email.size <= 255),
       "message" -> text
+        .verifying("errorPages.failedSubmission.error.message_required", action => !action.trim.isEmpty)
         .verifying("errorPages.failedSubmission.error.message_too_long", message => message.size <= 1000)
     )(Ticket.apply)(Ticket.unapply)
   )
