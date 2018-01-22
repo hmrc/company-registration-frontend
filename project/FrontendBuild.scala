@@ -32,6 +32,7 @@ private object AppDependencies {
     "org.bitbucket.b_c" % "jose4j" % "0.5.0",
     "uk.gov.hmrc" %% "time" % "3.1.0",
     "uk.gov.hmrc" %% "play-whitelist-filter" % "2.0.0",
+    "commons-validator" % "commons-validator" % "1.6",
     "uk.gov.hmrc" %% "play-language" % "3.4.0",
     "uk.gov.hmrc" %% "play-reactivemongo" % "5.2.0"
   )
