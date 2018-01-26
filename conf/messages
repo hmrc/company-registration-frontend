@@ -438,3 +438,8 @@ page.policy.privacy.li2                                             = HMRC priva
 page.policy.termsAndConditions                                      = Terms and conditions
 page.policy.termsAndConditions.li1                                  = Companies House service information
 page.policy.termsAndConditions.li2                                  = HMRC service information
+
+## Help text
+footer.phone.h1                                                     = Get phone support
+footer.phone.contact                                                = Contact us:
+footer.phone.company_query                                          = Company registration queries
