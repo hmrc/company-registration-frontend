@@ -4,7 +4,7 @@ Company Registration Frontend
 [![Apache-2.0 license](http://img.shields.io/badge/license-Apache-brightgreen.svg)](http://www.apache.org/licenses/LICENSE-2.0.html) [ ![Download](https://api.bintray.com/packages/hmrc/releases/company-registration-frontend/images/download.svg) ](https://bintray.com/hmrc/releases/company-registration-frontend/_latestVersion)
 
 
-SCRS Overview - Streamlined Company Registration Service
+# SCRS Overview - Streamlined Company Registration Service
 --------------
 
 As part of the Small Business, Enterprise and Employment Act 2015 there is the requirement to deliver a 
