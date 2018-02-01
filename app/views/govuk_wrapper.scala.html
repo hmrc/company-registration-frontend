@@ -29,6 +29,7 @@
 @import uk.gov.hmrc.play.views.html.{layouts => uiLayouts}
 @import uk.gov.hmrc.play.views.html.{helpers => uiHelpers}
 @import views.html.helpers._
+@import utils.SCRSFeatureSwitches
 
 @head = {
     @uiLayouts.head(
@@ -143,6 +144,7 @@
 }
 
 @getHelpForm = @{reportAProblemLink(appConfig.reportAProblemPartialUrl, appConfig.reportAProblemNonJSUrl)}
+@getHelpFormOld = @{uiHelpers.reportAProblemLink(appConfig.reportAProblemPartialUrl, appConfig.reportAProblemNonJSUrl)}
 
 @content = {
     @uiLayouts.main_content(
@@ -151,7 +153,7 @@
       mainDataAttributes = mainDataAttributes,
       mainContentHeader = mainContentHeader,
       serviceInfo = serviceInfo,
-      getHelpForm = getHelpForm,
+      getHelpForm = if(SCRSFeatureSwitches.contactUs.enabled) getHelpForm else getHelpFormOld,
       sidebar = sidebar)
 }
 
