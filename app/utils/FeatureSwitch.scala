@@ -91,6 +91,7 @@ trait SCRSFeatureSwitches {
   def paye = FeatureSwitch.getProperty("paye")
   def vat = FeatureSwitch.getProperty("vat")
   def legacyEnv = FeatureSwitch.getProperty(LEGACY_ENV)
+  def contactUs = FeatureSwitch.getProperty("contactUs")
 
   def apply(name: String): Option[FeatureSwitch] = name match {
     case COHO => Some(cohoFirstHandOff)
@@ -98,6 +99,7 @@ trait SCRSFeatureSwitches {
     case "paye" => Some(paye)
     case "vat" => Some(vat)
     case LEGACY_ENV => Some(legacyEnv)
+    case "contactUs" => Some(contactUs)
     case _ => None
   }
 }
