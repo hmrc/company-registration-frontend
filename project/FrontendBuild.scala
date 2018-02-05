@@ -24,10 +24,10 @@ private object AppDependencies {
 
   val compile = Seq(
     ws,
-    "uk.gov.hmrc" %% "frontend-bootstrap" % "8.11.0",
+    "uk.gov.hmrc" %% "frontend-bootstrap" % "8.17.0",
     "uk.gov.hmrc" %% "play-partials" % "6.1.0",
     "uk.gov.hmrc" %% "url-builder" % "2.1.0",
-    "uk.gov.hmrc" %% "http-caching-client" % "7.0.0",
+    "uk.gov.hmrc" %% "http-caching-client" % "7.1.0",
     "uk.gov.hmrc" %% "play-conditional-form-mapping" % "0.2.0",
     "org.bitbucket.b_c" % "jose4j" % "0.5.0",
     "uk.gov.hmrc" %% "time" % "3.1.0",
@@ -44,8 +44,8 @@ private object AppDependencies {
       "org.jsoup" % "jsoup" % "1.10.2" % scope,
       "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
       "uk.gov.hmrc" %% "reactivemongo-test" % "2.0.0" % scope,
-      "uk.gov.hmrc" %% "hmrctest" % "2.3.0" % scope,
-      "org.mockito" % "mockito-all" % "1.9.5" % scope
+      "uk.gov.hmrc" %% "hmrctest" % "3.0.0" % scope,
+      "org.mockito" % "mockito-all" % "2.0.2-beta" % scope
   )
 
 
