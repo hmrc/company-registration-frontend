@@ -21,7 +21,7 @@
 }
 
 @mainContent = {
-  <p>@message</p>
+  <p>@Html(message)</p>
 }
 
 @govuk_wrapper(appConfig = config.FrontendAppConfig, title = pageTitle, contentHeader = Some(contentHeader), mainContent = mainContent)

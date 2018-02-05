@@ -3,7 +3,7 @@
 ## Global
 global.error.title                                                  = Sorry, we''re experiencing technical difficulties
 global.error.heading                                                = Sorry, we''re experiencing technical difficulties
-global.error.message                                                = Please try again in a few minutes.
+global.error.message                                                = You can try again by <a href={0}>restarting</a> your registration.
 
 ## Common
 common.service.name                                                 = Register your company

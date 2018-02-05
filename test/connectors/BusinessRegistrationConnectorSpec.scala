@@ -60,7 +60,36 @@ class BusinessRegistrationConnectorSpec extends SCRSSpec with BusinessRegistrati
     }
   }
 
-  "retrieveMetadata" should {
+  "retrieveMetadata with RegId" should {
+    "return a a metadata response if one is found in business registration micro-service" in new Setup {
+      mockHttpGet[BusinessRegistration]("testUrl", validBusinessRegistrationResponse)
+
+      await(connector.retrieveMetadata(registrationId)) shouldBe BusinessRegistrationSuccessResponse(validBusinessRegistrationResponse)
+    }
+
+    "return a Not Found response when a metadata record can not be found" in new Setup {
+      when(mockWSHttp.GET[BusinessRegistration](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]))
+        .thenReturn(Future.failed(new NotFoundException("Bad request")))
+
+      await(connector.retrieveMetadata(registrationId)) shouldBe BusinessRegistrationNotFoundResponse
+    }
+
+    "return a Forbidden response when a metadata record can not be accessed by the user" in new Setup {
+      when(mockWSHttp.GET[BusinessRegistration](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]))
+        .thenReturn(Future.failed(new ForbiddenException("Forbidden")))
+
+      await(connector.retrieveMetadata(registrationId)) shouldBe BusinessRegistrationForbiddenResponse
+    }
+
+    "return an Exception response when an unspecified error has occurred" in new Setup {
+      when(mockWSHttp.GET[BusinessRegistration](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]))
+        .thenReturn(Future.failed(new Exception("exception")))
+
+      await(connector.retrieveMetadata(registrationId)).getClass shouldBe BusinessRegistrationErrorResponse(new Exception).getClass
+    }
+  }
+
+  "retrieveMetadata without RegId" should {
     "return a a metadata response if one is found in business registration micro-service" in new Setup {
       mockHttpGet[BusinessRegistration]("testUrl", validBusinessRegistrationResponse)
 

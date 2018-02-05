@@ -24,6 +24,6 @@ trait ControllerErrorHandler {
   def defaultErrorPage(implicit request: Request[_], message: Messages) = views.html.error_template(
     Messages("global.error.title"),
     Messages("global.error.heading"),
-    Messages("global.error.message")
+    Messages("global.error.message", controllers.reg.routes.CompletionCapacityController.show())
   )
 }

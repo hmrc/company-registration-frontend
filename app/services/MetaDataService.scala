@@ -50,9 +50,11 @@ trait MetaDataService extends CommonService with SCRSExceptions {
     }
   }
 
-  def getApplicantData(implicit hc : HeaderCarrier) : Future[AboutYouChoice] = {
-    businessRegConnector.retrieveMetadata map {
-      case BusinessRegistrationSuccessResponse(resp) => AboutYouChoice(resp.completionCapacity.fold("")(cc => cc))//todo double check empty cc
+  def getApplicantData(regId: String)(implicit hc : HeaderCarrier) : Future[AboutYouChoice] = {
+    businessRegConnector.retrieveMetadata(regId) map {
+      case BusinessRegistrationSuccessResponse(resp) => AboutYouChoice(resp.completionCapacity.getOrElse(
+        throw new RuntimeException(s"Completion capacity missing at Summary for regId: $regId"))
+      )
       case unknown => {
         Logger.warn(s"[MetaDataService][getApplicantData] Unexpected result, unable to get BR doc : ${unknown}")
         throw new RuntimeException("Missing BR document for signed in user")

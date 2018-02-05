@@ -61,7 +61,7 @@ class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixtu
 
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
 
-      when(mockMetaDataService.getApplicantData(Matchers.any[HeaderCarrier]()))
+      when(mockMetaDataService.getApplicantData(Matchers.any())(Matchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(applicantData))
 
       CTRegistrationConnectorMocks.retrieveCompanyDetails(Some(validCompanyDetailsResponse))
@@ -102,7 +102,7 @@ class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixtu
 
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
 
-      when(mockMetaDataService.getApplicantData(Matchers.any[HeaderCarrier]()))
+      when(mockMetaDataService.getApplicantData(Matchers.any())(Matchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(applicantData))
 
       CTRegistrationConnectorMocks.retrieveTradingDetails(Some(TradingDetails("true")))

@@ -87,7 +87,7 @@ trait TestEndpointController extends FrontendController with Actions with Common
             case None => cacheRegistrationID("1"); "1"
           }
           userIds <- authConnector.getIds[UserIDs](user)
-          applicantDetails <- metaDataService.getApplicantData
+          applicantDetails <- metaDataService.getApplicantData(regID) recover { case _ => AboutYouChoice("Director") }
           companyDetails <- compRegConnector.retrieveCompanyDetails(regID)
           accountingDates <- compRegConnector.retrieveAccountingDetails(regID)
           contactDetails <- compRegConnector.retrieveContactDetails(regID)
@@ -95,11 +95,7 @@ trait TestEndpointController extends FrontendController with Actions with Common
           handBackData <- s4LConnector.fetchAndGet[CompanyNameHandOffIncoming](userIds.internalId, "HandBackData")
           cTRecord <- compRegConnector.retrieveCorporationTaxRegistration(regID)
         } yield {
-          val applicantForm = AboutYouForm.endpointForm.fill(if(applicantDetails.completionCapacity == "") {
-            AboutYouChoice("Director")
-          } else {
-            applicantDetails
-          })
+          val applicantForm = AboutYouForm.endpointForm.fill(applicantDetails)
           val companyDetailsForm = CompanyDetailsForm.form.fill(
             companyDetails.getOrElse(
               CompanyDetails("testCompanyName",

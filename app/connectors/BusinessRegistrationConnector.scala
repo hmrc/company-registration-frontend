@@ -49,7 +49,7 @@ trait BusinessRegistrationConnector {
   }
 
   def retrieveAndUpdateCompletionCapacity(registrationID : String, completionCapacity : String)(implicit hc : HeaderCarrier) : Future[BusinessRegistration] = {
-    retrieveMetadata flatMap {
+    retrieveMetadata(registrationID) flatMap {
       case BusinessRegistrationSuccessResponse(resp) =>
         http.POST[JsValue, BusinessRegistration](s"$businessRegUrl/business-registration/business-tax-registration/update/$registrationID",
           Json.toJson[BusinessRegistration](resp.copy(completionCapacity = Some(completionCapacity))))
@@ -57,6 +57,23 @@ trait BusinessRegistrationConnector {
         Logger.warn(s"[BusinessRegistrationConnector][retrieveAndUpdateCompletionCapacity] Unexpected result, unable to get BR doc : ${unknown}")
         throw new RuntimeException("Missing BR document for signed in user")
       }
+    }
+  }
+
+  def retrieveMetadata(regId: String)(implicit hc: HeaderCarrier, rds: HttpReads[BusinessRegistration]): Future[BusinessRegistrationResponse] = {
+    http.GET[BusinessRegistration](s"$businessRegUrl/business-registration/business-tax-registration/$regId") map {
+      metaData =>
+        BusinessRegistrationSuccessResponse(metaData)
+    } recover {
+      case e: NotFoundException =>
+        Logger.info(s"[BusinessRegistrationConnector] [retrieveMetadata] - Received a NotFound status code when expecting metadata from Business-Registration")
+        BusinessRegistrationNotFoundResponse
+      case e: ForbiddenException =>
+        Logger.error(s"[BusinessRegistrationConnector] [retrieveMetadata] - Received a Forbidden status code when expecting metadata from Business-Registration")
+        BusinessRegistrationForbiddenResponse
+      case e: Exception =>
+        Logger.error(s"[BusinessRegistrationConnector] [retrieveMetadata] - Received error when expecting metadata from Business-Registration - Error ${e.getMessage}")
+        BusinessRegistrationErrorResponse(e)
     }
   }
 
