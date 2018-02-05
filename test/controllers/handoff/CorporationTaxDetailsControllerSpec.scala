@@ -123,7 +123,7 @@ class CorporationTaxDetailsControllerSpec extends SCRSSpec with PayloadFixture w
       }
     }
 
-    "return a SEE_OTHER if submitting with request data and with authorisation but keystore returns None" in new Setup {
+    "return a SEE_OTHER if submitting with request data and with authorisation but keystore has expired" in new Setup {
       mockKeystoreFetchAndGet("registrationID", None)
       when(mockHandBackService.processCompanyDetailsHandBack(Matchers.eq(payloadEncrypted.get))(Matchers.any[AuthContext], Matchers.any[HeaderCarrier]))
         .thenReturn(Future.successful(Success(handBackPayload)))
@@ -131,8 +131,7 @@ class CorporationTaxDetailsControllerSpec extends SCRSSpec with PayloadFixture w
       AuthBuilder.showWithAuthorisedUser(TestController.corporationTaxDetails(payloadEncrypted.get), mockAuthConnector) {
         result =>
           status(result) shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe
-            Some("/register-your-company/post-sign-in")
+          redirectLocation(result) shouldBe Some(s"/register-your-company/post-sign-in?handOffID=HO2&payload=${payloadEncrypted.get}")
       }
     }
   }

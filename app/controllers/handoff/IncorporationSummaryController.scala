@@ -61,7 +61,7 @@ trait IncorporationSummaryController extends FrontendController with Actions wit
   def returnToCorporationTaxSummary(request: String): Action[AnyContent] = AuthorisedFor(taxRegime = SCRSHandOffRegime("HO5b", request), pageVisibility = GGConfidence).async {
     implicit user =>
       implicit _request =>
-        registered { a =>
+        registeredHandOff("HO5b", request) { _ =>
           handBackService.processCompanyNameReverseHandBack(request).map {
             case Success(_) => Redirect(controllers.reg.routes.SummaryController.show())
             case Failure(PayloadError) => BadRequest(error_template_restart("5b", "PayloadError"))

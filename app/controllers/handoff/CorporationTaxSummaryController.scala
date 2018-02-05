@@ -45,7 +45,7 @@ trait CorporationTaxSummaryController extends FrontendController with Actions wi
   def corporationTaxSummary(requestData : String) : Action[AnyContent] = AuthorisedFor(taxRegime = SCRSHandOffRegime("HO4", requestData), pageVisibility = GGConfidence).async {
     implicit user =>
       implicit request =>
-        registered { a =>
+        registeredHandOff("HO4", requestData){ _ =>
           handBackService.processSummaryPage1HandBack(requestData).map {
             case Success(_) => Redirect(controllers.reg.routes.SummaryController.show())
             case Failure(PayloadError) => BadRequest(error_template_restart("4", "PayloadError"))

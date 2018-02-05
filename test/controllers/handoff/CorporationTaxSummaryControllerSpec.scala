@@ -121,7 +121,7 @@ class CorporationTaxSummaryControllerSpec extends SCRSSpec with LoginFixture wit
             Some("/register-your-company/check-confirm-answers")
       }
     }
-    "return a SEE_OTHER if submitting with request data and with authorisation but keystore does not exist" in new Setup {
+    "return a 303 when the user is authorised and the query string contains requestData but keystore has expired" in new Setup {
       mockKeystoreFetchAndGet("registrationID", None)
       val encryptedPayload = Jwe.encrypt[SummaryPage1HandOffIncoming](handBackPayload).get
 
@@ -131,8 +131,7 @@ class CorporationTaxSummaryControllerSpec extends SCRSSpec with LoginFixture wit
       AuthBuilder.showWithAuthorisedUser(TestController.corporationTaxSummary(encryptedPayload), mockAuthConnector) {
         result =>
           status(result) shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe
-            Some("/register-your-company/post-sign-in")
+          redirectLocation(result) shouldBe Some(s"/register-your-company/post-sign-in?handOffID=HO4&payload=$encryptedPayload")
       }
     }
   }

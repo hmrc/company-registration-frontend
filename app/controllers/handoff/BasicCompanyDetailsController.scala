@@ -59,7 +59,7 @@ trait BasicCompanyDetailsController extends FrontendController with Actions with
   def returnToAboutYou(request: String): Action[AnyContent] = AuthorisedFor(taxRegime = SCRSHandOffRegime("HO1b", request), pageVisibility = GGConfidence).async {
     implicit user =>
       implicit _request =>
-        registered {a =>
+        registeredHandOff("HO1b", request) { _ =>
         handBackService.processCompanyNameReverseHandBack(request).map {
           case Success(_) => Redirect(controllers.reg.routes.CompletionCapacityController.show())
           case Failure(PayloadError) => BadRequest(error_template_restart("1b","PayloadError"))

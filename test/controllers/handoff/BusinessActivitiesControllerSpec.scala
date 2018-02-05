@@ -151,7 +151,7 @@ class BusinessActivitiesControllerSpec extends SCRSSpec with PayloadFixture with
             Some("/register-your-company/trading-details")
       }
     }
-    "return a 303 if submitting with request data with authorisation but keystore entry does not exist" in new Setup {
+    "return a 303 if submitting with request data with authorisation but keystore has expired" in new Setup {
       mockKeystoreFetchAndGet("registrationID", None)
       when(mockHandBackService.processBusinessActivitiesHandBack(eqTo(validEncryptedBusinessActivities))(Matchers.any[AuthContext], Matchers.any[HeaderCarrier]))
         .thenReturn(Future.successful(Success(Json.toJson(validBusinessActivitiesPayload))))
@@ -159,8 +159,7 @@ class BusinessActivitiesControllerSpec extends SCRSSpec with PayloadFixture with
       AuthBuilder.showWithAuthorisedUser(controller.businessActivitiesBack(validEncryptedBusinessActivities), mockAuthConnector) {
         result =>
           status(result) shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe
-            Some("/register-your-company/post-sign-in")
+          redirectLocation(result) shouldBe Some(s"/register-your-company/post-sign-in?handOffID=HO3b&payload=$validEncryptedBusinessActivities")
       }
      }
 

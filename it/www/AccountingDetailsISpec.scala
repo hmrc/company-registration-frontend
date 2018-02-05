@@ -51,24 +51,6 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fak
        |}
      """.stripMargin
 
-  def stubKeystore(session: String, regId: String) = {
-    val keystoreUrl = s"/keystore/company-registration-frontend/${session}"
-    stubFor(get(urlMatching(keystoreUrl))
-      .willReturn(
-        aResponse().
-          withStatus(200).
-          withBody(
-            s"""{
-                |"id": "${session}",
-                |"data": { "registrationID": "${regId}" }
-                |}""".stripMargin
-          )
-        )
-      )
-  }
-
-
-
   "GET Accounting Details" should {
 
     "Return an unpopulated page if CR returns a NotFound response" in {

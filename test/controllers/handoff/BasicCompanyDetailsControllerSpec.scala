@@ -142,7 +142,8 @@ class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture wit
           status(result) shouldBe SEE_OTHER
       }
     }
-    "return a 303 when keystore returns None" in new Setup {
+
+    "return a 303 when the user is authorised and the query string contains requestData but keystore has expired" in new Setup {
       val encryptedPayload = Jwe.encrypt[JsValue](payload).get
       mockKeystoreFetchAndGet("registrationID", None)
       when(mockHandBackService.processCompanyNameReverseHandBack(Matchers.eq(encryptedPayload))(Matchers.any[AuthContext], Matchers.any[HeaderCarrier]))
@@ -151,6 +152,7 @@ class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture wit
       AuthBuilder.showWithAuthorisedUser(TestController.returnToAboutYou(encryptedPayload), mockAuthConnector) {
         result =>
           status(result) shouldBe SEE_OTHER
+          redirectLocation(result) shouldBe Some(s"/register-your-company/post-sign-in?handOffID=HO1b&payload=$encryptedPayload")
       }
     }
 

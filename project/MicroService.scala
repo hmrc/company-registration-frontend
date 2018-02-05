@@ -46,7 +46,7 @@ trait MicroService {
       targetJvm := "jvm-1.8",
       libraryDependencies ++= appDependencies,
       parallelExecution in Test := false,
-      fork in Test := false,
+      fork in Test := true,
       retrieveManaged := true,
       routesGenerator := StaticRoutesGenerator,
       routesImport ++= Seq("uk.gov.hmrc.play.binders._"),
