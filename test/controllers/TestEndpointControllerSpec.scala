@@ -20,7 +20,7 @@ import builders.AuthBuilder
 import controllers.test.TestEndpointController
 import fixtures.{CorporationTaxFixture, SCRSFixtures}
 import helpers.{SCRSSpec, TestActorSystem}
-import _root_.connectors._
+import connectors._
 import models._
 import models.connectors.ConfirmationReferences
 import org.scalatest.mockito.MockitoSugar
@@ -98,7 +98,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
       when(mockAuthConnector.getIds[UserIDs](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(userIds))
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
-      when(mockMetaDataService.getApplicantData(Matchers.any[HeaderCarrier]()))
+      when(mockMetaDataService.getApplicantData(Matchers.any())(Matchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(applicantData))
       CTRegistrationConnectorMocks.retrieveCompanyDetails(Some(validCompanyDetailsResponse))
       mockS4LFetchAndGet[CompanyNameHandOffIncoming]("HandBackData", Some(validCompanyNameHandBack))
@@ -120,7 +120,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
       when(mockAuthConnector.getIds[UserIDs](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(userIds))
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
-      when(mockMetaDataService.getApplicantData(Matchers.any[HeaderCarrier]()))
+      when(mockMetaDataService.getApplicantData(Matchers.any())(Matchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(applicantDataEmpty))
       CTRegistrationConnectorMocks.retrieveCompanyDetails(None)
       mockS4LFetchAndGet[CompanyNameHandOffIncoming]("HandBackData", None)

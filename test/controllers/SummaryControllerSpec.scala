@@ -103,7 +103,7 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with WithFakeAppl
 
       mockS4LFetchAndGet("HandBackData", Some(validCompanyNameHandBack))
 
-      when(mockMetaDataService.getApplicantData(Matchers.any[HeaderCarrier]()))
+      when(mockMetaDataService.getApplicantData(Matchers.any())(Matchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(aboutYouData))
 
       mockKeystoreFetchAndGet("registrationID", Some("12345"))

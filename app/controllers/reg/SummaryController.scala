@@ -58,7 +58,7 @@ trait SummaryController extends FrontendController with Actions with CommonServi
       implicit request =>
         checkStatus{regID =>
         (for {
-          cc <- metaDataService.getApplicantData
+          cc <- metaDataService.getApplicantData(regID)
           accountingDates <- companyRegistrationConnector.retrieveAccountingDetails(regID)
           ctContactDets <- companyRegistrationConnector.retrieveContactDetails(regID)
           companyDetails <-companyRegistrationConnector.retrieveCompanyDetails(regID)

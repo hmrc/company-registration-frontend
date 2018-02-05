@@ -180,7 +180,7 @@ object SCRSValidators {
 
   val completionCapacityValidation: Constraint[String] = Constraint("constraints.completionCapacity")({
     text =>
-      val errors = text match {
+      val errors = text.trim match {
         case completionCapacityRegex() => Nil
         case _ => Seq(ValidationError(Messages("validation.invalid")))
       }
