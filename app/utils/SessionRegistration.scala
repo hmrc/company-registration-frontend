@@ -34,12 +34,17 @@ trait SessionRegistration {
   val keystoreConnector: KeystoreConnector
   val companyRegistrationConnector : CompanyRegistrationConnector
 
-  def registered(f: => String => Future[Result])(implicit hc: HeaderCarrier): Future[Result] = {
+  def registered(f: => String => Future[Result])(implicit hc: HeaderCarrier): Future[Result] = registered()(f)
 
+  def registeredHandOff(handOff: String, payload: String)(f: => String => Future[Result])(implicit hc: HeaderCarrier): Future[Result] = {
+    registered(Some(handOff), Some(payload))(f)
+  }
+
+  private def registered(handOff: Option[String] = None, payload: Option[String] = None)(f: => String => Future[Result])(implicit hc: HeaderCarrier): Future[Result] = {
     keystoreConnector.fetchAndGet[String]("registrationID") flatMap {
       case Some(regId) => f(regId)
       case None => Logger.error("[SessionRegistration] [registered] returned None from keystore when fetching a registrationID")
-        Future.successful(Redirect(controllers.reg.routes.SignInOutController.postSignIn(None)))
+        Future.successful(Redirect(controllers.reg.routes.SignInOutController.postSignIn(None, handOff, payload)))
     }
   }
 

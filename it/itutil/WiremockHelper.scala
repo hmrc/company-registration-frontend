@@ -19,6 +19,7 @@ import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig
+import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import org.scalatestplus.play.OneServerPerSuite
 import play.api.libs.ws.WSClient
 
@@ -49,6 +50,8 @@ trait WiremockHelper {
 
   def buildClient(path: String) = ws.url(s"http://localhost:$port/register-your-company$path").withFollowRedirects(false)
 
+  def listAllStubs = listAllStubMappings
+
   def stubGet(url: String, status: Integer, body: String) =
     stubFor(get(urlMatching(url))
       .willReturn(
@@ -75,4 +78,58 @@ trait WiremockHelper {
           withBody(responseBody)
       )
     )
+
+  def stubKeystore(session: String, regId: String, status: Int = 200) = {
+    val keystoreUrl = s"/keystore/company-registration-frontend/$session"
+    stubFor(get(urlMatching(keystoreUrl))
+      .willReturn(aResponse().
+        withStatus(status).
+        withBody(
+          s"""{
+             |"id": "$session",
+             |"data": { "registrationID": "$regId" }
+             |}""".stripMargin
+        )
+      )
+    )
+  }
+
+  def stubKeystoreSave(session: String, regId: String, status: Int) = {
+    val keystoreUrl = s"/keystore/company-registration-frontend/$session/data/registrationID"
+    stubFor(put(urlMatching(keystoreUrl))
+      .willReturn(aResponse().
+        withStatus(status).
+        withBody(
+          s"""{
+             |"id": "$session",
+             |"data": { "registrationID": "$regId" }
+             |}""".stripMargin
+        )
+      )
+    )
+  }
+
+  def stubUserDetails(userId: String, userDetails: String): StubMapping = {
+    val getUserUrl = s"/user-details/id/$userId"
+    stubFor(get(urlMatching(getUserUrl))
+      .willReturn(
+        aResponse().
+          withStatus(200).
+          withBody(
+            userDetails
+          )
+      )
+    )
+  }
+
+  def stubFootprint(status: Int, body: String) = {
+    val footprintUrl = "/company-registration/throttle/check-user-access"
+    stubFor(get(urlMatching(footprintUrl))
+      .willReturn(
+        aResponse()
+          .withStatus(status)
+          .withBody(body)
+      )
+    )
+  }
 }

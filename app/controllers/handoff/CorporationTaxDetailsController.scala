@@ -46,7 +46,7 @@ trait CorporationTaxDetailsController extends FrontendController with Actions wi
   def corporationTaxDetails(requestData : String) : Action[AnyContent] = AuthorisedFor(taxRegime = SCRSHandOffRegime("HO2", requestData), pageVisibility = GGConfidence).async {
     implicit user =>
       implicit request =>
-        registered {a =>
+        registeredHandOff("HO2", requestData) { _ =>
         handBackService.processCompanyDetailsHandBack(requestData).map {
           case Success(_) => Redirect(controllers.reg.routes.PPOBController.show())
           case Failure(PayloadError) => BadRequest(error_template_restart("2", "PayloadError"))

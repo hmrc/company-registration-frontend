@@ -61,7 +61,7 @@ trait BusinessActivitiesController extends FrontendController with Actions with 
   def businessActivitiesBack(request: String): Action[AnyContent] = AuthorisedFor(taxRegime = SCRSHandOffRegime("HO3b", request), pageVisibility = GGConfidence).async {
     implicit user =>
       implicit _request =>
-        registered { a =>
+        registeredHandOff("HO3b", request) { _ =>
           handBackService.processBusinessActivitiesHandBack(request).map {
             case Success(_) => Redirect(controllers.reg.routes.TradingDetailsController.show())
             case Failure(PayloadError) => BadRequest(error_template_restart("3b", "PayloadError"))

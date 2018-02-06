@@ -157,6 +157,7 @@ class IncorporationSummaryControllerSpec extends SCRSSpec with PayloadFixture wi
       AuthBuilder.showWithAuthorisedUser(TestController.returnToCorporationTaxSummary(encryptedPayload), mockAuthConnector) {
         result =>
           status(result) shouldBe SEE_OTHER
+          redirectLocation(result) shouldBe Some(s"/register-your-company/post-sign-in?handOffID=HO5b&payload=$encryptedPayload")
       }
     }
   }
