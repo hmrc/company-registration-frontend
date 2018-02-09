@@ -18,9 +18,8 @@ package controllers.reg
 
 import play.api.mvc.Action
 import uk.gov.hmrc.play.frontend.controller.FrontendController
+
 import scala.concurrent.Future
-import play.api.i18n.Messages.Implicits._
-import play.api.Play.current
 
 object ApplicationInProgressController extends ApplicationInProgressController
 

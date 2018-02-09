@@ -16,54 +16,39 @@
 
 package services
 
-import javax.inject.{Inject, Singleton}
-
-import config.FrontendAuthConnector
 import connectors.{DeskproConnector, DeskproConnectorImpl}
 import models.external.Ticket
 import models.{Ticket => TicketForm}
-import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
-
-import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
-import scala.concurrent.Future
 import uk.gov.hmrc.http.HeaderCarrier
 
+import scala.concurrent.Future
+
 object DeskproServiceImpl extends DeskproService {
-  override val authConnector = FrontendAuthConnector
   override val deskproConnector = DeskproConnectorImpl
 }
 
 trait DeskproService {
-
-  val authConnector : AuthConnector
   val deskproConnector : DeskproConnector
-
-  private[services] def getAuthId(implicit hc: HeaderCarrier) : Future[String] = authConnector.currentAuthority.map(res => res.get.uri)
 
   private[services] def getSessionId(implicit hc: HeaderCarrier) : String = hc.sessionId.map(_.value).getOrElse("n/a")
 
-  private[services] def buildTicket(regId: String, data: TicketForm)(implicit hc: HeaderCarrier) : Future[Ticket] = {
-    getAuthId map { aId =>
-      Ticket(
-        data.name,
-        data.email,
-        subject = s"Company Registration submission failed for Registration ID: $regId",
-        data.message,
-        referrer = "https://www.tax.service.gov.uk/register-your-company",
-        javascriptEnabled = "Y",
-        userAgent = "company-registration-frontend",
-        authId = aId,
-        areaOfTax = "unknown",
-        sessionId = getSessionId,
-        service = "SCRS"
-      )
-    }
-  }
+  private[services] def buildTicket(regId: String, data: TicketForm, uri: String)(implicit hc: HeaderCarrier) : Ticket =
+    Ticket(
+      data.name,
+      data.email,
+      subject = s"Company Registration submission failed for Registration ID: $regId",
+      data.message,
+      referrer = "https://www.tax.service.gov.uk/register-your-company",
+      javascriptEnabled = "Y",
+      userAgent = "company-registration-frontend",
+      authId = uri,
+      areaOfTax = "unknown",
+      sessionId = getSessionId,
+      service = "SCRS"
+    )
 
-  def submitTicket(regId: String, data: TicketForm)(implicit hc: HeaderCarrier) : Future[Long] = {
-    buildTicket(regId, data) flatMap { ticket =>
-      deskproConnector.submitTicket(ticket)
-    }
+  def submitTicket(regId: String, data: TicketForm, uri : String)(implicit hc: HeaderCarrier) : Future[Long] = {
+    deskproConnector.submitTicket(buildTicket(regId, data, uri))
   }
 
 }

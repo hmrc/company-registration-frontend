@@ -18,6 +18,7 @@ package views
 
 import _root_.helpers.SCRSSpec
 import builders.AuthBuilder
+import config.FrontendAuthConnector
 import controllers.reg.SummaryController
 import fixtures.{AccountingDetailsFixture, CorporationTaxFixture, SCRSFixtures}
 import mocks.NavModelRepoMock
@@ -33,9 +34,10 @@ import scala.concurrent.Future
 import uk.gov.hmrc.http.HeaderCarrier
 
 class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixture
-  with CorporationTaxFixture with NavModelRepoMock with WithFakeApplication {
+  with CorporationTaxFixture with NavModelRepoMock with WithFakeApplication with AuthBuilder {
 
   implicit val hcWithExtraHeaders: HeaderCarrier = HeaderCarrier().withExtraHeaders("Accept" -> "application/vnd.hmrc.1.0+json")
+
 
   val mockMetaDataService = mock[MetaDataService]
   val applicantData = AboutYouChoice("Director")
@@ -72,7 +74,7 @@ class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixtu
       when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(corporationTaxModel))
 
-      AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
+      showWithAuthorisedUser(controller.show) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
 
@@ -112,7 +114,7 @@ class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixtu
       when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(corporationTaxModel))
 
-      AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
+      showWithAuthorisedUser(controller.show) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
 

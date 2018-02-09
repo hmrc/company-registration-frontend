@@ -60,7 +60,8 @@ class HandOffsISpec extends IntegrationSpecBase with LoginStub with FakeAppConfi
   ).foreach { case (num, url, payload) =>
     s"GET $url when keystore has expired redirect to post sign in, set up keystore and redirect back to $num" in {
       Given("The user is authorised")
-      setupSimpleAuthMocks(userId)
+
+      stubAuthorisation()
       stubSuccessfulLogin(userId = userId)
       stubUserDetails(userId, userDetails)
       stubFootprint(200, footprintResponse)

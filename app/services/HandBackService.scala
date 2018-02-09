@@ -50,7 +50,7 @@ trait HandBackService extends CommonService with SCRSExceptions with HandOffNavi
   val s4LConnector : S4LConnector
   val jwe : JweEncryptor with JweDecryptor
 
-  private[services] def decryptHandBackRequest[T](request: String)(f: T => Future[Try[T]])(implicit user: AuthContext, hc: HeaderCarrier, formats: Format[T]): Future[Try[T]] = {
+  private[services] def decryptHandBackRequest[T](request: String)(f: T => Future[Try[T]])(implicit hc: HeaderCarrier, formats: Format[T]): Future[Try[T]] = {
     request.isEmpty match {
       case true =>
         Logger.error(s"[HandBackService] [decryptHandBackRequest] Encrypted hand back payload was empty")
@@ -64,7 +64,7 @@ trait HandBackService extends CommonService with SCRSExceptions with HandOffNavi
     }
   }
 
-  def processCompanyNameReverseHandBack(request: String)(implicit user:AuthContext, hc: HeaderCarrier): Future[Try[JsValue]] = {
+  def processCompanyNameReverseHandBack(request: String)(implicit hc: HeaderCarrier): Future[Try[JsValue]] = {
     decryptHandBackRequest[JsValue](request){ res =>
       //todo: SCRS-3193 - compare journey id against one in session for error handling
       //(res \ "journey_id").as[String]
@@ -73,7 +73,7 @@ trait HandBackService extends CommonService with SCRSExceptions with HandOffNavi
     }
   }
 
-  def processBusinessActivitiesHandBack(request: String)(implicit user:AuthContext, hc: HeaderCarrier): Future[Try[JsValue]] = {
+  def processBusinessActivitiesHandBack(request: String)(implicit hc: HeaderCarrier): Future[Try[JsValue]] = {
     decryptHandBackRequest[JsValue](request){ res =>
       Future.successful(Success(res))
     }
@@ -95,7 +95,7 @@ trait HandBackService extends CommonService with SCRSExceptions with HandOffNavi
   }
 
 
-  def processCompanyDetailsHandBack(request : String)(implicit user : AuthContext, hc : HeaderCarrier) : Future[Try[CompanyNameHandOffIncoming]] = {
+  def processCompanyDetailsHandBack(request : String)(implicit hc : HeaderCarrier) : Future[Try[CompanyNameHandOffIncoming]] = {
     def processNavModel(model: HandOffNavModel, payload: CompanyNameHandOffIncoming) = {
       val navLinks = payload.links.as[NavLinks]
       val jumpLinks = payload.links.as[JumpLinks]
@@ -127,7 +127,7 @@ trait HandBackService extends CommonService with SCRSExceptions with HandOffNavi
     }
   }
 
-  def processSummaryPage1HandBack(request : String)(implicit user : AuthContext, hc : HeaderCarrier) : Future[Try[SummaryPage1HandOffIncoming]] = {
+  def processSummaryPage1HandBack(request : String)(implicit hc : HeaderCarrier) : Future[Try[SummaryPage1HandOffIncoming]] = {
     def processNavModel(model: HandOffNavModel, payload: SummaryPage1HandOffIncoming) = {
       validateLinks(payload.links)
       implicit val updatedModel = model.copy(
@@ -157,7 +157,7 @@ trait HandBackService extends CommonService with SCRSExceptions with HandOffNavi
     }
   }
 
-  def decryptConfirmationHandback(request : String)(implicit user : AuthContext, hc : HeaderCarrier) : Future[Try[RegistrationConfirmationPayload]] = {
+  def decryptConfirmationHandback(request : String)(implicit hc : HeaderCarrier) : Future[Try[RegistrationConfirmationPayload]] = {
 
     def processNavModel(model: HandOffNavModel, payload: RegistrationConfirmationPayload) = {
       validateLink(getForwardUrl(payload).get)
@@ -199,14 +199,14 @@ trait HandBackService extends CommonService with SCRSExceptions with HandOffNavi
     }
   }
 
-  private[services] def storeCompanyDetails(payload : CompanyNameHandOffIncoming)(implicit user : AuthContext, hc : HeaderCarrier) : Future[CompanyDetails] = {
+  private[services] def storeCompanyDetails(payload : CompanyNameHandOffIncoming)(implicit hc : HeaderCarrier) : Future[CompanyDetails] = {
     for {
       regID <- fetchRegistrationID
       updated <- updateCompanyDetails(regID, payload)
     } yield updated
   }
 
-  private[services] def storeSimpleHandOff(payload : SummaryPage1HandOffIncoming)(implicit user : AuthContext, hc : HeaderCarrier) : Future[Boolean] = {
+  private[services] def storeSimpleHandOff(payload : SummaryPage1HandOffIncoming)(implicit hc : HeaderCarrier) : Future[Boolean] = {
     for {
       regID <- fetchRegistrationID
       //chUpdated <- handOffConnector.updateCHData(regID, CompanyNameHandOffInformation("full-data", DateTime.now, payload.ch))

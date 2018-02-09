@@ -16,47 +16,41 @@
 
 package services
 
+import address.client.RecordSet
 import audit.events._
 import config.{FrontendAuditConnector, FrontendAuthConnector}
-import connectors.{CompanyRegistrationConnector, S4LConnector, KeystoreConnector}
-import models._
-import play.api.libs.json.Json
-import play.api.mvc.{AnyContent, Request, RequestHeader}
-import address.client.{Country, AddressRecord, RecordSet, Address}
+import connectors.{CompanyRegistrationConnector, KeystoreConnector, S4LConnector}
+import models.{Address => OldAddress, _}
+import play.api.libs.json.{Json, OFormat}
+import play.api.mvc.{AnyContent, Request}
+import uk.gov.hmrc.auth.core.AuthConnector
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
-import uk.gov.hmrc.play.frontend.auth.AuthContext
-import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
+import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 import utils.SCRSExceptions
-import models.{Address => OldAddress}
 
 import scala.concurrent.Future
-import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
-import uk.gov.hmrc.http.HeaderCarrier
 
 object PPOBService extends PPOBService {
   val compRegConnector = CompanyRegistrationConnector
   val keystoreConnector = KeystoreConnector
   val s4LConnector = S4LConnector
-  val authConnector = FrontendAuthConnector
   val auditConnector = FrontendAuditConnector
   val addressLookupService = AddressLookupService
 }
 
 trait PPOBService extends SCRSExceptions {
-
   val keystoreConnector: KeystoreConnector
   val compRegConnector: CompanyRegistrationConnector
   val s4LConnector : S4LConnector
-  val authConnector : AuthConnector
   val auditConnector : AuditConnector
   val addressLookupService : AddressLookupService
 
   private lazy val emptyFutureCacheMap = Future.successful(CacheMap("N/A", Map.empty))
+  implicit val formatRecordSet: OFormat[RecordSet] = Json.format[RecordSet]
 
-  implicit val formatRecordSet = Json.format[RecordSet]
-
-  def retrieveCompanyDetails(regID: String)(implicit user: AuthContext, hc: HeaderCarrier): Future[CompanyDetails] = {
+  def retrieveCompanyDetails(regID: String)(implicit hc: HeaderCarrier): Future[CompanyDetails] = {
     for{
       companyDetails <- compRegConnector.retrieveCompanyDetails(regID)
     } yield {
@@ -67,9 +61,9 @@ trait PPOBService extends SCRSExceptions {
     }
   }
 
-  def auditROAddress(regId: String, userDetails: UserDetailsModel, companyName: String, chro: CHROAddress)
+  def auditROAddress(regId: String, credID : String, companyName: String, chro: CHROAddress)
                     (implicit hc: HeaderCarrier, request: Request[AnyContent]): Future[AuditResult] = {
-    val event = new ROUsedAsPPOBAuditEvent(ROUsedAsPPOBAuditEventDetail(regId, userDetails.authProviderId, companyName, chro))
+    val event = new ROUsedAsPPOBAuditEvent(ROUsedAsPPOBAuditEventDetail(regId, credID, companyName, chro))
     auditConnector.sendExtendedEvent(event)
   }
 
@@ -100,8 +94,7 @@ trait PPOBService extends SCRSExceptions {
     )
   }
 
-  def saveAddress(regId: String, addressType: String, address: Option[NewAddress] = None)
-                 (implicit hc: HeaderCarrier, auth: AuthContext): Future[CompanyDetails] = {
+  def saveAddress(regId: String, addressType: String, address: Option[NewAddress] = None)(implicit hc: HeaderCarrier): Future[CompanyDetails] = {
     retrieveCompanyDetails(regId) flatMap { details =>
       compRegConnector.updateCompanyDetails(regId, buildAddress(details, addressType, address))
     }

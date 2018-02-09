@@ -17,7 +17,6 @@
 package controllers.internal
 
 import connectors.{CohoApiBadRequestResponse, CohoApiErrorResponse, CohoApiNoData, CohoApiSuccessResponse}
-import play.api.libs.json.{JsNumber, JsObject}
 import play.api.mvc.{Action, AnyContent}
 import services.internal.CheckIncorporationService
 import uk.gov.hmrc.play.frontend.controller.FrontendController

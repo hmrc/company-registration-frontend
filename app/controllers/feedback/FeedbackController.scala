@@ -18,22 +18,21 @@ package controllers.feedback
 
 import java.net.URLEncoder
 
+import config.{AppConfig, FrontendAppConfig, FrontendAuthConnector, WSHttp}
+import controllers.auth.AuthFunction
 import play.api.Logger
 import play.api.http.{Status => HttpStatus}
 import play.api.mvc.{Action, AnyContent, Request, RequestHeader}
 import play.twirl.api.Html
-import config.{AppConfig, FrontendAppConfig, WSHttp}
-import views.html.{feedback, feedback_thankyou}
-import uk.gov.hmrc.play.frontend.auth.Actions
-import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
+import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.frontend.controller.{FrontendController, UnauthorisedAction}
 import uk.gov.hmrc.play.frontend.filters.SessionCookieCryptoFilter
 import uk.gov.hmrc.play.partials._
-import scala.concurrent.ExecutionContext.Implicits.global
 import utils.MessagesSupport
+import views.html.{feedback, feedback_thankyou}
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import uk.gov.hmrc.http.{ HeaderCarrier, HttpGet, HttpPost, HttpReads, HttpResponse }
 
 object FeedbackController extends FeedbackController with PartialRetriever {
 
@@ -43,7 +42,7 @@ object FeedbackController extends FeedbackController with PartialRetriever {
   override def contactFormReferer(implicit request: Request[AnyContent]): String = request.headers.get(REFERER).getOrElse("")
   override def localSubmitUrl(implicit request: Request[AnyContent]): String = routes.FeedbackController.submit().url
 
-  protected def authConnector: AuthConnector = config.FrontendAuthConnector
+  val authConnector = FrontendAuthConnector
   protected def loadPartial(url : String)(implicit request : RequestHeader) : HtmlPartial = ???
 
   implicit val cachedStaticHtmlPartialRetriever: CachedStaticHtmlPartialRetriever = new CachedStaticHtmlPartialRetriever {
@@ -58,7 +57,7 @@ object FeedbackController extends FeedbackController with PartialRetriever {
   override val applicationConfig: AppConfig = FrontendAppConfig
 }
 
-trait FeedbackController extends FrontendController with Actions with MessagesSupport {
+trait FeedbackController extends FrontendController with AuthFunction with MessagesSupport {
 
   implicit val formPartialRetriever: FormPartialRetriever
   implicit val cachedStaticHtmlPartialRetriever: CachedStaticHtmlPartialRetriever

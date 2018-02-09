@@ -16,17 +16,17 @@
 
 package controllers.reg
 
-import uk.gov.hmrc.play.frontend.auth.Actions
-import uk.gov.hmrc.play.frontend.controller.FrontendController
-import controllers.auth.SCRSRegime
 import config.FrontendAuthConnector
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
+import controllers.auth.AuthFunction
 import forms.AccountingDatesForm
 import models.{AccountingDatesModel, AccountingDetailsNotFoundResponse, AccountingDetailsSuccessResponse}
-import services.{AccountingService, MetricsService, TimeService}
-import views.html.reg.AccountingDates
 import org.joda.time.LocalDate
+import play.api.mvc.Action
+import services.{AccountingService, MetricsService, TimeService}
+import uk.gov.hmrc.play.frontend.controller.FrontendController
 import utils.{MessagesSupport, SessionRegistration}
+import views.html.reg.AccountingDates
 
 import scala.concurrent.Future
 
@@ -39,7 +39,7 @@ object AccountingDatesController extends AccountingDatesController {
   val keystoreConnector = KeystoreConnector
 }
 
-trait AccountingDatesController extends FrontendController with Actions with ControllerErrorHandler with SessionRegistration with MessagesSupport {
+trait AccountingDatesController extends FrontendController with AuthFunction with ControllerErrorHandler with SessionRegistration with MessagesSupport {
 
   val accountingService : AccountingService
   val metricsService: MetricsService
@@ -47,45 +47,45 @@ trait AccountingDatesController extends FrontendController with Actions with Con
 
   implicit val bHS = TimeService.bHS
 
-  val show = AuthorisedFor(taxRegime = SCRSRegime("first-hand-off"), pageVisibility = GGConfidence).async {
-    implicit user =>
-      implicit request =>
-        checkStatus{_ =>
+  val show = Action.async { implicit request =>
+    ctAuthorised {
+      checkStatus { _ =>
         accountingService.fetchAccountingDetails.map {
           accountingDetails => {
             Ok(AccountingDates(AccountingDatesForm.form.fill(accountingDetails), timeService.futureWorkingDate(LocalDate.now, 60)))
           }
         }
+      }
     }
   }
 
-  val submit = AuthorisedFor(taxRegime = SCRSRegime("first-hand-off"), pageVisibility = GGConfidence).async {
-    implicit user =>
-      implicit request =>
-        AccountingDatesForm.form.bindFromRequest().fold(
-          formWithErrors => {
-            Future.successful(BadRequest(AccountingDates(formWithErrors, timeService.futureWorkingDate(LocalDate.now, 60))))
-          }, {
-            val context = metricsService.saveAccountingDatesToCRTimer.time()
-            data => {
-              val updatedData = data.crnDate match {
-                case "whenRegistered" => data.copy(crnDate = AccountingDatesModel.WHEN_REGISTERED, day = None, month = None, year = None)
-                case "futureDate" => data.copy(crnDate = AccountingDatesModel.FUTURE_DATE)
-                case "notPlanningToYet" => data.copy(crnDate = AccountingDatesModel.NOT_PLANNING_TO_YET, day = None, month = None, year = None)
-              }
-              accountingService.updateAccountingDetails(updatedData) map {
-                case AccountingDetailsSuccessResponse(_) =>
-                  context.stop()
-                  Redirect(routes.TradingDetailsController.show())
-                case AccountingDetailsNotFoundResponse =>
-                  context.stop()
-                  NotFound(defaultErrorPage)
-                case _ =>
-                  context.stop()
-                  BadRequest(defaultErrorPage)
-              }
+  val submit = Action.async { implicit request =>
+    ctAuthorised {
+      AccountingDatesForm.form.bindFromRequest().fold(
+        formWithErrors => {
+          Future.successful(BadRequest(AccountingDates(formWithErrors, timeService.futureWorkingDate(LocalDate.now, 60))))
+        }, {
+          val context = metricsService.saveAccountingDatesToCRTimer.time()
+          data => {
+            val updatedData = data.crnDate match {
+              case "whenRegistered" => data.copy(crnDate = AccountingDatesModel.WHEN_REGISTERED, day = None, month = None, year = None)
+              case "futureDate" => data.copy(crnDate = AccountingDatesModel.FUTURE_DATE)
+              case "notPlanningToYet" => data.copy(crnDate = AccountingDatesModel.NOT_PLANNING_TO_YET, day = None, month = None, year = None)
+            }
+            accountingService.updateAccountingDetails(updatedData) map {
+              case AccountingDetailsSuccessResponse(_) =>
+                context.stop()
+                Redirect(routes.TradingDetailsController.show())
+              case AccountingDetailsNotFoundResponse =>
+                context.stop()
+                NotFound(defaultErrorPage)
+              case _ =>
+                context.stop()
+                BadRequest(defaultErrorPage)
             }
           }
-        )
+        }
+      )
+    }
   }
 }

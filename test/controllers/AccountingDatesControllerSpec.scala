@@ -17,21 +17,24 @@
 package controllers
 
 import builders.AuthBuilder
+import config.FrontendAuthConnector
 import controllers.reg.AccountingDatesController
 import fixtures.{AccountingDatesFixture, AccountingDetailsFixture, LoginFixture}
 import helpers.SCRSSpec
 import mocks.MetricServiceMock
 import models.{AccountingDetailsBadRequestResponse, AccountingDetailsNotFoundResponse}
-import play.api.test.FakeRequest
 import play.api.libs.json.Json
+import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.http.cache.client.CacheMap
 import services.{AccountingService, MetricsService, TimeService}
+import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.test.WithFakeApplication
 
-class AccountingDatesControllerSpec extends SCRSSpec with WithFakeApplication with AccountingDatesFixture with AccountingDetailsFixture with LoginFixture {
+class AccountingDatesControllerSpec extends SCRSSpec with WithFakeApplication with AccountingDatesFixture with AccountingDetailsFixture
+  with LoginFixture with AuthBuilder {
 
   val cacheMap: CacheMap = CacheMap("", Map("" -> Json.toJson(validAccountingDatesModelCRN)))
+
 
   class Setup {
     val controller = new AccountingDatesController {
@@ -52,17 +55,19 @@ class AccountingDatesControllerSpec extends SCRSSpec with WithFakeApplication wi
 
   "Sending a GET request to Accounting Dates Controller" should {
     "return a 303 and redirect to the sign in page if unauthenticated" in new Setup {
-      val result = controller.show()(FakeRequest())
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe
-        Some(authUrl)
+      showWithUnauthorisedUser(controller.show) {
+        result =>
+          status(result) shouldBe SEE_OTHER
+          redirectLocation(result) shouldBe
+            Some(authUrl)
+      }
     }
 
     "return a 200 whilst authorised and have data fetched" in new Setup {
       CTRegistrationConnectorMocks.retrieveCTRegistration()
       mockKeystoreFetchAndGet("registrationID", Some("1"))
       AccountingServiceMocks.fetchAccountingDetails(validAccountingDetailsModel)
-      AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector){
+      showWithAuthorisedUser(controller.show) {
         result =>
           status(result) shouldBe OK
       }
@@ -71,16 +76,18 @@ class AccountingDatesControllerSpec extends SCRSSpec with WithFakeApplication wi
 
   "Post to the Accounting Dates Controller" should {
     "return a 303" in new Setup {
-      val result = controller.submit()(FakeRequest())
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe
-        Some(authUrl)
+      submitWithUnauthorisedUser(controller.show, FakeRequest().withFormUrlEncodedBody()) {
+        result =>
+          status(result) shouldBe SEE_OTHER
+          redirectLocation(result) shouldBe
+            Some(authUrl)
+      }
     }
 
     "Redirect to account preparation if the user chooses when registered" in new Setup {
       AccountingServiceMocks.updateAccountingDetails(validAccountingResponse)
       val request = FakeRequest().withFormUrlEncodedBody(whenRegisteredData.toSeq : _*)
-      AuthBuilder.submitWithAuthorisedUser(controller.submit, mockAuthConnector, request)(
+      submitWithAuthorisedUser(controller.submit, request)(
         result => {
           status(result) shouldBe SEE_OTHER
           redirectLocation(result) shouldBe Some("/register-your-company/trading-details")
@@ -91,7 +98,7 @@ class AccountingDatesControllerSpec extends SCRSSpec with WithFakeApplication wi
     "Redirect to account preparation if the user chooses Future date" in new Setup {
       AccountingServiceMocks.updateAccountingDetails(validAccountingResponse)
       val request = FakeRequest().withFormUrlEncodedBody(futureDateData.toSeq : _*)
-      AuthBuilder.submitWithAuthorisedUser(controller.submit, mockAuthConnector, request)(
+      submitWithAuthorisedUser(controller.submit, request)(
         result => {
           status(result) shouldBe SEE_OTHER
           redirectLocation(result) shouldBe Some("/register-your-company/trading-details")
@@ -102,7 +109,7 @@ class AccountingDatesControllerSpec extends SCRSSpec with WithFakeApplication wi
     "Redirect to account preparation if the user chooses 'not planning to yet'" in new Setup {
       AccountingServiceMocks.updateAccountingDetails(validAccountingResponse)
       val request = FakeRequest().withFormUrlEncodedBody(notPlanningToYetdata.toSeq : _*)
-      AuthBuilder.submitWithAuthorisedUser(controller.submit, mockAuthConnector, request)(
+      submitWithAuthorisedUser(controller.submit, request)(
         result => {
           status(result) shouldBe SEE_OTHER
           redirectLocation(result) shouldBe Some("/register-your-company/trading-details")
@@ -112,7 +119,7 @@ class AccountingDatesControllerSpec extends SCRSSpec with WithFakeApplication wi
 
     "return a 400 when an invalid form is presented" in new Setup {
       val request = FakeRequest().withFormUrlEncodedBody(invalidDateData.toSeq : _*)
-      AuthBuilder.submitWithAuthorisedUser(controller.submit, mockAuthConnector, request){
+      submitWithAuthorisedUser(controller.submit, request){
         result =>
           status(result) shouldBe BAD_REQUEST
       }
@@ -121,7 +128,7 @@ class AccountingDatesControllerSpec extends SCRSSpec with WithFakeApplication wi
     "return a 404 when a not found response is returned from company-registration" in new Setup {
       AccountingServiceMocks.updateAccountingDetails(AccountingDetailsNotFoundResponse)
       val request = FakeRequest().withFormUrlEncodedBody(whenRegisteredData.toSeq : _*)
-      AuthBuilder.submitWithAuthorisedUser(controller.submit, mockAuthConnector, request){
+      submitWithAuthorisedUser(controller.submit, request){
         result =>
           status(result) shouldBe NOT_FOUND
       }
@@ -130,7 +137,7 @@ class AccountingDatesControllerSpec extends SCRSSpec with WithFakeApplication wi
     "return a 400 when a bad request response is returned from company-registration" in new Setup {
       AccountingServiceMocks.updateAccountingDetails(AccountingDetailsBadRequestResponse)
       val request = FakeRequest().withFormUrlEncodedBody(notPlanningToYetdata.toSeq : _*)
-      AuthBuilder.submitWithAuthorisedUser(controller.submit, mockAuthConnector, request){
+      submitWithAuthorisedUser(controller.submit, request){
         result =>
           status(result) shouldBe BAD_REQUEST
       }

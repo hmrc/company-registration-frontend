@@ -18,13 +18,12 @@ package controllers.dashboard
 
 import config.FrontendAuthConnector
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
-import controllers.auth.SCRSRegime
+import controllers.auth.AuthFunction
 import controllers.reg.ControllerErrorHandler
 import play.api.Logger
-import play.api.mvc.Action
+import play.api.mvc.{Action, AnyContent}
 import services._
 import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.frontend.auth.Actions
 import uk.gov.hmrc.play.frontend.controller.FrontendController
 import utils.{MessagesSupport, SCRSExceptions, SessionRegistration}
 
@@ -38,29 +37,30 @@ object DashboardController extends DashboardController with ServicesConfig {
   val companiesHouseURL = getConfString("coho-service.sign-in", throw new Exception("Could not find config for coho-sign-in url"))
 }
 
-trait DashboardController extends FrontendController with Actions with CommonService with SCRSExceptions
+trait DashboardController extends FrontendController with AuthFunction with CommonService with SCRSExceptions
   with ControllerErrorHandler with SessionRegistration with MessagesSupport {
 
   val companiesHouseURL: String
   val dashboardService: DashboardService
 
-  val show = AuthorisedFor(taxRegime = SCRSRegime("post-sign-in"), pageVisibility = GGConfidence).async {
-    implicit user =>
-      implicit request =>
+  val show: Action[AnyContent] = Action.async {
+    implicit request =>
+      ctAuthorisedEnrolments { enrolments =>
         registered { regId =>
-          dashboardService.buildDashboard(regId) map {
+          dashboardService.buildDashboard(regId, enrolments) map {
             case DashboardBuilt(dash) => Ok(views.html.dashboard.Dashboard(dash, companiesHouseURL))
             case CouldNotBuild => Redirect(controllers.handoff.routes.BasicCompanyDetailsController.basicCompanyDetails())
             case RejectedIncorp => Ok(views.html.reg.RegistrationUnsuccessful())
           } recover {
             case ex => Logger.error(s"[Dashboard Controller] [Show] buildDashboard returned an error ${ex.getMessage}")
-                       InternalServerError(defaultErrorPage)
+              InternalServerError(defaultErrorPage)
           }
         }
+      }
   }
 
 
-  def submit = Action.async { implicit request =>
+  def submit: Action[AnyContent] = Action.async { implicit request =>
     Future.successful(Redirect(controllers.reg.routes.SignInOutController.postSignIn(None, None, None)))
   }
 

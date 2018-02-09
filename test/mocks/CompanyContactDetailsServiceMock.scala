@@ -19,6 +19,7 @@ package mocks
 import models._
 import org.mockito.Matchers
 import org.mockito.Mockito._
+import org.mockito.stubbing.OngoingStubbing
 import org.scalatest.mockito.MockitoSugar
 import services._
 
@@ -30,12 +31,12 @@ trait CompanyContactDetailsServiceMock {
   lazy val mockCompanyContactDetailsService = mock[CompanyContactDetailsService]
 
   object CompanyContactDetailsServiceMocks {
-    def fetchContactDetails(response: CompanyContactViewModel) = {
-      when(mockCompanyContactDetailsService.fetchContactDetails(Matchers.any(), Matchers.any()))
+    def fetchContactDetails(response: CompanyContactViewModel): OngoingStubbing[Future[CompanyContactViewModel]] = {
+      when(mockCompanyContactDetailsService.fetchContactDetails(Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(response))
     }
 
-    def updateContactDetails(response: CompanyContactDetailsResponse) = {
+    def updateContactDetails(response: CompanyContactDetailsResponse): OngoingStubbing[Future[CompanyContactDetailsResponse]] = {
       when(mockCompanyContactDetailsService.updateContactDetails(Matchers.any[CompanyContactViewModel]())(Matchers.any()))
         .thenReturn(Future.successful(response))
     }

@@ -19,35 +19,31 @@ package services
 import java.util.UUID
 
 import audit.events.EmailVerifiedEvent
-import builders.AuthBuilder
-import config.FrontendAuthConnector
 import connectors.{CompanyRegistrationConnector, EmailVerificationConnector, KeystoreConnector, SendTemplatedEmailConnector}
 import fixtures.UserDetailsFixture
-import models._
+import models.auth.AuthDetails
+import models.{Email, EmailVerificationRequest, SendTemplatedEmailRequest}
+import org.mockito.Mockito._
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
 import org.mockito.{ArgumentCaptor, Matchers}
-import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.mockito.MockitoSugar
 import play.api.libs.json.Json
 import play.api.mvc.{AnyContent, Request}
 import play.api.test.FakeRequest
+import uk.gov.hmrc.auth.core.retrieve.Credentials
+import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolments}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import uk.gov.hmrc.play.frontend.auth.AuthContext
-import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import uk.gov.hmrc.play.audit.http.connector.AuditResult.Success
+import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.hmrc.http.HeaderCarrier
 
+class EmailVerificationServiceSpec extends UnitSpec with MockitoSugar with WithFakeApplication with UserDetailsFixture with BeforeAndAfterEach {
 
-
-class EmailVerificationServiceSpec extends UnitSpec with MockitoSugar with WithFakeApplication with UserDetailsFixture with BeforeAndAfterEach  {
-
-  implicit val user = AuthBuilder.createTestUser
   implicit val hc = HeaderCarrier()
   implicit val req = FakeRequest("GET", "/test-path")
 
@@ -55,7 +51,6 @@ class EmailVerificationServiceSpec extends UnitSpec with MockitoSugar with WithF
     resetMocks()
   }
 
-  val mockAuthConnector = mock[AuthConnector]
   val mockEmailConnector = mock[EmailVerificationConnector]
   val mockSendTemplatedEmailConnector = mock[SendTemplatedEmailConnector]
   val mockCrConnector = mock[CompanyRegistrationConnector]
@@ -63,7 +58,6 @@ class EmailVerificationServiceSpec extends UnitSpec with MockitoSugar with WithF
   val mockAuditConnector = mock[AuditConnector]
 
   def resetMocks() = {
-    reset(mockAuthConnector)
     reset(mockEmailConnector)
     reset(mockSendTemplatedEmailConnector)
     reset(mockCrConnector)
@@ -73,7 +67,6 @@ class EmailVerificationServiceSpec extends UnitSpec with MockitoSugar with WithF
 
   trait Setup {
     val service = new EmailVerificationService {
-      val feAuthConnector = mockAuthConnector
       val emailConnector = mockEmailConnector
       val templatedEmailConnector = mockSendTemplatedEmailConnector
       val crConnector = mockCrConnector
@@ -82,7 +75,7 @@ class EmailVerificationServiceSpec extends UnitSpec with MockitoSugar with WithF
       val auditConnector = mockAuditConnector
       val sendTemplatedEmailURL = "TemplatedEmailUrl"
 
-      override def verifyEmailAddress(s: String, e: String)(implicit hc: HeaderCarrier, authContext: AuthContext, req: Request[AnyContent]) =
+      override def verifyEmailAddress(s: String, e: String, ae : AuthDetails)(implicit hc: HeaderCarrier, req: Request[AnyContent]) =
         Future.successful(
           Some(e match {
             case "verified" => true
@@ -90,7 +83,7 @@ class EmailVerificationServiceSpec extends UnitSpec with MockitoSugar with WithF
           })
         )
 
-      override def sendVerificationLink(address: String, rId: String)(implicit hc: HeaderCarrier, authContext: AuthContext, req: Request[AnyContent]) =
+      override def sendVerificationLink(address: String, rId: String, ae : AuthDetails)(implicit hc: HeaderCarrier, req: Request[AnyContent]) =
         Future.successful(
           Some(address match {
             case "existing" => true
@@ -100,7 +93,6 @@ class EmailVerificationServiceSpec extends UnitSpec with MockitoSugar with WithF
     }
 
     val emailService = new EmailVerificationService{
-      val feAuthConnector = mockAuthConnector
       val emailConnector = mockEmailConnector
       val crConnector = mockCrConnector
       val returnUrl = "TestUrl"
@@ -123,68 +115,61 @@ class EmailVerificationServiceSpec extends UnitSpec with MockitoSugar with WithF
     override def answer(i: InvocationOnMock): T = f(i)
   }
 
-  "emailVerificationService" should {
-    "use the correct Auth connector" in {
-      EmailVerificationService.feAuthConnector shouldBe FrontendAuthConnector
-    }
-    "use the correct Email connector" in {
-      EmailVerificationService.emailConnector shouldBe EmailVerificationConnector
-    }
-    "use the correct Company Registration connector" in {
-      EmailVerificationService.crConnector shouldBe CompanyRegistrationConnector
-    }
-  }
+  val authDetails = AuthDetails(
+    AffinityGroup.Organisation,
+    Enrolments(Set()),
+    "testEmail",
+    "extID",
+    Credentials("proid", "protyp")
+  )
 
   "isVerified" should {
 
     "return an option of true when a user already has an authenticated email" in new Setup {
       val expected = (Some(true),Some("verified"))
-      await(service.isVerified(regId, Some(verifiedEmail), None)) shouldBe expected
+      await(service.isVerified(regId, Some(verifiedEmail), None, authDetails)) shouldBe expected
     }
 
     "return an option of true when a user has an authenticated email when asking the Email service" in new Setup {
       val expected = (Some(true),Some("verified"))
-      await(service.isVerified(regId, Some(verifiedEmail), None)) shouldBe expected
+      await(service.isVerified(regId, Some(verifiedEmail), None, authDetails)) shouldBe expected
     }
 
     "return an option of false when a user has an unauthenticated email" in new Setup {
       val expected = (Some(false),Some(unverifiedEmail.address))
-      await(service.isVerified(regId, Some(unverifiedEmail), None)) shouldBe expected
+      await(service.isVerified(regId, Some(unverifiedEmail), None, authDetails)) shouldBe expected
     }
 
     "return an option of false when a user has a EVS authenticated email but unauthenticated on company registration" in new Setup {
       val expected = (Some(true), Some(unverifiedEmail.address))
-      await(service.isVerified("verified", Some(unverifiedEmail), None)) shouldBe expected
+      await(service.isVerified("verified", Some(unverifiedEmail), None, authDetails)) shouldBe expected
     }
 
     "return an option of false and the email address when a user has not previously been sent a verification email" in new Setup {
       val expected = (Some(false), Some(defaultEmail.address))
-      await(service.isVerified(regId, Some(defaultEmail), None)) shouldBe expected
+      await(service.isVerified(regId, Some(defaultEmail), None, authDetails)) shouldBe expected
     }
 
     "return an option of true when a user has not been sent a verification email but is verified" in new Setup {
       val expected = (Some(true),Some("existing"))
-      await(service.isVerified(regId, Some(existingEmail), None)) shouldBe expected
+      await(service.isVerified(regId, Some(existingEmail), None, authDetails))shouldBe expected
     }
 
     "return None when a user has no email" in new Setup {
       val expected = (None,None)
-      await(service.isVerified(regId, Some(noEmail), None)) shouldBe expected
+      await(service.isVerified(regId, Some(noEmail), None, authDetails)) shouldBe expected
     }
   }
 
   "getEmail" should {
     "return the contents of Some(email)" in new Setup {
-      await(emailService.getEmail("", Some(defaultEmail), None)) shouldBe defaultEmail
+      await(emailService.getEmail("", Some(defaultEmail), None, authDetails)) shouldBe defaultEmail
     }
     "return the email from session when none is provided" in new Setup {
-      when(mockAuthConnector.getUserDetails[UserDetailsModel](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]()))
-        .thenReturn(userDetailsModel)
-
       when(mockCrConnector.updateEmail(Matchers.eq(regId), Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(Some(Email("testEmail", "GG", false, false, false))))
 
-      await(emailService.getEmail(regId, None, None)) shouldBe defaultEmail
+      await(emailService.getEmail(regId, None, None, authDetails)) shouldBe defaultEmail
 
       val captor = ArgumentCaptor.forClass(classOf[Email])
       verify(mockCrConnector).updateEmail(Matchers.eq(regId), captor.capture())(Matchers.any())
@@ -198,14 +183,8 @@ class EmailVerificationServiceSpec extends UnitSpec with MockitoSugar with WithF
       when(mockEmailConnector.checkVerifiedEmail(Matchers.anyString())(Matchers.any()))
       .thenReturn(Future.successful(true))
 
-      when(mockAuthConnector.getIds[UserIDs](Matchers.any[AuthContext]())(Matchers.any[HeaderCarrier](), Matchers.any(), Matchers.any[ExecutionContext]()))
-      .thenReturn(Future.successful(UserIDs("testEXID","testIID")))
-
       when(mockKsConnector.cache(Matchers.eq("email"), Matchers.any())(Matchers.any(), Matchers.any()))
       .thenReturn(Future.successful(CacheMap("x", Map())))
-
-      when(mockAuthConnector.getUserDetails[UserDetailsModel](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]()))
-        .thenReturn(Future.successful(userDetailsModel))
 
       when(mockCrConnector.updateEmail(Matchers.eq(regId), Matchers.any[Email]())(Matchers.any[HeaderCarrier]()))
         .thenAnswer( (i: InvocationOnMock) => Future.successful(Some(i.getArguments()(1).asInstanceOf[Email])) )
@@ -215,16 +194,13 @@ class EmailVerificationServiceSpec extends UnitSpec with MockitoSugar with WithF
       when(mockAuditConnector.sendExtendedEvent(captor.capture())(Matchers.any[HeaderCarrier](), Matchers.any[ExecutionContext]()))
       .thenReturn(Future.successful(Success))
 
-      await(emailService.verifyEmailAddress("testEmail", regId)) shouldBe Some(true)
+      await(emailService.verifyEmailAddress("testEmail", regId, authDetails)) shouldBe Some(true)
 
       (captor.getValue.detail \ "previouslyVerified").as[Boolean] shouldBe false
     }
     "return false when email is unverified" in new Setup {
       when(mockEmailConnector.checkVerifiedEmail(Matchers.anyString())(Matchers.any()))
         .thenReturn(Future.successful(false))
-
-      when(mockAuthConnector.getIds[UserIDs](Matchers.any[AuthContext]())(Matchers.any[HeaderCarrier](), Matchers.any(), Matchers.any[ExecutionContext]()))
-        .thenReturn(Future.successful(UserIDs("testEXID","testIID")))
 
       when(mockKsConnector.cache(Matchers.eq("email"), Matchers.any())(Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(CacheMap("x", Map())))
@@ -235,7 +211,7 @@ class EmailVerificationServiceSpec extends UnitSpec with MockitoSugar with WithF
       when(mockAuditConnector.sendExtendedEvent(Matchers.any[EmailVerifiedEvent]())(Matchers.any[HeaderCarrier](), Matchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(Success))
 
-      await(emailService.verifyEmailAddress("testEmail", regId)) shouldBe Some(false)
+      await(emailService.verifyEmailAddress("testEmail", regId, authDetails)) shouldBe Some(false)
     }
   }
 
@@ -250,7 +226,7 @@ class EmailVerificationServiceSpec extends UnitSpec with MockitoSugar with WithF
       when(mockCrConnector.updateEmail(Matchers.eq(regId), Matchers.any[Email]())(Matchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(None))
 
-      await(emailService.sendVerificationLink("testEmail", regId)) shouldBe Some(false)
+      await(emailService.sendVerificationLink("testEmail", regId, authDetails)) shouldBe Some(false)
     }
     "should return true when a link has not been sent due to a conflict" in new Setup {
 
@@ -263,18 +239,12 @@ class EmailVerificationServiceSpec extends UnitSpec with MockitoSugar with WithF
       when(mockCrConnector.updateEmail(Matchers.eq(regId), Matchers.any[Email]())(Matchers.any[HeaderCarrier]()))
         .thenAnswer( (i: InvocationOnMock) => Future.successful(Some(i.getArguments()(1).asInstanceOf[Email])) )
 
-      when(mockAuthConnector.getUserDetails[UserDetailsModel](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]()))
-        .thenReturn(Future.successful(userDetailsModel))
-
-      when(mockAuthConnector.getIds[UserIDs](Matchers.any[AuthContext]())(Matchers.any[HeaderCarrier](), Matchers.any(), Matchers.any[ExecutionContext]()))
-        .thenReturn(Future.successful(UserIDs("testEXID","testIID")))
-
       val captor = ArgumentCaptor.forClass(classOf[EmailVerifiedEvent])
 
       when(mockAuditConnector.sendExtendedEvent(captor.capture())(Matchers.any[HeaderCarrier](), Matchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(Success))
 
-      await(emailService.sendVerificationLink("testEmail", regId)) shouldBe Some(true)
+      await(emailService.sendVerificationLink("testEmail", regId, authDetails))shouldBe Some(true)
 
       (captor.getValue.detail \ "previouslyVerified").as[Boolean] shouldBe true
     }

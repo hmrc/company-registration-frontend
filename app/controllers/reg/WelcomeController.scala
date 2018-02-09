@@ -18,8 +18,8 @@ package controllers.reg
 
 import play.api.mvc.Action
 import uk.gov.hmrc.play.frontend.controller.FrontendController
-import views.html.reg.Welcome
 import utils.{MessagesSupport, SCRSFeatureSwitches}
+import views.html.reg.Welcome
 
 import scala.concurrent.Future
 

@@ -18,23 +18,25 @@ package views
 
 import _root_.helpers.SCRSSpec
 import builders.AuthBuilder
+import config.FrontendAuthConnector
 import controllers.dashboard.DashboardController
-import models._
+import models.{Dashboard, IncorpAndCTDashboard, ServiceDashboard, ServiceLinks}
 import models.external.Statuses
 import org.jsoup.Jsoup
-import org.mockito.Mockito._
 import org.mockito.Matchers
+import org.mockito.Matchers.any
+import org.mockito.Mockito._
 import play.api.test.Helpers._
 import services.{DashboardBuilt, DashboardService}
-import org.mockito.Matchers.any
-import play.twirl.api.Html
+import uk.gov.hmrc.auth.core.Enrolments
 import uk.gov.hmrc.play.test.WithFakeApplication
 
 import scala.concurrent.Future
 
-class DashboardSpec extends SCRSSpec with WithFakeApplication {
+class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
 
   val mockDashboardService = mock[DashboardService]
+
 
   class Setup {
     val controller = new DashboardController {
@@ -47,6 +49,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
   }
 
   val regId = "reg-12345"
+  val emptyEnrolments = Enrolments(Set())
 
   "DashboardController.show" should {
 
@@ -64,10 +67,10 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
       when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
-      when(mockDashboardService.buildDashboard(Matchers.any())(Matchers.any(), any()))
+      when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(DashboardBuilt(dashboard)))
 
-      AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
+      showWithAuthorisedUserRetrieval(controller.show, emptyEnrolments) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
           document.title() shouldBe "Company registration overview"
@@ -101,10 +104,10 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
       when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
-      when(mockDashboardService.buildDashboard(Matchers.any())(Matchers.any(), any()))
+      when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(DashboardBuilt(dashboard)))
 
-      AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
+      showWithAuthorisedUserRetrieval(controller.show, emptyEnrolments) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
           document.title() shouldBe "Company registration overview"
@@ -135,10 +138,10 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
       when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
-      when(mockDashboardService.buildDashboard(Matchers.any())(Matchers.any(), any()))
+      when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(DashboardBuilt(dashboard)))
 
-      AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
+      showWithAuthorisedUserRetrieval(controller.show, emptyEnrolments) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
           document.title() shouldBe "Company registration overview"
@@ -167,10 +170,10 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
       when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
-      when(mockDashboardService.buildDashboard(Matchers.any())(Matchers.any(), any()))
+      when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(DashboardBuilt(dashboard)))
 
-      AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
+      showWithAuthorisedUserRetrieval(controller.show, emptyEnrolments) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
           document.title() shouldBe "Company registration overview"
@@ -199,10 +202,10 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
       when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
-      when(mockDashboardService.buildDashboard(Matchers.any())(Matchers.any(), any()))
+      when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(DashboardBuilt(dashboard)))
 
-      AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
+      showWithAuthorisedUserRetrieval(controller.show, emptyEnrolments) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
           document.title() shouldBe "Company registration overview"
@@ -231,10 +234,10 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
       when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
-      when(mockDashboardService.buildDashboard(Matchers.any())(Matchers.any(), any()))
+      when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(DashboardBuilt(dashboard)))
 
-      AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
+      showWithAuthorisedUserRetrieval(controller.show, emptyEnrolments) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
           document.title() shouldBe "Company registration overview"
@@ -256,10 +259,10 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
       when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
-      when(mockDashboardService.buildDashboard(Matchers.any())(Matchers.any(), any()))
+      when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(DashboardBuilt(dashboard)))
 
-      AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
+      showWithAuthorisedUserRetrieval(controller.show, emptyEnrolments) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
           document.title() shouldBe "Company registration overview"
@@ -281,10 +284,10 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
       when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
-      when(mockDashboardService.buildDashboard(Matchers.any())(Matchers.any(), any()))
+      when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(DashboardBuilt(dashboard)))
 
-      AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
+      showWithAuthorisedUserRetrieval(controller.show, emptyEnrolments) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
           document.title() shouldBe "Company registration overview"
@@ -307,10 +310,10 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
       when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
-      when(mockDashboardService.buildDashboard(Matchers.any())(Matchers.any(), any()))
+      when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(DashboardBuilt(dashboard)))
 
-      AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
+      showWithAuthorisedUserRetrieval(controller.show, emptyEnrolments) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
           document.title() shouldBe "Company registration overview"
@@ -333,10 +336,10 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
       when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
-      when(mockDashboardService.buildDashboard(Matchers.any())(Matchers.any(), any()))
+      when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(DashboardBuilt(dashboard)))
 
-      AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
+      showWithAuthorisedUserRetrieval(controller.show, emptyEnrolments) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
           document.title() shouldBe "Company registration overview"
@@ -364,10 +367,10 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
       when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
-      when(mockDashboardService.buildDashboard(Matchers.any())(Matchers.any(), any()))
+      when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(DashboardBuilt(dashboard)))
 
-      AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
+      showWithAuthorisedUserRetrieval(controller.show, emptyEnrolments) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
           document.title() shouldBe "Company registration overview"
@@ -396,10 +399,10 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
       when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
-      when(mockDashboardService.buildDashboard(Matchers.any())(Matchers.any(), any()))
+      when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(DashboardBuilt(dashboard)))
 
-      AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
+      showWithAuthorisedUserRetrieval(controller.show, emptyEnrolments) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
           document.title() shouldBe "Company registration overview"
@@ -423,10 +426,10 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
       when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
-      when(mockDashboardService.buildDashboard(Matchers.any())(Matchers.any(), any()))
+      when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(DashboardBuilt(dashboard)))
 
-      AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
+      showWithAuthorisedUserRetrieval(controller.show, emptyEnrolments) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
           document.title() shouldBe "Company registration overview"
@@ -450,10 +453,10 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
       when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
-      when(mockDashboardService.buildDashboard(Matchers.any())(Matchers.any(), any()))
+      when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(DashboardBuilt(dashboard)))
 
-      AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
+      showWithAuthorisedUserRetrieval(controller.show, emptyEnrolments) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
           document.title() shouldBe "Company registration overview"
@@ -476,10 +479,10 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
       when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
-      when(mockDashboardService.buildDashboard(Matchers.any())(Matchers.any(), any()))
+      when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(DashboardBuilt(dashboard)))
 
-      AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
+      showWithAuthorisedUserRetrieval(controller.show, emptyEnrolments) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
           document.title() shouldBe "Company registration overview"
@@ -502,10 +505,10 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
       when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
-      when(mockDashboardService.buildDashboard(Matchers.any())(Matchers.any(), any()))
+      when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(DashboardBuilt(dashboard)))
 
-      AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
+      showWithAuthorisedUserRetrieval(controller.show, emptyEnrolments) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
           document.title() shouldBe "Company registration overview"
@@ -528,10 +531,10 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
       when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
-      when(mockDashboardService.buildDashboard(Matchers.any())(Matchers.any(), any()))
+      when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(DashboardBuilt(dashboard)))
 
-      AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
+      showWithAuthorisedUserRetrieval(controller.show, emptyEnrolments) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
           document.title() shouldBe "Company registration overview"
@@ -554,10 +557,10 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
       when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
-      when(mockDashboardService.buildDashboard(Matchers.any())(Matchers.any(), any()))
+      when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(DashboardBuilt(dashboard)))
 
-      AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
+      showWithAuthorisedUserRetrieval(controller.show, emptyEnrolments) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
           document.title() shouldBe "Company registration overview"
@@ -580,10 +583,10 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
       when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
-      when(mockDashboardService.buildDashboard(Matchers.any())(Matchers.any(), any()))
+      when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(DashboardBuilt(dashboard)))
 
-      AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
+      showWithAuthorisedUserRetrieval(controller.show, emptyEnrolments) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
           document.title() shouldBe "Company registration overview"
@@ -606,10 +609,10 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
       when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
-      when(mockDashboardService.buildDashboard(Matchers.any())(Matchers.any(), any()))
+      when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(DashboardBuilt(dashboard)))
 
-      AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
+      showWithAuthorisedUserRetrieval(controller.show, emptyEnrolments) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
           document.title() shouldBe "Company registration overview"
@@ -632,10 +635,10 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication {
       when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
-      when(mockDashboardService.buildDashboard(Matchers.any())(Matchers.any(), any()))
+      when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(DashboardBuilt(dashboard)))
 
-      AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
+      showWithAuthorisedUserRetrieval(controller.show, emptyEnrolments) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
           document.title() shouldBe "Company registration overview"

@@ -37,9 +37,10 @@ trait HandOffNavigator extends CommonService with SCRSExceptions {
   _: ServicesConfig =>
 
   val navModelMongo : NavModelRepository
-  def compRegFrontendUrl = SCRSFeatureSwitches.legacyEnv.enabled match {
-    case false => FrontendConfig.selfFull
-    case true => FrontendConfig.selfFullLegacy
+  def compRegFrontendUrl: String = if (SCRSFeatureSwitches.legacyEnv.enabled) {
+    FrontendConfig.selfFullLegacy
+  } else {
+    FrontendConfig.selfFull
   }
 
   private def buildUrl(call: Call) = {

@@ -18,12 +18,12 @@ package controllers.handoff
 
 import config.FrontendAuthConnector
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
-import controllers.auth.{SCRSHandOffRegime, SCRSRegime}
+import controllers.auth.AuthFunction
 import controllers.reg.ControllerErrorHandler
 import play.api.Logger
 import play.api.mvc.{Action, AnyContent}
 import services.{HandBackService, HandOffService, HandOffServiceImpl, NavModelNotFoundException}
-import uk.gov.hmrc.play.frontend.auth.Actions
+import uk.gov.hmrc.auth.core.retrieve.Retrievals
 import uk.gov.hmrc.play.frontend.controller.FrontendController
 import utils.{DecryptionError, MessagesSupport, PayloadError, SessionRegistration}
 import views.html.error_template_restart
@@ -38,29 +38,30 @@ object IncorporationSummaryController extends IncorporationSummaryController {
   val companyRegistrationConnector = CompanyRegistrationConnector
 }
 
-trait IncorporationSummaryController extends FrontendController with Actions with SessionRegistration with ControllerErrorHandler with MessagesSupport {
+trait IncorporationSummaryController extends FrontendController with AuthFunction with SessionRegistration with ControllerErrorHandler with MessagesSupport {
 
   val handOffService : HandOffService
   val handBackService : HandBackService
 
   //HO5
-  val incorporationSummary = AuthorisedFor(taxRegime = SCRSRegime(""), pageVisibility = GGConfidence).async {
-    implicit user =>
-      implicit request =>
+  def incorporationSummary: Action[AnyContent] = Action.async {
+    implicit request =>
+      ctAuthorisedOptStr(Retrievals.externalId) { externalID =>
         registered { a =>
-          handOffService.summaryHandOff map {
+          handOffService.summaryHandOff(externalID) map {
             case Some((url, payload)) => Redirect(handOffService.buildHandOffUrl(url, payload))
             case None => BadRequest(defaultErrorPage)
           } recover {
             case ex: NavModelNotFoundException => Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))
           }
         }
+      }
   }
 
   //HO5b
-  def returnToCorporationTaxSummary(request: String): Action[AnyContent] = AuthorisedFor(taxRegime = SCRSHandOffRegime("HO5b", request), pageVisibility = GGConfidence).async {
-    implicit user =>
-      implicit _request =>
+  def returnToCorporationTaxSummary(request: String): Action[AnyContent] = Action.async {
+    implicit _request =>
+      ctAuthorisedHandoff("HO5b", request) {
         registeredHandOff("HO5b", request) { _ =>
           handBackService.processCompanyNameReverseHandBack(request).map {
             case Success(_) => Redirect(controllers.reg.routes.SummaryController.show())
@@ -74,5 +75,6 @@ trait IncorporationSummaryController extends FrontendController with Actions wit
             case ex: NavModelNotFoundException => Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))
           }
         }
+      }
   }
 }

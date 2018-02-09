@@ -18,10 +18,10 @@ package controllers.reg
 
 import play.api.mvc.Action
 import uk.gov.hmrc.play.frontend.controller.FrontendController
+import utils.MessagesSupport
+import views.html.reg.IncompleteRegistration
 
 import scala.concurrent.Future
-import views.html.reg.IncompleteRegistration
-import utils.MessagesSupport
 
 object IncompleteRegistrationController extends IncompleteRegistrationController
 

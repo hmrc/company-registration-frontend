@@ -3,8 +3,8 @@ package www
 
 import java.util.UUID
 
-import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, stubFor, urlMatching}
+import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import itutil.{FakeAppConfig, IntegrationSpecBase, LoginStub, WiremockHelper}
 import models.handoff._
 import play.api.http.HeaderNames
@@ -140,8 +140,16 @@ class BasicCompanyDetailsControllerISpec extends IntegrationSpecBase with MongoS
   "basicCompanyDetails" should {
 
     "call coho with a request that contains a session block" in new Setup {
-      setupSimpleAuthMocks()
+
       stubSuccessfulLogin(userId = userId)
+      stubAuthorisation(resp = Some(
+        s"""
+           |{
+           |  "name": { "name": "name"},
+           |  "email": "test@me.com",
+           |  "externalId": "Ext-xxx"
+           |}
+         """.stripMargin))
 
       val csrfToken = UUID.randomUUID().toString
       val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
@@ -168,7 +176,8 @@ class BasicCompanyDetailsControllerISpec extends IntegrationSpecBase with MongoS
   "returnToAboutYou" should {
 
     "redirect to completion capacity if the payload is correct" in new Setup {
-      setupSimpleAuthMocks()
+
+      stubAuthorisation()
       stubSuccessfulLogin(userId = userId)
 
       val csrfToken = UUID.randomUUID().toString
@@ -187,7 +196,8 @@ class BasicCompanyDetailsControllerISpec extends IntegrationSpecBase with MongoS
     }
 
     "return a bad request if there is an incorrect request" in new Setup {
-      setupSimpleAuthMocks()
+
+      stubAuthorisation()
       stubSuccessfulLogin(userId = userId)
 
       val csrfToken = UUID.randomUUID().toString

@@ -29,24 +29,17 @@ import uk.gov.hmrc.http._
 
 object DynamicStubConnector extends DynamicStubConnector with ServicesConfig {
   val http = WSHttp
-  val stubUrl = baseUrl("incorp-dy-stub")
   val busRegDyUrl = s"${baseUrl("business-registration-dynamic-stub")}/business-registration"
 }
 
 trait DynamicStubConnector {
-
   val http: CoreGet with CorePost with CorePut
-  val stubUrl: String
   val busRegDyUrl : String
 
   implicit val hc: HeaderCarrier = HeaderCarrier().withExtraHeaders("Accept" -> "application/vnd.hmrc.1.0+json")
 
   implicit val rds = Json.reads[IncorporationResponse]
   hc.withExtraHeaders("Accept" -> "application/vnd.hmrc.1.0+json")
-
-  def getIncorporationStatus(incorporationID : String)(implicit hc : HeaderCarrier) : Future[Option[List[IncorporationResponse]]] = {
-    http.GET[Option[List[IncorporationResponse]]](s"$stubUrl/incorporation-dynamic-stub/get-incorp-status/$incorporationID")
-  }
 
   def postETMPNotificationData(etmp : ETMPNotification)(implicit hc : HeaderCarrier) : Future[HttpResponse] = {
     val json = Json.toJson(etmp)

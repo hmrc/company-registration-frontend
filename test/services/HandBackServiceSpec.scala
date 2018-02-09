@@ -75,8 +75,6 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
     "links" -> Json.obj("forward"->forward, "reverse"->reverse)
   )
 
-  implicit val user = AuthBuilder.createTestUser
-
   val registrationID = "12345"
   val cacheMap = CacheMap("", Map("" -> Json.toJson("12345")))
 
@@ -268,7 +266,7 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
     "return a RegistrationConfirmationPayload with no link and a payment reference and amount if it is an old HO6" in new Setup {
       val encryptedPayloadString = testJwe.encrypt[RegistrationConfirmationPayload](registrationConfirmationPayload).get
 
-      val result = await(service.decryptConfirmationHandback(encryptedPayloadString)(user,hc)).get
+      val result = await(service.decryptConfirmationHandback(encryptedPayloadString)(hc)).get
       result shouldBe registrationConfirmationPayload
       result.links shouldBe Json.obj()
       result.payment_reference.isDefined shouldBe true
@@ -282,7 +280,7 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
 
       val encryptedPayloadString = testJwe.encrypt[RegistrationConfirmationPayload](confirmationHandoffPayload).get
 
-      val result = await(service.decryptConfirmationHandback(encryptedPayloadString)(user,hc)).get
+      val result = await(service.decryptConfirmationHandback(encryptedPayloadString)(hc)).get
       result shouldBe confirmationHandoffPayload
       result.links shouldBe Json.obj("forward" -> "/redirect-url")
       result.payment_reference.isDefined shouldBe false

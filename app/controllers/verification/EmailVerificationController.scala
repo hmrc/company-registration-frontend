@@ -18,14 +18,13 @@ package controllers.verification
 
 import config.{FrontendAuthConnector, FrontendConfig}
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
-import controllers.auth.SCRSRegime
-import play.api.mvc.Action
+import controllers.auth.AuthFunction
+import play.api.mvc.{Action, AnyContent}
 import uk.gov.hmrc.play.binders.ContinueUrl
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.frontend.controller.FrontendController
 import utils.{MessagesSupport, SessionRegistration}
 import views.html.verification.{CreateGGWAccount, CreateNewGGWAccount, createNewAccount, verifyYourEmail}
-import uk.gov.hmrc.play.frontend.auth.Actions
 
 import scala.concurrent.Future
 
@@ -38,37 +37,38 @@ object EmailVerificationController extends EmailVerificationController with Serv
   val companyRegistrationConnector = CompanyRegistrationConnector
 }
 
-trait EmailVerificationController extends FrontendController with Actions with SessionRegistration with MessagesSupport {
+trait EmailVerificationController extends FrontendController with AuthFunction with SessionRegistration with MessagesSupport {
 
   val keystoreConnector : KeystoreConnector
   val createGGWAccountUrl: String
   val callbackUrl: String
   val frontEndUrl : String
 
-  val verifyShow = AuthorisedFor(taxRegime = SCRSRegime("verify-your-email"), pageVisibility = GGConfidence).async {
-    implicit user =>
-      implicit request =>
+  val verifyShow: Action[AnyContent] = Action.async {
+    implicit request =>
+      ctAuthorised {
         keystoreConnector.fetchAndGet[String]("email") map {
           case Some(email) => Ok(verifyYourEmail(email))
           case None => Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))
         }
+      }
   }
 
-  val verifySubmit = Action.async { implicit request =>
+  val verifySubmit: Action[AnyContent] = Action.async { implicit request =>
     Future.successful(Ok)
   }
 
-  val createShow = Action.async {
+  val createShow: Action[AnyContent] = Action.async {
     implicit request =>
       Future.successful(Ok(createNewAccount()))
   }
 
-  val createSubmit = Action.async { implicit request =>
+  val createSubmit: Action[AnyContent] = Action.async { implicit request =>
     //TODO change this to create account - need to remove auth context from session / logout
     Future.successful(Redirect(controllers.reg.routes.WelcomeController.show()))
   }
 
-  val createGGWAccountAffinityShow = Action.async {
+  val createGGWAccountAffinityShow: Action[AnyContent] = Action.async {
     implicit request =>
       val redirect = controllers.reg.routes.WelcomeController.show().url
       val url = controllers.reg.routes.SignInOutController.signOut(Some(ContinueUrl(s"$frontEndUrl$redirect"))).url
@@ -76,19 +76,19 @@ trait EmailVerificationController extends FrontendController with Actions with S
 
   }
 
-  val createGGWAccountSubmit = Action.async { implicit request =>
+  val createGGWAccountSubmit: Action[AnyContent] = Action.async { implicit request =>
     //TODO change this to create account - need to remove auth context from session / logout
     Future.successful(Redirect(controllers.reg.routes.SignInOutController.signOut(None)).withNewSession)
   }
 
-  val createNewGGWAccountShow = Action.async {
+  val createNewGGWAccountShow: Action[AnyContent] = Action.async {
     implicit request =>
       val redirect = controllers.reg.routes.WelcomeController.show().url
       val url = controllers.reg.routes.SignInOutController.signOut(Some(ContinueUrl(s"$frontEndUrl$redirect"))).url
       Future.successful(Ok(CreateNewGGWAccount(url)))
   }
 
-  val startAgain = Action.async {
+  val startAgain: Action[AnyContent] = Action.async {
     implicit request =>
       Future.successful(Redirect(controllers.reg.routes.WelcomeController.show()).withNewSession)
   }

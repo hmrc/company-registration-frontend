@@ -16,9 +16,9 @@
 package statusapi
 
 import com.github.tomakehurst.wiremock.client.WireMock._
+import itutil.{FakeAppConfig, IntegrationSpecBase, LoginStub, WiremockHelper}
 import play.api.libs.json.Json
 import play.api.test.FakeApplication
-import itutil.{FakeAppConfig, IntegrationSpecBase, LoginStub, WiremockHelper}
 
 class CohoStatusApiISpec extends IntegrationSpecBase with FakeAppConfig with LoginStub {
 

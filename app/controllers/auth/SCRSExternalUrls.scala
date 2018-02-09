@@ -19,7 +19,7 @@ package controllers.auth
 import controllers.reg.routes
 import play.api.Play
 import play.api.Play.current
-import uk.gov.hmrc.play.config.{ServicesConfig, RunMode}
+import uk.gov.hmrc.play.config.{RunMode, ServicesConfig}
 
 object SCRSExternalUrls extends RunMode with ServicesConfig {
   private[SCRSExternalUrls] val companyAuthHost = Play.configuration.getString(s"microservice.services.auth.company-auth.url").getOrElse("")

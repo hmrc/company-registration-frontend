@@ -16,27 +16,27 @@
 
 package controllers.reg
 
-import config.{FrontendAppConfig, FrontendAuthConnector, FrontendConfig}
-import connectors._
-import controllers.auth.{SCRSExternalUrls, SCRSRegime}
-import models._
-import play.api.Logger
-import play.api.mvc.{Action, AnyContent, Request, Result}
-import services._
-import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.frontend.auth.{Actions, AuthContext}
-import uk.gov.hmrc.play.frontend.controller.FrontendController
-import utils.SCRSExceptions
 import java.io.File
 
-import controllers.verification.{routes => emailRoutes}
-import play.api.i18n.Messages.Implicits._
-import play.api.Play.current
-import uk.gov.hmrc.play.binders.ContinueUrl
+import config.{FrontendAppConfig, FrontendAuthConnector, FrontendConfig}
+import connectors._
+import controllers.auth.{AuthFunction, SCRSExternalUrls}
 import controllers.handoff.{routes => handoffRoutes}
+import controllers.verification.{routes => emailRoutes}
+import models.ThrottleResponse
+import play.api.Logger
+import play.api.Play.current
+import play.api.i18n.Messages.Implicits._
+import play.api.mvc.{Action, AnyContent, Request, Result}
+import services._
+import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolments}
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.binders.ContinueUrl
+import uk.gov.hmrc.play.config.ServicesConfig
+import uk.gov.hmrc.play.frontend.controller.FrontendController
+import utils.SCRSExceptions
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.HeaderCarrier
 
 object SignInOutController extends SignInOutController with ServicesConfig{
   val authConnector = FrontendAuthConnector
@@ -50,7 +50,7 @@ object SignInOutController extends SignInOutController with ServicesConfig{
   val corsRenewHost = FrontendAppConfig.corsRenewHost
 }
 
-trait SignInOutController extends FrontendController with Actions with ControllerErrorHandler with CommonService with SCRSExceptions {
+trait SignInOutController extends FrontendController with ControllerErrorHandler with CommonService with SCRSExceptions with AuthFunction {
 
   val compRegConnector : CompanyRegistrationConnector
   val handOffService : HandOffService
@@ -61,42 +61,42 @@ trait SignInOutController extends FrontendController with Actions with Controlle
   val keystoreConnector: KeystoreConnector
   val corsRenewHost: Option[String]
 
-  def postSignIn(resend: Option[Boolean], handOffID: Option[String] = None, payload: Option[String] = None) =
-    AuthorisedFor(taxRegime = SCRSRegime("post-sign-in"), pageVisibility = GGConfidence).async {
-      implicit user =>
-        implicit request =>
-          hasOrgAffinity {
-            hasFootprint { response =>
-              whenRegistrationIsDraft(response) {
-                checkHO5Progress(response) {
-                  processDeferredHandoff(handOffID, payload, response) {
-                    hasNoEnrolments {
-                      emailService.isVerified(response.registrationId, response.emailData, resend) flatMap {
-                        case (Some(true), Some(verifiedEmail)) =>
-                          for {
-                            a <- handOffService.cacheRegistrationID(response.registrationId)
-                            b <- emailService.sendWelcomeEmail(response.registrationId, verifiedEmail)}
-                            yield {
-                              Redirect(routes.CompletionCapacityController.show())
-                            }
-                        case (Some(false), _) => Future.successful(Redirect(controllers.verification.routes.EmailVerificationController.verifyShow()))
-                        case (None, _) => Future.successful(Redirect(controllers.verification.routes.EmailVerificationController.createShow()))
-                        case _ => Future.successful(InternalServerError(defaultErrorPage))
-                      } recover {
-                        case ex: Throwable =>
-                          Logger.error(s"[SignInOutController] [postSignIn] error occurred during post sign in - ${ex.getMessage}")
-                          BadRequest(defaultErrorPage)
-                      }
+  def postSignIn(resend: Option[Boolean], handOffID: Option[String] = None, payload: Option[String] = None): Action[AnyContent] = Action.async {
+    implicit request =>
+       ctAuthorisedPostSignIn { authDetails =>
+        hasOrgAffinity(authDetails.affinityGroup) {
+          hasFootprint { response =>
+            whenRegistrationIsDraft(response) {
+              checkHO5Progress(response) {
+                processDeferredHandoff(handOffID, payload, response) {
+                  hasNoEnrolments(authDetails.enrolments) {
+                    emailService.isVerified(response.registrationId, response.emailData, resend, authDetails) flatMap {
+                      case (Some(true), Some(verifiedEmail)) =>
+                        for {
+                          a <- handOffService.cacheRegistrationID(response.registrationId)
+                          b <- emailService.sendWelcomeEmail(response.registrationId, verifiedEmail, authDetails)}
+                          yield {
+                            Redirect(routes.CompletionCapacityController.show())
+                          }
+                      case (Some(false), _) => Future.successful(Redirect(controllers.verification.routes.EmailVerificationController.verifyShow()))
+                      case (None, _) => Future.successful(Redirect(controllers.verification.routes.EmailVerificationController.createShow()))
+                      case _ => Future.successful(InternalServerError(defaultErrorPage))
+                    } recover {
+                      case ex: Throwable =>
+                        Logger.error(s"[SignInOutController] [postSignIn] error occurred during post sign in - ${ex.getMessage}")
+                        BadRequest(defaultErrorPage)
                     }
                   }
                 }
               }
             }
           }
+        }
+      }
   }
 
   private def whenRegistrationIsDraft(throttleResponse: ThrottleResponse)(f: => Future[Result])
-                                     (implicit hc : HeaderCarrier, user : AuthContext, req: Request[_]) : Future[Result] = {
+                                     (implicit hc : HeaderCarrier, req: Request[_]) : Future[Result] = {
     compRegConnector.fetchRegistrationStatus(throttleResponse.registrationId) flatMap {
       case Some("draft") => f
       case Some("locked") => redirectToHo1WithCachedRegistrationId(throttleResponse.registrationId)
@@ -166,26 +166,22 @@ trait SignInOutController extends FrontendController with Actions with Controlle
     }
   }
 
-  private def hasOrgAffinity(f: => Future[Result])(implicit hc: HeaderCarrier, authContext: AuthContext):Future[Result]={
-    authConnector.getUserDetails[UserDetailsModel](authContext) flatMap {
-      _.affinityGroup match {
-        case "Organisation" => f
-        case _ => Future.successful(Redirect(emailRoutes.EmailVerificationController.createGGWAccountAffinityShow()))
-      }
+  private def hasOrgAffinity(orgAffinity : AffinityGroup)(f: => Future[Result])(implicit hc: HeaderCarrier) : Future[Result] = {
+    orgAffinity match {
+      case AffinityGroup.Organisation => f
+      case _ => Future.successful(Redirect(emailRoutes.EmailVerificationController.createGGWAccountAffinityShow()))
     }
   }
 
-  private def hasNoEnrolments(f: => Future[Result])(implicit hc : HeaderCarrier, authContext: AuthContext) : Future[Result] = {
-    enrolmentsService.hasBannedRegimes(authContext) flatMap {
-      case true =>
-        Logger.warn("[SignInOutController][postSignIn] Throttle was incremented but user was blocked due to existing enrolments")
-        metrics.blockedByEnrollment.inc(1)
-        Future.successful(Redirect(emailRoutes.EmailVerificationController.createNewGGWAccountShow()))
-      case false => f
-    }
+  private def hasNoEnrolments(enrolments: Enrolments)(f: => Future[Result])(implicit hc : HeaderCarrier) : Future[Result] = {
+    if (enrolmentsService.hasBannedRegimes(enrolments)) {
+      Logger.warn("[SignInOutController][postSignIn] Throttle was incremented but user was blocked due to existing enrolments")
+      metrics.blockedByEnrollment.inc(1)
+      Future.successful(Redirect(emailRoutes.EmailVerificationController.createNewGGWAccountShow()))
+    } else f
   }
 
-  def signOut(continueUrl: Option[ContinueUrl] = None) = Action.async {
+  def signOut(continueUrl: Option[ContinueUrl] = None): Action[AnyContent] = Action.async {
     implicit request =>
       val c = continueUrl match {
         case Some(str) => str.url
@@ -194,24 +190,25 @@ trait SignInOutController extends FrontendController with Actions with Controlle
       Future.successful(Redirect(SCRSExternalUrls.logoutURL, Map("continue" -> Seq(c))))
   }
 
-  def renewSession: Action[AnyContent] = AuthorisedFor(taxRegime = SCRSRegime("post-sign-in"), pageVisibility = GGConfidence) {
-    implicit user =>
-      implicit request =>
+  def renewSession: Action[AnyContent] = Action.async {
+    implicit request =>
+      ctAuthorised {
         type Headers = Seq[Tuple2[String, String]]
-        val headers = corsRenewHost.fold[Headers](Seq()){ host =>
+        val headers = corsRenewHost.fold[Headers](Seq()) { host =>
           Seq(
             "Access-Control-Allow-Origin" -> host,
             "Access-Control-Allow-Credentials" -> "true"
           )
         }
-        Ok.sendFile(new File(("conf/renewSession.jpg"))).as("image/jpeg").withHeaders(headers:_*)
+        Future.successful(Ok.sendFile(new File("conf/renewSession.jpg")).as("image/jpeg").withHeaders(headers: _*))
+      }
   }
 
   def destroySession: Action[AnyContent] = Action {
     Redirect(routes.SignInOutController.timeoutShow()).withNewSession
   }
 
-  def timeoutShow = Action.async {
+  def timeoutShow: Action[AnyContent] = Action.async {
     implicit request =>
       Future.successful(Ok(views.html.timeout()))
   }

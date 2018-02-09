@@ -16,27 +16,25 @@
 
 package controllers.reg
 
-import audit.events.{ROUsedAsPPOBAuditEventDetail, ROUsedAsPPOBAuditEvent}
-import config.FrontendAuthConnector
 import _root_.connectors.{BusinessRegistrationConnector, CompanyRegistrationConnector, KeystoreConnector, S4LConnector}
-import controllers.auth.{AuthUserIds, SCRSRegime}
+import address.client.RecordSet
+import config.FrontendAuthConnector
+import controllers.auth.AuthFunction
 import forms.PPOBForm
-import models.handoff.BackHandoff
 import models._
+import models.handoff.BackHandoff
 import play.api.Logger
-import play.api.data.Form
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc._
-import services._
-import address.client.RecordSet
-import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.frontend.auth.{Actions, AuthContext}
-import uk.gov.hmrc.play.frontend.controller.FrontendController
-import utils.{Jwe, MessagesSupport, SCRSFeatureSwitches, SessionRegistration}
 import repositories.NavModelRepo
+import services._
+import uk.gov.hmrc.auth.core.retrieve.Retrievals
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.config.ServicesConfig
+import uk.gov.hmrc.play.frontend.controller.FrontendController
+import utils.{Jwe, MessagesSupport, SessionRegistration}
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.HeaderCarrier
 
 object PPOBController extends PPOBController{
   val authConnector = FrontendAuthConnector
@@ -51,7 +49,7 @@ object PPOBController extends PPOBController{
   val businessRegConnector = BusinessRegistrationConnector
 }
 
-trait PPOBController extends FrontendController with Actions with HandOffNavigator with ServicesConfig with AuthUserIds with AddressConverter
+trait PPOBController extends FrontendController with AuthFunction with HandOffNavigator with ServicesConfig with AddressConverter
   with SessionRegistration with ControllerErrorHandler with MessagesSupport {
 
   val s4LConnector : S4LConnector
@@ -65,44 +63,45 @@ trait PPOBController extends FrontendController with Actions with HandOffNavigat
 
   implicit val formatRecordSet = Json.format[RecordSet]
 
-  def show = AuthorisedFor(taxRegime = SCRSRegime("first-hand-off"), pageVisibility = GGConfidence).async {
-    implicit user =>
-      implicit request =>
+  def show: Action[AnyContent] = Action.async {
+    implicit request =>
+      ctAuthorised {
         checkStatus { regId =>
-      for {
-        ctReg <- companyRegistrationConnector.retrieveCorporationTaxRegistration(regId)
-        ro = ctReg.as(NewAddress.roReads)
-        ppob = ctReg.asOpt(NewAddress.ppobFormats)
-        choice = addressChoice(ppob, ctReg)
-        form = PPOBForm.aLFForm.fill(choice)
-      } yield {
-        Ok(views.html.reg.PrinciplePlaceOfBusiness(form, ro, ppob))
+          for {
+            ctReg <- companyRegistrationConnector.retrieveCorporationTaxRegistration(regId)
+            ro = ctReg.as(NewAddress.roReads)
+            ppob = ctReg.asOpt(NewAddress.ppobFormats)
+            choice = addressChoice(ppob, ctReg)
+            form = PPOBForm.aLFForm.fill(choice)
+          } yield {
+            Ok(views.html.reg.PrinciplePlaceOfBusiness(form, ro, ppob))
+          }
+        }
       }
-    }
   }
 
   private[controllers] def addressChoice(ppob: Option[_], ctReg: JsValue): PPOBChoice = {
     if(ppob.isDefined) PPOBChoice("PPOB")else if(ctReg.as[String](NewAddress.readAddressType) == "RO") PPOBChoice("RO") else PPOBChoice("")
   }
 
-
-  val saveALFAddress = AuthorisedFor(taxRegime = SCRSRegime(""), pageVisibility = GGConfidence).async {
-    implicit user =>
-      implicit request =>
+  val saveALFAddress: Action[AnyContent] = Action.async {
+    implicit request =>
+      ctAuthorised {
         checkStatus { regId =>
           for {
             address <- addressLookupFrontendService.getAddress
-            res     <- pPOBService.saveAddress(regId, "PPOB", Some(address))
-            _       <- updatePrePopAddress(regId, address)
+            res <- pPOBService.saveAddress(regId, "PPOB", Some(address))
+            _ <- updatePrePopAddress(regId, address)
           } yield res match {
             case _ => Redirect(controllers.reg.routes.CompanyContactDetailsController.show())
           }
         }
+      }
   }
 
-  def submit = AuthorisedFor(taxRegime = SCRSRegime("first-hand-off"), pageVisibility = GGConfidence).async {
-    implicit user =>
-      implicit request =>
+  def submit = Action.async {
+    implicit request =>
+      ctAuthorisedCredID { credID =>
         checkStatus { regId =>
           PPOBForm.aLFForm.bindFromRequest().fold[Future[Result]](
             errors => {
@@ -117,11 +116,10 @@ trait PPOBController extends FrontendController with Actions with HandOffNavigat
             success => {
               success.choice match {
                 case "RO" =>
-                  for{
+                  for {
                     _ <- pPOBService.saveAddress(regId, "RO")
-                    userDetails <- authConnector.getUserDetails[UserDetailsModel](user)
                     companyDetails <- pPOBService.retrieveCompanyDetails(regId)
-                    _ <- pPOBService.auditROAddress(regId, userDetails, companyDetails.companyName, companyDetails.cHROAddress)
+                    _ <- pPOBService.auditROAddress(regId, credID, companyDetails.companyName, companyDetails.cHROAddress)
                   } yield {
                     Redirect(controllers.reg.routes.CompanyContactDetailsController.show())
                   }
@@ -138,25 +136,26 @@ trait PPOBController extends FrontendController with Actions with HandOffNavigat
             }
           )
         }
+      }
   }
 
 
-  def back = AuthorisedFor(taxRegime = SCRSRegime("first-hand-off"), pageVisibility = GGConfidence).async {
-    implicit user =>
-      implicit request =>
-        registered { regId =>
+  def back: Action[AnyContent] = Action.async {
+    implicit request =>
+      ctAuthorisedOptStr(Retrievals.externalId) { externalID =>
+        registered { _ =>
           (for {
-            user_id <- handOffService.externalUserId
             navModel <- fetchNavModel()
-            backPayload <- handOffService.buildBackHandOff
+            backPayload <- handOffService.buildBackHandOff(externalID)
           } yield {
             val payload = Jwe.encrypt[BackHandoff](backPayload).getOrElse("")
             val url = navModel.receiver.nav("2").reverse
             Redirect(handOffService.buildHandOffUrl(url, payload))
-          }).recover{
+          }).recover {
             case ex: NavModelNotFoundException => Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))
           }
         }
+      }
   }
 
 

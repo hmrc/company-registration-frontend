@@ -20,19 +20,20 @@ import builders.AuthBuilder
 import controllers.reg.CompanyContactDetailsController
 import fixtures.{CompanyContactDetailsFixture, UserDetailsFixture}
 import helpers.SCRSSpec
-import models.{CompanyContactDetailsSuccessResponse, UserDetailsModel}
-import org.mockito.Matchers
+import mocks.MetricServiceMock
+import models.CompanyContactDetailsSuccessResponse
+import org.mockito.Matchers.any
+import org.mockito.Mockito._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.MetricsService
-import org.mockito.Mockito._
-import org.mockito.Matchers.any
-import mocks.MetricServiceMock
+import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name, ~}
 import uk.gov.hmrc.play.test.WithFakeApplication
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
-class CompanyContactDetailsControllerSpec extends SCRSSpec with UserDetailsFixture with CompanyContactDetailsFixture with WithFakeApplication {
+class CompanyContactDetailsControllerSpec extends SCRSSpec with UserDetailsFixture with CompanyContactDetailsFixture
+  with WithFakeApplication with AuthBuilder {
 
   class Setup {
     val controller = new CompanyContactDetailsController {
@@ -45,13 +46,26 @@ class CompanyContactDetailsControllerSpec extends SCRSSpec with UserDetailsFixtu
     }
   }
 
+  val authDetails = new ~(
+    Name(Some("myFirstName"), Some("myLastName")),
+    Some("fakeEmail")
+  )
+  val authDetailsAmend = new ~(
+    new ~(
+      new ~(
+        Name(Some("myFirstName"), Some("myLastName")),
+        Some("fakeEmail")
+      ), Credentials("credID", "provID")
+    ), Some("extID")
+  )
+
   "show" should {
     "return a 200 when fetchContactDetails returns a model from S4L" in new Setup {
       CTRegistrationConnectorMocks.retrieveCTRegistration()
       mockKeystoreFetchAndGet("registrationID",Some("1"))
       CompanyContactDetailsServiceMocks.fetchContactDetails(validCompanyContactDetailsModel)
 
-      AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector){
+      showWithAuthorisedUserRetrieval(controller.show, authDetails) {
         result =>
           status(result) shouldBe OK
       }
@@ -61,10 +75,8 @@ class CompanyContactDetailsControllerSpec extends SCRSSpec with UserDetailsFixtu
       CTRegistrationConnectorMocks.retrieveCTRegistration()
       mockKeystoreFetchAndGet("registrationID",Some("1"))
       CompanyContactDetailsServiceMocks.fetchContactDetails(validCompanyContactDetailsModel)
-      when(mockAuthConnector.getUserDetails[UserDetailsModel](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]()))
-        .thenReturn(Future.successful(userDetailsModel))
 
-      AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector){
+      showWithAuthorisedUserRetrieval(controller.show, authDetails) {
         result =>
           status(result) shouldBe OK
       }
@@ -77,14 +89,14 @@ class CompanyContactDetailsControllerSpec extends SCRSSpec with UserDetailsFixtu
       when(mockKeystoreConnector.fetchAndGet[String](any())(any(), any()))
         .thenReturn(Future.successful(Some("test")))
       CompanyContactDetailsServiceMocks.updateContactDetails(CompanyContactDetailsSuccessResponse(validCompanyContactDetailsResponse))
-      when(mockCompanyContactDetailsService.checkIfAmendedDetails(any())(any(), any(), any()))
+      when(mockCompanyContactDetailsService.checkIfAmendedDetails(any(), any(), any(), any())(any(), any()))
         .thenReturn(Future.successful(false))
       when(mockCompanyContactDetailsService.updatePrePopContactDetails(any(), any())(any()))
         .thenReturn(Future.successful(true))
 
       val request = FakeRequest().withFormUrlEncodedBody(validCompanyContactDetailsFormData: _*)
 
-      AuthBuilder.submitWithAuthorisedUser(controller.submit, mockAuthConnector, request){
+      submitWithAuthorisedUserRetrieval(controller.submit, request, authDetailsAmend) {
         result =>
           status(result) shouldBe SEE_OTHER
           redirectLocation(result) shouldBe Some("/register-your-company/when-start-business")
@@ -99,7 +111,7 @@ class CompanyContactDetailsControllerSpec extends SCRSSpec with UserDetailsFixtu
 
       val request = FakeRequest().withFormUrlEncodedBody(invalidCompanyContactDetailsNameFormData: _*)
 
-      AuthBuilder.submitWithAuthorisedUser(controller.submit, mockAuthConnector, request){
+      submitWithAuthorisedUserRetrieval(controller.submit, request, authDetailsAmend) {
         result =>
           status(result) shouldBe BAD_REQUEST
       }

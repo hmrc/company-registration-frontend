@@ -17,30 +17,30 @@
 package controllers
 
 import builders.AuthBuilder
+import config.FrontendAuthConnector
+import connectors._
 import controllers.test.TestEndpointController
 import fixtures.{CorporationTaxFixture, SCRSFixtures}
 import helpers.{SCRSSpec, TestActorSystem}
-import connectors._
 import models._
 import models.connectors.ConfirmationReferences
+import models.handoff._
+import org.mockito.Matchers
+import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import play.api.libs.json.Json
-import play.api.test.Helpers._
-import models.handoff._
 import play.api.test.FakeRequest
-import uk.gov.hmrc.http.cache.client.CacheMap
-import utils.{BooleanFeatureSwitch, SCRSFeatureSwitches}
+import play.api.test.Helpers._
 import services.MetaDataService
-import org.mockito.Mockito._
-import org.mockito.Matchers
-import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
+import uk.gov.hmrc.auth.core.AuthConnector
+import uk.gov.hmrc.http.cache.client.CacheMap
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.test.WithFakeApplication
+import utils.{BooleanFeatureSwitch, SCRSFeatureSwitches}
 
 import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
-class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with MockitoSugar
-  with TestActorSystem with CorporationTaxFixture with WithFakeApplication {
+class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with MockitoSugar with CorporationTaxFixture with WithFakeApplication with AuthBuilder {
 
   val mockNavModelRepoObj = mockNavModelRepo
   val applicantData = AboutYouChoice("Director")
@@ -57,6 +57,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
   val mockDynamicStubConnector = mock[DynamicStubConnector]
   val mockBusinessRegistrationConnector = mock[BusinessRegistrationConnector]
 
+
   class Setup {
     val controller = new TestEndpointController {
       override val authConnector = mockAuthConnector
@@ -71,12 +72,12 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
       override val companyRegistrationConnector = mockCompanyRegistrationConnector
     }
 
-    implicit val user = AuthBuilder.createTestUser
     implicit val hc = HeaderCarrier()
 
   }
 
   val registrationID = "testRegID"
+  val internalID = Some("internalID")
 
   "TestEndpointController" should {
     "use the correct AuthConnector" in new Setup {
@@ -95,8 +96,6 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
     val corporationTaxModel = buildCorporationTaxModel()
 
     "Return a 200" in new Setup {
-      when(mockAuthConnector.getIds[UserIDs](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]()))
-        .thenReturn(Future.successful(userIds))
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
       when(mockMetaDataService.getApplicantData(Matchers.any())(Matchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(applicantData))
@@ -109,7 +108,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
       when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(corporationTaxModel))
 
-      AuthBuilder.showWithAuthorisedUser(controller.getAllS4LEntries, mockAuthConnector){
+      showWithAuthorisedUserRetrieval(controller.getAllS4LEntries, internalID) {
 
         result =>
           status(result) shouldBe OK
@@ -117,8 +116,6 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
     }
 
     "Return a 200 even if nothing is returned" in new Setup {
-      when(mockAuthConnector.getIds[UserIDs](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]()))
-        .thenReturn(Future.successful(userIds))
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
       when(mockMetaDataService.getApplicantData(Matchers.any())(Matchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(applicantDataEmpty))
@@ -131,7 +128,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
       when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(corporationTaxModel))
 
-      AuthBuilder.showWithAuthorisedUser(controller.getAllS4LEntries, mockAuthConnector){
+      showWithAuthorisedUserRetrieval(controller.getAllS4LEntries, internalID) {
         result =>
           status(result) shouldBe OK
       }
@@ -140,10 +137,8 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
 
   "clearAllS4LEntries" should {
     "Return a 200" in new Setup {
-      when(mockAuthConnector.getIds[UserIDs](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]()))
-        .thenReturn(Future.successful(userIds))
       mockS4LClear()
-      AuthBuilder.showWithAuthorisedUser(controller.clearAllS4LEntries, mockAuthConnector){
+      showWithAuthorisedUserRetrieval(controller.clearAllS4LEntries, internalID) {
         result =>
           status(result) shouldBe OK
       }
@@ -153,8 +148,6 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
   "postAllS4LEntries" should {
 
     "Return a 303" in new Setup {
-      when(mockAuthConnector.getIds[UserIDs](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]()))
-        .thenReturn(Future.successful(userIds))
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
       when(mockMetaDataService.updateApplicantDataEndpoint(Matchers.eq(applicantData))(Matchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(validBusinessRegistrationResponse))
@@ -175,7 +168,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
           Seq("regularPayments" -> "false", "choice" -> "HMRCEndDate"): _*
       )
 
-      AuthBuilder.submitWithAuthorisedUser(controller.postAllS4LEntries, mockAuthConnector, request){
+      submitWithAuthorisedUser(controller.postAllS4LEntries, request) {
         result =>
           status(result) shouldBe SEE_OTHER
       }
@@ -184,12 +177,9 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
 
   "clearKeystore" should {
     "remove all elements in the users keystore collection" in new Setup {
-      when(mockAuthConnector.getIds[UserIDs](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]()))
-        .thenReturn(Future.successful(userIds))
-
       mockKeystoreClear()
 
-      AuthBuilder.showWithAuthorisedUser(controller.clearKeystore, mockAuthConnector){
+      showWithAuthorisedUserRetrieval(controller.clearKeystore, internalID) {
         result =>
           status(result) shouldBe OK
       }
@@ -282,7 +272,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
       when(mockCompanyRegistrationConnector.fetchHeldSubmission(Matchers.eq(registrationId))(Matchers.any()))
         .thenReturn(Future.successful(Some(heldRecord)))
 
-      AuthBuilder.showWithAuthorisedUser(controller.checkSubmissionStatus, mockAuthConnector){
+      showWithAuthorisedUser(controller.checkSubmissionStatus) {
         result =>
           status(result) shouldBe OK
       }
@@ -337,10 +327,10 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
       when(mockBusinessRegistrationConnector.retrieveMetadata(Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(brResponse))
 
-      AuthBuilder.showWithAuthorisedUser(controller.verifyEmail(true), mockAuthConnector){
+      showWithAuthorisedUser(controller.verifyEmail(true)) {
         result =>
           status(result) shouldBe OK
-          jsonBodyOf(await(result)) shouldBe json
+          contentAsJson(await(result)) shouldBe json
       }
     }
 
@@ -351,10 +341,10 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
       when(mockCompanyRegistrationConnector.retrieveEmail(Matchers.eq(registrationId))(Matchers.any()))
         .thenReturn(Future.successful(None))
 
-      AuthBuilder.showWithAuthorisedUser(controller.verifyEmail(true), mockAuthConnector){
+      showWithAuthorisedUser(controller.verifyEmail(true)) {
         result =>
           status(result) shouldBe OK
-          jsonBodyOf(await(result)) shouldBe Json.parse("""{"message":"could not find an email for the current logged in user"}""")
+          contentAsJson(await(result)) shouldBe Json.parse("""{"message":"could not find an email for the current logged in user"}""")
       }
     }
   }
@@ -399,7 +389,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
       when(mockCompanyRegistrationConnector.updateReferences(Matchers.any(), Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(response))
 
-      AuthBuilder.showWithAuthorisedUser(controller.handOff6(transId), mockAuthConnector){
+      showWithAuthorisedUser(controller.handOff6(transId)) {
         result =>
           status(result) shouldBe 200
       }
@@ -414,7 +404,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
       when(mockCompanyRegistrationConnector.updateReferences(Matchers.any(), Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(response))
 
-      AuthBuilder.showWithAuthorisedUser(controller.handOff6(transId), mockAuthConnector){
+      showWithAuthorisedUser(controller.handOff6(transId)) {
         result =>
           status(result) shouldBe 400
       }

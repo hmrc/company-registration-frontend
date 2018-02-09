@@ -20,10 +20,9 @@ import java.util.UUID
 import com.github.tomakehurst.wiremock.client.WireMock._
 import itutil.{FakeAppConfig, IntegrationSpecBase, LoginStub, WiremockHelper}
 import org.jsoup.Jsoup
-import play.api.libs.json.Json
-import play.api.libs.ws.WS
-import play.api.test.FakeApplication
 import play.api.http.HeaderNames
+import play.api.libs.json.Json
+import play.api.test.FakeApplication
 
 
 class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with FakeAppConfig {
@@ -54,8 +53,8 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fak
   "GET Accounting Details" should {
 
     "Return an unpopulated page if CR returns a NotFound response" in {
-      setupSimpleAuthMocks(userId)
 
+      stubAuthorisation()
       stubSuccessfulLogin(userId=userId)
 
       stubKeystore(SessionId, "5")
@@ -83,8 +82,8 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fak
     }
 
     "Return an populated page if CR returns a response" in {
-      setupSimpleAuthMocks(userId)
 
+      stubAuthorisation()
       stubSuccessfulLogin(userId=userId)
 
       stubKeystore(SessionId, "5")
@@ -114,8 +113,8 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fak
     }
 
     "Redirect to dashboard if status is NOT draft" in {
-      setupSimpleAuthMocks(userId)
 
+      stubAuthorisation()
       stubSuccessfulLogin(userId=userId)
 
       stubKeystore(SessionId, "5")
@@ -140,8 +139,8 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fak
 
   "POST Accounting Details" should {
     "Accept information and send to CR" in {
-      setupSimpleAuthMocks(userId)
 
+      stubAuthorisation()
       val csrfToken = UUID.randomUUID().toString
 
       stubKeystore(SessionId, "5")

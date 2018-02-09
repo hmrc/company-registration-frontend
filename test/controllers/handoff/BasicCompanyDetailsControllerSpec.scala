@@ -27,6 +27,8 @@ import org.mockito.Mockito._
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.Helpers._
 import services.{HandBackService, HandOffServiceImpl}
+import uk.gov.hmrc.auth.core.retrieve.{Name, ~}
+import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolments}
 import uk.gov.hmrc.play.frontend.auth.AuthContext
 import uk.gov.hmrc.play.test.WithFakeApplication
 import utils.{DecryptionError, Jwe, PayloadError}
@@ -35,7 +37,9 @@ import scala.concurrent.Future
 import scala.util.{Failure, Success}
 import uk.gov.hmrc.http.HeaderCarrier
 
-class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture with WithFakeApplication {
+class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture with WithFakeApplication with AuthBuilder {
+
+
 
   class Setup {
     object TestController extends BasicCompanyDetailsController {
@@ -66,19 +70,26 @@ class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture wit
     }
   }
 
+  val authDetails = new ~(
+    new ~(
+      Name(Some("firstName"), Some("lastName")),
+      Some("email")
+    ), Some("test")
+  )
+
   "basicCompanyDetails" should {
     "return a 303 and redirect the user to the incorporation frontend stub" when {
       "meta data is fetched from business registration micro-service" in new Setup {
 
         mockKeystoreFetchAndGet("registrationID", Some("1"))
 
-        when(mockHandOffService.companyNamePayload(Matchers.eq("1"))(Matchers.any[AuthContext](), Matchers.any[HeaderCarrier]()))
+        when(mockHandOffService.companyNamePayload(Matchers.eq("1"), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any[HeaderCarrier]()))
           .thenReturn(Future.successful(Some(("testUrl/basic-company-details", "testEncryptedPayload"))))
 
         when(mockHandOffService.buildHandOffUrl(Matchers.eq("testUrl/basic-company-details"), Matchers.eq("testEncryptedPayload")))
           .thenReturn(s"testUrl/basic-company-details?request=testEncryptedPayload")
 
-        AuthBuilder.showWithAuthorisedUser(TestController.basicCompanyDetails, mockAuthConnector) {
+        showWithAuthorisedUserRetrieval(TestController.basicCompanyDetails, authDetails) {
           result =>
             status(result) shouldBe SEE_OTHER
 
@@ -93,14 +104,14 @@ class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture wit
 
       mockKeystoreFetchAndGet("registrationID", Some("1"))
 
-      when(mockHandOffService.companyNamePayload(Matchers.eq("1"))(Matchers.any[AuthContext](), Matchers.any[HeaderCarrier]()))
+      when(mockHandOffService.companyNamePayload(Matchers.eq("1"), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(Some(("testUrl/basic-company-details", encryptedPayload))))
 
       when(mockHandOffService.buildHandOffUrl(Matchers.eq("testUrl/basic-company-details"), Matchers.eq(encryptedPayload)))
         .thenReturn(s"testUrl/basic-company-details?request=$encryptedPayload")
 
 
-      AuthBuilder.showWithAuthorisedUser(TestController.basicCompanyDetails, mockAuthConnector) {
+      showWithAuthorisedUserRetrieval(TestController.basicCompanyDetails, authDetails) {
         result =>
           status(result) shouldBe SEE_OTHER
           val encryptedPayload = redirectLocation(result).get.split("request=")(1)
@@ -112,10 +123,10 @@ class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture wit
 
       mockKeystoreFetchAndGet("registrationID", Some("1"))
 
-      when(mockHandOffService.companyNamePayload(Matchers.eq("1"))(Matchers.any[AuthContext](), Matchers.any[HeaderCarrier]()))
+      when(mockHandOffService.companyNamePayload(Matchers.eq("1"), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(None))
 
-      AuthBuilder.showWithAuthorisedUser(TestController.basicCompanyDetails, mockAuthConnector) {
+      showWithAuthorisedUserRetrieval(TestController.basicCompanyDetails, authDetails) {
         result =>
           status(result) shouldBe BAD_REQUEST
       }
@@ -134,10 +145,10 @@ class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture wit
     "return a 303 when hand back service decrypts the reverse hand off payload successfully" in new Setup {
       val encryptedPayload = Jwe.encrypt[JsValue](payload).get
       mockKeystoreFetchAndGet("registrationID", Some("1"))
-      when(mockHandBackService.processCompanyNameReverseHandBack(Matchers.eq(encryptedPayload))(Matchers.any[AuthContext], Matchers.any[HeaderCarrier]))
+      when(mockHandBackService.processCompanyNameReverseHandBack(Matchers.eq(encryptedPayload))(Matchers.any[HeaderCarrier]))
         .thenReturn(Future.successful(Success(payload)))
 
-      AuthBuilder.showWithAuthorisedUser(TestController.returnToAboutYou(encryptedPayload), mockAuthConnector) {
+      showWithAuthorisedUser(TestController.returnToAboutYou(encryptedPayload)) {
         result =>
           status(result) shouldBe SEE_OTHER
       }
@@ -146,10 +157,10 @@ class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture wit
     "return a 303 when the user is authorised and the query string contains requestData but keystore has expired" in new Setup {
       val encryptedPayload = Jwe.encrypt[JsValue](payload).get
       mockKeystoreFetchAndGet("registrationID", None)
-      when(mockHandBackService.processCompanyNameReverseHandBack(Matchers.eq(encryptedPayload))(Matchers.any[AuthContext], Matchers.any[HeaderCarrier]))
+      when(mockHandBackService.processCompanyNameReverseHandBack(Matchers.eq(encryptedPayload))(Matchers.any[HeaderCarrier]))
         .thenReturn(Future.successful(Success(payload)))
 
-      AuthBuilder.showWithAuthorisedUser(TestController.returnToAboutYou(encryptedPayload), mockAuthConnector) {
+      showWithAuthorisedUser(TestController.returnToAboutYou(encryptedPayload)) {
         result =>
           status(result) shouldBe SEE_OTHER
           redirectLocation(result) shouldBe Some(s"/register-your-company/post-sign-in?handOffID=HO1b&payload=$encryptedPayload")
@@ -160,10 +171,10 @@ class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture wit
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
       val encryptedPayload = Jwe.encrypt[JsValue](payload).get
 
-      when(mockHandBackService.processCompanyNameReverseHandBack(Matchers.eq(encryptedPayload))(Matchers.any[AuthContext], Matchers.any[HeaderCarrier]))
+      when(mockHandBackService.processCompanyNameReverseHandBack(Matchers.eq(encryptedPayload))(Matchers.any[HeaderCarrier]))
         .thenReturn(Future.successful(Failure(DecryptionError)))
 
-      AuthBuilder.showWithAuthorisedUser(TestController.returnToAboutYou(encryptedPayload), mockAuthConnector) {
+      showWithAuthorisedUser(TestController.returnToAboutYou(encryptedPayload)) {
         result =>
           status(result) shouldBe BAD_REQUEST
       }
@@ -173,10 +184,10 @@ class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture wit
       val encryptedPayload = Jwe.encrypt[JsValue](payload).get
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
 
-      when(mockHandBackService.processCompanyNameReverseHandBack(Matchers.eq(encryptedPayload))(Matchers.any[AuthContext], Matchers.any[HeaderCarrier]))
+      when(mockHandBackService.processCompanyNameReverseHandBack(Matchers.eq(encryptedPayload))(Matchers.any[HeaderCarrier]))
         .thenReturn(Future.successful(Failure(PayloadError)))
 
-      AuthBuilder.showWithAuthorisedUser(TestController.returnToAboutYou(encryptedPayload), mockAuthConnector) {
+      showWithAuthorisedUser(TestController.returnToAboutYou(encryptedPayload)) {
         result =>
           status(result) shouldBe BAD_REQUEST
       }

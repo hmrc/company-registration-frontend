@@ -20,17 +20,17 @@ import java.net.{URLDecoder, URLEncoder}
 import java.nio.charset.StandardCharsets
 import java.util.UUID
 
-import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, post, stubFor, urlEqualTo, urlMatching}
+import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import play.api.http.HeaderNames
 import play.api.libs.Crypto
+import play.api.libs.json.Json
 import play.api.libs.ws.WSCookie
 import uk.gov.hmrc.crypto.{CompositeSymmetricCrypto, Crypted, PlainText}
 import uk.gov.hmrc.http.SessionKeys
 
 trait LoginStub extends SessionCookieBaker {
-
   private val defaultUser = "/foo/bar"
-//  private val defaultUser = "/auth/oid/1234567890"
 
   val SessionId = s"stubbed-${UUID.randomUUID}"
 
@@ -44,11 +44,32 @@ trait LoginStub extends SessionCookieBaker {
     ) ++ additionalData
   }
 
-  def getSessionCookie(additionalData: Map[String, String] = Map(), userId: String = defaultUser) = {
+  def stubPostAuth(url: String, status: Integer, body: Option[String]): StubMapping = {
+    stubFor(post(urlMatching(url)).willReturn {
+      val resp = aResponse().withStatus(status)
+      val respHeaders = if (status == 401) resp.withHeader(HeaderNames.WWW_AUTHENTICATE, """MDTP detail="MissingBearerToken"""") else resp
+
+      body.fold(respHeaders)(respHeaders.withBody)
+    })
+  }
+
+  def stubAuthorisation(status: Int = 200, resp: Option[String] = None): StubMapping = {
+    stubPostAuth("/write/audit", 200, Some("""{"x":2}"""))
+    stubPostAuth(
+      url = "/auth/authorise",
+      status = status,
+      body = resp match {
+        case Some(_) => resp
+        case None    => Some(Json.obj("authorise" -> Json.arr(), "retrieve" -> Json.arr()).toString())
+      }
+    )
+  }
+
+  def getSessionCookie(additionalData: Map[String, String] = Map(), userId: String = defaultUser): String = {
     cookieValue(cookieData(additionalData, userId))
   }
 
-  def stubSuccessfulLogin(withSignIn: Boolean = false, userId: String = defaultUser) = {
+  def stubSuccessfulLogin(withSignIn: Boolean = false, userId: String = defaultUser): StubMapping = {
 
     if( withSignIn ) {
       val continueUrl = "/wibble"
@@ -59,45 +80,29 @@ trait LoginStub extends SessionCookieBaker {
           .withHeader(HeaderNames.LOCATION, continueUrl)))
     }
 
-    stubFor(get(urlEqualTo("/auth/authority"))
-      .willReturn(
-        aResponse()
-          .withStatus(200)
-          .withBody(
-            s"""
-               |{
-               |    "uri": "${userId}",
-               |    "loggedInAt": "2014-06-09T14:57:09.522Z",
-               |    "previouslyLoggedInAt": "2014-06-09T14:48:24.841Z",
-               |    "accounts": {
-               |    },
-               |    "levelOfAssurance": "2",
-               |    "confidenceLevel" : 50,
-               |    "credentialStrength": "strong",
-               |    "ids": "/auth/oid/1234567890/ids",
-               |    "userDetailsLink":"/user-details/id/$userId",
-               |    "legacyOid":"1234567890"
-               |}
-            """.stripMargin
-          )))
-
-    stubFor(get(urlMatching(s"/auth/oid/1234567890/ids"))
-      .willReturn(
-        aResponse().
-          withStatus(200).
-          withBody("""{"internalId":"Int-xxx","externalId":"Ext-xxx"}""")
-      )
-    )
+    stubAuthorisation(200, Some(s"""
+                                   |{
+                                   |    "uri": "${userId}",
+                                   |    "internalId": "some-id",
+                                   |    "affinityGroup": "Organisation",
+                                   |    "loginTimes": {
+                                   |      "currentLogin": "2014-06-09T14:57:09.522Z",
+                                   |      "previousLogin": "2014-06-09T14:48:24.841Z"
+                                   |    },
+                                   |    "credentials": {
+                                   |      "providerId": "12345-credId",
+                                   |      "providerType": "GovernmmentGateway"
+                                   |    },
+                                   |    "email":"test@test.com",
+                                   |    "allEnrolments": [],
+                                   |    "confidenceLevel" : 50,
+                                   |    "credentialStrength": "weak"
+                                   |}
+            """.stripMargin))
   }
 
   def setupSimpleAuthMocks(userId: String = defaultUser) = {
-    stubFor(post(urlMatching("/write/audit"))
-      .willReturn(
-        aResponse().
-          withStatus(200).
-          withBody("""{"x":2}""")
-      )
-    )
+
 
     stubFor(get(urlMatching("/auth/authority"))
       .willReturn(

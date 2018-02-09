@@ -20,8 +20,8 @@ import forms.QuestionnaireForm
 import play.api.mvc.Action
 import services.{MetricsService, QuestionnaireService}
 import uk.gov.hmrc.play.frontend.controller.FrontendController
-import views.html.reg.Questionnaire
 import utils.MessagesSupport
+import views.html.reg.Questionnaire
 
 import scala.concurrent.Future
 

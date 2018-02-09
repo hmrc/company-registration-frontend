@@ -18,6 +18,7 @@ package views
 
 import _root_.helpers.SCRSSpec
 import builders.AuthBuilder
+import config.FrontendAuthConnector
 import controllers.reg.ConfirmationController
 import fixtures.CompanyDetailsFixture
 import models.connectors.ConfirmationReferences
@@ -32,9 +33,10 @@ import uk.gov.hmrc.play.test.WithFakeApplication
 
 import scala.concurrent.Future
 
-class ConfirmationSpec extends SCRSSpec with CompanyDetailsFixture with WithFakeApplication {
+class ConfirmationSpec extends SCRSSpec with CompanyDetailsFixture with WithFakeApplication with AuthBuilder {
 
   val mockDeskproService = mock[DeskproService]
+
 
   class SetupPage {
     val controller = new ConfirmationController {
@@ -57,7 +59,7 @@ class ConfirmationSpec extends SCRSSpec with CompanyDetailsFixture with WithFake
       when(mockCompanyRegistrationConnector.retrieveCompanyDetails(Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(Some(validCompanyDetailsResponse)))
 
-      AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
+      showWithAuthorisedUser(controller.show) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
 

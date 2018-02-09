@@ -16,27 +16,24 @@
 
 package services
 
-import builders.AuthBuilder
 import connectors._
 import helpers.SCRSSpec
 import mocks.SCRSMocks
 import models.Ticket
 import models.external.{Ticket => ApiTTicket}
-import org.mockito.Mockito._
 import org.mockito.Matchers
+import org.mockito.Mockito._
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.logging.SessionId
-import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
 
 import scala.concurrent.Future
 
-class DeskproServiceSpec extends SCRSMocks with SCRSSpec with AuthBuilder {
+class DeskproServiceSpec extends SCRSMocks with SCRSSpec {
 
   val mockdeskproConnector = mock[DeskproConnector]
 
   trait Setup {
     val service = new DeskproService {
-      override val authConnector: AuthConnector = mockAuthConnector
       override val deskproConnector: DeskproConnector = mockdeskproConnector
     }
   }
@@ -48,23 +45,14 @@ class DeskproServiceSpec extends SCRSMocks with SCRSSpec with AuthBuilder {
   val mockSession = SessionId(sessionId)
   override implicit val hc = HeaderCarrier(sessionId = Some(mockSession))
 
-  "getAuthId" should {
-    "return a successful AuthId" in new Setup {
-      mockAuthorisedUser(mockAuthId, mockAuthConnector)
-
-      await(service.getAuthId) shouldBe mockAuthId
-    }
-  }
-
   "getSessionId" should {
     "return a session Id" in new Setup {
       service.getSessionId shouldBe sessionId
     }
   }
 
-
   val name = "Mr Bobby B. Bobblington III MBE BSc"
-  val email = "thebigb@testmail.test"
+  val email = "thebigbn@testmail.test"
   val message = "testMessage"
 
   val ticket: ApiTTicket = ApiTTicket(
@@ -85,9 +73,7 @@ class DeskproServiceSpec extends SCRSMocks with SCRSSpec with AuthBuilder {
 
   "buildTicket" should {
     "return a new ticket" in new Setup {
-      mockAuthorisedUser(mockAuthId, mockAuthConnector)
-
-      await(service.buildTicket(regId, providedInfo)) shouldBe ticket
+      await(service.buildTicket(regId, providedInfo, mockAuthId)) shouldBe ticket
     }
   }
 
@@ -96,12 +82,10 @@ class DeskproServiceSpec extends SCRSMocks with SCRSSpec with AuthBuilder {
     val ticketResponse : Long = 123456789
 
     "return a ticket id fromt DeskPro" in new Setup {
-      mockAuthorisedUser(mockAuthId, mockAuthConnector)
-
       when(mockdeskproConnector.submitTicket(Matchers.any())(Matchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(ticketResponse))
 
-      await(service.submitTicket(regId, providedInfo)) shouldBe ticketResponse
+      await(service.submitTicket(regId, providedInfo, mockAuthId)) shouldBe ticketResponse
     }
   }
 

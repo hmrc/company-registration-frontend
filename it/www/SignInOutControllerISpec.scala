@@ -140,7 +140,8 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with F
   "Sign In" should  {
 
     "redirect to ho1 if status is held and no payment reference is present" in {
-      setupSimpleAuthMocks()
+
+      stubAuthorisation()
       stubSuccessfulLogin(userId = userId)
 
       val csrfToken = UUID.randomUUID().toString
@@ -164,7 +165,8 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with F
     }
 
     "redirect to ho1 if status is locked" in {
-      setupSimpleAuthMocks()
+
+      stubAuthorisation()
       stubSuccessfulLogin(userId = userId)
 
       val csrfToken = UUID.randomUUID().toString

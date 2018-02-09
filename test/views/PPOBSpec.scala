@@ -19,25 +19,21 @@ package views
 import _root_.connectors.BusinessRegistrationConnector
 import _root_.helpers.SCRSSpec
 import builders.AuthBuilder
+import config.FrontendAuthConnector
 import controllers.reg.PPOBController
-import models._
 import fixtures.PPOBFixture
 import mocks.NavModelRepoMock
 import org.jsoup.Jsoup
-import org.mockito.Mockito._
-import org.mockito.Matchers
 import play.api.i18n.MessagesApi
 import play.api.test.Helpers._
 import services.AddressLookupFrontendService
 import uk.gov.hmrc.play.test.WithFakeApplication
 
-import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpReads}
-
-class PPOBSpec extends SCRSSpec with PPOBFixture with NavModelRepoMock with WithFakeApplication {
+class PPOBSpec extends SCRSSpec with PPOBFixture with NavModelRepoMock with WithFakeApplication with AuthBuilder {
   val mockNavModelRepoObj = mockNavModelRepo
   val mockBusinessRegConnector = mock[BusinessRegistrationConnector]
   val mockAddressLookupFrontendService = mock[AddressLookupFrontendService]
+
 
   class SetupPage {
     val controller = new PPOBController {
@@ -59,11 +55,8 @@ class PPOBSpec extends SCRSSpec with PPOBFixture with NavModelRepoMock with With
     "make sure that PPOB page has the correct elements" in new SetupPage {
       CTRegistrationConnectorMocks.retrieveCTRegistration()
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
-      when(mockAuthConnector.getIds[UserIDs](Matchers.any())(Matchers.any[HeaderCarrier](), Matchers.any[HttpReads[UserIDs]](), Matchers.any[ExecutionContext]()))
-        .thenReturn(Future.successful(UserIDs("1", "2")))
 
-
-      AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
+      showWithAuthorisedUser(controller.show) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
           document.title() shouldBe "Where will the company carry out most of its business activities?"

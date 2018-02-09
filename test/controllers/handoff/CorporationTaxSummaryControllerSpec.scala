@@ -18,7 +18,6 @@ package controllers.handoff
 
 import builders.AuthBuilder
 import config.FrontendAuthConnector
-import connectors.KeystoreConnector
 import fixtures.LoginFixture
 import helpers.SCRSSpec
 import models.handoff.{NavLinks, SummaryPage1HandOffIncoming}
@@ -27,16 +26,17 @@ import org.mockito.Mockito._
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services.HandBackService
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.frontend.auth.AuthContext
 import uk.gov.hmrc.play.test.WithFakeApplication
 import utils.{DecryptionError, Jwe, PayloadError}
 
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
-import uk.gov.hmrc.http.HeaderCarrier
 
-class CorporationTaxSummaryControllerSpec extends SCRSSpec with LoginFixture with WithFakeApplication {
+class CorporationTaxSummaryControllerSpec extends SCRSSpec with LoginFixture with WithFakeApplication with AuthBuilder {
+
+
 
   class Setup {
     object TestController extends CorporationTaxSummaryController {
@@ -44,20 +44,6 @@ class CorporationTaxSummaryControllerSpec extends SCRSSpec with LoginFixture wit
       val keystoreConnector = mockKeystoreConnector
       val handBackService = mockHandBackService
       val companyRegistrationConnector = mockCompanyRegistrationConnector
-    }
-  }
-
-  "CorporationTaxDetailsController" should {
-    "use the correct auth connector" in {
-      CorporationTaxSummaryController.authConnector shouldBe FrontendAuthConnector
-    }
-
-    "use the correct key store connector" in {
-      CorporationTaxSummaryController.keystoreConnector shouldBe KeystoreConnector
-    }
-
-    "use the correct hand back service" in {
-      CorporationTaxSummaryController.handBackService shouldBe HandBackService
     }
   }
 
@@ -72,21 +58,22 @@ class CorporationTaxSummaryControllerSpec extends SCRSSpec with LoginFixture wit
     )
 
     "return a SEE_OTHER if submitting without authorisation" in new Setup {
+      val encryptedPayload: Option[String] = Jwe.encrypt[SummaryPage1HandOffIncoming](handBackPayload)
 
-      val encryptedPayload = Jwe.encrypt[SummaryPage1HandOffIncoming](handBackPayload)
-
-      val result = TestController.corporationTaxSummary(encryptedPayload.get)(FakeRequest())
-      status(result) shouldBe SEE_OTHER
-      val url = authUrl("HO4", encryptedPayload.get)
-      redirectLocation(result) shouldBe Some(url)
+      showWithUnauthorisedUser(TestController.corporationTaxSummary(encryptedPayload.get)) {
+        result =>
+          status(result) shouldBe SEE_OTHER
+          val url = authUrl("HO4", encryptedPayload.get)
+          redirectLocation(result) shouldBe Some(url)
+      }
     }
 
     "return a BAD_REQUEST if sending an empty request with authorisation" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("1"))
-      when(mockHandBackService.processSummaryPage1HandBack(Matchers.eq(""))(Matchers.any[AuthContext], Matchers.any[HeaderCarrier]))
+      when(mockHandBackService.processSummaryPage1HandBack(Matchers.eq(""))(Matchers.any[HeaderCarrier]))
         .thenReturn(Future.successful(Failure(DecryptionError)))
 
-      AuthBuilder.showWithAuthorisedUser(TestController.corporationTaxSummary(""), mockAuthConnector) {
+      showWithAuthorisedUser(TestController.corporationTaxSummary("")) {
         result =>
           status(result) shouldBe BAD_REQUEST
           redirectLocation(result) shouldBe None
@@ -97,10 +84,10 @@ class CorporationTaxSummaryControllerSpec extends SCRSSpec with LoginFixture wit
       mockKeystoreFetchAndGet("registrationID", Some("1"))
       val encryptedPayload = Jwe.encrypt[SummaryPage1HandOffIncoming](handBackPayload).get
 
-      when(mockHandBackService.processSummaryPage1HandBack(Matchers.eq(encryptedPayload))(Matchers.any[AuthContext], Matchers.any[HeaderCarrier]))
+      when(mockHandBackService.processSummaryPage1HandBack(Matchers.eq(encryptedPayload))(Matchers.any[HeaderCarrier]))
         .thenReturn(Future.successful(Failure(PayloadError)))
 
-      AuthBuilder.showWithAuthorisedUser(TestController.corporationTaxSummary(encryptedPayload), mockAuthConnector) {
+      showWithAuthorisedUser(TestController.corporationTaxSummary(encryptedPayload)) {
         result =>
           status(result) shouldBe BAD_REQUEST
           redirectLocation(result) shouldBe None
@@ -111,10 +98,10 @@ class CorporationTaxSummaryControllerSpec extends SCRSSpec with LoginFixture wit
       mockKeystoreFetchAndGet("registrationID", Some("1"))
       val encryptedPayload = Jwe.encrypt[SummaryPage1HandOffIncoming](handBackPayload).get
 
-      when(mockHandBackService.processSummaryPage1HandBack(Matchers.eq(encryptedPayload))(Matchers.any[AuthContext], Matchers.any[HeaderCarrier]))
+      when(mockHandBackService.processSummaryPage1HandBack(Matchers.eq(encryptedPayload))(Matchers.any[HeaderCarrier]))
         .thenReturn(Future.successful(Success(handBackPayload)))
 
-      AuthBuilder.showWithAuthorisedUser(TestController.corporationTaxSummary(encryptedPayload), mockAuthConnector) {
+      showWithAuthorisedUser(TestController.corporationTaxSummary(encryptedPayload)) {
         result =>
           status(result) shouldBe SEE_OTHER
           redirectLocation(result) shouldBe
@@ -125,10 +112,10 @@ class CorporationTaxSummaryControllerSpec extends SCRSSpec with LoginFixture wit
       mockKeystoreFetchAndGet("registrationID", None)
       val encryptedPayload = Jwe.encrypt[SummaryPage1HandOffIncoming](handBackPayload).get
 
-      when(mockHandBackService.processSummaryPage1HandBack(Matchers.eq(encryptedPayload))(Matchers.any[AuthContext], Matchers.any[HeaderCarrier]))
+      when(mockHandBackService.processSummaryPage1HandBack(Matchers.eq(encryptedPayload))(Matchers.any[HeaderCarrier]))
         .thenReturn(Future.successful(Success(handBackPayload)))
 
-      AuthBuilder.showWithAuthorisedUser(TestController.corporationTaxSummary(encryptedPayload), mockAuthConnector) {
+      showWithAuthorisedUser(TestController.corporationTaxSummary(encryptedPayload)) {
         result =>
           status(result) shouldBe SEE_OTHER
           redirectLocation(result) shouldBe Some(s"/register-your-company/post-sign-in?handOffID=HO4&payload=$encryptedPayload")

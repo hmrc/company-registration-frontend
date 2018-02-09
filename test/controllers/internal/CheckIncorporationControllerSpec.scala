@@ -31,9 +31,7 @@ import play.api.test.Helpers._
 import scala.concurrent.Future
 
 class CheckIncorporationControllerSpec extends UnitSpec with MockitoSugar {
-
   implicit val system = ActorSystem("test")
-  implicit def mat: Materializer = ActorMaterializer()
 
   val mockCheckIncorporationService = mock[CheckIncorporationService]
 
@@ -73,7 +71,7 @@ class CheckIncorporationControllerSpec extends UnitSpec with MockitoSugar {
 
       val result = await(controller.fetchIncorporation(timePoint, itemsPerPage)(FakeRequest()))
       status(result) shouldBe OK
-      jsonBodyOf(result) shouldBe incorporationDetails
+      contentAsJson(result) shouldBe incorporationDetails
     }
 
     "return a 400 if the coho Api http call returns a bad request" in new Setup {

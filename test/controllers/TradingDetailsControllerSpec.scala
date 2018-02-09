@@ -19,6 +19,7 @@ package controllers
 import java.util.UUID
 
 import builders.AuthBuilder
+import config.FrontendAuthConnector
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.reg.TradingDetailsController
 import fixtures.TradingDetailsFixtures
@@ -29,13 +30,12 @@ import org.mockito.Matchers
 import org.mockito.Mockito._
 import play.api.libs.json.Format
 import play.api.test.FakeRequest
-import services.{MetricsService, TradingDetailsService}
 import play.api.test.Helpers._
-import uk.gov.hmrc.play.frontend.auth.AuthContext
+import services.{MetricsService, TradingDetailsService}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.WithFakeApplication
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.HeaderCarrier
 
 class TradingDetailsControllerSpec extends SCRSSpec with WithFakeApplication with AuthBuilder with TradingDetailsFixtures {
 
@@ -43,9 +43,8 @@ class TradingDetailsControllerSpec extends SCRSSpec with WithFakeApplication wit
   val mockKeyStoreConnector = mock[KeystoreConnector]
   val mockCompRegConnector = mock[CompanyRegistrationConnector]
 
-  val regID = UUID.randomUUID.toString
 
-  implicit val user = createTestUser
+  val regID = UUID.randomUUID.toString
 
   class Setup {
     object TestController extends TradingDetailsController {
@@ -70,19 +69,19 @@ class TradingDetailsControllerSpec extends SCRSSpec with WithFakeApplication wit
       when(mockCompRegConnector.retrieveTradingDetails(Matchers.eq(regID))(Matchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(Some(tradingDetailsTrue)))
 
-      when(mockTradingDetailsService.retrieveTradingDetails(Matchers.eq(regID))(Matchers.any[HeaderCarrier](), Matchers.any[AuthContext]()))
+      when(mockTradingDetailsService.retrieveTradingDetails(Matchers.eq(regID))(Matchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(TradingDetails("true")))
 
-      showWithAuthorisedUser(TestController.show(), mockAuthConnector) {
+      showWithAuthorisedUser(TestController.show()) {
         result =>
           status(result) shouldBe OK
       }
     }
 
     "return a 303 whilst requesting a with an unauthorised user" in new Setup {
-      val result = TestController.show()(FakeRequest())
-
-      status(result) shouldBe SEE_OTHER
+      showWithUnauthorisedUser(TestController.show()) {
+        result => status(result) shouldBe SEE_OTHER
+      }
     }
   }
 
@@ -97,10 +96,10 @@ class TradingDetailsControllerSpec extends SCRSSpec with WithFakeApplication wit
         when(mockCompRegConnector.updateTradingDetails(Matchers.eq(regID), Matchers.eq(tradingDetailsTrue))(Matchers.any[HeaderCarrier]()))
           .thenReturn(Future.successful(tradingDetailsSuccessResponseTrue))
 
-        when(mockTradingDetailsService.updateCompanyInformation(Matchers.eq(tradingDetailsTrue))(Matchers.any[HeaderCarrier](), Matchers.any[AuthContext]()))
+        when(mockTradingDetailsService.updateCompanyInformation(Matchers.eq(tradingDetailsTrue))(Matchers.any[HeaderCarrier]()))
           .thenReturn(Future.successful(tradingDetailsSuccessResponseTrue))
         mockKeystoreFetchAndGet("registrationID", Some(regID))
-        submitWithAuthorisedUser(TestController.submit, mockAuthConnector, FakeRequest().withFormUrlEncodedBody("regularPayments" -> "true")) {
+        submitWithAuthorisedUser(TestController.submit, FakeRequest().withFormUrlEncodedBody("regularPayments" -> "true")) {
           result =>
             status(result) shouldBe SEE_OTHER
             redirectLocation(result) shouldBe Some("/register-your-company/business-activities")
@@ -110,7 +109,7 @@ class TradingDetailsControllerSpec extends SCRSSpec with WithFakeApplication wit
 
     "posting with no keystore entry" in new Setup {
       mockKeystoreFetchAndGet("registrationID", None)
-      submitWithAuthorisedUser(TestController.submit, mockAuthConnector, FakeRequest().withFormUrlEncodedBody("regularPayments" -> "true")) {
+      submitWithAuthorisedUser(TestController.submit, FakeRequest().withFormUrlEncodedBody("regularPayments" -> "true")) {
         result =>
           status(result) shouldBe SEE_OTHER
           redirectLocation(result) shouldBe Some("/register-your-company/post-sign-in")
@@ -127,10 +126,10 @@ class TradingDetailsControllerSpec extends SCRSSpec with WithFakeApplication wit
         when(mockCompRegConnector.updateTradingDetails(Matchers.eq(regID), Matchers.eq(tradingDetailsTrue))(Matchers.any[HeaderCarrier]()))
           .thenReturn(Future.successful(tradingDetailsErrorResponse))
 
-        when(mockTradingDetailsService.updateCompanyInformation(Matchers.eq(tradingDetailsTrue))(Matchers.any[HeaderCarrier](), Matchers.any[AuthContext]()))
+        when(mockTradingDetailsService.updateCompanyInformation(Matchers.eq(tradingDetailsTrue))(Matchers.any[HeaderCarrier]()))
           .thenReturn(Future.successful(tradingDetailsErrorResponse))
         mockKeystoreFetchAndGet("registrationID", Some(regID))
-        submitWithAuthorisedUser(TestController.submit, mockAuthConnector, FakeRequest().withFormUrlEncodedBody("regularPayments" -> "true")) {
+        submitWithAuthorisedUser(TestController.submit, FakeRequest().withFormUrlEncodedBody("regularPayments" -> "true")) {
           result =>
             status(result) shouldBe BAD_REQUEST
         }
@@ -145,10 +144,10 @@ class TradingDetailsControllerSpec extends SCRSSpec with WithFakeApplication wit
         when(mockCompRegConnector.updateTradingDetails(Matchers.eq(regID), Matchers.eq(tradingDetailsTrue))(Matchers.any[HeaderCarrier]()))
           .thenReturn(Future.successful(tradingDetailsNotFoundResponse))
 
-        when(mockTradingDetailsService.updateCompanyInformation(Matchers.eq(tradingDetailsTrue))(Matchers.any[HeaderCarrier](), Matchers.any[AuthContext]()))
+        when(mockTradingDetailsService.updateCompanyInformation(Matchers.eq(tradingDetailsTrue))(Matchers.any[HeaderCarrier]()))
           .thenReturn(Future.successful(tradingDetailsNotFoundResponse))
         mockKeystoreFetchAndGet("registrationID", Some(regID))
-        submitWithAuthorisedUser(TestController.submit, mockAuthConnector, FakeRequest().withFormUrlEncodedBody("regularPayments" -> "true")) {
+        submitWithAuthorisedUser(TestController.submit, FakeRequest().withFormUrlEncodedBody("regularPayments" -> "true")) {
           result =>
             status(result) shouldBe BAD_REQUEST
         }
@@ -163,10 +162,10 @@ class TradingDetailsControllerSpec extends SCRSSpec with WithFakeApplication wit
         when(mockCompRegConnector.updateTradingDetails(Matchers.eq(regID), Matchers.eq(tradingDetailsTrue))(Matchers.any[HeaderCarrier]()))
           .thenReturn(Future.successful(tradingDetailsForbiddenResponse))
 
-        when(mockTradingDetailsService.updateCompanyInformation(Matchers.eq(tradingDetailsTrue))(Matchers.any[HeaderCarrier](), Matchers.any[AuthContext]()))
+        when(mockTradingDetailsService.updateCompanyInformation(Matchers.eq(tradingDetailsTrue))(Matchers.any[HeaderCarrier]()))
           .thenReturn(Future.successful(tradingDetailsForbiddenResponse))
         mockKeystoreFetchAndGet("registrationID", Some(regID))
-        submitWithAuthorisedUser(TestController.submit, mockAuthConnector, FakeRequest().withFormUrlEncodedBody("regularPayments" -> "true")) {
+        submitWithAuthorisedUser(TestController.submit, FakeRequest().withFormUrlEncodedBody("regularPayments" -> "true")) {
           result =>
             status(result) shouldBe BAD_REQUEST
         }
@@ -174,7 +173,7 @@ class TradingDetailsControllerSpec extends SCRSSpec with WithFakeApplication wit
 
       "posting with invalid data" in new Setup {
         mockKeystoreFetchAndGet("registrationID", Some("foo"))
-        submitWithAuthorisedUser(TestController.submit, mockAuthConnector, FakeRequest().withFormUrlEncodedBody("regularPayments" -> "")) {
+        submitWithAuthorisedUser(TestController.submit, FakeRequest().withFormUrlEncodedBody("regularPayments" -> "")) {
           result =>
             status(result) shouldBe BAD_REQUEST
         }

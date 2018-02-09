@@ -17,6 +17,7 @@
 package controllers
 
 import builders.AuthBuilder
+import config.FrontendAuthConnector
 import connectors._
 import controllers.dashboard.CancelRegistrationController
 import forms.CancelForm
@@ -28,13 +29,16 @@ import org.scalatest.mockito.MockitoSugar
 import play.api.http.Status._
 import play.api.i18n.Messages
 import play.api.mvc.{AnyContent, Request}
-import uk.gov.hmrc.play.http.ws.WSHttp
 import play.api.test.FakeRequest
+import uk.gov.hmrc.play.http.ws.WSHttp
 import uk.gov.hmrc.play.test.WithFakeApplication
+
 import scala.concurrent.Future
 
-class CancelRegistrationControllerSpec extends SCRSSpec with MockitoSugar with WithFakeApplication with ServiceConnectorMock {
+class CancelRegistrationControllerSpec extends SCRSSpec with MockitoSugar with WithFakeApplication with ServiceConnectorMock with AuthBuilder {
   val mockHttp = mock[WSHttp]
+
+
 
   class Setup(r:Request[AnyContent]) {
     val controller = new CancelRegistrationController {
@@ -102,24 +106,24 @@ class CancelRegistrationControllerSpec extends SCRSSpec with MockitoSugar with W
       getStatusMock(SuccessfulResponse(validStatus))
       canStatusBeCancelledMock(Future.successful("foo"))
 
-    AuthBuilder.showWithAuthorisedUser(controller.showCancelPAYE, mockAuthConnector) {
-    result =>
-      status(result) shouldBe OK
-  }
-}
+      showWithAuthorisedUser(controller.showCancelPAYE) {
+        result =>
+          status(result) shouldBe OK
+      }
+    }
   }
   "showCancelVAT" should {
     "return 200 with authorised user & cancel url exists and registration is not draft / rejected" in new Setup(r = FakeRequest()) {
-    mockKeystoreFetchAndGet("registrationID", Some("1"))
-    CTRegistrationConnectorMocks
-      .retrieveCTRegistration(buildCorporationTaxModel(status = "foo"))
-   getStatusMock(SuccessfulResponse(validStatus))
-    canStatusBeCancelledMock(Future.successful("foo"))
+      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      CTRegistrationConnectorMocks
+        .retrieveCTRegistration(buildCorporationTaxModel(status = "foo"))
+      getStatusMock(SuccessfulResponse(validStatus))
+      canStatusBeCancelledMock(Future.successful("foo"))
 
-  AuthBuilder.showWithAuthorisedUser(controller.showCancelVAT, mockAuthConnector) {
-     result =>
-      status(result) shouldBe OK
-  }
+      showWithAuthorisedUser(controller.showCancelVAT) {
+        result =>
+          status(result) shouldBe OK
+      }
     }
   }
 
@@ -151,7 +155,7 @@ class CancelRegistrationControllerSpec extends SCRSSpec with MockitoSugar with W
 
       val res = await(controller.submitCancelService(mockServiceConnector,_ => views.html.dashboard.CancelVat(CancelForm.form.fill(true))))
       status(res) shouldBe SEE_OTHER
-      }
+    }
     "return bad request when form is incorrect" in new Setup(r = FakeRequest().withFormUrlEncodedBody("cancelService" -> "foobarwizzandbang")) {
       mockKeystoreFetchAndGet("registrationID", Some("1"))
       CTRegistrationConnectorMocks.retrieveCTRegistration(buildCorporationTaxModel(status = "foo"))
@@ -176,7 +180,7 @@ class CancelRegistrationControllerSpec extends SCRSSpec with MockitoSugar with W
       getStatusMock(SuccessfulResponse(OtherRegStatus("", None, None, Some("foo"), None)))
       cancelRegMock(Cancelled)
 
-      AuthBuilder.submitWithAuthorisedUser(controller.submitCancelPAYE, mockAuthConnector, FakeRequest().withFormUrlEncodedBody("cancelService" -> "true")) {
+      submitWithAuthorisedUser(controller.submitCancelPAYE, FakeRequest().withFormUrlEncodedBody("cancelService" -> "true")) {
         result =>
           status(result) shouldBe SEE_OTHER
       }
@@ -189,10 +193,10 @@ class CancelRegistrationControllerSpec extends SCRSSpec with MockitoSugar with W
       getStatusMock(SuccessfulResponse(OtherRegStatus("", None, None, Some("foo"), None)))
       cancelRegMock(Cancelled)
 
-      AuthBuilder.submitWithAuthorisedUser(controller.submitCancelVAT, mockAuthConnector, FakeRequest().withFormUrlEncodedBody("cancelService" -> "true")) {
+      submitWithAuthorisedUser(controller.submitCancelVAT, FakeRequest().withFormUrlEncodedBody("cancelService" -> "true")) {
         result =>
           status(result) shouldBe SEE_OTHER
       }
     }
-    }
+  }
 }

@@ -19,13 +19,14 @@ package controllers.reg
 import java.net.URLEncoder
 
 import config.{FrontendAuthConnector, FrontendConfig}
+import controllers.auth.AuthFunction
 import forms.ReturningUserForm
 import models.ReturningUser
 import play.api.mvc.Action
-import uk.gov.hmrc.play.frontend.controller.FrontendController
-import views.html.reg.ReturningUserView
 import uk.gov.hmrc.play.config.ServicesConfig
-import utils.{LoggedInSupport, MessagesSupport}
+import uk.gov.hmrc.play.frontend.controller.FrontendController
+import utils.MessagesSupport
+import views.html.reg.ReturningUserView
 
 import scala.concurrent.Future
 
@@ -35,28 +36,28 @@ object ReturningUserController extends ReturningUserController with ServicesConf
   val authConnector = FrontendAuthConnector
 }
 
-trait ReturningUserController extends FrontendController with LoggedInSupport with MessagesSupport {
+trait ReturningUserController extends FrontendController with AuthFunction with MessagesSupport {
   val createGGWAccountUrl: String
   val compRegFeUrl: String
 
   val show = Action.async { implicit request =>
     onlyIfNotSignedIn {
       val emptyForm = ReturningUserForm.form.fill(ReturningUser(""))
-      Ok(ReturningUserView(emptyForm))
+      Future.successful(Ok(ReturningUserView(emptyForm)))
     }
   }
   val submit = Action.async {
     implicit request =>
-        ReturningUserForm.form.bindFromRequest.fold(
-          errors => Future.successful(BadRequest(ReturningUserView(errors))),
-          Success => {
-            Success.returningUser match {
-              case "true" => Future.successful(Redirect(buildCreateAccountURL))
-              case "false" => Future.successful(Redirect(routes.SignInOutController.postSignIn(None)))
-            }
+      ReturningUserForm.form.bindFromRequest.fold(
+        errors => Future.successful(BadRequest(ReturningUserView(errors))),
+        Success => {
+          Success.returningUser match {
+            case "true" => Future.successful(Redirect(buildCreateAccountURL))
+            case "false" => Future.successful(Redirect(routes.SignInOutController.postSignIn(None)))
           }
-        )
-      }
+        }
+      )
+  }
 
   private[controllers] def buildCreateAccountURL = {
     val continueUrlUrl = controllers.reg.routes.SignInOutController.postSignIn(None).url

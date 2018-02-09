@@ -16,21 +16,18 @@
 
 package services
 
-import config.{FrontendAppConfig, FrontendAuthConnector, FrontendConfig}
-import models.handoff.{BusinessActivitiesModel, CompanyNameHandOffModel, HandoffPPOB}
-import models.{ConfirmationReferencesSuccessResponse, SummaryHandOff, UserDetailsModel, UserIDs}
+import config.{FrontendAppConfig, FrontendConfig}
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
-import models.handoff._
+import models.handoff.{BusinessActivitiesModel, CompanyNameHandOffModel, HandoffPPOB, _}
+import models.{ConfirmationReferencesSuccessResponse, SummaryHandOff}
 import play.api.libs.json.{JsObject, JsString, Json}
 import repositories.NavModelRepo
-import uk.gov.hmrc.play.frontend.auth.AuthContext
-import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.config.ServicesConfig
+import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 import utils.{Jwe, JweEncryptor, SCRSExceptions}
 
 import scala.concurrent.Future
-import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.config.ServicesConfig
 
 object HandOffServiceImpl extends HandOffService {
   val keystoreConnector = KeystoreConnector
@@ -38,7 +35,6 @@ object HandOffServiceImpl extends HandOffService {
   val externalUrl = FrontendConfig.selfFull
   val compRegConnector = CompanyRegistrationConnector
   val encryptor = Jwe
-  val authConnector = FrontendAuthConnector
   val navModelMongo =  NavModelRepo.repository
   lazy val timeout = FrontendAppConfig.timeoutInSeconds.toInt
   lazy val timeoutDisplayLength = FrontendAppConfig.timeoutDisplayLength.toInt
@@ -51,7 +47,6 @@ trait HandOffService extends CommonService with SCRSExceptions with ServicesConf
   val externalUrl: String
   val compRegConnector: CompanyRegistrationConnector
   val encryptor : JweEncryptor
-  val authConnector: AuthConnector
   val timeout : Int
   val timeoutDisplayLength : Int
 
@@ -63,17 +58,9 @@ trait HandOffService extends CommonService with SCRSExceptions with ServicesConf
     case _ => s"$url?request=$payload"
   }
 
-  def externalUserId(implicit user: AuthContext, hc: HeaderCarrier): Future[String] = {
-    authConnector.getIds[UserIDs](user) map { _.externalId }
-  }
-
   def getURL(path : String) = s"$returnUrl$path"
 
-  def getUserDetails(implicit user: AuthContext, hc: HeaderCarrier): Future[UserDetailsModel] = {
-    authConnector.getUserDetails[UserDetailsModel](user)
-  }
-
-  def buildBusinessActivitiesPayload(regId: String)(implicit user: AuthContext, hc : HeaderCarrier) : Future[Option[(String, String)]] = {
+  def buildBusinessActivitiesPayload(regId: String, externalId : String)(implicit hc : HeaderCarrier) : Future[Option[(String, String)]] = {
     val navModel = fetchNavModel() map {
       implicit model =>
         (forwardTo(3), hmrcLinks(3), model.receiver.chData)
@@ -82,10 +69,9 @@ trait HandOffService extends CommonService with SCRSExceptions with ServicesConf
     for {
       Some(addressData) <- compRegConnector.retrieveCompanyDetails(regId)
       (url, links, chData) <- navModel
-      extUserID <- externalUserId
     } yield {
       val payload = BusinessActivitiesModel(
-        authExtId = extUserID,
+        authExtId = externalId,
         regId = regId,
         ppob = Some(HandoffPPOB.fromCorePPOB(addressData.pPOBAddress)),
         ch = chData,
@@ -96,24 +82,22 @@ trait HandOffService extends CommonService with SCRSExceptions with ServicesConf
     }
   }
 
-  def companyNamePayload(regId: String)(implicit user : AuthContext, hc : HeaderCarrier) : Future[Option[(String, String)]] = {
-
+  def companyNamePayload(regId: String, email : String, name : String, extID : String)
+                        (implicit hc : HeaderCarrier) : Future[Option[(String, String)]] = {
     val navModel = fetchNavModel(canCreate = true) map {
       implicit model =>
         (forwardTo(1), hmrcLinks(1), model.receiver.chData)
     }
 
     for {
-      userDetails <- getUserDetails
       (url, links, chData) <- navModel
-      extUserID <- externalUserId
     } yield {
       val payload = CompanyNameHandOffModel(
-        email_address = userDetails.email,
+        email_address = email,
         is_verified_email_address = None,
         journey_id = Some(regId),
-        user_id = extUserID,
-        name = userDetails.name,
+        user_id = extID,
+        name = name,
         hmrc = Json.obj(),
         session = renewSessionObject,
         ch = chData,
@@ -122,7 +106,7 @@ trait HandOffService extends CommonService with SCRSExceptions with ServicesConf
     }
   }
 
-  lazy val renewSessionObject ={
+  lazy val renewSessionObject: JsObject = {
     JsObject(Map(
       "timeout" -> Json.toJson(timeout - timeoutDisplayLength),
       "keepalive_url" -> Json.toJson(s"$externalUrl${controllers.reg.routes.SignInOutController.renewSession().url}"),
@@ -133,24 +117,23 @@ trait HandOffService extends CommonService with SCRSExceptions with ServicesConf
   def buildLinksObject(navLinks : NavLinks, jumpLinks: Option[JumpLinks]) : JsObject = {
     val obj = Json.obj("forward" -> navLinks.forward,"reverse" -> navLinks.reverse)
 
-    jumpLinks.isDefined match {
-      case false => obj
-      case true =>
-        obj.
-          +("company_name" -> JsString(jumpLinks.get.company_name)).
-          +("company_address" -> JsString(jumpLinks.get.company_address)).
-          +("company_jurisdiction" -> JsString(jumpLinks.get.company_jurisdiction))
+    if (jumpLinks.isDefined) {
+      obj.
+        +("company_name" -> JsString(jumpLinks.get.company_name)).
+        +("company_address" -> JsString(jumpLinks.get.company_address)).
+        +("company_jurisdiction" -> JsString(jumpLinks.get.company_jurisdiction))
+    } else {
+      obj
     }
   }
 
-  def buildBackHandOff(implicit hc : HeaderCarrier, ac : AuthContext) : Future[BackHandoff] = {
+  def buildBackHandOff(externalID : String)(implicit hc : HeaderCarrier) : Future[BackHandoff] = {
     for {
       regID <- fetchRegistrationID
-      extUserId <- externalUserId
       navModel <- fetchNavModel()
     } yield {
       BackHandoff(
-        extUserId,
+        externalID,
         regID,
         navModel.receiver.chData.get,
         Json.obj(),
@@ -159,21 +142,20 @@ trait HandOffService extends CommonService with SCRSExceptions with ServicesConf
     }
   }
 
-  def summaryHandOff(implicit hc : HeaderCarrier, ac : AuthContext) : Future[Option[(String, String)]] = {
+  def summaryHandOff(externalID : String)(implicit hc : HeaderCarrier) : Future[Option[(String, String)]] = {
     val navModel = fetchNavModel() map {
       implicit model =>
         (forwardTo(5), hmrcLinks(5), model.receiver.chData)
     }
 
     for {
-      userID <- externalUserId
       journeyID <- fetchRegistrationID
       _ <- updateRegistrationProgressHO5(journeyID)
       (url, links, chData) <- navModel
     } yield {
       val payloadModel =
         SummaryHandOff(
-          userID,
+          externalID,
           journeyID,
           Json.obj(),
           chData,
@@ -183,7 +165,7 @@ trait HandOffService extends CommonService with SCRSExceptions with ServicesConf
     }
   }
 
-  def buildPaymentConfirmationHandoff(implicit hc : HeaderCarrier, ac : AuthContext): Future[Option[(String,String)]] = {
+  def buildPaymentConfirmationHandoff(externalID : Option[String])(implicit hc : HeaderCarrier): Future[Option[(String,String)]] = {
     def navModel = {
       fetchNavModel() map {
         implicit model =>
@@ -191,16 +173,15 @@ trait HandOffService extends CommonService with SCRSExceptions with ServicesConf
       }
     }
     for {
-      userID                    <- externalUserId
       regId                     <- fetchRegistrationID
       (url, navLinks, chData)   <- navModel
       ctReference               <- compRegConnector.fetchConfirmationReferences(regId) map {
         case ConfirmationReferencesSuccessResponse(refs) => refs.acknowledgementReference
-        case _ => throw new ComfirmationRefsNotFoundException
+        case _ => throw new ConfirmationRefsNotFoundException
       }
     } yield {
       val payloadModel = PaymentHandoff(
-        userID,
+        externalID.get,
         regId,
         ctReference,
         Json.obj(),

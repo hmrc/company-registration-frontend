@@ -16,10 +16,7 @@
 
 package controllers.feedback
 
-import config.AppConfig
-import uk.gov.hmrc.play.http.ws.{WSPost}
-
-import scala.concurrent.ExecutionContext
+import config.{AppConfig, FrontendAuthConnector}
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
@@ -28,12 +25,12 @@ import play.api.mvc.{AnyContent, Request, RequestHeader}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.twirl.api.Html
-import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
+import uk.gov.hmrc.http.{HttpGet, HttpPost, HttpResponse}
+import uk.gov.hmrc.play.http.ws.WSPost
 import uk.gov.hmrc.play.partials.{CachedStaticHtmlPartialRetriever, FormPartialRetriever, HtmlPartial}
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
-import scala.concurrent.Future
-import uk.gov.hmrc.http.{ HttpGet, HttpPost, HttpResponse }
+import scala.concurrent.{ExecutionContext, Future}
 
 class FeedbackControllerSpec extends UnitSpec with MockitoSugar with WithFakeApplication {
   val fakeRequest = FakeRequest("GET", "/")
@@ -57,7 +54,7 @@ class FeedbackControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
         override def getPartialContent(url: String, templateParameters: Map[String, String], errorMessage: Html)(implicit request: RequestHeader): Html = Html("")
       }
 
-      protected def authConnector: AuthConnector = ???
+      override val authConnector = FrontendAuthConnector
 
       protected def loadPartial(url: String)(implicit request: RequestHeader): HtmlPartial = ???
 

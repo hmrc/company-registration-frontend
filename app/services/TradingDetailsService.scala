@@ -18,12 +18,11 @@ package services
 
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import models.{TradingDetails, TradingDetailsResponse}
-import uk.gov.hmrc.play.frontend.auth.AuthContext
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 import utils.SCRSExceptions
 
-import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 import scala.concurrent.Future
-import uk.gov.hmrc.http.HeaderCarrier
 
 object TradingDetailsService extends TradingDetailsService {
   val keystoreConnector = KeystoreConnector
@@ -34,7 +33,7 @@ trait TradingDetailsService extends CommonService with SCRSExceptions {
 
   val compRegConnector: CompanyRegistrationConnector
 
-  def updateCompanyInformation(tradingDetails : TradingDetails)(implicit hc: HeaderCarrier, user: AuthContext) : Future[TradingDetailsResponse] = {
+  def updateCompanyInformation(tradingDetails : TradingDetails)(implicit hc: HeaderCarrier) : Future[TradingDetailsResponse] = {
     for {
       regID <- fetchRegistrationID
       tD <- compRegConnector.updateTradingDetails(regID, tradingDetails)
@@ -43,7 +42,7 @@ trait TradingDetailsService extends CommonService with SCRSExceptions {
     }
   }
 
-  def retrieveTradingDetails(registrationID : String)(implicit hc: HeaderCarrier, user : AuthContext) : Future[TradingDetails] = {
+  def retrieveTradingDetails(registrationID : String)(implicit hc: HeaderCarrier) : Future[TradingDetails] = {
     compRegConnector.retrieveTradingDetails(registrationID).map(_.fold(TradingDetails())(t => t))
   }
 }

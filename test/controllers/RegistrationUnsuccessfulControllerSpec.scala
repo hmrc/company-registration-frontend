@@ -17,22 +17,25 @@
 package controllers
 
 import builders.AuthBuilder
+import config.FrontendAuthConnector
 import connectors.KeystoreConnector
 import controllers.reg.RegistrationUnsuccessfulController
 import helpers.SCRSSpec
-import models.UserIDs
 import org.mockito.Matchers
-import play.api.test.FakeRequest
-import services.DeleteSubmissionService
-import play.api.test.Helpers._
 import org.mockito.Mockito._
-import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
+import play.api.test.FakeRequest
+import play.api.test.Helpers._
+import services.DeleteSubmissionService
+import uk.gov.hmrc.auth.core.AuthConnector
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.test.WithFakeApplication
 
-import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpResponse}
+import scala.concurrent.Future
 
-class RegistrationUnsuccessfulControllerSpec extends SCRSSpec with WithFakeApplication {
+
+class RegistrationUnsuccessfulControllerSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
+
+
 
   class Setup {
     val controller = new RegistrationUnsuccessfulController {
@@ -60,12 +63,10 @@ class RegistrationUnsuccessfulControllerSpec extends SCRSSpec with WithFakeAppli
   "show" should {
     "return a 200 when the address type is RO" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
-      when(mockAuthConnector.getIds[UserIDs](Matchers.any())(Matchers.any[HeaderCarrier](), Matchers.any[HttpReads[UserIDs]](), Matchers.any[ExecutionContext]()))
-        .thenReturn(Future.successful(UserIDs("1", "2")))
       when(mockDeleteSubmissionService.deleteSubmission(Matchers.eq("12345"))(Matchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(true))
 
-      AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector){
+      showWithAuthorisedUser(controller.show) {
         result =>
           status(result) shouldBe OK
       }
@@ -75,14 +76,12 @@ class RegistrationUnsuccessfulControllerSpec extends SCRSSpec with WithFakeAppli
   "submit" should {
     "return a 303" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
-      when(mockAuthConnector.getIds[UserIDs](Matchers.any())(Matchers.any[HeaderCarrier](), Matchers.any[HttpReads[UserIDs]](), Matchers.any[ExecutionContext]()))
-        .thenReturn(Future.successful(UserIDs("1", "2")))
       when(mockDeleteSubmissionService.deleteSubmission(Matchers.eq("12345"))(Matchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(true))
       when(mockKeystoreConnector.remove()(Matchers.any()))
         .thenReturn(Future.successful(HttpResponse(200)))
 
-      AuthBuilder.submitWithAuthorisedUser(controller.submit, mockAuthConnector, FakeRequest().withFormUrlEncodedBody(Nil: _*)){
+      submitWithAuthorisedUser(controller.submit, FakeRequest().withFormUrlEncodedBody(Nil: _*)){
         result =>
           status(result) shouldBe SEE_OTHER
           redirectLocation(result) shouldBe Some("/register-your-company/post-sign-in")

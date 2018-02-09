@@ -16,25 +16,27 @@
 
 package services
 
-import helpers.{AuthHelpers, SCRSSpec}
-import models.auth.{Enrolment, EnrolmentIdentifier}
+import builders.AuthBuilder
 import connectors.{NotStarted, SuccessfulResponse}
+import helpers.{AuthHelpers, SCRSSpec}
 import mocks.ServiceConnectorMock
 import models._
 import models.connectors.ConfirmationReferences
 import models.external.{OtherRegStatus, Statuses}
 import org.joda.time.DateTime
-import play.api.libs.json.{JsObject, JsValue, Json}
-import org.mockito.Mockito._
 import org.mockito.Matchers.{any, eq => eqTo}
+import org.mockito.Mockito._
+import play.api.libs.json.{JsObject, JsValue, Json}
+import uk.gov.hmrc.auth.core.{Enrolment, EnrolmentIdentifier, Enrolments}
+import uk.gov.hmrc.http.HeaderCarrier
 import utils.{BooleanFeatureSwitch, SCRSFeatureSwitches}
 
-import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpException}
+import scala.concurrent.Future
 
-class DashboardServiceSpec extends SCRSSpec with AuthHelpers with ServiceConnectorMock{
+class DashboardServiceSpec extends SCRSSpec with AuthHelpers with ServiceConnectorMock with AuthBuilder {
 
   implicit val auth = buildAuthContext
+
 
   val payeTestBaseUrl = "test"
   val payeTestUri = "/paye-uri"
@@ -51,7 +53,6 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers with ServiceConnect
       override val companyRegistrationConnector = mockCompanyRegistrationConnector
       override val keystoreConnector = mockKeystoreConnector
       override val incorpInfoConnector = mockIncorpInfoConnector
-      override val authConnector = mockAuthConnector
       override val payeConnector = mockServiceConnector
       override val vatConnector = mockServiceConnector
       override val otrsUrl = testOtrsUrl
@@ -69,7 +70,6 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers with ServiceConnect
       override val companyRegistrationConnector = mockCompanyRegistrationConnector
       override val keystoreConnector = mockKeystoreConnector
       override val incorpInfoConnector = mockIncorpInfoConnector
-      override val authConnector = mockAuthConnector
       override val payeConnector = mockServiceConnector
       override val vatConnector = mockServiceConnector
       override val otrsUrl = testOtrsUrl
@@ -146,9 +146,10 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers with ServiceConnect
   def mockPayeFeature(enable: Boolean) = when(mockfeatureFlag.paye).thenReturn(BooleanFeatureSwitch("paye", enabled = enable))
   def mockVatFeature(enable: Boolean) = when(mockfeatureFlag.vat).thenReturn(BooleanFeatureSwitch("vat", enabled = enable))
 
-  val payeEnrolment = Enrolment("IR-PAYE", Seq(EnrolmentIdentifier("test-paye-identifier", "test-paye-value")), "testState")
-  val vatEnrolment = Enrolment("HMCE-VATDEC-ORG", Seq(EnrolmentIdentifier("test-paye-identifier", "test-paye-value")), "testState")
-  val vatVarEnrolment = Enrolment("HMCE-VATVAR-ORG", Seq(EnrolmentIdentifier("test-paye-identifier", "test-paye-value")), "testState")
+  val payeEnrolment = Enrolments(Set(Enrolment("IR-PAYE", Seq(EnrolmentIdentifier("test-paye-identifier", "test-paye-value")), "testState")))
+  val vatEnrolment = Enrolments(Set(Enrolment("HMCE-VATDEC-ORG", Seq(EnrolmentIdentifier("test-paye-identifier", "test-paye-value")), "testState")))
+  val vatVarEnrolment = Enrolments(Set(Enrolment("HMCE-VATVAR-ORG", Seq(EnrolmentIdentifier("test-paye-identifier", "test-paye-value")), "testState")))
+  val noEnrolments = Enrolments(Set())
 
   "buildDashboard" should {
 
@@ -160,36 +161,29 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers with ServiceConnect
     val payeStatus = OtherRegStatus("", None, None, Some("foo"), None)
 
     "return a CouldNotBuild DashboardStatus when the status of the registration is draft" in new SetupWithDash(draftDash) {
-     getStatusMock(SuccessfulResponse(payeStatus))
-      when(mockAuthConnector.getEnrolments[Option[Seq[Enrolment]]](any())(any(), any(), any[ExecutionContext]()))
-        .thenReturn(Future.successful(Some(Seq(vatEnrolment))))
+      getStatusMock(SuccessfulResponse(payeStatus))
 
       mockPayeFeature(true)
       mockVatFeature(false)
-      val res = await(service.buildDashboard(regId))
+      val res = await(service.buildDashboard(regId, noEnrolments))
       res shouldBe CouldNotBuild
     }
 
     "return a RejectedIncorp DashboardStatus when the status of the registration is rejected" in new SetupWithDash(rejectedDash) {
       getStatusMock(SuccessfulResponse(payeStatus))
-      when(mockAuthConnector.getEnrolments[Option[Seq[Enrolment]]](any())(any(), any(), any[ExecutionContext]()))
-        .thenReturn(Future.successful(Some(Seq(vatEnrolment))))
 
       mockPayeFeature(true)
       mockVatFeature(false)
-      val res = await(service.buildDashboard(regId))
+      val res = await(service.buildDashboard(regId, noEnrolments))
       res shouldBe RejectedIncorp
     }
 
     "return a DashboardBuilt DashboardStatus when the status of the registration is any other status" in new SetupWithDash(heldDash) {
       getStatusMock(SuccessfulResponse(payeStatus))
-      when(mockAuthConnector.getEnrolments[Option[Seq[Enrolment]]](any())(any(), any(), any[ExecutionContext]()))
-        .thenReturn(Future.successful(Some(Seq(vatEnrolment))))
 
       mockPayeFeature(true)
       mockVatFeature(false)
-      val res = await(service.buildDashboard(regId))
-//      res shouldBe DashboardBuilt(Dashboard(heldDash, "testCompanyName")) //todo: company name set as blank until story is played to put it back in
+      val res = await(service.buildDashboard(regId, vatEnrolment))
       res shouldBe DashboardBuilt(Dashboard("", heldDash, payeDash, None, hasVATCred = true))
     }
   }
@@ -233,7 +227,7 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers with ServiceConnect
       mockPayeFeature(true)
       getStatusMock(SuccessfulResponse(payeStatus))
 
-      val result = await(service.buildPAYEDashComponent(regId))
+      val result = await(service.buildPAYEDashComponent(regId, payeEnrolment))
       result shouldBe payeDash
     }
 
@@ -243,7 +237,7 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers with ServiceConnect
       mockPayeFeature(true)
       getStatusMock(SuccessfulResponse(payeStatus))
 
-      val result = await(service.buildPAYEDashComponent(regId))
+      val result = await(service.buildPAYEDashComponent(regId, payeEnrolment))
       result shouldBe payeDash
     }
 
@@ -251,10 +245,8 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers with ServiceConnect
       val payeDash = ServiceDashboard(Statuses.NOT_ELIGIBLE, None, None, payeLinks)
       mockPayeFeature(true)
       getStatusMock(NotStarted)
-      when(mockAuthConnector.getEnrolments[Option[Seq[Enrolment]]](any())(any(), any(), any[ExecutionContext]()))
-        .thenReturn(Future.successful(Some(Seq(payeEnrolment))))
 
-      val result = await(service.buildPAYEDashComponent(regId))
+      val result = await(service.buildPAYEDashComponent(regId, payeEnrolment))
       result shouldBe payeDash
     }
 
@@ -262,10 +254,8 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers with ServiceConnect
       val payeDash = ServiceDashboard(Statuses.NOT_STARTED, None, None, payeLinks)
       mockPayeFeature(true)
       getStatusMock(NotStarted)
-      when(mockAuthConnector.getEnrolments[Option[Seq[Enrolment]]](any())(any(), any(), any[ExecutionContext]()))
-        .thenReturn(Future.successful(Some(Seq())))
 
-      val result = await(service.buildPAYEDashComponent(regId))
+      val result = await(service.buildPAYEDashComponent(regId, noEnrolments))
       result shouldBe payeDash
     }
 
@@ -273,46 +263,22 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers with ServiceConnect
       val payeDash = ServiceDashboard(Statuses.NOT_ENABLED, None, None, payeLinks)
       mockPayeFeature(false)
 
-      val result = await(service.buildPAYEDashComponent(regId))
+      val result = await(service.buildPAYEDashComponent(regId, noEnrolments))
       result shouldBe payeDash
     }
   }
 
   "hasEnrollment" should {
 
-    val otherEnrolment = Enrolment("OTHER", Seq(EnrolmentIdentifier("test-other-identifier", "test-other-value")), "testState")
-
     "return true when an enrolment already exists for the user" in new Setup {
-      when(mockAuthConnector.getEnrolments[Option[Seq[Enrolment]]](any())(any(), any(), any[ExecutionContext]()))
-        .thenReturn(Future.successful(Some(Seq(payeEnrolment))))
-
-      val result = await(service.hasEnrolment(List("IR-PAYE")))
+      val result = await(service.hasEnrolment(payeEnrolment, List("IR-PAYE")))
       result shouldBe true
     }
 
     "return false" when {
 
       "enrolments are fetched but does not contain one for PAYE" in new Setup {
-        when(mockAuthConnector.getEnrolments[Option[Seq[Enrolment]]](any())(any(), any(), any[ExecutionContext]()))
-          .thenReturn(Future.successful(Some(Seq(otherEnrolment))))
-
-        val result = await(service.hasEnrolment(List("IR-PAYE")))
-        result shouldBe false
-      }
-
-      "a HttpException is thrown" in new Setup {
-        when(mockAuthConnector.getEnrolments[Option[Seq[Enrolment]]](any())(any(), any(), any[ExecutionContext]()))
-          .thenReturn(Future.failed(new HttpException("Not Found", 404)))
-
-        val result = await(service.hasEnrolment(List("IR-PAYE")))
-        result shouldBe false
-      }
-
-      "a unknown Throwable is thrown" in new Setup {
-        when(mockAuthConnector.getEnrolments[Option[Seq[Enrolment]]](any())(any(), any(), any[ExecutionContext]()))
-          .thenReturn(Future.failed(new Exception("something went wrong")))
-
-        val result = await(service.hasEnrolment(List("IR-PAYE")))
+        val result = await(service.hasEnrolment(noEnrolments, List("IR-PAYE")))
         result shouldBe false
       }
     }
@@ -336,7 +302,7 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers with ServiceConnect
     "throw a ComfirmationRefsNotFoundException when confirmation refs cannot be retrieved" in new Setup {
       when(mockCompanyRegistrationConnector.fetchConfirmationReferences(eqTo(regId))(any()))
         .thenReturn(Future.successful(ConfirmationReferencesErrorResponse))
-          intercept[ComfirmationRefsNotFoundException](await(service.getCompanyName(regId)))
+          intercept[ConfirmationRefsNotFoundException](await(service.getCompanyName(regId)))
           }
       }
 

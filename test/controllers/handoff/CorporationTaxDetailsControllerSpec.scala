@@ -37,7 +37,7 @@ import scala.concurrent.Future
 import scala.util.{Failure, Success}
 import uk.gov.hmrc.http.HeaderCarrier
 
-class CorporationTaxDetailsControllerSpec extends SCRSSpec with PayloadFixture with LoginFixture with WithFakeApplication {
+class CorporationTaxDetailsControllerSpec extends SCRSSpec with PayloadFixture with LoginFixture with WithFakeApplication with AuthBuilder {
 
   class Setup {
     object TestController extends CorporationTaxDetailsController {
@@ -80,18 +80,20 @@ class CorporationTaxDetailsControllerSpec extends SCRSSpec with PayloadFixture w
       Json.parse("""{"forward":"testForward","reverse":"testReverse"}""").as[JsObject])
 
     "return a SEE_OTHER if submitting without authorisation" in new Setup {
-      val result = TestController.corporationTaxDetails(firstHandBackEncrypted.get)(FakeRequest())
-      status(result) shouldBe SEE_OTHER
-      val url = authUrl("HO2", firstHandBackEncrypted.get)
-      redirectLocation(result) shouldBe Some(url)
+      showWithUnauthorisedUser(TestController.corporationTaxDetails(firstHandBackEncrypted.get)) {
+        result =>
+          status(result) shouldBe SEE_OTHER
+          val url = authUrl("HO2", firstHandBackEncrypted.get)
+          redirectLocation(result) shouldBe Some(url)
+      }
     }
 
     "return a BAD_REQUEST if sending an empty request with authorisation" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("1"))
-      when(mockHandBackService.processCompanyDetailsHandBack(Matchers.eq(""))(Matchers.any[AuthContext], Matchers.any[HeaderCarrier]))
+      when(mockHandBackService.processCompanyDetailsHandBack(Matchers.eq(""))(Matchers.any[HeaderCarrier]))
         .thenReturn(Failure(DecryptionError))
 
-      AuthBuilder.showWithAuthorisedUser(TestController.corporationTaxDetails(""), mockAuthConnector) {
+      showWithAuthorisedUser(TestController.corporationTaxDetails("")) {
         result =>
           status(result) shouldBe BAD_REQUEST
           redirectLocation(result) shouldBe None
@@ -100,10 +102,10 @@ class CorporationTaxDetailsControllerSpec extends SCRSSpec with PayloadFixture w
 
     "return a BAD_REQUEST if a payload error is returned from hand back service" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("1"))
-      when(mockHandBackService.processCompanyDetailsHandBack(Matchers.eq(payloadEncrypted.get))(Matchers.any[AuthContext], Matchers.any[HeaderCarrier]))
+      when(mockHandBackService.processCompanyDetailsHandBack(Matchers.eq(payloadEncrypted.get))(Matchers.any[HeaderCarrier]))
         .thenReturn(Failure(PayloadError))
 
-      AuthBuilder.showWithAuthorisedUser(TestController.corporationTaxDetails(payloadEncrypted.get), mockAuthConnector) {
+      showWithAuthorisedUser(TestController.corporationTaxDetails(payloadEncrypted.get)) {
         result =>
           status(result) shouldBe BAD_REQUEST
           redirectLocation(result) shouldBe None
@@ -112,10 +114,10 @@ class CorporationTaxDetailsControllerSpec extends SCRSSpec with PayloadFixture w
 
     "return a SEE_OTHER if submitting with request data and with authorisation" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("1"))
-      when(mockHandBackService.processCompanyDetailsHandBack(Matchers.eq(payloadEncrypted.get))(Matchers.any[AuthContext], Matchers.any[HeaderCarrier]))
+      when(mockHandBackService.processCompanyDetailsHandBack(Matchers.eq(payloadEncrypted.get))(Matchers.any[HeaderCarrier]))
         .thenReturn(Future.successful(Success(handBackPayload)))
 
-      AuthBuilder.showWithAuthorisedUser(TestController.corporationTaxDetails(payloadEncrypted.get), mockAuthConnector) {
+      showWithAuthorisedUser(TestController.corporationTaxDetails(payloadEncrypted.get)) {
         result =>
           status(result) shouldBe SEE_OTHER
           redirectLocation(result) shouldBe
@@ -125,10 +127,10 @@ class CorporationTaxDetailsControllerSpec extends SCRSSpec with PayloadFixture w
 
     "return a SEE_OTHER if submitting with request data and with authorisation but keystore has expired" in new Setup {
       mockKeystoreFetchAndGet("registrationID", None)
-      when(mockHandBackService.processCompanyDetailsHandBack(Matchers.eq(payloadEncrypted.get))(Matchers.any[AuthContext], Matchers.any[HeaderCarrier]))
+      when(mockHandBackService.processCompanyDetailsHandBack(Matchers.eq(payloadEncrypted.get))(Matchers.any[HeaderCarrier]))
         .thenReturn(Future.successful(Success(handBackPayload)))
 
-      AuthBuilder.showWithAuthorisedUser(TestController.corporationTaxDetails(payloadEncrypted.get), mockAuthConnector) {
+      showWithAuthorisedUser(TestController.corporationTaxDetails(payloadEncrypted.get)) {
         result =>
           status(result) shouldBe SEE_OTHER
           redirectLocation(result) shouldBe Some(s"/register-your-company/post-sign-in?handOffID=HO2&payload=${payloadEncrypted.get}")
