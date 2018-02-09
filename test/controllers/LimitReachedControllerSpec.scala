@@ -25,42 +25,44 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
-class LimitReachedControllerSpec extends UnitSpec with WithFakeApplication with SCRSSpec {
+class LimitReachedControllerSpec extends UnitSpec with WithFakeApplication with SCRSSpec with AuthBuilder {
 
-	class Setup {
-		val controller = new LimitReachedController {
-			val cohoUrl: String = "testGGUrl"
-			val authConnector = mockAuthConnector
-			val keystoreConnector = mockKeystoreConnector
-		}
-	}
 
-	"LimitReachedController" should {
-		"use the correct coho Url" in {
-			LimitReachedController.cohoUrl shouldBe "http://resources.companieshouse.gov.uk/promo/webincs"
-		}
-		"use the correct auth connector" in {
-			LimitReachedController.authConnector shouldBe FrontendAuthConnector
-		}
-		"use the correct keystore connector" in {
-			LimitReachedController.keystoreConnector shouldBe KeystoreConnector
-		}
-	}
 
-	"Sending a GET request to LimitReachedController" should {
-		"return a 200" in new Setup {
-			AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
-				result =>
-					status(result) shouldBe OK
-			}
-		}
+  class Setup {
+    val controller = new LimitReachedController {
+      val cohoUrl: String = "testGGUrl"
+      val authConnector = mockAuthConnector
+      val keystoreConnector = mockKeystoreConnector
+    }
+  }
 
-		"Sending a POST request to LimitReachedController" should {
-			"return a 303" in new Setup {
-				val result = controller.submit()(FakeRequest())
-				status(result) shouldBe SEE_OTHER
-				redirectLocation(result) shouldBe Some(controller.cohoUrl)
-			}
-		}
-	}
+  "LimitReachedController" should {
+    "use the correct coho Url" in {
+      LimitReachedController.cohoUrl shouldBe "http://resources.companieshouse.gov.uk/promo/webincs"
+    }
+    "use the correct auth connector" in {
+      LimitReachedController.authConnector shouldBe FrontendAuthConnector
+    }
+    "use the correct keystore connector" in {
+      LimitReachedController.keystoreConnector shouldBe KeystoreConnector
+    }
+  }
+
+  "Sending a GET request to LimitReachedController" should {
+    "return a 200" in new Setup {
+      showWithAuthorisedUser(controller.show) {
+        result =>
+          status(result) shouldBe OK
+      }
+    }
+
+    "Sending a POST request to LimitReachedController" should {
+      "return a 303" in new Setup {
+        val result = controller.submit()(FakeRequest())
+        status(result) shouldBe SEE_OTHER
+        redirectLocation(result) shouldBe Some(controller.cohoUrl)
+      }
+    }
+  }
 }

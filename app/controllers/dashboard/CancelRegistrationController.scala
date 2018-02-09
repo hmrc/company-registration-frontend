@@ -18,15 +18,13 @@ package controllers.dashboard
 
 import config.FrontendAuthConnector
 import connectors._
-import controllers.auth.SCRSRegime
+import controllers.auth.AuthFunction
 import forms.CancelForm
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, Request, Result}
 import play.twirl.api.Html
-import uk.gov.hmrc.play.frontend.auth.Actions
 import uk.gov.hmrc.play.frontend.controller.FrontendController
 import utils.{MessagesSupport, SessionRegistration}
-import views.html.dashboard.{CancelPaye, CancelVat}
 
 import scala.concurrent.Future
 
@@ -38,37 +36,37 @@ object CancelRegistrationController extends CancelRegistrationController{
   val companyRegistrationConnector = CompanyRegistrationConnector
 }
 
-trait CancelRegistrationController extends FrontendController with Actions with SessionRegistration with MessagesSupport {
+trait CancelRegistrationController extends FrontendController with AuthFunction with SessionRegistration with MessagesSupport {
 
   val payeConnector: ServiceConnector
   val vatConnector: ServiceConnector
   val keystoreConnector : KeystoreConnector
   val companyRegistrationConnector : CompanyRegistrationConnector
 
-  def showCancelPAYE: Action[AnyContent] = AuthorisedFor(taxRegime = SCRSRegime(), pageVisibility = GGConfidence).async {
-    implicit user =>
-      implicit request =>
-        showCancelService(payeConnector,views.html.dashboard.CancelPaye(CancelForm.form.fill(false)))
+  def showCancelPAYE: Action[AnyContent] = Action.async { implicit request =>
+    ctAuthorised {
+      showCancelService(payeConnector, views.html.dashboard.CancelPaye(CancelForm.form.fill(false)))
+    }
   }
 
-  val submitCancelPAYE: Action[AnyContent] = AuthorisedFor(taxRegime = SCRSRegime(), pageVisibility = GGConfidence).async {
-    implicit user =>
-      implicit request =>
-            submitCancelService(payeConnector,
-              (a:Form[Boolean]) => views.html.dashboard.CancelPaye(a))
-            }
-
-  def showCancelVAT: Action[AnyContent] = AuthorisedFor(taxRegime = SCRSRegime(), pageVisibility = GGConfidence).async {
-    implicit user =>
-    implicit request =>
-        showCancelService(vatConnector,views.html.dashboard.CancelVat(CancelForm.form.fill(false)))
+  val submitCancelPAYE: Action[AnyContent] = Action.async { implicit request =>
+    ctAuthorised {
+      submitCancelService(payeConnector,
+        (a: Form[Boolean]) => views.html.dashboard.CancelPaye(a))
+    }
   }
 
-  val submitCancelVAT: Action[AnyContent] = AuthorisedFor(taxRegime = SCRSRegime(), pageVisibility = GGConfidence).async{
-    implicit user =>
-      implicit request =>
-        submitCancelService(vatConnector,
-          (a:Form[Boolean]) => views.html.dashboard.CancelVat(a))
+  def showCancelVAT: Action[AnyContent] = Action.async { implicit request =>
+    ctAuthorised {
+      showCancelService(vatConnector, views.html.dashboard.CancelVat(CancelForm.form.fill(false)))
+    }
+  }
+
+  val submitCancelVAT: Action[AnyContent] = Action.async { implicit request =>
+    ctAuthorised {
+      submitCancelService(vatConnector,
+        (a: Form[Boolean]) => views.html.dashboard.CancelVat(a))
+    }
   }
 
   private[controllers] def showCancelService(service:ServiceConnector, cancelPage:Html) (implicit request: Request[AnyContent]):Future[Result] = {

@@ -17,6 +17,7 @@
 package controllers
 
 import builders.AuthBuilder
+import config.FrontendAuthConnector
 import controllers.reg.ReturningUserController
 import helpers.SCRSSpec
 import play.api.test.FakeRequest
@@ -25,44 +26,45 @@ import uk.gov.hmrc.play.test.WithFakeApplication
 
 class ReturningUserSpec extends SCRSSpec with AuthBuilder with WithFakeApplication {
 
-	class Setup {
-		object TestController extends ReturningUserController{
-			val createGGWAccountUrl = "CreateGGWAccountURL"
-			val compRegFeUrl = "CompRegFEURL"
-			val authConnector = mockAuthConnector
+  class Setup {
+    object TestController extends ReturningUserController{
+      val createGGWAccountUrl = "CreateGGWAccountURL"
+      val compRegFeUrl = "CompRegFEURL"
+      val authConnector = mockAuthConnector
 
-		}
-	}
+    }
+  }
 
-	"Sending a GET request to ReturningUserController" should {
-		"return a 303 and redirect you to post signin if you are logged in" in new Setup {
-			AuthBuilder.mockAuthorisedUser("testUserID", mockAuthConnector)
-			val result = TestController.show()(FakeRequest())
-			status(result) shouldBe SEE_OTHER
-			redirectLocation(result) shouldBe Some("/register-your-company/post-sign-in")
-		}
+  "Sending a GET request to ReturningUserController" should {
+    "return a 303 and redirect you to post-sign-in if you are logged in" in new Setup {
+      showWithAuthorisedUser(TestController.show) {
+        result =>
+          status(result) shouldBe SEE_OTHER
+          redirectLocation(result) shouldBe Some("/register-your-company/post-sign-in")
+      }
+    }
 
-		"return a 200 and show the page if you are not logged in" in new Setup {
-			AuthBuilder.mockUnauthorisedUser("testUserID", mockAuthConnector)
-			val result = TestController.show()(FakeRequest())
-			status(result) shouldBe OK
+    "return a 200 and show the page if you are not logged in" in new Setup {
+      showWithUnauthorisedUser(TestController.show) {
+        result =>
+          status(result) shouldBe OK
+      }
+    }
 
-		}
+    "Sending a POST request to ReturningUserController" should {
+      "return a 303 and send user to create account page page when they are starting a new registration" in new Setup {
 
-		"Sending a POST request to ReturningUserController" should {
-			"return a 303 and send user to create account page page when they are starting a new registration" in new Setup {
+        val result = TestController.submit()(FakeRequest().withFormUrlEncodedBody("returningUser" -> "true"))
+        status(result) shouldBe SEE_OTHER
+        redirectLocation(result).get should include("CreateGGWAccountURL/government-gateway-registration-frontend")
+        redirectLocation(result).get should include("continue=CompRegFEURL%2Fregister-your-company%2Fpost-sign-in")
+      }
+      "return a 303 and send user to sign-in page when they are not starting a new registration" in new Setup {
 
-				val result = TestController.submit()(FakeRequest().withFormUrlEncodedBody("returningUser" -> "true"))
-				status(result) shouldBe SEE_OTHER
-				redirectLocation(result).get should include("CreateGGWAccountURL/government-gateway-registration-frontend")
-				redirectLocation(result).get should include("continue=CompRegFEURL%2Fregister-your-company%2Fpost-sign-in")
-			}
-			"return a 303 and send user to sign-in page when they are not starting a new registration" in new Setup {
-
-				val result = TestController.submit()(FakeRequest().withFormUrlEncodedBody("returningUser" -> "false"))
-				status(result) shouldBe SEE_OTHER
-				redirectLocation(result) shouldBe Some("/register-your-company/post-sign-in")
-			}
-		}
-	}
+        val result = TestController.submit()(FakeRequest().withFormUrlEncodedBody("returningUser" -> "false"))
+        status(result) shouldBe SEE_OTHER
+        redirectLocation(result) shouldBe Some("/register-your-company/post-sign-in")
+      }
+    }
+  }
 }

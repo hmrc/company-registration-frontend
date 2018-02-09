@@ -17,28 +17,27 @@
 package controllers
 
 import builders.AuthBuilder
-import config.FrontendAuthConnector
-import connectors.{BusinessRegistrationConnector, KeystoreConnector, S4LConnector}
+import connectors.BusinessRegistrationConnector
 import controllers.reg.PPOBController
 import fixtures.PPOBFixture
 import helpers.SCRSSpec
 import models._
 import models.handoff._
+import org.mockito.Matchers
+import org.mockito.Matchers.{any, eq => eqTo}
+import org.mockito.Mockito._
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services.{AddressLookupFrontendService, AddressLookupService}
-import uk.gov.hmrc.play.frontend.auth.AuthContext
-import org.mockito.Mockito._
-import org.mockito.Matchers.{any, eq => eqTo}
-import org.mockito.Matchers
+import services.AddressLookupFrontendService
+import uk.gov.hmrc.auth.core.retrieve.Credentials
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.test.WithFakeApplication
 
-import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpReads}
+import scala.concurrent.Future
 
-class PPOBControllerSpec extends SCRSSpec with PPOBFixture with AuthBuilder with WithFakeApplication {
+class PPOBControllerSpec extends SCRSSpec with PPOBFixture with WithFakeApplication with AuthBuilder {
 
   val mockNavModelRepoObj = mockNavModelRepo
   val mockBusinessRegConnector = mock[BusinessRegistrationConnector]
@@ -68,41 +67,20 @@ class PPOBControllerSpec extends SCRSSpec with PPOBFixture with AuthBuilder with
     }
   }
 
-
-  val userIds = UserIDs("testInternal", "testExternal")
-
-  implicit val user = AuthBuilder.createTestUser
-
-  "PPOBController" should {
-    "use the correct AuthConnector" in {
-      PPOBController.authConnector shouldBe FrontendAuthConnector
-    }
-    "use the correct S4LConnector" in {
-      PPOBController.s4LConnector shouldBe S4LConnector
-    }
-    "use the correct address lookup service" in {
-      PPOBController.addressLookupService shouldBe AddressLookupService
-    }
-    "use the correct keystore connector" in {
-      PPOBController.keystoreConnector shouldBe KeystoreConnector
-    }
-  }
-
+  val extID = Some("externalID")
+  val credID = Credentials("credID", "testProv")
 
   "back" should {
 
     "return a 303 an redirect back to post sign in when navmodel not found thrown" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
       mockGetNavModel(None)
-      when(mockHandOffService.externalUserId(Matchers.any[AuthContext](), Matchers.any[HeaderCarrier]()))
-        .thenReturn(Future.successful("ext-xxxx-xxxx"))
       when(mockKeystoreConnector.fetchAndGet[HandOffNavModel](Matchers.eq("HandOffNavigation"))(Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(None))
-      AuthBuilder.showWithAuthorisedUser(controller.back, mockAuthConnector) {
+      showWithAuthorisedUserRetrieval(controller.back, extID) {
         result =>
           status(result) shouldBe SEE_OTHER
           redirectLocation(result) shouldBe Some("/register-your-company/post-sign-in")
-
       }
     }
 
@@ -120,16 +98,13 @@ class PPOBControllerSpec extends SCRSSpec with PPOBFixture with AuthBuilder with
 
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
 
-      when(mockHandOffService.externalUserId(Matchers.any[AuthContext](), Matchers.any[HeaderCarrier]()))
-        .thenReturn(Future.successful("ext-xxxx-xxxx"))
-
       when(mockKeystoreConnector.fetchAndGet[HandOffNavModel](Matchers.eq("HandOffNavigation"))(Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(Some(navModel)))
       mockGetNavModel(None)
-      when(mockHandOffService.buildBackHandOff(Matchers.any(), Matchers.any()))
+      when(mockHandOffService.buildBackHandOff(Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(BackHandoff("ext-xxxx-xxxx", "12345", Json.obj(), Json.obj(), Json.obj())))
 
-      AuthBuilder.showWithAuthorisedUser(controller.back, mockAuthConnector) {
+      showWithAuthorisedUserRetrieval(controller.back, extID) {
         result =>
           status(result) shouldBe SEE_OTHER
       }
@@ -141,7 +116,7 @@ class PPOBControllerSpec extends SCRSSpec with PPOBFixture with AuthBuilder with
     "return a 200 and show the page when check status returns Some of reg id" in new Setup {
       mockCheckStatus()
 
-      AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
+      showWithAuthorisedUser(controller.show) {
         result =>
           status(result) shouldBe OK
       }
@@ -150,7 +125,7 @@ class PPOBControllerSpec extends SCRSSpec with PPOBFixture with AuthBuilder with
       "return a 303 and show the page when check status returns None" in new Setup {
         mockCheckStatus(None)
 
-        AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
+        showWithAuthorisedUser(controller.show) {
           result =>
             status(result) shouldBe SEE_OTHER
         }
@@ -191,7 +166,7 @@ class PPOBControllerSpec extends SCRSSpec with PPOBFixture with AuthBuilder with
 
     "handle a PPOB Address selection correctly" in new Setup {
       mockCheckStatus()
-      AuthBuilder.submitWithAuthorisedUser(controller.submit, mockAuthConnector, submission("PPOB")) {
+      submitWithAuthorisedUserRetrieval(controller.submit, submission("PPOB"), credID) {
         result =>
           status(result) shouldBe 303
           redirectLocation(result).get shouldBe controllers.reg.routes.CompanyContactDetailsController.show().url
@@ -202,16 +177,14 @@ class PPOBControllerSpec extends SCRSSpec with PPOBFixture with AuthBuilder with
       val validUserDetails = UserDetailsModel("", "", "", None, None, None, None, "", "")
 
       mockCheckStatus()
-      when(mockPPOBService.saveAddress(Matchers.anyString(), Matchers.anyString(), Matchers.any())(Matchers.any[HeaderCarrier](), Matchers.any()))
+      when(mockPPOBService.saveAddress(Matchers.anyString(), Matchers.anyString(), Matchers.any())(Matchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(validCompanyDetails))
-      when(mockAuthConnector.getUserDetails[UserDetailsModel](Matchers.any[AuthContext]())(Matchers.any[HeaderCarrier](), Matchers.any(), Matchers.any[ExecutionContext]()))
-        .thenReturn(Future.successful(validUserDetails))
-      when(mockPPOBService.retrieveCompanyDetails(Matchers.anyString())(Matchers.any(), Matchers.any[HeaderCarrier]()))
+      when(mockPPOBService.retrieveCompanyDetails(Matchers.anyString())(Matchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(validCompanyDetails))
       when(mockPPOBService.auditROAddress(Matchers.anyString(), Matchers.any(), Matchers.anyString(), Matchers.any())(Matchers.any[HeaderCarrier](), Matchers.any()))
         .thenReturn(Future.successful(AuditResult.Success))
 
-      AuthBuilder.submitWithAuthorisedUser(controller.submit, mockAuthConnector, submission("RO")) {
+      submitWithAuthorisedUserRetrieval(controller.submit, submission("RO"), credID) {
         result =>
           status(result) shouldBe 303
           redirectLocation(result).get  shouldBe controllers.reg.routes.CompanyContactDetailsController.show().url
@@ -223,7 +196,7 @@ class PPOBControllerSpec extends SCRSSpec with PPOBFixture with AuthBuilder with
       when(mockAddressLookupFrontendService.buildAddressLookupUrl(Matchers.anyString(), Matchers.any())(Matchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful("TEST/redirectUrl"))
 
-      AuthBuilder.submitWithAuthorisedUser(controller.submit, mockAuthConnector, submission("Other")) {
+      submitWithAuthorisedUserRetrieval(controller.submit, submission("Other"), credID) {
         result =>
           status(result) shouldBe 303
           redirectLocation(result).get shouldBe "TEST/redirectUrl"
@@ -235,7 +208,7 @@ class PPOBControllerSpec extends SCRSSpec with PPOBFixture with AuthBuilder with
       when(mockCompanyRegistrationConnector.retrieveCompanyDetails(Matchers.anyString())(Matchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(Some(validCompanyDetails)))
 
-      AuthBuilder.submitWithAuthorisedUser(controller.submit, mockAuthConnector, FakeRequest().withFormUrlEncodedBody("whoops" -> "not good")) {
+      submitWithAuthorisedUserRetrieval(controller.submit, FakeRequest().withFormUrlEncodedBody("whoops" -> "not good"), credID) {
         result =>
           status(result) shouldBe 400
       }
@@ -246,7 +219,7 @@ class PPOBControllerSpec extends SCRSSpec with PPOBFixture with AuthBuilder with
       when(mockCompanyRegistrationConnector.retrieveCompanyDetails(Matchers.anyString())(Matchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(Some(validCompanyDetails)))
 
-      AuthBuilder.submitWithAuthorisedUser(controller.submit, mockAuthConnector, submission("Bad")) {
+      submitWithAuthorisedUserRetrieval(controller.submit, submission("Bad"), credID) {
         result =>
           status(result) shouldBe 400
       }
@@ -260,13 +233,11 @@ class PPOBControllerSpec extends SCRSSpec with PPOBFixture with AuthBuilder with
 
     "return a PPOBChoice with a value of PPOB if the supplied ppob option is defined" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
-      when(mockAuthConnector.getIds[UserIDs](Matchers.any())(Matchers.any[HeaderCarrier](), Matchers.any[HttpReads[UserIDs]](), Matchers.any[ExecutionContext]()))
-        .thenReturn(Future.successful(UserIDs("1", "2")))
 
       when(mockAddressLookupFrontendService.getAddress(Matchers.any[HeaderCarrier](), Matchers.any()))
         .thenReturn(validNewAddress)
 
-      when(mockPPOBService.saveAddress(Matchers.anyString(), Matchers.anyString(), Matchers.any[Option[NewAddress]]())(Matchers.any[HeaderCarrier](), Matchers.any()))
+      when(mockPPOBService.saveAddress(Matchers.anyString(), Matchers.anyString(), Matchers.any[Option[NewAddress]]())(Matchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(validCompanyDetails))
 
       when(mockBusinessRegConnector.updatePrePopAddress(Matchers.any[String],Matchers.any[Address])(Matchers.any[HeaderCarrier]))
@@ -274,7 +245,7 @@ class PPOBControllerSpec extends SCRSSpec with PPOBFixture with AuthBuilder with
 
       mockCheckStatus()
 
-      showWithAuthorisedUser(controller.saveALFAddress, mockAuthConnector){
+      showWithAuthorisedUser(controller.saveALFAddress) {
         result =>
           status(result) shouldBe SEE_OTHER
           redirectLocation(result) shouldBe Some(controllers.reg.routes.CompanyContactDetailsController.show().url)

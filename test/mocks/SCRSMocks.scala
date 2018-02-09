@@ -44,7 +44,6 @@ trait SCRSMocks
     with NavModelRepoMock {
   this: MockitoSugar =>
 
-  lazy val mockAuthConnector = mock[AuthConnector]
   lazy val mockSessionCache = mock[SessionCache]
   lazy val mockAudit = mock[Audit]
   lazy val mockAuditConnector = mock[AuditConnector]
@@ -61,8 +60,7 @@ trait SCRSMocks
     when(mock.cache[String](any(), any())(any(), any())).thenReturn(Future.successful(CacheMap("", Map.empty[String, JsValue])))
   }
 
-  def resetMocks() = {
-    reset(mockAuthConnector)
+  def resetMocks(): Unit = {
     reset(mockAuditConnector)
     reset(mockS4LConnector)
     reset(mockWSHttp)

@@ -16,8 +16,8 @@
 
 package controllers.test
 
-import uk.gov.hmrc.play.frontend.controller.FrontendController
 import play.api.mvc.Action
+import uk.gov.hmrc.play.frontend.controller.FrontendController
 import utils.{FeatureSwitch, SCRSFeatureSwitches}
 
 import scala.concurrent.Future

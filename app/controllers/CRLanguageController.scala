@@ -18,9 +18,9 @@ package controllers
 
 import javax.inject.Inject
 
-import play.api.{Configuration, Application}
 import play.api.i18n.{Lang, MessagesApi}
 import play.api.mvc.Call
+import play.api.{Application, Configuration}
 import uk.gov.hmrc.play.config.RunMode
 import uk.gov.hmrc.play.language.LanguageController
 

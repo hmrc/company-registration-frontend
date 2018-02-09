@@ -20,18 +20,14 @@ import _root_.helpers.SCRSSpec
 import builders.AuthBuilder
 import controllers.reg.CompanyContactDetailsController
 import fixtures.{CompanyContactDetailsFixture, UserDetailsFixture}
-import models.UserDetailsModel
 import org.jsoup.Jsoup
-import org.mockito.Matchers
-import org.mockito.Mockito._
 import play.api.test.Helpers._
 import services.MetricsService
+import uk.gov.hmrc.auth.core.retrieve.{Name, ~}
 import uk.gov.hmrc.play.test.WithFakeApplication
 
-import scala.concurrent.{ExecutionContext, Future}
-
 class CompanyContactDetailsSpec extends SCRSSpec with CompanyContactDetailsFixture with UserDetailsFixture
-  with WithFakeApplication {
+  with WithFakeApplication with AuthBuilder {
 
   class Setup {
     val controller = new CompanyContactDetailsController {
@@ -41,8 +37,6 @@ class CompanyContactDetailsSpec extends SCRSSpec with CompanyContactDetailsFixtu
       override val metricsService = mock[MetricsService]
       override val companyRegistrationConnector = mockCompanyRegistrationConnector
       override val keystoreConnector= mockKeystoreConnector
-
-
     }
   }
 
@@ -51,10 +45,8 @@ class CompanyContactDetailsSpec extends SCRSSpec with CompanyContactDetailsFixtu
       CompanyContactDetailsServiceMocks.fetchContactDetails(validCompanyContactDetailsModel)
       mockKeystoreFetchAndGet("registrationID", Some("1"))
       CTRegistrationConnectorMocks.retrieveCTRegistration()
-      when(mockAuthConnector.getUserDetails[UserDetailsModel](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]()))
-        .thenReturn(Future.successful(userDetailsModel))
 
-      AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector){
+      showWithAuthorisedUserRetrieval(controller.show, new ~(Name(Some("first"), Some("last")), Some("email"))) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
 

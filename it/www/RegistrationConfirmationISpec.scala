@@ -151,8 +151,13 @@ class RegistrationConfirmationISpec extends IntegrationSpecBase with MongoSpecSu
     ))
 
     "redirect to the forward url if there is a 200 on submission" in new Setup {
-      setupSimpleAuthMocks()
       stubSuccessfulLogin(userId = userId)
+      stubAuthorisation(200,Some(
+        """
+          |{
+          | "externalId" : "Ext-xxx"
+          |}
+        """.stripMargin))
 
       val csrfToken = UUID.randomUUID().toString
       val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
@@ -184,8 +189,13 @@ class RegistrationConfirmationISpec extends IntegrationSpecBase with MongoSpecSu
     }
 
     "redirect with the same ch data that was recieved" in new Setup {
-      setupSimpleAuthMocks()
       stubSuccessfulLogin(userId = userId)
+      stubAuthorisation(200,Some(
+        """
+          |{
+          | "externalId" : "Ext-xxx"
+          |}
+        """.stripMargin))
 
       val encryptedForwardWithChPayload = Jwe.encrypt(RegistrationConfirmationPayload(
         userId,
@@ -228,9 +238,13 @@ class RegistrationConfirmationISpec extends IntegrationSpecBase with MongoSpecSu
     }
 
     "redirect to the forward url if there is a 502 on submission" in new Setup {
-      setupSimpleAuthMocks()
       stubSuccessfulLogin(userId = userId)
-
+      stubAuthorisation(200,Some(
+        """
+          |{
+          | "externalId" : "Ext-xxx"
+          |}
+        """.stripMargin))
 
       val csrfToken = UUID.randomUUID().toString
       val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
@@ -261,8 +275,13 @@ class RegistrationConfirmationISpec extends IntegrationSpecBase with MongoSpecSu
     }
 
     "redirect to the forward url if there is 403 on submission" in new Setup {
-      setupSimpleAuthMocks()
       stubSuccessfulLogin(userId = userId)
+      stubAuthorisation(200,Some(
+        """
+          |{
+          | "externalId" : "Ext-xxx"
+          |}
+        """.stripMargin))
 
       val csrfToken = UUID.randomUUID().toString
       val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
@@ -311,6 +330,8 @@ class RegistrationConfirmationISpec extends IntegrationSpecBase with MongoSpecSu
     ))
 
     "Return a redirect to a new page when not authenticated" in new Setup {
+      stubAuthorisation(401, None)
+
       val response = await(client("/registration-confirmation?request=xxx").get())
 
       response.status shouldBe 303
@@ -318,7 +339,7 @@ class RegistrationConfirmationISpec extends IntegrationSpecBase with MongoSpecSu
     }
 
     "updating confirmation references successfully should return the application submitted page" in new Setup{
-      setupSimpleAuthMocks()
+      stubAuthorisation()
       stubSuccessfulLogin(userId=userId)
 
       val csrfToken = UUID.randomUUID().toString
@@ -347,7 +368,8 @@ class RegistrationConfirmationISpec extends IntegrationSpecBase with MongoSpecSu
     }
 
     "updating confirmation references with 502 should return a retry page" in new Setup {
-      setupSimpleAuthMocks()
+
+      stubAuthorisation()
       stubSuccessfulLogin(userId=userId)
 
       val csrfToken = UUID.randomUUID().toString
@@ -367,7 +389,8 @@ class RegistrationConfirmationISpec extends IntegrationSpecBase with MongoSpecSu
     }
 
     "updating confirmation references with 403 should return a deskpro page" in new Setup {
-      setupSimpleAuthMocks()
+
+      stubAuthorisation()
       stubSuccessfulLogin(userId=userId)
 
       val csrfToken = UUID.randomUUID().toString

@@ -19,6 +19,7 @@ package services
 import java.util.UUID
 
 import builders.AuthBuilder
+import config.FrontendAuthConnector
 import fixtures._
 import helpers.SCRSSpec
 import mocks.{KeystoreMock, NavModelRepoMock}
@@ -34,7 +35,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.test.WithFakeApplication
 
-class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture with CorporationTaxFixture
+class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture with CorporationTaxFixture with AuthBuilder
     with BeforeAndAfterEach
     with UserDetailsFixture
     with CompanyDetailsFixture
@@ -44,6 +45,7 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
 
   val mockNavModelRepoObj = mockNavModelRepo
   val mockEncryptor = mock[JweEncryptor]
+
 
   trait Setup {
     val service = new HandOffService {
@@ -66,9 +68,7 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
 
   val mockCommonService = mock[CommonService]
 
-  implicit val user = AuthBuilder.createTestUser
-
-  val userIDs = UserIDs("testInternalID", "testExternalID")
+  val externalID = "testExternalID"
 
   "buildBusinessActivitiesPayload" should {
 
@@ -88,10 +88,6 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
         )))
 
       mockGetNavModel(None)
-
-      when(mockAuthConnector.getIds[UserIDs](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]()))
-        .thenReturn(Future.successful(userIDs))
-
       mockKeystoreFetchAndGet("registrationID",Some(registrationID))
 
       when(mockNavModelRepoObj.getNavModel(registrationID))
@@ -105,7 +101,7 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
       when(mockEncryptor.encrypt[BusinessActivitiesModel](Matchers.any[BusinessActivitiesModel]())(Matchers.any()))
         .thenReturn(Some("xxx"))
 
-      val result = await(service.buildBusinessActivitiesPayload(registrationID))
+      val result = await(service.buildBusinessActivitiesPayload(registrationID, externalID))
 
       result shouldBe defined
       result.get shouldBe "SIC codes" -> "xxx"
@@ -139,23 +135,12 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
     "return a forward url and encrypted payload when there is no nav model in keystore" in new Setup {
       mockKeystoreFetchAndGet("HandOffNavigation", None)
       mockInsertNavModel("testRegID",Some(initNavModel))
-      when(mockAuthConnector.getUserDetails[UserDetailsModel](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]()))
-        .thenReturn(Future.successful(userDetailsModel))
       mockGetNavModel(None)
-      val result = await(service.companyNamePayload("testRegID"))
+      val result = await(service.companyNamePayload("testRegID", "testemail", "testname", externalID))
       result shouldBe Some(("http://localhost:9986/incorporation-frontend-stubs/basic-company-details","xxx"))
     }
   }
 
-  "externalUserId" should {
-    "return an external UserID fetched from auth/authority" in new Setup {
-      when(mockAuthConnector.getIds[UserIDs](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]()))
-        .thenReturn(Future.successful(userIDs))
-
-      val result = await(service.externalUserId)
-      result shouldBe "testExternalID"
-    }
-  }
   "renewSessionObject" should {
     "return a jsObject" in new Setup {
       service.renewSessionObject shouldBe JsObject(Map(
@@ -285,13 +270,10 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
       when(mockKeystoreConnector.fetchAndGet[String](Matchers.eq("registrationID"))(Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(Some("12345")))
 
-      when(mockHandOffService.externalUserId(Matchers.any(), Matchers.any()))
-        .thenReturn(Future.successful("testExternalID"))
-
       when(mockNavModelRepoObj.getNavModel("12345"))
         .thenReturn(Future.successful(Some(handOffNavModel)))
 
-      val result = await(service.buildBackHandOff)
+      val result = await(service.buildBackHandOff(externalID))
 
       result.user_id shouldBe "testExternalID"
       result.journey_id shouldBe "12345"
@@ -323,8 +305,6 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
         )
       )
       mockGetNavModel(None)
-      when(mockHandOffService.externalUserId(Matchers.any(), Matchers.any()))
-        .thenReturn(Future.successful("EXT-123456"))
 
       when(mockCommonService.fetchRegistrationID(Matchers.any()))
         .thenReturn(Future.successful("12345"))
@@ -335,7 +315,7 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
       when(mockCompanyRegistrationConnector.updateRegistrationProgress(Matchers.any(), Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(HttpResponse(200)))
 
-      val result = await(service.summaryHandOff).get
+      val result = await(service.summaryHandOff(externalID)).get
 
       result._1 shouldBe "testForwardLinkFromReceiver4"
       result._2 shouldBe "xxx"

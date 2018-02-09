@@ -18,28 +18,25 @@ package services
 
 import java.util.UUID
 
-import builders.AuthBuilder
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import fixtures.TradingDetailsFixtures
 import helpers.SCRSSpec
 import mocks.SCRSMocks
 import models.TradingDetails
-import org.mockito.Mockito._
 import org.mockito.Matchers
+import org.mockito.Mockito._
 import play.api.libs.json.Format
-
-import scala.concurrent.Future
 import uk.gov.hmrc.http.HeaderCarrier
 
-class TradingDetailsServiceSpec extends SCRSSpec with SCRSMocks with TradingDetailsFixtures with AuthBuilder {
+import scala.concurrent.Future
+
+class TradingDetailsServiceSpec extends SCRSSpec with SCRSMocks with TradingDetailsFixtures {
 
   val mockKeyStoreConnector = mock[KeystoreConnector]
   val mockCompRegConnector = mock[CompanyRegistrationConnector]
   val mockCommonService = mock[CommonService]
 
   lazy val regID = UUID.randomUUID.toString
-
-  implicit val user = createTestUser
 
   class Setup {
     object TestService extends TradingDetailsService {

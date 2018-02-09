@@ -18,11 +18,10 @@ package controllers.reg
 
 import config.FrontendAuthConnector
 import connectors.{BusinessRegistrationConnector, BusinessRegistrationSuccessResponse, CompanyRegistrationConnector, KeystoreConnector}
-import controllers.auth.SCRSRegime
+import controllers.auth.AuthFunction
 import forms.AboutYouForm
 import play.api.mvc.{Action, AnyContent}
 import services.{MetaDataService, MetricsService}
-import uk.gov.hmrc.play.frontend.auth.Actions
 import uk.gov.hmrc.play.frontend.controller.FrontendController
 import utils.{MessagesSupport, SessionRegistration}
 import views.html.reg.CompletionCapacity
@@ -39,36 +38,38 @@ object CompletionCapacityController extends CompletionCapacityController {
 
 }
 
-trait CompletionCapacityController extends FrontendController with Actions with SessionRegistration with MessagesSupport {
+trait CompletionCapacityController extends FrontendController with AuthFunction with SessionRegistration with MessagesSupport {
 
   val businessRegConnector: BusinessRegistrationConnector
   val metaDataService: MetaDataService
   val metricsService: MetricsService
 
-  def show() : Action[AnyContent] = AuthorisedFor(SCRSRegime(""), GGConfidence).async {
-    implicit user =>
-      implicit request =>
-        checkStatus { regId =>
-            businessRegConnector.retrieveMetadata map {
-              case BusinessRegistrationSuccessResponse(x) => Ok(CompletionCapacity(AboutYouForm.populateForm(x.completionCapacity.fold("")(cc => cc))))//todo double check empty cc
-              case _ => Ok(CompletionCapacity(AboutYouForm.aboutYouFilled))
-            }
+  def show() : Action[AnyContent] = Action.async { implicit request =>
+    ctAuthorised {
+      checkStatus { regId =>
+        businessRegConnector.retrieveMetadata map {
+          case BusinessRegistrationSuccessResponse(x) => Ok(CompletionCapacity(AboutYouForm.populateForm(x.completionCapacity.fold("")(cc => cc)))) //todo double check empty cc
+          case _ => Ok(CompletionCapacity(AboutYouForm.aboutYouFilled))
         }
+      }
+    }
   }
 
-  def submit() : Action[AnyContent] = AuthorisedFor(SCRSRegime(""), GGConfidence).async {
-    implicit user =>
-      implicit request =>
-        registered {a =>
+  def submit() : Action[AnyContent] = Action.async { implicit request =>
+    ctAuthorised {
+      registered { a =>
         AboutYouForm.form.bindFromRequest.fold(
           errors => Future.successful(BadRequest(CompletionCapacity(errors))),
           success => {
             val context = metricsService.saveCompletionCapacityToCRTimer.time()
             metaDataService.updateCompletionCapacity(success) map {
-              _ => context.stop()
-                   Redirect(controllers.handoff.routes.BasicCompanyDetailsController.basicCompanyDetails())
+              _ =>
+                context.stop()
+                Redirect(controllers.handoff.routes.BasicCompanyDetailsController.basicCompanyDetails())
             }
           }
         )
-  }}
+      }
+    }
+  }
 }

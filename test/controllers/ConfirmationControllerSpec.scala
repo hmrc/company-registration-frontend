@@ -17,6 +17,7 @@
 package controllers
 
 import builders.AuthBuilder
+import config.FrontendAuthConnector
 import controllers.reg.ConfirmationController
 import fixtures.CompanyDetailsFixture
 import helpers.SCRSSpec
@@ -36,9 +37,10 @@ import utils.Messages
 import scala.concurrent.Future
 import uk.gov.hmrc.http.HeaderCarrier
 
-class ConfirmationControllerSpec extends SCRSSpec with CompanyDetailsFixture with WithFakeApplication {
+class ConfirmationControllerSpec extends SCRSSpec with CompanyDetailsFixture with WithFakeApplication with AuthBuilder {
 
   val mockDeskproService = mock[DeskproService]
+
 
   class Setup {
     val controller = new ConfirmationController {
@@ -52,6 +54,7 @@ class ConfirmationControllerSpec extends SCRSSpec with CompanyDetailsFixture wit
 
   val regId = "reg12345"
   val ticketId : Long = 123456789
+  val testUri = Some("uri")
 
   "show" should {
     implicit val hc = HeaderCarrier()
@@ -62,7 +65,7 @@ class ConfirmationControllerSpec extends SCRSSpec with CompanyDetailsFixture wit
       when(mockCompanyRegistrationConnector.retrieveCompanyDetails(Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(Some(validCompanyDetailsResponse)))
 
-      AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector){
+      showWithAuthorisedUser(controller.show) {
         result =>
           status(result) shouldBe OK
       }
@@ -77,7 +80,7 @@ class ConfirmationControllerSpec extends SCRSSpec with CompanyDetailsFixture wit
         "" -> ""
       )
 
-      AuthBuilder.submitWithAuthorisedUser(controller.submitTicket, mockAuthConnector, request) {
+      submitWithAuthorisedUserRetrieval(controller.submitTicket, request, testUri) {
         result =>
           status(result) shouldBe BAD_REQUEST
       }
@@ -92,7 +95,7 @@ class ConfirmationControllerSpec extends SCRSSpec with CompanyDetailsFixture wit
         "message" -> "I can't provide a good email address"
       )
 
-      AuthBuilder.submitWithAuthorisedUser(controller.submitTicket, mockAuthConnector, request) {
+      submitWithAuthorisedUserRetrieval(controller.submitTicket, request, testUri) {
         result =>
           status(result) shouldBe BAD_REQUEST
       }
@@ -107,10 +110,10 @@ class ConfirmationControllerSpec extends SCRSSpec with CompanyDetailsFixture wit
         "message" -> "I can't provide a good email address"
       )
 
-      when(mockDeskproService.submitTicket(Matchers.eq(regId), Matchers.any())(Matchers.any()))
+      when(mockDeskproService.submitTicket(Matchers.eq(regId), Matchers.any(), Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(ticketId))
 
-      AuthBuilder.submitWithAuthorisedUser(controller.submitTicket, mockAuthConnector, request) {
+      submitWithAuthorisedUserRetrieval(controller.submitTicket, request, testUri) {
         result =>
           status(result) shouldBe SEE_OTHER
           redirectLocation(result) shouldBe Some("/register-your-company/ticket-submitted")
@@ -120,7 +123,7 @@ class ConfirmationControllerSpec extends SCRSSpec with CompanyDetailsFixture wit
 
   "submittedTicket" should {
     "return 200" in new Setup {
-      AuthBuilder.showWithAuthorisedUser(controller.submittedTicket, mockAuthConnector) {
+      showWithAuthorisedUser(controller.submittedTicket) {
         (result: Future[Result]) =>
           status(result) shouldBe Status.OK
           contentType(result) shouldBe Some("text/html")
@@ -132,7 +135,7 @@ class ConfirmationControllerSpec extends SCRSSpec with CompanyDetailsFixture wit
   "submit" should {
     "Return a 200" in new Setup {
 
-      AuthBuilder.submitWithAuthorisedUser(controller.submit, mockAuthConnector, FakeRequest().withFormUrlEncodedBody(Nil: _*)) {
+      submitWithAuthorisedUser(controller.submit, FakeRequest().withFormUrlEncodedBody(Nil: _*)) {
         result =>
           status(result) shouldBe SEE_OTHER
           redirectLocation(result) shouldBe Some("/register-your-company/company-registration-overview")
@@ -143,7 +146,7 @@ class ConfirmationControllerSpec extends SCRSSpec with CompanyDetailsFixture wit
   "resubmitPage" should {
     "Return a 200" in new Setup {
 
-      AuthBuilder.submitWithAuthorisedUser(controller.resubmitPage, mockAuthConnector, FakeRequest().withFormUrlEncodedBody(Nil: _*)) {
+      submitWithAuthorisedUser(controller.resubmitPage, FakeRequest().withFormUrlEncodedBody(Nil: _*)) {
         result =>
           status(result) shouldBe OK
           contentAsString(result) should include(Messages("errorPages.retrySubmission.p2"))
@@ -154,7 +157,7 @@ class ConfirmationControllerSpec extends SCRSSpec with CompanyDetailsFixture wit
   "deskproPage" should {
     "Return a 200" in new Setup {
 
-      AuthBuilder.submitWithAuthorisedUser(controller.deskproPage, mockAuthConnector, FakeRequest().withFormUrlEncodedBody(Nil: _*)) {
+      submitWithAuthorisedUser(controller.deskproPage, FakeRequest().withFormUrlEncodedBody(Nil: _*)) {
         result =>
           status(result) shouldBe OK
           contentAsString(result) should include(Messages("errorPages.failedSubmission.header"))

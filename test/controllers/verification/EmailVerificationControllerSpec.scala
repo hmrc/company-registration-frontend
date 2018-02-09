@@ -18,24 +18,22 @@ package controllers.verification
 
 import akka.actor.ActorSystem
 import akka.stream.{ActorMaterializer, Materializer}
-import akka.util.Timeout
 import builders.AuthBuilder
-import connectors.KeystoreConnector
+import config.FrontendAuthConnector
 import mocks.{CompanyRegistrationConnectorMock, KeystoreMock}
 import org.jsoup.Jsoup
 import org.scalatest.mockito.MockitoSugar
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
-class EmailVerificationControllerSpec extends CompanyRegistrationConnectorMock with UnitSpec with MockitoSugar with WithFakeApplication with KeystoreMock {
+class EmailVerificationControllerSpec extends CompanyRegistrationConnectorMock with UnitSpec with MockitoSugar
+  with WithFakeApplication with KeystoreMock with AuthBuilder {
 
   implicit val system = ActorSystem("test")
 
-  implicit def mat: Materializer = ActorMaterializer()
 
-  val mockAuthConnector = mock[AuthConnector]
+  implicit def mat: Materializer = ActorMaterializer()
 
   class Setup {
     val controller = new EmailVerificationController {
@@ -51,15 +49,17 @@ class EmailVerificationControllerSpec extends CompanyRegistrationConnectorMock w
 
   "verifyShow" should {
     "redirect to sign-in when not logged in" in new Setup {
-      val result = controller.verifyShow(FakeRequest())
-      status(result) shouldBe 303
-      redirectLocation(result) map { _ should include("/gg/sign-in") }
+      showWithUnauthorisedUser(controller.verifyShow) {
+        result =>
+          status(result) shouldBe 303
+          redirectLocation(result) map { _ should include("/gg/sign-in") }
+      }
     }
 
     "display we've sent you an email page" in new Setup {
       val email = "foo@bar.wibble"
       mockKeystoreFetchAndGet("email", Some(email))
-      AuthBuilder.showWithAuthorisedUser(controller.verifyShow, mockAuthConnector)(
+      showWithAuthorisedUser(controller.verifyShow)(
         result => {
           status(result) shouldBe 200
           val document = Jsoup.parse(contentAsString(result))

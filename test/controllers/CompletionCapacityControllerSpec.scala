@@ -17,27 +17,29 @@
 package controllers
 
 import builders.AuthBuilder
+import config.FrontendAuthConnector
 import connectors.{BusinessRegistrationConnector, BusinessRegistrationSuccessResponse}
 import controllers.reg.CompletionCapacityController
 import fixtures.BusinessRegistrationFixture
 import helpers.SCRSSpec
 import mocks.MetricServiceMock
 import models.{AboutYouChoiceForm, BusinessRegistration}
-import org.scalatest.mockito.MockitoSugar
-import org.mockito.Mockito._
 import org.mockito.Matchers
+import org.mockito.Mockito._
+import org.scalatest.mockito.MockitoSugar
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.{MetaDataService, MetricsService}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpReads}
 import uk.gov.hmrc.play.test.WithFakeApplication
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.{ HeaderCarrier, HttpReads }
 
-class CompletionCapacityControllerSpec extends SCRSSpec with WithFakeApplication with MockitoSugar with BusinessRegistrationFixture {
+class CompletionCapacityControllerSpec extends SCRSSpec with WithFakeApplication with MockitoSugar with BusinessRegistrationFixture with AuthBuilder {
 
   val mockBusinessRegConnector = mock[BusinessRegistrationConnector]
   val mockMetaDataService = mock[MetaDataService]
+
 
   class Setup {
     val controller = new CompletionCapacityController {
@@ -52,8 +54,12 @@ class CompletionCapacityControllerSpec extends SCRSSpec with WithFakeApplication
   }
   "The CompletionCapacityController" should {
     "redirect whilst the user is un authorised when sending a GET" in new Setup {
-      val result = controller.show()(FakeRequest())
-      status(result) shouldBe SEE_OTHER
+      showWithUnauthorisedUser(controller.show()) {
+        result => {
+          val response = await(result)
+          status(response) shouldBe SEE_OTHER
+        }
+      }
     }
 
     "display the page whilst the user is authorised but with no registration id in session" in new Setup {
@@ -61,7 +67,7 @@ class CompletionCapacityControllerSpec extends SCRSSpec with WithFakeApplication
       when(mockBusinessRegConnector.retrieveMetadata(Matchers.any[HeaderCarrier](), Matchers.any[HttpReads[BusinessRegistration]]()))
         .thenReturn(Future.successful(BusinessRegistrationSuccessResponse(validBusinessRegistrationResponse)))
 
-      AuthBuilder.showWithAuthorisedUser(controller.show(), mockAuthConnector) {
+      showWithAuthorisedUser(controller.show()) {
         result => {
           val response = await(result)
           status(response) shouldBe SEE_OTHER
@@ -70,14 +76,13 @@ class CompletionCapacityControllerSpec extends SCRSSpec with WithFakeApplication
       }
     }
 
-
     "display the page whilst the user is authorised" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("1"))
       CTRegistrationConnectorMocks.retrieveCTRegistration()
       when(mockBusinessRegConnector.retrieveMetadata(Matchers.any[HeaderCarrier](), Matchers.any[HttpReads[BusinessRegistration]]()))
         .thenReturn(Future.successful(BusinessRegistrationSuccessResponse(validBusinessRegistrationResponse)))
 
-      AuthBuilder.showWithAuthorisedUser(controller.show(), mockAuthConnector) {
+      showWithAuthorisedUser(controller.show()) {
         result =>
           status(result) shouldBe OK
       }
@@ -88,7 +93,7 @@ class CompletionCapacityControllerSpec extends SCRSSpec with WithFakeApplication
       when(mockMetaDataService.updateCompletionCapacity(Matchers.eq(AboutYouChoiceForm("director","")))(Matchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(validBusinessRegistrationResponse))
 
-      AuthBuilder.submitWithAuthorisedUser(controller.submit(), mockAuthConnector, FakeRequest().withFormUrlEncodedBody(
+      submitWithAuthorisedUser(controller.submit(), FakeRequest().withFormUrlEncodedBody(
         "completionCapacity" -> "director",
         "completionCapacityOther" -> ""
       )) {
@@ -103,7 +108,7 @@ class CompletionCapacityControllerSpec extends SCRSSpec with WithFakeApplication
       when(mockMetaDataService.updateCompletionCapacity(Matchers.eq(AboutYouChoiceForm("director","")))(Matchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(validBusinessRegistrationResponse))
 
-      AuthBuilder.submitWithAuthorisedUser(controller.submit(), mockAuthConnector, FakeRequest().withFormUrlEncodedBody(
+      submitWithAuthorisedUser(controller.submit(), FakeRequest().withFormUrlEncodedBody(
         "completionCapacity" -> "director",
         "completionCapacityOther" -> ""
       )) {
@@ -113,7 +118,7 @@ class CompletionCapacityControllerSpec extends SCRSSpec with WithFakeApplication
     }
     "return a 400 if the user has entered invalid data" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("foo"))
-      AuthBuilder.submitWithAuthorisedUser(controller.submit(), mockAuthConnector, FakeRequest().withFormUrlEncodedBody(
+      submitWithAuthorisedUser(controller.submit(), FakeRequest().withFormUrlEncodedBody(
         "complete" -> "director"
       )) {
         result =>
@@ -123,7 +128,7 @@ class CompletionCapacityControllerSpec extends SCRSSpec with WithFakeApplication
   }
   "return a 400 if the user has entered other and ` for data" in new Setup {
     mockKeystoreFetchAndGet("registrationID", Some("foo"))
-    AuthBuilder.submitWithAuthorisedUser(controller.submit(), mockAuthConnector, FakeRequest().withFormUrlEncodedBody(
+    submitWithAuthorisedUser(controller.submit(), FakeRequest().withFormUrlEncodedBody(
       "completionCapacity" -> "other",
       "completionCapacityOther" -> "`"
     )) {

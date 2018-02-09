@@ -18,12 +18,13 @@ package controllers.reg
 
 import config.FrontendAuthConnector
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
-import controllers.auth.SCRSRegime
+import controllers.auth.AuthFunction
 import forms.errors.DeskproForm
-import models.{ConfirmationReferencesSuccessResponse, DESFailureRetriable}
+import models.ConfirmationReferencesSuccessResponse
 import play.api.Logger
+import play.api.mvc.{Action, AnyContent}
 import services.{CommonService, DeskproService, DeskproServiceImpl}
-import uk.gov.hmrc.play.frontend.auth.Actions
+import uk.gov.hmrc.auth.core.retrieve.Retrievals
 import uk.gov.hmrc.play.frontend.controller.FrontendController
 import utils.{MessagesSupport, SCRSExceptions, SessionRegistration}
 import views.html.reg.Confirmation
@@ -37,13 +38,14 @@ object ConfirmationControllerImpl extends ConfirmationController {
   val deskproService = DeskproServiceImpl
 }
 
-trait ConfirmationController extends FrontendController with Actions with SessionRegistration with CommonService with SCRSExceptions with ControllerErrorHandler with MessagesSupport {
+trait ConfirmationController extends FrontendController with AuthFunction with SessionRegistration with CommonService
+  with SCRSExceptions with ControllerErrorHandler with MessagesSupport {
 
   val companyRegistrationConnector: CompanyRegistrationConnector
   val deskproService : DeskproService
 
-  val show = AuthorisedFor(taxRegime = SCRSRegime("first-hand-off"), pageVisibility = GGConfidence).async {
-    implicit user => implicit request =>
+  val show: Action[AnyContent] = Action.async { implicit request =>
+    ctAuthorised {
       for {
         regID <- fetchRegistrationID
         references <- companyRegistrationConnector.fetchConfirmationReferences(regID)
@@ -53,37 +55,44 @@ trait ConfirmationController extends FrontendController with Actions with Sessio
           Logger.error(s"[ConfirmationController] [show] could not find acknowledgement ID for reg ID: $regID")
           InternalServerError(defaultErrorPage)
       }
+    }
   }
 
-  val submit = AuthorisedFor(taxRegime = SCRSRegime("first-hand-off"), pageVisibility = GGConfidence).async {
-    implicit user =>
-      implicit request =>
-        Future.successful(Redirect(controllers.dashboard.routes.DashboardController.show()))
+  val submit: Action[AnyContent] = Action.async { implicit request =>
+    ctAuthorised {
+      Future.successful(Redirect(controllers.dashboard.routes.DashboardController.show()))
+    }
   }
 
-  val resubmitPage = AuthorisedFor(taxRegime = SCRSRegime("first-hand-off"), pageVisibility = GGConfidence) {
-    implicit user => implicit request => Ok(views.html.errors.submissionTimeout())
+  val resubmitPage: Action[AnyContent] = Action.async { implicit request =>
+    ctAuthorised {
+      Future.successful(Ok(views.html.errors.submissionTimeout()))
+    }
   }
 
-  val deskproPage = AuthorisedFor(taxRegime = SCRSRegime("first-hand-off"), pageVisibility = GGConfidence) {
-    implicit user => implicit request => Ok(views.html.errors.submissionFailed(DeskproForm.form))
+  val deskproPage: Action[AnyContent] = Action.async { implicit request =>
+    ctAuthorised {
+      Future.successful(Ok(views.html.errors.submissionFailed(DeskproForm.form)))
+    }
   }
 
-  val submitTicket = AuthorisedFor(taxRegime = SCRSRegime("first-hand-off"), pageVisibility = GGConfidence).async {
-    implicit user => implicit request =>
+  val submitTicket: Action[AnyContent] = Action.async { implicit request =>
+    ctAuthorisedOptStr(Retrievals.userDetailsUri) { uri =>
       fetchRegistrationID.flatMap(regID =>
         DeskproForm.form.bindFromRequest.fold(
           errors => Future.successful(BadRequest(views.html.errors.submissionFailed(errors))),
-          success => deskproService.submitTicket(regID, success) map {
+          success => deskproService.submitTicket(regID, success, uri) map {
             _ => Redirect(controllers.reg.routes.ConfirmationControllerImpl.submittedTicket())
           }
         )
       )
+    }
   }
 
-  val submittedTicket = AuthorisedFor(taxRegime = SCRSRegime("first-hand-off"), pageVisibility = GGConfidence).async {
-    implicit user => implicit request =>
+  val submittedTicket: Action[AnyContent] = Action.async { implicit request =>
+    ctAuthorised {
       Future.successful(Ok(views.html.errors.deskproSubmitted()))
+    }
   }
 
 }

@@ -16,17 +16,14 @@
 
 package controllers.test
 
-import javax.inject.{Inject, Singleton}
-
 import config.WSHttp
-import play.api.Application
 import play.api.libs.json.JsValue
 import play.api.mvc.Action
+import uk.gov.hmrc.http.{HeaderCarrier, HttpGet}
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.frontend.controller.FrontendController
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.{ HeaderCarrier, HttpGet }
 
 
 object CTMongoTestController extends CTMongoTestController with ServicesConfig {

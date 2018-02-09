@@ -18,11 +18,10 @@ package controllers.handoff
 
 import config.FrontendAuthConnector
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
-import controllers.auth.SCRSHandOffRegime
+import controllers.auth.AuthFunction
 import play.api.Logger
 import play.api.mvc.{Action, AnyContent}
 import services.{HandBackService, NavModelNotFoundException}
-import uk.gov.hmrc.play.frontend.auth.Actions
 import uk.gov.hmrc.play.frontend.controller.FrontendController
 import utils.{DecryptionError, MessagesSupport, PayloadError, SessionRegistration}
 import views.html.error_template_restart
@@ -37,15 +36,15 @@ object CorporationTaxSummaryController extends CorporationTaxSummaryController {
 
 }
 
-trait CorporationTaxSummaryController extends FrontendController with Actions with MessagesSupport with SessionRegistration {
+trait CorporationTaxSummaryController extends FrontendController with AuthFunction with MessagesSupport with SessionRegistration {
 
   val handBackService : HandBackService
 
   //HO4
-  def corporationTaxSummary(requestData : String) : Action[AnyContent] = AuthorisedFor(taxRegime = SCRSHandOffRegime("HO4", requestData), pageVisibility = GGConfidence).async {
-    implicit user =>
-      implicit request =>
-        registeredHandOff("HO4", requestData){ _ =>
+  def corporationTaxSummary(requestData : String) : Action[AnyContent] = Action.async {
+    implicit _request =>
+      ctAuthorisedHandoff("HO4", requestData) {
+        registeredHandOff("HO4", requestData) { _ =>
           handBackService.processSummaryPage1HandBack(requestData).map {
             case Success(_) => Redirect(controllers.reg.routes.SummaryController.show())
             case Failure(PayloadError) => BadRequest(error_template_restart("4", "PayloadError"))
@@ -58,5 +57,6 @@ trait CorporationTaxSummaryController extends FrontendController with Actions wi
             case ex: NavModelNotFoundException => Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))
           }
         }
+      }
   }
 }

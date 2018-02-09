@@ -16,35 +16,11 @@
 
 package services
 
-import config.{FrontendAppConfig, FrontendAuthConnector, WSHttp}
-import models.Enrolments
-import play.api.libs.json.JsArray
-import uk.gov.hmrc.play.frontend.auth.AuthContext
-import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
+import config.FrontendAppConfig
+import uk.gov.hmrc.auth.core.Enrolments
 
-import scala.concurrent.Future
-import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
-import uk.gov.hmrc.http.{CoreGet, HeaderCarrier, HttpGet, HttpReads}
-
-object EnrolmentsService extends EnrolmentsService {
-  val authConnector = FrontendAuthConnector
-  val http = WSHttp
-}
+object EnrolmentsService extends EnrolmentsService
 
 trait EnrolmentsService extends {
-
-  val authConnector : AuthConnector
-  val http : HttpGet with CoreGet
-
-  def hasBannedRegimes(user : AuthContext)(implicit hc : HeaderCarrier, reads : HttpReads[List[Enrolments]]) : Future[Boolean] = {
-    authConnector.getEnrolments[JsArray](user) map {
-      jsArr =>
-        val enrolments = jsArr.value.map(_.as[Enrolments]).map(_.enrolment)
-        hasAnyEnrolments(enrolments, FrontendAppConfig.restrictedEnrolments)
-    }
-  }
-
-  private[services] def hasAnyEnrolments(currentEnrolments: Seq[String], checkEnrolments: Seq[String]) = {
-    currentEnrolments.exists(e => checkEnrolments.contains(e))
-  }
+  def hasBannedRegimes(enrolments: Enrolments) : Boolean = enrolments.enrolments.exists(e => FrontendAppConfig.restrictedEnrolments.contains(e.key))
 }

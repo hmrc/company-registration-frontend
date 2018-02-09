@@ -26,18 +26,19 @@ import fixtures.{AccountingDetailsFixture, CorporationTaxFixture, SCRSFixtures, 
 import helpers.SCRSSpec
 import models._
 import models.handoff._
-import play.api.test.FakeRequest
-import play.api.test.Helpers._
-import services.MetaDataService
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import play.api.libs.json.{JsObject, Json}
+import play.api.test.FakeRequest
+import play.api.test.Helpers._
+import services.MetaDataService
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.WithFakeApplication
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.HeaderCarrier
 
-class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with WithFakeApplication with AccountingDetailsFixture with TradingDetailsFixtures with CorporationTaxFixture {
+class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with WithFakeApplication with AccountingDetailsFixture with TradingDetailsFixtures
+  with CorporationTaxFixture with AuthBuilder {
 
   val mockMetaDataService = mock[MetaDataService]
 
@@ -92,7 +93,7 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with WithFakeAppl
   "Sending a GET request to Summary Controller" should {
 
     "return a 303 and redirect to the sign in page for an unauthorised user" in new Setup {
-      AuthBuilder.showWithUnauthorisedUser(controller.show){
+      showWithUnauthorisedUser(controller.show) {
         result =>
           status(result) shouldBe 303
           redirectLocation(result) shouldBe Some(authUrl)
@@ -117,7 +118,7 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with WithFakeAppl
       when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(corporationTaxModel))
 
-      AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector){
+      showWithAuthorisedUser(controller.show) {
         result =>
           status(result) shouldBe OK
       }
@@ -127,7 +128,7 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with WithFakeAppl
   "Post to the Summary Controller" should {
     "return a 303 whilst authorised " in new Setup {
       val request = FakeRequest().withFormUrlEncodedBody()
-      AuthBuilder.submitWithAuthorisedUser(controller.submit, mockAuthConnector, request){
+      submitWithAuthorisedUser(controller.submit, request){
         result =>
           status(result) shouldBe SEE_OTHER
           redirectLocation(result) shouldBe Some("/register-your-company/incorporation-summary")
@@ -139,12 +140,10 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with WithFakeAppl
     "redirect to post sign in if no navModel exists" in new Setup {
       when(mockKeystoreConnector.fetchAndGet[String](Matchers.eq("registrationID"))(Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(Some("12354")))
-      when(mockHandOffService.externalUserId(Matchers.any(), Matchers.any()))
-        .thenReturn(Future.successful("EXT-123456"))
       when(mockKeystoreConnector.fetchAndGet[HandOffNavModel](Matchers.eq("HandOffNavigation"))(Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(None))
       mockGetNavModel(None)
-      AuthBuilder.showWithAuthorisedUser(controller.back(), mockAuthConnector){
+      showWithAuthorisedUserRetrieval(controller.back, Some("extID")) {
         res =>
           status(res) shouldBe SEE_OTHER
           redirectLocation(res) shouldBe Some("/register-your-company/post-sign-in")
@@ -157,16 +156,14 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with WithFakeAppl
       when(mockKeystoreConnector.fetchAndGet[String](Matchers.eq("registrationID"))(Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(Some("12354")))
       mockGetNavModel(None)
-      when(mockHandOffService.externalUserId(Matchers.any(), Matchers.any()))
-        .thenReturn(Future.successful("EXT-123456"))
 
       when(mockKeystoreConnector.fetchAndGet[HandOffNavModel](Matchers.eq("HandOffNavigation"))(Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(Some(handOffNavModel)))
 
-      when(mockHandOffService.buildBackHandOff(Matchers.any(), Matchers.any()))
+      when(mockHandOffService.buildBackHandOff(Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(BackHandoff("EXT-123456", "12354", Json.obj(), Json.obj(), Json.obj())))
 
-      AuthBuilder.submitWithAuthorisedUser(controller.back, mockAuthConnector, request){
+      submitWithAuthorisedUserRetrieval(controller.back, request, Some("extID")){
         result =>
           status(result) shouldBe SEE_OTHER
       }
@@ -188,12 +185,10 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with WithFakeAppl
       mockGetNavModel(None)
       when(mockKeystoreConnector.fetchAndGet[String](Matchers.eq("registrationID"))(Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(Some("12354")))
-      when(mockHandOffService.externalUserId(Matchers.any(), Matchers.any()))
-        .thenReturn(Future.successful("EXT-123456"))
       when(mockKeystoreConnector.fetchAndGet[HandOffNavModel](Matchers.eq("HandOffNavigation"))(Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(Some(navModel)))
 
-      AuthBuilder.showWithAuthorisedUser(controller.summaryBackLink("testJumpKey"), mockAuthConnector){
+      showWithAuthorisedUserRetrieval(controller.summaryBackLink("testJumpKey"), Some("extID")) {
         res =>
           status(res) shouldBe SEE_OTHER
       }
@@ -208,11 +203,9 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with WithFakeAppl
       mockGetNavModel(None)
       when(mockKeystoreConnector.fetchAndGet[String](Matchers.eq("registrationID"))(Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(Some("12354")))
-      when(mockHandOffService.externalUserId(Matchers.any(), Matchers.any()))
-        .thenReturn(Future.successful("EXT-123456"))
       when(mockNavModelRepoObj.getNavModel("12354"))
         .thenReturn(Future.successful(Some(navModel)))
-      AuthBuilder.showWithAuthorisedUser(controller.summaryBackLink("testJumpKey"), mockAuthConnector){
+      showWithAuthorisedUserRetrieval(controller.summaryBackLink("testJumpKey"), Some("extID")) {
         res =>
           val ex = intercept[NoSuchElementException](status(res) shouldBe SEE_OTHER)
           ex.getMessage shouldBe "key not found: testJumpKey"

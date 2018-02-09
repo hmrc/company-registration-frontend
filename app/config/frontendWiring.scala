@@ -19,18 +19,18 @@ package config
 import akka.actor.ActorSystem
 import akka.stream.{ActorMaterializer, Materializer}
 import play.api.mvc.Call
+import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.crypto.ApplicationCrypto
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.http.cache.client.{SessionCache, ShortLivedCache, ShortLivedHttpCaching}
+import uk.gov.hmrc.http.hooks.HttpHooks
+import uk.gov.hmrc.play.audit.http.HttpAuditing
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector => Auditing}
 import uk.gov.hmrc.play.config.{AppName, RunMode, ServicesConfig}
-import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
-import uk.gov.hmrc.play.audit.http.HttpAuditing
+import uk.gov.hmrc.play.frontend.config.LoadAuditingConfig
 import uk.gov.hmrc.play.http.ws._
-import uk.gov.hmrc.http.hooks.HttpHooks
 import uk.gov.hmrc.play.partials.CachedStaticHtmlPartialRetriever
 import uk.gov.hmrc.whitelist.AkamaiWhitelistFilter
-import uk.gov.hmrc.play.frontend.config.LoadAuditingConfig
 
 
 trait Hooks extends HttpHooks with HttpAuditing {
@@ -50,9 +50,9 @@ trait WSHttp extends
 object FrontendAuditConnector extends Auditing with AppName with RunMode {
   override lazy val auditingConfig = LoadAuditingConfig(s"auditing")
 }
-object FrontendAuthConnector extends AuthConnector with ServicesConfig with WSHttp {
+object FrontendAuthConnector extends PlayAuthConnector with ServicesConfig with WSHttp {
   override val serviceUrl = baseUrl("auth")
-  override def http: CoreGet = WSHttp
+  override def http: CorePost = WSHttp
 }
 
 object WSHttpProxy extends WSHttp with WSProxy with RunMode with HttpAuditing with ServicesConfig {

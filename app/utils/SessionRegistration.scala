@@ -16,18 +16,14 @@
 
 package utils
 
-import play.api.libs.json.JsValue
-import play.api.mvc.{Result, Results}
-import play.api.Logger
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
-import controllers.handoff.routes
-import controllers.reg.SignInOutController
+import play.api.Logger
+import play.api.mvc.Result
 import play.api.mvc.Results.Redirect
-import uk.gov.hmrc.play.audit.http.connector.AuditResult.Success
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.HeaderCarrier
 
 trait SessionRegistration {
 
@@ -54,10 +50,9 @@ trait SessionRegistration {
         ctReg =>
           if(statuses.contains((ctReg \ "status").as[String])) {
             Future.successful(Redirect(controllers.reg.routes.SignInOutController.postSignIn(None)))
+          } else {
+            f(regId)
           }
-          else {
-              f(regId)
-            }
       }
       }
   }

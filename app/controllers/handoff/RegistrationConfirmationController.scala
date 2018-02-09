@@ -18,23 +18,18 @@ package controllers.handoff
 
 import config.FrontendAuthConnector
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
-import controllers.handoff.HO6AuthenticationProvider.RegistrationConfirmationController
-import forms.errors.DeskproForm
-import models.handoff.PaymentHandoff
-import models.{ConfirmationReferencesSuccessResponse, DESFailureDeskpro, DESFailureRetriable, RegistrationConfirmationPayload}
+import controllers.auth.AuthFunction
+import models.{ConfirmationReferencesSuccessResponse, DESFailureRetriable}
 import play.api.Logger
 import play.api.mvc.{Action, AnyContent, Request, Result}
 import services.{HandBackService, HandOffService, HandOffServiceImpl, NavModelNotFoundException}
-import uk.gov.hmrc.play.frontend.auth.connectors.domain.Accounts
-import uk.gov.hmrc.play.frontend.auth._
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.frontend.controller.FrontendController
 import utils._
 import views.html.{error_template, error_template_restart}
-import play.api.mvc.Results.Redirect
 
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
-import uk.gov.hmrc.http.HeaderCarrier
 
 object RegistrationConfirmationController extends RegistrationConfirmationController {
   val authConnector = FrontendAuthConnector
@@ -44,61 +39,46 @@ object RegistrationConfirmationController extends RegistrationConfirmationContro
   val companyRegistrationConnector = CompanyRegistrationConnector
 }
 
-object  HO6AuthenticationProvider extends GovernmentGateway {
-  override val continueURL: String = ""
-  override val loginURL: String = ""
+trait RegistrationConfirmationController extends FrontendController with AuthFunction with MessagesSupport with SessionRegistration {
 
-  override def redirectToLogin(implicit request: Request[_]) = Future.successful(Redirect(controllers.reg.routes.IncompleteRegistrationController.show))
+  val handBackService: HandBackService
+  val handOffService: HandOffService
 
-
-  case class HO6Regime(redirectUrl: String) extends TaxRegime {
-    override def isAuthorised(accounts: Accounts): Boolean = true
-
-    //accounts.ct.isDefined
-    override def authenticationType: AuthenticationProvider = HO6AuthenticationProvider
-  }
-
-  trait RegistrationConfirmationController extends FrontendController with Actions with MessagesSupport with SessionRegistration {
-
-    val handBackService: HandBackService
-    val handOffService: HandOffService
-
-    //HO5.1 & old HO6
-    def registrationConfirmation(requestData: String): Action[AnyContent] = AuthorisedFor(taxRegime = HO6Regime(""), pageVisibility = GGConfidence).async {
-      implicit user =>
-        implicit request =>
-          registered {
-            regid =>
-              handBackService.decryptConfirmationHandback(requestData) flatMap {
-                case Success(s) => handBackService.storeConfirmationHandOff(s, regid).flatMap {
-                  case _ if handBackService.payloadHasForwardLinkAndNoPaymentRefs(s) => getPaymentHandoffResult
-                  case ConfirmationReferencesSuccessResponse(_) => Future.successful(Redirect(controllers.reg.routes.ConfirmationControllerImpl.show()))
-                  case DESFailureRetriable => Future.successful(Redirect(controllers.reg.routes.ConfirmationControllerImpl.resubmitPage()))
-                  case _ => Future.successful(Redirect(controllers.reg.routes.ConfirmationControllerImpl.deskproPage()))
-                }
-                case Failure(DecryptionError) => Future.successful(BadRequest(error_template_restart("6", "DecryptionError")))
-                case unknown => Future.successful{
-                  Logger.warn(s"[RegistrationConfirmationController][registrationConfirmation] HO6 Unexpected result, sending to post-sign-in : ${unknown}")
-                  Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))
-                }
-              } recover {
-                case _: NavModelNotFoundException =>
-                  Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))
+  //HO5.1 & old HO6
+  def registrationConfirmation(requestData: String): Action[AnyContent] = Action.async {
+    implicit request =>
+      ctAuthorisedExternalIDIncomplete { externalID =>
+        registered {
+          regid =>
+            handBackService.decryptConfirmationHandback(requestData) flatMap {
+              case Success(s) => handBackService.storeConfirmationHandOff(s, regid).flatMap {
+                case _ if handBackService.payloadHasForwardLinkAndNoPaymentRefs(s) => getPaymentHandoffResult(externalID)
+                case ConfirmationReferencesSuccessResponse(_) => Future.successful(Redirect(controllers.reg.routes.ConfirmationControllerImpl.show()))
+                case DESFailureRetriable => Future.successful(Redirect(controllers.reg.routes.ConfirmationControllerImpl.resubmitPage()))
+                case _ => Future.successful(Redirect(controllers.reg.routes.ConfirmationControllerImpl.deskproPage()))
               }
-          }
-    }
-
-    def paymentConfirmation(requestData: String): Action[AnyContent] = {
-      Logger.info("[RegistrationConfirmationController][paymentConfirmation] New Handoff 6")
-      registrationConfirmation(requestData)
-    }
-
-    private def getPaymentHandoffResult(implicit hc: HeaderCarrier, ac: AuthContext, request: Request[AnyContent]): Future[Result] = {
-      handOffService.buildPaymentConfirmationHandoff.map {
-        case Some((url, payloadString)) => Redirect(handOffService.buildHandOffUrl(url, payloadString))
-        case None => BadRequest(error_template("", "", ""))
+              case Failure(DecryptionError) => Future.successful(BadRequest(error_template_restart("6", "DecryptionError")))
+              case unknown => Future.successful {
+                Logger.warn(s"[RegistrationConfirmationController][registrationConfirmation] HO6 Unexpected result, sending to post-sign-in : ${unknown}")
+                Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))
+              }
+            } recover {
+              case _: NavModelNotFoundException =>
+                Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))
+            }
+        }
       }
-    }
   }
 
+  def paymentConfirmation(requestData: String): Action[AnyContent] = {
+    Logger.info("[RegistrationConfirmationController][paymentConfirmation] New Handoff 6")
+    registrationConfirmation(requestData)
+  }
+
+  private def getPaymentHandoffResult(externalID: Option[String])(implicit hc: HeaderCarrier, request: Request[AnyContent]): Future[Result] = {
+    handOffService.buildPaymentConfirmationHandoff(externalID).map {
+      case Some((url, payloadString)) => Redirect(handOffService.buildHandOffUrl(url, payloadString))
+      case None => BadRequest(error_template("", "", ""))
+    }
+  }
 }

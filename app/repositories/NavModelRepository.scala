@@ -19,10 +19,10 @@ package repositories
 import javax.inject.{Inject, Singleton}
 
 import models.handoff.HandOffNavModel
+import play.api.libs.json.JsObject
 import play.modules.reactivemongo.{MongoDbConnection, ReactiveMongoComponent}
 import reactivemongo.api.DB
-import reactivemongo.api.indexes.{Index, IndexType}
-import reactivemongo.bson.{BSONArray, BSONDocument, BSONInteger, BSONObjectID}
+import reactivemongo.bson.{BSONArray, BSONDocument, BSONObjectID}
 import uk.gov.hmrc.mongo.ReactiveRepository
 import uk.gov.hmrc.play.config.ServicesConfig
 
@@ -63,7 +63,7 @@ class NavModelRepoMongo(mongo: () => DB) extends ReactiveRepository[HandOffNavMo
     collection.find(selector).one[HandOffNavModel](HandOffNavModel.mongoReads, implicitly[ExecutionContext])
   }
 
-  override def insertNavModel(registrationID: String,hm:HandOffNavModel): Future[Option[HandOffNavModel]] = {
+  override def insertNavModel(registrationID: String, hm : HandOffNavModel): Future[Option[HandOffNavModel]] = {
     //val selector = BSONDocument("_id" -> registrationID)
     val selector = BSONDocument(
       "$or" -> BSONArray(
@@ -71,8 +71,9 @@ class NavModelRepoMongo(mongo: () => DB) extends ReactiveRepository[HandOffNavMo
         BSONDocument("_id"            -> registrationID)
       )
     )
-    val js = HandOffNavModel.mongoWrites(registrationID).writes(hm)
-    collection.findAndUpdate(selector,js,upsert = true, fetchNewObject = true).map{
+    val js: JsObject = HandOffNavModel.mongoWrites(registrationID).writes(hm)
+
+    collection.findAndUpdate(selector, js, upsert = true, fetchNewObject = true).map{
       s => s.result[HandOffNavModel](HandOffNavModel.mongoReads)
     }
   }

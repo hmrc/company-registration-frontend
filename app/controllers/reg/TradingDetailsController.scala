@@ -18,14 +18,14 @@ package controllers.reg
 
 import config.FrontendAuthConnector
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
-import controllers.auth.SCRSRegime
+import controllers.auth.AuthFunction
 import forms.TradingDetailsForm
 import models.{TradingDetailsErrorResponse, TradingDetailsForbiddenResponse, TradingDetailsNotFoundResponse, TradingDetailsSuccessResponse}
+import play.api.mvc.Action
 import services.{MetricsService, TradingDetailsService}
-import uk.gov.hmrc.play.frontend.auth.Actions
 import uk.gov.hmrc.play.frontend.controller.FrontendController
-import views.html.reg.TradingDetailsView
 import utils.{MessagesSupport, SessionRegistration}
+import views.html.reg.TradingDetailsView
 
 import scala.concurrent.Future
 
@@ -37,27 +37,26 @@ object TradingDetailsController extends TradingDetailsController {
   val keystoreConnector = KeystoreConnector
 }
 
-trait TradingDetailsController extends FrontendController with Actions with ControllerErrorHandler with SessionRegistration with MessagesSupport {
+trait TradingDetailsController extends FrontendController with AuthFunction with ControllerErrorHandler with SessionRegistration with MessagesSupport {
 
   val tradingDetailsService : TradingDetailsService
   val metricsService: MetricsService
 
-  val show = AuthorisedFor(taxRegime = SCRSRegime("trading-details"), pageVisibility = GGConfidence).async {
-    implicit user =>
-      implicit request =>
-        checkStatus { regID =>
-          for {
-            tradingDetails <- tradingDetailsService.retrieveTradingDetails(regID)
-          } yield {
-            Ok(TradingDetailsView(TradingDetailsForm.form.fill(tradingDetails)))
-          }
+  val show = Action.async { implicit request =>
+    ctAuthorised {
+      checkStatus { regID =>
+        for {
+          tradingDetails <- tradingDetailsService.retrieveTradingDetails(regID)
+        } yield {
+          Ok(TradingDetailsView(TradingDetailsForm.form.fill(tradingDetails)))
         }
+      }
+    }
   }
 
-  val submit = AuthorisedFor(taxRegime = SCRSRegime("trading-details"), pageVisibility = GGConfidence).async {
-    implicit user =>
-      implicit request =>
-        registered{a =>
+  val submit = Action.async { implicit request =>
+    ctAuthorised {
+      registered { a =>
         TradingDetailsForm.form.bindFromRequest.fold(
           errors => Future.successful(BadRequest(TradingDetailsView(errors))),
           payments => {
@@ -78,6 +77,7 @@ trait TradingDetailsController extends FrontendController with Actions with Cont
             }
           }
         )
+      }
+    }
   }
-}
 }

@@ -17,21 +17,24 @@
 package controllers
 
 import builders.AuthBuilder
+import config.FrontendAuthConnector
 import controllers.dashboard.DashboardController
 import helpers.SCRSSpec
-import models._
+import models.{Dashboard, IncorpAndCTDashboard, ServiceDashboard, ServiceLinks}
+import org.mockito.Matchers.{any, eq => eqTo}
+import org.mockito.Mockito._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.{CouldNotBuild, DashboardBuilt, DashboardService, RejectedIncorp}
-import org.mockito.Mockito._
-import org.mockito.Matchers.{any, eq => eqTo}
+import uk.gov.hmrc.auth.core.Enrolments
 import uk.gov.hmrc.play.test.WithFakeApplication
 
 import scala.concurrent.Future
 
-class DashboardControllerSpec extends SCRSSpec with WithFakeApplication {
+class DashboardControllerSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
 
   val mockDashboardService = mock[DashboardService]
+
 
   class Setup {
 
@@ -61,10 +64,10 @@ class DashboardControllerSpec extends SCRSSpec with WithFakeApplication {
 
     "return a 200 and render the dashboard view" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some(regId))
-      when(mockDashboardService.buildDashboard(eqTo(regId))(any(), any()))
+      when(mockDashboardService.buildDashboard(eqTo(regId), any())(any()))
         .thenReturn(Future.successful(DashboardBuilt(dashboard)))
 
-      AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
+      showWithAuthorisedUserRetrieval(controller.show, Enrolments(Set())) {
         fRes =>
           val res = await(fRes)
           status(res) shouldBe 200
@@ -74,10 +77,10 @@ class DashboardControllerSpec extends SCRSSpec with WithFakeApplication {
 
     "return a 200 and render the Registration unsuccessful view when the users incorporation is rejected" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some(regId))
-      when(mockDashboardService.buildDashboard(eqTo(regId))(any(), any()))
+      when(mockDashboardService.buildDashboard(eqTo(regId), any())(any()))
         .thenReturn(Future.successful(RejectedIncorp))
 
-      AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
+      showWithAuthorisedUserRetrieval(controller.show, Enrolments(Set())) {
         fRes =>
           val res = await(fRes)
           status(res) shouldBe 200
@@ -87,10 +90,10 @@ class DashboardControllerSpec extends SCRSSpec with WithFakeApplication {
 
     "return a 303 and redirect to HO1 if the dashboard case class could not be created, i.e. the ct document is in draft" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some(regId))
-      when(mockDashboardService.buildDashboard(eqTo(regId))(any(), any()))
+      when(mockDashboardService.buildDashboard(eqTo(regId), any())(any()))
         .thenReturn(Future.successful(CouldNotBuild))
 
-      AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
+      showWithAuthorisedUserRetrieval(controller.show, Enrolments(Set())) {
         fRes =>
           val res = await(fRes)
           status(res) shouldBe 303
@@ -100,10 +103,10 @@ class DashboardControllerSpec extends SCRSSpec with WithFakeApplication {
 
     "return a 500 if build dashboard returns something unexpected" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some(regId))
-      when(mockDashboardService.buildDashboard(eqTo(regId))(any(), any()))
+      when(mockDashboardService.buildDashboard(eqTo(regId), any())(any()))
         .thenReturn(Future.failed(new RuntimeException("")))
 
-      AuthBuilder.showWithAuthorisedUser(controller.show, mockAuthConnector) {
+      showWithAuthorisedUserRetrieval(controller.show, Enrolments(Set())) {
         fRes =>
           val res = await(fRes)
           status(res) shouldBe 500

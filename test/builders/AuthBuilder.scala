@@ -16,67 +16,74 @@
 
 package builders
 
-import java.util.UUID
-
-import models.UserIDs
 import org.mockito.Matchers
-import org.mockito.Mockito._
+import org.mockito.Mockito.when
+import org.scalatest.mockito.MockitoSugar
 import play.api.mvc._
 import play.api.test.FakeRequest
-import uk.gov.hmrc.play.frontend.auth.AuthContext
-import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
-import uk.gov.hmrc.play.frontend.auth.connectors.domain._
+import uk.gov.hmrc.auth.core.authorise.Predicate
+import uk.gov.hmrc.auth.core.retrieve.Retrieval
+import uk.gov.hmrc.auth.core.{IncorrectCredentialStrength, MissingBearerToken, PlayAuthConnector}
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
-object AuthBuilder extends AuthBuilder {}
+trait AuthBuilder extends MockitoSugar {
 
-trait AuthBuilder {
+  val mockAuthConnector: PlayAuthConnector = mock[PlayAuthConnector]
+  val userId = "testUserId"
 
-  def mockAuthorisedUser(userId: String, mockAuthConnector : AuthConnector, accounts: Accounts = Accounts()) {
-    when(mockAuthConnector.currentAuthority(Matchers.any(), Matchers.any[ExecutionContext])) thenReturn {
-      Future.successful(Some(createUserAuthority(userId, accounts)))
+  def mockAuthorisedUser[A](future: Future[A]) {
+    when(mockAuthConnector.authorise[A](Matchers.any[Predicate](), Matchers.any[Retrieval[A]]())(Matchers.any(), Matchers.any())) thenReturn {
+      future
     }
   }
 
-  def mockUnauthorisedUser(userId: String, mockAuthConnector : AuthConnector) {
-    when(mockAuthConnector.currentAuthority(Matchers.any(), Matchers.any[ExecutionContext])) thenReturn {
-      Future.successful(None)
+  def mockUnauthorisedUser() {
+    when(mockAuthConnector.authorise[Unit](Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())) thenReturn {
+      Future.failed(MissingBearerToken(""))
+    }
+  }
+
+  def mockAuthFailure() {
+    when(mockAuthConnector.authorise[Unit](Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())) thenReturn {
+      Future.failed(IncorrectCredentialStrength(""))
     }
   }
 
   def showWithUnauthorisedUser(action: Action[AnyContent])(test: Future[Result] => Any) {
+    mockAuthorisedUser(Future.failed(MissingBearerToken("")))
     val result = action.apply()(FakeRequest())
     test(result)
   }
 
-  def showWithAuthorisedUser(action: Action[AnyContent], mockAuthConnector: AuthConnector)(test: Future[Result] => Any) {
-    val userId = "testUserId"
-    mockAuthorisedUser(userId, mockAuthConnector)
+  def showWithAuthorisedUser(action: Action[AnyContent])(test: Future[Result] => Any) {
+    mockAuthorisedUser(Future.successful({}))
     val result = action.apply(SessionBuilder.buildRequestWithSession(userId))
     test(result)
   }
 
-  def submitWithUnauthorisedUser(action: Action[AnyContent], mockAuthConnector: AuthConnector, request: FakeRequest[AnyContentAsFormUrlEncoded])(test: Future[Result] => Any) {
-    when(mockAuthConnector.currentAuthority(Matchers.any(), Matchers.any[ExecutionContext])).thenReturn(Future.successful(None))
+  def showWithAuthorisedUserRetrieval[A](action: Action[AnyContent], returnValue : A)(test: Future[Result] => Any) {
+    mockAuthorisedUser(Future.successful(returnValue))
+    val result = action.apply(SessionBuilder.buildRequestWithSession(userId))
+    test(result)
+  }
+
+  def submitWithUnauthorisedUser(action: Action[AnyContent], request: FakeRequest[AnyContentAsFormUrlEncoded])(test: Future[Result] => Any) {
+    mockAuthorisedUser(Future.failed(MissingBearerToken("")))
     val result = action.apply(SessionBuilder.updateRequestFormWithSession(request, ""))
     test(result)
   }
 
-  def submitWithAuthorisedUser(action: Action[AnyContent], mockAuthConnector: AuthConnector, request: FakeRequest[AnyContentAsFormUrlEncoded])(test: Future[Result] => Any) {
-    val userId = "testUserId"
-    AuthBuilder.mockAuthorisedUser(userId, mockAuthConnector)
+  def submitWithAuthorisedUser(action: Action[AnyContent], request: FakeRequest[AnyContentAsFormUrlEncoded])(test: Future[Result] => Any) {
+    mockAuthorisedUser(Future.successful({}))
     val result = action.apply(SessionBuilder.updateRequestFormWithSession(request, userId))
     test(result)
   }
 
-  def createTestUser: AuthContext = {
-    AuthContext.apply(createUserAuthority("testUserId"))
-  }
-
-  def createTestIds = UserIDs(UUID.randomUUID().toString, UUID.randomUUID().toString)
-
-  private[builders] def createUserAuthority(userId: String, accounts: Accounts = Accounts()): Authority = {
-    Authority(userId, accounts, None, None, CredentialStrength.Weak, ConfidenceLevel.L50, None, Some("testEnrolmentUri"), None, "")
+  def submitWithAuthorisedUserRetrieval[A](action: Action[AnyContent], request: FakeRequest[AnyContentAsFormUrlEncoded], returnValue : A)
+                                          (test: Future[Result] => Any) {
+    mockAuthorisedUser(Future.successful(returnValue))
+    val result = action.apply(SessionBuilder.updateRequestFormWithSession(request, userId))
+    test(result)
   }
 }

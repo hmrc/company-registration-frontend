@@ -16,19 +16,20 @@
 
 package services
 
-import audit.events.{ContactDetailsAuditEventDetail, ContactDetailsAuditEvent}
+import audit.events.{ContactDetailsAuditEvent, ContactDetailsAuditEventDetail}
 import config.{FrontendAuditConnector, FrontendAuthConnector}
 import connectors._
 import models._
+import models.auth.CompanyContactAuthDetails
 import play.api.mvc.{AnyContent, Request}
-import uk.gov.hmrc.play.audit.http.connector.{AuditResult, AuditConnector}
-import uk.gov.hmrc.play.frontend.auth.AuthContext
-import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
+import uk.gov.hmrc.auth.core.AuthConnector
+import uk.gov.hmrc.auth.core.retrieve.Credentials
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
+import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 import utils.SCRSExceptions
 
 import scala.concurrent.Future
-import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
-import uk.gov.hmrc.http.HeaderCarrier
 
 object CompanyContactDetailsService extends CompanyContactDetailsService {
   val businessRegConnector = BusinessRegistrationConnector
@@ -40,27 +41,24 @@ object CompanyContactDetailsService extends CompanyContactDetailsService {
 }
 
 trait CompanyContactDetailsService extends CommonService with SCRSExceptions {
-
   val businessRegConnector: BusinessRegistrationConnector
   val companyRegistrationConnector: CompanyRegistrationConnector
-  val authConnector: AuthConnector
   val auditConnector: AuditConnector
   val platformAnalyticsConnector: PlatformAnalyticsConnector
 
-  def fetchContactDetails(implicit user: AuthContext, hc: HeaderCarrier): Future[CompanyContactViewModel] = {
+  def fetchContactDetails(basicAuth : CompanyContactAuthDetails)(implicit hc: HeaderCarrier): Future[CompanyContactViewModel] = {
     fetchRegistrationID flatMap {
       companyRegistrationConnector.retrieveContactDetails
     } flatMap {
       case CompanyContactDetailsSuccessResponse(details) => Future.successful(CompanyContactDetails.toViewModel(details))
-      case _ => authConnector.getUserDetails[UserDetailsModel](user).flatMap{ userDetails =>
-        isEmailValid(userDetails.email) match {
-          case true => Future.successful(CompanyContactViewModel(s"${userDetails.name} ${userDetails.lastName.getOrElse("")}", Some(userDetails.email), None, None))
-          case false =>
-            platformAnalyticsConnector.sendEvents(GAEvents.invalidDESEmailFromUserDetails).map { _ =>
-              CompanyContactViewModel(s"${userDetails.name} ${userDetails.lastName.getOrElse("")}", None, None, None)
-            }
+      case _ =>
+        if (isEmailValid(basicAuth.email)) {
+          Future.successful(CompanyContactViewModel(s"${basicAuth.name} ${basicAuth.lastName.getOrElse("")}", Some(basicAuth.email), None, None))
+        } else {
+          platformAnalyticsConnector.sendEvents(GAEvents.invalidDESEmailFromUserDetails).map { _ =>
+            CompanyContactViewModel(s"${basicAuth.name} ${basicAuth.lastName.getOrElse("")}", None, None, None)
+          }
         }
-      }
     }
   }
 
@@ -83,23 +81,20 @@ trait CompanyContactDetailsService extends CommonService with SCRSExceptions {
     }
   }
 
-  def checkIfAmendedDetails(userContactDetails: CompanyContactDetails)(implicit hc: HeaderCarrier, user: AuthContext, req: Request[AnyContent]): Future[Boolean] = {
-    authConnector.getUserDetails[UserDetailsModel](user) flatMap {
-      userDetails =>
-        val originalContactDetails = buildContactDetailsFromUserDetails(userDetails)
-        isContactDetailsAmended(userContactDetails, originalContactDetails) match {
-          case true =>
-            for {
-              userIds <- authConnector.getIds[UserIDs](user)
-              regId   <- fetchRegistrationID
-              _        = auditChangeInContactDetails(userIds.externalId, userDetails.authProviderId, regId, originalContactDetails, userContactDetails)
-            } yield true
-          case false => Future.successful(false)
-        }
+  def checkIfAmendedDetails(ccAuthDetails: CompanyContactAuthDetails, cred : Credentials, externalID: String, userContactDetails: CompanyContactDetails)
+                           (implicit hc: HeaderCarrier, req: Request[AnyContent]): Future[Boolean] = {
+    val originalContactDetails = buildContactDetailsFromUserDetails(ccAuthDetails)
+    if (isContactDetailsAmended(userContactDetails, originalContactDetails)) {
+      for {
+        regId <- fetchRegistrationID
+        _ = auditChangeInContactDetails(externalID, cred.providerId, regId, originalContactDetails, userContactDetails)
+      } yield true
+    } else {
+      Future.successful(false)
     }
   }
 
-  private[services] def buildContactDetailsFromUserDetails(details: UserDetailsModel): CompanyContactDetails = {
+  private[services] def buildContactDetailsFromUserDetails(details: CompanyContactAuthDetails): CompanyContactDetails = {
 
     def joinNamesFromUserDetails(name: String, lastName: Option[String]): Name = {
       val lName = lastName.fold("")(n => n)

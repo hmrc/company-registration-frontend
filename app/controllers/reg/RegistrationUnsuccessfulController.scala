@@ -18,14 +18,14 @@ package controllers.reg
 
 import config.FrontendAuthConnector
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
-import controllers.auth.SCRSRegime
-import uk.gov.hmrc.play.frontend.controller.FrontendController
+import controllers.auth.AuthFunction
+import play.api.mvc.Action
 import services.DeleteSubmissionService
+import uk.gov.hmrc.play.frontend.controller.FrontendController
+import utils.{MessagesSupport, SessionRegistration}
+import views.html.reg.RegistrationUnsuccessful
 
 import scala.concurrent.Future
-import views.html.reg.RegistrationUnsuccessful
-import uk.gov.hmrc.play.frontend.auth.Actions
-import utils.{SessionRegistration, MessagesSupport}
 
 
 object RegistrationUnsuccessfulController extends RegistrationUnsuccessfulController {
@@ -35,28 +35,26 @@ object RegistrationUnsuccessfulController extends RegistrationUnsuccessfulContro
   val companyRegistrationConnector = CompanyRegistrationConnector
 }
 
-trait RegistrationUnsuccessfulController extends FrontendController with Actions with SessionRegistration with MessagesSupport {
+trait RegistrationUnsuccessfulController extends FrontendController with AuthFunction with SessionRegistration with MessagesSupport {
 
   val deleteSubService: DeleteSubmissionService
 
-  def show = AuthorisedFor(taxRegime = SCRSRegime("post-sign-in"), pageVisibility = GGConfidence).async {
-    implicit user =>
-      implicit request =>
-        Future.successful(Ok(RegistrationUnsuccessful()))
-
+  def show = Action.async { implicit request =>
+    ctAuthorised {
+      Future.successful(Ok(RegistrationUnsuccessful()))
+    }
   }
 
-  def submit = AuthorisedFor(taxRegime = SCRSRegime(""), pageVisibility = GGConfidence).async {
-    implicit user =>
-      implicit request =>
-        registered { regId =>
-          deleteSubService.deleteSubmission(regId) flatMap {
-            case true => keystoreConnector.remove() map {
-              _ => Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))
-              }
-            case false => Future.successful(InternalServerError)
-
+  def submit = Action.async { implicit request =>
+    ctAuthorised {
+      registered { regId =>
+        deleteSubService.deleteSubmission(regId) flatMap {
+          case true => keystoreConnector.remove() map {
+            _ => Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))
           }
+          case false => Future.successful(InternalServerError)
         }
+      }
+    }
   }
 }

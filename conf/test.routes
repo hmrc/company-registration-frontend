@@ -9,8 +9,6 @@ GET        /get-submission                               controllers.test.Submis
 GET        /feature-switch                               controllers.test.TestEndpointController.showFeatureSwitch
 POST       /feature-switch                               controllers.test.TestEndpointController.updateFeatureSwitch
 
-GET        /get-incorp-status/:id                        controllers.test.IncorporationStatusController.getIncorporationStatus(id : String)
-
 GET        /feature-flag/:featureName/:featureStatus     controllers.test.FeatureSwitchController.handOffFeatureSwitch(featureName: String, featureStatus: String)
 
 GET       /modify-users-in/:usersIn                      controllers.test.ModifyThrottledUsersController.modifyThrottledUsers(usersIn: Int)

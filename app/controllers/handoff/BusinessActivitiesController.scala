@@ -18,11 +18,11 @@ package controllers.handoff
 
 import config.FrontendAuthConnector
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
-import controllers.auth.{SCRSHandOffRegime, SCRSRegime}
+import controllers.auth.AuthFunction
 import controllers.reg.ControllerErrorHandler
 import play.api.mvc.{Action, AnyContent}
 import services.{HandBackService, HandOffService, HandOffServiceImpl, NavModelNotFoundException}
-import uk.gov.hmrc.play.frontend.auth.Actions
+import uk.gov.hmrc.auth.core.retrieve.Retrievals
 import uk.gov.hmrc.play.frontend.controller.FrontendController
 import utils.{DecryptionError, MessagesSupport, PayloadError, SessionRegistration}
 import views.html.{error_template, error_template_restart}
@@ -37,30 +37,30 @@ object BusinessActivitiesController extends BusinessActivitiesController {
   val companyRegistrationConnector = CompanyRegistrationConnector
 }
 
-trait BusinessActivitiesController extends FrontendController with Actions with SessionRegistration with ControllerErrorHandler with MessagesSupport {
+trait BusinessActivitiesController extends FrontendController with AuthFunction with SessionRegistration with ControllerErrorHandler with MessagesSupport {
 
   val handOffService : HandOffService
   val handBackService : HandBackService
 
   //HO3
-  val businessActivities = AuthorisedFor(taxRegime = SCRSRegime(""), pageVisibility = GGConfidence).async {
-    implicit user =>
-      implicit request =>
-        registered {
-          regId =>
-            handOffService.buildBusinessActivitiesPayload(regId).map {
-              case Some((url, payload)) => Redirect(handOffService.buildHandOffUrl(url, payload))
-              case None => BadRequest(error_template("","",""))
-            }
+  val businessActivities: Action[AnyContent] = Action.async {
+    implicit request =>
+      ctAuthorisedOptStr(Retrievals.externalId) { externalID =>
+        registered { regID =>
+          handOffService.buildBusinessActivitiesPayload(regID, externalID).map {
+            case Some((url, payload)) => Redirect(handOffService.buildHandOffUrl(url, payload))
+            case None => BadRequest(error_template("", "", ""))
+          }
         } recover {
           case ex: NavModelNotFoundException => Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))
         }
+      }
   }
 
   //HO3b
-  def businessActivitiesBack(request: String): Action[AnyContent] = AuthorisedFor(taxRegime = SCRSHandOffRegime("HO3b", request), pageVisibility = GGConfidence).async {
-    implicit user =>
-      implicit _request =>
+  def businessActivitiesBack(request: String): Action[AnyContent] = Action.async {
+    implicit _request =>
+      ctAuthorisedHandoff("HO3b", request) {
         registeredHandOff("HO3b", request) { _ =>
           handBackService.processBusinessActivitiesHandBack(request).map {
             case Success(_) => Redirect(controllers.reg.routes.TradingDetailsController.show())
@@ -69,5 +69,6 @@ trait BusinessActivitiesController extends FrontendController with Actions with 
             case _ => InternalServerError(defaultErrorPage)
           }
         }
+      }
   }
 }

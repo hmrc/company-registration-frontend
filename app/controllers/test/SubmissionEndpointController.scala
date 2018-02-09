@@ -18,33 +18,33 @@ package controllers.test
 
 import config.FrontendAuthConnector
 import connectors.S4LConnector
-import controllers.auth.SCRSRegime
+import controllers.auth.AuthFunction
 import forms.SubmissionForm
-import models.{SubmissionModel, UserIDs}
-import uk.gov.hmrc.play.frontend.auth.Actions
+import models.SubmissionModel
+import play.api.mvc.{Action, AnyContent}
+import uk.gov.hmrc.auth.core.retrieve.Retrievals
 import uk.gov.hmrc.play.frontend.controller.FrontendController
-import views.html.reg.SubmissionEndpoint
 import utils.MessagesSupport
+import views.html.reg.SubmissionEndpoint
 
 object SubmissionEndpointController extends SubmissionEndpointController{
   val authConnector = FrontendAuthConnector
   val s4LConnector = S4LConnector
 }
 
-trait SubmissionEndpointController extends FrontendController with Actions with MessagesSupport {
+trait SubmissionEndpointController extends FrontendController with AuthFunction with MessagesSupport {
 
   val s4LConnector: S4LConnector
 
-  val getAllS4LEntries = AuthorisedFor(taxRegime = SCRSRegime("test-only/get-submission"), pageVisibility = GGConfidence).async {
-    implicit user =>
-      implicit request =>
-        for{
-          userIds <- authConnector.getIds[UserIDs](user)
-          fetchSubmission <- s4LConnector.fetchAndGet[SubmissionModel](userIds.internalId, "SubmissionData")
-          submission = fetchSubmission.getOrElse(SubmissionModel("No submission found", "No submission ref"))
-        } yield {
-          val submissionForm = SubmissionForm.form.fill(submission)
-          Ok(SubmissionEndpoint(submissionForm))
-        }
+  val getAllS4LEntries: Action[AnyContent] = Action.async { implicit request =>
+    ctAuthorisedOptStr(Retrievals.internalId) { internalID =>
+      for {
+        fetchSubmission <- s4LConnector.fetchAndGet[SubmissionModel](internalID, "SubmissionData")
+        submission = fetchSubmission.getOrElse(SubmissionModel("No submission found", "No submission ref"))
+      } yield {
+        val submissionForm = SubmissionForm.form.fill(submission)
+        Ok(SubmissionEndpoint(submissionForm))
+      }
+    }
   }
 }

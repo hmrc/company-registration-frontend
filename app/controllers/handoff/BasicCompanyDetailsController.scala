@@ -18,11 +18,10 @@ package controllers.handoff
 
 import config.FrontendAuthConnector
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
-import controllers.auth.{SCRSHandOffRegime, SCRSRegime}
+import controllers.auth.AuthFunction
 import controllers.reg.ControllerErrorHandler
 import play.api.mvc.{Action, AnyContent}
 import services.{HandBackService, HandOffService, HandOffServiceImpl, NavModelNotFoundException}
-import uk.gov.hmrc.play.frontend.auth.Actions
 import uk.gov.hmrc.play.frontend.controller.FrontendController
 import utils.{DecryptionError, MessagesSupport, PayloadError, SessionRegistration}
 import views.html.{error_template, error_template_restart}
@@ -37,36 +36,39 @@ object BasicCompanyDetailsController extends BasicCompanyDetailsController {
   val companyRegistrationConnector = CompanyRegistrationConnector
 }
 
-trait BasicCompanyDetailsController extends FrontendController with Actions with SessionRegistration with ControllerErrorHandler with MessagesSupport {
+trait BasicCompanyDetailsController extends FrontendController with AuthFunction with SessionRegistration with ControllerErrorHandler with MessagesSupport {
 
   val handOffService : HandOffService
   val handBackService : HandBackService
 
   //HO1
-  val basicCompanyDetails = AuthorisedFor(taxRegime = SCRSRegime("first-hand-off"), pageVisibility = GGConfidence).async {
-    implicit user =>
-      implicit request =>
+  val basicCompanyDetails: Action[AnyContent] = Action.async {
+    implicit request =>
+      ctAuthorisedBasicCompanyDetails { basicAuth =>
         registered {
           regId =>
-            handOffService.companyNamePayload(regId) map {
+            handOffService.companyNamePayload(regId, basicAuth.email, basicAuth.name, basicAuth.externalId) map {
               case Some((url, payload)) => Redirect(handOffService.buildHandOffUrl(url, payload))
               case None => BadRequest(error_template("", "", ""))
             }
         }
+      }
   }
 
   //H01b
-  def returnToAboutYou(request: String): Action[AnyContent] = AuthorisedFor(taxRegime = SCRSHandOffRegime("HO1b", request), pageVisibility = GGConfidence).async {
-    implicit user =>
-      implicit _request =>
+  def returnToAboutYou(request: String): Action[AnyContent] = Action.async {
+    implicit _request =>
+      ctAuthorisedHandoff("HO1b", request) {
         registeredHandOff("HO1b", request) { _ =>
-        handBackService.processCompanyNameReverseHandBack(request).map {
-          case Success(_) => Redirect(controllers.reg.routes.CompletionCapacityController.show())
-          case Failure(PayloadError) => BadRequest(error_template_restart("1b","PayloadError"))
-          case Failure(DecryptionError) => BadRequest(error_template_restart("1b" , "DecryptionError"))
-          case _ => InternalServerError(defaultErrorPage)
-        } recover {
-          case ex: NavModelNotFoundException => Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))
+          handBackService.processCompanyNameReverseHandBack(request).map {
+            case Success(_) => Redirect(controllers.reg.routes.CompletionCapacityController.show())
+            case Failure(PayloadError) => BadRequest(error_template_restart("1b", "PayloadError"))
+            case Failure(DecryptionError) => BadRequest(error_template_restart("1b", "DecryptionError"))
+            case _ => InternalServerError(defaultErrorPage)
+          } recover {
+            case ex: NavModelNotFoundException => Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))
+          }
         }
-  }}
+      }
+  }
 }

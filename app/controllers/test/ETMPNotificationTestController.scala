@@ -23,8 +23,7 @@ import play.api.mvc.{Action, AnyContent}
 import services.CommonService
 import uk.gov.hmrc.play.frontend.controller.FrontendController
 import utils.{MessagesSupport, SCRSExceptions}
-import views.html.test.EMTPPostView
-import views.html.test.CTUpdatesDisplay
+import views.html.test.{CTUpdatesDisplay, EMTPPostView}
 
 import scala.concurrent.Future
 

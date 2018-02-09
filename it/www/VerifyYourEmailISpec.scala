@@ -20,7 +20,6 @@ import itutil.{FakeAppConfig, IntegrationSpecBase, LoginStub, WiremockHelper}
 import org.jsoup.Jsoup
 import org.scalatest.BeforeAndAfterEach
 import play.api.http.HeaderNames
-import play.api.libs.ws.WS
 import play.api.test.FakeApplication
 
 import scala.concurrent.duration.FiniteDuration
@@ -57,7 +56,7 @@ class VerifyYourEmailISpec extends IntegrationSpecBase with LoginStub with Befor
 
   "GET /ryc/verify-your-email" should {
     "Show a page with the email when logged in" in {
-      setupSimpleAuthMocks(userId)
+      stubAuthorisation()
 
       val email = "foo@bar.wibble"
       stubKeystore(SessionId, "5",  email)
@@ -76,7 +75,7 @@ class VerifyYourEmailISpec extends IntegrationSpecBase with LoginStub with Befor
     }
 
     "redirect to sign-in when not logged in" in {
-      setupSimpleAuthMocks(userId)
+      stubAuthorisation(401, None)
 
       val response = await(client("/sent-an-email").get())
 

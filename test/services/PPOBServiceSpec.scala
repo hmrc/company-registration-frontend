@@ -16,24 +16,21 @@
 
 package services
 
-
-import builders.AuthBuilder
 import fixtures.{AddressFixture, CompanyDetailsFixture, PPOBFixture, UserDetailsFixture}
 import helpers.SCRSSpec
 import models._
-import play.api.test.FakeRequest
-import uk.gov.hmrc.play.audit.http.connector.AuditResult.Success
-import uk.gov.hmrc.play.frontend.auth.AuthContext
-import utils.{SCRSException, SCRSExceptions}
-import org.mockito.Mockito._
 import org.mockito.Matchers
 import org.mockito.Matchers.{any, eq => eqTo}
+import org.mockito.Mockito._
 import play.api.libs.json.Json
 import play.api.mvc.RequestHeader
-import uk.gov.hmrc.http.cache.client.CacheMap
-
-import scala.concurrent.{ExecutionContext, Future}
+import play.api.test.FakeRequest
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.cache.client.CacheMap
+import uk.gov.hmrc.play.audit.http.connector.AuditResult.Success
+import utils.{SCRSException, SCRSExceptions}
+
+import scala.concurrent.Future
 
 class PPOBServiceSpec extends SCRSSpec with CompanyDetailsFixture with SCRSExceptions with PPOBFixture
   with UserDetailsFixture with AddressFixture {
@@ -43,13 +40,11 @@ class PPOBServiceSpec extends SCRSSpec with CompanyDetailsFixture with SCRSExcep
       override val compRegConnector = mockCompanyRegistrationConnector
       override val keystoreConnector = mockKeystoreConnector
       override val s4LConnector = mockS4LConnector
-      override val authConnector = mockAuthConnector
       val auditConnector = mockAuditConnector
       val addressLookupService = mockAddressLookupService
     }
   }
 
-  implicit val user = AuthBuilder.createTestUser
   implicit val userIds = UserIDs("testInternal","testExternal")
   implicit val rh = mock[RequestHeader]
 
@@ -67,9 +62,6 @@ class PPOBServiceSpec extends SCRSSpec with CompanyDetailsFixture with SCRSExcep
       Matchers.eq(registrationID), Matchers.any()
     )(Matchers.any[HeaderCarrier]()))
       .thenReturn(Future.successful(expectedDetails))
-
-    when(mockAuthConnector.getUserDetails[UserDetailsModel](Matchers.any[AuthContext]())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]()))
-      .thenReturn(Future.successful(userDetailsModel))
 
     when(mockAuditConnector.sendExtendedEvent(Matchers.any())(Matchers.any(), Matchers.any()))
       .thenReturn(Future.successful(Success))
@@ -185,13 +177,6 @@ class PPOBServiceSpec extends SCRSSpec with CompanyDetailsFixture with SCRSExcep
       val result = await(service.saveAddress(registrationID, "PPOB", Some(validNewAddress)))
 
       result shouldBe companyDetails
-    }
-  }
-
-  "auditROAddress" should {
-
-    "" in new Setup {
-
     }
   }
 }

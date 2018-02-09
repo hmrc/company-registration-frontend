@@ -1,7 +1,7 @@
 
 package fixtures
 
-import models.{CHROAddress, HandBackPayloadModel}
+import models.CHROAddress
 import models.handoff.{CompanyNameHandOffIncoming, NavLinks, SummaryPage1HandOffIncoming}
 import play.api.libs.json.{JsObject, JsValue, Json}
 import utils.JweEncryptor

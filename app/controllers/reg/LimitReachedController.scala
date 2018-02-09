@@ -18,11 +18,10 @@ package controllers.reg
 
 import config.FrontendAuthConnector
 import connectors.KeystoreConnector
-import controllers.auth.SCRSRegime
-import uk.gov.hmrc.play.config.ServicesConfig
-import play.api.mvc.Action
+import controllers.auth.AuthFunction
+import play.api.mvc.{Action, AnyContent}
 import services.CommonService
-import uk.gov.hmrc.play.frontend.auth.Actions
+import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.frontend.controller.FrontendController
 import utils.{MessagesSupport, SCRSExceptions}
 import views.html.reg.LimitReached
@@ -37,17 +36,17 @@ object LimitReachedController extends LimitReachedController with ServicesConfig
   val keystoreConnector = KeystoreConnector
 }
 
-trait LimitReachedController extends FrontendController with Actions with CommonService with SCRSExceptions with MessagesSupport {
+trait LimitReachedController extends FrontendController with AuthFunction with CommonService with SCRSExceptions with MessagesSupport {
 
   val cohoUrl: String
 
-  val show = AuthorisedFor(taxRegime = SCRSRegime("first-hand-off"), pageVisibility = GGConfidence).async {
-    implicit user =>
-      implicit request =>
-        Future.successful(Ok(LimitReached(cohoUrl)))
+  val show: Action[AnyContent] = Action.async { implicit request =>
+    ctAuthorised {
+      Future.successful(Ok(LimitReached(cohoUrl)))
+    }
   }
 
-  val submit = Action.async { implicit request =>
+  val submit: Action[AnyContent] = Action.async { implicit request =>
     Future.successful(Redirect(cohoUrl))
   }
 }

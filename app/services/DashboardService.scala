@@ -16,24 +16,21 @@
 
 package services
 
-import config.FrontendAuthConnector
 import _root_.connectors._
+import config.{FrontendAppConfig, FrontendAuthConnector}
 import models._
-import models.auth.Enrolment
 import models.external.{OtherRegStatus, Statuses}
 import org.joda.time.DateTime
-import play.api.Logger
 import play.api.libs.json.JsValue
 import play.api.mvc.Call
+import uk.gov.hmrc.auth.core.{AuthConnector, Enrolments}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.frontend.auth.AuthContext
-import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector
+import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 import utils.{SCRSExceptions, SCRSFeatureSwitches}
 
-import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 import scala.concurrent.Future
 import scala.util.control.NoStackTrace
-import uk.gov.hmrc.http.{ HeaderCarrier, HttpException }
 
 object DashboardService extends DashboardService with ServicesConfig {
   val keystoreConnector = KeystoreConnector
@@ -41,7 +38,6 @@ object DashboardService extends DashboardService with ServicesConfig {
   val incorpInfoConnector = IncorpInfoConnector
   val payeConnector = PAYEConnector
   val vatConnector = VATConnector
-  val authConnector = FrontendAuthConnector
   val otrsUrl = getConfString("otrs.url", throw new Exception("Could not find config for key: otrs.url"))
   val payeBaseUrl = getConfString("paye-registration-www.url-prefix", throw new Exception("Could not find config for key: paye-registration-www.url-prefix"))
   val payeUri = getConfString("paye-registration-www.start-url", throw new Exception("Could not find config for key: paye-registration-www.start-url"))
@@ -55,7 +51,7 @@ case class DashboardBuilt(d: Dashboard) extends DashboardStatus
 case object RejectedIncorp extends DashboardStatus
 case object CouldNotBuild extends DashboardStatus
 
-class ComfirmationRefsNotFoundException extends NoStackTrace
+class ConfirmationRefsNotFoundException extends NoStackTrace
 
 trait DashboardService extends SCRSExceptions with CommonService {
   import scala.language.implicitConversions
@@ -63,7 +59,6 @@ trait DashboardService extends SCRSExceptions with CommonService {
   val companyRegistrationConnector : CompanyRegistrationConnector
   val payeConnector, vatConnector: ServiceConnector
   val incorpInfoConnector: IncorpInfoConnector
-  val authConnector: AuthConnector
   val otrsUrl: String
   val payeBaseUrl: String
   val payeUri: String
@@ -76,12 +71,12 @@ trait DashboardService extends SCRSExceptions with CommonService {
       ServiceLinks(startURL, otrsUrl, s.restartURL, s.cancelURL.map(_ => cancelURL.url)))
   }
 
-  def buildDashboard(regId:String)(implicit hc: HeaderCarrier, auth: AuthContext): Future[DashboardStatus] = {
+  def buildDashboard(regId : String, enrolments : Enrolments)(implicit hc: HeaderCarrier): Future[DashboardStatus] = {
     for {
       incorpCTDash <- buildIncorpCTDashComponent(regId)
-      payeDash <- buildPAYEDashComponent(regId)
-      hasVatCred <- hasEnrolment(List("HMCE-VATDEC-ORG", "HMCE-VATVAR-ORG"))
-      vatDash <- buildVATDashComponent(regId)
+      payeDash <- buildPAYEDashComponent(regId, enrolments)
+      hasVatCred = hasEnrolment(enrolments, List("HMCE-VATDEC-ORG", "HMCE-VATVAR-ORG"))
+      vatDash <- buildVATDashComponent(regId, enrolments)
     } yield {
       incorpCTDash.status match {
         case "draft" => CouldNotBuild
@@ -92,50 +87,38 @@ trait DashboardService extends SCRSExceptions with CommonService {
     }
   }
 
-  private[services] def hasEnrolment(enrolmentKeys: Seq[String])(implicit hc: HeaderCarrier, auth: AuthContext): Future[Boolean] = {
-    authConnector.getEnrolments[Option[Seq[Enrolment]]](auth) map {
-      case Some(enrolments) => enrolments exists (e => enrolmentKeys.contains(e.key))
-      case None => false
-    } recover {
-      case ex: HttpException =>
-        Logger.error(s"[AuthConnector] [getEnrolments] - ${ex.responseCode} was returned - reason : ${ex.message}", ex)
-        false
-      case ex: Throwable =>
-        Logger.error(s"[AuthConnector] [getEnrolments] - An exception was thrown", ex)
-        false
+  private[services] def hasEnrolment(authEnrolments : Enrolments, enrolmentKeys: Seq[String])(implicit hc: HeaderCarrier): Boolean = {
+    authEnrolments.enrolments.exists(e => FrontendAppConfig.restrictedEnrolments.contains(e.key))
+  }
+
+  private[services] def statusToServiceDashboard(res: Future[StatusResponse], enrolments: Enrolments, payeEnrolments: Seq[String])
+                                                (implicit hc: HeaderCarrier, startURL: String, cancelURL: Call): Future[ServiceDashboard] = {
+    res map {
+      case SuccessfulResponse(status) => status
+      case ErrorResponse => OtherRegStatus(Statuses.UNAVAILABLE, None, None, None, None)
+      case NotStarted => OtherRegStatus(
+        if (hasEnrolment(enrolments, payeEnrolments)) Statuses.NOT_ELIGIBLE else Statuses.NOT_STARTED, None, None, None, None
+      )
     }
   }
 
-  private[services] def statusToServiceDashboard(res: Future[StatusResponse], enrolments: Seq[String])
-                                                (implicit hc: HeaderCarrier, auth: AuthContext, startURL: String, cancelURL: Call): Future[ServiceDashboard] = {
-    res flatMap {
-      case SuccessfulResponse(status) => Future.successful(status)
-      case ErrorResponse => Future.successful(OtherRegStatus(Statuses.UNAVAILABLE, None, None, None, None))
-      case NotStarted =>
-        hasEnrolment(enrolments) map {
-          case true => OtherRegStatus(Statuses.NOT_ELIGIBLE, None, None, None, None)
-          case false => OtherRegStatus(Statuses.NOT_STARTED, None, None, None, None)
-        }
-    }
-  }
-
-  private[services] def buildPAYEDashComponent(regId: String)(implicit hc: HeaderCarrier, auth: AuthContext): Future[ServiceDashboard] = {
+  private[services] def buildPAYEDashComponent(regId: String, enrolments: Enrolments)(implicit hc: HeaderCarrier): Future[ServiceDashboard] = {
     implicit val startURL: String = s"$payeBaseUrl$payeUri"
     implicit val cancelURL: Call = controllers.dashboard.routes.CancelRegistrationController.showCancelPAYE()
 
     if (featureFlag.paye.enabled) {
-      statusToServiceDashboard(payeConnector.getStatus(regId), List("IR-PAYE"))
+      statusToServiceDashboard(payeConnector.getStatus(regId), enrolments, List("IR-PAYE"))
     } else {
       Future.successful(OtherRegStatus(Statuses.NOT_ENABLED, None, None, None, None))
     }
   }
 
-  private[services] def buildVATDashComponent(regId: String)(implicit hc: HeaderCarrier, auth: AuthContext): Future[Option[ServiceDashboard]] = {
+  private[services] def buildVATDashComponent(regId: String, enrolments: Enrolments)(implicit hc: HeaderCarrier): Future[Option[ServiceDashboard]] = {
     implicit val startURL: String = s"$vatBaseUrl$vatUri"
     implicit val cancelURL: Call = controllers.dashboard.routes.CancelRegistrationController.showCancelVAT()
 
-      if (featureFlag.vat.enabled) {
-      statusToServiceDashboard(vatConnector.getStatus(regId), List("HMCE-VATDEC-ORG", "HMCE-VATVAR-ORG")).map(Some(_))
+    if (featureFlag.vat.enabled) {
+      statusToServiceDashboard(vatConnector.getStatus(regId), enrolments, List("HMCE-VATDEC-ORG", "HMCE-VATVAR-ORG")).map(Some(_))
     } else {
       Future.successful(None)
     }
@@ -155,7 +138,7 @@ trait DashboardService extends SCRSExceptions with CommonService {
     for {
       confRefs <- companyRegistrationConnector.fetchConfirmationReferences(regId) map {
         case ConfirmationReferencesSuccessResponse(refs) => refs
-        case _ => throw new ComfirmationRefsNotFoundException
+        case _ => throw new ConfirmationRefsNotFoundException
       }
       transId = confRefs.transactionId
       companyName <- incorpInfoConnector.getCompanyName(transId)

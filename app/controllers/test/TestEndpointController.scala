@@ -17,28 +17,27 @@
 package controllers.test
 
 import config.FrontendAuthConnector
-import controllers.auth.SCRSRegime
+import connectors._
+import controllers.auth.AuthFunction
 import forms._
 import forms.test.{CompanyContactTestEndpointForm, FeatureSwitchForm}
-import connectors._
 import models._
 import models.connectors.ConfirmationReferences
+import models.handoff._
 import models.test.FeatureSwitch
+import play.api.Logger
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Action, AnyContent}
-import models.handoff._
-import play.api.Logger
-import services.{CommonService, HandOffNavigator, MetaDataService}
-import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.frontend.auth.Actions
-import uk.gov.hmrc.play.frontend.controller.FrontendController
-import utils.{BooleanFeatureSwitch, SCRSExceptions, SCRSFeatureSwitches, SessionRegistration, FeatureSwitch => FeatureSwitchUtil}
-import views.html.reg.TestEndpoint
 import repositories.NavModelRepo
-import utils.MessagesSupport
+import services.{CommonService, HandOffNavigator, MetaDataService}
+import uk.gov.hmrc.auth.core.retrieve.Retrievals
+import uk.gov.hmrc.http.{HeaderCarrier, HttpReads}
+import uk.gov.hmrc.play.config.ServicesConfig
+import uk.gov.hmrc.play.frontend.controller.FrontendController
+import utils.{BooleanFeatureSwitch, MessagesSupport, SCRSExceptions, SCRSFeatureSwitches, SessionRegistration, FeatureSwitch => FeatureSwitchUtil}
+import views.html.reg.TestEndpoint
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.{ HeaderCarrier, HttpReads }
 
 
 object TestEndpointController extends TestEndpointController {
@@ -54,7 +53,7 @@ object TestEndpointController extends TestEndpointController {
   val companyRegistrationConnector = CompanyRegistrationConnector
 }
 
-trait TestEndpointController extends FrontendController with Actions with CommonService
+trait TestEndpointController extends FrontendController with AuthFunction with CommonService
   with SCRSExceptions with ServicesConfig with HandOffNavigator with SessionRegistration with MessagesSupport {
 
   val s4LConnector: S4LConnector
@@ -78,21 +77,20 @@ trait TestEndpointController extends FrontendController with Actions with Common
     )
   }
 
-  val getAllS4LEntries = AuthorisedFor(taxRegime = SCRSRegime("test-only/get-s4l"), pageVisibility = GGConfidence).async {
-    implicit user =>
-      implicit request =>
-        for{
+  val getAllS4LEntries: Action[AnyContent] = Action.async {
+    implicit request =>
+      ctAuthorisedOptStr(Retrievals.internalId) { internalID =>
+        for {
           regID <- keystoreConnector.fetchAndGet[String]("registrationID") map {
             case Some(res) => res
             case None => cacheRegistrationID("1"); "1"
           }
-          userIds <- authConnector.getIds[UserIDs](user)
           applicantDetails <- metaDataService.getApplicantData(regID) recover { case _ => AboutYouChoice("Director") }
           companyDetails <- compRegConnector.retrieveCompanyDetails(regID)
           accountingDates <- compRegConnector.retrieveAccountingDetails(regID)
           contactDetails <- compRegConnector.retrieveContactDetails(regID)
           tradingDetails <- compRegConnector.retrieveTradingDetails(regID)
-          handBackData <- s4LConnector.fetchAndGet[CompanyNameHandOffIncoming](userIds.internalId, "HandBackData")
+          handBackData <- s4LConnector.fetchAndGet[CompanyNameHandOffIncoming](internalID, "HandBackData")
           cTRecord <- compRegConnector.retrieveCorporationTaxRegistration(regID)
         } yield {
           val applicantForm = AboutYouForm.endpointForm.fill(applicantDetails)
@@ -108,7 +106,7 @@ trait TestEndpointController extends FrontendController with Actions with Common
           })
           val handBackForm = FirstHandBackForm.form.fill(handBackData match {
             case Some(data) => convertToForm(data)
-            case _ => CompanyNameHandOffFormModel(None, "", "", CHROAddress("","",Some(""),"","",Some(""),Some(""),Some("")), "", "", "")
+            case _ => CompanyNameHandOffFormModel(None, "", "", CHROAddress("", "", Some(""), "", "", Some(""), Some(""), Some("")), "", "", "")
           })
           val companyContactForm = CompanyContactTestEndpointForm.form.fill(contactDetails match {
             case CompanyContactDetailsSuccessResponse(x) => x
@@ -117,11 +115,12 @@ trait TestEndpointController extends FrontendController with Actions with Common
           val tradingDetailsForm = TradingDetailsForm.form.fill(tradingDetails.getOrElse(TradingDetails()))
           Ok(TestEndpoint(accountingDatesForm, handBackForm, companyContactForm, companyDetailsForm, tradingDetailsForm, applicantForm))
         }
+      }
   }
 
-  val postAllS4LEntries = AuthorisedFor(taxRegime = SCRSRegime("test-only/post-s4l"), pageVisibility = GGConfidence).async {
-    implicit user =>
-      implicit request =>
+  val postAllS4LEntries: Action[AnyContent] = Action.async {
+    implicit request =>
+      ctAuthorised {
         val applicantData = AboutYouForm.endpointForm.bindFromRequest().get
         val accountingDates = AccountingDatesForm.form.bindFromRequest().get
         val companyContactDetails = CompanyContactTestEndpointForm.form.bindFromRequest().get
@@ -129,35 +128,31 @@ trait TestEndpointController extends FrontendController with Actions with Common
         val tradingDetailsRequest = TradingDetailsForm.form.bindFromRequest().get
         for {
           regID <- fetchRegistrationID
-          userIds <- authConnector.getIds[UserIDs](user)
           _ <- metaDataService.updateApplicantDataEndpoint(applicantData)
           _ <- compRegConnector.updateCompanyDetails(regID, companyDetailsRequest)
           _ <- compRegConnector.updateAccountingDetails(regID, AccountingDetailsRequest.toRequest(accountingDates))
           _ <- compRegConnector.updateContactDetails(regID, companyContactDetails)
           _ <- compRegConnector.updateTradingDetails(regID, tradingDetailsRequest)
         } yield Redirect(routes.TestEndpointController.getAllS4LEntries())
+      }
   }
 
-  val clearAllS4LEntries = AuthorisedFor(taxRegime = SCRSRegime("test-only/clear-s4l"), pageVisibility = GGConfidence).async {
-    implicit user =>
-      implicit request =>
-        authConnector.getIds[UserIDs](user) flatMap {
-          userIds =>
-            s4LConnector.clear(userIds.internalId) map {
-              _ => Ok(s"S4L for user oid ${userIds.internalId} cleared")
-            }
+  val clearAllS4LEntries: Action[AnyContent] = Action.async {
+    implicit request =>
+      ctAuthorisedOptStr(Retrievals.internalId) { internalID =>
+        s4LConnector.clear(internalID) map {
+          _ => Ok(s"S4L for user oid ${internalID} cleared")
         }
+      }
   }
 
-  val clearKeystore = AuthorisedFor(taxRegime = SCRSRegime("test-only/clear-s4l"), pageVisibility = GGConfidence).async {
-    implicit user =>
-      implicit request =>
-        authConnector.getIds[UserIDs](user) flatMap {
-          userIds =>
-            keystoreConnector.remove() map {
-              _ => Ok(s"Keystore for user ${userIds.internalId} cleared")
-            }
+  val clearKeystore: Action[AnyContent] = Action.async {
+    implicit request =>
+      ctAuthorisedOptStr(Retrievals.internalId) { internalID =>
+        keystoreConnector.remove() map {
+          _ => Ok(s"Keystore for user $internalID cleared")
         }
+      }
   }
 
   def showFeatureSwitch = Action.async {
@@ -208,34 +203,33 @@ trait TestEndpointController extends FrontendController with Actions with Common
 
   val setupTestNavModel = Action.async {
     implicit request =>
-        val nav = HandOffNavModel(
-          Sender(
-            nav = Map(
-              "1" -> NavLinks("http://localhost:9970/register-your-company/corporation-tax-details", "http://localhost:9970/register-your-company/return-to-about-you"),
-              "3" -> NavLinks("http://localhost:9970/register-your-company/corporation-tax-summary", "http://localhost:9970/register-your-company/trading-details"),
-              "5" -> NavLinks("http://localhost:9970/register-your-company/registration-confirmation", "http://localhost:9970/register-your-company/corporation-tax-summary")
-            )
+      val nav = HandOffNavModel(
+        Sender(
+          nav = Map(
+            "1" -> NavLinks("http://localhost:9970/register-your-company/corporation-tax-details", "http://localhost:9970/register-your-company/return-to-about-you"),
+            "3" -> NavLinks("http://localhost:9970/register-your-company/corporation-tax-summary", "http://localhost:9970/register-your-company/trading-details"),
+            "5" -> NavLinks("http://localhost:9970/register-your-company/registration-confirmation", "http://localhost:9970/register-your-company/corporation-tax-summary")
+          )
+        ),
+        Receiver(
+          nav = Map(
+            "0" -> NavLinks("http://localhost:9986/incorporation-frontend-stubs/basic-company-details", ""),
+            "2" -> NavLinks("http://localhost:9986/incorporation-frontend-stubs/business-activities", "http://localhost:9986/incorporation-frontend-stubs/company-name-back"),
+            "4" -> NavLinks("http://localhost:9986/incorporation-frontend-stubs/incorporation-summary", "http://localhost:9986/incorporation-frontend-stubs/business-activities")
           ),
-          Receiver(
-            nav = Map(
-              "0" -> NavLinks("http://localhost:9986/incorporation-frontend-stubs/basic-company-details", ""),
-              "2" -> NavLinks("http://localhost:9986/incorporation-frontend-stubs/business-activities", "http://localhost:9986/incorporation-frontend-stubs/company-name-back"),
-              "4" -> NavLinks("http://localhost:9986/incorporation-frontend-stubs/incorporation-summary", "http://localhost:9986/incorporation-frontend-stubs/business-activities")
-            ),
-            jump = Map(
-              "company_name" -> "http://localhost:9986/incorporation-frontend-stubs/company-name-back",
-              "company_address" -> "http://localhost:9986/incorporation-frontend-stubs/company-name-back",
-              "company_jurisdiction" -> "http://localhost:9986/incorporation-frontend-stubs/company-name-back"
-            )
+          jump = Map(
+            "company_name" -> "http://localhost:9986/incorporation-frontend-stubs/company-name-back",
+            "company_address" -> "http://localhost:9986/incorporation-frontend-stubs/company-name-back",
+            "company_jurisdiction" -> "http://localhost:9986/incorporation-frontend-stubs/company-name-back"
           )
         )
-          cacheNavModel(nav, hc) map (_ => Ok("NavModel created"))
-      }
+      )
+      cacheNavModel(nav, hc) map (_ => Ok("NavModel created"))
+  }
 
-  def checkSubmissionStatus: Action[AnyContent] = AuthorisedFor(taxRegime = SCRSRegime("test-only/get-s4l"), pageVisibility = GGConfidence).async {
-    implicit user =>
-      implicit request =>
-
+  def checkSubmissionStatus: Action[AnyContent] = Action.async {
+    implicit request =>
+      ctAuthorised {
         def formatJsonToString(js: JsValue): String = {
           Json.stringify(js)
             .replaceAll("\\{", "\\{</br>")
@@ -265,6 +259,7 @@ trait TestEndpointController extends FrontendController with Actions with Common
           val ct = formatJsonToString(ctRecord)
           Ok(views.html.test.SubmissionStatus(status, ctData, heldData, ct))
         }
+      }
   }
 
   def updateTimepoint(timepoint: String) = Action.async {
@@ -284,10 +279,9 @@ trait TestEndpointController extends FrontendController with Actions with Common
       dynStubConnector.simulateDesPost(ackRef).map(_ => Ok)
   }
 
-  def verifyEmail(verified: Boolean) = AuthorisedFor(taxRegime = SCRSRegime("test-only/get-s4l"), pageVisibility = GGConfidence).async {
-    implicit user =>
-      implicit request =>
-
+  def verifyEmail(verified: Boolean) = Action.async {
+    implicit request =>
+      ctAuthorised {
         def getMetadata(implicit hc: HeaderCarrier, rds: HttpReads[BusinessRegistration]): Future[BusinessRegistration] = {
           brConnector.retrieveMetadata map {
             case BusinessRegistrationSuccessResponse(metaData) => metaData
@@ -309,6 +303,7 @@ trait TestEndpointController extends FrontendController with Actions with Common
         } yield {
           Ok(emailResponse)
         }
+      }
   }
 
   val testEndpointSummary = Action.async {
@@ -317,29 +312,31 @@ trait TestEndpointController extends FrontendController with Actions with Common
   }
 
 
-  val fetchPrePopAddresses = AuthorisedFor(taxRegime = SCRSRegime("test-only/get-s4l"), pageVisibility = GGConfidence).async {
-    implicit user =>
-      implicit request =>
+  val fetchPrePopAddresses = Action.async {
+    implicit request =>
+      ctAuthorised {
         registered { regId =>
           brConnector.fetchPrePopAddress(regId) map { js =>
             val addresses = Json.fromJson(js)(Address.prePopReads).get
             Ok(views.html.test.PrePopAddresses(addresses))
           }
         }
+      }
   }
 
-  val fetchPrePopCompanyContactDetails = AuthorisedFor(taxRegime = SCRSRegime("test-only/get-s4l"), pageVisibility = GGConfidence).async {
-    implicit user =>
-      implicit request =>
+  val fetchPrePopCompanyContactDetails = Action.async {
+    implicit request =>
+      ctAuthorised {
         registered { regId =>
           brConnector.fetchPrePopContactDetails(regId) map { js =>
             val contactDetails = Json.fromJson(js)(CompanyContactDetailsMongo.prePopReads).get
             Ok(views.html.test.PrePopContactDetails(contactDetails))
           }
         }
+      }
   }
 
-private[controllers] def links(cancelUrl:Boolean,restartUrl:Boolean) ={
+  private[controllers] def links(cancelUrl:Boolean,restartUrl:Boolean) ={
     ServiceLinks(
       "regURL",
       "otrsURL",
@@ -348,12 +345,12 @@ private[controllers] def links(cancelUrl:Boolean,restartUrl:Boolean) ={
   }
 
   def dashboardStubbed(payeStatus:String="draft",
-                        incorpCTStatus:String  ="held",
-                        payeCancelUrl:String = "true",
-                        payeRestartUrl:String = "true",
-                        vatStatus:String= "draft",
-                        vatCancelUrl:String   = "true",
-                        ackRefStatus:String="ackrefStatuses") = Action {
+                       incorpCTStatus:String  ="held",
+                       payeCancelUrl:String = "true",
+                       payeRestartUrl:String = "true",
+                       vatStatus:String= "draft",
+                       vatCancelUrl:String   = "true",
+                       ackRefStatus:String="ackrefStatuses") = Action {
     implicit request =>
       val incorpAndCTDash = IncorpAndCTDashboard(
         incorpCTStatus,
@@ -375,14 +372,15 @@ private[controllers] def links(cancelUrl:Boolean,restartUrl:Boolean) ={
       Ok(views.html.dashboard.Dashboard(dash, coHoURL))
   }
 
-  def handOff6(transactionId: String): Action[AnyContent] = AuthorisedFor(taxRegime = SCRSRegime("test-only/get-s4l"), pageVisibility = GGConfidence).async {
-    implicit user =>
-      implicit request =>
-      registered { regId =>
-        val confRefs = ConfirmationReferences(transactionId, Some("PAY_REF-123456789"), Some("12"), "")
-        compRegConnector.updateReferences(regId, confRefs) map {
-          case ConfirmationReferencesSuccessResponse(refs) => Ok(Json.toJson(refs)(ConfirmationReferences.format))
-          case _ => BadRequest
+  def handOff6(transactionId: String): Action[AnyContent] = Action.async {
+    implicit request =>
+      ctAuthorised {
+        registered { regId =>
+          val confRefs = ConfirmationReferences(transactionId, Some("PAY_REF-123456789"), Some("12"), "")
+          compRegConnector.updateReferences(regId, confRefs) map {
+            case ConfirmationReferencesSuccessResponse(refs) => Ok(Json.toJson(refs)(ConfirmationReferences.format))
+            case _ => BadRequest
+          }
         }
       }
   }

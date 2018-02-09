@@ -18,14 +18,14 @@ package controllers.reg
 
 import config.FrontendAuthConnector
 import connectors.{CompanyRegistrationConnector, KeystoreConnector, S4LConnector}
-import controllers.auth.SCRSRegime
+import controllers.auth.AuthFunction
 import forms.CompanyContactForm
 import models.{CompanyContactDetailsBadRequestResponse, CompanyContactDetailsForbiddenResponse, CompanyContactDetailsNotFoundResponse, CompanyContactDetailsSuccessResponse}
+import play.api.mvc.Action
 import services.{CompanyContactDetailsService, MetricsService}
-import uk.gov.hmrc.play.frontend.auth.Actions
 import uk.gov.hmrc.play.frontend.controller.FrontendController
-import views.html.reg.CompanyContactDetails
 import utils.{MessagesSupport, SessionRegistration}
+import views.html.reg.CompanyContactDetails
 
 import scala.concurrent.Future
 
@@ -38,25 +38,26 @@ object CompanyContactDetailsController extends CompanyContactDetailsController {
   val keystoreConnector = KeystoreConnector
 }
 
-trait CompanyContactDetailsController extends FrontendController with Actions with ControllerErrorHandler with SessionRegistration with MessagesSupport {
+trait CompanyContactDetailsController extends FrontendController with AuthFunction with ControllerErrorHandler with SessionRegistration with MessagesSupport {
 
   val s4LConnector: S4LConnector
   val companyContactDetailsService: CompanyContactDetailsService
   val metricsService: MetricsService
 
-  val show = AuthorisedFor(SCRSRegime("first-hand-off"), GGConfidence).async {
-    implicit user =>
-      implicit request =>
+  val show = Action.async {
+    implicit request =>
+      ctAuthorisedCompanyContact { companyContactAuth =>
         checkStatus { _ =>
-          companyContactDetailsService.fetchContactDetails.map {
+          companyContactDetailsService.fetchContactDetails(companyContactAuth).map {
             contactDetails => Ok(CompanyContactDetails(CompanyContactForm.form.fill(contactDetails)))
           }
         }
+      }
   }
 
-  val submit = AuthorisedFor(SCRSRegime("first-hand-off"), GGConfidence).async {
-    implicit user =>
-      implicit request =>
+  val submit = Action.async {
+    implicit request =>
+      ctAuthorisedCompanyContactAmend { (ccAuth, cred, eID) =>
         registered { regId =>
           CompanyContactForm.form.bindFromRequest().fold(
             hasErrors => Future.successful(BadRequest(CompanyContactDetails(hasErrors))),
@@ -65,7 +66,7 @@ trait CompanyContactDetailsController extends FrontendController with Actions wi
               companyContactDetailsService.updateContactDetails(data) flatMap {
                 case CompanyContactDetailsSuccessResponse(details) =>
                   context.stop()
-                  companyContactDetailsService.checkIfAmendedDetails(details).flatMap { _ =>
+                  companyContactDetailsService.checkIfAmendedDetails(ccAuth, cred, eID, details).flatMap { _ =>
                     companyContactDetailsService.updatePrePopContactDetails(regId, details) map { _ =>
                       Redirect(routes.AccountingDatesController.show())
                     }
@@ -78,5 +79,6 @@ trait CompanyContactDetailsController extends FrontendController with Actions wi
             }
           )
         }
+      }
   }
 }
