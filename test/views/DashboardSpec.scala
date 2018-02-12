@@ -180,7 +180,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
           Map(
             "incorpStatusText" -> "Registered",
             "crn" -> "crn123",
-            "ctStatusText" -> "Unsuccessful"
+            "ctStatusText" -> "Registered"
           ) foreach { case (element, message) =>
             document.getElementById(element).text() shouldBe message
           }
@@ -491,7 +491,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
       }
     }
 
-    "make sure that the dashboard shows the VAT section when the CT submission status is rejected (06 ETMP status)" in new Setup {
+    "make sure that the dashboard does not show the VAT section when the CT submission status is rejected (06 ETMP status)" in new Setup {
       val dashboard = Dashboard(
         "testCompanyName",
         IncorpAndCTDashboard(
@@ -512,8 +512,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
         result =>
           val document = Jsoup.parse(contentAsString(result))
           document.title() shouldBe "Company registration overview"
-          document.getElementById("legacyVATStatusText").text() shouldBe "Register using another HMRC service (link opens in a new tab)"
-          document.getElementById("vatUrl").attr("href") shouldBe "https://online.hmrc.gov.uk/registration/newbusiness/introduction"
+          intercept[NullPointerException](document.getElementById("legacyVATStatusText").text())
       }
     }
 

@@ -46,7 +46,7 @@
     @{
         val rejected = dash.incDash.ackRefStatus.fold(false)(_ == "06")
         dash.incDash.status match {
-            case _ if rejected => Messages("page.reg.Dashboard.status.rejected")
+            case _ if rejected => Messages("page.reg.Dashboard.status.registered")
             case "held" => Messages("page.reg.Dashboard.status.pending")
             case "submitted" => Messages("page.reg.Dashboard.status.submitted")
             case "acknowledged" => Messages("page.reg.Dashboard.status.registered")
@@ -130,7 +130,12 @@
 </tr>
 }
 
-@showVATBlock = @{(dash.incDash.status == "submitted" || dash.incDash.status == "acknowledged" || dash.incDash.ackRefStatus.fold(false)(_ == "06")) && dash.hasVATCred == false}
+@showVATBlock = @{(dash.incDash.status, dash.incDash.ackRefStatus, dash.hasVATCred) match {
+    case (_, Some(ackRef), _) if(ackRef == "06") => false
+    case (_, _, true) => false
+    case (status, _, _) => status == "submitted" || status == "acknowledged"
+    case _ => false
+}}
 
 @payeMap = {
     @{dash.payeDash.status match {
@@ -254,21 +259,10 @@
                             </td>
                         </tr>
                     }
-                    @if(dash.incDash.ackRefStatus.fold(false)(_ == "06")){
-                        <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
-                            <td>@Messages("page.reg.Dashboard.wycd")</td>
-                            <td colspan="2">
-                                <a href="https://online.hmrc.gov.uk/registration/newbusiness/introduction" target="_blank">
-                                    @Messages("page.reg.Dashboard.CTUnsuccessful")
-                                    <div class="visually-hidden">@Messages("page.reg.Dashboard.hiddenOpenNewTab")</div>
-                                </a>
-                            </td>
-                        </tr>
-                    }
                 </tbody>
             </table>
 
-            @if(dash.payeDash.status != "notEnabled"){
+            @if(dash.payeDash.status != "notEnabled" && dash.incDash.ackRefStatus.fold(true)(_ != "06")){
                 <h2 class="heading-medium" id="payeSubheading">@Messages("page.reg.Dashboard.PAYE.subHeading")</h2>
                 <table class="check-your-answers">
                     <tbody>
@@ -287,7 +281,9 @@
             }
 
             @if(dash.vatDash.nonEmpty) {
-                @vatDashboard(dash.vatDash.get)
+                @if(dash.incDash.ackRefStatus.fold(true)(_ != "06")) {
+                    @vatDashboard(dash.vatDash.get)
+                }
             } else {
                 @if(showVATBlock) {
                     <!--VAT Block-->
