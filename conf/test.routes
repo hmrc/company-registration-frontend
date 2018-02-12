@@ -39,6 +39,6 @@ GET       /test-endpoints                                controllers.test.TestEn
 GET       /fetch-addresses                               controllers.test.TestEndpointController.fetchPrePopAddresses
 GET       /fetch-contact-details                         controllers.test.TestEndpointController.fetchPrePopCompanyContactDetails
 
-GET      /dashboardStubbed                               controllers.test.TestEndpointController.dashboardStubbed(payeStatus ?="draft",incorpCTStatus  ?="held",payeCancelUrl  ?= "true",payeRestartUrl ?= "true",vatStatus ?= "draft",vatCancelUrl   ?= "true",ackRefStatus ?="ackrefStatuses")
+GET      /dashboardStubbed                               controllers.test.TestEndpointController.dashboardStubbed(payeStatus ?= "draft", incorpCTStatus ?= "held", payeCancelUrl ?= "true", payeRestartUrl ?= "true", vatStatus ?= "draft", vatCancelUrl ?= "true", ackRefStatus ?= "04")
 
 GET      /hand-off-6                                     controllers.test.TestEndpointController.handOff6(transactionId ?= "TRANS_ID-92836405817")
