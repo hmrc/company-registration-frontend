@@ -34,6 +34,13 @@
     @Messages("page.reg.Dashboard.CTPendingLineOne")
 }
 
+@ctRejected = @{dash.incDash.ackRefStatus.fold(false)(refStatus =>
+    refStatus match {
+        case "06" | "07" | "08" | "09" | "10" => true
+        case _ => false
+    })
+}
+
 @incorpStatus = {
     @{dash.incDash.status match {
         case "held" => Messages("page.reg.Dashboard.status.submitted")
@@ -44,9 +51,8 @@
 
 @ctStatus = {
     @{
-        val rejected = dash.incDash.ackRefStatus.fold(false)(_ == "06")
         dash.incDash.status match {
-            case _ if rejected => Messages("page.reg.Dashboard.status.registered")
+            case _ if ctRejected => Messages("page.reg.Dashboard.status.registered")
             case "held" => Messages("page.reg.Dashboard.status.pending")
             case "submitted" => Messages("page.reg.Dashboard.status.submitted")
             case "acknowledged" => Messages("page.reg.Dashboard.status.registered")
@@ -130,11 +136,11 @@
 </tr>
 }
 
-@showVATBlock = @{(dash.incDash.status, dash.incDash.ackRefStatus, dash.hasVATCred) match {
-    case (_, Some(ackRef), _) if(ackRef == "06") => false
-    case (_, _, true) => false
-    case (status, _, _) => status == "submitted" || status == "acknowledged"
-    case _ => false
+@showVATBlock = @{(dash.incDash.status, dash.hasVATCred) match {
+    case (_, _)      if ctRejected  => false
+    case (_, true)                  => false
+    case (status, _)                => status == "submitted" || status == "acknowledged"
+    case _                          => false
 }}
 
 @payeMap = {
@@ -262,7 +268,7 @@
                 </tbody>
             </table>
 
-            @if(dash.payeDash.status != "notEnabled" && dash.incDash.ackRefStatus.fold(true)(_ != "06")){
+            @if(dash.payeDash.status != "notEnabled" && !ctRejected) {
                 <h2 class="heading-medium" id="payeSubheading">@Messages("page.reg.Dashboard.PAYE.subHeading")</h2>
                 <table class="check-your-answers">
                     <tbody>
@@ -281,7 +287,7 @@
             }
 
             @if(dash.vatDash.nonEmpty) {
-                @if(dash.incDash.ackRefStatus.fold(true)(_ != "06")) {
+                @if(!ctRejected) {
                     @vatDashboard(dash.vatDash.get)
                 }
             } else {

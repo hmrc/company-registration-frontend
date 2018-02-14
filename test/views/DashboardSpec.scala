@@ -156,67 +156,74 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
       }
     }
 
-    "make sure that the dashboard has the correct elements when ETMP has rejected the CT submission" in new Setup {
+    Set(
+      "06", "07", "08", "09", "10"
+    ) foreach { status =>
+      s"make sure that the dashboard has the correct elements when ETMP has rejected the CT submission ($status status)" in new Setup {
 
-      val dashboard = Dashboard(
-        "testCompanyName",
-        IncorpAndCTDashboard(
-          "submitted", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("06")
-        ),
-        ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo"))),
-        None
-      )
+        val dashboard = Dashboard(
+          "testCompanyName",
+          IncorpAndCTDashboard(
+            "submitted", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some(status)
+          ),
+          ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo"))),
+          None
+        )
 
-      when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
-        .thenReturn(Future.successful(Some(regId)))
+        when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
+          .thenReturn(Future.successful(Some(regId)))
 
-      when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
-        .thenReturn(Future.successful(DashboardBuilt(dashboard)))
+        when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
+          .thenReturn(Future.successful(DashboardBuilt(dashboard)))
 
-      showWithAuthorisedUserRetrieval(controller.show, emptyEnrolments) {
-        result =>
-          val document = Jsoup.parse(contentAsString(result))
-          document.title() shouldBe "Company registration overview"
-          Map(
-            "incorpStatusText" -> "Registered",
-            "crn" -> "crn123",
-            "ctStatusText" -> "Registered"
-          ) foreach { case (element, message) =>
-            document.getElementById(element).text() shouldBe message
-          }
+        showWithAuthorisedUserRetrieval(controller.show, emptyEnrolments) {
+          result =>
+            val document = Jsoup.parse(contentAsString(result))
+            document.title() shouldBe "Company registration overview"
+            Map(
+              "incorpStatusText" -> "Registered",
+              "crn" -> "crn123",
+              "ctStatusText" -> "Registered"
+            ) foreach { case (element, message) =>
+              document.getElementById(element).text() shouldBe message
+            }
+        }
       }
     }
 
 
-    "make sure that the dashboard has the correct elements when ETMP has accepted the CT submission" in new Setup {
+    Set(
+      "04", "05"
+    ) foreach { status =>
+      s"make sure that the dashboard has the correct elements when ETMP has accepted the CT submission ($status status)" in new Setup {
+        val dashboard = Dashboard(
+          "testCompanyName",
+          IncorpAndCTDashboard(
+            "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some(status)
+          ),
+          ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo"))),
+          None
+        )
 
-      val dashboard = Dashboard(
-        "testCompanyName",
-        IncorpAndCTDashboard(
-          "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04")
-        ),
-        ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo"))),
-        None
-      )
+        when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
+          .thenReturn(Future.successful(Some(regId)))
 
-      when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
-        .thenReturn(Future.successful(Some(regId)))
+        when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
+          .thenReturn(Future.successful(DashboardBuilt(dashboard)))
 
-      when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
-        .thenReturn(Future.successful(DashboardBuilt(dashboard)))
+        showWithAuthorisedUserRetrieval(controller.show, emptyEnrolments) {
+          result =>
+            val document = Jsoup.parse(contentAsString(result))
+            document.title() shouldBe "Company registration overview"
 
-      showWithAuthorisedUserRetrieval(controller.show, emptyEnrolments) {
-        result =>
-          val document = Jsoup.parse(contentAsString(result))
-          document.title() shouldBe "Company registration overview"
-
-          Map(
-            "incorpStatusText" -> "Registered",
-            "crn" -> "crn123",
-            "ctStatusText" -> "Registered"
-          ) foreach { case (element, message) =>
-            document.getElementById(element).text() shouldBe message
-          }
+            Map(
+              "incorpStatusText" -> "Registered",
+              "crn" -> "crn123",
+              "ctStatusText" -> "Registered"
+            ) foreach { case (element, message) =>
+              document.getElementById(element).text() shouldBe message
+            }
+        }
       }
     }
 
@@ -407,8 +414,35 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
           val document = Jsoup.parse(contentAsString(result))
           document.title() shouldBe "Company registration overview"
           document.getElementById("payeStatusText").text() shouldBe "Registered"
+      }
+    }
 
+    Set(
+      "06", "07", "08", "09", "10"
+    ) foreach { status =>
+      s"make sure that the dashboard does not show the PAYE section when the CT submission status is rejected ($status ETMP status)" in new Setup {
+        val dashboard = Dashboard(
+          "testCompanyName",
+          IncorpAndCTDashboard(
+            "submitted", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some(status)
+          ),
+          ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, None)),
+          None,
+          hasVATCred = false
+        )
 
+        when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
+          .thenReturn(Future.successful(Some(regId)))
+
+        when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
+          .thenReturn(Future.successful(DashboardBuilt(dashboard)))
+
+        showWithAuthorisedUserRetrieval(controller.show, emptyEnrolments) {
+          result =>
+            val document = Jsoup.parse(contentAsString(result))
+            document.title() shouldBe "Company registration overview"
+            intercept[NullPointerException](document.getElementById("payeStatusText").text())
+        }
       }
     }
 
@@ -469,7 +503,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
       val dashboard = Dashboard(
         "testCompanyName",
         IncorpAndCTDashboard(
-          "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), None
+          "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04")
         ),
         ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, None)),
         None,
@@ -491,28 +525,32 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
       }
     }
 
-    "make sure that the dashboard does not show the VAT section when the CT submission status is rejected (06 ETMP status)" in new Setup {
-      val dashboard = Dashboard(
-        "testCompanyName",
-        IncorpAndCTDashboard(
-          "submitted", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("06")
-        ),
-        ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, None)),
-        None,
-        hasVATCred = false
-      )
+    Set(
+      "06", "07", "08", "09", "10"
+    ) foreach { status =>
+      s"make sure that the dashboard does not show the VAT section when the CT submission status is rejected ($status ETMP status)" in new Setup {
+        val dashboard = Dashboard(
+          "testCompanyName",
+          IncorpAndCTDashboard(
+            "submitted", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some(status)
+          ),
+          ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, None)),
+          None,
+          hasVATCred = false
+        )
 
-      when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
-        .thenReturn(Future.successful(Some(regId)))
+        when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
+          .thenReturn(Future.successful(Some(regId)))
 
-      when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
-        .thenReturn(Future.successful(DashboardBuilt(dashboard)))
+        when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
+          .thenReturn(Future.successful(DashboardBuilt(dashboard)))
 
-      showWithAuthorisedUserRetrieval(controller.show, emptyEnrolments) {
-        result =>
-          val document = Jsoup.parse(contentAsString(result))
-          document.title() shouldBe "Company registration overview"
-          intercept[NullPointerException](document.getElementById("legacyVATStatusText").text())
+        showWithAuthorisedUserRetrieval(controller.show, emptyEnrolments) {
+          result =>
+            val document = Jsoup.parse(contentAsString(result))
+            document.title() shouldBe "Company registration overview"
+            intercept[NullPointerException](document.getElementById("legacyVATStatusText").text())
+        }
       }
     }
 
