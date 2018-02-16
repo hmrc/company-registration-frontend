@@ -20,7 +20,7 @@ import models.AboutYouChoiceForm
 import play.api.data.Form
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
-class AboutYouFormSpec extends UnitSpec with WithFakeApplication{
+class AboutYouFormSpec extends UnitSpec {
 
   def fillForm(cc : String, other : String) : Form[AboutYouChoiceForm] = {
     AboutYouForm.form.fill(AboutYouChoiceForm(cc, other))

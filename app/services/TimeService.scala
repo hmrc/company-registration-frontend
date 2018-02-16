@@ -30,7 +30,11 @@ object TimeService extends TimeService with ServicesConfig {
   override lazy val dayEndHour = getConfInt("time-service.day-end-hour", throw new Exception("could not find config key time-service.day-end-hour"))
   override def currentDateTime = DateTime.now
   override def currentLocalDate = LocalDate.now
-  override val bHS: BankHolidaySet = BankHolidaySet("england-and-wales", List(
+  override val bHS: BankHolidaySet = BankHolidays.bankHolidaySet
+}
+
+object BankHolidays {
+  val bankHolidaySet: BankHolidaySet = BankHolidaySet("england-and-wales", List(
     BankHoliday(title = "Good Friday", date = new LocalDate(2017, 4, 14)),
     BankHoliday(title = "Easter Monday", date = new LocalDate(2017, 4, 17)),
     BankHoliday(title = "Early May bank holiday", date = new LocalDate(2017, 5, 1)),
