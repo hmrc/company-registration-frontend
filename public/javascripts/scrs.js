@@ -88,4 +88,9 @@ $(document).ready($(function() {
         ga('send', 'event', 'LinkUsed', parts[0], parts[1]);
     });
 
+    $("#submissionFailedReportAProblem").each(function(){
+        $(".report-error__toggle").click();
+        $(".report-error__toggle").hide();
+    });
+
 }));
