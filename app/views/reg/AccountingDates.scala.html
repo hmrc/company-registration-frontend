@@ -24,7 +24,7 @@
 @(accountingDatesForm : Form[AccountingDatesModel], date: String)(implicit request: Request[_], messages: Messages, lang: Lang)
 
 @hiddenContent = {
-    <span class="form-hint">@Messages("page.reg.accountingDates.help")</span>
+    <span class="form-label">@Messages("page.reg.accountingDates.help")</span>
     <span class="form-hint">@Messages("common.dateExample") @date</span>
     @dateFieldsFreeInline(
         accountingDatesForm,
