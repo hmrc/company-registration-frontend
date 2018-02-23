@@ -23,7 +23,15 @@ import services.TimeService
 
 import scala.util.{Failure, Success, Try}
 
-object SCRSValidators {
+object SCRSValidators extends SCRSValidators {
+  val timeService: TimeService = TimeService
+  val now : LocalDate = new LocalDate()
+}
+
+trait SCRSValidators {
+
+  val timeService: TimeService
+  val now : LocalDate
 
   private val nameRegex = """^[a-zA-Z-]+(?:\W+[a-zA-Z-]+)+$""".r
   private val contactNameRegex = """^[A-Za-z '\\-]{1,100}$""".r
@@ -63,7 +71,7 @@ object SCRSValidators {
               LocalDate.parse(s"${model.year.get}-${model.month.get}-${model.day.get}")
             } match {
               case Success(date) =>
-                if(TimeService.isDateSomeWorkingDaysInFuture(date)) {
+                if (timeService.isDateSomeWorkingDaysInFuture(date) && date.isBefore(now.plusYears(3).plusDays(1))) {
                   Valid
                 } else {
                   Invalid(Seq(ValidationError("page.reg.accountingDates.date.future", "notFuture")))

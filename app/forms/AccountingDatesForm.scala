@@ -17,12 +17,21 @@
 package forms
 
 import models.{AccountingDatesModel, EmptyStringValidator}
+import org.joda.time.LocalDate
 import play.api.data.Form
 import play.api.data.Forms._
-import utils.SCRSValidators._
+import services.TimeService
 import uk.gov.hmrc.play.mappers.StopOnFirstFail
+import utils.SCRSValidators
 
-object AccountingDatesForm extends EmptyStringValidator{
+object AccountingDatesForm extends AccountingDatesForm {
+  val timeService: TimeService = TimeService
+  override val now: LocalDate = new LocalDate()
+}
+
+trait AccountingDatesForm extends EmptyStringValidator with SCRSValidators {
+
+  val timeService: TimeService
 
   def form = Form(
     mapping(
@@ -33,3 +42,5 @@ object AccountingDatesForm extends EmptyStringValidator{
     )(AccountingDatesModel.apply)(AccountingDatesModel.unapply).verifying(StopOnFirstFail(emptyDateConstraint, validateDate, accountingDateValidation))
   )
 }
+
+

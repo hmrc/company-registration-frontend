@@ -16,12 +16,22 @@
 
 package forms
 
-import org.joda.time.LocalDate
+import org.joda.time.{DateTime, LocalDate}
+import services.{BankHolidays, TimeService}
+import services.TimeService._
+import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import uk.gov.hmrc.time.workingdays.{BankHoliday, BankHolidaySet}
 
-class AccountingDatesFormSpec extends UnitSpec with WithFakeApplication {
+class AccountingDatesFormSpec extends UnitSpec {
 
-  val testForm = AccountingDatesForm.form
+  val currentDateTime = DateTime.parse("2022-02-28T08:00")
+  val currentLocalDate = LocalDate.parse("2022-02-28")
+
+  def testForm(newnow : LocalDate = new LocalDate()) = new AccountingDatesForm {
+    override val timeService: TimeService = TimeService
+    override val now: LocalDate = newnow
+  }.form
 
   val currentYear = LocalDate.now().getYear
   val futureYear = (currentYear + 1).toString
@@ -65,13 +75,13 @@ class AccountingDatesFormSpec extends UnitSpec with WithFakeApplication {
 
   "Creating a form using an empty model" should {
     "return an empty string for amount" in {
-      testForm.data.isEmpty shouldBe true
+      testForm().data.isEmpty shouldBe true
     }
   }
 
   "Creating a form with a valid post" when {
     "selecting when the CRN is received" should {
-      val boundForm = testForm.bind(whenRegisteredData)
+      val boundForm = testForm().bind(whenRegisteredData)
       "Have no errors" in {
         boundForm.hasErrors shouldBe false
       }
@@ -80,11 +90,11 @@ class AccountingDatesFormSpec extends UnitSpec with WithFakeApplication {
     "selecting 'Start my business on a future date' and inputting said date" should {
 
       "have no errors when a date further than 2 working days in the future is provided" in {
-        val boundForm = testForm.bind(futureDateData)
+        val boundForm = testForm().bind(futureDateData)
         boundForm.hasErrors shouldBe false
       }
       "have errors when a date less than than 2 working days in the future is provided" in {
-        val boundForm = testForm.bind(pastDateData)
+        val boundForm = testForm().bind(pastDateData)
         boundForm.hasErrors shouldBe true
       }
     }
@@ -92,14 +102,14 @@ class AccountingDatesFormSpec extends UnitSpec with WithFakeApplication {
 
   "Creating a form with an invalid post" when {
     "having no business start date flag" should {
-      val boundForm = testForm.bind(invalidBusinessStartDateData)
+      val boundForm = testForm().bind(invalidBusinessStartDateData)
       "have errors" in {
         boundForm.errors.map(_.key) shouldBe List("businessStartDate")
       }
     }
 
     "entering an invalid date" should {
-      val boundForm = testForm.bind(invalidDateData)
+      val boundForm = testForm().bind(invalidDateData)
       "have errors" in {
         boundForm.hasErrors shouldBe true
       }

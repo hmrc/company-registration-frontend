@@ -85,21 +85,21 @@ page.reg.Confirmation.next-steps.point2                             = another em
 
 ## Accounting Dates
 page.reg.accountingDates.description                                = When will the company start doing business?
-page.reg.accountingDates.lede1                                      = The company is doing business if it''s earning income or trading with a view to making a profit.
-page.reg.accountingDates.radioOne                                   = The date it''s registered
+page.reg.accountingDates.lede1                                      = This is when the company starts buying or selling goods or services, even if it''s not yet making a profit.
+page.reg.accountingDates.radioOne                                   = The date it''s registered with Companies House
 page.reg.accountingDates.radioTwo                                   = On a future date
-page.reg.accountingDates.radioThree                                 = Not planning to start yet
+page.reg.accountingDates.radioThree                                 = I don''t have an exact date
 page.reg.accountingDates.date.notFound                              = Enter a date at least 3 working days from now
 page.reg.accountingDates.day.notFound                               = Enter a day
 page.reg.accountingDates.month.notFound                             = Enter a month
 page.reg.accountingDates.year.notFound                              = Enter a year
-page.reg.accountingDates.date.future                                = Enter a date at least 3 working days from now
+page.reg.accountingDates.date.future                                = Enter a date at least 3 working days from now and no more than 3 years in the future
 page.reg.accountingDates.date.invalid-date                          = You have not entered a valid date
 page.reg.accountingDates.date.invalid-day                           = Enter a valid day
 page.reg.accountingDates.date.invalid-month                         = Enter a valid month
 page.reg.accountingDates.date.invalid-year                          = Enter a valid year
 page.reg.accountingDates.warning                                    = As soon as you start doing business you need to let HMRC know.
-page.reg.accountingDates.help                                       = Enter a date that''s at least 2 working days in the future (or 3 if it''s after 2pm)
+page.reg.accountingDates.help                                       = Enter a date at least 3 working days from now and no more than 3 years in the future.
 error.businessStartDate.required                                    = Tell us when the company will start doing business
 
 ## Company contact details
