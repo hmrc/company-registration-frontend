@@ -42,7 +42,6 @@ class SignInOutControllerSpec extends SCRSSpec
   with UserDetailsFixture with PayloadFixture with PPOBFixture with BusinessRegistrationFixture with CompanyDetailsFixture with WithFakeApplication
   with AuthBuilder {
 
-  val mockEmailService = mock[EmailVerificationService]
   val mockEnrolmentsService = mock[EnrolmentsService]
 
 
@@ -96,7 +95,7 @@ class SignInOutControllerSpec extends SCRSSpec
         .thenReturn(Future.successful((Some(true), Some("String"))))
 
       when(mockEmailService.sendWelcomeEmail(Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
-        .thenReturn(Future.successful(Some(true)))
+        .thenReturn(Future.successful(Some(false)))
 
       when(mockCompanyRegistrationConnector.fetchRegistrationStatus(Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(None))
@@ -122,6 +121,12 @@ class SignInOutControllerSpec extends SCRSSpec
 
       when(mockHandOffService.cacheRegistrationID(Matchers.eq(registrationID))(Matchers.any()))
         .thenReturn(Future.successful(cacheMap))
+
+      when(mockEmailService.isVerified(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
+        .thenReturn(Future.successful((Some(true), Some("String"))))
+
+      when(mockEmailService.sendWelcomeEmail(Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
+        .thenReturn(Future.successful(Some(true)))
 
       showWithAuthorisedUserRetrieval(controller.postSignIn(None), authDetails) {
         result =>

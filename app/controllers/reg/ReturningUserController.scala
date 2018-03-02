@@ -25,20 +25,23 @@ import models.ReturningUser
 import play.api.mvc.Action
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.frontend.controller.FrontendController
-import utils.MessagesSupport
+import utils.{MessagesSupport, SCRSFeatureSwitches}
 import views.html.reg.ReturningUserView
 
 import scala.concurrent.Future
 
 object ReturningUserController extends ReturningUserController with ServicesConfig{
   val createGGWAccountUrl = getConfString("gg-reg-fe.url", throw new Exception("Could not find config for gg-reg-fe url"))
-  val compRegFeUrl = FrontendConfig.self
-  val authConnector = FrontendAuthConnector
+  val eligUri             = getConfString("company-registration-eligibility-frontend.url", throw new Exception("Could not find config for comp-reg-el-fe url"))
+  val eligUrl             = s"${baseUrl("company-registration-eligibility-frontend")}$eligUri"
+  val compRegFeUrl        = FrontendConfig.self
+  val authConnector       = FrontendAuthConnector
 }
 
 trait ReturningUserController extends FrontendController with AuthFunction with MessagesSupport {
   val createGGWAccountUrl: String
   val compRegFeUrl: String
+  val eligUrl : String
 
   val show = Action.async { implicit request =>
     onlyIfNotSignedIn {
@@ -50,8 +53,8 @@ trait ReturningUserController extends FrontendController with AuthFunction with 
     implicit request =>
       ReturningUserForm.form.bindFromRequest.fold(
         errors => Future.successful(BadRequest(ReturningUserView(errors))),
-        Success => {
-          Success.returningUser match {
+        success => {
+          success.returningUser match {
             case "true" => Future.successful(Redirect(buildCreateAccountURL))
             case "false" => Future.successful(Redirect(routes.SignInOutController.postSignIn(None)))
           }
@@ -59,12 +62,18 @@ trait ReturningUserController extends FrontendController with AuthFunction with 
       )
   }
 
-  private[controllers] def buildCreateAccountURL = {
-    val continueUrlUrl = controllers.reg.routes.SignInOutController.postSignIn(None).url
-    val ggrf = "government-gateway-registration-frontend"
-    val accountType = "accountType=organisation"
-    val origin = "origin=company-registration-frontend"
-    val continueURL = s"continue=${URLEncoder.encode(s"$compRegFeUrl$continueUrlUrl","UTF-8")}"
-    s"$createGGWAccountUrl/${ggrf}?${accountType}&${continueURL}&${origin}"
+  private[controllers] def buildCreateAccountURL: String = {
+    if (signPostingEnabled) {
+      eligUrl
+    } else {
+      val continueUrlUrl = controllers.reg.routes.SignInOutController.postSignIn(None).url
+      val ggrf = "government-gateway-registration-frontend"
+      val accountType = "accountType=organisation"
+      val origin = "origin=company-registration-frontend"
+      val continueURL = s"continue=${URLEncoder.encode(s"$compRegFeUrl$continueUrlUrl","UTF-8")}"
+      s"$createGGWAccountUrl/${ggrf}?${accountType}&${continueURL}&${origin}"
+    }
   }
+
+  def signPostingEnabled: Boolean = SCRSFeatureSwitches.signPosting.enabled
 }

@@ -34,6 +34,7 @@ class WelcomeSpec extends UnitSpec with WithFakeApplication {
 		"make sure that welcome page has the correct elements for when PAYE feature switch DISABLED" in new SetupPage {
 			System.clearProperty("feature.paye")
 			System.setProperty("feature.paye", "false")
+			System.setProperty("feature.signPosting", "false")
 			val result = controller.show()(FakeRequest())
 			val document = Jsoup.parse(contentAsString(result))
 
@@ -59,6 +60,7 @@ class WelcomeSpec extends UnitSpec with WithFakeApplication {
 		"make sure that welcome page has the correct elements for when PAYE feature switch ENABLED" in new SetupPage {
 			System.clearProperty("feature.paye")
 			System.setProperty("feature.paye", "true")
+			System.setProperty("feature.signPosting", "false")
 			val result = controller.show()(FakeRequest())
 			val document = Jsoup.parse(contentAsString(result))
 

@@ -28,9 +28,15 @@ object WelcomeController extends WelcomeController
 trait WelcomeController extends FrontendController with MessagesSupport {
 
   val show = Action.async { implicit request =>
-    Future.successful(Ok(Welcome(SCRSFeatureSwitches.paye.enabled)))
+    if (signPostingEnabled) {
+      Future.successful(PermanentRedirect(routes.SignInOutController.postSignIn(None).url))
+    } else {
+      Future.successful(Ok(Welcome(SCRSFeatureSwitches.paye.enabled)))
+    }
   }
   val submit = Action.async { implicit request =>
     Future.successful(Redirect(routes.ReturningUserController.show()))
   }
+
+  def signPostingEnabled: Boolean = SCRSFeatureSwitches.signPosting.enabled
 }

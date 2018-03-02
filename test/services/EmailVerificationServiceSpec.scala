@@ -19,16 +19,14 @@ package services
 import java.util.UUID
 
 import audit.events.EmailVerifiedEvent
-import connectors.{CompanyRegistrationConnector, EmailVerificationConnector, KeystoreConnector, SendTemplatedEmailConnector}
 import fixtures.UserDetailsFixture
+import helpers.SCRSSpec
 import models.auth.AuthDetails
 import models.{Email, EmailVerificationRequest, SendTemplatedEmailRequest}
 import org.mockito.Mockito._
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
 import org.mockito.{ArgumentCaptor, Matchers}
-import org.scalatest.BeforeAndAfterEach
-import org.scalatest.mockito.MockitoSugar
 import play.api.libs.json.Json
 import play.api.mvc.{AnyContent, Request}
 import play.api.test.FakeRequest
@@ -36,39 +34,27 @@ import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolments}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.cache.client.CacheMap
-import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.http.connector.AuditResult.Success
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class EmailVerificationServiceSpec extends UnitSpec with MockitoSugar with WithFakeApplication with UserDetailsFixture with BeforeAndAfterEach {
+class EmailVerificationServiceSpec extends UnitSpec with SCRSSpec with WithFakeApplication with UserDetailsFixture {
 
-  implicit val hc = HeaderCarrier()
   implicit val req = FakeRequest("GET", "/test-path")
 
   override def beforeEach() {
     resetMocks()
   }
 
-  val mockEmailConnector = mock[EmailVerificationConnector]
-  val mockSendTemplatedEmailConnector = mock[SendTemplatedEmailConnector]
-  val mockCrConnector = mock[CompanyRegistrationConnector]
-  val mockKsConnector = mock[KeystoreConnector]
-  val mockAuditConnector = mock[AuditConnector]
-
-  def resetMocks() = {
-    reset(mockEmailConnector)
-    reset(mockSendTemplatedEmailConnector)
-    reset(mockCrConnector)
-    reset(mockKsConnector)
-    reset(mockAuditConnector)
-  }
+  val mockEmailConnector = mockEmailVerificationConnector
+  val mockCrConnector = mockCompanyRegistrationConnector
+  val mockKsConnector = mockKeystoreConnector
 
   trait Setup {
-    val service = new EmailVerificationService {
+    val stubbedService = new EmailVerificationService {
       val emailConnector = mockEmailConnector
-      val templatedEmailConnector = mockSendTemplatedEmailConnector
+      val templatedEmailConnector = mockSendTemplateEmailConnector
       val crConnector = mockCrConnector
       val returnUrl = "TestUrl"
       val keystoreConnector = mockKsConnector
@@ -94,12 +80,12 @@ class EmailVerificationServiceSpec extends UnitSpec with MockitoSugar with WithF
 
     val emailService = new EmailVerificationService{
       val emailConnector = mockEmailConnector
+      val templatedEmailConnector = mockSendTemplateEmailConnector
       val crConnector = mockCrConnector
       val returnUrl = "TestUrl"
       val keystoreConnector = mockKsConnector
       val auditConnector = mockAuditConnector
       val sendTemplatedEmailURL = "TemplatedEmailUrl"
-      val templatedEmailConnector = mockSendTemplatedEmailConnector
     }
   }
 
@@ -127,37 +113,37 @@ class EmailVerificationServiceSpec extends UnitSpec with MockitoSugar with WithF
 
     "return an option of true when a user already has an authenticated email" in new Setup {
       val expected = (Some(true),Some("verified"))
-      await(service.isVerified(regId, Some(verifiedEmail), None, authDetails)) shouldBe expected
+      await(stubbedService.isVerified(regId, Some(verifiedEmail), None, authDetails)) shouldBe expected
     }
 
     "return an option of true when a user has an authenticated email when asking the Email service" in new Setup {
       val expected = (Some(true),Some("verified"))
-      await(service.isVerified(regId, Some(verifiedEmail), None, authDetails)) shouldBe expected
+      await(stubbedService.isVerified(regId, Some(verifiedEmail), None, authDetails)) shouldBe expected
     }
 
     "return an option of false when a user has an unauthenticated email" in new Setup {
       val expected = (Some(false),Some(unverifiedEmail.address))
-      await(service.isVerified(regId, Some(unverifiedEmail), None, authDetails)) shouldBe expected
+      await(stubbedService.isVerified(regId, Some(unverifiedEmail), None, authDetails)) shouldBe expected
     }
 
     "return an option of false when a user has a EVS authenticated email but unauthenticated on company registration" in new Setup {
       val expected = (Some(true), Some(unverifiedEmail.address))
-      await(service.isVerified("verified", Some(unverifiedEmail), None, authDetails)) shouldBe expected
+      await(stubbedService.isVerified("verified", Some(unverifiedEmail), None, authDetails)) shouldBe expected
     }
 
     "return an option of false and the email address when a user has not previously been sent a verification email" in new Setup {
       val expected = (Some(false), Some(defaultEmail.address))
-      await(service.isVerified(regId, Some(defaultEmail), None, authDetails)) shouldBe expected
+      await(stubbedService.isVerified(regId, Some(defaultEmail), None, authDetails)) shouldBe expected
     }
 
     "return an option of true when a user has not been sent a verification email but is verified" in new Setup {
       val expected = (Some(true),Some("existing"))
-      await(service.isVerified(regId, Some(existingEmail), None, authDetails))shouldBe expected
+      await(stubbedService.isVerified(regId, Some(existingEmail), None, authDetails))shouldBe expected
     }
 
     "return None when a user has no email" in new Setup {
       val expected = (None,None)
-      await(service.isVerified(regId, Some(noEmail), None, authDetails)) shouldBe expected
+      await(stubbedService.isVerified(regId, Some(noEmail), None, authDetails)) shouldBe expected
     }
   }
 
@@ -262,7 +248,63 @@ class EmailVerificationServiceSpec extends UnitSpec with MockitoSugar with WithF
     )
 
     "return a verificationRequest with the correct email " in new Setup {
-      service.generateEmailRequest(testEmail) shouldBe testRequest
+      stubbedService.generateEmailRequest(testEmail) shouldBe testRequest
+    }
+  }
+
+  "sendWelcomeEmail" should {
+    "send an email" when {
+      "signposting is enabled with no return sent" in new Setup {
+        System.setProperty("feature.signPosting", "false")
+
+        when(mockCrConnector.retrieveEmail(Matchers.anyString())(Matchers.any()))
+          .thenReturn(Future.successful(Some(defaultEmail)))
+
+        when(mockSendTemplateEmailConnector.requestTemplatedEmail(Matchers.any())(Matchers.any()))
+          .thenReturn(Future.successful(true))
+
+        when(mockCrConnector.updateEmail(Matchers.eq(regId), Matchers.any[Email]())(Matchers.any[HeaderCarrier]()))
+          .thenAnswer( (i: InvocationOnMock) => Future.successful(Some(i.getArguments()(1).asInstanceOf[Email])))
+
+        val captor = ArgumentCaptor.forClass(classOf[EmailVerifiedEvent])
+
+        when(mockAuditConnector.sendExtendedEvent(captor.capture())(Matchers.any[HeaderCarrier](), Matchers.any[ExecutionContext]()))
+          .thenReturn(Future.successful(Success))
+
+        await(emailService.sendWelcomeEmail(regId, "myEmail@email.com", authDetails)) shouldBe Some(true)
+      }
+    }
+
+    "not send an email" when {
+      "signposting is enabled with no return sent" in new Setup {
+        System.setProperty("feature.signPosting", "true")
+
+        when(mockCrConnector.retrieveEmail(Matchers.anyString())(Matchers.any()))
+          .thenReturn(Future.successful(Some(defaultEmail)))
+
+        when(mockCrConnector.updateEmail(Matchers.eq(regId), Matchers.any[Email]())(Matchers.any[HeaderCarrier]()))
+          .thenAnswer( (i: InvocationOnMock) => Future.successful(Some(i.getArguments()(1).asInstanceOf[Email])))
+
+        val captor = ArgumentCaptor.forClass(classOf[EmailVerifiedEvent])
+
+        when(mockAuditConnector.sendExtendedEvent(captor.capture())(Matchers.any[HeaderCarrier](), Matchers.any[ExecutionContext]()))
+          .thenReturn(Future.successful(Success))
+
+        await(emailService.sendWelcomeEmail(regId, "myEmail@email.com", authDetails)) shouldBe Some(true)
+
+        verify(mockSendTemplateEmailConnector, times(0)).requestTemplatedEmail(Matchers.any())(Matchers.any())
+      }
+
+      "signposting is disabled with a verified email" in new Setup {
+        System.setProperty("feature.signPosting", "false")
+
+        when(mockCrConnector.retrieveEmail(Matchers.anyString())(Matchers.any()))
+          .thenReturn(Future.successful(Some(verifiedEmail)))
+
+        await(emailService.sendWelcomeEmail(regId, "myEmail@email.com", authDetails)) shouldBe Some(false)
+
+        verify(mockSendTemplateEmailConnector, times(0)).requestTemplatedEmail(Matchers.any())(Matchers.any())
+      }
     }
   }
 
@@ -278,14 +320,14 @@ class EmailVerificationServiceSpec extends UnitSpec with MockitoSugar with WithF
     )
 
     "return a templatedEmailRequest with the correct email " in new Setup {
-      service.generateWelcomeEmailRequest(Seq(testEmail)) shouldBe testRequest
+      stubbedService.generateWelcomeEmailRequest(Seq(testEmail)) shouldBe testRequest
     }
   }
 
 
   "Generating an email request" should {
     "construct the correct JSON" in new Setup {
-      val result = service.generateEmailRequest("foo@bar.wibble")
+      val result = stubbedService.generateEmailRequest("foo@bar.wibble")
 
       val resultAsJson = Json.toJson(result)
 
@@ -306,7 +348,7 @@ class EmailVerificationServiceSpec extends UnitSpec with MockitoSugar with WithF
   }
  "Generating a templated email request" should {
     "construct the correct JSON" in new Setup {
-      val result = service.generateWelcomeEmailRequest(Seq("foo@bar.wibble"))
+      val result = stubbedService.generateWelcomeEmailRequest(Seq("foo@bar.wibble"))
 
       val resultAsJson = Json.toJson(result)
 
@@ -332,13 +374,13 @@ class EmailVerificationServiceSpec extends UnitSpec with MockitoSugar with WithF
       when(mockCrConnector.retrieveEmail(Matchers.anyString())(Matchers.any()))
         .thenReturn(Future.successful(Some(defaultEmail)))
 
-      await(service.fetchEmailBlock(regId)) shouldBe defaultEmail
+      await(stubbedService.fetchEmailBlock(regId)) shouldBe defaultEmail
     }
     "return an appropriate exception when email is not found" in new Setup {
       when(mockCrConnector.retrieveEmail(Matchers.anyString())(Matchers.any()))
         .thenReturn(Future.successful(None))
 
-      intercept[EmailBlockNotFound](await(service.fetchEmailBlock(regId)))
+      intercept[EmailBlockNotFound](await(stubbedService.fetchEmailBlock(regId)))
     }
   }
 }

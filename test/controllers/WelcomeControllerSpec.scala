@@ -28,10 +28,21 @@ class WelcomeControllerSpec extends SCRSSpec with WithFakeApplication {
   }
 
   "Sending a GET request to WelcomeController" should {
-    "return a 200" in new Setup {
+    "send the user to post-sign-in if signposting is enabled" when {
+      "they show the page" in new Setup {
+        System.setProperty("feature.signPosting", "true")
 
-      val result = TestController.show()(FakeRequest())
-      status(result) shouldBe OK
+        val result = TestController.show()(FakeRequest())
+        status(result) shouldBe PERMANENT_REDIRECT
+      }
+    }
+    "send the user to welcome if signposting is disabled" when {
+      "they show the page" in new Setup {
+        System.setProperty("feature.signPosting", "false")
+
+        val result = TestController.show()(FakeRequest())
+        status(result) shouldBe OK
+      }
     }
   }
 

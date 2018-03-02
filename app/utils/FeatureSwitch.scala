@@ -108,6 +108,7 @@ trait SCRSFeatureSwitches {
   def legacyEnv                 = FeatureSwitch.getProperty(LEGACY_ENV)
   def contactUs                 = FeatureSwitch.getProperty("contactUs")
   def systemDate                = FeatureSwitch.getProperty("system-date")
+  def signPosting               = FeatureSwitch.getProperty("signPosting")
 
   def apply(name: String): Option[FeatureSwitch] = name match {
     case COHO                        => Some(cohoFirstHandOff)
@@ -117,6 +118,7 @@ trait SCRSFeatureSwitches {
     case LEGACY_ENV                  => Some(legacyEnv)
     case "contactUs"                 => Some(contactUs)
     case "system-date"               => Some(systemDate)
+    case "signPosting"               => Some(signPosting)
     case _                           => None
   }
 }

@@ -16,7 +16,7 @@
 
 package mocks
 
-import connectors.{IncorpInfoConnector, KeystoreConnector}
+import connectors.{EmailVerificationConnector, IncorpInfoConnector, KeystoreConnector, SendTemplatedEmailConnector}
 import org.mockito.Matchers
 import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito._
@@ -48,7 +48,12 @@ trait SCRSMocks
   lazy val mockAuditConnector = mock[AuditConnector]
   lazy val mockIncorpInfoConnector = mock[IncorpInfoConnector]
   lazy val mockDeleteSubmissionService = mock[DeleteSubmissionService]
+  lazy val mockEmailService = mock[EmailVerificationService]
   lazy val mockPPOBService = mock[PPOBService]
+  lazy val mockCommonService = mock[CommonService]
+  lazy val mockMetaDataService = mock[MetaDataService]
+  lazy val mockEmailVerificationConnector = mock[EmailVerificationConnector]
+  lazy val mockSendTemplateEmailConnector = mock[SendTemplatedEmailConnector]
 
   def mockFetchRegistrationID[T <: CommonService](response: String, mock : T) = {
     when(mock.fetchRegistrationID(Matchers.any[HeaderCarrier]()))
@@ -73,5 +78,9 @@ trait SCRSMocks
     reset(mockCompanyContactDetailsService)
     reset(mockAudit)
     reset(mockNavModelRepo)
+    reset(mockEmailService)
+    reset(mockCommonService)
+    reset(mockEmailVerificationConnector)
+    reset(mockSendTemplateEmailConnector)
   }
 }

@@ -28,9 +28,10 @@ class ReturningUserSpec extends SCRSSpec with AuthBuilder with WithFakeApplicati
   class Setup {
     object TestController extends ReturningUserController{
       val createGGWAccountUrl = "CreateGGWAccountURL"
-      val compRegFeUrl = "CompRegFEURL"
-      val authConnector = mockAuthConnector
-
+      val eligUri             = "/check-if-you-can-setup-a-company"
+      val eligUrl             = "EligURL"
+      val compRegFeUrl        = "CompRegFEURL"
+      val authConnector       = mockAuthConnector
     }
   }
 
@@ -57,6 +58,13 @@ class ReturningUserSpec extends SCRSSpec with AuthBuilder with WithFakeApplicati
         status(result) shouldBe SEE_OTHER
         redirectLocation(result).get should include("CreateGGWAccountURL/government-gateway-registration-frontend")
         redirectLocation(result).get should include("continue=CompRegFEURL%2Fregister-your-company%2Fpost-sign-in")
+      }
+      "return a 303 and send user to company registration eligibility when they start a new registration with signposting" in new Setup {
+        System.setProperty("feature.signPosting", "true")
+
+        val result = TestController.submit()(FakeRequest().withFormUrlEncodedBody("returningUser" -> "true"))
+        status(result) shouldBe SEE_OTHER
+        redirectLocation(result).get should include("EligURL")
       }
       "return a 303 and send user to sign-in page when they are not starting a new registration" in new Setup {
 

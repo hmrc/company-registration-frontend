@@ -37,8 +37,6 @@ class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixtu
 
   implicit val hcWithExtraHeaders: HeaderCarrier = HeaderCarrier().withExtraHeaders("Accept" -> "application/vnd.hmrc.1.0+json")
 
-
-  val mockMetaDataService = mock[MetaDataService]
   val applicantData = AboutYouChoice("Director")
   val mockNavModelRepoObj = mockNavModelRepo
 

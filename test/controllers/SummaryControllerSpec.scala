@@ -40,8 +40,6 @@ import scala.concurrent.Future
 class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with WithFakeApplication with AccountingDetailsFixture with TradingDetailsFixtures
   with CorporationTaxFixture with AuthBuilder {
 
-  val mockMetaDataService = mock[MetaDataService]
-
   val aboutYouData = AboutYouChoice("Director")
   val mockNavModelRepoObj = mockNavModelRepo
 

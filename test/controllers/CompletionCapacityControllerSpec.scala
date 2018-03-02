@@ -37,7 +37,6 @@ import scala.concurrent.Future
 class CompletionCapacityControllerSpec extends SCRSSpec with WithFakeApplication with MockitoSugar with BusinessRegistrationFixture with AuthBuilder {
 
   val mockBusinessRegConnector = mock[BusinessRegistrationConnector]
-  val mockMetaDataService = mock[MetaDataService]
 
 
   class Setup {

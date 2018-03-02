@@ -29,6 +29,7 @@ import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
+import utils.SCRSFeatureSwitches
 
 import scala.concurrent.Future
 import scala.util.control.NoStackTrace
@@ -88,15 +89,10 @@ trait EmailVerificationService {
   private[services] def verifyEmailAddress(address: String, rId: String, authDetails: AuthDetails)
                                           (implicit hc: HeaderCarrier, req: Request[AnyContent]): Future[Option[Boolean]] = {
     cacheEmail(address) flatMap { x =>
-      emailConnector.checkVerifiedEmail(address) flatMap {
-        case true =>
-          saveEmailBlock(rId, Email(address, GG, true, verified = true, false), authDetails) map {
-            _ => Some(true)
-          }
-        case _ =>
-          saveEmailBlock(rId, Email(address, GG, true, verified = false, false), authDetails) map { e =>
-            Some(false)
-          }
+      emailConnector.checkVerifiedEmail(address) flatMap { emailVerified =>
+        saveEmailBlock(rId, Email(address, GG, linkSent = true, verified = emailVerified, returnLinkEmailSent = false), authDetails) map {
+          _ => Some(emailVerified)
+        }
       }
     }
   }
@@ -119,13 +115,18 @@ trait EmailVerificationService {
     fetchEmailBlock(rId) flatMap {
       case Email(_, _, _, _, true) => Future.successful(Some(false))
       case Email(_, _, _, _, false) =>
-        templatedEmailConnector.requestTemplatedEmail(generateWelcomeEmailRequest(Seq(emailAddress))) flatMap {
-          sent =>
-            saveEmailBlock(
-              rId,
-              Email(emailAddress, "GG", linkSent = true, verified = true, returnLinkEmailSent = true),
-              authDetails
-            ) map { seb => Some(true) }
+        (if (signPostingEnabled) {
+          Future.successful(false)
+        } else {
+          templatedEmailConnector.requestTemplatedEmail(generateWelcomeEmailRequest(Seq(emailAddress)))
+        }) flatMap { sent =>
+          saveEmailBlock(
+            rId,
+            Email(emailAddress, "GG", linkSent = true, verified = true, returnLinkEmailSent = true),
+            authDetails
+          ) map { seb =>
+            Some(true)
+          }
         }
     }
   }
@@ -185,4 +186,6 @@ trait EmailVerificationService {
       )
     } yield result
   }
+
+  def signPostingEnabled: Boolean = SCRSFeatureSwitches.signPosting.enabled
 }
