@@ -17,7 +17,6 @@
 package controllers
 
 import builders.AuthBuilder
-import config.FrontendAuthConnector
 import controllers.reg.ReturningUserController
 import helpers.SCRSSpec
 import play.api.test.FakeRequest

@@ -19,15 +19,14 @@ package connectors
 import config.{WSHttp, WSHttpProxy}
 import play.api.Logger
 import play.api.libs.json.JsValue
+import uk.gov.hmrc.http._
+import uk.gov.hmrc.http.logging.Authorization
 import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.http.ws.WSProxy
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
+import uk.gov.hmrc.play.http.ws.WSProxy
 import utils.SCRSFeatureSwitches
 
 import scala.concurrent.Future
-import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
-import uk.gov.hmrc.http._
-import uk.gov.hmrc.http.logging.Authorization
 
 sealed trait CohoApiResponse
 case class CohoApiSuccessResponse(json: JsValue) extends CohoApiResponse

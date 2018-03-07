@@ -17,7 +17,7 @@
 package utils
 
 import builders.AuthBuilder
-import controllers.auth.{AuthFunction, SCRSExternalUrls}
+import controllers.auth.AuthFunction
 import fixtures.LoginFixture
 import helpers.SCRSSpec
 import play.api.mvc.Results

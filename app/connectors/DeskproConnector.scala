@@ -16,19 +16,16 @@
 
 package connectors
 
-import javax.inject.{Inject, Singleton}
-
 import config.WSHttp
 import models.external.Ticket
 import play.api.Logger
-import services.MetricsService
-import uk.gov.hmrc.play.http.ws.WSHttp
 import play.api.libs.json._
+import services.MetricsService
+import uk.gov.hmrc.http.{CorePost, HeaderCarrier}
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.{CorePost, HeaderCarrier, HttpPost}
 
 object DeskproConnectorImpl extends DeskproConnector with ServicesConfig {
   val metricsService: MetricsService = MetricsService

@@ -17,17 +17,17 @@
 package services
 
 import _root_.connectors._
-import config.{FrontendAppConfig, FrontendAuthConnector}
+import config.FrontendAppConfig
 import models._
 import models.external.{OtherRegStatus, Statuses}
-import org.joda.time.DateTime
+import org.joda.time.{DateTime, LocalDate}
 import play.api.libs.json.JsValue
 import play.api.mvc.Call
-import uk.gov.hmrc.auth.core.{AuthConnector, Enrolments}
+import uk.gov.hmrc.auth.core.Enrolments
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
-import utils.{SCRSExceptions, SCRSFeatureSwitches}
+import utils.{SCRSExceptions, SCRSFeatureSwitches, SystemDate}
 
 import scala.concurrent.Future
 import scala.util.control.NoStackTrace
@@ -66,23 +66,33 @@ trait DashboardService extends SCRSExceptions with CommonService {
   val vatUri: String
   val featureFlag: SCRSFeatureSwitches
 
-  implicit def toDashboard(s: OtherRegStatus)(implicit startURL: String, cancelURL: Call): ServiceDashboard = {
-    ServiceDashboard(s.status, s.lastUpdate.map(_.toString("d MMMM yyyy")), s.ackRef,
-      ServiceLinks(startURL, otrsUrl, s.restartURL, s.cancelURL.map(_ => cancelURL.url)))
+  def toDashboard(s: OtherRegStatus, thresholds: Option[Map[String, Int]])(implicit startURL: String, cancelURL: Call): ServiceDashboard = {
+    ServiceDashboard(
+      s.status,
+      s.lastUpdate.map(_.toString("d MMMM yyyy")),
+      s.ackRef,
+      ServiceLinks(
+        startURL,
+        otrsUrl,
+        s.restartURL,
+        s.cancelURL.map(_ => cancelURL.url)
+      ),
+      thresholds
+    )
   }
 
   def buildDashboard(regId : String, enrolments : Enrolments)(implicit hc: HeaderCarrier): Future[DashboardStatus] = {
     for {
       incorpCTDash <- buildIncorpCTDashComponent(regId)
-      payeDash <- buildPAYEDashComponent(regId, enrolments)
-      hasVatCred = hasEnrolment(enrolments, List("HMCE-VATDEC-ORG", "HMCE-VATVAR-ORG"))
-      vatDash <- buildVATDashComponent(regId, enrolments)
+      payeDash     <- buildPAYEDashComponent(regId, enrolments)
+      hasVatCred   =  hasEnrolment(enrolments, List("HMCE-VATDEC-ORG", "HMCE-VATVAR-ORG"))
+      vatDash      <- buildVATDashComponent(regId, enrolments)
     } yield {
       incorpCTDash.status match {
-        case "draft" => CouldNotBuild
+        case "draft"    => CouldNotBuild
         case "rejected" => RejectedIncorp
         //case _ => getCompanyName(regId) map(cN => DashboardBuilt(Dashboard(incorpCTDash, payeDash, cN)))
-        case _ => DashboardBuilt(Dashboard("", incorpCTDash, payeDash, vatDash, hasVatCred)) //todo: leaving company name blank until story gets played to add it back
+        case _          => DashboardBuilt(Dashboard("", incorpCTDash, payeDash, vatDash, hasVatCred)) //todo: leaving company name blank until story gets played to add it back
       }
     }
   }
@@ -91,13 +101,16 @@ trait DashboardService extends SCRSExceptions with CommonService {
     authEnrolments.enrolments.exists(e => FrontendAppConfig.restrictedEnrolments.contains(e.key))
   }
 
-  private[services] def statusToServiceDashboard(res: Future[StatusResponse], enrolments: Enrolments, payeEnrolments: Seq[String])
+  private[services] def statusToServiceDashboard(res: Future[StatusResponse], enrolments: Enrolments, payeEnrolments: Seq[String], thresholds: Option[Map[String, Int]])
                                                 (implicit hc: HeaderCarrier, startURL: String, cancelURL: Call): Future[ServiceDashboard] = {
     res map {
-      case SuccessfulResponse(status) => status
-      case ErrorResponse => OtherRegStatus(Statuses.UNAVAILABLE, None, None, None, None)
-      case NotStarted => OtherRegStatus(
-        if (hasEnrolment(enrolments, payeEnrolments)) Statuses.NOT_ELIGIBLE else Statuses.NOT_STARTED, None, None, None, None
+      case SuccessfulResponse(status) => toDashboard(status, thresholds)
+      case ErrorResponse => toDashboard(OtherRegStatus(Statuses.UNAVAILABLE, None, None, None, None), thresholds)
+      case NotStarted    => toDashboard(
+        OtherRegStatus(
+          if (hasEnrolment(enrolments, payeEnrolments)) Statuses.NOT_ELIGIBLE else Statuses.NOT_STARTED, None, None, None, None
+        ),
+        thresholds
       )
     }
   }
@@ -107,9 +120,19 @@ trait DashboardService extends SCRSExceptions with CommonService {
     implicit val cancelURL: Call = controllers.dashboard.routes.CancelRegistrationController.showCancelPAYE()
 
     if (featureFlag.paye.enabled) {
-      statusToServiceDashboard(payeConnector.getStatus(regId), enrolments, List("IR-PAYE"))
+      statusToServiceDashboard(payeConnector.getStatus(regId), enrolments, List("IR-PAYE"), Some(getCurrentPayeThresholds))
     } else {
-      Future.successful(OtherRegStatus(Statuses.NOT_ENABLED, None, None, None, None))
+      Future.successful(toDashboard(OtherRegStatus(Statuses.NOT_ENABLED, None, None, None, None), None))
+    }
+  }
+
+  def getCurrentPayeThresholds: Map[String, Int] = {
+    val now          = SystemDate.getSystemDate
+    val taxYearStart = LocalDate.parse("2018-04-06")
+    if(now.isEqual(taxYearStart) || now.isAfter(taxYearStart)) {
+      Map("weekly" -> 116, "monthly" -> 503, "annually" -> 6032)
+    } else {
+      Map("weekly" -> 113, "monthly" -> 490, "annually" -> 5876)
     }
   }
 
@@ -118,7 +141,7 @@ trait DashboardService extends SCRSExceptions with CommonService {
     implicit val cancelURL: Call = controllers.dashboard.routes.CancelRegistrationController.showCancelVAT()
 
     if (featureFlag.vat.enabled) {
-      statusToServiceDashboard(vatConnector.getStatus(regId), enrolments, List("HMCE-VATDEC-ORG", "HMCE-VATVAR-ORG")).map(Some(_))
+      statusToServiceDashboard(vatConnector.getStatus(regId), enrolments, List("HMCE-VATDEC-ORG", "HMCE-VATVAR-ORG"), None).map(Some(_))
     } else {
       Future.successful(None)
     }

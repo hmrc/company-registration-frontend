@@ -22,13 +22,11 @@ import helpers.SCRSSpec
 import models.{Address, BusinessRegistration, CompanyContactDetailsMongo}
 import org.mockito.Matchers
 import org.mockito.Mockito._
-import play.api.libs.json.{JsValue, Writes}
-import uk.gov.hmrc.play.http._
+import play.api.libs.json.JsValue
+import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.test.WithFakeApplication
 
 import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.hmrc.http._
-import uk.gov.hmrc.play.http.ws.WSGet
 
 class BusinessRegistrationConnectorSpec extends SCRSSpec with BusinessRegistrationFixture with WithFakeApplication {
 

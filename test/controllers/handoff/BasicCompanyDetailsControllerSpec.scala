@@ -28,14 +28,12 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.test.Helpers._
 import services.{HandBackService, HandOffServiceImpl}
 import uk.gov.hmrc.auth.core.retrieve.{Name, ~}
-import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolments}
-import uk.gov.hmrc.play.frontend.auth.AuthContext
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.WithFakeApplication
 import utils.{DecryptionError, Jwe, PayloadError}
 
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
-import uk.gov.hmrc.http.HeaderCarrier
 
 class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture with WithFakeApplication with AuthBuilder {
 

@@ -25,8 +25,8 @@ import play.api.libs.json
 import play.api.libs.json.Json
 import uk.gov.hmrc.play.config.ServicesConfig
 
-import scala.util.{Success, Failure, Try}
 import scala.util.control.NoStackTrace
+import scala.util.{Failure, Success, Try}
 
 object Jwe extends JweEncryptor with JweDecryptor with ServicesConfig {
   // $COVERAGE-OFF$

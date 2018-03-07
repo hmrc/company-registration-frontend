@@ -22,11 +22,11 @@ import play.api.data.Form
 import play.api.data.Forms._
 import services.TimeService
 import uk.gov.hmrc.play.mappers.StopOnFirstFail
-import utils.SCRSValidators
+import utils.{SCRSValidators, SystemDate}
 
 object AccountingDatesForm extends AccountingDatesForm {
-  val timeService: TimeService = TimeService
-  override val now: LocalDate = new LocalDate()
+  val timeService: TimeService  = TimeService
+  override val now: LocalDate   = SystemDate.getSystemDate
 }
 
 trait AccountingDatesForm extends EmptyStringValidator with SCRSValidators {

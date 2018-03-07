@@ -16,12 +16,11 @@
 
 package audit.events
 
+import audit.events.RegistrationAuditEvent.buildTags
 import play.api.libs.json.JsObject
-import play.api.mvc.{Request, AnyContent}
-import uk.gov.hmrc.play.audit.model.ExtendedDataEvent
-
-import RegistrationAuditEvent.buildTags
+import play.api.mvc.{AnyContent, Request}
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.audit.model.ExtendedDataEvent
 
 case class TagSet(clientIP : Boolean,
                   clientPort : Boolean,
@@ -36,7 +35,7 @@ object TagSet {
   val NO_TAGS = TagSet(false, false, false, false, false, false, false)
 }
 
-import TagSet.ALL_TAGS
+import audit.events.TagSet.ALL_TAGS
 
 abstract class RegistrationAuditEvent(auditType: String, detail: JsObject, tagSet: TagSet = ALL_TAGS)(implicit hc: HeaderCarrier, req: Request[AnyContent])
   extends ExtendedDataEvent(

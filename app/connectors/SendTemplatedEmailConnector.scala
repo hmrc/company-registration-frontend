@@ -17,16 +17,15 @@
 package connectors
 
 import config.WSHttp
-import models.{EmailVerificationRequest, SendTemplatedEmailRequest}
+import models.SendTemplatedEmailRequest
 import play.api.Logger
 import play.api.http.Status._
+import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.http._
+import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 
 import scala.concurrent.Future
-import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 import scala.util.control.NoStackTrace
-import uk.gov.hmrc.http._
 
 private[connectors] class TemplateEmailErrorResponse(s: String) extends NoStackTrace
 

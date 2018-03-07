@@ -16,11 +16,10 @@
 
 package models
 
-import models.handoff.{CompanyNameHandOffIncoming, CompanyNameHandOffInformation}
+import models.handoff.CompanyNameHandOffInformation
 import org.joda.time.{DateTime, DateTimeZone}
 import play.api.libs.json.{JsObject, Json}
-import uk.gov.hmrc.play.test.{WithFakeApplication, UnitSpec}
-import utils.Jwe
+import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 class CompanyNameHandOffInformationSpec extends UnitSpec with WithFakeApplication{
 

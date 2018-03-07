@@ -16,21 +16,20 @@
 
 package connectors
 
-import org.scalatest.LoneElement
-import org.scalatest.mockito.MockitoSugar
-import play.api.Logger
-import play.api.libs.json.Writes
-import uk.gov.hmrc.play.http.ws.WSPost
+import ch.qos.logback.classic.Level
 import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito._
-import org.scalatest.prop.Tables.Table
-import uk.gov.hmrc.play.test.{LogCapturing, UnitSpec}
-import org.scalatest.prop.TableDrivenPropertyChecks._
+import org.scalatest.LoneElement
 import org.scalatest.concurrent.Eventually
-import ch.qos.logback.classic.Level
+import org.scalatest.mockito.MockitoSugar
+import org.scalatest.prop.TableDrivenPropertyChecks._
+import org.scalatest.prop.Tables.Table
+import play.api.Logger
+import play.api.libs.json.Writes
+import uk.gov.hmrc.http._
+import uk.gov.hmrc.play.test.{LogCapturing, UnitSpec}
 
 import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.hmrc.http._
 
 class PlatformAnalyticsConnectorSpec extends UnitSpec with MockitoSugar with LogCapturing with LoneElement with Eventually {
 

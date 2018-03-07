@@ -16,21 +16,20 @@
 
 package services
 
-import builders.AuthBuilder
 import fixtures.{CompanyDetailsFixture, PayloadFixture, SubmissionFixture}
 import helpers.SCRSSpec
-import models.{CompanyDetails, RegistrationConfirmationPayload}
 import models.handoff._
-import org.mockito.{ArgumentCaptor, Matchers}
+import models.{CompanyDetails, RegistrationConfirmationPayload}
 import org.mockito.Mockito._
-import play.api.libs.json.{JsObject, JsValue, Json}
+import org.mockito.{ArgumentCaptor, Matchers}
+import play.api.libs.json.{JsValue, Json}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.binders.ContinueUrl
 import utils._
 
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
-import uk.gov.hmrc.http.HeaderCarrier
 
 class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetailsFixture
   with SubmissionFixture with SCRSExceptions {

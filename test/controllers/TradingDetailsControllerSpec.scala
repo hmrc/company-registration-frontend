@@ -19,7 +19,6 @@ package controllers
 import java.util.UUID
 
 import builders.AuthBuilder
-import config.FrontendAuthConnector
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.reg.TradingDetailsController
 import fixtures.TradingDetailsFixtures

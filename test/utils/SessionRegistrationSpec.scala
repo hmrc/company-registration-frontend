@@ -16,20 +16,19 @@
 
 package utils
 
+import ch.qos.logback.classic.Level
 import mocks.{CompanyRegistrationConnectorMock, KeystoreMock}
 import org.mockito.Mockito._
 import org.scalatest.concurrent.Eventually
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfter, LoneElement}
+import play.api.Logger
 import play.api.mvc.Results
 import play.api.test.Helpers._
-import uk.gov.hmrc.play.test.{LogCapturing, UnitSpec, WithFakeApplication}
-import org.scalatest.concurrent.Eventually
-import ch.qos.logback.classic.{Level}
-import play.api.Logger
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.test.{LogCapturing, UnitSpec}
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.HeaderCarrier
 
 class SessionRegistrationSpec extends UnitSpec with CompanyRegistrationConnectorMock with KeystoreMock with MockitoSugar with BeforeAndAfter with LogCapturing with LoneElement with Eventually {
 

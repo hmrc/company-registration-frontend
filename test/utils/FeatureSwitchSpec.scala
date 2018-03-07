@@ -147,6 +147,10 @@ class FeatureSwitchSpec extends UnitSpec with BeforeAndAfterEach {
     "return a feature switch (testKey, true) when supplied with (testKey, true)" in {
       FeatureSwitch.setProperty("test", "true") shouldBe BooleanFeatureSwitch("test", enabled = true)
     }
+
+    "return ValueSetFeatureSwitch when supplied system-date and 2018-01-01" in {
+      FeatureSwitch.setProperty("system-date", "2018-01-01") shouldBe ValueSetFeatureSwitch("system-date", "2018-01-01")
+    }
   }
 
   "enable" should {

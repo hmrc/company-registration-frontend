@@ -18,10 +18,10 @@ package services
 
 import connectors.CompanyRegistrationConnector
 import play.api.Logger
-
-import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
-import scala.concurrent.Future
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
+
+import scala.concurrent.Future
 
 
 object DeleteSubmissionService extends DeleteSubmissionService {

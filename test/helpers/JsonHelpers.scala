@@ -17,6 +17,7 @@
 package helpers
 
 import play.api.libs.json.{JsObject, JsValue}
+
 import scala.language.implicitConversions
 
 trait JsonHelpers {

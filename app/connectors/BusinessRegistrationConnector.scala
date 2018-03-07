@@ -20,12 +20,11 @@ import config.WSHttp
 import models._
 import play.api.Logger
 import play.api.libs.json.{JsValue, Json}
-import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.http._
-
-import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
-import scala.concurrent.Future
 import uk.gov.hmrc.http._
+import uk.gov.hmrc.play.config.ServicesConfig
+import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
+
+import scala.concurrent.Future
 
 object BusinessRegistrationConnector extends BusinessRegistrationConnector with ServicesConfig {
   val businessRegUrl = baseUrl("business-registration")

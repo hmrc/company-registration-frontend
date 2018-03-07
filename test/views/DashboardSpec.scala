@@ -18,13 +18,11 @@ package views
 
 import _root_.helpers.SCRSSpec
 import builders.AuthBuilder
-import config.FrontendAuthConnector
 import controllers.dashboard.DashboardController
-import models.{Dashboard, IncorpAndCTDashboard, ServiceDashboard, ServiceLinks}
 import models.external.Statuses
+import models.{Dashboard, IncorpAndCTDashboard, ServiceDashboard, ServiceLinks}
 import org.jsoup.Jsoup
 import org.mockito.Matchers
-import org.mockito.Matchers.any
 import org.mockito.Mockito._
 import play.api.test.Helpers._
 import services.{DashboardBuilt, DashboardService}
@@ -45,11 +43,14 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
       override val dashboardService = mockDashboardService
       override val companyRegistrationConnector = mockCompanyRegistrationConnector
       override val companiesHouseURL = "testUrl"
-      }
+    }
   }
 
   val regId = "reg-12345"
   val emptyEnrolments = Enrolments(Set())
+
+  val payeThresholds    = Map("weekly" -> 113, "monthly" -> 490, "annually" -> 5876)
+  val newPayeThresholds = Map("weekly" -> 116, "monthly" -> 503, "annually" -> 6032)
 
   "DashboardController.show" should {
 
@@ -60,7 +61,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
         IncorpAndCTDashboard(
           "held", Some("10 October 2017"), Some("trans-12345"), Some("pay-12345"), None, None, Some("ack-12345"), None
         ),
-        ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo"))),
+        ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo")), Some(payeThresholds)),
         None
       )
 
@@ -97,7 +98,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
         IncorpAndCTDashboard(
           "submitted", Some("10 October 2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11 October 2017"), Some("ack-12345"), None
         ),
-        ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo"))),
+        ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo")), Some(payeThresholds)),
         None
       )
 
@@ -131,7 +132,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
         IncorpAndCTDashboard(
           "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), None
         ),
-        ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo"))),
+        ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo")), Some(payeThresholds)),
         None
       )
 
@@ -166,7 +167,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
           IncorpAndCTDashboard(
             "submitted", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some(status)
           ),
-          ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo"))),
+          ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo")), None),
           None
         )
 
@@ -201,7 +202,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
           IncorpAndCTDashboard(
             "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some(status)
           ),
-          ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo"))),
+          ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo")), Some(payeThresholds)),
           None
         )
 
@@ -234,7 +235,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
         IncorpAndCTDashboard(
           "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04")
         ),
-        ServiceDashboard("notEligible", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo"))),
+        ServiceDashboard("notEligible", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo")), None),
         None
       )
 
@@ -259,7 +260,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
         IncorpAndCTDashboard(
           "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04")
         ),
-        ServiceDashboard(Statuses.UNAVAILABLE, None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo"))),
+        ServiceDashboard(Statuses.UNAVAILABLE, None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo")), None),
         None
       )
 
@@ -284,7 +285,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
         IncorpAndCTDashboard(
           "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04")
         ),
-        ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo"))),
+        ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo")), Some(payeThresholds)),
         None
       )
 
@@ -310,7 +311,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
         IncorpAndCTDashboard(
           "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04")
         ),
-        ServiceDashboard("draft", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo"))),
+        ServiceDashboard("draft", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo")), Some(payeThresholds)),
         None
       )
 
@@ -336,7 +337,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
         IncorpAndCTDashboard(
           "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04")
         ),
-        ServiceDashboard("held", None, Some("ABCD12345678901"), ServiceLinks("payeURL", "otrsUrl", None, Some("foo"))),
+        ServiceDashboard("held", None, Some("ABCD12345678901"), ServiceLinks("payeURL", "otrsUrl", None, Some("foo")), None),
         None
       )
 
@@ -367,7 +368,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
         IncorpAndCTDashboard(
           "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04")
         ),
-        ServiceDashboard("submitted", Some("15 May 2017"), Some("ABCD12345678901"), ServiceLinks("payeURL", "otrsUrl", None, Some("foo"))),
+        ServiceDashboard("submitted", Some("15 May 2017"), Some("ABCD12345678901"), ServiceLinks("payeURL", "otrsUrl", None, Some("foo")), Some(payeThresholds)),
         None
       )
 
@@ -399,7 +400,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
         IncorpAndCTDashboard(
           "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04")
         ),
-        ServiceDashboard("acknowledged", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo"))),
+        ServiceDashboard("acknowledged", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo")), Some(payeThresholds)),
         None
       )
 
@@ -426,7 +427,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
           IncorpAndCTDashboard(
             "submitted", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some(status)
           ),
-          ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, None)),
+          ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, None), None),
           None,
           hasVATCred = false
         )
@@ -453,7 +454,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
         IncorpAndCTDashboard(
           "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04")
         ),
-        ServiceDashboard("invalid", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo"))),
+        ServiceDashboard("invalid", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo")), Some(payeThresholds)),
         None
       )
 
@@ -480,7 +481,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
         IncorpAndCTDashboard(
           "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04")
         ),
-        ServiceDashboard("rejected", None, None, ServiceLinks("payeURL", "otrsUrl", Some("bar"), None)),
+        ServiceDashboard("rejected", None, None, ServiceLinks("payeURL", "otrsUrl", Some("bar"), None), Some(payeThresholds)),
         None
       )
 
@@ -505,7 +506,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
         IncorpAndCTDashboard(
           "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04")
         ),
-        ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, None)),
+        ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, None), Some(payeThresholds)),
         None,
         hasVATCred = false
       )
@@ -534,7 +535,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
           IncorpAndCTDashboard(
             "submitted", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some(status)
           ),
-          ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, None)),
+          ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, None), Some(payeThresholds)),
           None,
           hasVATCred = false
         )
@@ -560,7 +561,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
         IncorpAndCTDashboard(
           "submitted", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), None
         ),
-        ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, None)),
+        ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, None), Some(payeThresholds)),
         None,
         hasVATCred = false
       )
@@ -586,7 +587,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
         IncorpAndCTDashboard(
           "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), None
         ),
-        ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, None)),
+        ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, None), Some(payeThresholds)),
         None,
         hasVATCred = true
       )
@@ -612,7 +613,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
         IncorpAndCTDashboard(
           "held", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), None
         ),
-        ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, None)),
+        ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, None), Some(payeThresholds)),
         None,
         hasVATCred = false
       )
@@ -639,7 +640,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
         IncorpAndCTDashboard(
           "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04")
         ),
-        ServiceDashboard("draft", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("cancelURL"))),
+        ServiceDashboard("draft", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("cancelURL")), Some(payeThresholds)),
         None
       )
 
@@ -665,7 +666,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
         IncorpAndCTDashboard(
           "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04")
         ),
-        ServiceDashboard("draft", None, None, ServiceLinks("payeURL", "otrsUrl", None, None)),
+        ServiceDashboard("draft", None, None, ServiceLinks("payeURL", "otrsUrl", None, None), Some(payeThresholds)),
         None
       )
 
@@ -683,6 +684,54 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
           document.getElementById("payeCancelLink") shouldBe null
       }
     }
+  }
 
+  "paye thresholds" should {
+    "be the 2017 thresholds" in new Setup {
+
+      val dashboard = Dashboard(
+        "testCompanyName",
+        IncorpAndCTDashboard(
+          "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04")
+        ),
+        ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo")), Some(payeThresholds)),
+        None
+      )
+
+      when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
+        .thenReturn(Future.successful(Some(regId)))
+
+      when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
+        .thenReturn(Future.successful(DashboardBuilt(dashboard)))
+
+      showWithAuthorisedUserRetrieval(controller.show, emptyEnrolments) {
+        result =>
+          val document = Jsoup.parse(contentAsString(result))
+          document.getElementById("employer-help-thresholds").text() shouldBe "pay any employees - including company directors - £113 or more a week (this is the same as £490 a month or £5,876 a year)"
+      }
+    }
+
+    "be the 2018 thresholds" in new Setup {
+      val dashboard = Dashboard(
+        "testCompanyName",
+        IncorpAndCTDashboard(
+          "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04")
+        ),
+        ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo")), Some(newPayeThresholds)),
+        None
+      )
+
+      when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
+        .thenReturn(Future.successful(Some(regId)))
+
+      when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
+        .thenReturn(Future.successful(DashboardBuilt(dashboard)))
+
+      showWithAuthorisedUserRetrieval(controller.show, emptyEnrolments) {
+        result =>
+          val document = Jsoup.parse(contentAsString(result))
+          document.getElementById("employer-help-thresholds").text() shouldBe "pay any employees - including company directors - £116 or more a week (this is the same as £503 a month or £6,032 a year)"
+      }
+    }
   }
 }

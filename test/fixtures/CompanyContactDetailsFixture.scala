@@ -17,9 +17,10 @@
 package fixtures
 
 import forms.CompanyContactForm
-import models.{Links, CompanyContactDetails, CompanyContactViewModel}
+import models.{CompanyContactDetails, CompanyContactViewModel, Links}
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.cache.client.CacheMap
+
 import scala.language.implicitConversions
 
 trait CompanyContactDetailsFixture {

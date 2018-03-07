@@ -16,11 +16,9 @@
 
 package connectors
 
-import config.WSHttp
 import helpers.SCRSSpec
 import mocks.MetricServiceMock
 import play.api.libs.json.Json
-import uk.gov.hmrc.http.CoreGet
 
 import scala.concurrent.Future
 

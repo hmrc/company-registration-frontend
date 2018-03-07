@@ -17,7 +17,6 @@
 package services
 
 import _root_.connectors.{BusinessRegistrationConnector, PlatformAnalyticsConnector}
-import builders.AuthBuilder
 import fixtures.{CompanyContactDetailsFixture, UserDetailsFixture}
 import helpers.SCRSSpec
 import models._
@@ -25,7 +24,7 @@ import models.auth.CompanyContactAuthDetails
 import org.mockito.Matchers
 import org.mockito.Mockito._
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class CompanyContactDetailsServiceSpec extends SCRSSpec with CompanyContactDetailsFixture with UserDetailsFixture {
 

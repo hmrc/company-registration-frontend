@@ -18,13 +18,12 @@ package mocks
 
 import models.handoff.{HandOffNavModel, NavLinks, Receiver, Sender}
 import org.mockito.Matchers
+import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import play.api.libs.json.{JsObject, Json}
-import repositories.{NavModelRepoMongo, NavModelRepository}
-import org.mockito.Mockito._
+import repositories.NavModelRepoMongo
 
 import scala.concurrent.Future
-import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 
 trait NavModelRepoMock {
   this: MockitoSugar =>

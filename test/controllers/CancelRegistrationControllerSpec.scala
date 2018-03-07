@@ -17,7 +17,6 @@
 package controllers
 
 import builders.AuthBuilder
-import config.FrontendAuthConnector
 import connectors._
 import controllers.dashboard.CancelRegistrationController
 import forms.CancelForm

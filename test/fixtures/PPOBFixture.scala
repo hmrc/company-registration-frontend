@@ -16,8 +16,7 @@
 
 package fixtures
 
-import forms.PPOBForm
-import models.{CHROAddress, PPOB, PPOBModel}
+import models.CHROAddress
 
 trait PPOBFixture extends AddressFixture with AddressLookupFixture {
 

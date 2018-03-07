@@ -17,7 +17,7 @@
 package helpers
 
 import uk.gov.hmrc.play.frontend.auth.AuthContext
-import uk.gov.hmrc.play.frontend.auth.connectors.domain.{ConfidenceLevel, CredentialStrength, Authority, Accounts}
+import uk.gov.hmrc.play.frontend.auth.connectors.domain.{Accounts, Authority, ConfidenceLevel, CredentialStrength}
 
 trait AuthHelpers {
 

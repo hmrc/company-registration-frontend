@@ -21,9 +21,7 @@ import helpers.{FormTestHelpers, SCRSSpec}
 import models.CompanyContactViewModel
 import play.api.data.FormError
 import play.api.test.FakeRequest
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
-
-import scala.util.Random
+import uk.gov.hmrc.play.test.WithFakeApplication
 
 class CompanyContactFormSpec extends SCRSSpec with CompanyContactDetailsFixture with FormTestHelpers with WithFakeApplication {
 

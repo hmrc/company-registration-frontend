@@ -18,8 +18,8 @@ package forms
 
 import fixtures.PayloadFixture
 import helpers.SCRSSpec
-import models.handoff.CompanyNameHandOffFormModel
 import models.CHROAddress
+import models.handoff.CompanyNameHandOffFormModel
 
 class FirstHandBackFormSpec extends SCRSSpec with PayloadFixture {
 

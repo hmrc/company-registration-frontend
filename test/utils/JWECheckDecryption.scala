@@ -18,13 +18,10 @@ package utils
 
 import fixtures.JweFixture
 import helpers.SCRSSpec
-import org.jose4j.jwe.{ContentEncryptionAlgorithmIdentifiers => CEAI}
-import org.jose4j.jwe.{KeyManagementAlgorithmIdentifiers => KMAI}
-import org.jose4j.jwe.{JsonWebEncryption => JWE}
-import org.jose4j.keys.AesKey
-import play.api.libs.json.{JsObject, JsValue, Json}
+import org.jose4j.jwe.{ContentEncryptionAlgorithmIdentifiers => CEAI, JsonWebEncryption => JWE, KeyManagementAlgorithmIdentifiers => KMAI}
+import play.api.libs.json.{JsObject, Json}
 
-import scala.util.{Failure, Success}
+import scala.util.Success
 
 class JWECheckDecryption extends SCRSSpec with JweFixture {
 

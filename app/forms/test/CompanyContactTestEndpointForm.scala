@@ -19,8 +19,6 @@ package forms.test
 import models.CompanyContactDetailsMongo
 import play.api.data.Form
 import play.api.data.Forms._
-import utils.SCRSValidators._
-import uk.gov.hmrc.play.mappers.StopOnFirstFail
 
 object CompanyContactTestEndpointForm {
   val form = Form(

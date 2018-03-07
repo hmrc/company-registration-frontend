@@ -16,12 +16,9 @@
 
 package models
 
-import java.time.LocalDate
-
 import org.joda.time.DateTime
-import play.api.libs.json.Json
 import play.api.libs.functional.syntax._
-import play.api.libs.json._
+import play.api.libs.json.{Json, _}
 
 case class Dashboard(companyName: String,
                      incDash: IncorpAndCTDashboard,
@@ -36,21 +33,21 @@ case class IncorpAndCTDashboard(status : String,
                                 crn : Option[String],
                                 ctSubmissionDate: Option[String],
                                 ackRef: Option[String],
-                                ackRefStatus: Option[String]
-                                 )
+                                ackRefStatus: Option[String])
 
 object IncorpAndCTDashboard {
   val format = Json.format[IncorpAndCTDashboard]
+
   private val rds = (
-      (__ \ "status").read[String] and
-      (__ \ "submissionDate").readNullable[String] and
-      (__ \ "confirmationReferences" \ "transaction-id").readNullable[String].orElse(Reads.pure(None)) and
-      (__ \ "confirmationReferences" \ "payment-reference").readNullable[String].orElse(Reads.pure(None)) and
-      (__ \ "crn").readNullable[String] and
-      (__ \ "submissionTimestamp").readNullable[String].map(_.map(DateTime.parse(_).toString("d MMMM yyyy"))) and
-      (__ \ "confirmationReferences" \ "acknowledgement-reference").readNullable[String].orElse(Reads.pure(None)) and
-        (__ \ "acknowledgementReferences" \ "status").readNullable[String].orElse(Reads.pure(None))
-    )(IncorpAndCTDashboard.apply _)
+    (__ \ "status").read[String] and
+    (__ \ "submissionDate").readNullable[String] and
+    (__ \ "confirmationReferences" \ "transaction-id").readNullable[String].orElse(Reads.pure(None)) and
+    (__ \ "confirmationReferences" \ "payment-reference").readNullable[String].orElse(Reads.pure(None)) and
+    (__ \ "crn").readNullable[String] and
+    (__ \ "submissionTimestamp").readNullable[String].map(_.map(DateTime.parse(_).toString("d MMMM yyyy"))) and
+    (__ \ "confirmationReferences" \ "acknowledgement-reference").readNullable[String].orElse(Reads.pure(None)) and
+    (__ \ "acknowledgementReferences" \ "status").readNullable[String].orElse(Reads.pure(None))
+  )(IncorpAndCTDashboard.apply _)
 
   def reads(date: Option[String]): Reads[IncorpAndCTDashboard] = new Reads[IncorpAndCTDashboard] {
     def reads(json: JsValue): JsResult[IncorpAndCTDashboard] = {
@@ -62,4 +59,4 @@ object IncorpAndCTDashboard {
 
 case class ServiceLinks(startURL: String, otrsURL: String, restartURL: Option[String], cancelURL:Option[String])
 
-case class ServiceDashboard(status: String, lastUpdate: Option[String], ackRef: Option[String], links: ServiceLinks)
+case class ServiceDashboard(status: String, lastUpdate: Option[String], ackRef: Option[String], links: ServiceLinks, thresholds: Option[Map[String, Int]])

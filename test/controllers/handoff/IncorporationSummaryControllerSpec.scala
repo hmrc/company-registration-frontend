@@ -17,7 +17,6 @@
 package controllers.handoff
 
 import builders.AuthBuilder
-import config.FrontendAuthConnector
 import fixtures.PayloadFixture
 import helpers.SCRSSpec
 import models.SummaryHandOff

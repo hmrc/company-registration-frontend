@@ -17,11 +17,9 @@
 package config
 
 import java.util.Base64
-import javax.inject.Inject
 
 import play.api.Play.{configuration, current}
 import uk.gov.hmrc.play.config.ServicesConfig
-import play.api.{Application, Configuration}
 
 trait AppConfig {
   val assetsPrefix: String

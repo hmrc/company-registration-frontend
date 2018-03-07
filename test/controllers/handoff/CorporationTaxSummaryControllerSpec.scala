@@ -17,17 +17,14 @@
 package controllers.handoff
 
 import builders.AuthBuilder
-import config.FrontendAuthConnector
 import fixtures.LoginFixture
 import helpers.SCRSSpec
 import models.handoff.{NavLinks, SummaryPage1HandOffIncoming}
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import play.api.libs.json.Json
-import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.frontend.auth.AuthContext
 import uk.gov.hmrc.play.test.WithFakeApplication
 import utils.{DecryptionError, Jwe, PayloadError}
 

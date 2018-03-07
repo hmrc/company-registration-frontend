@@ -16,7 +16,7 @@
 
 package audit.events
 
-import models.{Links, CompanyContactDetails}
+import models.{CompanyContactDetails, Links}
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import uk.gov.hmrc.play.test.UnitSpec

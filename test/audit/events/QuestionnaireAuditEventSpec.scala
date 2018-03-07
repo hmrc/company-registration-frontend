@@ -19,9 +19,9 @@ package audit.events
 import models.QuestionnaireModel
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
-import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.logging.{ Authorization, RequestId, SessionId }
+import uk.gov.hmrc.http.logging.{Authorization, RequestId, SessionId}
+import uk.gov.hmrc.play.test.UnitSpec
 
 
 class QuestionnaireAuditEventSpec extends UnitSpec {

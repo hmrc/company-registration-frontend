@@ -16,11 +16,11 @@
 
 package services
 
+import address.client.{AddressRecord, Address => LookupAddress}
 import models.{Address, HMRCAddressValidator}
 import play.api.Logger
-import address.client.{AddressRecord, Address => LookupAddress}
 
-import scala.util.{Success, Failure, Try}
+import scala.util.{Failure, Success, Try}
 
 trait AddressConverter extends HMRCAddressValidator {
 

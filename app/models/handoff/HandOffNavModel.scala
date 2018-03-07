@@ -16,9 +16,8 @@
 
 package models.handoff
 
-import org.joda.time.{DateTimeZone, DateTime}
+import org.joda.time.{DateTime, DateTimeZone}
 import play.api.libs.json._
-import play.api.libs.functional.syntax._
 import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
 
 case class NavLinks(forward: String,

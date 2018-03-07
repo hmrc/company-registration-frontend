@@ -16,41 +16,53 @@
 
 package utils
 
-import org.joda.time.{DateTimeZone, DateTime}
 import org.joda.time.format.ISODateTimeFormat
+import org.joda.time.{DateTime, DateTimeZone}
 import play.api.libs.json.Json
 
 
 sealed trait FeatureSwitch {
   def name: String
   def enabled: Boolean
+  def value: String
 }
 
-case class BooleanFeatureSwitch(name: String, enabled: Boolean) extends FeatureSwitch
+case class BooleanFeatureSwitch(name: String, enabled: Boolean) extends FeatureSwitch {
+  override def value = ""
+}
 
 case class TimedFeatureSwitch(name: String, start: Option[DateTime], end: Option[DateTime], target: DateTime) extends FeatureSwitch {
 
   override def enabled: Boolean = (start, end) match {
     case (Some(s), Some(e)) => !target.isBefore(s) && !target.isAfter(e)
-    case (None, Some(e)) => !target.isAfter(e)
-    case (Some(s), None) => !target.isBefore(s)
-    case (None, None) => false
+    case (None, Some(e))    => !target.isAfter(e)
+    case (Some(s), None)    => !target.isBefore(s)
+    case (None, None)       => false
   }
+
+  override def value = ""
+}
+
+case class ValueSetFeatureSwitch(name: String, setValue: String) extends FeatureSwitch {
+  override def enabled = true
+  override def value   = setValue
 }
 
 object FeatureSwitch {
 
   val DatesIntervalExtractor = """(\S+)_(\S+)""".r
-  val UNSPECIFIED = "X"
-  val dateFormat = ISODateTimeFormat.dateTimeNoMillis()
+  val UNSPECIFIED            = "X"
+  val dateFormat             = ISODateTimeFormat.dateTimeNoMillis()
 
   private[utils] def getProperty(name: String): FeatureSwitch = {
     val value = sys.props.get(systemPropertyName(name))
 
     value match {
-      case Some("true") => BooleanFeatureSwitch(name, enabled = true)
-      case Some(DatesIntervalExtractor(start, end)) => TimedFeatureSwitch(name, toDate(start), toDate(end), DateTime.now(DateTimeZone.UTC))
-      case _ => BooleanFeatureSwitch(name, enabled = false)
+      case Some("true")                                                => BooleanFeatureSwitch(name, enabled = true)
+      case Some(DatesIntervalExtractor(start, end))                    => TimedFeatureSwitch(name, toDate(start), toDate(end), DateTime.now(DateTimeZone.UTC))
+      case Some("")                                                    => ValueSetFeatureSwitch(name, "time-clear")
+      case Some(date) if date.matches(SCRSValidators.datePatternRegex) => ValueSetFeatureSwitch(name, date)
+      case _                                                           => BooleanFeatureSwitch(name, enabled = false)
     }
   }
 
@@ -62,17 +74,20 @@ object FeatureSwitch {
   private[utils] def toDate(text: String) : Option[DateTime] = {
     text match {
       case UNSPECIFIED => None
-      case _ => Some(dateFormat.parseDateTime(text))
+      case _           => Some(dateFormat.parseDateTime(text))
     }
   }
 
   private[utils] def systemPropertyName(name: String) = s"feature.$name"
 
-  def enable(fs: FeatureSwitch): FeatureSwitch = setProperty(fs.name, "true")
+  def enable(fs: FeatureSwitch): FeatureSwitch  = setProperty(fs.name, "true")
   def disable(fs: FeatureSwitch): FeatureSwitch = setProperty(fs.name, "false")
 
+  def setSystemDate(fs: FeatureSwitch): FeatureSwitch   = setProperty(fs.name, fs.value)
+  def clearSystemDate(fs: FeatureSwitch): FeatureSwitch = setProperty(fs.name, "")
+
   def apply(name: String, enabled: Boolean = false): FeatureSwitch = getProperty(name)
-  def unapply(fs: FeatureSwitch): Option[(String, Boolean)] = Some(fs.name -> fs.enabled)
+  def unapply(fs: FeatureSwitch): Option[(String, Boolean)]        = Some(fs.name -> fs.enabled)
 
   implicit val formats = Json.format[FeatureSwitch]
 }
@@ -86,20 +101,22 @@ trait SCRSFeatureSwitches {
   val COHO: String
   val LEGACY_ENV: String = "legacyEnv"
 
-  def cohoFirstHandOff = FeatureSwitch.getProperty(COHO)
+  def cohoFirstHandOff          = FeatureSwitch.getProperty(COHO)
   def businessActivitiesHandOff = FeatureSwitch.getProperty("businessActivitiesHandOff")
-  def paye = FeatureSwitch.getProperty("paye")
-  def vat = FeatureSwitch.getProperty("vat")
-  def legacyEnv = FeatureSwitch.getProperty(LEGACY_ENV)
-  def contactUs = FeatureSwitch.getProperty("contactUs")
+  def paye                      = FeatureSwitch.getProperty("paye")
+  def vat                       = FeatureSwitch.getProperty("vat")
+  def legacyEnv                 = FeatureSwitch.getProperty(LEGACY_ENV)
+  def contactUs                 = FeatureSwitch.getProperty("contactUs")
+  def systemDate                = FeatureSwitch.getProperty("system-date")
 
   def apply(name: String): Option[FeatureSwitch] = name match {
-    case COHO => Some(cohoFirstHandOff)
+    case COHO                        => Some(cohoFirstHandOff)
     case "businessActivitiesHandOff" => Some(businessActivitiesHandOff)
-    case "paye" => Some(paye)
-    case "vat" => Some(vat)
-    case LEGACY_ENV => Some(legacyEnv)
-    case "contactUs" => Some(contactUs)
-    case _ => None
+    case "paye"                      => Some(paye)
+    case "vat"                       => Some(vat)
+    case LEGACY_ENV                  => Some(legacyEnv)
+    case "contactUs"                 => Some(contactUs)
+    case "system-date"               => Some(systemDate)
+    case _                           => None
   }
 }

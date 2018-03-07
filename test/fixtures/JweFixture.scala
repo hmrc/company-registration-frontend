@@ -21,7 +21,7 @@ import java.util.Base64
 
 import org.jose4j.keys.AesKey
 import org.jose4j.lang.ByteUtil
-import play.api.libs.json.{JsObject, JsValue, Json}
+import play.api.libs.json.{JsValue, Json}
 import utils.{JweDecryptor, JweEncryptor}
 
 trait JweFixture {

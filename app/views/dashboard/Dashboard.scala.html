@@ -65,7 +65,7 @@
     <td colspan="2">
         <span>@Messages("page.reg.Dashboard.PAYE.employerHelpTextParagraph1")</span>
         <ul class="list-bullet">
-            <li>@Messages("page.reg.Dashboard.PAYE.employerHelpTextParagraph2")</li>
+            <li id="employer-help-thresholds">@Messages("page.reg.Dashboard.PAYE.employerHelpTextParagraph2", dash.payeDash.thresholds.get("weekly"), dash.payeDash.thresholds.get("monthly"), dash.payeDash.thresholds.get("annually"))</li>
             <li>@Messages("page.reg.Dashboard.PAYE.employerHelpTextParagraph3")</li>
             <li>@Messages("page.reg.Dashboard.PAYE.employerHelpTextParagraph4")</li>
         </ul>
@@ -145,16 +145,16 @@
 
 @payeMap = {
     @{dash.payeDash.status match {
-       case "notStarted" => doYouNeedToRegisterHelp
-       case "notEligible" => notEligiblePAYE
-       case "draft" => HtmlFormat.fill(Seq(displayRegistrationActions(dash.payeDash, "paye"), doYouNeedToRegisterHelp))
-       case "held" => HtmlFormat.fill(Seq(PAYERef, PAYEPending))
-       case "submitted" => HtmlFormat.fill(Seq(PAYEDate, PAYERef, PAYESubmitted))
-       case "acknowledged" => {""}
-       case "invalid" => HtmlFormat.fill(Seq(displayRegistrationActions(dash.payeDash, "paye"), doYouNeedToRegisterHelp))
-       case "rejected" => HtmlFormat.fill(Seq(displayRegistrationActions(dash.payeDash, "paye"), doYouNeedToRegisterHelp))
-       case "notEnabled" => {""}
-       case "unavailable" => {""}
+       case "notStarted"    => doYouNeedToRegisterHelp
+       case "notEligible"   => notEligiblePAYE
+       case "draft"         => HtmlFormat.fill(Seq(displayRegistrationActions(dash.payeDash, "paye"), doYouNeedToRegisterHelp))
+       case "held"          => HtmlFormat.fill(Seq(PAYERef, PAYEPending))
+       case "submitted"     => HtmlFormat.fill(Seq(PAYEDate, PAYERef, PAYESubmitted))
+       case "acknowledged"  => {""}
+       case "invalid"       => HtmlFormat.fill(Seq(displayRegistrationActions(dash.payeDash, "paye"), doYouNeedToRegisterHelp))
+       case "rejected"      => HtmlFormat.fill(Seq(displayRegistrationActions(dash.payeDash, "paye"), doYouNeedToRegisterHelp))
+       case "notEnabled"    => {""}
+       case "unavailable"   => {""}
     }}
 }
 

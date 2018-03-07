@@ -17,25 +17,24 @@
 package controllers
 
 import builders.AuthBuilder
-import config.FrontendAuthConnector
 import controllers.reg.ConfirmationController
 import fixtures.CompanyDetailsFixture
 import helpers.SCRSSpec
+import models.ConfirmationReferencesSuccessResponse
 import models.connectors.ConfirmationReferences
-import models.{ConfirmationReferencesSuccessResponse, DESFailureDeskpro, DESFailureRetriable}
 import org.mockito.Matchers
-import play.api.test.FakeRequest
-import play.api.test.Helpers.{contentType, _}
 import org.mockito.Mockito._
 import play.api.http.Status
 import play.api.i18n.MessagesApi
 import play.api.mvc.Result
+import play.api.test.FakeRequest
+import play.api.test.Helpers.{contentType, _}
 import services.DeskproService
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.WithFakeApplication
 import utils.Messages
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.HeaderCarrier
 
 class ConfirmationControllerSpec extends SCRSSpec with CompanyDetailsFixture with WithFakeApplication with AuthBuilder {
 

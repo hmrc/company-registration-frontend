@@ -17,8 +17,8 @@
 package models.handoff
 
 import models.PPOB
-import play.api.libs.json.{JsObject, __}
 import play.api.libs.functional.syntax._
+import play.api.libs.json.{JsObject, __}
 
 case class HandoffPPOB(address_line_1: String,
                        address_line_2: String,

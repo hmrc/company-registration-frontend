@@ -317,7 +317,7 @@ page.reg.Dashboard.actions.continueRegistrationLink                 = Continue r
 page.reg.Dashboard.PAYE.pendingText                                 = We''ve received your application but can''t process it until we''ve set up your limited company.
 
 page.reg.Dashboard.PAYE.employerHelpTextParagraph1                  = Use this service to register a company if it will do either of the following in the next 2 months:
-page.reg.Dashboard.PAYE.employerHelpTextParagraph2                  = pay any employees - including company directors - £113 or more a week (this is the same as £490 a month or £5,876 a year)
+page.reg.Dashboard.PAYE.employerHelpTextParagraph2                  = pay any employees - including company directors - £{0} or more a week (this is the same as £{1} a month or £{2} a year)
 page.reg.Dashboard.PAYE.employerHelpTextParagraph3                  = pay any amount to employees - including company directors - who also receive pension payments or income from another job
 page.reg.Dashboard.PAYE.employerHelpTextParagraph4                  = use subcontractors for construction work
 
