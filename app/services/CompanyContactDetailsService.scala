@@ -22,7 +22,6 @@ import connectors._
 import models._
 import models.auth.CompanyContactAuthDetails
 import play.api.mvc.{AnyContent, Request}
-import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}

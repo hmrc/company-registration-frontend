@@ -24,10 +24,10 @@ import play.api.libs.json.Json
 import play.api.test.FakeApplication
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.cache.client.{CacheMap, ShortLivedCache}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.{ HeaderCarrier, HttpResponse }
 
 class S4LConnectorSpec  extends UnitSpec with MockitoSugar with WithFakeApplication {
 

@@ -18,7 +18,7 @@ package controllers.test
 
 import play.api.mvc.Action
 import uk.gov.hmrc.play.frontend.controller.FrontendController
-import utils.{FeatureSwitch, SCRSFeatureSwitches}
+import utils.{FeatureSwitch, SCRSFeatureSwitches, SCRSValidators, ValueSetFeatureSwitch}
 
 import scala.concurrent.Future
 
@@ -33,9 +33,11 @@ trait FeatureSwitchController extends FrontendController {
     implicit request =>
 
       def feature = featureState match {
-        case "stub" | "false" => featureSwitch.disable(FeatureSwitch(featureName, enabled = false))
-        case "coho" | "true" => featureSwitch.enable(FeatureSwitch(featureName, enabled = true))
-        case _ => featureSwitch.disable(FeatureSwitch(featureName, enabled = false))
+        case "stub" | "false"                                      => featureSwitch.disable(FeatureSwitch(featureName, enabled = false))
+        case "coho" | "true"                                       => featureSwitch.enable(FeatureSwitch(featureName, enabled = true))
+        case date if date.matches(SCRSValidators.datePatternRegex) => featureSwitch.setSystemDate(ValueSetFeatureSwitch(featureName, date))
+        case "time-clear"                                          => featureSwitch.setSystemDate(ValueSetFeatureSwitch(featureName, ""))
+        case _                                                     => featureSwitch.disable(FeatureSwitch(featureName, enabled = false))
       }
 
       SCRSFeatureSwitches(featureName) match {

@@ -17,7 +17,6 @@
 package views
 
 import controllers.reg.WelcomeController
-import models.test.FeatureSwitch
 import org.jsoup.Jsoup
 import play.api.test.FakeRequest
 import play.api.test.Helpers._

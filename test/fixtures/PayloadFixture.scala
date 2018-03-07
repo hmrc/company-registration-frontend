@@ -16,12 +16,11 @@
 
 package fixtures
 
-import models.{AccountingDatesHandOffModel, HandBackPayloadModel}
-import utils.Jwe
-import models._
 import models.handoff._
+import models.{AccountingDatesHandOffModel, HandBackPayloadModel, _}
 import play.api.libs.json.{JsObject, Json}
 import uk.gov.hmrc.http.cache.client.CacheMap
+import utils.Jwe
 
 trait PayloadFixture extends AddressFixture with JweFixture {
 

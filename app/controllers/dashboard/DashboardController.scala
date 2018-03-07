@@ -30,11 +30,11 @@ import utils.{MessagesSupport, SCRSExceptions, SessionRegistration}
 import scala.concurrent.Future
 
 object DashboardController extends DashboardController with ServicesConfig {
-  val authConnector = FrontendAuthConnector
-  val keystoreConnector = KeystoreConnector
-  val dashboardService = DashboardService
+  val authConnector                = FrontendAuthConnector
+  val keystoreConnector            = KeystoreConnector
+  val dashboardService             = DashboardService
   val companyRegistrationConnector = CompanyRegistrationConnector
-  val companiesHouseURL = getConfString("coho-service.sign-in", throw new Exception("Could not find config for coho-sign-in url"))
+  val companiesHouseURL            = getConfString("coho-service.sign-in", throw new Exception("Could not find config for coho-sign-in url"))
 }
 
 trait DashboardController extends FrontendController with AuthFunction with CommonService with SCRSExceptions
@@ -49,10 +49,10 @@ trait DashboardController extends FrontendController with AuthFunction with Comm
         registered { regId =>
           dashboardService.buildDashboard(regId, enrolments) map {
             case DashboardBuilt(dash) => Ok(views.html.dashboard.Dashboard(dash, companiesHouseURL))
-            case CouldNotBuild => Redirect(controllers.handoff.routes.BasicCompanyDetailsController.basicCompanyDetails())
-            case RejectedIncorp => Ok(views.html.reg.RegistrationUnsuccessful())
+            case CouldNotBuild        => Redirect(controllers.handoff.routes.BasicCompanyDetailsController.basicCompanyDetails())
+            case RejectedIncorp       => Ok(views.html.reg.RegistrationUnsuccessful())
           } recover {
-            case ex => Logger.error(s"[Dashboard Controller] [Show] buildDashboard returned an error ${ex.getMessage}")
+            case ex => Logger.error(s"[Dashboard Controller] [Show] buildDashboard returned an error ${ex.getMessage}", ex)
               InternalServerError(defaultErrorPage)
           }
         }
@@ -63,5 +63,4 @@ trait DashboardController extends FrontendController with AuthFunction with Comm
   def submit: Action[AnyContent] = Action.async { implicit request =>
     Future.successful(Redirect(controllers.reg.routes.SignInOutController.postSignIn(None, None, None)))
   }
-
 }

@@ -26,6 +26,7 @@ import models.external.{OtherRegStatus, Statuses}
 import org.joda.time.DateTime
 import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito._
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.{JsObject, JsValue, Json}
 import uk.gov.hmrc.auth.core.{Enrolment, EnrolmentIdentifier, Enrolments}
 import uk.gov.hmrc.http.HeaderCarrier
@@ -33,7 +34,7 @@ import utils.{BooleanFeatureSwitch, SCRSFeatureSwitches}
 
 import scala.concurrent.Future
 
-class DashboardServiceSpec extends SCRSSpec with AuthHelpers with ServiceConnectorMock with AuthBuilder {
+class DashboardServiceSpec extends SCRSSpec with AuthHelpers with ServiceConnectorMock with AuthBuilder with GuiceOneAppPerSuite {
 
   implicit val auth = buildAuthContext
 
@@ -82,6 +83,11 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers with ServiceConnect
       override def buildIncorpCTDashComponent(regId: String)(implicit hc: HeaderCarrier) = Future.successful(dash)
       override def getCompanyName(regId: String)(implicit hc: HeaderCarrier) = Future.successful("testCompanyName")
      }
+  }
+
+  override protected def afterEach(): Unit = {
+    super.afterEach()
+    System.setProperty("feature.system-date", "")
   }
 
   val regId = "regID-12345"
@@ -151,13 +157,15 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers with ServiceConnect
   val vatVarEnrolment = Enrolments(Set(Enrolment("HMCE-VATVAR-ORG", Seq(EnrolmentIdentifier("test-paye-identifier", "test-paye-value")), "testState")))
   val noEnrolments = Enrolments(Set())
 
+  val payeThresholds = Map("weekly" -> 113, "monthly" -> 490, "annually" -> 5876)
+
   "buildDashboard" should {
 
     val draftDash = IncorpAndCTDashboard("draft", Some("10 October 2017"), Some(transId), Some(payRef), None, None, Some(ackRef), None)
     val rejectedDash = IncorpAndCTDashboard("rejected", Some("10 October 2017"), Some(transId), Some(payRef), None, None, Some(ackRef), None)
     val heldDash = IncorpAndCTDashboard("held", Some("10 October 2017"), Some(transId), Some(payRef), None, None, Some(ackRef), None)
 
-    val payeDash = ServiceDashboard("", None, None, ServiceLinks(payeUrl, "OTRS url", None, Some("/register-your-company/cancel-paye")))
+    val payeDash = ServiceDashboard("", None, None, ServiceLinks(payeUrl, "OTRS url", None, Some("/register-your-company/cancel-paye")), Some(payeThresholds))
     val payeStatus = OtherRegStatus("", None, None, Some("foo"), None)
 
     "return a CouldNotBuild DashboardStatus when the status of the registration is draft" in new SetupWithDash(draftDash) {
@@ -223,7 +231,7 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers with ServiceConnect
 
     "return a Status when one is fetched from paye-registration with cancelURL" in new Setup {
       val payeStatus = OtherRegStatus("held", None, None, Some("foo"), None)
-      val payeDash = ServiceDashboard("held", None, None, ServiceLinks(payeUrl, testOtrsUrl, None, Some("/register-your-company/cancel-paye")))
+      val payeDash = ServiceDashboard("held", None, None, ServiceLinks(payeUrl, testOtrsUrl, None, Some("/register-your-company/cancel-paye")), Some(payeThresholds))
       mockPayeFeature(true)
       getStatusMock(SuccessfulResponse(payeStatus))
 
@@ -233,7 +241,7 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers with ServiceConnect
 
     "return a Status when one is fetched from paye-registration with restartURL" in new Setup {
       val payeStatus = OtherRegStatus("rejected", None, None, None, Some("bar"))
-      val payeDash = ServiceDashboard("rejected", None, None, ServiceLinks(payeUrl, testOtrsUrl, Some("bar"), None))
+      val payeDash = ServiceDashboard("rejected", None, None, ServiceLinks(payeUrl, testOtrsUrl, Some("bar"), None), Some(payeThresholds))
       mockPayeFeature(true)
       getStatusMock(SuccessfulResponse(payeStatus))
 
@@ -242,7 +250,7 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers with ServiceConnect
     }
 
     "return an ineligible Status when nothing is fetched from paye-registration and the user already has a PAYE enrolment" in new Setup {
-      val payeDash = ServiceDashboard(Statuses.NOT_ELIGIBLE, None, None, payeLinks)
+      val payeDash = ServiceDashboard(Statuses.NOT_ELIGIBLE, None, None, payeLinks, Some(payeThresholds))
       mockPayeFeature(true)
       getStatusMock(NotStarted)
 
@@ -251,7 +259,7 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers with ServiceConnect
     }
 
     "return a not started Status when nothing is fetched from paye-registration and the user does not have a PAYE enrolment" in new Setup {
-      val payeDash = ServiceDashboard(Statuses.NOT_STARTED, None, None, payeLinks)
+      val payeDash = ServiceDashboard(Statuses.NOT_STARTED, None, None, payeLinks, Some(payeThresholds))
       mockPayeFeature(true)
       getStatusMock(NotStarted)
 
@@ -260,7 +268,7 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers with ServiceConnect
     }
 
     "return a not enabled Status when the paye feature is turned off" in new Setup {
-      val payeDash = ServiceDashboard(Statuses.NOT_ENABLED, None, None, payeLinks)
+      val payeDash = ServiceDashboard(Statuses.NOT_ENABLED, None, None, payeLinks, None)
       mockPayeFeature(false)
 
       val result = await(service.buildPAYEDashComponent(regId, noEnrolments))
@@ -307,7 +315,6 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers with ServiceConnect
       }
 
   "buildHeld" should {
-
     "return a IncorpAndCTDashboard" in new Setup {
       val expected = IncorpAndCTDashboard("held", Some("10 October 2017"), Some(transId),
         Some(payRef), None, None, Some(ackRef), None)
@@ -320,16 +327,38 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers with ServiceConnect
 
       val result = await(service.buildHeld(regId, ctRegJson("held")))
       result shouldBe expected
-          }
-      }
-
-      "extractSubmissionDate" should {
-
-          "convert a DateTime as Json and convert it into a dd MMMM yyyy format string" in new Setup {
-            val date = DateTime.parse("2017-10-10")
-            val dateAsJson = Json.toJson(date)
-
-            service.extractSubmissionDate(dateAsJson) shouldBe "10 October 2017"
-          }
-      }
+    }
   }
+
+  "extractSubmissionDate" should {
+    "convert a DateTime as Json and convert it into a dd MMMM yyyy format string" in new Setup {
+      val date = DateTime.parse("2017-10-10")
+      val dateAsJson = Json.toJson(date)
+
+      service.extractSubmissionDate(dateAsJson) shouldBe "10 October 2017"
+    }
+  }
+
+  "getPayeThresholds" should {
+    "return the current tax years thresholds if the system date is 2018-04-05" in new Setup {
+      System.setProperty("feature.system-date", "2018-04-05")
+
+      val result = service.getCurrentPayeThresholds
+      result shouldBe Map("weekly" -> 113, "monthly" -> 490, "annually" -> 5876)
+    }
+
+    "return the new tax years thresholds if the system date is 2018-04-06" in new Setup {
+      System.setProperty("feature.system-date", "2018-04-06")
+
+      val result = service.getCurrentPayeThresholds
+      result shouldBe Map("weekly" -> 116, "monthly" -> 503, "annually" -> 6032)
+    }
+
+    "return the new tax years thresholds if the system date is 2018-10-26" in new Setup {
+      System.setProperty("feature.system-date", "2018-10-26")
+
+      val result = service.getCurrentPayeThresholds
+      result shouldBe Map("weekly" -> 116, "monthly" -> 503, "annually" -> 6032)
+    }
+  }
+}

@@ -18,11 +18,10 @@ package views
 
 import _root_.helpers.SCRSSpec
 import builders.AuthBuilder
-import config.FrontendAuthConnector
 import controllers.reg.ConfirmationController
 import fixtures.CompanyDetailsFixture
-import models.connectors.ConfirmationReferences
 import models.ConfirmationReferencesSuccessResponse
+import models.connectors.ConfirmationReferences
 import org.jsoup.Jsoup
 import org.mockito.Matchers
 import org.mockito.Mockito._

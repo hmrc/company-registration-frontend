@@ -16,15 +16,15 @@
 
 package services
 
+import address.client.{AddressRecord, RecordSet}
 import config.WSHttp
 import play.api.Logger
 import play.api.libs.json.JsValue
-import address.client.{AddressRecord, RecordSet}
+import uk.gov.hmrc.http.{CoreGet, HeaderCarrier, HttpReads}
 import uk.gov.hmrc.play.config.ServicesConfig
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import uk.gov.hmrc.http.{CoreGet, HeaderCarrier, HttpGet, HttpReads}
 
 sealed trait AddressLookupResponse
 case class AddressLookupSuccessResponse(addressList: RecordSet) extends AddressLookupResponse

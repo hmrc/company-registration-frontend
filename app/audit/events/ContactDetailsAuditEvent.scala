@@ -17,11 +17,11 @@
 package audit.events
 
 import audit.TransactionNames
+import audit.TransactionNames.AMEND_PRE_POP_CONTACT_DETAILS
+import audit.events.RegistrationAuditEvent.{AUTH_PROVIDER_ID, EXT_USER_ID, JOURNEY_ID}
 import models.CompanyContactDetails
-import play.api.libs.json.{Writes, JsObject, Json}
-import play.api.mvc.{Request, AnyContent}
-import TransactionNames.AMEND_PRE_POP_CONTACT_DETAILS
-import RegistrationAuditEvent.{AUTH_PROVIDER_ID, JOURNEY_ID, EXT_USER_ID}
+import play.api.libs.json.{JsObject, Json, Writes}
+import play.api.mvc.{AnyContent, Request}
 import uk.gov.hmrc.http.HeaderCarrier
 
 case class ContactDetailsAuditEventDetail(externalUserId: String,

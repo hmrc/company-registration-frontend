@@ -17,7 +17,7 @@
 package forms
 
 import fixtures.PPOBFixture
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import uk.gov.hmrc.play.test.UnitSpec
 
 
 class ALFFormSpec extends UnitSpec with PPOBFixture{

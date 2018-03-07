@@ -19,21 +19,19 @@ package services
 import java.util.UUID
 
 import builders.AuthBuilder
-import config.FrontendAuthConnector
 import fixtures._
 import helpers.SCRSSpec
 import mocks.{KeystoreMock, NavModelRepoMock}
-import models.{UserDetailsModel, UserIDs}
 import models.handoff._
-import org.mockito.{ArgumentCaptor, Matchers}
 import org.mockito.Mockito._
+import org.mockito.{ArgumentCaptor, Matchers}
 import org.scalatest.BeforeAndAfterEach
 import play.api.libs.json.{JsObject, Json}
-import utils.JweEncryptor
-
-import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.test.WithFakeApplication
+import utils.JweEncryptor
+
+import scala.concurrent.Future
 
 class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture with CorporationTaxFixture with AuthBuilder
     with BeforeAndAfterEach

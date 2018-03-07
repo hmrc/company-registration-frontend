@@ -16,8 +16,8 @@
 
 package forms.templates
 
-import play.api.data.{FormError, Forms, Mapping}
 import play.api.data.format.Formatter
+import play.api.data.{FormError, Forms, Mapping}
 import utils.SCRSValidators.isValidPhoneNo
 
 trait PhoneNoForm {

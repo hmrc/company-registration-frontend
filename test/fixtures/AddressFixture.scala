@@ -16,7 +16,7 @@
 
 package fixtures
 
-import models.{NewAddress, CHROAddress, Address}
+import models.{Address, CHROAddress, NewAddress}
 
 trait AddressFixture {
 

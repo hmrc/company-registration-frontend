@@ -19,20 +19,19 @@ package connectors
 import java.util.UUID
 
 import config.WSHttp
-import models._
 import fixtures._
 import helpers.SCRSSpec
+import models._
 import models.connectors.ConfirmationReferences
 import org.mockito.Matchers
 import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito._
-import play.api.libs.json.{JsObject, JsValue, Json}
-import uk.gov.hmrc.play.http._
 import play.api.http.Status._
-
-import scala.concurrent.Future
+import play.api.libs.json.{JsObject, JsValue, Json}
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.test.WithFakeApplication
+
+import scala.concurrent.Future
 
 class CompanyRegistrationConnectorSpec extends SCRSSpec with CTDataFixture with CompanyContactDetailsFixture with CompanyDetailsFixture
   with AccountingDetailsFixture with TradingDetailsFixtures with CorporationTaxFixture with WithFakeApplication {

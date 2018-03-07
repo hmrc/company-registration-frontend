@@ -17,7 +17,6 @@
 package controllers
 
 import builders.AuthBuilder
-import config.FrontendAuthConnector
 import connectors.KeystoreConnector
 import controllers.reg.RegistrationUnsuccessfulController
 import helpers.SCRSSpec

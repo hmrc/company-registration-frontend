@@ -20,13 +20,12 @@ import config.WSHttp
 import helpers.SCRSSpec
 import models.external.OtherRegStatus
 import org.joda.time.DateTime
-import uk.gov.hmrc.play.http._
-import org.mockito.Mockito._
 import org.mockito.Matchers.{any, eq => eqTo}
+import org.mockito.Mockito._
 import play.api.http.Status._
+import uk.gov.hmrc.http._
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http._
 
 class ServiceConnectorSpec extends SCRSSpec {
 

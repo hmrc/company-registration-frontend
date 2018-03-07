@@ -16,33 +16,27 @@
 
 package controllers
 
-import akka.actor.ActorSystem
-import akka.stream.ActorMaterializer
-import akka.util.ByteString
 import builders.AuthBuilder
-import config.FrontendAuthConnector
 import connectors._
 import controllers.reg.SignInOutController
 import fixtures._
 import helpers.SCRSSpec
 import mocks.MetricServiceMock
-import models.auth.AuthDetails
-import models.{ThrottleResponse, UserDetailsModel}
+import models.ThrottleResponse
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import play.api.libs.json.Json
-import play.api.mvc.{Headers, Results}
+import play.api.mvc.Results
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentType, _}
 import services.{EmailVerificationService, EnrolmentsService}
-import uk.gov.hmrc.auth.core.retrieve.Credentials
+import uk.gov.hmrc.auth.core.retrieve.{Credentials, ~}
 import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolments}
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.binders.ContinueUrl
 import uk.gov.hmrc.play.test.WithFakeApplication
-import uk.gov.hmrc.auth.core.retrieve.{Credentials, ~}
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class SignInOutControllerSpec extends SCRSSpec
   with UserDetailsFixture with PayloadFixture with PPOBFixture with BusinessRegistrationFixture with CompanyDetailsFixture with WithFakeApplication

@@ -17,17 +17,16 @@
 package services
 
 import models.QuestionnaireModel
-import org.scalatest.mockito.MockitoSugar
-import org.mockito.Mockito.when
 import org.mockito.Matchers
+import org.mockito.Mockito.when
+import org.scalatest.mockito.MockitoSugar
 import play.api.test.FakeRequest
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
-import uk.gov.hmrc.play.audit.model.{DataEvent, ExtendedDataEvent}
+import uk.gov.hmrc.play.audit.model.ExtendedDataEvent
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
-import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
-import uk.gov.hmrc.http.HeaderCarrier
 
 class QuestionnaireServiceSpec extends UnitSpec with MockitoSugar {
 

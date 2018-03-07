@@ -22,7 +22,6 @@ import models.external.Ticket
 import play.api.libs.json.{JsObject, Json}
 import services.MetricsService
 import uk.gov.hmrc.http.{BadRequestException, HeaderCarrier}
-import uk.gov.hmrc.play.http.ws.WSHttp
 
 import scala.concurrent.Future
 

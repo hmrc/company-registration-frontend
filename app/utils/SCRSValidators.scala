@@ -25,7 +25,7 @@ import scala.util.{Failure, Success, Try}
 
 object SCRSValidators extends SCRSValidators {
   val timeService: TimeService = TimeService
-  val now : LocalDate = new LocalDate()
+  val now : LocalDate          = LocalDate.now()
 }
 
 trait SCRSValidators {
@@ -33,16 +33,18 @@ trait SCRSValidators {
   val timeService: TimeService
   val now : LocalDate
 
-  private val nameRegex = """^[a-zA-Z-]+(?:\W+[a-zA-Z-]+)+$""".r
-  private val contactNameRegex = """^[A-Za-z '\\-]{1,100}$""".r
-  private val emailRegex = """^(?!.{71,})([-0-9a-zA-Z.+_]+@[-0-9a-zA-Z.+_]+\.[a-zA-Z]{1,11})$"""
-  private val emailRegexDes = """^[A-Za-z0-9\-_.@]{1,70}$"""
-  private val phoneNumberRegex = """^[0-9 ]{1,20}$""".r
-  val postCodeRegex = """^[A-Z]{1,2}[0-9][0-9A-Z]? [0-9][A-Z]{2}$""".r
-  private val addresslinelongRegex = """^$|[a-zA-Z0-9,.\(\)/&'"\-]{1}[a-zA-Z0-9, .\(\)/&'"\-]{0,26}$""".r
-  private val addressline4Regex = """^$|[a-zA-Z0-9,.\(\)/&'"\-]{1}[a-zA-Z0-9, .\(\)/&'"\-]{0,17}$""".r
-  private val nonEmptyRegex = """^(?=\s*\S).*$""".r
+  private val nameRegex               = """^[a-zA-Z-]+(?:\W+[a-zA-Z-]+)+$""".r
+  private val contactNameRegex        = """^[A-Za-z '\\-]{1,100}$""".r
+  private val emailRegex              = """^(?!.{71,})([-0-9a-zA-Z.+_]+@[-0-9a-zA-Z.+_]+\.[a-zA-Z]{1,11})$"""
+  private val emailRegexDes           = """^[A-Za-z0-9\-_.@]{1,70}$"""
+  private val phoneNumberRegex        = """^[0-9 ]{1,20}$""".r
+  val postCodeRegex                   = """^[A-Z]{1,2}[0-9][0-9A-Z]? [0-9][A-Z]{2}$""".r
+  private val addresslinelongRegex    = """^$|[a-zA-Z0-9,.\(\)/&'"\-]{1}[a-zA-Z0-9, .\(\)/&'"\-]{0,26}$""".r
+  private val addressline4Regex       = """^$|[a-zA-Z0-9,.\(\)/&'"\-]{1}[a-zA-Z0-9, .\(\)/&'"\-]{0,17}$""".r
+  private val nonEmptyRegex           = """^(?=\s*\S).*$""".r
   private val completionCapacityRegex = """^[A-Za-z0-9 '\-]{1,100}$""".r
+
+  val datePatternRegex                = """([12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))"""
 
   implicit val bHS = TimeService.bHS
 

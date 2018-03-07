@@ -17,11 +17,8 @@
 package forms
 
 import org.joda.time.{DateTime, LocalDate}
-import services.{BankHolidays, TimeService}
-import services.TimeService._
-import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
-import uk.gov.hmrc.time.workingdays.{BankHoliday, BankHolidaySet}
+import services.TimeService
+import uk.gov.hmrc.play.test.UnitSpec
 
 class AccountingDatesFormSpec extends UnitSpec {
 

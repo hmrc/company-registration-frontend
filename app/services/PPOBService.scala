@@ -18,12 +18,11 @@ package services
 
 import address.client.RecordSet
 import audit.events._
-import config.{FrontendAuditConnector, FrontendAuthConnector}
+import config.FrontendAuditConnector
 import connectors.{CompanyRegistrationConnector, KeystoreConnector, S4LConnector}
 import models.{Address => OldAddress, _}
 import play.api.libs.json.{Json, OFormat}
 import play.api.mvc.{AnyContent, Request}
-import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}

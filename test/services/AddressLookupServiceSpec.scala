@@ -16,11 +16,11 @@
 
 package services
 
+import address.client.RecordSet
 import fixtures.AddressLookupFixture
 import helpers.SCRSSpec
-import address.client.RecordSet
-import play.api.libs.json.{JsResultException}
-import uk.gov.hmrc.http.{ HeaderCarrier, HttpReads }
+import play.api.libs.json.JsResultException
+import uk.gov.hmrc.http.{HeaderCarrier, HttpReads}
 
 class AddressLookupServiceSpec extends SCRSSpec with AddressLookupFixture {
 

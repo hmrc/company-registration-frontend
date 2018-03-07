@@ -19,12 +19,12 @@ package connectors
 import config.WSHttp
 import play.api.Logger
 import play.api.libs.json.{Json, Writes}
+import uk.gov.hmrc.http.{CorePost, HeaderCarrier, HttpPost, HttpResponse}
 import uk.gov.hmrc.play.config.ServicesConfig
+import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 
 import scala.concurrent.Future
 import scala.util.Random
-import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
-import uk.gov.hmrc.http.{CorePost, HeaderCarrier, HttpPost, HttpResponse}
 
 case class DimensionValue(index: String, value: String)
 

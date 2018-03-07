@@ -16,15 +16,15 @@
 
 package services
 
-import config.FrontendAuditConnector
-import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import audit.events.QuestionnaireAuditEvent
+import config.FrontendAuditConnector
 import models.QuestionnaireModel
 import play.api.mvc.{AnyContent, Request}
-
-import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
-import scala.concurrent.Future
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
+import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
+
+import scala.concurrent.Future
 
 object QuestionnaireService extends QuestionnaireService {
   val auditConnector = FrontendAuditConnector

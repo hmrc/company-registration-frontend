@@ -25,7 +25,6 @@ import org.mockito.Matchers
 import org.mockito.Matchers.{eq => eqTo}
 import org.mockito.Mockito._
 import play.api.libs.json.Json
-import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.HandOffServiceImpl
 import uk.gov.hmrc.http.HeaderCarrier

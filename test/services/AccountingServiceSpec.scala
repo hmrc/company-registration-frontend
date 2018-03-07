@@ -16,11 +16,9 @@
 
 package services
 
-import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import fixtures.AccountingDetailsFixture
 import helpers.SCRSSpec
 import models._
-import org.joda.time.{DateTime, LocalDate}
 
 class AccountingServiceSpec extends SCRSSpec with AccountingDetailsFixture {
 

@@ -19,7 +19,6 @@ package controllers.verification
 import akka.actor.ActorSystem
 import akka.stream.{ActorMaterializer, Materializer}
 import builders.AuthBuilder
-import config.FrontendAuthConnector
 import mocks.{CompanyRegistrationConnectorMock, KeystoreMock}
 import org.jsoup.Jsoup
 import org.scalatest.mockito.MockitoSugar

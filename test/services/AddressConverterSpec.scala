@@ -16,9 +16,9 @@
 
 package services
 
+import address.client.{AddressRecord, Country, Address => LookupAddress}
 import fixtures.AddressLookupFixture
 import helpers.SCRSSpec
-import address.client.{AddressRecord, Country, Address => LookupAddress}
 import models.{Address => HMRCAddress}
 import uk.gov.hmrc.http.HttpReads
 

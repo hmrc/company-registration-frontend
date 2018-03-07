@@ -17,11 +17,10 @@
 package controllers
 
 import builders.AuthBuilder
-import config.FrontendAuthConnector
 import connectors._
 import controllers.test.TestEndpointController
 import fixtures.{CorporationTaxFixture, SCRSFixtures}
-import helpers.{SCRSSpec, TestActorSystem}
+import helpers.SCRSSpec
 import models._
 import models.connectors.ConfirmationReferences
 import models.handoff._
@@ -31,44 +30,44 @@ import org.scalatest.mockito.MockitoSugar
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services.MetaDataService
+import services.{DashboardService, MetaDataService}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.test.WithFakeApplication
 import utils.{BooleanFeatureSwitch, SCRSFeatureSwitches}
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with MockitoSugar with CorporationTaxFixture with WithFakeApplication with AuthBuilder {
 
   val mockNavModelRepoObj = mockNavModelRepo
-  val applicantData = AboutYouChoice("Director")
-  val applicantDataEmpty = AboutYouChoice("")
-  val applicantDataSeq  = Seq("completionCapacity" -> "Director")
+  val applicantData       = AboutYouChoice("Director")
+  val applicantDataEmpty  = AboutYouChoice("")
+  val applicantDataSeq    = Seq("completionCapacity" -> "Director")
 
   val cacheMap = CacheMap("", Map("" -> Json.toJson("")))
 
   val userIds = UserIDs("testInternal","testExternal")
 
-  val mockSCRSFeatureSwitches = mock[SCRSFeatureSwitches]
-
-  val mockMetaDataService = mock[MetaDataService]
-  val mockDynamicStubConnector = mock[DynamicStubConnector]
+  val mockSCRSFeatureSwitches           = mock[SCRSFeatureSwitches]
+  val mockMetaDataService               = mock[MetaDataService]
+  val mockDynamicStubConnector          = mock[DynamicStubConnector]
   val mockBusinessRegistrationConnector = mock[BusinessRegistrationConnector]
-
+  val mockDashboardService              = mock[DashboardService]
 
   class Setup {
     val controller = new TestEndpointController {
-      override val authConnector = mockAuthConnector
-      override val s4LConnector = mockS4LConnector
-      override val keystoreConnector = mockKeystoreConnector
-      override val compRegConnector = mockCompanyRegistrationConnector
-      override val scrsFeatureSwitches = mockSCRSFeatureSwitches
-      override val metaDataService = mockMetaDataService
-      val dynStubConnector = mockDynamicStubConnector
-      val brConnector = mockBusinessRegistrationConnector
-      val navModelMongo = mockNavModelRepoObj
+      override val dashboardService             = mockDashboardService
+      override val authConnector                = mockAuthConnector
+      override val s4LConnector                 = mockS4LConnector
+      override val keystoreConnector            = mockKeystoreConnector
+      override val compRegConnector             = mockCompanyRegistrationConnector
+      override val scrsFeatureSwitches          = mockSCRSFeatureSwitches
+      override val metaDataService              = mockMetaDataService
+      val dynStubConnector                      = mockDynamicStubConnector
+      val brConnector                           = mockBusinessRegistrationConnector
+      val navModelMongo                         = mockNavModelRepoObj
       override val companyRegistrationConnector = mockCompanyRegistrationConnector
     }
 
@@ -359,10 +358,16 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
 
   "dashboardStubbed" should{
     "return the dashboard when no parameters are passed into the function" in new Setup {
+      when(mockDashboardService.getCurrentPayeThresholds)
+        .thenReturn(Map("weekly" -> 1, "monthly" -> 1, "annually" -> 1))
+
       val result = await(controller.dashboardStubbed()(FakeRequest()))
       status(result) shouldBe 200
     }
     "return the dashboard when parameters are passed in" in new Setup {
+      when(mockDashboardService.getCurrentPayeThresholds)
+        .thenReturn(Map("weekly" -> 1, "monthly" -> 1, "annually" -> 1))
+
       val result = await(controller.dashboardStubbed("draft","held","true","true","draft","true","ackrefstatuses")(FakeRequest()))
       status(result) shouldBe 200
     }

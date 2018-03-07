@@ -16,17 +16,17 @@
 
 package connectors
 
-import org.mockito.{ArgumentCaptor, Matchers}
 import org.mockito.Mockito._
+import org.mockito.{ArgumentCaptor, Matchers}
 import org.scalatest.mockito.MockitoSugar
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.Json
+import uk.gov.hmrc.http.logging.Authorization
+import uk.gov.hmrc.http.{BadRequestException, HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.http.ws.{WSHttp, WSProxy}
 import uk.gov.hmrc.play.test.UnitSpec
 import utils.{BooleanFeatureSwitch, SCRSFeatureSwitches}
 
 import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.hmrc.http.{BadRequestException, HeaderCarrier, HttpResponse}
-import uk.gov.hmrc.http.logging.Authorization
 
 class CohoApiConnectorSpec extends UnitSpec with MockitoSugar {
 

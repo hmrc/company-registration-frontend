@@ -29,7 +29,7 @@ import play.api.Logger
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Action, AnyContent}
 import repositories.NavModelRepo
-import services.{CommonService, HandOffNavigator, MetaDataService}
+import services.{CommonService, DashboardService, HandOffNavigator, MetaDataService}
 import uk.gov.hmrc.auth.core.retrieve.Retrievals
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads}
 import uk.gov.hmrc.play.config.ServicesConfig
@@ -41,16 +41,17 @@ import scala.concurrent.Future
 
 
 object TestEndpointController extends TestEndpointController {
-  val authConnector = FrontendAuthConnector
-  val s4LConnector = S4LConnector
-  val keystoreConnector = KeystoreConnector
-  val compRegConnector = CompanyRegistrationConnector
-  val scrsFeatureSwitches = SCRSFeatureSwitches
-  val metaDataService = MetaDataService
-  val dynStubConnector = DynamicStubConnector
-  val brConnector = BusinessRegistrationConnector
-  val navModelMongo =  NavModelRepo.repository
+  val authConnector                = FrontendAuthConnector
+  val s4LConnector                 = S4LConnector
+  val keystoreConnector            = KeystoreConnector
+  val compRegConnector             = CompanyRegistrationConnector
+  val scrsFeatureSwitches          = SCRSFeatureSwitches
+  val metaDataService              = MetaDataService
+  val dynStubConnector             = DynamicStubConnector
+  val brConnector                  = BusinessRegistrationConnector
+  val navModelMongo                = NavModelRepo.repository
   val companyRegistrationConnector = CompanyRegistrationConnector
+  val dashboardService             = DashboardService
 }
 
 trait TestEndpointController extends FrontendController with AuthFunction with CommonService
@@ -63,6 +64,7 @@ trait TestEndpointController extends FrontendController with AuthFunction with C
   val metaDataService : MetaDataService
   val dynStubConnector: DynamicStubConnector
   val brConnector: BusinessRegistrationConnector
+  val dashboardService: DashboardService
   val coHoURL = getConfString("coho-service.sign-in", throw new Exception("Could not find config for coho-sign-in url"))
 
   private def convertToForm(data: CompanyNameHandOffIncoming) : CompanyNameHandOffFormModel = {
@@ -364,9 +366,9 @@ trait TestEndpointController extends FrontendController with AuthFunction with C
       )
       payeCancelUrl.toBoolean
       val payeLinks = links(payeCancelUrl.toBoolean,payeRestartUrl.toBoolean)
-      val payeDash =  ServiceDashboard(payeStatus, Some("lastUpdateDate"), Some("ackrefPaye"),payeLinks)
-      val vatLinks = links(vatCancelUrl.toBoolean,false)
-      val vatDash = ServiceDashboard(vatStatus,Some("lastUpdateDate"),None,vatLinks)
+      val payeDash  =  ServiceDashboard(payeStatus, Some("lastUpdateDate"), Some("ackrefPaye"),payeLinks, Some(dashboardService.getCurrentPayeThresholds))
+      val vatLinks  = links(vatCancelUrl.toBoolean,false)
+      val vatDash   = ServiceDashboard(vatStatus,Some("lastUpdateDate"),None,vatLinks, None)
 
       val dash = Dashboard("companyNameStubbed", incorpAndCTDash, payeDash,Some(vatDash))
       Ok(views.html.dashboard.Dashboard(dash, coHoURL))

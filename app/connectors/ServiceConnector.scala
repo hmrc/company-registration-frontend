@@ -19,13 +19,12 @@ package connectors
 import config.WSHttp
 import models.external.OtherRegStatus
 import play.api.Logger
-import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.http._
 import play.api.http.Status._
-
-import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
-import scala.concurrent.Future
 import uk.gov.hmrc.http._
+import uk.gov.hmrc.play.config.ServicesConfig
+import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
+
+import scala.concurrent.Future
 
 object PAYEConnector extends ServiceConnector with ServicesConfig  {
   val http = WSHttp

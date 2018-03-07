@@ -17,7 +17,7 @@
 package audit.events
 
 import models.CHROAddress
-import play.api.libs.json.{Writes, Json, JsObject}
+import play.api.libs.json.{JsObject, Json, Writes}
 import play.api.mvc.{AnyContent, Request}
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -28,7 +28,7 @@ case class ROUsedAsPPOBAuditEventDetail(regId: String,
 
 
 object ROUsedAsPPOBAuditEventDetail {
-  import RegistrationAuditEvent.{AUTH_PROVIDER_ID, JOURNEY_ID, COMPANY_NAME, RO_ADDRESS}
+  import RegistrationAuditEvent.{AUTH_PROVIDER_ID, COMPANY_NAME, JOURNEY_ID, RO_ADDRESS}
   implicit val writes = new Writes[ROUsedAsPPOBAuditEventDetail] {
     def writes(detail: ROUsedAsPPOBAuditEventDetail) = {
       Json.obj(

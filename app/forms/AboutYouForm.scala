@@ -18,8 +18,8 @@ package forms
 
 
 import models.{AboutYouChoice, AboutYouChoiceForm, EmptyStringValidator}
-import play.api.data.{Form, Mapping}
 import play.api.data.Forms._
+import play.api.data.{Form, Mapping}
 import play.api.i18n.Lang
 import uk.gov.voa.play.form.ConditionalMappings._
 import utils.SCRSValidators.completionCapacityValidation

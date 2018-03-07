@@ -17,9 +17,9 @@
 package forms.errors
 
 import models.Ticket
+import org.apache.commons.validator.routines.EmailValidator
 import play.api.data.Form
 import play.api.data.Forms._
-import org.apache.commons.validator.routines.EmailValidator
 
 case class DeskproEmailValidator() {
   private val validator = EmailValidator.getInstance(false)

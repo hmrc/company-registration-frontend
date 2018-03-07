@@ -17,7 +17,6 @@
 package controllers
 
 import builders.AuthBuilder
-import config.FrontendAuthConnector
 import controllers.reg.AccountingDatesController
 import fixtures.{AccountingDatesFixture, AccountingDetailsFixture, LoginFixture}
 import helpers.SCRSSpec

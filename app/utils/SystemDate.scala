@@ -14,16 +14,13 @@
  * limitations under the License.
  */
 
-package forms
+package utils
 
-import models._
-import play.api.data.Form
-import play.api.data.Forms._
+import org.joda.time.LocalDate
 
-object PPOBForm extends EmptyStringValidator{
-  val aLFForm = Form(
-    mapping(
-      "addressChoice" -> customErrorTextValidation
-    )(PPOBChoice.apply)(PPOBChoice.unapply)
-  )
+object SystemDate {
+  def getSystemDate: LocalDate = Option(System.getProperty("feature.system-date")).fold(LocalDate.now()) {
+    case ""   => LocalDate.now()
+    case date => LocalDate.parse(date)
+  }
 }

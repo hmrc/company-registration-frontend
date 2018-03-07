@@ -16,24 +16,21 @@
 
 package connectors
 
-import config.WSHttp
 import helpers.SCRSSpec
-import uk.gov.hmrc.play.http._
 import models.EmailVerificationRequest
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfter
 import org.scalatest.mockito.MockitoSugar
-import uk.gov.hmrc.http.{CoreGet, CorePost}
 
 import scala.concurrent.ExecutionContext
 //import org.scalatestplus.play.OneServerPerSuite
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 import play.api.http.Status._
 import play.api.libs.json.JsValue
+import uk.gov.hmrc.http._
+import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.{ BadGatewayException, BadRequestException, HeaderCarrier, HttpResponse, InternalServerException, NotFoundException, Upstream4xxResponse }
 
 class EmailVerificationConnectorSpec extends SCRSSpec with UnitSpec with WithFakeApplication with MockitoSugar with BeforeAndAfter {
 

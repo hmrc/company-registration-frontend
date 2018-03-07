@@ -21,10 +21,10 @@ import akka.stream.{ActorMaterializer, Materializer}
 import mocks.SCRSMocks
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.mockito.MockitoSugar
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.util.Random
-import uk.gov.hmrc.http.HeaderCarrier
 
 trait SCRSSpec extends UnitSpec with MockitoSugar with SCRSMocks with BeforeAndAfterEach with JsonHelpers {
   implicit val hc = HeaderCarrier()

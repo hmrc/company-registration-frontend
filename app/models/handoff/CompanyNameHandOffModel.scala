@@ -17,9 +17,9 @@
 package models.handoff
 
 import models._
-import play.api.libs.json._
 import play.api.libs.functional.syntax._
 import play.api.libs.json.Reads._
+import play.api.libs.json._
 
 case class CompanyNameHandOffModel(email_address : String,
                                    is_verified_email_address : Option[Boolean],

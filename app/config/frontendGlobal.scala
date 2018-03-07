@@ -16,22 +16,19 @@
 
 package config
 
-import java.io.File
-
 import com.typesafe.config.Config
 import net.ceedubs.ficus.Ficus._
-import play.api.Mode._
+import play.api.Play.current
+import play.api.i18n.Messages.Implicits._
 import play.api.mvc.Request
 import play.api.{Application, Configuration, Logger, Play}
 import play.twirl.api.Html
+import repositories.NavModelRepo
 import uk.gov.hmrc.crypto.ApplicationCrypto
 import uk.gov.hmrc.mongo.ReactiveRepository
 import uk.gov.hmrc.play.config.{AppName, ControllerConfig, RunMode}
 import uk.gov.hmrc.play.frontend.bootstrap.DefaultFrontendGlobal
-import play.api.i18n.Messages.Implicits._
-import play.api.Play.current
-import repositories.NavModelRepo
-import uk.gov.hmrc.play.frontend.filters.{ FrontendAuditFilter, FrontendLoggingFilter, MicroserviceFilterSupport }
+import uk.gov.hmrc.play.frontend.filters.{FrontendAuditFilter, FrontendLoggingFilter, MicroserviceFilterSupport}
 
 
 object FrontendGlobal extends FrontendGlobal

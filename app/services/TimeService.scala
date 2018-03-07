@@ -18,31 +18,32 @@ package services
 
 import java.text.SimpleDateFormat
 
-import org.joda.time.{DateTime, LocalDate}
 import org.joda.time.format.DateTimeFormat
+import org.joda.time.{DateTime, LocalDate}
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.time.DateTimeUtils._
 import uk.gov.hmrc.time.workingdays.{BankHoliday, BankHolidaySet, LocalDateWithHolidays}
+import utils.SystemDate
 
 import scala.util.{Failure, Success, Try}
 
 object TimeService extends TimeService with ServicesConfig {
-  override lazy val dayEndHour = getConfInt("time-service.day-end-hour", throw new Exception("could not find config key time-service.day-end-hour"))
-  override def currentDateTime = DateTime.now
-  override def currentLocalDate = LocalDate.now
-  override val bHS: BankHolidaySet = BankHolidays.bankHolidaySet
+  override lazy val dayEndHour      = getConfInt("time-service.day-end-hour", throw new Exception("could not find config key time-service.day-end-hour"))
+  override def currentDateTime      = DateTime.now
+  override def currentLocalDate     = SystemDate.getSystemDate
+  override val bHS: BankHolidaySet  = BankHolidays.bankHolidaySet
 }
 
 object BankHolidays {
   val bankHolidaySet: BankHolidaySet = BankHolidaySet("england-and-wales", List(
-    BankHoliday(title = "Good Friday", date = new LocalDate(2017, 4, 14)),
-    BankHoliday(title = "Easter Monday", date = new LocalDate(2017, 4, 17)),
+    BankHoliday(title = "Good Friday",            date = new LocalDate(2017, 4, 14)),
+    BankHoliday(title = "Easter Monday",          date = new LocalDate(2017, 4, 17)),
     BankHoliday(title = "Early May bank holiday", date = new LocalDate(2017, 5, 1)),
-    BankHoliday(title = "Spring bank holiday", date = new LocalDate(2017, 5, 29)),
-    BankHoliday(title = "Summer bank holiday", date = new LocalDate(2017, 8, 28)),
-    BankHoliday(title = "Christmas Day", date = new LocalDate(2017, 12, 25)),
-    BankHoliday(title = "Boxing Day", date = new LocalDate(2017, 12, 26)),
-    BankHoliday(title = "New Year's Day", date = new LocalDate(2018, 1, 1))
+    BankHoliday(title = "Spring bank holiday",    date = new LocalDate(2017, 5, 29)),
+    BankHoliday(title = "Summer bank holiday",    date = new LocalDate(2017, 8, 28)),
+    BankHoliday(title = "Christmas Day",          date = new LocalDate(2017, 12, 25)),
+    BankHoliday(title = "Boxing Day",             date = new LocalDate(2017, 12, 26)),
+    BankHoliday(title = "New Year's Day",         date = new LocalDate(2018, 1, 1))
   ))
 }
 
@@ -94,11 +95,11 @@ trait TimeService {
   }
 
   def toDateTime(d: Option[String], m: Option[String], y: Option[String]): Option[DateTime] = {
-    d.isDefined && m.isDefined && y.isDefined match {
-      case false => None
-      case true =>
-        val (iY, iM, iD) = (y.get.toInt, m.get.toInt, d.get.toInt)
-        Some(new DateTime(iY, iM, iD, 0, 0))
+    if(d.isDefined && m.isDefined && y.isDefined) {
+      val (iY, iM, iD) = (y.get.toInt, m.get.toInt, d.get.toInt)
+      Some(new DateTime(iY, iM, iD, 0, 0))
+    } else {
+      None
     }
   }
 }

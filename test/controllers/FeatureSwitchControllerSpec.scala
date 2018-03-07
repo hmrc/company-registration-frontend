@@ -20,11 +20,9 @@ import akka.actor.ActorSystem
 import akka.stream.{ActorMaterializer, Materializer}
 import controllers.test.FeatureSwitchController
 import org.scalatest.BeforeAndAfterEach
-import play.api.libs.openid.Errors.BAD_RESPONSE
 import play.api.test.FakeRequest
-import uk.gov.hmrc.play.test.UnitSpec
 import play.api.test.Helpers._
-import utils.BooleanFeatureSwitch
+import uk.gov.hmrc.play.test.UnitSpec
 
 class FeatureSwitchControllerSpec extends UnitSpec with BeforeAndAfterEach {
 

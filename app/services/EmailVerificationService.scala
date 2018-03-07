@@ -17,19 +17,17 @@
 package services
 
 import audit.events.{EmailVerifiedEvent, EmailVerifiedEventDetail}
-import config.{FrontendAuditConnector, FrontendAuthConnector, FrontendConfig}
+import config.{FrontendAuditConnector, FrontendConfig}
 import connectors.{CompanyRegistrationConnector, EmailVerificationConnector, KeystoreConnector, SendTemplatedEmailConnector}
 import models.Email.GG
 import models.auth.AuthDetails
 import models.{Email, _}
 import play.api.mvc.{AnyContent, Request}
-import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.auth.core.retrieve.{Email => GGEmail}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.frontend.auth.AuthContext
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 
 import scala.concurrent.Future

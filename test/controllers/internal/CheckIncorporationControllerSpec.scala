@@ -17,16 +17,15 @@
 package controllers.internal
 
 import akka.actor.ActorSystem
-import akka.stream.{ActorMaterializer, Materializer}
-import connectors.{CohoAPIConnector, CohoApiBadRequestResponse, CohoApiErrorResponse, CohoApiSuccessResponse}
+import connectors.{CohoApiBadRequestResponse, CohoApiErrorResponse, CohoApiSuccessResponse}
 import org.mockito.Matchers
-import org.scalatest.mockito.MockitoSugar
-import services.internal.CheckIncorporationService
-import uk.gov.hmrc.play.test.UnitSpec
 import org.mockito.Mockito._
+import org.scalatest.mockito.MockitoSugar
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import services.internal.CheckIncorporationService
+import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
 

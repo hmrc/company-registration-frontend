@@ -17,7 +17,7 @@
 package forms.test
 
 import models.test.ETMPNotification
-import play.api.data.{Form, Mapping}
+import play.api.data.Form
 import play.api.data.Forms._
 
 object ETMPPost {

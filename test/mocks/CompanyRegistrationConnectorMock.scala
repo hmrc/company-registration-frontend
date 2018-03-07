@@ -17,16 +17,16 @@
 package mocks
 
 import connectors._
-import fixtures.{CompanyDetailsFixture, CorporationTaxFixture}
+import fixtures.CorporationTaxFixture
 import models._
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.mockito.stubbing.OngoingStubbing
 import org.scalatest.mockito.MockitoSugar
 import play.api.libs.json.JsValue
+import uk.gov.hmrc.http.{HeaderCarrier, HttpReads}
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.{ HeaderCarrier, HttpReads }
 
 trait CompanyRegistrationConnectorMock extends CorporationTaxFixture {
   this: MockitoSugar =>

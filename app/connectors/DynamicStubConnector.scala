@@ -18,14 +18,13 @@ package connectors
 
 import config.WSHttp
 import models.IncorporationResponse
-import models.test.{ETMPCTRecordUpdates, ETMPNotification}
-import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.http._
+import models.test.ETMPNotification
 import play.api.libs.json.{JsValue, Json}
+import uk.gov.hmrc.http._
+import uk.gov.hmrc.play.config.ServicesConfig
+import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 
 import scala.concurrent.Future
-import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
-import uk.gov.hmrc.http._
 
 object DynamicStubConnector extends DynamicStubConnector with ServicesConfig {
   val http = WSHttp

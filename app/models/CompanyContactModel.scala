@@ -19,6 +19,7 @@ package models
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 import utils.SplitName
+
 import scala.language.implicitConversions
 
 case class CompanyContactViewModel(contactName: String,

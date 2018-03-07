@@ -19,7 +19,7 @@ package controllers
 import controllers.reg.IndexController
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.play.test.{WithFakeApplication, UnitSpec}
+import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 class IndexControllerSpec extends UnitSpec with WithFakeApplication {
 

@@ -18,20 +18,19 @@ package views
 
 import _root_.helpers.SCRSSpec
 import builders.AuthBuilder
-import config.FrontendAuthConnector
 import controllers.reg.SummaryController
 import fixtures.{AccountingDetailsFixture, CorporationTaxFixture, SCRSFixtures}
 import mocks.NavModelRepoMock
 import models._
 import org.jsoup.Jsoup
-import org.mockito.Mockito._
 import org.mockito.Matchers
+import org.mockito.Mockito._
 import play.api.test.Helpers._
 import services.MetaDataService
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.WithFakeApplication
 
 import scala.concurrent.Future
-import uk.gov.hmrc.http.HeaderCarrier
 
 class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixture
   with CorporationTaxFixture with NavModelRepoMock with WithFakeApplication with AuthBuilder {

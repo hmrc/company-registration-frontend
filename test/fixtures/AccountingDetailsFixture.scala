@@ -16,8 +16,8 @@
 
 package fixtures
 
+import models.AccountingDatesModel.FUTURE_DATE
 import models._
-import models.AccountingDatesModel.{FUTURE_DATE, NOT_PLANNING_TO_YET, WHEN_REGISTERED}
 
 trait AccountingDetailsFixture {
 

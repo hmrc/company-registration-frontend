@@ -21,22 +21,21 @@ import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthFunction
 import forms.AccountingDatesForm
 import models.{AccountingDatesModel, AccountingDetailsNotFoundResponse, AccountingDetailsSuccessResponse}
-import org.joda.time.LocalDate
 import play.api.mvc.Action
 import services.{AccountingService, MetricsService, TimeService}
 import uk.gov.hmrc.play.frontend.controller.FrontendController
-import utils.{MessagesSupport, SessionRegistration}
+import utils.{MessagesSupport, SessionRegistration, SystemDate}
 import views.html.reg.AccountingDates
 
 import scala.concurrent.Future
 
 object AccountingDatesController extends AccountingDatesController {
-  val authConnector = FrontendAuthConnector
-  val accountingService = AccountingService
+  val authConnector                           = FrontendAuthConnector
+  val accountingService                       = AccountingService
   override val metricsService: MetricsService = MetricsService
-  val timeService: TimeService = TimeService
-  val companyRegistrationConnector = CompanyRegistrationConnector
-  val keystoreConnector = KeystoreConnector
+  val timeService: TimeService                = TimeService
+  val companyRegistrationConnector            = CompanyRegistrationConnector
+  val keystoreConnector                       = KeystoreConnector
 }
 
 trait AccountingDatesController extends FrontendController with AuthFunction with ControllerErrorHandler with SessionRegistration with MessagesSupport {
@@ -52,7 +51,7 @@ trait AccountingDatesController extends FrontendController with AuthFunction wit
       checkStatus { _ =>
         accountingService.fetchAccountingDetails.map {
           accountingDetails => {
-            Ok(AccountingDates(AccountingDatesForm.form.fill(accountingDetails), timeService.futureWorkingDate(LocalDate.now, 60)))
+            Ok(AccountingDates(AccountingDatesForm.form.fill(accountingDetails), timeService.futureWorkingDate(SystemDate.getSystemDate, 60)))
           }
         }
       }
@@ -63,13 +62,13 @@ trait AccountingDatesController extends FrontendController with AuthFunction wit
     ctAuthorised {
       AccountingDatesForm.form.bindFromRequest().fold(
         formWithErrors => {
-          Future.successful(BadRequest(AccountingDates(formWithErrors, timeService.futureWorkingDate(LocalDate.now, 60))))
+          Future.successful(BadRequest(AccountingDates(formWithErrors, timeService.futureWorkingDate(SystemDate.getSystemDate, 60))))
         }, {
           val context = metricsService.saveAccountingDatesToCRTimer.time()
           data => {
             val updatedData = data.crnDate match {
-              case "whenRegistered" => data.copy(crnDate = AccountingDatesModel.WHEN_REGISTERED, day = None, month = None, year = None)
-              case "futureDate" => data.copy(crnDate = AccountingDatesModel.FUTURE_DATE)
+              case "whenRegistered"   => data.copy(crnDate = AccountingDatesModel.WHEN_REGISTERED, day = None, month = None, year = None)
+              case "futureDate"       => data.copy(crnDate = AccountingDatesModel.FUTURE_DATE)
               case "notPlanningToYet" => data.copy(crnDate = AccountingDatesModel.NOT_PLANNING_TO_YET, day = None, month = None, year = None)
             }
             accountingService.updateAccountingDetails(updatedData) map {

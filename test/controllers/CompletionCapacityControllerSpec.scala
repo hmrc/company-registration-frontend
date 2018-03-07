@@ -17,7 +17,6 @@
 package controllers
 
 import builders.AuthBuilder
-import config.FrontendAuthConnector
 import connectors.{BusinessRegistrationConnector, BusinessRegistrationSuccessResponse}
 import controllers.reg.CompletionCapacityController
 import fixtures.BusinessRegistrationFixture

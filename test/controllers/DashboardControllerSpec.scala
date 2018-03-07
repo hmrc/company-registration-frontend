@@ -17,7 +17,6 @@
 package controllers
 
 import builders.AuthBuilder
-import config.FrontendAuthConnector
 import controllers.dashboard.DashboardController
 import helpers.SCRSSpec
 import models.{Dashboard, IncorpAndCTDashboard, ServiceDashboard, ServiceLinks}
@@ -49,6 +48,8 @@ class DashboardControllerSpec extends SCRSSpec with WithFakeApplication with Aut
     }
   }
 
+  val payeThresholds = Map("weekly" -> 113, "monthly" -> 490, "annually" -> 5876)
+
   "show" should {
 
     val regId = "12345"
@@ -58,7 +59,7 @@ class DashboardControllerSpec extends SCRSSpec with WithFakeApplication with Aut
       IncorpAndCTDashboard(
         "held", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), None, None, Some("ack-12345"), None
       ),
-      ServiceDashboard("draft", None, None,ServiceLinks("", "", None, Some(""))),
+      ServiceDashboard("draft", None, None,ServiceLinks("", "", None, Some("")), Some(payeThresholds)),
       None
     )
 

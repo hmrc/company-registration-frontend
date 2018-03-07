@@ -17,16 +17,16 @@
 package controllers.test
 
 import org.mockito.Matchers
+import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import play.api.libs.json.{JsValue, Json}
 import play.api.test.FakeRequest
-import uk.gov.hmrc.play.http.ws.{WSGet, WSHttp}
-import uk.gov.hmrc.play.test.UnitSpec
-import org.mockito.Mockito._
 import play.api.test.Helpers._
+import uk.gov.hmrc.http.{HeaderCarrier, HttpGet}
+import uk.gov.hmrc.play.http.ws.WSGet
+import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpGet}
 
 class ModifyThrottledUsersControllerSpec extends UnitSpec with MockitoSugar {
 

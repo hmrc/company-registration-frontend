@@ -16,7 +16,7 @@
 
 package helpers
 
-import play.api.data.{FormError, Form}
+import play.api.data.{Form, FormError}
 import play.api.mvc.AnyContentAsFormUrlEncoded
 import play.api.test.FakeRequest
 import uk.gov.hmrc.play.test.UnitSpec

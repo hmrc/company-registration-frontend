@@ -230,4 +230,13 @@ class SCRSValidatorsSpec extends UnitSpec with WithFakeApplication {
     }
   }
 
+  "dateRegex" should {
+    "validate 2018-01-01" in {
+      assert("2018-01-01".matches(SCRSValidators.datePatternRegex))
+    }
+
+    "not validate 2018-1-1" in {
+      assert(!"2018-1-1".matches(SCRSValidators.datePatternRegex))
+    }
+  }
 }
