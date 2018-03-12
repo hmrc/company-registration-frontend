@@ -11,7 +11,7 @@ As part of the Small Business, Enterprise and Employment Act 2015 there is the r
 system for streamlined company registration. This is to include registration in terms of :
 
 * incorporation with Companies House as part of documents which must be delivered to the registrar under section
-   9 of the Companies Act 2006 (registration documents) in respect of the formation of a company
+   9 of the Companies Act 2006 (registration documents) in respect of the formation of a company.
 * registration for taxes with HMRC for purposes connected with VAT, corporation tax and PAYE.
 
 For the purposes of the legislation, streamlined means that all registration information can be provided on a 
