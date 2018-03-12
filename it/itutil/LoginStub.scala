@@ -32,11 +32,12 @@ import uk.gov.hmrc.http.SessionKeys
 trait LoginStub extends SessionCookieBaker {
   private val defaultUser = "/foo/bar"
 
-  val SessionId = s"stubbed-${UUID.randomUUID}"
+  val SessionId         = s"stubbed-${UUID.randomUUID}"
+  val invalidSessionId  = s"FAKE_PRF::NON-COMPSDOJ OMSDDf"
 
-  private def cookieData(additionalData: Map[String, String], userId: String = defaultUser): Map[String, String] = {
+  private def cookieData(additionalData: Map[String, String], userId: String = defaultUser, sessionId: String = SessionId): Map[String, String] = {
     Map(
-      SessionKeys.sessionId -> SessionId,
+      SessionKeys.sessionId -> sessionId,
       SessionKeys.userId -> userId,
       SessionKeys.token -> "token",
       SessionKeys.authProvider -> "GGW",
@@ -65,8 +66,8 @@ trait LoginStub extends SessionCookieBaker {
     )
   }
 
-  def getSessionCookie(additionalData: Map[String, String] = Map(), userId: String = defaultUser): String = {
-    cookieValue(cookieData(additionalData, userId))
+  def getSessionCookie(additionalData: Map[String, String] = Map(), userId: String = defaultUser, sessionId: String = SessionId): String = {
+    cookieValue(cookieData(additionalData, userId, sessionId))
   }
 
   def stubSuccessfulLogin(withSignIn: Boolean = false, userId: String = defaultUser): StubMapping = {

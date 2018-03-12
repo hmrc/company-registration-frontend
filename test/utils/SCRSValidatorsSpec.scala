@@ -239,4 +239,15 @@ class SCRSValidatorsSpec extends UnitSpec with WithFakeApplication {
       assert(!"2018-1-1".matches(SCRSValidators.datePatternRegex))
     }
   }
+
+  "desSchemaRegex" should {
+
+    "not validate FAKE_SOD::TR9873!^^7FDFNN" in {
+      assert(!"FAKE_SOD::TR9873!^^7FDFNN".matches(SCRSValidators.desSessionRegex))
+    }
+
+    "validate stubbed-1sds-sdijhi-2383-seei" in {
+      assert("stubbed-1sds-sdijhi-2383-seei".matches(SCRSValidators.desSessionRegex))
+    }
+  }
 }
