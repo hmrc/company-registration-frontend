@@ -17,10 +17,11 @@
 package config
 
 import com.typesafe.config.Config
+import config.filters.SessionIdFilter
 import net.ceedubs.ficus.Ficus._
 import play.api.Play.current
 import play.api.i18n.Messages.Implicits._
-import play.api.mvc.Request
+import play.api.mvc.{EssentialFilter, Request}
 import play.api.{Application, Configuration, Logger, Play}
 import play.twirl.api.Html
 import repositories.NavModelRepo
@@ -57,6 +58,8 @@ abstract class FrontendGlobal
 
 
   override def microserviceMetricsConfig(implicit app: Application): Option[Configuration] = app.configuration.getConfig(s"microservice.metrics")
+
+  override def filters: Seq[EssentialFilter] = super.filters :+ SessionIdFilter
 }
 
 object ControllerConfiguration extends ControllerConfig {

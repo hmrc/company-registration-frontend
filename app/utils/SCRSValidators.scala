@@ -44,6 +44,7 @@ trait SCRSValidators {
   private val nonEmptyRegex           = """^(?=\s*\S).*$""".r
   private val completionCapacityRegex = """^[A-Za-z0-9 '\-]{1,100}$""".r
 
+  val desSessionRegex                 = "^([A-Za-z0-9-]{0,60})$"
   val datePatternRegex                = """([12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))"""
 
   implicit val bHS = TimeService.bHS
