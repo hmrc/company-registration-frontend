@@ -64,8 +64,6 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
     System.clearProperty("feature.businessActivitiesHandOff")
   }
 
-  val mockCommonService = mock[CommonService]
-
   val externalID = "testExternalID"
 
   "buildBusinessActivitiesPayload" should {

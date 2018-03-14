@@ -17,22 +17,28 @@
 package forms
 
 import org.joda.time.{DateTime, LocalDate}
-import services.TimeService
+import services.{BankHolidays, TimeService}
 import uk.gov.hmrc.play.test.UnitSpec
+import uk.gov.hmrc.time.workingdays.BankHolidaySet
 
 class AccountingDatesFormSpec extends UnitSpec {
 
-  val currentDateTime = DateTime.parse("2022-02-28T08:00")
-  val currentLocalDate = LocalDate.parse("2022-02-28")
+  val curDateTime = DateTime.parse("2022-02-28T08:00")
+  val curLocalDate = LocalDate.parse("2022-02-28")
 
-  def testForm(newnow : LocalDate = new LocalDate()) = new AccountingDatesForm {
-    override val timeService: TimeService = TimeService
+  def testForm(newnow : LocalDate = curLocalDate) = new AccountingDatesForm {
+    override val timeService: TimeService = new TimeService {
+      override val bHS: BankHolidaySet = BankHolidays.bankHolidaySet
+      override val dayEndHour: Int = 14
+      override def currentDateTime: DateTime = curDateTime
+      override def currentLocalDate: LocalDate = curLocalDate
+    }
     override val now: LocalDate = newnow
   }.form
 
   val currentYear = LocalDate.now().getYear
-  val futureYear = (currentYear + 1).toString
-  val pastYear = (currentYear - 1).toString
+  val futureYear = (2022 + 1).toString
+  val pastYear = (2022 - 1).toString
 
   val invalidBusinessStartDateData = Map(
     "businessStartDate" -> "",
@@ -55,14 +61,14 @@ class AccountingDatesFormSpec extends UnitSpec {
   val futureDateData = Map(
     "businessStartDate" -> "futureDate",
     "businessStartDate-futureDate.year" -> futureYear,
-    "businessStartDate-futureDate.month" -> "12",
-    "businessStartDate-futureDate.day" -> "23")
+    "businessStartDate-futureDate.month" -> "03",
+    "businessStartDate-futureDate.day" -> "05")
 
   val pastDateData = Map(
     "businessStartDate" -> "futureDate",
     "businessStartDate-futureDate.year" -> pastYear,
-    "businessStartDate-futureDate.month" -> "12",
-    "businessStartDate-futureDate.day" -> "23")
+    "businessStartDate-futureDate.month" -> "03",
+    "businessStartDate-futureDate.day" -> "04")
 
   val notPlanningToYetdata = Map(
     "businessStartDate" -> "whenRegistered",
@@ -86,13 +92,13 @@ class AccountingDatesFormSpec extends UnitSpec {
 
     "selecting 'Start my business on a future date' and inputting said date" should {
 
-      "have no errors when a date further than 2 working days in the future is provided" in {
-        val boundForm = testForm().bind(futureDateData)
+      val boundForm = testForm().bind(futureDateData)
+      "have no errors when a date further than 3 working days in the future is provided" in {
         boundForm.hasErrors shouldBe false
       }
-      "have errors when a date less than than 2 working days in the future is provided" in {
-        val boundForm = testForm().bind(pastDateData)
-        boundForm.hasErrors shouldBe true
+      val boundForm2 = testForm().bind(pastDateData)
+      "have errors when a date less than than 3 working days in the future is provided" in {
+        boundForm2.hasErrors shouldBe true
       }
     }
   }

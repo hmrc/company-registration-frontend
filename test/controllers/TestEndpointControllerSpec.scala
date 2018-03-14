@@ -30,7 +30,7 @@ import org.scalatest.mockito.MockitoSugar
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services.{DashboardService, MetaDataService}
+import services.DashboardService
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
@@ -51,7 +51,6 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
   val userIds = UserIDs("testInternal","testExternal")
 
   val mockSCRSFeatureSwitches           = mock[SCRSFeatureSwitches]
-  val mockMetaDataService               = mock[MetaDataService]
   val mockDynamicStubConnector          = mock[DynamicStubConnector]
   val mockBusinessRegistrationConnector = mock[BusinessRegistrationConnector]
   val mockDashboardService              = mock[DashboardService]

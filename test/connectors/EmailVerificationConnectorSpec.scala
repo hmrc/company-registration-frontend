@@ -22,19 +22,14 @@ import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfter
 import org.scalatest.mockito.MockitoSugar
-
-import scala.concurrent.ExecutionContext
-//import org.scalatestplus.play.OneServerPerSuite
 import play.api.http.Status._
 import play.api.libs.json.JsValue
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class EmailVerificationConnectorSpec extends SCRSSpec with UnitSpec with WithFakeApplication with MockitoSugar with BeforeAndAfter {
-
-  val mockEmailVerificationConnector = mock[EmailVerificationConnector]
 
 
   trait Setup {
