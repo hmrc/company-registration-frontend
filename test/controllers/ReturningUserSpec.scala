@@ -28,8 +28,8 @@ class ReturningUserSpec extends SCRSSpec with AuthBuilder with WithFakeApplicati
   class Setup {
     object TestController extends ReturningUserController{
       val createGGWAccountUrl = "CreateGGWAccountURL"
-      val eligUri             = "/check-if-you-can-setup-a-company"
-      val eligUrl             = "EligURL"
+      val eligUri             = "/eligibility-for-setting-up-company"
+      val eligBaseUrl         = "EligURL"
       val compRegFeUrl        = "CompRegFEURL"
       val authConnector       = mockAuthConnector
     }
@@ -65,6 +65,7 @@ class ReturningUserSpec extends SCRSSpec with AuthBuilder with WithFakeApplicati
         val result = TestController.submit()(FakeRequest().withFormUrlEncodedBody("returningUser" -> "true"))
         status(result) shouldBe SEE_OTHER
         redirectLocation(result).get should include("EligURL")
+        redirectLocation(result).get should include("/eligibility-for-setting-up-company")
       }
       "return a 303 and send user to sign-in page when they are not starting a new registration" in new Setup {
 
