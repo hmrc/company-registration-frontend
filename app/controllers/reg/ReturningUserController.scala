@@ -32,8 +32,12 @@ import scala.concurrent.Future
 
 object ReturningUserController extends ReturningUserController with ServicesConfig{
   val createGGWAccountUrl = getConfString("gg-reg-fe.url", throw new Exception("Could not find config for gg-reg-fe url"))
-  val eligUri             = getConfString("company-registration-eligibility-frontend.url", throw new Exception("Could not find config for comp-reg-el-fe url"))
-  val eligUrl             = s"${baseUrl("company-registration-eligibility-frontend")}$eligUri"
+  val eligBaseUrl = getConfString(
+    "company-registration-eligibility-frontend.url-prefix", throw new Exception("Could not find config for key: company-registration-eligibility-frontend.url-prefix")
+  )
+  val eligUri = getConfString(
+    "company-registration-eligibility-frontend.start-url", throw new Exception("Could not find config for key: company-registration-eligibility-frontend.start-url")
+  )
   val compRegFeUrl        = FrontendConfig.self
   val authConnector       = FrontendAuthConnector
 }
@@ -41,7 +45,8 @@ object ReturningUserController extends ReturningUserController with ServicesConf
 trait ReturningUserController extends FrontendController with AuthFunction with MessagesSupport {
   val createGGWAccountUrl: String
   val compRegFeUrl: String
-  val eligUrl : String
+  val eligBaseUrl : String
+  val eligUri : String
 
   val show = Action.async { implicit request =>
     onlyIfNotSignedIn {
@@ -64,7 +69,7 @@ trait ReturningUserController extends FrontendController with AuthFunction with 
 
   private[controllers] def buildCreateAccountURL: String = {
     if (signPostingEnabled) {
-      eligUrl
+      s"$eligBaseUrl$eligUri"
     } else {
       val continueUrlUrl = controllers.reg.routes.SignInOutController.postSignIn(None).url
       val ggrf = "government-gateway-registration-frontend"
