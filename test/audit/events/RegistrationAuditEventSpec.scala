@@ -26,7 +26,7 @@ import uk.gov.hmrc.play.test.UnitSpec
 class RegistrationAuditEventSpec extends UnitSpec {
 
   "RegistrationEvent" should {
-    val clientIP: String = "1.2.3.4"
+    val clientIP: String = "an.example.I.P"
     val clientPort: String = "1234"
     val auditType = "testType"
     val bearer = "Bearer 12345"
@@ -38,7 +38,7 @@ class RegistrationAuditEventSpec extends UnitSpec {
     val completeCarrier = HeaderCarrier(
       trueClientIp = Some(clientIP),
       trueClientPort = Some(clientPort),
-      forwarded = Some(ForwardedFor("2.3.4.5")),
+      forwarded = Some(ForwardedFor("forward.to.I.P")),
       sessionId = Some(SessionId(session)),
       requestId = Some(RequestId(request)),
       authorization = Some(Authorization(bearer)),
