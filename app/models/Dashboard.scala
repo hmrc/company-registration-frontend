@@ -33,7 +33,8 @@ case class IncorpAndCTDashboard(status : String,
                                 crn : Option[String],
                                 ctSubmissionDate: Option[String],
                                 ackRef: Option[String],
-                                ackRefStatus: Option[String])
+                                ackRefStatus: Option[String],
+                                ctutr: Option[String])
 
 object IncorpAndCTDashboard {
   val format = Json.format[IncorpAndCTDashboard]
@@ -46,7 +47,8 @@ object IncorpAndCTDashboard {
     (__ \ "crn").readNullable[String] and
     (__ \ "submissionTimestamp").readNullable[String].map(_.map(DateTime.parse(_).toString("d MMMM yyyy"))) and
     (__ \ "confirmationReferences" \ "acknowledgement-reference").readNullable[String].orElse(Reads.pure(None)) and
-    (__ \ "acknowledgementReferences" \ "status").readNullable[String].orElse(Reads.pure(None))
+    (__ \ "acknowledgementReferences" \ "status").readNullable[String].orElse(Reads.pure(None)) and
+    (__ \ "acknowledgementReferences" \ "ctUtr").readNullable[String].orElse(Reads.pure(None))
   )(IncorpAndCTDashboard.apply _)
 
   def reads(date: Option[String]): Reads[IncorpAndCTDashboard] = new Reads[IncorpAndCTDashboard] {

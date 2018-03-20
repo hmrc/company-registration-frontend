@@ -352,7 +352,8 @@ trait TestEndpointController extends FrontendController with AuthFunction with C
                        payeRestartUrl:String = "true",
                        vatStatus:String= "draft",
                        vatCancelUrl:String   = "true",
-                       ackRefStatus:String="ackrefStatuses") = Action {
+                       ackRefStatus:String="ackrefStatuses",
+                       ctutr: Option[String] = None) = Action {
     implicit request =>
       val incorpAndCTDash = IncorpAndCTDashboard(
         incorpCTStatus,
@@ -362,7 +363,8 @@ trait TestEndpointController extends FrontendController with AuthFunction with C
         Some("crn"),
         Some("submissionDate"),
         Some("ackRef"),
-        Some(ackRefStatus)
+        Some(ackRefStatus),
+        Some("CTUTR")
       )
       payeCancelUrl.toBoolean
       val payeLinks = links(payeCancelUrl.toBoolean,payeRestartUrl.toBoolean)

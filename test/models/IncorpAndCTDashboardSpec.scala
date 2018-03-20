@@ -58,13 +58,13 @@ class IncorpAndCTDashboardSpec extends UnitSpec {
 
     "read into a case class as expected when there are acknowledgement references" in {
 
-      val expected = IncorpAndCTDashboard("acknowledged", None, Some("TRANS_ID-12345"), Some("PAY_REF-123456789"), None, None, Some("ABCD00000000001"), Some("01"))
+      val expected = IncorpAndCTDashboard("acknowledged", None, Some("TRANS_ID-12345"), Some("PAY_REF-123456789"), None, None, Some("ABCD00000000001"), Some("01"), Some("xxx"))
 
       val json = baseJson ++ Json.parse(
         """
           |{
           |    "acknowledgementReferences" : {
-          |        "ct-utr" : "xxx",
+          |        "ctUtr" : "xxx",
           |        "timestamp" : "2016-11-12T13:45:29Z",
           |        "status" : "01"
           |    }
@@ -79,7 +79,7 @@ class IncorpAndCTDashboardSpec extends UnitSpec {
 
     "read into a case class as expected when there are no acknowledgement references" in {
 
-      val expected = IncorpAndCTDashboard("acknowledged", None, Some("TRANS_ID-12345"), Some("PAY_REF-123456789"), None, None, Some("ABCD00000000001"), None)
+      val expected = IncorpAndCTDashboard("acknowledged", None, Some("TRANS_ID-12345"), Some("PAY_REF-123456789"), None, None, Some("ABCD00000000001"), None, None)
 
       val json = baseJson
 
