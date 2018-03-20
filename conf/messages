@@ -286,6 +286,7 @@ page.reg.Dashboard.submissionDate                                   = Submission
 page.reg.Dashboard.ref                                              = Reference number:
 page.reg.Dashboard.paymentRef                                       = Payment reference:
 page.reg.Dashboard.crn                                              = Company registration number:
+page.reg.Dashboard.ctutr                                            = Unique Taxpayer Reference (UTR):
 page.reg.Dashboard.wycd                                             = What you can do:
 
 page.reg.Dashboard.status.submitted                                 = Pending

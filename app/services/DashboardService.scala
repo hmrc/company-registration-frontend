@@ -23,6 +23,7 @@ import models._
 import models.auth.AuthDetails
 import models.external.{OtherRegStatus, Statuses}
 import org.joda.time.{DateTime, LocalDate}
+import play.api.Logger
 import play.api.libs.json.JsValue
 import play.api.mvc.{AnyContent, Call, Request}
 import uk.gov.hmrc.auth.core.Enrolments
@@ -88,7 +89,7 @@ trait DashboardService extends SCRSExceptions with CommonService {
 
   def buildDashboard(regId : String, enrolments : Enrolments)(implicit hc: HeaderCarrier): Future[DashboardStatus] = {
     for {
-      incorpCTDash <- buildIncorpCTDashComponent(regId)
+      incorpCTDash <- buildIncorpCTDashComponent(regId, enrolments)
       payeDash     <- buildPAYEDashComponent(regId, enrolments)
       hasVatCred   =  hasEnrolment(enrolments, List("HMCE-VATDEC-ORG", "HMCE-VATVAR-ORG"))
       vatDash      <- buildVATDashComponent(regId, enrolments)
@@ -152,11 +153,12 @@ trait DashboardService extends SCRSExceptions with CommonService {
     }
   }
 
-  private[services] def buildIncorpCTDashComponent(regId: String)(implicit hc: HeaderCarrier): Future[IncorpAndCTDashboard] = {
+  private[services] def buildIncorpCTDashComponent(regId: String, enrolments : Enrolments)(implicit hc: HeaderCarrier): Future[IncorpAndCTDashboard] = {
     companyRegistrationConnector.retrieveCorporationTaxRegistration(regId) flatMap {
       ctReg =>
         (ctReg \ "status").as[String] match {
-          case "held" => buildHeld(regId, ctReg)
+          case "held"         => buildHeld(regId, ctReg)
+          case "acknowledged" => Future.successful(buildAcknowledged(regId, ctReg, enrolments))
           case _ => Future.successful(ctReg.as[IncorpAndCTDashboard](IncorpAndCTDashboard.reads(None)))
         }
     }
@@ -182,8 +184,24 @@ trait DashboardService extends SCRSExceptions with CommonService {
     }
   }
 
-  private[services] def extractSubmissionDate(jsonDate: JsValue): String = {
+  private[services] def buildAcknowledged(regId: String, ctReg: JsValue, enrolments : Enrolments): IncorpAndCTDashboard = {
+    val ctData = ctReg.as[IncorpAndCTDashboard](IncorpAndCTDashboard.reads(None))
+    val matchCTUTR = for {
+      ctutr     <- ctData.ctutr
+      enrolment <- enrolments.getEnrolment("IR-CT")
+      id        <- enrolment.getIdentifier("UTR") if enrolment.isActivated
+    } yield id.value == ctutr
 
+    matchCTUTR match {
+      case Some(false) =>
+        Logger.error("CT_UTR_MISMATCH")
+        Logger.info(s"CT_UTR_MISMATCH for registration id: $regId")
+        ctData.copy(ctutr = None)
+      case _ => ctData
+    }
+  }
+
+  private[services] def extractSubmissionDate(jsonDate: JsValue): String = {
     val dgdt : DateTime = jsonDate.as[DateTime]
     dgdt.toString("d MMMM yyyy")
   }

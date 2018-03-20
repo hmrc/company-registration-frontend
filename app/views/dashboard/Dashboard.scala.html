@@ -178,7 +178,6 @@
                         <td class="check-your-answers">@Messages("page.reg.Dashboard.status")</td>
                         <td id="incorpStatusText">@incorpStatus</td>
                     </tr>
-
                     @if(dash.incDash.status == "held") {
                         <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
                             <td>@Messages("page.reg.Dashboard.submissionDate")</td>
@@ -225,7 +224,6 @@
                     <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
                         <td>@Messages("page.reg.Dashboard.status")</td>
                         <td  id="ctStatusText">@ctStatus</td>
-
                     </tr>
                     <!-- CT Status end -->
 
@@ -264,6 +262,12 @@
                                 <p>@Messages("page.reg.Dashboard.CTRegistered")</p>
                             </td>
                         </tr>
+                        @if(dash.incDash.ctutr.isDefined){
+                        <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
+                            <td class="check-your-answers">@Messages("page.reg.Dashboard.ctutr")</td>
+                            <td id="ctutrText">@dash.incDash.ctutr.get</td>
+                        </tr>
+                        }
                     }
                 </tbody>
             </table>

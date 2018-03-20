@@ -89,7 +89,7 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers with ServiceConnect
       override val vatUri = vatTestUri
       override val featureFlag = mockfeatureFlag
 
-      override def buildIncorpCTDashComponent(regId: String)(implicit hc: HeaderCarrier) = Future.successful(dash)
+      override def buildIncorpCTDashComponent(regId: String, enrolments: Enrolments)(implicit hc: HeaderCarrier) = Future.successful(dash)
       override def getCompanyName(regId: String)(implicit hc: HeaderCarrier) = Future.successful("testCompanyName")
      }
   }
@@ -151,7 +151,8 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers with ServiceConnect
             Json.parse("""
         |{
         |  "acknowledgementReferences" : {
-        |      "status" : "04"
+        |      "status" : "04",
+        |      "ctUtr" : "CTUTR"
         |  }
         |}
       """.stripMargin)
@@ -161,6 +162,7 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers with ServiceConnect
   def mockPayeFeature(enable: Boolean) = when(mockfeatureFlag.paye).thenReturn(BooleanFeatureSwitch("paye", enabled = enable))
   def mockVatFeature(enable: Boolean) = when(mockfeatureFlag.vat).thenReturn(BooleanFeatureSwitch("vat", enabled = enable))
 
+  def ctEnrolment(id: String, active: Boolean) = Enrolments(Set(Enrolment("IR-CT", Seq(EnrolmentIdentifier("UTR", id)), if(active) "activated" else "other")))
   val payeEnrolment = Enrolments(Set(Enrolment("IR-PAYE", Seq(EnrolmentIdentifier("test-paye-identifier", "test-paye-value")), "testState")))
   val vatEnrolment = Enrolments(Set(Enrolment("HMCE-VATDEC-ORG", Seq(EnrolmentIdentifier("test-paye-identifier", "test-paye-value")), "testState")))
   val vatVarEnrolment = Enrolments(Set(Enrolment("HMCE-VATVAR-ORG", Seq(EnrolmentIdentifier("test-paye-identifier", "test-paye-value")), "testState")))
@@ -170,9 +172,9 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers with ServiceConnect
 
   "buildDashboard" should {
 
-    val draftDash = IncorpAndCTDashboard("draft", Some("10 October 2017"), Some(transId), Some(payRef), None, None, Some(ackRef), None)
-    val rejectedDash = IncorpAndCTDashboard("rejected", Some("10 October 2017"), Some(transId), Some(payRef), None, None, Some(ackRef), None)
-    val heldDash = IncorpAndCTDashboard("held", Some("10 October 2017"), Some(transId), Some(payRef), None, None, Some(ackRef), None)
+    val draftDash = IncorpAndCTDashboard("draft", Some("10 October 2017"), Some(transId), Some(payRef), None, None, Some(ackRef), None, None)
+    val rejectedDash = IncorpAndCTDashboard("rejected", Some("10 October 2017"), Some(transId), Some(payRef), None, None, Some(ackRef), None, None)
+    val heldDash = IncorpAndCTDashboard("held", Some("10 October 2017"), Some(transId), Some(payRef), None, None, Some(ackRef), None, None)
 
     val payeDash = ServiceDashboard("", None, None, ServiceLinks(payeUrl, "OTRS url", None, Some("/register-your-company/cancel-paye")), Some(payeThresholds))
     val payeStatus = OtherRegStatus("", None, None, Some("foo"), None)
@@ -214,23 +216,46 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers with ServiceConnect
       when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(eqTo(regId))(any())).thenReturn(Future.successful(ctRegJson("held")))
       when(mockCompanyRegistrationConnector.fetchHeldSubmissionTime(eqTo(regId))(any())).thenReturn(Future.successful(Some(dateAsJson)))
 
-      val res = await(service.buildIncorpCTDashComponent(regId))
-      res shouldBe IncorpAndCTDashboard("held", Some("10 October 2017"), Some(transId), Some(payRef), None, None, Some(ackRef), None)
+      val res = await(service.buildIncorpCTDashComponent(regId, noEnrolments))
+      res shouldBe IncorpAndCTDashboard("held", Some("10 October 2017"), Some(transId), Some(payRef), None, None, Some(ackRef), None, None)
     }
 
     "return a correct IncorpAndCTDashboard when the status is submitted" in new Setup {
       when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(eqTo(regId))(any()))
         .thenReturn(Future.successful(ctRegJson("submitted")))
 
-      val res = await(service.buildIncorpCTDashComponent(regId))
-      res shouldBe IncorpAndCTDashboard("submitted", None, Some(transId), Some(payRef), None, None, Some(ackRef), None)
-          }
+      val res = await(service.buildIncorpCTDashComponent(regId, noEnrolments))
+      res shouldBe IncorpAndCTDashboard("submitted", None, Some(transId), Some(payRef), None, None, Some(ackRef), None, None)
+    }
 
-    "return a correct IncorpAndCTDashboard when the status is acknowledged" in new Setup {
+    "return a correct IncorpAndCTDashboard when the status is acknowledged and enrolment has no CTUTR" in new Setup {
       when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(eqTo(regId))(any())).thenReturn(Future.successful(ctRegJson("acknowledged")))
 
-      val res = await(service.buildIncorpCTDashComponent(regId))
-      res shouldBe IncorpAndCTDashboard("acknowledged", None, Some(transId), Some(payRef), None, None, Some(ackRef), Some("04"))
+      val res = await(service.buildIncorpCTDashComponent(regId, noEnrolments))
+      res shouldBe IncorpAndCTDashboard("acknowledged", None, Some(transId), Some(payRef), None, None, Some(ackRef), Some("04"), Some("CTUTR"))
+    }
+
+    def acknowledgedDashboard(ctutr: Option[String]) = IncorpAndCTDashboard("acknowledged", None, Some(transId), Some(payRef), None, None, Some(ackRef), Some("04"), ctutr)
+
+    "return a correct IncorpAndCTDashboard when the status is acknowledged with a matching CTUTR on enrolment" in new Setup {
+      when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(eqTo(regId))(any())).thenReturn(Future.successful(ctRegJson("acknowledged")))
+
+      val res = await(service.buildIncorpCTDashComponent(regId, ctEnrolment("CTUTR", active = true)))
+      res shouldBe acknowledgedDashboard(Some("CTUTR"))
+    }
+
+    "return a correct IncorpAndCTDashboard when the status is acknowledged and our CTUTR doesn't match an inactive enrolment" in new Setup {
+      when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(eqTo(regId))(any())).thenReturn(Future.successful(ctRegJson("acknowledged")))
+
+      val res = await(service.buildIncorpCTDashComponent(regId, ctEnrolment("mismatched UTR", active = false)))
+      res shouldBe acknowledgedDashboard(Some("CTUTR"))
+    }
+
+    "ignore UTR in IncorpAndCTDashboard when the status is acknowledged and our CTUTR doesn't match an active enrolment" in new Setup {
+      when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(eqTo(regId))(any())).thenReturn(Future.successful(ctRegJson("acknowledged")))
+
+      val res = await(service.buildIncorpCTDashComponent(regId, ctEnrolment("mismatched UTR", active = true)))
+      res shouldBe acknowledgedDashboard(None)
     }
   }
 
@@ -326,7 +351,7 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers with ServiceConnect
   "buildHeld" should {
     "return a IncorpAndCTDashboard" in new Setup {
       val expected = IncorpAndCTDashboard("held", Some("10 October 2017"), Some(transId),
-        Some(payRef), None, None, Some(ackRef), None)
+        Some(payRef), None, None, Some(ackRef), None, None)
 
       val date = DateTime.parse("2017-10-10")
       val dateAsJson = Json.toJson(date)

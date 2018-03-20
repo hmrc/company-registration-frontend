@@ -26,8 +26,8 @@ import org.mockito.Matchers
 import org.mockito.Mockito._
 import play.api.test.Helpers._
 import services.{DashboardBuilt, DashboardService}
-import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolments}
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, ~}
+import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolment, EnrolmentIdentifier, Enrolments}
 import uk.gov.hmrc.play.test.WithFakeApplication
 
 import scala.concurrent.Future
@@ -50,12 +50,12 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
   val regId = "reg-12345"
   val emptyEnrolments = Enrolments(Set())
 
-  val authDetails = new ~(
+  def authDetails(enrolments: Set[uk.gov.hmrc.auth.core.Enrolment] = Set()) = new ~(
     new ~(
       new ~(
         new ~(
           Some(AffinityGroup.Organisation),
-          Enrolments(Set())
+          Enrolments(enrolments)
         ), Some("test")
       ), Some("test")
     ), Credentials("test", "test")
@@ -71,7 +71,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
       val dashboard = Dashboard(
         "testCompanyName",
         IncorpAndCTDashboard(
-          "held", Some("10 October 2017"), Some("trans-12345"), Some("pay-12345"), None, None, Some("ack-12345"), None
+          "held", Some("10 October 2017"), Some("trans-12345"), Some("pay-12345"), None, None, Some("ack-12345"), None, None
         ),
         ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo")), Some(payeThresholds)),
         None
@@ -86,7 +86,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
               when(mockDashboardService.checkForEmailMismatch(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
           .thenReturn(Future.successful(true))
 
-      showWithAuthorisedUserRetrieval(controller.show, authDetails) {
+      showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
           document.title() shouldBe "Company registration overview"
@@ -111,7 +111,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
       val dashboard = Dashboard(
         "testCompanyName",
         IncorpAndCTDashboard(
-          "submitted", Some("10 October 2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11 October 2017"), Some("ack-12345"), None
+          "submitted", Some("10 October 2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11 October 2017"), Some("ack-12345"), None, None
         ),
         ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo")), Some(payeThresholds)),
         None
@@ -126,7 +126,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
               when(mockDashboardService.checkForEmailMismatch(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
           .thenReturn(Future.successful(true))
 
-      showWithAuthorisedUserRetrieval(controller.show, authDetails) {
+      showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
           document.title() shouldBe "Company registration overview"
@@ -148,7 +148,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
       val dashboard = Dashboard(
         "testCompanyName",
         IncorpAndCTDashboard(
-          "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), None
+          "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), None, Some("CTUTR")
         ),
         ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo")), Some(payeThresholds)),
         None
@@ -163,7 +163,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
       when(mockDashboardService.checkForEmailMismatch(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
           .thenReturn(Future.successful(true))
 
-      showWithAuthorisedUserRetrieval(controller.show, authDetails) {
+      showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
           document.title() shouldBe "Company registration overview"
@@ -186,7 +186,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
         val dashboard = Dashboard(
           "testCompanyName",
           IncorpAndCTDashboard(
-            "submitted", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some(status)
+            "submitted", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some(status), None
           ),
           ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo")), None),
           None
@@ -201,7 +201,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
         when(mockDashboardService.checkForEmailMismatch(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
           .thenReturn(Future.successful(true))
 
-        showWithAuthorisedUserRetrieval(controller.show, authDetails) {
+        showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
           result =>
             val document = Jsoup.parse(contentAsString(result))
             document.title() shouldBe "Company registration overview"
@@ -224,7 +224,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
         val dashboard = Dashboard(
           "testCompanyName",
           IncorpAndCTDashboard(
-            "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some(status)
+            "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some(status), Some("exampleUTR")
           ),
           ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo")), Some(payeThresholds)),
           None
@@ -239,7 +239,46 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
         when(mockDashboardService.checkForEmailMismatch(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
           .thenReturn(Future.successful(true))
 
-        showWithAuthorisedUserRetrieval(controller.show, authDetails) {
+        showWithAuthorisedUserRetrieval(controller.show, authDetails(Set(Enrolment("IR-CT", Seq(EnrolmentIdentifier("UTR", "exampleUTR")), "activated")))) {
+          result =>
+            val document = Jsoup.parse(contentAsString(result))
+            document.title() shouldBe "Company registration overview"
+
+            Map(
+              "incorpStatusText" -> "Registered",
+              "crn" -> "crn123",
+              "ctStatusText" -> "Registered",
+              "ctutrText" -> "exampleUTR"
+            ) foreach { case (element, message) =>
+              document.getElementById(element).text() shouldBe message
+            }
+        }
+      }
+    }
+
+    Set(
+      "04", "05"
+    ) foreach { status =>
+      s"make sure that the dashboard has the correct elements when ETMP has accepted the CT submission but CTUTR mismatched ($status status)" in new Setup {
+        val dashboard = Dashboard(
+          "testCompanyName",
+          IncorpAndCTDashboard(
+            "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some(status), None
+          ),
+          ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo")), Some(payeThresholds)),
+          None
+        )
+
+        when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
+          .thenReturn(Future.successful(Some(regId)))
+
+        when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
+          .thenReturn(Future.successful(DashboardBuilt(dashboard)))
+
+        when(mockDashboardService.checkForEmailMismatch(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
+          .thenReturn(Future.successful(true))
+
+        showWithAuthorisedUserRetrieval(controller.show, authDetails(Set(Enrolment("IR-CT", Seq(EnrolmentIdentifier("UTR", "exampleUTR")), "activated")))) {
           result =>
             val document = Jsoup.parse(contentAsString(result))
             document.title() shouldBe "Company registration overview"
@@ -251,6 +290,8 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
             ) foreach { case (element, message) =>
               document.getElementById(element).text() shouldBe message
             }
+
+            document.getElementById("ctutrText") shouldBe null
         }
       }
     }
@@ -260,7 +301,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
       val dashboard = Dashboard(
         "testCompanyName",
         IncorpAndCTDashboard(
-          "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04")
+          "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04"), Some("CTUTR")
         ),
         ServiceDashboard("notEligible", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo")), None),
         None
@@ -275,7 +316,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
               when(mockDashboardService.checkForEmailMismatch(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
           .thenReturn(Future.successful(true))
 
-      showWithAuthorisedUserRetrieval(controller.show, authDetails) {
+      showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
           document.title() shouldBe "Company registration overview"
@@ -288,7 +329,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
       val dashboard = Dashboard(
         "testCompanyName",
         IncorpAndCTDashboard(
-          "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04")
+          "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04"), Some("CTUTR")
         ),
         ServiceDashboard(Statuses.UNAVAILABLE, None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo")), None),
         None
@@ -303,7 +344,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
               when(mockDashboardService.checkForEmailMismatch(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
           .thenReturn(Future.successful(true))
 
-      showWithAuthorisedUserRetrieval(controller.show, authDetails) {
+      showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
           document.title() shouldBe "Company registration overview"
@@ -316,7 +357,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
       val dashboard = Dashboard(
         "testCompanyName",
         IncorpAndCTDashboard(
-          "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04")
+          "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04"), Some("CTUTR")
         ),
         ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo")), Some(payeThresholds)),
         None
@@ -331,7 +372,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
               when(mockDashboardService.checkForEmailMismatch(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
           .thenReturn(Future.successful(true))
 
-      showWithAuthorisedUserRetrieval(controller.show, authDetails) {
+      showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
           document.title() shouldBe "Company registration overview"
@@ -345,7 +386,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
       val dashboard = Dashboard(
         "testCompanyName",
         IncorpAndCTDashboard(
-          "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04")
+          "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04"), Some("CTUTR")
         ),
         ServiceDashboard("draft", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo")), Some(payeThresholds)),
         None
@@ -360,7 +401,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
               when(mockDashboardService.checkForEmailMismatch(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
           .thenReturn(Future.successful(true))
 
-      showWithAuthorisedUserRetrieval(controller.show, authDetails) {
+      showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
           document.title() shouldBe "Company registration overview"
@@ -374,7 +415,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
       val dashboard = Dashboard(
         "testCompanyName",
         IncorpAndCTDashboard(
-          "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04")
+          "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04"), Some("CTUTR")
         ),
         ServiceDashboard("held", None, Some("ABCD12345678901"), ServiceLinks("payeURL", "otrsUrl", None, Some("foo")), None),
         None
@@ -389,7 +430,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
               when(mockDashboardService.checkForEmailMismatch(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
           .thenReturn(Future.successful(true))
 
-      showWithAuthorisedUserRetrieval(controller.show, authDetails) {
+      showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
           document.title() shouldBe "Company registration overview"
@@ -408,7 +449,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
       val dashboard = Dashboard(
         "testCompanyName",
         IncorpAndCTDashboard(
-          "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04")
+          "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04"), Some("CTUTR")
         ),
         ServiceDashboard("submitted", Some("15 May 2017"), Some("ABCD12345678901"), ServiceLinks("payeURL", "otrsUrl", None, Some("foo")), Some(payeThresholds)),
         None
@@ -423,7 +464,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
               when(mockDashboardService.checkForEmailMismatch(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
           .thenReturn(Future.successful(true))
 
-      showWithAuthorisedUserRetrieval(controller.show, authDetails) {
+      showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
           document.title() shouldBe "Company registration overview"
@@ -443,7 +484,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
       val dashboard = Dashboard(
         "testCompanyName",
         IncorpAndCTDashboard(
-          "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04")
+          "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04"), Some("CTUTR")
         ),
         ServiceDashboard("acknowledged", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo")), Some(payeThresholds)),
         None
@@ -458,7 +499,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
               when(mockDashboardService.checkForEmailMismatch(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
           .thenReturn(Future.successful(true))
 
-      showWithAuthorisedUserRetrieval(controller.show, authDetails) {
+      showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
           document.title() shouldBe "Company registration overview"
@@ -473,7 +514,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
         val dashboard = Dashboard(
           "testCompanyName",
           IncorpAndCTDashboard(
-            "submitted", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some(status)
+            "submitted", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some(status), None
           ),
           ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, None), None),
           None,
@@ -489,7 +530,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
         when(mockDashboardService.checkForEmailMismatch(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
           .thenReturn(Future.successful(true))
 
-        showWithAuthorisedUserRetrieval(controller.show, authDetails) {
+        showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
           result =>
             val document = Jsoup.parse(contentAsString(result))
             document.title() shouldBe "Company registration overview"
@@ -503,7 +544,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
       val dashboard = Dashboard(
         "testCompanyName",
         IncorpAndCTDashboard(
-          "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04")
+          "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04"), Some("CTUTR")
         ),
         ServiceDashboard("invalid", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo")), Some(payeThresholds)),
         None
@@ -518,7 +559,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
               when(mockDashboardService.checkForEmailMismatch(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
           .thenReturn(Future.successful(true))
 
-      showWithAuthorisedUserRetrieval(controller.show, authDetails) {
+      showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
           document.title() shouldBe "Company registration overview"
@@ -533,7 +574,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
       val dashboard = Dashboard(
         "testCompanyName",
         IncorpAndCTDashboard(
-          "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04")
+          "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04"), Some("CTUTR")
         ),
         ServiceDashboard("rejected", None, None, ServiceLinks("payeURL", "otrsUrl", Some("bar"), None), Some(payeThresholds)),
         None
@@ -548,7 +589,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
               when(mockDashboardService.checkForEmailMismatch(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
           .thenReturn(Future.successful(true))
 
-      showWithAuthorisedUserRetrieval(controller.show, authDetails) {
+      showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
           document.title() shouldBe "Company registration overview"
@@ -561,7 +602,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
       val dashboard = Dashboard(
         "testCompanyName",
         IncorpAndCTDashboard(
-          "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04")
+          "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04"), Some("CTUTR")
         ),
         ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, None), Some(payeThresholds)),
         None,
@@ -577,7 +618,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
               when(mockDashboardService.checkForEmailMismatch(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
           .thenReturn(Future.successful(true))
 
-      showWithAuthorisedUserRetrieval(controller.show, authDetails) {
+      showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
           document.title() shouldBe "Company registration overview"
@@ -593,7 +634,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
         val dashboard = Dashboard(
           "testCompanyName",
           IncorpAndCTDashboard(
-            "submitted", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some(status)
+            "submitted", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some(status), Some("CTUTR")
           ),
           ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, None), Some(payeThresholds)),
           None,
@@ -609,7 +650,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
         when(mockDashboardService.checkForEmailMismatch(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
           .thenReturn(Future.successful(true))
 
-        showWithAuthorisedUserRetrieval(controller.show, authDetails) {
+        showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
           result =>
             val document = Jsoup.parse(contentAsString(result))
             document.title() shouldBe "Company registration overview"
@@ -622,7 +663,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
       val dashboard = Dashboard(
         "testCompanyName",
         IncorpAndCTDashboard(
-          "submitted", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), None
+          "submitted", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), None, Some("CTUTR")
         ),
         ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, None), Some(payeThresholds)),
         None,
@@ -638,7 +679,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
               when(mockDashboardService.checkForEmailMismatch(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
           .thenReturn(Future.successful(true))
 
-      showWithAuthorisedUserRetrieval(controller.show, authDetails) {
+      showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
           document.title() shouldBe "Company registration overview"
@@ -651,7 +692,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
       val dashboard = Dashboard(
         "testCompanyName",
         IncorpAndCTDashboard(
-          "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), None
+          "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), None, Some("CTUTR")
         ),
         ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, None), Some(payeThresholds)),
         None,
@@ -667,7 +708,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
               when(mockDashboardService.checkForEmailMismatch(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
           .thenReturn(Future.successful(true))
 
-      showWithAuthorisedUserRetrieval(controller.show, authDetails) {
+      showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
           document.title() shouldBe "Company registration overview"
@@ -680,7 +721,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
       val dashboard = Dashboard(
         "testCompanyName",
         IncorpAndCTDashboard(
-          "held", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), None
+          "held", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), None, None
         ),
         ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, None), Some(payeThresholds)),
         None,
@@ -696,7 +737,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
               when(mockDashboardService.checkForEmailMismatch(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
           .thenReturn(Future.successful(true))
 
-      showWithAuthorisedUserRetrieval(controller.show, authDetails) {
+      showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
           document.title() shouldBe "Company registration overview"
@@ -710,7 +751,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
       val dashboard = Dashboard(
         "testCompanyName",
         IncorpAndCTDashboard(
-          "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04")
+          "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04"), Some("CTUTR")
         ),
         ServiceDashboard("draft", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("cancelURL")), Some(payeThresholds)),
         None
@@ -725,7 +766,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
               when(mockDashboardService.checkForEmailMismatch(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
           .thenReturn(Future.successful(true))
 
-      showWithAuthorisedUserRetrieval(controller.show, authDetails) {
+      showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
           document.title() shouldBe "Company registration overview"
@@ -739,7 +780,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
       val dashboard = Dashboard(
         "testCompanyName",
         IncorpAndCTDashboard(
-          "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04")
+          "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04"), Some("CTUTR")
         ),
         ServiceDashboard("draft", None, None, ServiceLinks("payeURL", "otrsUrl", None, None), Some(payeThresholds)),
         None
@@ -754,7 +795,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
               when(mockDashboardService.checkForEmailMismatch(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
           .thenReturn(Future.successful(true))
 
-      showWithAuthorisedUserRetrieval(controller.show, authDetails) {
+      showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
           document.title() shouldBe "Company registration overview"
@@ -770,7 +811,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
       val dashboard = Dashboard(
         "testCompanyName",
         IncorpAndCTDashboard(
-          "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04")
+          "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04"), Some("CTUTR")
         ),
         ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo")), Some(payeThresholds)),
         None
@@ -785,7 +826,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
               when(mockDashboardService.checkForEmailMismatch(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
           .thenReturn(Future.successful(true))
 
-      showWithAuthorisedUserRetrieval(controller.show, authDetails) {
+      showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
           document.getElementById("employer-help-thresholds").text() shouldBe "pay any employees - including company directors - £113 or more a week (this is the same as £490 a month or £5,876 a year)"
@@ -796,7 +837,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
       val dashboard = Dashboard(
         "testCompanyName",
         IncorpAndCTDashboard(
-          "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04")
+          "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04"), Some("CTUTR")
         ),
         ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo")), Some(newPayeThresholds)),
         None
@@ -811,7 +852,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
               when(mockDashboardService.checkForEmailMismatch(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
           .thenReturn(Future.successful(true))
 
-      showWithAuthorisedUserRetrieval(controller.show, authDetails) {
+      showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
           document.getElementById("employer-help-thresholds").text() shouldBe "pay any employees - including company directors - £116 or more a week (this is the same as £503 a month or £6,032 a year)"

@@ -70,7 +70,7 @@ class DashboardControllerSpec extends SCRSSpec with WithFakeApplication with Aut
     val dashboard = Dashboard(
       companyName = "testCompanyName",
       IncorpAndCTDashboard(
-        "held", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), None, None, Some("ack-12345"), None
+        "held", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), None, None, Some("ack-12345"), None, None
       ),
       ServiceDashboard("draft", None, None,ServiceLinks("", "", None, Some("")), Some(payeThresholds)),
       None
