@@ -17,14 +17,17 @@
 package services
 
 import _root_.connectors._
-import config.FrontendAppConfig
+import audit.events.{EmailMismatchEvent, EmailMismatchEventDetail}
+import config.{FrontendAppConfig, FrontendAuditConnector}
 import models._
+import models.auth.AuthDetails
 import models.external.{OtherRegStatus, Statuses}
 import org.joda.time.{DateTime, LocalDate}
 import play.api.libs.json.JsValue
-import play.api.mvc.Call
+import play.api.mvc.{AnyContent, Call, Request}
 import uk.gov.hmrc.auth.core.Enrolments
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 import utils.{SCRSExceptions, SCRSFeatureSwitches, SystemDate}
@@ -38,6 +41,7 @@ object DashboardService extends DashboardService with ServicesConfig {
   val incorpInfoConnector = IncorpInfoConnector
   val payeConnector = PAYEConnector
   val vatConnector = VATConnector
+  val auditConnector = FrontendAuditConnector
   val otrsUrl = getConfString("otrs.url", throw new Exception("Could not find config for key: otrs.url"))
   val payeBaseUrl = getConfString("paye-registration-www.url-prefix", throw new Exception("Could not find config for key: paye-registration-www.url-prefix"))
   val payeUri = getConfString("paye-registration-www.start-url", throw new Exception("Could not find config for key: paye-registration-www.start-url"))
@@ -59,6 +63,7 @@ trait DashboardService extends SCRSExceptions with CommonService {
   val companyRegistrationConnector : CompanyRegistrationConnector
   val payeConnector, vatConnector: ServiceConnector
   val incorpInfoConnector: IncorpInfoConnector
+  val auditConnector : AuditConnector
   val otrsUrl: String
   val payeBaseUrl: String
   val payeUri: String
@@ -181,5 +186,34 @@ trait DashboardService extends SCRSExceptions with CommonService {
 
     val dgdt : DateTime = jsonDate.as[DateTime]
     dgdt.toString("d MMMM yyyy")
+  }
+
+  def checkForEmailMismatch(regID : String, authDetails : AuthDetails)(implicit hc : HeaderCarrier, req: Request[AnyContent]) : Future[Boolean] = {
+    keystoreConnector.fetchAndGet[Boolean]("emailMismatchAudit") flatMap {
+      case Some(mismatchResult) => Future.successful(mismatchResult)
+      case _ => companyRegistrationConnector.retrieveEmail(regID) flatMap {
+        case Some(crEmail) =>
+          val mismatch = authDetails.email != crEmail.address
+          if (mismatch) {
+            for {
+              result  <- auditConnector.sendExtendedEvent(
+                new EmailMismatchEvent(
+                  EmailMismatchEventDetail(
+                    authDetails.externalId,
+                    authDetails.authProviderId.providerId,
+                    regID
+                  )
+                )
+              )
+              _       <- keystoreConnector.cache("emailMismatchAudit", mismatch)
+            } yield mismatch
+          } else {
+            Future.successful(mismatch)
+          }
+        case _ => Future.successful(false)
+      }
+    }
+
+
   }
 }

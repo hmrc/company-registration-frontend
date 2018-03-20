@@ -111,14 +111,15 @@ class EmailVerificationServiceSpec extends UnitSpec with SCRSSpec with WithFakeA
 
   "isVerified" should {
 
-    "return an option of true when a user already has an authenticated email" in new Setup {
-      val expected = (Some(true),Some("verified"))
-      await(stubbedService.isVerified(regId, Some(verifiedEmail), None, authDetails)) shouldBe expected
-    }
-
     "return an option of true when a user has an authenticated email when asking the Email service" in new Setup {
       val expected = (Some(true),Some("verified"))
+
+      when(mockKsConnector.cache(Matchers.eq("email"), Matchers.any())(Matchers.any(), Matchers.any()))
+        .thenReturn(Future.successful(CacheMap("x", Map())))
+
       await(stubbedService.isVerified(regId, Some(verifiedEmail), None, authDetails)) shouldBe expected
+
+      verify(mockKsConnector, times(1)).cache(Matchers.eq("email"), Matchers.any())(Matchers.any(), Matchers.any())
     }
 
     "return an option of false when a user has an unauthenticated email" in new Setup {
@@ -138,7 +139,13 @@ class EmailVerificationServiceSpec extends UnitSpec with SCRSSpec with WithFakeA
 
     "return an option of true when a user has not been sent a verification email but is verified" in new Setup {
       val expected = (Some(true),Some("existing"))
+
+      when(mockKsConnector.cache(Matchers.eq("email"), Matchers.any())(Matchers.any(), Matchers.any()))
+        .thenReturn(Future.successful(CacheMap("x", Map())))
+
       await(stubbedService.isVerified(regId, Some(existingEmail), None, authDetails))shouldBe expected
+
+      verify(mockKsConnector, times(1)).cache(Matchers.eq("email"), Matchers.any())(Matchers.any(), Matchers.any())
     }
 
     "return None when a user has no email" in new Setup {

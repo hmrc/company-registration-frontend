@@ -411,6 +411,8 @@ trait CompanyRegistrationConnector {
     http.GET[Email](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationId/retrieve-email").map{
       e => Some(e)
     } recover {
+      case e : NotFoundException =>
+        None
       case ex: BadRequestException =>
         Logger.info(s"[CompanyRegistrationConnector] [retrieveEmail] - Could not find a CT document for rid - $registrationId")
         None

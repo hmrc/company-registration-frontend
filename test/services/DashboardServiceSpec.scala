@@ -16,23 +16,30 @@
 
 package services
 
+import audit.events.{EmailMismatchEvent, EmailVerifiedEvent}
 import builders.AuthBuilder
 import connectors.{NotStarted, SuccessfulResponse}
 import helpers.{AuthHelpers, SCRSSpec}
 import mocks.ServiceConnectorMock
 import models._
+import models.auth.AuthDetails
 import models.connectors.ConfirmationReferences
 import models.external.{OtherRegStatus, Statuses}
 import org.joda.time.DateTime
+import org.mockito.{ArgumentCaptor, Matchers}
 import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.{JsObject, JsValue, Json}
-import uk.gov.hmrc.auth.core.{Enrolment, EnrolmentIdentifier, Enrolments}
+import play.api.test.FakeRequest
+import uk.gov.hmrc.auth.core.retrieve.Credentials
+import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolment, EnrolmentIdentifier, Enrolments}
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.cache.client.CacheMap
+import uk.gov.hmrc.play.audit.http.connector.AuditResult.Success
 import utils.{BooleanFeatureSwitch, SCRSFeatureSwitches}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class DashboardServiceSpec extends SCRSSpec with AuthHelpers with ServiceConnectorMock with AuthBuilder with GuiceOneAppPerSuite {
 
@@ -56,6 +63,7 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers with ServiceConnect
       override val incorpInfoConnector = mockIncorpInfoConnector
       override val payeConnector = mockServiceConnector
       override val vatConnector = mockServiceConnector
+      override val auditConnector = mockAuditConnector
       override val otrsUrl = testOtrsUrl
       override val payeBaseUrl = payeTestBaseUrl
       override val payeUri = payeTestUri
@@ -73,6 +81,7 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers with ServiceConnect
       override val incorpInfoConnector = mockIncorpInfoConnector
       override val payeConnector = mockServiceConnector
       override val vatConnector = mockServiceConnector
+      override val auditConnector = mockAuditConnector
       override val otrsUrl = testOtrsUrl
       override val payeBaseUrl = payeTestBaseUrl
       override val payeUri = payeTestUri
@@ -359,6 +368,85 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers with ServiceConnect
 
       val result = service.getCurrentPayeThresholds
       result shouldBe Map("weekly" -> 116, "monthly" -> 503, "annually" -> 6032)
+    }
+  }
+
+  val authDetails = AuthDetails(
+    AffinityGroup.Organisation,
+    Enrolments(Set()),
+    "||||anyemail@fakemail.fake",
+    "extID",
+    Credentials("proid", "protyp")
+  )
+
+  implicit val req = FakeRequest("GET", "/test-path")
+
+  val email = Email("testEmailAddress", "GG", true, true, true)
+
+  "checkForEmailMismatch" should {
+    "send an email mismatch audit event" when {
+      "there has been no email mismatch audit event sent in the session, and the emails mismatch" in new Setup {
+        when(mockKeystoreConnector.fetchAndGet(eqTo("emailMismatchAudit"))(any(), any()))
+          .thenReturn(Future.successful(None))
+
+        val captor = ArgumentCaptor.forClass(classOf[EmailMismatchEvent])
+
+        when(mockAuditConnector.sendExtendedEvent(captor.capture())(Matchers.any[HeaderCarrier](), Matchers.any[ExecutionContext]()))
+          .thenReturn(Future.successful(Success))
+
+        when(mockCompanyRegistrationConnector.retrieveEmail(any())(any()))
+          .thenReturn(Future.successful(Some(email)))
+
+        when(mockKeystoreConnector.cache(eqTo("emailMismatchAudit"), any())(any(), any()))
+          .thenReturn(Future.successful(CacheMap("x", Map())))
+
+        await(service.checkForEmailMismatch(regId, authDetails)) shouldBe true
+      }
+    }
+
+    "do not send an audit event" when {
+      "there has been no email mismatch audit event sent in the session, and the emails do not mismatch" in new Setup {
+        val matchingEmail = "matchingEmail"
+
+        when(mockKeystoreConnector.fetchAndGet(eqTo("emailMismatchAudit"))(any(), any()))
+          .thenReturn(Future.successful(None))
+
+        when(mockCompanyRegistrationConnector.retrieveEmail(any())(any()))
+          .thenReturn(Future.successful(Some(email.copy(address = matchingEmail))))
+
+        when(mockKeystoreConnector.cache(eqTo("emailMismatchAudit"), any())(any(), any()))
+          .thenReturn(Future.successful(CacheMap("x", Map())))
+
+        await(service.checkForEmailMismatch(regId, authDetails.copy(email = matchingEmail))) shouldBe false
+
+        verify(mockAuditConnector, times(0)).sendExtendedEvent(Matchers.any())(Matchers.any[HeaderCarrier](), Matchers.any[ExecutionContext]())
+      }
+
+      "there has been no email mismatch audit event sent in the session, and there is no verified email in CR" in new Setup {
+        when(mockKeystoreConnector.fetchAndGet(eqTo("emailMismatchAudit"))(any(), any()))
+          .thenReturn(Future.successful(None))
+
+        when(mockCompanyRegistrationConnector.retrieveEmail(any())(any()))
+          .thenReturn(Future.successful(None))
+
+        await(service.checkForEmailMismatch(regId, authDetails)) shouldBe false
+
+        verify(mockAuditConnector, times(0)).sendExtendedEvent(Matchers.any())(Matchers.any[HeaderCarrier](), Matchers.any[ExecutionContext]())
+      }
+
+      "there has been an email mismatch audit event sent in the session, and it mismatched" in new Setup {
+        when(mockKeystoreConnector.fetchAndGet[Boolean](eqTo("emailMismatchAudit"))(any(), any()))
+          .thenReturn(Future.successful(Some(true)))
+
+        await(service.checkForEmailMismatch(regId, authDetails)) shouldBe true
+      }
+
+      "there has been an email mismatch audit event sent in the session, and it did not mismatch" in new Setup {
+        when(mockKeystoreConnector.fetchAndGet[Boolean](eqTo("emailMismatchAudit"))(any(), any()))
+          .thenReturn(Future.successful(Some(false)))
+
+        await(service.checkForEmailMismatch(regId, authDetails)) shouldBe false
+      }
     }
   }
 }
