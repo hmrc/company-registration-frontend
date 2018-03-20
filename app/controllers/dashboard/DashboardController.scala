@@ -45,15 +45,17 @@ trait DashboardController extends FrontendController with AuthFunction with Comm
 
   val show: Action[AnyContent] = Action.async {
     implicit request =>
-      ctAuthorisedEnrolments { enrolments =>
+      ctAuthorisedPostSignIn { authDetails =>
         registered { regId =>
-          dashboardService.buildDashboard(regId, enrolments) map {
-            case DashboardBuilt(dash) => Ok(views.html.dashboard.Dashboard(dash, companiesHouseURL))
-            case CouldNotBuild        => Redirect(controllers.handoff.routes.BasicCompanyDetailsController.basicCompanyDetails())
-            case RejectedIncorp       => Ok(views.html.reg.RegistrationUnsuccessful())
-          } recover {
-            case ex => Logger.error(s"[Dashboard Controller] [Show] buildDashboard returned an error ${ex.getMessage}", ex)
-              InternalServerError(defaultErrorPage)
+          dashboardService.checkForEmailMismatch(regId, authDetails) flatMap { _ =>
+            dashboardService.buildDashboard(regId, authDetails.enrolments) map {
+              case DashboardBuilt(dash) => Ok(views.html.dashboard.Dashboard(dash, companiesHouseURL))
+              case CouldNotBuild => Redirect(controllers.handoff.routes.BasicCompanyDetailsController.basicCompanyDetails())
+              case RejectedIncorp => Ok(views.html.reg.RegistrationUnsuccessful())
+            } recover {
+              case ex => Logger.error(s"[Dashboard Controller] [Show] buildDashboard returned an error ${ex.getMessage}", ex)
+                InternalServerError(defaultErrorPage)
+            }
           }
         }
       }

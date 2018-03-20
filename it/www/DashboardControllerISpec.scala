@@ -15,7 +15,7 @@
  */
 package www
 
-import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, stubFor, urlMatching}
+import com.github.tomakehurst.wiremock.client.WireMock._
 import itutil.{FakeAppConfig, IntegrationSpecBase, LoginStub, WiremockHelper}
 import org.jsoup.Jsoup
 import play.api.http.HeaderNames
@@ -52,6 +52,8 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub with F
                 |   "cancelURL": "testCancelURL/$regId/del"
                 |}""".stripMargin
 
+  val emailResult = """{ "address": "a@a.a", "type": "GG", "link-sent": true, "verified": false , "return-link-email-sent" : false}"""
+
   def statusResponseFromCR(status:String = "draft", rID:String = "5") =
     s"""
        |{
@@ -82,8 +84,9 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub with F
     )
   }
 
-  def stubKeystore(session: String, regId: String) = {
+  def stubKeystoreDashboard(session: String, regId: String, email : String) = {
     val keystoreUrl = s"/keystore/company-registration-frontend/${session}"
+
     stubFor(get(urlMatching(keystoreUrl))
       .willReturn(
         aResponse().
@@ -91,8 +94,47 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub with F
           withBody(
             s"""{
                |"id": "${session}",
-               |"data": { "registrationID": "${regId}" }
+               |"data": {
+               |  "registrationID": "${regId}",
+               |  "email" : "${email}"
+               |}
                |}""".stripMargin
+          )
+      )
+    )
+  }
+
+  def stubKeystoreDashboardMismatchedResult(session: String, regId: String, email : String, mismatchResult : Boolean) = {
+    val keystoreUrl = s"/keystore/company-registration-frontend/${session}"
+
+    stubFor(get(urlMatching(keystoreUrl))
+      .willReturn(
+        aResponse().
+          withStatus(200).
+          withBody(
+            s"""{
+                |"id": "${session}",
+                |"data": {
+                |  "registrationID": "${regId}",
+                |  "email" : "${email}",
+                |  "emailMismatchAudit" : $mismatchResult
+                |}
+                |}""".stripMargin
+          )
+      )
+    )
+  }
+
+  def stubKeystoreCache(sessionId: String, key: String) = {
+    stubFor(put(urlMatching(s"/keystore/company-registration-frontend/$sessionId/data/$key"))
+      .willReturn(
+        aResponse()
+          .withStatus(200).
+          withBody(
+            s"""{
+                |"id": "$sessionId",
+                |"data": {}
+                |}""".stripMargin
           )
       )
     )
@@ -114,9 +156,11 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub with F
       stubSuccessfulLogin(userId=userId)
       setupSimpleAuthWithEnrolmentsMocks(enrolmentsURI)
 
-      stubKeystore(SessionId, regId)
+      stubKeystoreDashboard(SessionId, regId, "|||fake|||email")
+      stubKeystoreCache(SessionId, "emailMismatchAudit")
       stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR("held", regId))
       stubGet(s"/company-registration/corporation-tax-registration/$regId/fetch-held-time", 200, "1504774767050")
+      stubGet(s"/company-registration/corporation-tax-registration/$regId/retrieve-email", 200, emailResult)
       stubGet(s"/paye-registration/$regId/status", 200, payeRejected)
       stubGet(s"$enrolmentsURI", 200, "[]")
 
@@ -137,15 +181,55 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub with F
       doc.getElementById("payeRej").text shouldBe "Register again"
     }
 
+    "display the dashboard and not send out an audit event if the result of the email mismatch event was already saved" in {
+      val payeRestartURL = "/test/restarturl"
+      val payeRejected =
+        s"""
+           |{
+           |   "status": "rejected",
+           |   "restartURL": "$payeRestartURL"
+           |}
+       """.stripMargin
+
+      setupFeatures(paye = true)
+
+      stubSuccessfulLogin(userId=userId)
+      setupSimpleAuthWithEnrolmentsMocks(enrolmentsURI)
+
+      stubKeystoreDashboardMismatchedResult(SessionId, regId, "|||fake|||email", true)
+      stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR("held", regId))
+      stubGet(s"/company-registration/corporation-tax-registration/$regId/fetch-held-time", 200, "1504774767050")
+      stubGet(s"/company-registration/corporation-tax-registration/$regId/retrieve-email", 200, emailResult)
+      stubGet(s"/paye-registration/$regId/status", 200, payeRejected)
+      stubGet(s"$enrolmentsURI", 200, "[]")
+
+      val fResponse = buildClient("/company-registration-overview").
+        withHeaders(HeaderNames.COOKIE -> getSessionCookie(userId=userId)).
+        get()
+
+      val response = await(fResponse)
+      response.status shouldBe 200
+      val mdtpCookieData = getCookieData(response.cookie("mdtp").get)
+      mdtpCookieData("csrfToken") shouldNot be("")
+      mdtpCookieData("sessionId") shouldBe SessionId
+      mdtpCookieData("userId") shouldBe userId
+
+      val doc = Jsoup.parse(response.body)
+      doc.title shouldBe "Company registration overview"
+    }
+
     "not display the VAT block when the vat feature switch is OFF" in {
       setupFeatures(paye = true)
 
       stubSuccessfulLogin(userId=userId)
       setupSimpleAuthWithEnrolmentsMocks(enrolmentsURI)
 
-      stubKeystore(SessionId, regId)
+      stubKeystoreDashboard(SessionId, regId, "|||fake|||email")
+      stubKeystoreCache(SessionId, "emailMismatchAudit")
+
       stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR("submitted", regId))
       stubGet(s"/company-registration/corporation-tax-registration/$regId/fetch-held-time", 200, "1504774767050")
+      stubGet(s"/company-registration/corporation-tax-registration/$regId/retrieve-email", 200, emailResult)
       stubGet(s"/paye-registration/$regId/status", 200, jsonOtherRegStatusDraft)
       stubGet(s"$enrolmentsURI", 200, """[]""")
 
@@ -168,9 +252,12 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub with F
         stubSuccessfulLogin(userId = userId)
         setupSimpleAuthWithEnrolmentsMocks(enrolmentsURI)
 
-        stubKeystore(SessionId, regId)
+        stubKeystoreDashboard(SessionId, regId, "|||fake|||email")
+        stubKeystoreCache(SessionId, "emailMismatchAudit")
+
         stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR("held", regId))
         stubGet(s"/company-registration/corporation-tax-registration/$regId/fetch-held-time", 200, "1504774767050")
+        stubGet(s"/company-registration/corporation-tax-registration/$regId/retrieve-email", 200, emailResult)
         stubGet(s"/paye-registration/$regId/status", 200, jsonOtherRegStatusDraft)
         stubGet(s"/vatreg/$regId/status", 200, jsonOtherRegStatusDraft)
         stubGet(s"$enrolmentsURI", 200, "[]")
@@ -192,9 +279,12 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub with F
         stubSuccessfulLogin(userId = userId)
         setupSimpleAuthWithEnrolmentsMocks(enrolmentsURI)
 
-        stubKeystore(SessionId, regId)
+        stubKeystoreDashboard(SessionId, regId, "|||fake|||email")
+        stubKeystoreCache(SessionId, "emailMismatchAudit")
+
         stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR("held", regId))
         stubGet(s"/company-registration/corporation-tax-registration/$regId/fetch-held-time", 200, "1504774767050")
+        stubGet(s"/company-registration/corporation-tax-registration/$regId/retrieve-email", 200, emailResult)
         stubGet(s"/paye-registration/$regId/status", 200, jsonOtherRegStatusDraft)
         stubGet(s"/vatreg/$regId/status", 404, "")
         stubGet(s"$enrolmentsURI", 200, "[]")
@@ -217,9 +307,12 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub with F
         stubSuccessfulLogin(userId = userId)
         setupSimpleAuthWithEnrolmentsMocks(enrolmentsURI)
 
-        stubKeystore(SessionId, regId)
+        stubKeystoreDashboard(SessionId, regId, "|||fake|||email")
+        stubKeystoreCache(SessionId, "emailMismatchAudit")
+
         stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR("held", regId))
         stubGet(s"/company-registration/corporation-tax-registration/$regId/fetch-held-time", 200, "1504774767050")
+        stubGet(s"/company-registration/corporation-tax-registration/$regId/retrieve-email", 200, emailResult)
         stubGet(s"/paye-registration/$regId/status", 200, jsonOtherRegStatusDraft)
         stubGet(s"/vatreg/$regId/status", 200, jsonOtherRegStatusDraft)
         stubGet(s"$enrolmentsURI", 200, "[]")

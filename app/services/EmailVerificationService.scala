@@ -67,7 +67,7 @@ trait EmailVerificationService {
                 (implicit hc: HeaderCarrier, req: Request[AnyContent]): Future[(Option[Boolean], Option[String])] = {
     getEmail(rId, oEmail, resend, authDetails) flatMap {
       case Email("", _, _, _, _) => Future.successful((None, None))
-      case Email(address, _, _, true, _) => Future.successful((Some(true), Some(address)))
+      case Email(address, _, _, true, _) => cacheEmail(address) map (_ => (Some(true), Some(address)))
       case Email(address, _, false, _, _) => sendVerificationLink(address, rId, authDetails).map((_, Some(address)))
       case Email(address, _, _, false, _) => verifyEmailAddress(address, rId, authDetails).map((_, Some(address)))
     }
