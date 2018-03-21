@@ -442,5 +442,4 @@ page.policy.termsAndConditions.li2                                  = HMRC servi
 
 ## Help text
 footer.phone.h1                                                     = Get phone support
-footer.phone.contact                                                = Contact us:
-footer.phone.company_query                                          = Company registration queries
+footer.phone.call_support                                           = Call our support team
