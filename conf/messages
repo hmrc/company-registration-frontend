@@ -29,6 +29,7 @@ common.year                                                         = Year
 common.dateMessage                                                  = Enter the date in format dd mm yyyy
 common.dateExample                                                  = For example,
 common.button.ConfirmAndContinue                                    = Confirm and continue
+common.period                                                       = .
 
 
 ## Timeout page
@@ -234,17 +235,17 @@ page.verification.create-new-account.title                          = You need t
 page.verification.create-new-account.description.one                = The Government Gateway account you signed in with doesn''t have an email address linked to it.
 page.verification.create-new-account.description.two                = You need to create a new Government Gateway account including your email address to use this service.
 page.verification.create-new-account.bottomLink                     = Create a new Government Gateway account
-page.verification.verify-your-email.title                           = We''ve sent you an email
-page.verification.verify-your-email.description.one                 = We''ve sent an email to
-page.verification.verify-your-email.description.two                 = . It contains a link you''ll need to continue your company registration.
-page.verification.verify-your-email.dropdown-title                  = If you don''t get an email
-page.verification.verify-your-email.dropdown-text1                  = Check the email address you''ve entered. If it''s wrong you''ll need to
-page.verification.verify-your-email.dropdown-text2                  = If it''s right, check for the email in your spam folder. If you''re having problems you can ask us to
-page.verification.verify-your-email.dropdown-link                   = send it again
-page.verification.verify-your-email.dropdown-link2                  = start again
-page.verification.verify-your-email.dropdown-textend                = .
-page.verification.verify-your-email.dropdown-textend2               = .
-page.verification.verify-your-email.paragraph2                      = We''ll send you another email shortly after with a link you can use to access the service in future.
+
+page.verification.verify-your-email.title                           = Confirm your email address
+page.verification.verify-your-email.description                     = We''re going to send an email to {0}.
+page.verification.verify-your-email.p1                              = Look for an email from the GOV.UK team with the subject ''Confirm your email address''. Click the link in the email to confirm your address.
+page.verification.verify-your-email.p2                              = After you''ve done this, you''ll get another email with the subject ''Access the "Register your company" service''. It has a link you can use to access the service at any point in the future.
+page.verification.verify-your-email.dropdown-title                  = If you haven''t received a confirmation email
+page.verification.verify-your-email.dropdown-text1                  = Check your junk folder. If it''s not there, you''ll need to
+page.verification.verify-your-email.dropdown-link1                  = start again
+page.verification.verify-your-email.dropdown-text2                  = or we can
+page.verification.verify-your-email.dropdown-link2                  = resend it
+page.verification.verify-your-email.dropdown-text3                  = If we resend an email, any previous links will expire.
 
 ## Questionnaire
 page.reg.questionnaire.title                                        = Send your feedback
