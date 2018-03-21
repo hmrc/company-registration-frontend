@@ -16,7 +16,7 @@
 
 package controllers.reg
 
-import config.FrontendAuthConnector
+import config.{AppConfig, FrontendAppConfig, FrontendAuthConnector}
 import connectors.{BusinessRegistrationConnector, BusinessRegistrationSuccessResponse, CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthFunction
 import forms.AboutYouForm
@@ -35,6 +35,7 @@ object CompletionCapacityController extends CompletionCapacityController {
   val metaDataService = MetaDataService
   val metricsService: MetricsService = MetricsService
   val companyRegistrationConnector = CompanyRegistrationConnector
+  override val appConfig           = FrontendAppConfig
 
 }
 
@@ -43,6 +44,7 @@ trait CompletionCapacityController extends FrontendController with AuthFunction 
   val businessRegConnector: BusinessRegistrationConnector
   val metaDataService: MetaDataService
   val metricsService: MetricsService
+  implicit val appConfig: AppConfig
 
   def show() : Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {

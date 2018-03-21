@@ -18,7 +18,7 @@ package controllers.reg
 
 import _root_.connectors.{BusinessRegistrationConnector, CompanyRegistrationConnector, KeystoreConnector, S4LConnector}
 import address.client.RecordSet
-import config.FrontendAuthConnector
+import config.{AppConfig, FrontendAppConfig, FrontendAuthConnector}
 import controllers.auth.AuthFunction
 import forms.PPOBForm
 import models._
@@ -47,10 +47,13 @@ object PPOBController extends PPOBController{
   val handOffService = HandOffServiceImpl
   val navModelMongo =  NavModelRepo.repository
   val businessRegConnector = BusinessRegistrationConnector
+  override val appConfig =  FrontendAppConfig
 }
 
 trait PPOBController extends FrontendController with AuthFunction with HandOffNavigator with ServicesConfig with AddressConverter
   with SessionRegistration with ControllerErrorHandler with MessagesSupport {
+
+  implicit val appConfig: AppConfig
 
   val s4LConnector : S4LConnector
   val keystoreConnector : KeystoreConnector

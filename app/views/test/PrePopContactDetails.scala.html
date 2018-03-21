@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@(contactDetails: CompanyContactDetailsMongo)(implicit request: Request[_], lang: Lang, messages: Messages)
+@(contactDetails: CompanyContactDetailsMongo)(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.AppConfig)
 
 @main_template(title = "Feature switch", mainClass = Some("full-width")) {
 

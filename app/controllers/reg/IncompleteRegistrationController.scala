@@ -16,6 +16,7 @@
 
 package controllers.reg
 
+import config.{AppConfig, FrontendAppConfig}
 import play.api.mvc.Action
 import uk.gov.hmrc.play.frontend.controller.FrontendController
 import utils.MessagesSupport
@@ -23,9 +24,12 @@ import views.html.reg.IncompleteRegistration
 
 import scala.concurrent.Future
 
-object IncompleteRegistrationController extends IncompleteRegistrationController
+object IncompleteRegistrationController extends IncompleteRegistrationController {
+  override val appConfig =  FrontendAppConfig
+}
 
 trait IncompleteRegistrationController extends FrontendController with MessagesSupport {
+  implicit val appConfig: AppConfig
   val show = Action.async { implicit request =>
     Future.successful(Ok(IncompleteRegistration()))
   }

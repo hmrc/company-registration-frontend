@@ -40,6 +40,7 @@ class IncorporationSummaryControllerSpec extends SCRSSpec with PayloadFixture wi
       val handOffService = mockHandOffService
       val handBackService = mockHandBackService
       override val companyRegistrationConnector = mockCompanyRegistrationConnector
+      override val appConfig = mockAppConfig
     }
   }
 

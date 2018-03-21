@@ -27,7 +27,7 @@
   companyContactForm: Form[CompanyContactDetailsMongo],
   companyDetailsForm: Form[models.CompanyDetails],
   tradingDetailsForm : Form[TradingDetails],
-  applicantForm : Form[AboutYouChoice])(implicit request: Request[_], lang: Lang, messages: Messages)
+  applicantForm : Form[AboutYouChoice])(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.AppConfig)
 
 @main_template(title = Messages("page.reg.Confirmation.description"), mainClass = Some("full-width")) {
 

@@ -16,7 +16,7 @@
 
 package controllers.dashboard
 
-import config.FrontendAuthConnector
+import config.{AppConfig, FrontendAppConfig, FrontendAuthConnector}
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthFunction
 import controllers.reg.ControllerErrorHandler
@@ -35,10 +35,12 @@ object DashboardController extends DashboardController with ServicesConfig {
   val dashboardService             = DashboardService
   val companyRegistrationConnector = CompanyRegistrationConnector
   val companiesHouseURL            = getConfString("coho-service.sign-in", throw new Exception("Could not find config for coho-sign-in url"))
+  override val appConfig =  FrontendAppConfig
 }
 
 trait DashboardController extends FrontendController with AuthFunction with CommonService with SCRSExceptions
-  with ControllerErrorHandler with SessionRegistration with MessagesSupport {
+with ControllerErrorHandler with SessionRegistration with MessagesSupport {
+  implicit val appConfig: AppConfig
 
   val companiesHouseURL: String
   val dashboardService: DashboardService

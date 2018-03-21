@@ -16,6 +16,7 @@
 
 package controllers.test
 
+import config.{AppConfig, FrontendAppConfig}
 import connectors.{CompanyRegistrationConnector, DynamicStubConnector, KeystoreConnector}
 import forms.test.ETMPPost
 import models.test.{ETMPAcknowledgment, ETMPCTRecordUpdates, ETMPNotification}
@@ -31,12 +32,14 @@ object ETMPNotificationTestController extends ETMPNotificationTestController {
   val brdsConnector = DynamicStubConnector
   val crConnector = CompanyRegistrationConnector
   val keystoreConnector = KeystoreConnector
+  override val appConfig =  FrontendAppConfig
 }
 
 trait ETMPNotificationTestController extends FrontendController with CommonService with SCRSExceptions with MessagesSupport {
-
   val brdsConnector : DynamicStubConnector
+
   val crConnector : CompanyRegistrationConnector
+  implicit val appConfig: AppConfig
 
   def show : Action[AnyContent] = Action.async {
     implicit request =>

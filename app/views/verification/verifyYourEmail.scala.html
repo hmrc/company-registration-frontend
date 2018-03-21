@@ -14,11 +14,11 @@
  * limitations under the License.
  *@
 
-@(email: String)(implicit request: Request[_], lang: Lang, messages: Messages)
+@(email: String)(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.AppConfig)
 
 @import uk.gov.hmrc.play.views.html.helpers.form
 
-@main_template(title = Messages("page.verification.verify-your-email.title"), mainClass = None) {
+@main_template(title = Messages("page.verification.verify-your-email.title"), mainClass = None, timeout = false) {
 
 <a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
 

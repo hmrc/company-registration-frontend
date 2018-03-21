@@ -19,7 +19,7 @@ package controllers
 import java.util.UUID
 
 import builders.AuthBuilder
-import config.FrontendAuthConnector
+import config.{AppConfig, FrontendAuthConnector}
 import connectors.S4LConnector
 import controllers.reg.SummaryController
 import fixtures.{AccountingDetailsFixture, CorporationTaxFixture, SCRSFixtures, TradingDetailsFixtures}
@@ -70,6 +70,7 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with WithFakeAppl
       override val metaDataService = mockMetaDataService
       override val handOffService = mockHandOffService
       override val navModelMongo = mockNavModelRepoObj
+      override val appConfig = mockAppConfig
 
     }
   }

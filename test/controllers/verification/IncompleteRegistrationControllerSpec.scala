@@ -17,14 +17,20 @@
 package controllers.verification
 
 import controllers.reg.IncompleteRegistrationController
+import mocks.SCRSMocks
+import org.mockito.Mockito._
+import org.scalatest.mockito.MockitoSugar
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
-class IncompleteRegistrationControllerSpec extends UnitSpec with WithFakeApplication {
+class IncompleteRegistrationControllerSpec extends UnitSpec with WithFakeApplication with SCRSMocks with MockitoSugar {
 
   class Setup {
-    object TestController extends IncompleteRegistrationController
+    object TestController extends IncompleteRegistrationController {
+      override val appConfig = mockAppConfig
+    }
+    when(mockAppConfig.piwikURL).thenReturn(None)
   }
 
   "Sending a GET request to IncompleteRegistrationController" should {

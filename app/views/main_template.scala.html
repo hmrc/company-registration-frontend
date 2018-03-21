@@ -19,7 +19,8 @@
   contentHeader: Option[Html] = None,
   bodyClasses: Option[String] = None,
   mainClass: Option[String] = None,
-  pageScripts: Option[Html] = None)(mainContent: Html)(implicit request : Request[_], messages: Messages)
+  pageScripts: Option[Html] = None,
+  timeout: Boolean = true)(mainContent: Html)(implicit request : Request[_], messages: Messages, appConfig: config.AppConfig)
 
 @import uk.gov.hmrc.play.views.html.layouts
 
@@ -33,7 +34,7 @@
     }
 }
 
-@govuk_wrapper(appConfig = config.FrontendAppConfig,
+@govuk_wrapper(appConfig = appConfig,
                title = title,
                mainClass = mainClass,
                bodyClasses = bodyClasses,
@@ -41,6 +42,7 @@
                contentHeader = contentHeader,
                mainContent = layouts.article(mainContent),
                serviceInfoContent = serviceInfoContent,
-               pageScripts = pageScripts
+               pageScripts = pageScripts,
+               timeout = timeout
 )
 

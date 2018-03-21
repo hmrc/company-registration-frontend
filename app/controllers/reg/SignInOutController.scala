@@ -18,7 +18,7 @@ package controllers.reg
 
 import java.io.File
 
-import config.{FrontendAppConfig, FrontendAuthConnector, FrontendConfig}
+import config.{AppConfig, FrontendAppConfig, FrontendAuthConnector, FrontendConfig}
 import connectors._
 import controllers.auth.{AuthFunction, SCRSExternalUrls}
 import controllers.handoff.{routes => handoffRoutes}
@@ -48,9 +48,11 @@ object SignInOutController extends SignInOutController with ServicesConfig{
   val cRFEBaseUrl = FrontendConfig.self
   val keystoreConnector = KeystoreConnector
   val corsRenewHost = FrontendAppConfig.corsRenewHost
+  override val appConfig =  FrontendAppConfig
 }
 
 trait SignInOutController extends FrontendController with ControllerErrorHandler with CommonService with SCRSExceptions with AuthFunction {
+  implicit val appConfig: AppConfig
 
   val compRegConnector : CompanyRegistrationConnector
   val handOffService : HandOffService

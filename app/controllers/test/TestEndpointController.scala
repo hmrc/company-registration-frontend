@@ -16,7 +16,7 @@
 
 package controllers.test
 
-import config.FrontendAuthConnector
+import config.{AppConfig, FrontendAppConfig, FrontendAuthConnector}
 import connectors._
 import controllers.auth.AuthFunction
 import forms._
@@ -52,6 +52,7 @@ object TestEndpointController extends TestEndpointController {
   val navModelMongo                = NavModelRepo.repository
   val companyRegistrationConnector = CompanyRegistrationConnector
   val dashboardService             = DashboardService
+  override val appConfig           = FrontendAppConfig
 }
 
 trait TestEndpointController extends FrontendController with AuthFunction with CommonService
@@ -65,6 +66,7 @@ trait TestEndpointController extends FrontendController with AuthFunction with C
   val dynStubConnector: DynamicStubConnector
   val brConnector: BusinessRegistrationConnector
   val dashboardService: DashboardService
+  implicit val appConfig: AppConfig
   val coHoURL = getConfString("coho-service.sign-in", throw new Exception("Could not find config for coho-sign-in url"))
 
   private def convertToForm(data: CompanyNameHandOffIncoming) : CompanyNameHandOffFormModel = {

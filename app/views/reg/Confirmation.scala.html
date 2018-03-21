@@ -17,7 +17,7 @@
 @import controllers.CRLanguageController
 @import play.api.Application
 
-@(confirmationRefs: models.connectors.ConfirmationReferences)(implicit request: Request[_], lang: Lang, messages: Messages)
+@(confirmationRefs: models.connectors.ConfirmationReferences)(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.AppConfig)
 
 @import uk.gov.hmrc.play.views.html.helpers.form
 

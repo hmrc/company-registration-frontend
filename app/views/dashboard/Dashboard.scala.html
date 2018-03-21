@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@(dash: models.Dashboard, cohoSignIn: String)(implicit request: Request[_], lang: Lang, messages: Messages)
+@(dash: models.Dashboard, cohoSignIn: String)(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.AppConfig)
 
 @import uk.gov.hmrc.play.views.html.helpers.form
 @import play.twirl.api.Html

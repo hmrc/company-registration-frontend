@@ -47,6 +47,7 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
       val handBackService = mockHandBackService
       val companyRegistrationConnector = mockCompanyRegistrationConnector
       val handOffService = mockHandOffService
+      override val appConfig = mockAppConfig
     }
   }
 

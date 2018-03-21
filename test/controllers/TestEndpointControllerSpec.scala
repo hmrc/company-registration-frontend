@@ -68,6 +68,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
       val brConnector                           = mockBusinessRegistrationConnector
       val navModelMongo                         = mockNavModelRepoObj
       override val companyRegistrationConnector = mockCompanyRegistrationConnector
+      override val appConfig = mockAppConfig
     }
 
     implicit val hc = HeaderCarrier()

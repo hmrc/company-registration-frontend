@@ -35,16 +35,14 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 object FeedbackController extends FeedbackController with PartialRetriever {
-
   override val httpPost = WSHttp
   override val httpGet = WSHttp
-
   override def contactFormReferer(implicit request: Request[AnyContent]): String = request.headers.get(REFERER).getOrElse("")
+
   override def localSubmitUrl(implicit request: Request[AnyContent]): String = routes.FeedbackController.submit().url
-
   val authConnector = FrontendAuthConnector
-  protected def loadPartial(url : String)(implicit request : RequestHeader) : HtmlPartial = ???
 
+  protected def loadPartial(url : String)(implicit request : RequestHeader) : HtmlPartial = ???
   implicit val cachedStaticHtmlPartialRetriever: CachedStaticHtmlPartialRetriever = new CachedStaticHtmlPartialRetriever {
     override val httpGet: HttpGet = WSHttp
   }
@@ -55,6 +53,7 @@ object FeedbackController extends FeedbackController with PartialRetriever {
   }
 
   override val applicationConfig: AppConfig = FrontendAppConfig
+
 }
 
 trait FeedbackController extends FrontendController with AuthFunction with MessagesSupport {
@@ -66,7 +65,7 @@ trait FeedbackController extends FrontendController with AuthFunction with Messa
   def contactFormReferer(implicit request: Request[AnyContent]): String
   def localSubmitUrl(implicit request: Request[AnyContent]): String
 
-  val applicationConfig: AppConfig
+  implicit val applicationConfig: AppConfig
 
   private val TICKET_ID = "ticketId"
 

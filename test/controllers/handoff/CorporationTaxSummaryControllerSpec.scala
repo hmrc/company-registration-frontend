@@ -41,6 +41,7 @@ class CorporationTaxSummaryControllerSpec extends SCRSSpec with LoginFixture wit
       val keystoreConnector = mockKeystoreConnector
       val handBackService = mockHandBackService
       val companyRegistrationConnector = mockCompanyRegistrationConnector
+      override val appConfig = mockAppConfig
     }
   }
 

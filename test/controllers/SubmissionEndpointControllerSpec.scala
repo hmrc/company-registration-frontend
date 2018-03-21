@@ -38,6 +38,7 @@ class SubmissionEndpointControllerSpec extends SCRSSpec with SCRSFixtures with W
     val controller = new SubmissionEndpointController {
       val authConnector = mockAuthConnector
       val s4LConnector = mockS4LConnector
+      override val appConfig = mockAppConfig
     }
     implicit val hc = HeaderCarrier()
 

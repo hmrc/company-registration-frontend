@@ -17,7 +17,7 @@
 package controllers
 
 import controllers.reg.QuestionnaireController
-import mocks.MetricServiceMock
+import mocks.{MetricServiceMock, SCRSMocks}
 import org.mockito.Matchers
 import org.mockito.Mockito.when
 import org.scalatest.mockito.MockitoSugar
@@ -30,14 +30,17 @@ import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.concurrent.Future
 
-class QuestionnaireControllerSpec extends UnitSpec with WithFakeApplication with MockitoSugar {
+class QuestionnaireControllerSpec extends UnitSpec with WithFakeApplication with MockitoSugar with SCRSMocks {
 
   val mockQuestionnaireService = mock[QuestionnaireService]
   class Setup {
     val controller = new QuestionnaireController {
       override val metricsService: MetricsService = MetricServiceMock
       override val qService =  mockQuestionnaireService
+      override val appConfig = mockAppConfig
     }
+
+    when(mockAppConfig.piwikURL).thenReturn(None)
   }
 
   "show" should {

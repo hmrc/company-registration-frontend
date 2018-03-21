@@ -36,6 +36,7 @@ trait FakeAppConfig {
     "microservice.services.company-registration.port" -> s"$mockPort",
     "microservice.services.coho-api.stub-url" -> s"$mockUrl/check-submission",
     "microservice.services.coho-api.url" -> mockUrl,
+    "microservice.timeoutInSeconds" -> "999999",
     "microservice.services.coho-api.token" -> "abc"
   ) ++ extraConfig
 

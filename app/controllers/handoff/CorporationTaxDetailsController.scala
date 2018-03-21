@@ -16,7 +16,7 @@
 
 package controllers.handoff
 
-import config.FrontendAuthConnector
+import config.{AppConfig, FrontendAppConfig, FrontendAuthConnector}
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthFunction
 import play.api.Logger
@@ -34,12 +34,14 @@ object CorporationTaxDetailsController extends CorporationTaxDetailsController {
   val handOffService = HandOffServiceImpl
   val handBackService = HandBackService
   val companyRegistrationConnector = CompanyRegistrationConnector
+  override val appConfig =  FrontendAppConfig
 }
 
 trait CorporationTaxDetailsController extends FrontendController with AuthFunction with SessionRegistration with MessagesSupport {
-
   val handOffService : HandOffService
+
   val handBackService : HandBackService
+  implicit val appConfig: AppConfig
 
   //HO2
   def corporationTaxDetails(requestData : String) : Action[AnyContent] = Action.async {

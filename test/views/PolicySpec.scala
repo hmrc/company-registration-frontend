@@ -17,14 +17,20 @@
 package views
 
 import controllers.PolicyController
+import mocks.SCRSMocks
 import org.jsoup.Jsoup
+import org.mockito.Mockito._
+import org.scalatest.mockito.MockitoSugar
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
-class PolicySpec extends UnitSpec with WithFakeApplication {
+class PolicySpec extends UnitSpec with WithFakeApplication with SCRSMocks with MockitoSugar {
 	class SetupPage {
-		val controller = new PolicyController{}
+		val controller = new PolicyController{
+			override val appConfig = mockAppConfig
+		}
+    when(mockAppConfig.piwikURL).thenReturn(None)
 	}
 	"PolicyLinks" should {
 		"load the Cookies, privacy and terms page and have the correct URLs" in new SetupPage {

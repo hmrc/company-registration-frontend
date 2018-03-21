@@ -18,7 +18,7 @@ package controllers.reg
 
 import java.net.URLEncoder
 
-import config.{FrontendAuthConnector, FrontendConfig}
+import config.{AppConfig, FrontendAppConfig, FrontendAuthConnector, FrontendConfig}
 import controllers.auth.AuthFunction
 import forms.ReturningUserForm
 import models.ReturningUser
@@ -40,9 +40,11 @@ object ReturningUserController extends ReturningUserController with ServicesConf
   )
   val compRegFeUrl        = FrontendConfig.self
   val authConnector       = FrontendAuthConnector
+  override val appConfig =  FrontendAppConfig
 }
 
 trait ReturningUserController extends FrontendController with AuthFunction with MessagesSupport {
+  implicit val appConfig: AppConfig
   val createGGWAccountUrl: String
   val compRegFeUrl: String
   val eligBaseUrl : String

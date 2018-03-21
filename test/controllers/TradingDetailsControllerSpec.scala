@@ -52,6 +52,7 @@ class TradingDetailsControllerSpec extends SCRSSpec with WithFakeApplication wit
       override val companyRegistrationConnector = mockCompanyRegistrationConnector
       override val keystoreConnector= mockKeystoreConnector
       override val metricsService: MetricsService = MetricServiceMock
+      override val appConfig = mockAppConfig
     }
   }
 

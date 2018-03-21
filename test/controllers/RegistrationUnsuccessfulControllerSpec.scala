@@ -42,6 +42,7 @@ class RegistrationUnsuccessfulControllerSpec extends SCRSSpec with WithFakeAppli
       override val authConnector = mockAuthConnector
       override val deleteSubService = mockDeleteSubmissionService
       override val companyRegistrationConnector = mockCompanyRegistrationConnector
+      override val appConfig = mockAppConfig
     }
   }
 

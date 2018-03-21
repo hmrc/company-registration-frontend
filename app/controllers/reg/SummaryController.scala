@@ -16,7 +16,7 @@
 
 package controllers.reg
 
-import config.FrontendAuthConnector
+import config.{AppConfig, FrontendAppConfig, FrontendAuthConnector}
 import connectors.{CompanyRegistrationConnector, KeystoreConnector, S4LConnector}
 import controllers.auth.AuthFunction
 import models._
@@ -42,11 +42,14 @@ object SummaryController extends SummaryController {
   val metaDataService = MetaDataService
   val handOffService = HandOffServiceImpl
   val navModelMongo =  NavModelRepo.repository
+  override val appConfig =  FrontendAppConfig
+
 }
 
 trait SummaryController extends FrontendController with AuthFunction with CommonService with SCRSExceptions
-  with HandOffNavigator with ServicesConfig with ControllerErrorHandler
-  with SessionRegistration with MessagesSupport {
+with HandOffNavigator with ServicesConfig with ControllerErrorHandler
+with SessionRegistration with MessagesSupport {
+  implicit val appConfig: AppConfig
 
   val s4LConnector : S4LConnector
   val companyRegistrationConnector : CompanyRegistrationConnector

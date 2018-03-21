@@ -16,6 +16,7 @@
 
 package mocks
 
+import config.AppConfig
 import connectors.{EmailVerificationConnector, IncorpInfoConnector, KeystoreConnector, SendTemplatedEmailConnector}
 import org.mockito.Matchers
 import org.mockito.Matchers.{any, eq => eqTo}
@@ -54,6 +55,7 @@ trait SCRSMocks
   lazy val mockMetaDataService = mock[MetaDataService]
   lazy val mockEmailVerificationConnector = mock[EmailVerificationConnector]
   lazy val mockSendTemplateEmailConnector = mock[SendTemplatedEmailConnector]
+  lazy implicit val mockAppConfig = mock[AppConfig]
 
   def mockFetchRegistrationID[T <: CommonService](response: String, mock : T) = {
     when(mock.fetchRegistrationID(Matchers.any[HeaderCarrier]()))

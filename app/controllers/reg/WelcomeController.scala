@@ -16,6 +16,7 @@
 
 package controllers.reg
 
+import config.{AppConfig, FrontendAppConfig}
 import play.api.mvc.Action
 import uk.gov.hmrc.play.frontend.controller.FrontendController
 import utils.{MessagesSupport, SCRSFeatureSwitches}
@@ -23,10 +24,16 @@ import views.html.reg.Welcome
 
 import scala.concurrent.Future
 
-object WelcomeController extends WelcomeController
+object WelcomeController extends WelcomeController {
+  override val appConfig =  FrontendAppConfig
+}
+
+
+
+
 
 trait WelcomeController extends FrontendController with MessagesSupport {
-
+  implicit val appConfig: AppConfig
   val show = Action.async { implicit request =>
     if (signPostingEnabled) {
       Future.successful(PermanentRedirect(routes.SignInOutController.postSignIn(None).url))

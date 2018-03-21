@@ -16,7 +16,7 @@
 
 package controllers.verification
 
-import config.{FrontendAuthConnector, FrontendConfig}
+import config.{AppConfig, FrontendAppConfig, FrontendAuthConnector, FrontendConfig}
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthFunction
 import play.api.mvc.{Action, AnyContent}
@@ -35,6 +35,7 @@ object EmailVerificationController extends EmailVerificationController with Serv
   val callbackUrl = getConfString("auth.login-callback.url", throw new Exception("Could not find config for callback url"))
   val frontEndUrl=FrontendConfig.self
   val companyRegistrationConnector = CompanyRegistrationConnector
+  override val appConfig: AppConfig  = FrontendAppConfig
 }
 
 trait EmailVerificationController extends FrontendController with AuthFunction with SessionRegistration with MessagesSupport {
@@ -43,6 +44,8 @@ trait EmailVerificationController extends FrontendController with AuthFunction w
   val createGGWAccountUrl: String
   val callbackUrl: String
   val frontEndUrl : String
+
+  implicit val appConfig: AppConfig  = FrontendAppConfig
 
   val verifyShow: Action[AnyContent] = Action.async {
     implicit request =>

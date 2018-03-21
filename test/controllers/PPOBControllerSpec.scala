@@ -57,6 +57,7 @@ class PPOBControllerSpec extends SCRSSpec with PPOBFixture with WithFakeApplicat
       override val navModelMongo = mockNavModelRepoObj
       override val businessRegConnector = mockBusinessRegConnector
       override val addressLookupFrontendService = mockAddressLookupFrontendService
+      override val appConfig = mockAppConfig
     }
 
     def mockCheckStatus(ret:Option[String] = Some(regId)) = {

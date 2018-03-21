@@ -43,6 +43,7 @@ class CompanyContactDetailsControllerSpec extends SCRSSpec with UserDetailsFixtu
       override val metricsService: MetricsService = MetricServiceMock
       override val companyRegistrationConnector = mockCompanyRegistrationConnector
       override val keystoreConnector= mockKeystoreConnector
+      override val appConfig = mockAppConfig
     }
   }
 

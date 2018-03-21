@@ -16,7 +16,7 @@
 
 @import helpers.errorSummary
 @import models.Ticket
-@(deskproForm: Form[Ticket])(implicit request: Request[_], messages: Messages)
+@(deskproForm: Form[Ticket])(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
 @import uk.gov.hmrc.play.views.html.{helpers => govHelpers}
 

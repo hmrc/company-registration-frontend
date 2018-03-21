@@ -17,6 +17,7 @@
 package controllers
 
 import builders.AuthBuilder
+import config.{AppConfig, FrontendAppConfig}
 import connectors._
 import controllers.dashboard.CancelRegistrationController
 import forms.CancelForm
@@ -35,9 +36,8 @@ import uk.gov.hmrc.play.test.WithFakeApplication
 import scala.concurrent.Future
 
 class CancelRegistrationControllerSpec extends SCRSSpec with MockitoSugar with WithFakeApplication with ServiceConnectorMock with AuthBuilder {
+
   val mockHttp = mock[WSHttp]
-
-
 
   class Setup(r:Request[AnyContent]) {
     val controller = new CancelRegistrationController {
@@ -46,6 +46,7 @@ class CancelRegistrationControllerSpec extends SCRSSpec with MockitoSugar with W
       override val keystoreConnector= mockKeystoreConnector
       override val payeConnector = mockServiceConnector
       override val vatConnector = mockServiceConnector
+      override val appConfig = mockAppConfig
     }
     implicit val request = r
     implicit val messagesApi: Messages = mock[Messages]

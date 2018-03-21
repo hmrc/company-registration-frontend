@@ -47,6 +47,7 @@ class PPOBSpec extends SCRSSpec with PPOBFixture with NavModelRepoMock with With
       override val businessRegConnector = mockBusinessRegConnector
       override val addressLookupFrontendService = mockAddressLookupFrontendService
       implicit val messagesApi: MessagesApi = fakeApplication.injector.instanceOf[MessagesApi]
+      override val appConfig = mockAppConfig
     }
   }
 

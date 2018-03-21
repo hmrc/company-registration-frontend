@@ -44,6 +44,7 @@ class ConfirmationSpec extends SCRSSpec with CompanyDetailsFixture with WithFake
       override val keystoreConnector = mockKeystoreConnector
       override val deskproService = mockDeskproService
       implicit val messagesApi: MessagesApi = fakeApplication.injector.instanceOf[MessagesApi]
+      override val appConfig = mockAppConfig
     }
   }
 

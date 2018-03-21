@@ -23,11 +23,15 @@ import org.scalatest.BeforeAndAfterEach
 import org.scalatest.mockito.MockitoSugar
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
+import org.mockito.Mockito._
 
 import scala.util.Random
 
 trait SCRSSpec extends UnitSpec with MockitoSugar with SCRSMocks with BeforeAndAfterEach with JsonHelpers {
   implicit val hc = HeaderCarrier()
+
+  //Until CRFE is fully DI
+  when(mockAppConfig.piwikURL).thenReturn(None)
 
   override def beforeEach() {
     resetMocks()

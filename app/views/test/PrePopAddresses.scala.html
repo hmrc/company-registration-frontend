@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@(addresses: Seq[Address])(implicit request: Request[_], lang: Lang, messages: Messages)
+@(addresses: Seq[Address])(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.AppConfig)
 
 @main_template(title = "Feature switch", mainClass = Some("full-width")) {
 

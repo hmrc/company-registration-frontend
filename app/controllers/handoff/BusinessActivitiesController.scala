@@ -16,7 +16,7 @@
 
 package controllers.handoff
 
-import config.FrontendAuthConnector
+import config.{AppConfig, FrontendAppConfig, FrontendAuthConnector}
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthFunction
 import controllers.reg.ControllerErrorHandler
@@ -35,12 +35,14 @@ object BusinessActivitiesController extends BusinessActivitiesController {
   val keystoreConnector = KeystoreConnector
   val handBackService = HandBackService
   val companyRegistrationConnector = CompanyRegistrationConnector
+  override val appConfig =  FrontendAppConfig
 }
 
 trait BusinessActivitiesController extends FrontendController with AuthFunction with SessionRegistration with ControllerErrorHandler with MessagesSupport {
-
   val handOffService : HandOffService
+
   val handBackService : HandBackService
+  implicit val appConfig: AppConfig
 
   //HO3
   val businessActivities: Action[AnyContent] = Action.async {

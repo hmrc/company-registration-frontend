@@ -16,6 +16,7 @@
 
 package controllers
 
+import config.{AppConfig, FrontendAppConfig}
 import play.api.mvc.Action
 import uk.gov.hmrc.play.frontend.controller.FrontendController
 import utils.MessagesSupport
@@ -23,9 +24,13 @@ import views.html.policies
 
 import scala.concurrent.Future
 
-object PolicyController extends PolicyController
+object PolicyController extends PolicyController {
+  override val appConfig =  FrontendAppConfig
+}
 
-class PolicyController extends FrontendController with MessagesSupport {
+trait PolicyController extends FrontendController with MessagesSupport {
+
+  implicit val appConfig: AppConfig
 
   def policyLinks = Action.async { implicit request =>
     Future.successful(Ok(policies()))

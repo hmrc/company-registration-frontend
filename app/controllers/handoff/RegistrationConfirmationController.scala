@@ -16,7 +16,7 @@
 
 package controllers.handoff
 
-import config.FrontendAuthConnector
+import config.{AppConfig, FrontendAppConfig, FrontendAuthConnector}
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthFunction
 import models.{ConfirmationReferencesSuccessResponse, DESFailureRetriable}
@@ -37,12 +37,14 @@ object RegistrationConfirmationController extends RegistrationConfirmationContro
   val handOffService = HandOffServiceImpl
   val handBackService = HandBackService
   val companyRegistrationConnector = CompanyRegistrationConnector
+  override val appConfig =  FrontendAppConfig
 }
 
 trait RegistrationConfirmationController extends FrontendController with AuthFunction with MessagesSupport with SessionRegistration {
-
   val handBackService: HandBackService
+
   val handOffService: HandOffService
+  implicit val appConfig: AppConfig
 
   //HO5.1 & old HO6
   def registrationConfirmation(requestData: String): Action[AnyContent] = Action.async {

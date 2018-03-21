@@ -16,6 +16,7 @@
 
 package controllers.reg
 
+import config.{AppConfig, FrontendAppConfig}
 import forms.QuestionnaireForm
 import play.api.mvc.Action
 import services.{MetricsService, QuestionnaireService}
@@ -28,9 +29,11 @@ import scala.concurrent.Future
 object QuestionnaireController extends QuestionnaireController {
   val metricsService = MetricsService
   val qService = QuestionnaireService
+  override val appConfig =  FrontendAppConfig
 }
 
 trait QuestionnaireController extends FrontendController with MessagesSupport {
+  implicit val appConfig: AppConfig
   val  metricsService : MetricsService
   val qService: QuestionnaireService
   val show = Action.async {
