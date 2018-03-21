@@ -55,15 +55,15 @@ class EmailVerificationControllerSpec extends CompanyRegistrationConnectorMock w
       }
     }
 
-    "display we've sent you an email page" in new Setup {
+    "display Confirm your email address page" in new Setup {
       val email = "foo@bar.wibble"
       mockKeystoreFetchAndGet("email", Some(email))
       showWithAuthorisedUser(controller.verifyShow)(
         result => {
           status(result) shouldBe 200
           val document = Jsoup.parse(contentAsString(result))
-          document.title shouldBe "We've sent you an email"
-          document.getElementById("description-one").text should include(email)
+          document.title shouldBe "Confirm your email address"
+          document.getElementById("description").text should include(email)
         }
       )
     }

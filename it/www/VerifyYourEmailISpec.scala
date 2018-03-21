@@ -70,8 +70,8 @@ class VerifyYourEmailISpec extends IntegrationSpecBase with LoginStub with Befor
       response.status shouldBe 200
 
       val document = Jsoup.parse(response.body)
-      document.title() shouldBe "We've sent you an email"
-      document.getElementById("description-one").text should include(email)
+      document.title() shouldBe "Confirm your email address"
+      document.getElementById("description").text should include(email)
     }
 
     "redirect to sign-in when not logged in" in {
