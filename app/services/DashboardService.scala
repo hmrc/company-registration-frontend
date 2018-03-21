@@ -193,11 +193,13 @@ trait DashboardService extends SCRSExceptions with CommonService {
     } yield id.value == ctutr
 
     matchCTUTR match {
+      case Some(true) => ctData
       case Some(false) =>
         Logger.error("CT_UTR_MISMATCH")
         Logger.info(s"CT_UTR_MISMATCH for registration id: $regId")
         ctData.copy(ctutr = None)
-      case _ => ctData
+      case _ =>
+        ctData.copy(ctutr = None)
     }
   }
 

@@ -232,7 +232,7 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers with ServiceConnect
       when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(eqTo(regId))(any())).thenReturn(Future.successful(ctRegJson("acknowledged")))
 
       val res = await(service.buildIncorpCTDashComponent(regId, noEnrolments))
-      res shouldBe IncorpAndCTDashboard("acknowledged", None, Some(transId), Some(payRef), None, None, Some(ackRef), Some("04"), Some("CTUTR"))
+      res shouldBe IncorpAndCTDashboard("acknowledged", None, Some(transId), Some(payRef), None, None, Some(ackRef), Some("04"), None)
     }
 
     def acknowledgedDashboard(ctutr: Option[String]) = IncorpAndCTDashboard("acknowledged", None, Some(transId), Some(payRef), None, None, Some(ackRef), Some("04"), ctutr)
@@ -244,11 +244,11 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers with ServiceConnect
       res shouldBe acknowledgedDashboard(Some("CTUTR"))
     }
 
-    "return a correct IncorpAndCTDashboard when the status is acknowledged and our CTUTR doesn't match an inactive enrolment" in new Setup {
+    "return a correct IncorpAndCTDashboard when the status is acknowledged but there is an inactive enrolment" in new Setup {
       when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(eqTo(regId))(any())).thenReturn(Future.successful(ctRegJson("acknowledged")))
 
-      val res = await(service.buildIncorpCTDashComponent(regId, ctEnrolment("mismatched UTR", active = false)))
-      res shouldBe acknowledgedDashboard(Some("CTUTR"))
+      val res = await(service.buildIncorpCTDashComponent(regId, ctEnrolment("CTUTR", active = false)))
+      res shouldBe acknowledgedDashboard(None)
     }
 
     "ignore UTR in IncorpAndCTDashboard when the status is acknowledged and our CTUTR doesn't match an active enrolment" in new Setup {
