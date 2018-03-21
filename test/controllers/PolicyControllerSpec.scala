@@ -16,14 +16,18 @@
 
 package controllers
 
+import config.AppConfig
 import helpers.SCRSSpec
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.play.test.WithFakeApplication
 
 class PolicyControllerSpec extends SCRSSpec with WithFakeApplication {
+
   class Setup {
-    val controller = new PolicyController
+    val controller = new PolicyController {
+      override val appConfig: AppConfig = mockAppConfig
+    }
   }
 
   "Sending a GET request to the PolicyController" should {

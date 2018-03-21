@@ -16,7 +16,7 @@
 
 package controllers.reg
 
-import config.FrontendAuthConnector
+import config.{AppConfig, FrontendAppConfig, FrontendAuthConnector}
 import connectors.KeystoreConnector
 import controllers.auth.AuthFunction
 import play.api.mvc.{Action, AnyContent}
@@ -34,11 +34,13 @@ object LimitReachedController extends LimitReachedController with ServicesConfig
   val cohoUrl = getConfString("coho-service.web-incs", throw new Exception("Couldn't find Coho url"))
   //$COVERAGE-ON$
   val keystoreConnector = KeystoreConnector
+  override val appConfig =  FrontendAppConfig
 }
 
 trait LimitReachedController extends FrontendController with AuthFunction with CommonService with SCRSExceptions with MessagesSupport {
-
   val cohoUrl: String
+
+  implicit val appConfig: AppConfig
 
   val show: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {

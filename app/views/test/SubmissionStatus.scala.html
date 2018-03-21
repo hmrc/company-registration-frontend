@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@(status: String, ctData: Seq[String], heldSubmission: Seq[String], ctRecord: String)(implicit request: Request[_], lang: Lang, messages: Messages)
+@(status: String, ctData: Seq[String], heldSubmission: Seq[String], ctRecord: String)(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.AppConfig)
 
 @import controllers.reg.routes._
 @import uk.gov.hmrc.play.views.html.helpers.form

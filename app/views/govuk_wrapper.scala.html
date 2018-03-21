@@ -23,7 +23,8 @@
   contentHeader: Option[Html] = None,
   mainContent: Html = HtmlFormat.empty,
   serviceInfoContent: Html = HtmlFormat.empty,
-  pageScripts: Option[Html] = None)(implicit request: Request[_], messages: Messages)
+  pageScripts: Option[Html] = None,
+  timeout: Boolean = false)(implicit request: Request[_], messages: Messages)
 
 @import layouts.{govuk_template => hmrcGovUkTemplate}
 @import uk.gov.hmrc.play.views.html.{layouts => uiLayouts}
@@ -51,11 +52,9 @@
     </li>
 }
 
-@scriptElement = {
+@loadScripts = {
     <script type="text/javascript" src='@controllers.routes.Assets.at("javascripts/scrs.js")'></script>
     <script src='@controllers.routes.Assets.at("javascripts/timeout-dialog.js")' type="text/javascript"></script>
-    <script type="text/javascript" charset="utf-8">$.timeoutDialog({timeout: @appConfig.timeoutInSeconds,countdown: 30,keep_alive_url: '/register-your-company/renew-session',logout_url: '/register-your-company/error/destroy-session'});var dialogOpen;</script>
-
 }
 
 @insideHeader = {
@@ -102,7 +101,8 @@
 }
 
 @scripts = {
-    @scriptElement
+    @loadScripts
+    @{if(timeout) timeout_script(appConfig)}
     @crossDomainTrackingJs
     @pageScripts
     @piwikTrackingJs

@@ -32,6 +32,7 @@ class ReturningUserSpec extends SCRSSpec with AuthBuilder with WithFakeApplicati
       val eligBaseUrl         = "EligURL"
       val compRegFeUrl        = "CompRegFEURL"
       val authConnector       = mockAuthConnector
+      override val appConfig = mockAppConfig
     }
   }
 

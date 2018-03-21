@@ -16,7 +16,7 @@
 
 package controllers.dashboard
 
-import config.FrontendAuthConnector
+import config.{AppConfig, FrontendAppConfig, FrontendAuthConnector}
 import connectors._
 import controllers.auth.AuthFunction
 import forms.CancelForm
@@ -34,6 +34,7 @@ object CancelRegistrationController extends CancelRegistrationController{
   val authConnector = FrontendAuthConnector
   val keystoreConnector = KeystoreConnector
   val companyRegistrationConnector = CompanyRegistrationConnector
+  override val appConfig =  FrontendAppConfig
 }
 
 trait CancelRegistrationController extends FrontendController with AuthFunction with SessionRegistration with MessagesSupport {
@@ -42,6 +43,8 @@ trait CancelRegistrationController extends FrontendController with AuthFunction 
   val vatConnector: ServiceConnector
   val keystoreConnector : KeystoreConnector
   val companyRegistrationConnector : CompanyRegistrationConnector
+
+  implicit val appConfig: AppConfig
 
   def showCancelPAYE: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {

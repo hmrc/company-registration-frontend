@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@()(implicit request: Request[_], lang: Lang, messages: Messages)
+@()(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.AppConfig)
 @main_template(title = Messages("page.policy.title"), mainClass = None) {
 
     <header class="page-header">

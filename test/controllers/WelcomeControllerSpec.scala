@@ -24,7 +24,10 @@ import uk.gov.hmrc.play.test.WithFakeApplication
 
 class WelcomeControllerSpec extends SCRSSpec with WithFakeApplication {
   class Setup {
-    object TestController extends WelcomeController
+    object TestController extends WelcomeController {
+      override val appConfig = mockAppConfig
+    }
+
   }
 
   "Sending a GET request to WelcomeController" should {

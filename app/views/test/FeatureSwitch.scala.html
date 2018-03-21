@@ -19,7 +19,7 @@
 @import views.html.helpers.inputRadioGroup
 @import config.FrontendAppConfig
 
-@(featureSwitchForm: Form[models.test.FeatureSwitch])(implicit request: Request[_], lang: Lang, messages: Messages)
+@(featureSwitchForm: Form[models.test.FeatureSwitch])(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.AppConfig)
 
 @main_template(title = "Feature switch", mainClass = Some("full-width")) {
 

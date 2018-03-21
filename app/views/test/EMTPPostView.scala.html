@@ -15,7 +15,7 @@
  *@
 
 @import models.test.ETMPNotification
-@(etmp : Form[ETMPNotification])(implicit request: Request[_], lang: Lang, messages: Messages)
+@(etmp : Form[ETMPNotification])(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.AppConfig)
 
 @import controllers.reg.routes._
 @import uk.gov.hmrc.play.views.html.helpers.{form, input}

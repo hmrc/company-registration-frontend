@@ -44,6 +44,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
       override val dashboardService = mockDashboardService
       override val companyRegistrationConnector = mockCompanyRegistrationConnector
       override val companiesHouseURL = "testUrl"
+      override val appConfig = mockAppConfig
     }
   }
 

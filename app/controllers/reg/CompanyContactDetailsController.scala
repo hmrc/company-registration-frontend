@@ -16,7 +16,7 @@
 
 package controllers.reg
 
-import config.FrontendAuthConnector
+import config.{AppConfig, FrontendAppConfig, FrontendAuthConnector}
 import connectors.{CompanyRegistrationConnector, KeystoreConnector, S4LConnector}
 import controllers.auth.AuthFunction
 import forms.CompanyContactForm
@@ -36,6 +36,7 @@ object CompanyContactDetailsController extends CompanyContactDetailsController {
   val metricsService: MetricsService = MetricsService
   val companyRegistrationConnector = CompanyRegistrationConnector
   val keystoreConnector = KeystoreConnector
+  override val appConfig: AppConfig  = FrontendAppConfig
 }
 
 trait CompanyContactDetailsController extends FrontendController with AuthFunction with ControllerErrorHandler with SessionRegistration with MessagesSupport {
@@ -43,6 +44,7 @@ trait CompanyContactDetailsController extends FrontendController with AuthFuncti
   val s4LConnector: S4LConnector
   val companyContactDetailsService: CompanyContactDetailsService
   val metricsService: MetricsService
+  implicit val appConfig: AppConfig
 
   val show = Action.async {
     implicit request =>

@@ -17,7 +17,7 @@
 @import uk.gov.hmrc.play.views.html.helpers.form
 @import views.html.helpers.inputRadioGroup
 
-@(cancelSelection : Form[Boolean])(implicit request: Request[_], lang: Lang, messages: Messages)
+@(cancelSelection : Form[Boolean])(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.AppConfig)
 
 @main_template(title = Messages("page.reg.cancelvat.description"), mainClass = None){
 

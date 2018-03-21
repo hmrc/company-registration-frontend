@@ -16,19 +16,24 @@
 
 package views
 
+import config.AppConfig
 import controllers.reg.WelcomeController
+import mocks.SCRSMocks
 import org.jsoup.Jsoup
+import org.mockito.Mockito._
+import org.scalatest.mockito.MockitoSugar
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
-class WelcomeSpec extends UnitSpec with WithFakeApplication {
+class WelcomeSpec extends UnitSpec with WithFakeApplication with MockitoSugar with SCRSMocks {
 	class SetupPage {
 		val controller = new WelcomeController{
 			val ggUrl = ""
 			val frontendUrl = ""
-
+			override val appConfig: AppConfig = mockAppConfig
 		}
+		when(mockAppConfig.piwikURL).thenReturn(None)
 	}
 	"WelcomeController.show" should {
 		"make sure that welcome page has the correct elements for when PAYE feature switch DISABLED" in new SetupPage {

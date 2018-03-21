@@ -16,7 +16,7 @@
 
 package controllers.reg
 
-import config.FrontendAuthConnector
+import config.{AppConfig, FrontendAppConfig, FrontendAuthConnector}
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthFunction
 import play.api.mvc.Action
@@ -33,9 +33,12 @@ object RegistrationUnsuccessfulController extends RegistrationUnsuccessfulContro
   val keystoreConnector = KeystoreConnector
   val deleteSubService = DeleteSubmissionService
   val companyRegistrationConnector = CompanyRegistrationConnector
+  override val appConfig =  FrontendAppConfig
 }
 
 trait RegistrationUnsuccessfulController extends FrontendController with AuthFunction with SessionRegistration with MessagesSupport {
+
+  implicit val appConfig: AppConfig
 
   val deleteSubService: DeleteSubmissionService
 

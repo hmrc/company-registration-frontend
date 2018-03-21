@@ -43,6 +43,7 @@ class AccountingDatesControllerSpec extends SCRSSpec with WithFakeApplication wi
       override val timeService: TimeService = mock[TimeService]
       override val companyRegistrationConnector = mockCompanyRegistrationConnector
       override val keystoreConnector= mockKeystoreConnector
+      override val appConfig = mockAppConfig
     }
   }
 

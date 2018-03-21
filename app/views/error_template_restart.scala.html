@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@(handOffNumber: String, errorType: String)(implicit request: Request[_], messages: Messages)
+@(handOffNumber: String, errorType: String)(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
 @import utils.{DecryptionError, PayloadError}
 

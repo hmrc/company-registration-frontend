@@ -21,7 +21,7 @@
 @import controllers.CRLanguageController
 @import play.api.Application
 
-@(aboutYou : Form[AboutYouChoiceForm])(implicit request: Request[_], lang: Lang, messages: Messages)
+@(aboutYou : Form[AboutYouChoiceForm])(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.AppConfig)
 
 @otherHidden = {
     @govHelpers.input(

@@ -47,6 +47,7 @@ class CompletionCapacityControllerSpec extends SCRSSpec with WithFakeApplication
       val metaDataService = mockMetaDataService
       override val companyRegistrationConnector = mockCompanyRegistrationConnector
       override val metricsService: MetricsService = MetricServiceMock
+      override val appConfig = mockAppConfig
     }
 
   }

@@ -57,6 +57,7 @@ class SignInOutControllerSpec extends SCRSSpec
       override val metrics = MetricServiceMock
       override val corsRenewHost = corsHost
       val cRFEBaseUrl = "test-base-url"
+      override val appConfig = mockAppConfig
     }
   }
 

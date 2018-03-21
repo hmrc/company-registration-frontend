@@ -16,7 +16,7 @@
 
 package controllers.reg
 
-import config.FrontendAuthConnector
+import config.{AppConfig, FrontendAppConfig, FrontendAuthConnector}
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthFunction
 import forms.AccountingDatesForm
@@ -36,6 +36,7 @@ object AccountingDatesController extends AccountingDatesController {
   val timeService: TimeService                = TimeService
   val companyRegistrationConnector            = CompanyRegistrationConnector
   val keystoreConnector                       = KeystoreConnector
+  override val appConfig: AppConfig           = FrontendAppConfig
 }
 
 trait AccountingDatesController extends FrontendController with AuthFunction with ControllerErrorHandler with SessionRegistration with MessagesSupport {
@@ -44,6 +45,7 @@ trait AccountingDatesController extends FrontendController with AuthFunction wit
   val metricsService: MetricsService
   val timeService: TimeService
 
+  implicit val appConfig: AppConfig
   implicit val bHS = TimeService.bHS
 
   val show = Action.async { implicit request =>

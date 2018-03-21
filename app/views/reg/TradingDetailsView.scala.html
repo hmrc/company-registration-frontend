@@ -21,7 +21,7 @@
 
 
 
-@(tradingDetails : Form[TradingDetails])(implicit request: Request[_], lang: Lang, messages: Messages)
+@(tradingDetails : Form[TradingDetails])(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.AppConfig)
 
 @main_template(title = Messages("page.reg.ct61.description"), mainClass = None){
 

@@ -16,7 +16,7 @@
 
 package controllers.reg
 
-import config.FrontendAuthConnector
+import config.{AppConfig, FrontendAppConfig, FrontendAuthConnector}
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthFunction
 import forms.TradingDetailsForm
@@ -35,9 +35,11 @@ object TradingDetailsController extends TradingDetailsController {
   override val metricsService: MetricsService = MetricsService
   val companyRegistrationConnector = CompanyRegistrationConnector
   val keystoreConnector = KeystoreConnector
+  override val appConfig =  FrontendAppConfig
 }
 
 trait TradingDetailsController extends FrontendController with AuthFunction with ControllerErrorHandler with SessionRegistration with MessagesSupport {
+  implicit val appConfig: AppConfig
 
   val tradingDetailsService : TradingDetailsService
   val metricsService: MetricsService

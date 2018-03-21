@@ -46,6 +46,7 @@ class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture wit
       val handOffService = mockHandOffService
       val handBackService = mockHandBackService
       override val companyRegistrationConnector = mockCompanyRegistrationConnector
+      override val appConfig = mockAppConfig
 
     }
   }

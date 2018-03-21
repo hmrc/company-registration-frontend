@@ -16,7 +16,7 @@
 
 package controllers.reg
 
-import config.FrontendAuthConnector
+import config.{AppConfig, FrontendAppConfig, FrontendAuthConnector}
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthFunction
 import forms.errors.DeskproForm
@@ -36,6 +36,7 @@ object ConfirmationControllerImpl extends ConfirmationController {
   val companyRegistrationConnector = CompanyRegistrationConnector
   val keystoreConnector = KeystoreConnector
   val deskproService = DeskproServiceImpl
+  override val appConfig =  FrontendAppConfig
 }
 
 trait ConfirmationController extends FrontendController with AuthFunction with SessionRegistration with CommonService
@@ -43,7 +44,7 @@ trait ConfirmationController extends FrontendController with AuthFunction with S
 
   val companyRegistrationConnector: CompanyRegistrationConnector
   val deskproService : DeskproService
-
+  implicit val appConfig: AppConfig
   val show: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
       for {

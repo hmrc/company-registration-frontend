@@ -49,6 +49,7 @@ class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixtu
       val metaDataService = mockMetaDataService
       val handOffService = mockHandOffService
       val navModelMongo = mockNavModelRepoObj
+      override val appConfig = mockAppConfig
     }
   }
 

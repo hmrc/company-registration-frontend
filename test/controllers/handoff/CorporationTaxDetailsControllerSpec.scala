@@ -44,6 +44,7 @@ class CorporationTaxDetailsControllerSpec extends SCRSSpec with PayloadFixture w
       val handOffService = mockHandOffService
       val handBackService = mockHandBackService
       override val companyRegistrationConnector = mockCompanyRegistrationConnector
+      override val appConfig = mockAppConfig
     }
   }
 

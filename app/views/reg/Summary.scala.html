@@ -26,7 +26,7 @@
   roAddress : CHROAddress,
   ctContactDets : CompanyContactViewModel,
   tradingDetails : TradingDetails,
-  applicant : AboutYouChoice)(implicit request: Request[_], lang: Lang, messages: Messages)
+  applicant : AboutYouChoice)(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.AppConfig)
 
 @ppobMessage = {
     @Messages("page.reg.summary.PPOBSameAsRO")

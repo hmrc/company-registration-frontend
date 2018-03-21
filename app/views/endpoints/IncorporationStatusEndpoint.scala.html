@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@(incorpStatus : Option[List[IncorporationResponse]])(implicit request: Request[_], lang: Lang, messages: Messages)
+@(incorpStatus : Option[List[IncorporationResponse]])(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.AppConfig)
 
 @import models.IncorporationResponse
 

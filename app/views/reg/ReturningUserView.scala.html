@@ -19,7 +19,7 @@
 @import play.api.Application
 @import views.html.helpers.{inputRadioGroupHidden, dateFieldsFreeInline, errorSummary, inputRadioGroup}
 
-@(returningUser : Form[models.ReturningUser])(implicit request: Request[_], lang: Lang, messages: Messages)
+@(returningUser : Form[models.ReturningUser])(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.AppConfig)
 
 @main_template(title = Messages("page.reg.returningUser.description"), mainClass = None){
 

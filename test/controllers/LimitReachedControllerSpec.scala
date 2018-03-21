@@ -34,6 +34,7 @@ class LimitReachedControllerSpec extends UnitSpec with WithFakeApplication with 
       val cohoUrl: String = "testGGUrl"
       val authConnector = mockAuthConnector
       val keystoreConnector = mockKeystoreConnector
+      override val appConfig = mockAppConfig
     }
   }
 
