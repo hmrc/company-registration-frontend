@@ -444,3 +444,6 @@ page.policy.termsAndConditions.li2                                  = HMRC servi
 ## Help text
 footer.phone.h1                                                     = Get phone support
 footer.phone.call_support                                           = Call our support team
+
+#HealthCheck
+page.healthcheck.header                                             = Service healthy
