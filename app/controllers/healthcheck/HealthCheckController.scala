@@ -33,12 +33,13 @@ trait HealthCheckController extends FrontendController with MessagesSupport {
 
   def checkHealth(status: Option[Int] = None) = Action {
     implicit request =>
-      if(healthCheckFeature) {
-        Ok(HealthCheck())
+      (if(healthCheckFeature) {
+        Ok
       } else {
         status.fold(ServiceUnavailable)(new Status(_))
-      }
+      })(HealthCheck())
   }
+
 
   def healthCheckFeature: Boolean
 }
