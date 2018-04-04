@@ -31,7 +31,8 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
-import utils.{SCRSExceptions, SCRSFeatureSwitches, SystemDate}
+import utils.{SCRSExceptions, SCRSFeatureSwitches, SystemDate,AlertLogging,PagerDutyKeys}
+
 
 import scala.concurrent.Future
 import scala.util.control.NoStackTrace
@@ -49,6 +50,8 @@ object DashboardService extends DashboardService with ServicesConfig {
   val vatBaseUrl = getConfString("vat-registration-www.url-prefix", throw new Exception("Could not find config for key: vat-registration-www.url-prefix"))
   val vatUri = getConfString("vat-registration-www.start-url", throw new Exception("Could not find config for key: vat-registration-www.start-url"))
   val featureFlag = SCRSFeatureSwitches
+  val loggingDays: String = getConfString("alert-config.logging-day", throw new Exception("Could not find config key: LoggingDay"))
+  val loggingTimes: String = getConfString("alert-config.logging-time", throw new Exception("Could not find config key: LoggingTime"))
 }
 
 sealed trait DashboardStatus
@@ -58,7 +61,7 @@ case object CouldNotBuild extends DashboardStatus
 
 class ConfirmationRefsNotFoundException extends NoStackTrace
 
-trait DashboardService extends SCRSExceptions with CommonService {
+trait DashboardService extends SCRSExceptions with AlertLogging with CommonService {
   import scala.language.implicitConversions
 
   val companyRegistrationConnector : CompanyRegistrationConnector
@@ -195,8 +198,7 @@ trait DashboardService extends SCRSExceptions with CommonService {
     matchCTUTR match {
       case Some(true) => ctData
       case Some(false) =>
-        Logger.error("CT_UTR_MISMATCH")
-        Logger.info(s"CT_UTR_MISMATCH for registration id: $regId")
+        pagerduty(PagerDutyKeys.CT_UTR_MISMATCH,Some(" - for registration id: ${regId}"))
         ctData.copy(ctutr = None)
       case _ =>
         ctData.copy(ctutr = None)
