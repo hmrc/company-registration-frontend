@@ -55,6 +55,8 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers with ServiceConnect
   val testOtrsUrl = "OTRS url"
 
   val mockfeatureFlag = mock[SCRSFeatureSwitches]
+  val mockLoggingDays = "MON,TUE,WED,THU,FRI"
+  val mockLoggingTimes = "08:00:00_17:00:00"
 
   trait Setup {
     val service = new DashboardService {
@@ -70,6 +72,9 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers with ServiceConnect
       override val vatBaseUrl = vatTestBaseUrl
       override val vatUri = vatTestUri
       override val featureFlag = mockfeatureFlag
+      override val loggingDays = mockLoggingDays
+      override val loggingTimes = mockLoggingTimes
+
     }
   }
 
@@ -88,6 +93,8 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers with ServiceConnect
       override val vatBaseUrl = vatTestBaseUrl
       override val vatUri = vatTestUri
       override val featureFlag = mockfeatureFlag
+      override val loggingDays = mockLoggingDays
+      override val loggingTimes = mockLoggingTimes
 
       override def buildIncorpCTDashComponent(regId: String, enrolments: Enrolments)(implicit hc: HeaderCarrier) = Future.successful(dash)
       override def getCompanyName(regId: String)(implicit hc: HeaderCarrier) = Future.successful("testCompanyName")
