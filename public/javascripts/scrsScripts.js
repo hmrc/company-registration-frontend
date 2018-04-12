@@ -7,6 +7,7 @@ $(document).ready($(function() {
     var notYetToggle = $("#notPlanningToYet-hidden");
 
     var director = $("#completionCapacity-director");
+    var company_secretary = $("#completionCapacity-company_secretary");
     var agent = $("#completionCapacity-agent");
     var other = $("#completionCapacity-other");
     var otherHidden = $("#other-hidden");
@@ -18,6 +19,10 @@ $(document).ready($(function() {
     }
 
     director.on("change", function () {
+       otherHidden.hide();
+    });
+
+    company_secretary.on("change", function () {
        otherHidden.hide();
     });
 
