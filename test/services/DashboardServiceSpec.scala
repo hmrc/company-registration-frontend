@@ -175,7 +175,7 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers with ServiceConnect
   val vatVarEnrolment = Enrolments(Set(Enrolment("HMCE-VATVAR-ORG", Seq(EnrolmentIdentifier("test-paye-identifier", "test-paye-value")), "testState")))
   val noEnrolments = Enrolments(Set())
 
-  val payeThresholds = Map("weekly" -> 113, "monthly" -> 490, "annually" -> 5876)
+  val payeThresholds = Map("weekly" -> 116, "monthly" -> 503, "annually" -> 6032)
 
   "buildDashboard" should {
 
