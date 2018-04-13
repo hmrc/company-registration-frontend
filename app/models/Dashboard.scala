@@ -23,8 +23,9 @@ import play.api.libs.json.{Json, _}
 case class Dashboard(companyName: String,
                      incDash: IncorpAndCTDashboard,
                      payeDash: ServiceDashboard,
-                     vatDash: Option[ServiceDashboard],
-                     hasVATCred: Boolean = false)
+                     vatDash: ServiceDashboard,
+                     hasVATCred: Boolean = false,
+                     vatFeatureFlag: Boolean = false)
 
 case class IncorpAndCTDashboard(status : String,
                                 submissionDate : Option[String],

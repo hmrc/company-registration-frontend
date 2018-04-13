@@ -23,7 +23,7 @@ import helpers.{AuthHelpers, SCRSSpec}
 import mocks.ServiceConnectorMock
 import models._
 import models.auth.AuthDetails
-import models.connectors.ConfirmationReferences
+import connectors.ConfirmationReferences
 import models.external.{OtherRegStatus, Statuses}
 import org.joda.time.DateTime
 import org.mockito.{ArgumentCaptor, Matchers}
@@ -80,7 +80,7 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers with ServiceConnect
 
 
   class SetupWithDash(dash: IncorpAndCTDashboard) {
-    val service = new DashboardService {
+      val service = new DashboardService {
       override val companyRegistrationConnector = mockCompanyRegistrationConnector
       override val keystoreConnector = mockKeystoreConnector
       override val incorpInfoConnector = mockIncorpInfoConnector
@@ -98,6 +98,8 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers with ServiceConnect
 
       override def buildIncorpCTDashComponent(regId: String, enrolments: Enrolments)(implicit hc: HeaderCarrier) = Future.successful(dash)
       override def getCompanyName(regId: String)(implicit hc: HeaderCarrier) = Future.successful("testCompanyName")
+      override def getCurrentVatThreshold(implicit hc: HeaderCarrier) = ("85000")
+
      }
   }
 
@@ -176,8 +178,8 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers with ServiceConnect
   val noEnrolments = Enrolments(Set())
 
   val payeThresholds = Map("weekly" -> 116, "monthly" -> 503, "annually" -> 6032)
-
-  "buildDashboard" should {
+  val vatThresholds = Map("yearly" -> 85000)
+    "buildDashboard" should {
 
     val draftDash = IncorpAndCTDashboard("draft", Some("10 October 2017"), Some(transId), Some(payRef), None, None, Some(ackRef), None, None)
     val rejectedDash = IncorpAndCTDashboard("rejected", Some("10 October 2017"), Some(transId), Some(payRef), None, None, Some(ackRef), None, None)
@@ -185,6 +187,9 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers with ServiceConnect
 
     val payeDash = ServiceDashboard("", None, None, ServiceLinks(payeUrl, "OTRS url", None, Some("/register-your-company/cancel-paye")), Some(payeThresholds))
     val payeStatus = OtherRegStatus("", None, None, Some("foo"), None)
+    val vatDash =   ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
+    val vatDashOTRS =   ServiceDashboard("notEnabled",None,None,ServiceLinks("test/vat-uri","OTRS url",None,None), Some(vatThresholds))
+
 
     "return a CouldNotBuild DashboardStatus when the status of the registration is draft" in new SetupWithDash(draftDash) {
       getStatusMock(SuccessfulResponse(payeStatus))
@@ -210,7 +215,7 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers with ServiceConnect
       mockPayeFeature(true)
       mockVatFeature(false)
       val res = await(service.buildDashboard(regId, vatEnrolment))
-      res shouldBe DashboardBuilt(Dashboard("", heldDash, payeDash, None, hasVATCred = true))
+      res shouldBe DashboardBuilt(Dashboard("", heldDash, payeDash, vatDashOTRS, hasVATCred = true))
     }
   }
 
