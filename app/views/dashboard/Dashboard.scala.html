@@ -73,25 +73,6 @@
 </tr>
 }
 
-@doYouNeedToRegisterForVATHelp = {
-<tr class="tabular-data__cell--centred status--confirm-success" role ="row">
-    <td colspan="2">
-        <details>
-            <summary class="summary">@Messages("page.reg.Dashboard.VAT.helpLink")</summary>
-            <div class="panel-indent panel-indent--gutter">
-                @Messages("page.reg.Dashboard.VAT.helpTextParagraph1")
-                <ul class="list-bullet">
-                    <li>@Messages("page.reg.Dashboard.VAT.helpTextParagraph2")</li>
-                    <li>@Messages("page.reg.Dashboard.VAT.helpTextParagraph3")</li>
-                </ul>
-                <p>@Messages("page.reg.Dashboard.VAT.helpTextParagraph4")</p>
-                <p>@Messages("page.reg.Dashboard.VAT.helpTextParagraph5")</p>
-            </div>
-        </details>
-    </td>
-</tr>
-}
-
 @notEligiblePAYE = {
 <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
     <td colspan="2">
@@ -136,13 +117,6 @@
 </tr>
 }
 
-@showVATBlock = @{(dash.incDash.status, dash.hasVATCred) match {
-    case (_, _)      if ctRejected  => false
-    case (_, true)                  => false
-    case (status, _)                => status == "submitted" || status == "acknowledged"
-    case _                          => false
-}}
-
 @payeMap = {
     @{dash.payeDash.status match {
        case "notStarted"    => doYouNeedToRegisterHelp
@@ -156,6 +130,15 @@
        case "notEnabled"    => {""}
        case "unavailable"   => {""}
     }}
+}
+
+@showVATBlock = @{
+    (dash.incDash.status, dash.hasVATCred) match {
+        case (_, _)      if ctRejected  => false
+        case (_, true)                  => false
+        case (status, _)                => status == "submitted" || status == "acknowledged"
+        case _                          => false
+    }
 }
 
 @main_template(title = Messages("page.reg.Dashboard.description"), mainClass = Some("dashboard")) {
@@ -277,45 +260,20 @@
                 <table class="check-your-answers">
                     <tbody>
                         @if(dash.payeDash.status == "notStarted"){
-
                                 @payeMap
-
                                 @displayRegistrationStatus(dash.payeDash, "paye")
                         } else {
                                 @displayRegistrationStatus(dash.payeDash, "paye")
-
                                 @payeMap
                         }
                     </tbody>
                 </table>
             }
 
-            @if(dash.vatDash.nonEmpty) {
-                @if(!ctRejected) {
-                    @vatDashboard(dash.vatDash.get)
-                }
-            } else {
-                @if(showVATBlock) {
-                    <!--VAT Block-->
-                    <h2 class="heading-medium" id="vatSubheading">@Messages("page.reg.Dashboard.VAT.title")</h2>
-                    <table class="check-your-answers">
-                        <!-- VAT Status -->
-                        <tbody>
-                            <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
-                                <td>@Messages("page.reg.Dashboard.status")</td>
-                                <td id="legacyVATStatusText">
-                                    <a id="vatUrl" href="https://online.hmrc.gov.uk/registration/newbusiness/introduction" target="_blank">
-                                        @Messages("page.reg.Dashboard.VAT.registerText")
-                                        <div class="visually-hidden">@Messages("page.reg.Dashboard.hiddenOpenNewTab")</div>
-                                    </a>
-                                </td>
-                            </tr>
-                        </tbody>
-                        <!-- VAT Status end -->
-                        @doYouNeedToRegisterForVATHelp
-                    </table>
-                }
+            @if(showVATBlock) @{
+                vatDashboard(dash.vatDash, dash.vatFeatureFlag)
             }
+
         </div>
     </div>
 

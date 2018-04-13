@@ -10,7 +10,7 @@ object FrontendBuild extends Build with MicroService {
 
   override lazy val playSettings : Seq[Setting[_]] = Seq(
     dependencyOverrides += "org.scala-lang" % "scala-library" % "2.11.8",
-    dependencyOverrides += "uk.gov.hmrc" %% "domain" % "5.0.0",
+    dependencyOverrides += "uk.gov.hmrc" %% "domain" % "5.1.0",
     dependencyOverrides += "uk.gov.hmrc" %% "secure" % "7.0.0",
     dependencyOverrides += "io.netty" % "netty" % "3.9.8.Final",
     dependencyOverrides += "com.typesafe.play" % "twirl-api_2.11" % "1.1.1"
@@ -24,8 +24,8 @@ private object AppDependencies {
 
   val compile = Seq(
     ws,
-    "uk.gov.hmrc" %% "frontend-bootstrap" % "8.19.0",
-    "uk.gov.hmrc" %% "auth-client" % "2.5.0",
+    "uk.gov.hmrc" %% "frontend-bootstrap" % "8.20.0",
+    "uk.gov.hmrc" %% "auth-client" % "2.6.0",
     "uk.gov.hmrc" %% "play-partials" % "6.1.0",
     "uk.gov.hmrc" %% "url-builder" % "2.1.0",
     "uk.gov.hmrc" %% "http-caching-client" % "7.1.0",

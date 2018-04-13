@@ -52,7 +52,7 @@ class DashboardControllerSpec extends SCRSSpec with WithFakeApplication with Aut
   }
 
   val payeThresholds = Map("weekly" -> 113, "monthly" -> 490, "annually" -> 5876)
-
+  val vatThresholds = Map("yearly" -> 10000)
   val authDetails = new ~(
     new ~(
       new ~(
@@ -74,7 +74,7 @@ class DashboardControllerSpec extends SCRSSpec with WithFakeApplication with Aut
         "held", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), None, None, Some("ack-12345"), None, None
       ),
       ServiceDashboard("draft", None, None,ServiceLinks("", "", None, Some("")), Some(payeThresholds)),
-      None
+      ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
     )
 
     "return a 200 and render the dashboard view" when {

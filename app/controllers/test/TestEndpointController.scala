@@ -372,9 +372,9 @@ trait TestEndpointController extends FrontendController with AuthFunction with C
       val payeLinks = links(payeCancelUrl.toBoolean,payeRestartUrl.toBoolean)
       val payeDash  =  ServiceDashboard(payeStatus, Some("lastUpdateDate"), Some("ackrefPaye"),payeLinks, Some(dashboardService.getCurrentPayeThresholds))
       val vatLinks  = links(vatCancelUrl.toBoolean,false)
-      val vatDash   = ServiceDashboard(vatStatus,Some("lastUpdateDate"),None,vatLinks, None)
+      val vatDash   = ServiceDashboard(vatStatus,Some("lastUpdateDate"),Some("ack"),vatLinks, Some(Map("yearly" -> 85000)))
 
-      val dash = Dashboard("companyNameStubbed", incorpAndCTDash, payeDash,Some(vatDash))
+      val dash = Dashboard("companyNameStubbed", incorpAndCTDash, payeDash, vatDash, hasVATCred = true)
       Ok(views.html.dashboard.Dashboard(dash, coHoURL))
   }
 

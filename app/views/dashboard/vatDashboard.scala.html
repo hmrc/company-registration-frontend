@@ -14,18 +14,72 @@
  * limitations under the License.
  *@
 
-@(vatDash: ServiceDashboard)(implicit request: Request[_], messages: Messages)
+@(vatDash: ServiceDashboard, vatFeatureFlag: Boolean)(implicit request: Request[_], messages: Messages)
 @import models.external.Statuses._
+
+<h2 class="heading-medium" id="vatSubheading">@messages("page.reg.Dashboard.VAT.title")</h2>
+<table class="check-your-answers">
+    <tbody>
+        @{if(vatFeatureFlag) scrsContent(vatDash) else otrsContent}
+    </tbody>
+</table>
+
+@otrsContent = {
+    <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
+        <td>@messages("page.reg.Dashboard.status")</td>
+        <td id="legacyVATStatusText">
+            <a id="vatUrl" href="https://online.hmrc.gov.uk/registration/newbusiness/introduction" target="_blank">
+                @messages("page.reg.Dashboard.VAT.registerText")
+                <div class="visually-hidden">@messages("page.reg.Dashboard.hiddenOpenNewTab")</div>
+            </a>
+        </td>
+    </tr>
+    @doYouNeedToRegisterForVATHelp
+}
+
+@doYouNeedToRegisterForVATHelp = {
+    <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
+        <td colspan="2">
+            <details>
+                <summary class="summary">@Messages("page.reg.Dashboard.VAT.helpLink")</summary>
+                <div class="panel-indent panel-indent--gutter">
+                    @Messages("page.reg.Dashboard.VAT.helpTextParagraph1")
+                    <ul class="list-bullet">
+                        <li id="vatThresholdLastYear">@Messages("page.reg.Dashboard.VAT.helpTextParagraph2", vatDash.thresholds.get("yearly"))</li>
+                        <li id="vatThresholdNext30Day">@Messages("page.reg.Dashboard.VAT.helpTextParagraph3", vatDash.thresholds.get("yearly"))</li>
+                    </ul>
+                    <p>@Messages("page.reg.Dashboard.VAT.helpTextParagraph4")</p>
+                    <p id="vatThresholdAnnually">@Messages("page.reg.Dashboard.VAT.helpTextParagraph5", vatDash.thresholds.get("yearly"))</p>
+                </div>
+            </details>
+        </td>
+    </tr>
+}
+
+@scrsContent(dashboard: ServiceDashboard) = {
+    @if(dashboard.status == NOT_STARTED) {
+        @displayHelpText
+    }
+    @displayRegistrationStatus(dashboard, "vat")
+    @displayRegistrationActions(dashboard, "vat")
+    @if(dashboard.status != NOT_STARTED) @{
+        dashboard.status match {
+            case "draft" => displayHelpText
+            case "submitted" => displaySubmissionText
+            case "held" => cantProcessText
+        }
+    }
+}
 
 @displayHelpText = {
     <tr class="tabular-data__cell--centred status--confirm-success" role="row">
         <td colspan="2">
-            @Messages("page.reg.Dashboard.VAT.helpTextListHeader")
+            @messages("page.reg.Dashboard.VAT.helpTextListHeader")
             <ul class="list-bullet">
-                <li>@Messages("page.reg.Dashboard.VAT.helpTextBullet1")</li>
-                <li>@Messages("page.reg.Dashboard.VAT.helpTextBullet2")</li>
+                <li>@messages("page.reg.Dashboard.VAT.helpTextBullet1")</li>
+                <li>@messages("page.reg.Dashboard.VAT.helpTextBullet2")</li>
             </ul>
-            <p id="vatThreshold"><strong>@Messages("page.reg.Dashboard.VAT.helpTextThreshold")</strong></p>
+            <p id="vatThreshold"><strong>@Messages("page.reg.Dashboard.VAT.helpTextThreshold", vatDash.thresholds.get("yearly")) </strong></p>
             <p>@Messages("page.reg.Dashboard.VAT.helpTextParagraph1")</p>
         </td>
     </tr>
@@ -34,10 +88,10 @@
 @displaySubmissionText = {
     <tr class="tabular-data__cell--centred status--confirm-success" role="row">
         <td colspan="2">
-            @Messages("page.reg.Dashboard.VAT.helpTextSubmittedHeader")
+            @messages("page.reg.Dashboard.VAT.helpTextSubmittedHeader")
             <ul class="list-bullet">
-                <li>@Messages("page.reg.Dashboard.VAT.helpTextSubmittedBullet1")</li>
-                <li>@Messages("page.reg.Dashboard.VAT.helpTextSubmittedBullet2")</li>
+                <li>@messages("page.reg.Dashboard.VAT.helpTextSubmittedBullet1")</li>
+                <li>@messages("page.reg.Dashboard.VAT.helpTextSubmittedBullet2")</li>
             </ul>
         </td>
     </tr>
@@ -46,25 +100,7 @@
 @cantProcessText = {
     <tr class="tabular-data__cell--centred status--confirm-success" role="row">
         <td colspan="2">
-            @Messages("page.reg.Dashboard.VAT.pendingText")
+            @messages("page.reg.Dashboard.VAT.pendingText")
         </td>
     </tr>
 }
-
-<h2 class="heading-medium" id="vatSubheading">@Messages("page.reg.Dashboard.VAT.title")</h2>
-<table class="check-your-answers">
-    <tbody>
-        @if(vatDash.status == NOT_STARTED) { @displayHelpText }
-        @displayRegistrationStatus(vatDash, "vat")
-        @displayRegistrationActions(vatDash, "vat")
-        @if(vatDash.status != NOT_STARTED) {
-            @{
-                vatDash.status match {
-                    case "draft" => displayHelpText
-                    case "submitted" => displaySubmissionText
-                    case "held" => cantProcessText
-                }
-            }
-        }
-    </tbody>
-</table>
