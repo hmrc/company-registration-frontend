@@ -27,23 +27,23 @@ class WelcomeControllerSpec extends SCRSSpec with WithFakeApplication {
     object TestController extends WelcomeController {
       override val appConfig = mockAppConfig
     }
-
   }
 
   "Sending a GET request to WelcomeController" should {
     "send the user to post-sign-in if signposting is enabled" when {
       "they show the page" in new Setup {
         System.setProperty("feature.signPosting", "true")
-
         val result = TestController.show()(FakeRequest())
+
         status(result) shouldBe PERMANENT_REDIRECT
+        await(result).header.headers.get(LOCATION) shouldBe Some("/register-your-company/setting-up-new-limited-company")
       }
     }
     "send the user to welcome if signposting is disabled" when {
       "they show the page" in new Setup {
         System.setProperty("feature.signPosting", "false")
-
         val result = TestController.show()(FakeRequest())
+
         status(result) shouldBe OK
       }
     }
@@ -51,8 +51,8 @@ class WelcomeControllerSpec extends SCRSSpec with WithFakeApplication {
 
   "Sending a POST request to WelcomeController" should {
     "return a 303 and send user to set up new limited company page when not signed in." in new Setup {
-
       val result = TestController.submit()(FakeRequest())
+
       status(result) shouldBe SEE_OTHER
       redirectLocation(result) shouldBe Some("/register-your-company/setting-up-new-limited-company")
     }
