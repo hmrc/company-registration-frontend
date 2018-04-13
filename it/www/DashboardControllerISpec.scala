@@ -316,7 +316,7 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub with F
 
 
     "correctly display the VAT block" when {
-      "the vat feature switch is ON" in {
+      "the vat feature switch is ON and status is SUBMITTED" in {
         setupFeatures(paye = true, vat = true)
 
         stubSuccessfulLogin(userId = userId)
@@ -341,6 +341,60 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub with F
 
         val doc = Jsoup.parse(response.body)
         doc.getElementById("vatThreshold").text shouldBe "The current VAT registration threshold is £85,000."
+      }
+
+        "the vat feature switch is ON and status is HELD" in {
+          setupFeatures(paye = true, vat = true)
+
+          stubSuccessfulLogin(userId = userId)
+          setupSimpleAuthWithEnrolmentsMocks(enrolmentsURI)
+          stubVATThresholdAmount(LocalDate.now())
+          stubKeystoreDashboard(SessionId, regId, "|||fake|||email")
+          stubKeystoreCache(SessionId, "emailMismatchAudit")
+
+          stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR("held", regId))
+          stubGet(s"/company-registration/corporation-tax-registration/$regId/fetch-held-time", 200, "1504774767050")
+          stubGet(s"/company-registration/corporation-tax-registration/$regId/retrieve-email", 200, emailResult)
+          stubGet(s"/paye-registration/$regId/status", 200, jsonOtherRegStatusDraft)
+          stubGet(s"/vatreg/$regId/status", 200, jsonOtherRegStatusDraft)
+          stubGet(s"$enrolmentsURI", 200, "[]")
+
+          val fResponse = buildClient("/company-registration-overview").
+            withHeaders(HeaderNames.COOKIE -> getSessionCookie(userId = userId)).
+            get()
+
+          val response = await(fResponse)
+          response.status shouldBe 200
+
+          val doc = Jsoup.parse(response.body)
+          doc.getElementById("vatThreshold").text shouldBe "The current VAT registration threshold is £85,000."
+        }
+
+      "the vat feature switch is OFF and status is HELD" in {
+        setupFeatures(paye = true)
+
+        stubSuccessfulLogin(userId = userId)
+        setupSimpleAuthWithEnrolmentsMocks(enrolmentsURI)
+        stubVATThresholdAmount(LocalDate.now())
+        stubKeystoreDashboard(SessionId, regId, "|||fake|||email")
+        stubKeystoreCache(SessionId, "emailMismatchAudit")
+
+        stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR("held", regId))
+        stubGet(s"/company-registration/corporation-tax-registration/$regId/fetch-held-time", 200, "1504774767050")
+        stubGet(s"/company-registration/corporation-tax-registration/$regId/retrieve-email", 200, emailResult)
+        stubGet(s"/paye-registration/$regId/status", 200, jsonOtherRegStatusDraft)
+        stubGet(s"/vatreg/$regId/status", 200, jsonOtherRegStatusDraft)
+        stubGet(s"$enrolmentsURI", 200, "[]")
+
+        val fResponse = buildClient("/company-registration-overview").
+          withHeaders(HeaderNames.COOKIE -> getSessionCookie(userId = userId)).
+          get()
+
+        val response = await(fResponse)
+        response.status shouldBe 200
+
+        val doc = Jsoup.parse(response.body)
+        a[NullPointerException] shouldBe thrownBy(doc.getElementById("vatThreshold").text)
       }
 
       "there is no VAT registration" in {

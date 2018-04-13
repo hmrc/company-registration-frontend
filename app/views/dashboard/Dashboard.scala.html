@@ -133,12 +133,12 @@
 }
 
 @showVATBlock = @{
-    (dash.incDash.status, dash.hasVATCred) match {
-        case (_, _)      if ctRejected  => false
-        case (_, true)                  => false
-        case (status, _)                => status == "submitted" || status == "acknowledged"
-        case _                          => false
-    }
+(dash.incDash.status, dash.hasVATCred) match {
+    case (_, _)      if ctRejected  => false
+    case (_, true)                  => false
+    case (status, _)                => dash.vatFeatureFlag && status == "held" || status == "submitted" || status == "acknowledged"
+    case _                          => false
+}
 }
 
 @main_template(title = Messages("page.reg.Dashboard.description"), mainClass = Some("dashboard")) {
