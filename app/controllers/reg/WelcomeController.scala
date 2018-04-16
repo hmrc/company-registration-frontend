@@ -36,7 +36,7 @@ trait WelcomeController extends FrontendController with MessagesSupport {
   implicit val appConfig: AppConfig
   val show = Action.async { implicit request =>
     if (signPostingEnabled) {
-      Future.successful(PermanentRedirect(routes.SignInOutController.postSignIn(None).url))
+      Future.successful(PermanentRedirect(routes.ReturningUserController.show().url))
     } else {
       Future.successful(Ok(Welcome(SCRSFeatureSwitches.paye.enabled)))
     }
