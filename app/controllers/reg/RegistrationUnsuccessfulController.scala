@@ -21,6 +21,7 @@ import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthFunction
 import play.api.mvc.Action
 import services.DeleteSubmissionService
+import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.frontend.controller.FrontendController
 import utils.{MessagesSupport, SessionRegistration}
 import views.html.reg.RegistrationUnsuccessful
@@ -34,11 +35,14 @@ object RegistrationUnsuccessfulController extends RegistrationUnsuccessfulContro
   val deleteSubService = DeleteSubmissionService
   val companyRegistrationConnector = CompanyRegistrationConnector
   override val appConfig =  FrontendAppConfig
+  override val govukRegisterYourCompany: String = getConfString("gov-uk.register-your-company", throw new Exception("No config for key: gov-uk.register-your-company"))
 }
 
-trait RegistrationUnsuccessfulController extends FrontendController with AuthFunction with SessionRegistration with MessagesSupport {
+trait RegistrationUnsuccessfulController extends FrontendController with AuthFunction with SessionRegistration with MessagesSupport with ServicesConfig {
 
   implicit val appConfig: AppConfig
+
+  val govukRegisterYourCompany: String
 
   val deleteSubService: DeleteSubmissionService
 
@@ -53,7 +57,7 @@ trait RegistrationUnsuccessfulController extends FrontendController with AuthFun
       registered { regId =>
         deleteSubService.deleteSubmission(regId) flatMap {
           case true => keystoreConnector.remove() map {
-            _ => Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))
+            _ => Redirect(govukRegisterYourCompany)
           }
           case false => Future.successful(InternalServerError)
         }

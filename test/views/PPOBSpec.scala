@@ -59,8 +59,8 @@ class PPOBSpec extends SCRSSpec with PPOBFixture with NavModelRepoMock with With
       showWithAuthorisedUser(controller.show) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
-          document.title() shouldBe "Where will the company carry out most of its business activities?"
-          document.getElementById("main-heading").text shouldBe "Where will the company carry out most of its business activities?"
+          document.title() shouldBe "What is the company's 'principal place of business'?"
+          document.getElementById("main-heading").text shouldBe "What is the company's 'principal place of business'?"
           document.getElementById("next").attr("value") shouldBe "Save and continue"
       }
     }
