@@ -108,7 +108,7 @@ class DashboardControllerSpec extends SCRSSpec with WithFakeApplication with Aut
           fRes =>
             val res = await(fRes)
             status(res) shouldBe 200
-            contentAsString(res) should include("<title>Company registration unsuccessful</title>")
+            contentAsString(res) should include("<title>Can&#x27;t set up limited company</title>")
         }
 
         verify(mockDashboardService, times(1)).checkForEmailMismatch(any(), any())(any(), any())

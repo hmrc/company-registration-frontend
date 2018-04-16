@@ -37,8 +37,23 @@
         <h1 class="form-title heading-xlarge" id="main-heading">@Messages("page.reg.ppob.description")</h1>
     </header>
 
-    <p>@Messages("page.reg.ppob.location")</p>
-    <p>@Messages("page.reg.ppob.mobileBusiness")</p>
+    <div class="form-group">
+        <p>@Messages("page.reg.ppob.location")</p>
+        <p>@Messages("page.reg.ppob.mobileBusiness")</p>
+    </div>
+
+        <div class="panel panel-border-wide">
+            @Messages("page.reg.ppob.publicRecord")
+        </div>
+
+    <div class="form-group">
+        <details>
+            <summary class="summary">@Messages("page.reg.ppob.noPPOBYet")</summary>
+            <div class="panel panel-border-narrow">
+                <p>@Messages("page.reg.ppob.useOfficeAddress")</p>
+            </div>
+        </details>
+    </div>
 
     @form(action = controllers.reg.routes.PPOBController.submit()) {
         <div class="form-group">

@@ -329,7 +329,7 @@ class CompanyContactFormSpec extends SCRSSpec with CompanyContactDetailsFixture 
           "contactDaytimeTelephoneNumber" -> validContactDaytimeTelephoneNumber,
           "contactMobileNumber" -> validContactMobileNumber
         )
-        val error = Seq(FormError("contactName", "Enter a first name that’s 100 characters or less"))
+        val error = Seq(FormError("contactName", "Enter a first name that's 100 characters or less"))
         assertFormError(form, formData, error)
       }
 
@@ -340,7 +340,7 @@ class CompanyContactFormSpec extends SCRSSpec with CompanyContactDetailsFixture 
           "contactDaytimeTelephoneNumber" -> validContactDaytimeTelephoneNumber,
           "contactMobileNumber" -> validContactMobileNumber
         )
-        val error = Seq(FormError("contactName", "Enter a middle name that’s 100 characters or less"))
+        val error = Seq(FormError("contactName", "Enter a middle name that's 100 characters or less"))
         assertFormError(form, formData, error)
       }
 
@@ -351,7 +351,7 @@ class CompanyContactFormSpec extends SCRSSpec with CompanyContactDetailsFixture 
           "contactDaytimeTelephoneNumber" -> validContactDaytimeTelephoneNumber,
           "contactMobileNumber" -> validContactMobileNumber
         )
-        val error = Seq(FormError("contactName", "Enter a last name that’s 100 characters or less"))
+        val error = Seq(FormError("contactName", "Enter a last name that's 100 characters or less"))
         assertFormError(form, formData, error)
       }
 

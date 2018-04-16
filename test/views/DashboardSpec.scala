@@ -378,7 +378,7 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
         result =>
           val document = Jsoup.parse(contentAsString(result))
           document.title() shouldBe "Company registration overview"
-          document.getElementById("payeStatusText").text() shouldBe "Register"
+          document.getElementById("payeStatusText").text() shouldBe "Register for PAYE"
           document.getElementById("payeRegUrl").attr("href") shouldBe dashboard.payeDash.links.startURL
       }
     }

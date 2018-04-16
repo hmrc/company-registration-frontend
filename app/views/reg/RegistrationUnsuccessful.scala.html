@@ -18,34 +18,33 @@
 
 @import uk.gov.hmrc.play.views.html.helpers.form
 
-@main_template(title = Messages("page.reg.registrationUnsuccessful.description"), mainClass = None) {
+@main_template(title = Messages("page.reg.registrationUnsuccessful.title"), mainClass = None) {
 
-    <a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
+    <h1 class="form-title heading-xlarge" id="main-heading">@Messages("page.reg.registrationUnsuccessful.heading")</h1>
 
-    <header class="page-header">
-        <h1 class="form-title heading-xlarge" id="main-heading">@Messages("page.reg.registrationUnsuccessful.description")</h1>
-    </header>
     <div class="form-group">
-        <p id="company">@Messages("page.reg.registrationUnsuccessful.yourCompany")</p>
-        </br>
-        <h2 class="form-title heading-medium" id="sub-heading">@Messages("page.reg.registrationUnsuccessful.subHeading")</h2>
+        <p>@Messages("page.reg.registrationUnsuccessful.unableToContinue")</p>
     </div>
+
     <div class="form-group">
-        <p id="description-one">@Messages("page.reg.registrationUnsuccessful.emailConfirmation")</p>
-
-
-        @form(action = controllers.reg.routes.RegistrationUnsuccessfulController.submit()) {
-            <p id="description-two">@Messages("page.reg.registrationUnsuccessful.detailsEntered")
-                <input value='@Messages("page.verification.verify-your-email.dropdown-link2")@Messages(".")' type="submit" class="link-style">
-                </input></p>
-            <p id="description-three">@Messages("page.reg.registrationUnsuccessful.paymentRefund")</p>
-            </br>
-
-            <div class="form-group">
-                <input class="button" type="submit" id="next" value="@Messages("common.button.next")">
-            </div>
-        }
+        <h2 class="heading-medium">@Messages("page.reg.registrationUnsuccessful.whatHappensNext")</h2>
     </div>
+
+    <div class="form-group">
+        <p>@Messages("page.reg.registrationUnsuccessful.whatHappensNext.p1")</p>
+    </div>
+
+    <div class="form-group">
+        <p>@Messages("page.reg.registrationUnsuccessful.whatHappensNext.p2")</p>
+    </div>
+
+    @form(action = controllers.reg.routes.RegistrationUnsuccessfulController.submit()) {
+        <div class="form-group">
+            <p>
+                @Messages("page.reg.registrationUnsuccessful.whatHappensNext.p3.part1")
+                <input value='@Messages("page.reg.registrationUnsuccessful.whatHappensNext.p3.part2")' type="submit" class="link-style">
+                @Messages("page.reg.registrationUnsuccessful.whatHappensNext.p3.part3")
+            </p>
+        </div>
+    }
 }
-
-

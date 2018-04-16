@@ -19,6 +19,7 @@ package controllers
 import builders.AuthBuilder
 import connectors.KeystoreConnector
 import controllers.reg.RegistrationUnsuccessfulController
+import controllers.reg.RegistrationUnsuccessfulController.getConfString
 import helpers.SCRSSpec
 import org.mockito.Matchers
 import org.mockito.Mockito._
@@ -43,6 +44,8 @@ class RegistrationUnsuccessfulControllerSpec extends SCRSSpec with WithFakeAppli
       override val deleteSubService = mockDeleteSubmissionService
       override val companyRegistrationConnector = mockCompanyRegistrationConnector
       override val appConfig = mockAppConfig
+      override val govukRegisterYourCompany: String = getConfString("gov-uk.register-your-company", throw new Exception("No config for key: gov-uk.register-your-company"))
+
     }
   }
 
@@ -84,7 +87,7 @@ class RegistrationUnsuccessfulControllerSpec extends SCRSSpec with WithFakeAppli
       submitWithAuthorisedUser(controller.submit, FakeRequest().withFormUrlEncodedBody(Nil: _*)){
         result =>
           status(result) shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe Some("/register-your-company/post-sign-in")
+          redirectLocation(result) shouldBe Some("https://www.gov.uk/limited-company-formation/register-your-company")
       }
     }
   }

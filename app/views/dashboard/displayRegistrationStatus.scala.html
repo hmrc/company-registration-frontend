@@ -17,24 +17,38 @@
 @(dash: ServiceDashboard, prefixHtmlId: String)(implicit request: Request[_], messages: Messages)
 @import models.external.Statuses._
 
-<tr class="tabular-data__cell--centred status--confirm-success" role="row">
-    <td>@Messages("page.reg.Dashboard.status")</td>
-    <td id="@{prefixHtmlId}StatusText">
-@{
-    val htmlId = s"${prefixHtmlId}RegUrl"
-
-    dash.status match {
-        case NOT_ELIGIBLE => Messages("page.reg.Dashboard.PAYE.notEligible")
-        case NOT_STARTED => {<a id={htmlId} href={dash.links.startURL}>{Messages("page.reg.Dashboard.registerText")}</a>}
-        case "draft" => Messages("page.reg.Dashboard.status.incomplete")
-        case "held" => Messages("page.reg.Dashboard.status.pending")
-        case "submitted" => Messages("page.reg.Dashboard.status.submitted")
-        case "acknowledged" => Messages("page.reg.Dashboard.status.acknowledged")
-        case "invalid" => Messages("page.reg.Dashboard.status.incomplete")
-        case "rejected" => Messages("page.reg.Dashboard.status.rejected")
-        case NOT_ENABLED => {""}
-        case UNAVAILABLE => Messages("page.reg.Dashboard.status.unavailable")
-    }
+@notStartedText(id: String) = @{
+    <a id={id} href={dash.links.startURL}>
+        {
+            id match {
+                case "payeRegUrl" =>{Messages("page.reg.Dashboard.registerTextForPAYE")}
+                case "vatRegUrl" => {Messages("page.reg.Dashboard.registerText")}
+            }
+        }
+    </a>
 }
+
+<tr class="tabular-data__cell--centred status--confirm-success" role="row">
+
+    @if(dash.status != NOT_STARTED) @{
+        <td>{Messages("page.reg.Dashboard.status")}</td>
+    }
+
+    <td id="@{prefixHtmlId}StatusText">
+        @{
+            val htmlId = s"${prefixHtmlId}RegUrl"
+            dash.status match {
+                case NOT_ELIGIBLE => Messages("page.reg.Dashboard.PAYE.notEligible")
+                case NOT_STARTED => notStartedText(htmlId)
+                case "draft" => Messages("page.reg.Dashboard.status.incomplete")
+                case "held" => Messages("page.reg.Dashboard.status.pending")
+                case "submitted" => Messages("page.reg.Dashboard.status.submitted")
+                case "acknowledged" => Messages("page.reg.Dashboard.status.acknowledged")
+                case "invalid" => Messages("page.reg.Dashboard.status.incomplete")
+                case "rejected" => Messages("page.reg.Dashboard.status.rejected")
+                case NOT_ENABLED => {""}
+                case UNAVAILABLE => Messages("page.reg.Dashboard.status.unavailable")
+            }
+        }
     </td>
 </tr>

@@ -61,8 +61,8 @@ error.returningUser.required                                        = Tell us if
 
 ## About you
 page.reg.AboutYou.description                                       = What is your relationship to the company?
-page.reg.AboutYou.radio1                                            = Director
-page.reg.AboutYou.radio2                                            = Secretary
+page.reg.AboutYou.radio1                                            = Company director
+page.reg.AboutYou.radio2                                            = Company secretary
 page.reg.AboutYou.radio3                                            = Agent - for example, an accountant
 page.reg.AboutYou.radio4                                            = Other - for example, a friend of the director
 page.reg.AboutYou.radio4.more                                       = Enter your relationship to the company
@@ -117,9 +117,9 @@ validation.name                                                     = Tell us th
 validation.name.noSurname                                           = A surname is required
 validation.name.full-stop                                           = Enter a name without using full stops
 validation.name.required                                            = Enter a contact name
-validation.firstMaxLength                                           = Enter a first name that’s 100 characters or less
-validation.middleMaxLength                                          = Enter a middle name that’s 100 characters or less
-validation.surnameMaxLength                                         = Enter a last name that’s 100 characters or less
+validation.firstMaxLength                                           = Enter a first name that''s 100 characters or less
+validation.middleMaxLength                                          = Enter a middle name that''s 100 characters or less
+validation.surnameMaxLength                                         = Enter a last name that''s 100 characters or less
 validation.email                                                    = Enter an email address using only letters, numbers and - . @ _ +
 validation.emailtoolong                                             = Enter an email address using 70 characters or less
 validation.phone-number                                             = The phone number you have provided is invalid
@@ -132,17 +132,13 @@ validation.nonEmpty                                                 = This field
 validation.invalid                                                  = Enter your relationship to the business using 100 characters or less
 
 ## PPOB
-page.reg.ppob.description                                           = Where will the company carry out most of its business activities?
-page.reg.ppob.description-one                                       = This is where the majority of your business activities will be carried out.
-page.reg.ppob.postcode                                              = Postcode
-page.reg.ppob.addressLine1                                          = Address line 1
-page.reg.ppob.addressLine2                                          = Address line 2
-page.reg.ppob.addressLine3                                          = Address line 3
-page.reg.ppob.addressLine4                                          = Address line 4
+page.reg.ppob.description                                           = What is the company''s ''principal place of business''?
 page.reg.ppob.differentAddress                                      = A different address
-page.reg.ppob.lookup                                                = Find your address
-page.reg.ppob.mobileBusiness                                        = If you work in different locations, use the address where the company keeps its stock or equipment.
-page.reg.ppob.location                                              = This can be your home, a commercial office, a studio or workshop. You or the company don’t need to own the property.
+page.reg.ppob.location                                              = This is where the company will carry out most of its business activities.
+page.reg.ppob.mobileBusiness                                        = If this will be in different locations, use the address where the company will keep its financial or business records.
+page.reg.ppob.publicRecord                                          = This address will not go on the public record.
+page.reg.ppob.noPPOBYet                                             = The company doesn''t have a principal place of business yet
+page.reg.ppob.useOfficeAddress                                      = Use the company''s registered office address for now and tell HMRC when it changes.
 error.addressChoice.required                                        = Tell us where the company will carry out most of its business activities
 
 ## TradingDetails
@@ -342,6 +338,7 @@ page.reg.Dashboard.VAT.helpTextParagraph3                           = you expect
 page.reg.Dashboard.VAT.helpTextParagraph4                           = If you were registered for VAT as a sole trader but have switched to a limited company, you''ll need to register your limited company for VAT if any of the above applies.
 page.reg.Dashboard.VAT.helpTextParagraph5                           = You can register voluntarily if the company''s annual taxable sales are less than £{0}.
 
+page.reg.Dashboard.registerTextForPAYE                              = Register for PAYE
 page.reg.Dashboard.registerText                                     = Register
 page.reg.Dashboard.VAT.helpTextListHeader                           = Use this service to register a company if:
 page.reg.Dashboard.VAT.helpTextBullet1                              = its VAT taxable sales were more than the VAT registration threshold in any 12-month period
@@ -357,12 +354,15 @@ page.reg.Dashboard.status.incomplete                                = Incomplete
 page.reg.Dashboard.hiddenOpenNewTab                                 = (link opens in a new tab)
 
 ## Registration unsuccessful
-page.reg.registrationUnsuccessful.description                       = Company registration unsuccessful
-page.reg.registrationUnsuccessful.subHeading                        = What happens next?
-page.reg.registrationUnsuccessful.yourCompany                       = Your application to register your company was unsuccessful.
-page.reg.registrationUnsuccessful.emailConfirmation                 = We''ve sent you an email confirming that your application was unsuccessful. If you started to register the company for taxes these applications have been discarded.
-page.reg.registrationUnsuccessful.detailsEntered                    = Any details you entered during the application haven''t been saved. If you still want to register a company you''ll need to
-page.reg.registrationUnsuccessful.paymentRefund                     = Any payments will have been refunded within 24 hours. This can take up to 4 days to show on your bank statement.
+page.reg.registrationUnsuccessful.title                             = Can''t set up limited company
+page.reg.registrationUnsuccessful.heading                           = Sorry, you can''t continue
+page.reg.registrationUnsuccessful.unableToContinue                  = We''ve just found out from Companies House that they haven''t been able to set up the company. This means you can''t continue with this service.
+page.reg.registrationUnsuccessful.whatHappensNext                   = What happens next?
+page.reg.registrationUnsuccessful.whatHappensNext.p1                = We''ll send you an email with the reason why and will refund any payments you made within 24 hours. This can take up to 4 days to show on your bank statement.
+page.reg.registrationUnsuccessful.whatHappensNext.p2                = For security, any details you''ve entered will be deleted.
+page.reg.registrationUnsuccessful.whatHappensNext.p3.part1          = If you still want to set up a limited company, you''ll need to start the registration process again using the link on the
+page.reg.registrationUnsuccessful.whatHappensNext.p3.part2          = Register a company
+page.reg.registrationUnsuccessful.whatHappensNext.p3.part3          = GOV.UK page
 
 ## Common Cancel
 page.reg.cancelservice.warning                                      = All the information you''ve provided will be deleted.
