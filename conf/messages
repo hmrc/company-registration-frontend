@@ -368,7 +368,8 @@ page.reg.registrationUnsuccessful.whatHappensNext.p3.part3          = GOV.UK pag
 page.reg.cancelservice.warning                                      = All the information you''ve provided will be deleted.
 page.reg.cancelservice.radioYesLabel                                = Yes
 page.reg.cancelservice.radioNoLabel                                 = No
-page.reg.cancelpaye.description                                     = Are you sure you''d like to cancel this PAYE application?
+page.reg.cancelpaye.description                                     = Do you want to cancel this PAYE application?
+page.reg.cancelpaye.p1                                              = Any details you''ve provided will be deleted.
 
 ## Cancel VAT page
 page.reg.cancelvat.description                                      = Are you sure you''d like to cancel this VAT application?
