@@ -24,13 +24,12 @@
 <a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
 
         <h1 id="main-heading" class="heading-large">@Messages("page.reg.cancelpaye.description")</h1>
-    <div class="notice">
-        <div class="important-notice">
-            @Messages("page.reg.cancelservice.warning")<br>
-            <BR>
-        </div>
-    </div>
-    @form(action = controllers.dashboard.routes.CancelRegistrationController.submitCancelPAYE()) {
+
+          <br>
+          <p>@Messages("page.reg.cancelpaye.p1")</p>
+          <br>
+    
+   @form(action = controllers.dashboard.routes.CancelRegistrationController.submitCancelPAYE()) {
         <div class="form-group">
             @inputRadioGroup(
                 cancelSelection("cancelService"),
