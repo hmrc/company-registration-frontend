@@ -6,7 +6,7 @@ global.error.heading                                                = Sorry, we'
 global.error.message                                                = You can try again by <a href={0}>restarting</a> your registration.
 
 ## Common
-common.service.name                                                 = Register your company
+common.service.name                                                 = Set up a limited company and register for Corporation Tax
 common.button.next                                                  = Next
 common.button.continue                                              = Continue
 common.button.submit                                                = Submit
@@ -34,9 +34,8 @@ common.period                                                       = .
 
 ## Timeout page
 page.timeout.description                                            = Your session has timed out due to inactivity
-page.timeout.p1                                                     = Your answers have been saved.
-page.timeout.p2                                                     = Sign in to
-page.timeout.url                                                    = continue registration
+page.timeout.p2                                                     = Sign back in to
+page.timeout.url                                                    = set up a limited company and register for Corporation Tax
 
 
 ## Welcome page
@@ -234,8 +233,8 @@ page.verification.create-new-account.bottomLink                     = Create a n
 
 page.verification.verify-your-email.title                           = Confirm your email address
 page.verification.verify-your-email.description                     = We''re going to send an email to {0}.
-page.verification.verify-your-email.p1                              = Look for an email from the GOV.UK team with the subject ''Confirm your email address''. Click the link in the email to confirm your address.
-page.verification.verify-your-email.p2                              = After you''ve done this, you''ll get another email with the subject ''Access the "Register your company" service''. It has a link you can use to access the service at any point in the future.
+page.verification.verify-your-email.p1                              = Look for an email from the GOV.UK team with the subject ''Confirm your email address - Set up a limited company and register for Corporation Tax service''. Click the link in the email to confirm your address.
+page.verification.verify-your-email.p2                              = After you''ve done this, you''ll get another email with the subject ''Access the Set up a limited company and register for Corporation Tax service''. It has a link you can use to access the service at any point in future.
 page.verification.verify-your-email.dropdown-title                  = If you haven''t received a confirmation email
 page.verification.verify-your-email.dropdown-text1                  = Check your junk folder. If it''s not there, you''ll need to
 page.verification.verify-your-email.dropdown-link1                  = start again
