@@ -69,7 +69,7 @@
 @if(dash.status != NOT_STARTED) {
     @{
         dash.status match {
-            case "draft" | "invalid" => inProgressActions
+            case "draft" | "invalid" | "locked" => inProgressActions
             case "submitted" => submittedDetails
             case "held" => heldDetails
             case "rejected" => rejectedActions

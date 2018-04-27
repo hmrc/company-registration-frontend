@@ -64,7 +64,7 @@
     @displayRegistrationActions(dashboard, "vat")
     @if(dashboard.status != NOT_STARTED) @{
         dashboard.status match {
-            case "draft" => displayHelpText
+            case "draft" | "locked" => displayHelpText
             case "submitted" => displaySubmissionText
             case "held" => cantProcessText
         }
