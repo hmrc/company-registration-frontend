@@ -40,7 +40,7 @@
             dash.status match {
                 case NOT_ELIGIBLE => Messages("page.reg.Dashboard.PAYE.notEligible")
                 case NOT_STARTED => notStartedText(htmlId)
-                case "draft" => Messages("page.reg.Dashboard.status.incomplete")
+                case "draft" | "locked" => Messages("page.reg.Dashboard.status.incomplete")
                 case "held" => Messages("page.reg.Dashboard.status.pending")
                 case "submitted" => Messages("page.reg.Dashboard.status.submitted")
                 case "acknowledged" => Messages("page.reg.Dashboard.status.acknowledged")
