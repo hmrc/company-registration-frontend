@@ -67,4 +67,9 @@ with ControllerErrorHandler with SessionRegistration with MessagesSupport {
   def submit: Action[AnyContent] = Action.async { implicit request =>
     Future.successful(Redirect(controllers.reg.routes.SignInOutController.postSignIn(None, None, None)))
   }
+
+  def rejected = Action {
+    implicit request =>
+      Ok(views.html.reg.RegistrationUnsuccessful())
+  }
 }
