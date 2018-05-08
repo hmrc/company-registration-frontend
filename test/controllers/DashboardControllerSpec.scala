@@ -161,4 +161,11 @@ class DashboardControllerSpec extends SCRSSpec with WithFakeApplication with Aut
     }
   }
 
+  "rejected" should {
+    "show the rejected incorporation page" in new Setup {
+      val res = await(controller.rejected(FakeRequest()))
+      status(res) shouldBe 200
+    }
+  }
+
 }

@@ -120,6 +120,8 @@ POST       /cancel-paye                             controllers.dashboard.Cancel
 GET        /cancel-vat                              controllers.dashboard.CancelRegistrationController.showCancelVAT
 POST       /cancel-vat                              controllers.dashboard.CancelRegistrationController.submitCancelVAT
 
+GET        /incorporation-rejected                  controllers.dashboard.DashboardController.rejected
+
 
 
 ## DEPRECATED
