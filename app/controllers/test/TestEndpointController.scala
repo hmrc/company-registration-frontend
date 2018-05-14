@@ -25,6 +25,7 @@ import models._
 import models.connectors.ConfirmationReferences
 import models.handoff._
 import models.test.FeatureSwitch
+import org.joda.time.LocalDateTime
 import play.api.Logger
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{Action, AnyContent}
@@ -378,16 +379,23 @@ trait TestEndpointController extends FrontendController with AuthFunction with C
       Ok(views.html.dashboard.Dashboard(dash, coHoURL))
   }
 
-  def handOff6(transactionId: String): Action[AnyContent] = Action.async {
+  def handOff6(transactionId: Option[String]): Action[AnyContent] = Action.async {
     implicit request =>
       ctAuthorised {
         registered { regId =>
-          val confRefs = ConfirmationReferences(transactionId, Some("PAY_REF-123456789"), Some("12"), "")
+          val confRefs = ConfirmationReferences(generateTxId(transactionId, regId), Some("PAY_REF-123456789"), Some("12"), "")
           compRegConnector.updateReferences(regId, confRefs) map {
             case ConfirmationReferencesSuccessResponse(refs) => Ok(Json.toJson(refs)(ConfirmationReferences.format))
             case _ => BadRequest
           }
         }
       }
+  }
+
+  def generateTxId(transactionId: Option[String], rID: String) : String= {
+    transactionId match {
+      case Some(txid) => txid
+      case _ => s"TRANS-ID-${rID}"
+    }
   }
 }
