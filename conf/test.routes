@@ -41,6 +41,6 @@ GET       /fetch-contact-details                         controllers.test.TestEn
 
 GET      /dashboardStubbed                               controllers.test.TestEndpointController.dashboardStubbed(payeStatus ?= "draft", incorpCTStatus ?= "held", payeCancelUrl ?= "true", payeRestartUrl ?= "true", vatStatus ?= "draft", vatCancelUrl ?= "true", ackRefStatus ?= "04")
 
-GET      /hand-off-6                                     controllers.test.TestEndpointController.handOff6(transactionId ?= "TRANS_ID-92836405817")
+GET      /hand-off-6                                     controllers.test.TestEndpointController.handOff6(transactionId: Option[String])
 
 GET      /edit-session/:newSessionId                     controllers.test.EditSessionController.editSession(newSessionId)

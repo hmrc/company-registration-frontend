@@ -394,7 +394,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
       when(mockCompanyRegistrationConnector.updateReferences(Matchers.any(), Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(response))
 
-      showWithAuthorisedUser(controller.handOff6(transId)) {
+      showWithAuthorisedUser(controller.handOff6(Some(transId))) {
         result =>
           status(result) shouldBe 200
       }
@@ -409,10 +409,21 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
       when(mockCompanyRegistrationConnector.updateReferences(Matchers.any(), Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(response))
 
-      showWithAuthorisedUser(controller.handOff6(transId)) {
+      showWithAuthorisedUser(controller.handOff6(Some(transId))) {
         result =>
           status(result) shouldBe 400
       }
+    }
+  }
+
+  "generateTxId" should {
+    "Return the given transaction ID if supplied " in new Setup {
+      val result= controller.generateTxId(Some("a_txid"),"regid")
+      result shouldBe "a_txid"
+    }
+    "Return generate a transaction ID based on the regid if no txid is supplied " in new Setup {
+      val result= controller.generateTxId(None,"regid")
+      result shouldBe "TRANS-ID-regid"
     }
   }
 }
