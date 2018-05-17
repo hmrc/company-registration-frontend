@@ -15,6 +15,7 @@ common.button.snc                                                   = Save and c
 common.button.sign-in                                               = Sign in
 common.button.back                                                  = Back
 common.button.start                                                 = Start now
+common.button.startAgain                                            = Start again
 common.errorSummary.label                                           = This page has errors
 common.err.postcode.required                                        = Please enter a valid postcode
 common.home                                                         = Home
@@ -353,15 +354,12 @@ page.reg.Dashboard.status.incomplete                                = Incomplete
 page.reg.Dashboard.hiddenOpenNewTab                                 = (link opens in a new tab)
 
 ## Registration unsuccessful
-page.reg.registrationUnsuccessful.title                             = Can''t set up limited company
-page.reg.registrationUnsuccessful.heading                           = Sorry, you can''t continue
-page.reg.registrationUnsuccessful.unableToContinue                  = We''ve just found out from Companies House that they haven''t been able to set up the company. This means you can''t continue with this service.
-page.reg.registrationUnsuccessful.whatHappensNext                   = What happens next?
-page.reg.registrationUnsuccessful.whatHappensNext.p1                = We''ll send you an email with the reason why and will refund any payments you made within 24 hours. This can take up to 4 days to show on your bank statement.
-page.reg.registrationUnsuccessful.whatHappensNext.p2                = For security, any details you''ve entered will be deleted.
-page.reg.registrationUnsuccessful.whatHappensNext.p3.part1          = If you still want to set up a limited company, you''ll need to start the registration process again using the link on the
-page.reg.registrationUnsuccessful.whatHappensNext.p3.part2          = Register a company
-page.reg.registrationUnsuccessful.whatHappensNext.p3.part3          = GOV.UK page
+page.reg.registrationUnsuccessful.title                             = Company registration unsuccessful
+page.reg.registrationUnsuccessful.header                            = Your company registration was unsuccessful
+page.reg.registrationUnsuccessful.emailConfirmation                 = We''ll send you an email confirming this. We''ve cancelled any other tax registrations you started and deleted any details you entered.
+page.reg.registrationUnsuccessful.payments                          = Any payments you made will be refunded within 24 hours. This can take up to 4 days to show on your bank statement.
+page.reg.registrationUnsuccessful.startAgain                        = If you still want to register a company you''ll need to start again.
+
 
 ## Common Cancel
 page.reg.cancelservice.warning                                      = All the information you''ve provided will be deleted.

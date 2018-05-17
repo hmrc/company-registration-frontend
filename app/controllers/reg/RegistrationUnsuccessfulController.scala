@@ -35,14 +35,11 @@ object RegistrationUnsuccessfulController extends RegistrationUnsuccessfulContro
   val deleteSubService = DeleteSubmissionService
   val companyRegistrationConnector = CompanyRegistrationConnector
   override val appConfig =  FrontendAppConfig
-  override val govukRegisterYourCompany: String = getConfString("gov-uk.register-your-company", throw new Exception("No config for key: gov-uk.register-your-company"))
 }
 
 trait RegistrationUnsuccessfulController extends FrontendController with AuthFunction with SessionRegistration with MessagesSupport with ServicesConfig {
 
   implicit val appConfig: AppConfig
-
-  val govukRegisterYourCompany: String
 
   val deleteSubService: DeleteSubmissionService
 
@@ -57,7 +54,7 @@ trait RegistrationUnsuccessfulController extends FrontendController with AuthFun
       registered { regId =>
         deleteSubService.deleteSubmission(regId) flatMap {
           case true => keystoreConnector.remove() map {
-            _ => Redirect(govukRegisterYourCompany)
+            _ => Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))
           }
           case false => Future.successful(InternalServerError)
         }
