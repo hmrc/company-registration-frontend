@@ -20,31 +20,25 @@
 
 @main_template(title = Messages("page.reg.registrationUnsuccessful.title"), mainClass = None) {
 
-    <h1 class="form-title heading-xlarge" id="main-heading">@Messages("page.reg.registrationUnsuccessful.heading")</h1>
+    <h1 class="form-title heading-xlarge" id="main-heading">@Messages("page.reg.registrationUnsuccessful.header")</h1>
 
     <div class="form-group">
-        <p>@Messages("page.reg.registrationUnsuccessful.unableToContinue")</p>
+        <p>@Messages("page.reg.registrationUnsuccessful.emailConfirmation")</p>
     </div>
 
     <div class="form-group">
-        <h2 class="heading-medium">@Messages("page.reg.registrationUnsuccessful.whatHappensNext")</h2>
+        <p>@Messages("page.reg.registrationUnsuccessful.payments")</p>
     </div>
 
     <div class="form-group">
-        <p>@Messages("page.reg.registrationUnsuccessful.whatHappensNext.p1")</p>
+         <p>@Messages("page.reg.registrationUnsuccessful.startAgain")</p>
     </div>
 
+@form(action = controllers.reg.routes.RegistrationUnsuccessfulController.submit()) {
     <div class="form-group">
-        <p>@Messages("page.reg.registrationUnsuccessful.whatHappensNext.p2")</p>
+      <input class="button" type="submit" id="next" value="@Messages("common.button.startAgain")">
     </div>
+}
 
-    @form(action = controllers.reg.routes.RegistrationUnsuccessfulController.submit()) {
-        <div class="form-group">
-            <p>
-                @Messages("page.reg.registrationUnsuccessful.whatHappensNext.p3.part1")
-                <input value='@Messages("page.reg.registrationUnsuccessful.whatHappensNext.p3.part2")' type="submit" class="link-style">
-                @Messages("page.reg.registrationUnsuccessful.whatHappensNext.p3.part3")
-            </p>
-        </div>
-    }
+
 }
