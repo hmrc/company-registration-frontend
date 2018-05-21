@@ -9,6 +9,9 @@ GET        /renew-session                           controllers.reg.SignInOutCon
 GET        /error/destroy-session                   controllers.reg.SignInOutController.destroySession
 GET        /error/timeout                           controllers.reg.SignInOutController.timeoutShow
 
+GET        /cant-continue                           controllers.reg.RegistrationUnsuccessfulController.rejectionShow
+GET        /cant-continue-submit                    controllers.reg.RegistrationUnsuccessfulController.rejectionSubmit
+
 GET        /register                                controllers.reg.WelcomeController.show
 POST       /register                                controllers.reg.WelcomeController.submit
 

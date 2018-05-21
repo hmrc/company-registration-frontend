@@ -36,7 +36,6 @@ import scala.concurrent.Future
 class RegistrationUnsuccessfulControllerSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
 
 
-
   class Setup {
     val controller = new RegistrationUnsuccessfulController {
       override val keystoreConnector = mockKeystoreConnector
@@ -44,21 +43,22 @@ class RegistrationUnsuccessfulControllerSpec extends SCRSSpec with WithFakeAppli
       override val deleteSubService = mockDeleteSubmissionService
       override val companyRegistrationConnector = mockCompanyRegistrationConnector
       override val appConfig = mockAppConfig
+      override val registerCompanyGOVUKLink: String = "foobar"
 
     }
   }
 
   "RegistrationUnsuccessful Controller" should {
     "use the correct AuthConnector" in new Setup {
-      controller.authConnector shouldBe a [AuthConnector]
+      controller.authConnector shouldBe a[AuthConnector]
     }
 
     "use the correct keystore Connector" in new Setup {
-      controller.keystoreConnector shouldBe a [KeystoreConnector]
+      controller.keystoreConnector shouldBe a[KeystoreConnector]
     }
 
     "use the correct Delete Submission service" in new Setup {
-      controller.deleteSubService shouldBe a [DeleteSubmissionService]
+      controller.deleteSubService shouldBe a[DeleteSubmissionService]
     }
   }
 
@@ -83,11 +83,55 @@ class RegistrationUnsuccessfulControllerSpec extends SCRSSpec with WithFakeAppli
       when(mockKeystoreConnector.remove()(Matchers.any()))
         .thenReturn(Future.successful(HttpResponse(200)))
 
-      submitWithAuthorisedUser(controller.submit, FakeRequest().withFormUrlEncodedBody(Nil: _*)){
+      submitWithAuthorisedUser(controller.submit, FakeRequest().withFormUrlEncodedBody(Nil: _*)) {
         result =>
           status(result) shouldBe SEE_OTHER
           redirectLocation(result) shouldBe Some("/register-your-company/post-sign-in")
       }
+    }
+  }
+
+  "rejectionShow" should {
+    "return 200" in new Setup {
+      showWithAuthorisedUser(controller.rejectionShow) {
+        result =>
+          status(result) shouldBe OK
+      }
+    }
+  }
+  "rejectionSubmit" should {
+    "return a 303" in new Setup {
+      mockKeystoreFetchAndGet("registrationID", Some("12345"))
+      when(mockDeleteSubmissionService.deleteSubmission(Matchers.eq("12345"))(Matchers.any[HeaderCarrier]()))
+        .thenReturn(Future.successful(true))
+      when(mockKeystoreConnector.remove()(Matchers.any()))
+        .thenReturn(Future.successful(HttpResponse(200)))
+
+      submitWithAuthorisedUser(controller.rejectionSubmit, FakeRequest().withFormUrlEncodedBody(Nil: _*)) {
+        result =>
+          status(result) shouldBe SEE_OTHER
+          redirectLocation(result) shouldBe Some("foobar")
+      }
+    }
+    "return a 500 if delete submission returns false" in new Setup {
+      mockKeystoreFetchAndGet("registrationID", Some("12345"))
+      when(mockDeleteSubmissionService.deleteSubmission(Matchers.eq("12345"))(Matchers.any[HeaderCarrier]()))
+        .thenReturn(Future.successful(false))
+
+      submitWithAuthorisedUser(controller.rejectionSubmit, FakeRequest().withFormUrlEncodedBody(Nil: _*)) {
+        result =>
+          status(result) shouldBe 500
+      }
+    }
+    "return a exception if delete submission returns an exception" in new Setup {
+      mockKeystoreFetchAndGet("registrationID", Some("12345"))
+      when(mockDeleteSubmissionService.deleteSubmission(Matchers.eq("12345"))(Matchers.any[HeaderCarrier]()))
+        .thenReturn(Future.failed(new Exception("")))
+
+      intercept[Exception](submitWithAuthorisedUser(controller.rejectionSubmit, FakeRequest().withFormUrlEncodedBody(Nil: _*)) {
+        result => 1 shouldBe 0
+
+      })
     }
   }
 }

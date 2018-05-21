@@ -19,7 +19,7 @@ package controllers.reg
 import config.{AppConfig, FrontendAppConfig, FrontendAuthConnector}
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthFunction
-import play.api.mvc.Action
+import play.api.mvc.{Action, AnyContent}
 import services.DeleteSubmissionService
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.frontend.controller.FrontendController
@@ -34,6 +34,7 @@ object RegistrationUnsuccessfulController extends RegistrationUnsuccessfulContro
   val keystoreConnector = KeystoreConnector
   val deleteSubService = DeleteSubmissionService
   val companyRegistrationConnector = CompanyRegistrationConnector
+  val registerCompanyGOVUKLink = getConfString("gov-uk.register-your-company", throw new Exception("Could not find config for key: gov-uk.register-your-company"))
   override val appConfig =  FrontendAppConfig
 }
 
@@ -42,6 +43,7 @@ trait RegistrationUnsuccessfulController extends FrontendController with AuthFun
   implicit val appConfig: AppConfig
 
   val deleteSubService: DeleteSubmissionService
+  val registerCompanyGOVUKLink: String
 
   def show = Action.async { implicit request =>
     ctAuthorised {
@@ -60,5 +62,30 @@ trait RegistrationUnsuccessfulController extends FrontendController with AuthFun
         }
       }
     }
+  }
+
+  def rejectionShow: Action[AnyContent] = Action.async {
+    implicit request =>
+      ctAuthorised {
+        Future.successful(Ok(views.html.errors.incorporationRejected()))
+      }
+  }
+
+  def rejectionSubmit: Action[AnyContent] = Action.async {
+    implicit request =>
+      ctAuthorised {
+        registered { regId =>
+          deleteSubService.deleteSubmission(regId) flatMap {
+            if(_) {
+              keystoreConnector.remove() map {
+                _ => Redirect(registerCompanyGOVUKLink)
+              }
+            }
+            else {
+              Future.successful(InternalServerError)
+            }
+          }
+        }
+      }
   }
 }
