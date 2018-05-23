@@ -439,7 +439,16 @@ page.addressLookup.confirm.change                                   = Change
 ## Cookies, Policy, Terms and Conditions
 page.policy.title                                                   = Policies
 page.policy.heading                                                 = Cookies, privacy and terms
-page.policy.p1                                                      = This is a joint service from Companies House and HM Revenue & Customs (HMRC). The departments have their own cookie policies, privacy policies and terms and conditions.
+page.policy.p1                                                      = This is a joint service from Companies House and HM Revenue & Customs (HMRC). The departments have their own cookie policies, privacy policies and terms and conditions. They also share data collected through the service.
+page.shared.h2                                                      = Data shared between departments
+page.shared.p1                                                      = Companies House shares the following data with HMRC:
+page.shared.l1                                                      = the company name
+page.shared.l2                                                      = the company''s registered office address
+page.shared.l3                                                      = each director''s name, their correspondence address and date of birth
+page.shared.l4                                                      = whether incorporation has been successful or not
+page.shared.l5                                                      = (if successful) the company registration number
+page.shared.p2                                                      = HMRC shares the following with Companies House:
+page.shared.l6                                                      = the email address used for Government Gateway registration
 page.policy.cookies                                                 = Cookie policies
 page.policy.cookies.li1                                             = Companies House cookie policy
 page.policy.cookies.li2                                             = HMRC cookie policy
