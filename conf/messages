@@ -449,6 +449,7 @@ page.shared.l4                                                      = whether in
 page.shared.l5                                                      = (if successful) the company registration number
 page.shared.p2                                                      = HMRC shares the following with Companies House:
 page.shared.l6                                                      = the email address used for Government Gateway registration
+page.shared.p3                                                      = Each department has its own policies to ensure the protection of your personal information.
 page.policy.cookies                                                 = Cookie policies
 page.policy.cookies.li1                                             = Companies House cookie policy
 page.policy.cookies.li2                                             = HMRC cookie policy
