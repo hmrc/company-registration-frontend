@@ -22,11 +22,16 @@ import builders.AuthBuilder
 import controllers.reg.PPOBController
 import fixtures.PPOBFixture
 import mocks.NavModelRepoMock
+import models.{CHROAddress, NewAddress, PPOBChoice}
 import org.jsoup.Jsoup
+import org.mockito.Matchers
+import org.mockito.Mockito.when
 import play.api.i18n.MessagesApi
 import play.api.test.Helpers._
 import services.AddressLookupFrontendService
 import uk.gov.hmrc.play.test.WithFakeApplication
+
+import scala.concurrent.Future
 
 class PPOBSpec extends SCRSSpec with PPOBFixture with NavModelRepoMock with WithFakeApplication with AuthBuilder {
   val mockNavModelRepoObj = mockNavModelRepo
@@ -52,9 +57,27 @@ class PPOBSpec extends SCRSSpec with PPOBFixture with NavModelRepoMock with With
   }
 
   "PPOBController.show" should {
-    "make sure that PPOB page has the correct elements" in new SetupPage {
+    "make sure that PPOB page has the correct elements when an RO address is provided to the view" in new SetupPage {
       CTRegistrationConnectorMocks.retrieveCTRegistration()
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
+
+      when(mockPPOBService.fetchAddressesAndChoice(Matchers.any())(Matchers.any()))
+        .thenReturn(Future.successful(Some(CHROAddress("38", "line 1", None, "Telford", "UK", None, None, None)), Some(NewAddress("line 1", "line 2", None, None, None, None, None)), PPOBChoice("")))
+
+      showWithAuthorisedUser(controller.show) {
+        result =>
+          val document = Jsoup.parse(contentAsString(result))
+          document.title() shouldBe "What is the company's 'principal place of business'?"
+          document.getElementById("main-heading").text shouldBe "What is the company's 'principal place of business'?"
+          document.getElementById("next").attr("value") shouldBe "Save and continue"
+      }
+    }
+    "make sure that PPOB page has the correct elements when an RO address is not provided to the view" in new SetupPage {
+      CTRegistrationConnectorMocks.retrieveCTRegistration()
+      mockKeystoreFetchAndGet("registrationID", Some("12345"))
+
+      when(mockPPOBService.fetchAddressesAndChoice(Matchers.any())(Matchers.any()))
+        .thenReturn(Future.successful(None, Some(NewAddress("line 1", "line 2", None, None, None, None, None)), PPOBChoice("")))
 
       showWithAuthorisedUser(controller.show) {
         result =>

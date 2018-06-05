@@ -43,7 +43,6 @@ class CompanyRegistrationConnectorSpec extends SCRSSpec with CTDataFixture with 
     }
   }
 
-
   val regID = UUID.randomUUID.toString
 
   "CompanyRegistrationConnector" should {
@@ -55,8 +54,32 @@ class CompanyRegistrationConnectorSpec extends SCRSSpec with CTDataFixture with 
     }
   }
 
-  "retrieveCorporationTaxRegistration" should {
+  "checkROValidPPOB" should {
+    "return true if an RO address can be normalised" in new Setup{
+      val roWithCountry = Json.parse(
+        """
+          |{
+          |        "addressLine1":"10 Test Street",
+          |        "addressLine2":"Testtown",
+          |        "country":"United Kingdom"
+          |}
+        """.stripMargin)
 
+      mockHttpPOST[JsValue, HttpResponse](s"${connector.companyRegUrl}/company-registration/corporation-tax-registration/check-ro-address", HttpResponse(200, Some(roWithCountry  )))
+      await(connector.checkROValidPPOB("12345", CHROAddress("38", "line 1", None, "Telford", "UK", None, None, None))) shouldBe
+      Some(NewAddress("10 Test Street", "Testtown", None, None, None, Some("United Kingdom"), None))
+    }
+    "return false if an RO address cannot be normalised" in new Setup {
+      mockHttpPOST[JsValue, HttpResponse](s"${connector.companyRegUrl}/company-registration/corporation-tax-registration/check-ro-address", HttpResponse(400))
+      await(connector.checkROValidPPOB("12345", CHROAddress("38", "line 1<", None, "Telford", "UK", None, None, None))) shouldBe None
+    }
+    "throw an Exception if any other response is received" in new Setup {
+      mockHttpPOST[JsValue, HttpResponse](s"${connector.companyRegUrl}/company-registration/corporation-tax-registration/check-ro-address", HttpResponse(500))
+      intercept[Exception](await(connector.checkROValidPPOB("12334", CHROAddress("38", "line 1", None, "Telford", "UK", None, None, None))))
+    }
+  }
+
+  "retrieveCorporationTaxRegistration" should {
     val corporationTaxRegistration = buildCorporationTaxModel()
     val registrationID = "testRegID"
 

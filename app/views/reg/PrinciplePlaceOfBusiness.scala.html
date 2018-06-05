@@ -14,14 +14,14 @@
  * limitations under the License.
  *@
 
-@(ppobForm: Form[PPOBChoice], ROAddress: NewAddress, PPOBAddress: Option[NewAddress])(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
+@(ppobForm: Form[PPOBChoice], ROAddress: Option[CHROAddress], PPOBAddress: Option[NewAddress])(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
 @import uk.gov.hmrc.play.views.html.helpers.{form, input}
 @import views.html.helpers.{inputRadioGroup, errorSummary}
 
-@PPOBIsEqualToRO = @{PPOBAddress match {
-    case Some(ppob) => ppob.isEqualTo(ROAddress)
-    case _ => false
+@PPOBIsEqualToRO = @{ (ROAddress, PPOBAddress) match {
+ case (Some(ro), Some(ppob)) => ppob.addressLine1 == ro.address_line_1 && ppob.postcode == ro.postal_code
+ case _ => false
 }}
 
 @main_template(title = Messages("page.reg.ppob.description")) {
@@ -60,7 +60,7 @@
             @inputRadioGroup(
                 ppobForm("addressChoice"),
                 PPOBAddress.fold(Seq.empty[(String, String)])(PPOBAddr => Seq("PPOB" -> PPOBAddr.mkString))
-                  ++ (if(PPOBIsEqualToRO) Seq.empty[(String, String)] else Seq("RO" -> ROAddress.mkString))
+                  ++ (if(PPOBIsEqualToRO) Seq.empty[(String, String)] else if(ROAddress.nonEmpty)(Seq("RO" ->  ROAddress.get.mkString))else Seq.empty)
                   ++ Seq("Other" -> messages("page.reg.ppob.differentAddress")),
                 '_labelClass -> "block-label radio-label",
                 '_legend -> Messages("page.reg.ppob.description"),

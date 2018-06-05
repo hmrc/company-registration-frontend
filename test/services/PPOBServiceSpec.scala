@@ -22,10 +22,10 @@ import models._
 import org.mockito.Matchers
 import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito._
-import play.api.libs.json.Json
+import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.RequestHeader
 import play.api.test.FakeRequest
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.audit.http.connector.AuditResult.Success
 import utils.{SCRSException, SCRSExceptions}
@@ -49,6 +49,15 @@ class PPOBServiceSpec extends SCRSSpec with CompanyDetailsFixture with SCRSExcep
   implicit val rh = mock[RequestHeader]
 
   val request = FakeRequest("GET", "/test-path")
+  val optNewAddress = Some(NewAddress(
+    validNewAddress.addressLine1,
+    validNewAddress.addressLine2,
+    validNewAddress.addressLine3,
+    validNewAddress.addressLine4,
+    validNewAddress.postcode,
+    validNewAddress.country,
+    None
+  ))
 
   val registrationID = "12345"
 
@@ -85,25 +94,87 @@ class PPOBServiceSpec extends SCRSSpec with CompanyDetailsFixture with SCRSExcep
     }
   }
 
+  "addressChoice" should {
+
+    val ppobDefined = Some("thing")
+    val ppobUndefined = None
+
+    val ctRegWithRO = buildCorporationTaxModel()
+    val ctReg = buildCorporationTaxModel(addressType = "")
+
+    "return a PPOBChoice with a value of PPOB if the supplied ppob option is defined" in new Setup {
+      val result = service.addressChoice(ppobDefined, ctRegWithRO)
+
+      result shouldBe PPOBChoice("PPOB")
+    }
+
+    "return a PPOBChoice with a value of RO if the supplied ppob option is undefined and the addressType on the ctReg is RO" in new Setup {
+      val result = service.addressChoice(ppobUndefined, ctRegWithRO)
+
+      result shouldBe PPOBChoice("RO")
+    }
+
+    "return a PPOBChoice with a blank value if the supplied ppob option is undefined and the addressType on the ctReg is not RO" in new Setup {
+      val result = service.addressChoice(ppobUndefined, ctReg)
+
+      result shouldBe PPOBChoice("")
+    }
+  }
+
+  "fetchAddressesAndChoice" should {
+    "return an RO address, PPOB address and an AddressChoice when given a regId and the address can be normalised" in new Setup {
+      when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(Matchers.any())(Matchers.any[HeaderCarrier]()))
+        .thenReturn(Future.successful(buildCorporationTaxModel()))
+
+      when(mockCompanyRegistrationConnector.checkROValidPPOB(Matchers.any(), Matchers.any())(Matchers.any[HeaderCarrier]()))
+        .thenReturn(Future.successful(optNewAddress))
+
+      val result = await(service.fetchAddressesAndChoice("123456789"))
+
+      result shouldBe (Some(CHROAddress("14","test road",Some("test town"),"Foo","UK",None,Some("FX1 1ZZ"),None)),
+        Some(NewAddress("10 Test Street","Testtown",None,None,Some("FX1 1ZZ"),Some("United Kingdom"),None)),
+        PPOBChoice("PPOB"))
+
+    }
+
+    "return an RO address, PPOB address and an AddressChoice when given a regId and the address cannot be normalised" in new Setup {
+      when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(Matchers.any())(Matchers.any[HeaderCarrier]()))
+        .thenReturn(Future.successful(buildCorporationTaxModel()))
+
+      when(mockCompanyRegistrationConnector.checkROValidPPOB(Matchers.any(), Matchers.any())(Matchers.any[HeaderCarrier]()))
+        .thenReturn(Future.successful(None))
+
+      val result = await(service.fetchAddressesAndChoice("123456789"))
+
+      result shouldBe (None,
+        Some(NewAddress("10 Test Street","Testtown",None,None,Some("FX1 1ZZ"),Some("United Kingdom"),None)),
+        PPOBChoice("PPOB"))
+    }
+  }
+
   "buildAddress" should {
 
     "return a Company details case class with a blank PPOB address if the supplied address type is RO" in new Setup {
+      val optNewAddress = Some(NewAddress("10 Test Street", "Testtown", None, None, None, Some("United Kingdom"), None))
 
-      val result = service.buildAddress(validCompanyDetailsRequest, "RO", None)
+      when(mockCompanyRegistrationConnector.checkROValidPPOB(eqTo(registrationID), any())(any()))
+        .thenReturn(Future.successful(optNewAddress))
+
+      val result = await(service.buildAddress(registrationID, validCompanyDetailsRequest, "RO", None))
 
       val expected = CompanyDetails(
         validCompanyDetailsRequest.companyName,
         validCompanyDetailsRequest.cHROAddress,
-        PPOB("RO", None),
+        PPOB("RO", Some(Address(None, "10 Test Street", "Testtown", None, None, None, Some("United Kingdom")))),
         validCompanyDetailsRequest.jurisdiction
       )
 
-      result shouldBe expected
+      result.toString shouldBe expected.toString
     }
 
     "return a Company details case class with a PPOB address from the supplied Address if the supplied address type is PPOB" in new Setup {
 
-      val result = service.buildAddress(validCompanyDetailsRequest, "PPOB", Some(validNewAddress))
+      val result = await(service.buildAddress(registrationID, validCompanyDetailsRequest, "PPOB", Some(validNewAddress)))
       val address = Address(
         None,
         validNewAddress.addressLine1,
@@ -130,22 +201,27 @@ class PPOBServiceSpec extends SCRSSpec with CompanyDetailsFixture with SCRSExcep
 
     "be able to build a Company details case class when the supplied address type is RO and save it" in new Setup {
 
+      val Some(newAddress) = optNewAddress
+
       val companyDetails = CompanyDetails(
-        validCompanyDetailsRequest.companyName,
-        validCompanyDetailsRequest.cHROAddress,
-        PPOB("RO", None),
-        validCompanyDetailsRequest.jurisdiction
+        validCompanyDetailsResponse.companyName,
+        validCompanyDetailsResponse.cHROAddress,
+        PPOB("RO", Some(Address(None, newAddress.addressLine1, newAddress.addressLine2, None, None, newAddress.postcode))),
+        validCompanyDetailsResponse.jurisdiction
       )
 
+      when(mockCompanyRegistrationConnector.checkROValidPPOB(eqTo(registrationID), any())(any()))
+        .thenReturn(Future.successful(optNewAddress))
+
       when(mockCompanyRegistrationConnector.retrieveCompanyDetails(eqTo(registrationID))(any()))
-        .thenReturn(Future.successful(Some(validCompanyDetailsRequest)))
+        .thenReturn(Future.successful(Some(validCompanyDetailsResponse)))
 
       when(mockCompanyRegistrationConnector.updateCompanyDetails(eqTo(registrationID), any())(any()))
         .thenReturn(Future.successful(companyDetails))
 
       val result = await(service.saveAddress(registrationID, "RO", None))
 
-      result shouldBe companyDetails
+      result.toString shouldBe companyDetails.toString
     }
 
     "be able to build a Company details case class when the supplied address type is PPOB and save it" in new Setup {
@@ -162,21 +238,21 @@ class PPOBServiceSpec extends SCRSSpec with CompanyDetailsFixture with SCRSExcep
       )
 
       val companyDetails = CompanyDetails(
-        validCompanyDetailsRequest.companyName,
-        validCompanyDetailsRequest.cHROAddress,
+        validCompanyDetailsResponse.companyName,
+        validCompanyDetailsResponse.cHROAddress,
         PPOB("PPOB", Some(address)),
-        validCompanyDetailsRequest.jurisdiction
+        validCompanyDetailsResponse.jurisdiction
       )
 
       when(mockCompanyRegistrationConnector.retrieveCompanyDetails(eqTo(registrationID))(any()))
-        .thenReturn(Future.successful(Some(validCompanyDetailsRequest)))
+        .thenReturn(Future.successful(Some(validCompanyDetailsResponse)))
 
       when(mockCompanyRegistrationConnector.updateCompanyDetails(eqTo(registrationID), any())(any()))
         .thenReturn(Future.successful(companyDetails))
 
       val result = await(service.saveAddress(registrationID, "PPOB", Some(validNewAddress)))
 
-      result shouldBe companyDetails
+      result.toString shouldBe companyDetails.toString
     }
   }
 }

@@ -21,7 +21,7 @@ import models._
 import models.connectors.ConfirmationReferences
 import play.api.Logger
 import play.api.http.Status._
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.{JsObject, JsValue, Json}
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
@@ -30,7 +30,7 @@ import scala.concurrent.Future
 
 object CompanyRegistrationConnector extends CompanyRegistrationConnector with ServicesConfig {
   val companyRegUrl = baseUrl("company-registration")
-  val http : CorePut with CoreGet with CoreDelete = WSHttp
+  val http : CorePut with CoreGet with CorePost with CoreDelete = WSHttp
 }
 
 sealed trait FootprintResponse
@@ -43,7 +43,7 @@ case class FootprintErrorResponse(err: Exception) extends FootprintResponse
 trait CompanyRegistrationConnector {
 
   val companyRegUrl: String
-  val http: CoreGet with CorePut with CoreDelete
+  val http: CoreGet with CorePost with CorePut with CoreDelete
 
   def fetchRegistrationStatus(regId: String)(implicit hc: HeaderCarrier): Future[Option[String]] = {
     retrieveCorporationTaxRegistration(regId) map {
@@ -68,9 +68,27 @@ trait CompanyRegistrationConnector {
           Logger.error(s"[CompanyRegistrationConnector] [retrieveCorporationTaxRegistration] for RegId: $registrationID - ${ex.upstreamResponseCode} ${ex.message}")
           throw ex
         case ex: Exception =>
-          Logger.error(s"[CompanyRegistrationConnector] [retrieveCorporationTaxRegistration] for RegId: $registrationID - Unexpected error occured: $ex")
+          Logger.error(s"[CompanyRegistrationConnector] [retrieveCorporationTaxRegistration] for RegId: $registrationID - Unexpected error occurred: $ex")
           throw ex
       }
+  }
+
+  def checkROValidPPOB(registrationID: String, ro:CHROAddress)(implicit hc:HeaderCarrier): Future[Option[NewAddress]] = {
+    implicit val roWrites = CHROAddress.formats
+    val json = Json.toJson(ro)
+
+    http.POST[JsValue, HttpResponse](s"$companyRegUrl/company-registration/corporation-tax-registration/check-ro-address", json) map { result =>
+      result.status match {
+        case 200 => result.json.asOpt[NewAddress](NewAddress.verifyRoToPPOB)
+        case 400 => None
+      }
+    } recover {
+      case _: BadRequestException =>
+        None
+      case ex: Exception =>
+        Logger.error(s"[CompanyRegistrationConnector] [checkROAddress] for RegId: $registrationID")
+        throw ex
+    }
   }
 
   def retrieveOrCreateFootprint()(implicit hc: HeaderCarrier): Future[FootprintResponse] = {
@@ -115,7 +133,7 @@ trait CompanyRegistrationConnector {
         Logger.error(s"[CompanyRegistrationConnector] [createCorporationTaxRegistrationDetails] for RegId: $regId - ${ex.upstreamResponseCode} ${ex.message}")
         throw ex
       case ex: Exception =>
-        Logger.error(s"[CompanyRegistrationConnector] [createCorporationTaxRegistrationDetails] for RegId: $regId - Unexpected error occured: $ex")
+        Logger.error(s"[CompanyRegistrationConnector] [createCorporationTaxRegistrationDetails] for RegId: $regId - Unexpected error occurred: $ex")
         throw ex
     }
   }
@@ -136,7 +154,7 @@ trait CompanyRegistrationConnector {
         Logger.error(s"[CompanyRegistrationConnector] [retrieveCorporationTaxRegistrationDetails] for RegId: $registrationID - ${ex.upstreamResponseCode} ${ex.message}")
         None
       case ex: Exception =>
-        Logger.error(s"[CompanyRegistrationConnector] [retrieveCorporationTaxRegistrationDetails] for RegId: $registrationID - Unexpected error occured: $ex")
+        Logger.error(s"[CompanyRegistrationConnector] [retrieveCorporationTaxRegistrationDetails] for RegId: $registrationID - Unexpected error occurred: $ex")
         None
     }
   }
@@ -157,7 +175,7 @@ trait CompanyRegistrationConnector {
         Logger.error(s"[CompanyRegistrationConnector] [updateCompanyDetails] for RegId: $registrationID - ${ex.upstreamResponseCode} ${ex.message}")
         throw ex
       case ex: Exception =>
-        Logger.error(s"[CompanyRegistrationConnector] [updateCompanyDetails] for RegId: $registrationID - Unexpected error occured: $ex")
+        Logger.error(s"[CompanyRegistrationConnector] [updateCompanyDetails] for RegId: $registrationID - Unexpected error occurred: $ex")
         throw ex
     }
   }
@@ -177,7 +195,7 @@ trait CompanyRegistrationConnector {
         Logger.error(s"[CompanyRegistrationConnector] [retrieveCompanyDetails] for RegId: $registrationID - ${ex.upstreamResponseCode} ${ex.message}")
         None
       case ex: Exception =>
-        Logger.error(s"[CompanyRegistrationConnector] [retrieveCompanyDetails] for RegId: $registrationID - Unexpected error occured: $ex")
+        Logger.error(s"[CompanyRegistrationConnector] [retrieveCompanyDetails] for RegId: $registrationID - Unexpected error occurred: $ex")
         None
     }
   }
@@ -197,7 +215,7 @@ trait CompanyRegistrationConnector {
         Logger.error(s"[CompanyRegistrationConnector] [retrieveTradingDetails] for RegId: $registrationID - ${ex.upstreamResponseCode} ${ex.message}")
         None
       case ex: Exception =>
-        Logger.error(s"[CompanyRegistrationConnector] [retrieveTradingDetails] for RegId: $registrationID - Unexpected error occured: $ex")
+        Logger.error(s"[CompanyRegistrationConnector] [retrieveTradingDetails] for RegId: $registrationID - Unexpected error occurred: $ex")
         None
     }
   }
@@ -221,7 +239,7 @@ trait CompanyRegistrationConnector {
         Logger.error(s"[CompanyRegistrationConnector] [updateTradingDetails] for RegId: $registrationID - ${ex.upstreamResponseCode} ${ex.message}")
         TradingDetailsNotFoundResponse
       case ex: Exception =>
-        Logger.error(s"[CompanyRegistrationConnector] [updateTradingDetails] for RegId: $registrationID - Unexpected error occured: $ex")
+        Logger.error(s"[CompanyRegistrationConnector] [updateTradingDetails] for RegId: $registrationID - Unexpected error occurred: $ex")
         TradingDetailsNotFoundResponse
     }
   }
@@ -372,7 +390,7 @@ trait CompanyRegistrationConnector {
         Logger.error(s"[CompanyRegistrationConnector] [fetchHeldSubmission] for RegId: $registrationId - ${ex.upstreamResponseCode} ${ex.message}")
         None
       case ex: Exception =>
-        Logger.error(s"[CompanyRegistrationConnector] [fetchHeldSubmission] for RegId: $registrationId - Unexpected error occured: $ex")
+        Logger.error(s"[CompanyRegistrationConnector] [fetchHeldSubmission] for RegId: $registrationId - Unexpected error occurred: $ex")
         None
     }
   }
@@ -394,7 +412,7 @@ trait CompanyRegistrationConnector {
         Logger.error(s"[CompanyRegistrationConnector] [fetchHeldTime] for RegId: $registrationId - ${ex.upstreamResponseCode} ${ex.message}")
         None
       case ex: Exception =>
-        Logger.error(s"[CompanyRegistrationConnector] [fetchHeldTime] for RegId: $registrationId - Unexpected error occured: $ex")
+        Logger.error(s"[CompanyRegistrationConnector] [fetchHeldTime] for RegId: $registrationId - Unexpected error occurred: $ex")
         None
     }
   }

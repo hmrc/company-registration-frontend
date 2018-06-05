@@ -71,20 +71,16 @@ trait PPOBController extends FrontendController with AuthFunction with HandOffNa
       ctAuthorised {
         checkStatus { regId =>
           for {
-            ctReg <- companyRegistrationConnector.retrieveCorporationTaxRegistration(regId)
-            ro = ctReg.as(NewAddress.roReads)
-            ppob = ctReg.asOpt(NewAddress.ppobFormats)
-            choice = addressChoice(ppob, ctReg)
+            addresses <- pPOBService.fetchAddressesAndChoice(regId)
+            ro = addresses._1
+            ppob = addresses._2
+            choice = addresses._3
             form = PPOBForm.aLFForm.fill(choice)
           } yield {
             Ok(views.html.reg.PrinciplePlaceOfBusiness(form, ro, ppob))
           }
         }
       }
-  }
-
-  private[controllers] def addressChoice(ppob: Option[_], ctReg: JsValue): PPOBChoice = {
-    if(ppob.isDefined) PPOBChoice("PPOB")else if(ctReg.as[String](NewAddress.readAddressType) == "RO") PPOBChoice("RO") else PPOBChoice("")
   }
 
   val saveALFAddress: Action[AnyContent] = Action.async {
@@ -110,10 +106,10 @@ trait PPOBController extends FrontendController with AuthFunction with HandOffNa
             errors => {
               for {
                 ctReg <- companyRegistrationConnector.retrieveCorporationTaxRegistration(regId)
-                ro = ctReg.as(NewAddress.roReads)
+                ro = (ctReg \\ "cHROAddress").head.as[CHROAddress]
                 ppob = ctReg.asOpt(NewAddress.ppobFormats)
               } yield {
-                BadRequest(views.html.reg.PrinciplePlaceOfBusiness(errors, ro, ppob))
+                BadRequest(views.html.reg.PrinciplePlaceOfBusiness(errors, Some(ro), ppob))
               }
             },
             success => {
