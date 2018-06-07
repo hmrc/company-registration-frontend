@@ -183,8 +183,12 @@ class PPOBControllerSpec extends SCRSSpec with PPOBFixture with WithFakeApplicat
 
     "handle an invalid submission correctly" in new Setup {
       mockCheckStatus()
-      when(mockCompanyRegistrationConnector.retrieveCompanyDetails(Matchers.anyString())(Matchers.any[HeaderCarrier]()))
-        .thenReturn(Future.successful(Some(validCompanyDetails)))
+      when(mockPPOBService.fetchAddressesAndChoice(Matchers.any())(Matchers.any()))
+        .thenReturn(Future.successful(
+          Some(CHROAddress("38", "line 1", None, "Telford", "UK", None, None, None)),
+          Some(NewAddress("line 1", "line 2", None, None, None, None, None)),
+          PPOBChoice(""))
+        )
 
       submitWithAuthorisedUserRetrieval(controller.submit, FakeRequest().withFormUrlEncodedBody("whoops" -> "not good"), credID) {
         result =>
