@@ -105,11 +105,11 @@ trait PPOBController extends FrontendController with AuthFunction with HandOffNa
           PPOBForm.aLFForm.bindFromRequest().fold[Future[Result]](
             errors => {
               for {
-                ctReg <- companyRegistrationConnector.retrieveCorporationTaxRegistration(regId)
-                ro = (ctReg \\ "cHROAddress").head.as[CHROAddress]
-                ppob = ctReg.asOpt(NewAddress.ppobFormats)
+                addresses <- pPOBService.fetchAddressesAndChoice(regId)
+                ro = addresses._1
+                ppob = addresses._2
               } yield {
-                BadRequest(views.html.reg.PrinciplePlaceOfBusiness(errors, Some(ro), ppob))
+                BadRequest(views.html.reg.PrinciplePlaceOfBusiness(errors, ro, ppob))
               }
             },
             success => {
