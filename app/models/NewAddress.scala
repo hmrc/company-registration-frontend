@@ -48,6 +48,8 @@ object NewAddress {
 
   val readAddressType: Reads[String] = (__ \\ "addressType").read[String]
 
+
+
   val roReads: Reads[NewAddress] = new Reads[NewAddress] {
     def reads(json: JsValue): JsResult[NewAddress] = {
 
@@ -110,6 +112,18 @@ object NewAddress {
       (ppobPath ++ (__ \ "postCode")).formatNullable[String] and
       (ppobPath ++ (__ \ "country")).formatNullable[String] and
       (ppobPath ++ (__ \ "auditRef")).formatNullable[String]
+    )(NewAddress.apply, unlift(NewAddress.unapply))
+  }
+
+  val verifyRoToPPOB: Format[NewAddress] = {
+    (
+      (__ \ "addressLine1").format[String] and
+        (__ \ "addressLine2").format[String] and
+        (__ \ "addressLine3").formatNullable[String] and
+        (__ \ "addressLine4").formatNullable[String] and
+        (__ \ "postCode").formatNullable[String] and
+        (__ \ "country").formatNullable[String] and
+        (__ \ "auditRef").formatNullable[String]
     )(NewAddress.apply, unlift(NewAddress.unapply))
   }
 

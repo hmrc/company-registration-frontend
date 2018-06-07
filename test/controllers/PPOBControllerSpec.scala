@@ -112,11 +112,15 @@ class PPOBControllerSpec extends SCRSSpec with PPOBFixture with WithFakeApplicat
     }
   }
 
+
+
+
   "show" should {
 
     "return a 200 and show the page when check status returns Some of reg id" in new Setup {
       mockCheckStatus()
-
+      when(mockPPOBService.fetchAddressesAndChoice(Matchers.any())(Matchers.any()))
+        .thenReturn(Future.successful(Some(CHROAddress("38", "line 1", None, "Telford", "UK", None, None, None)), Some(NewAddress("line 1", "line 2", None, None, None, None, None)), PPOBChoice("")))
       showWithAuthorisedUser(controller.show) {
         result =>
           status(result) shouldBe OK
@@ -132,33 +136,6 @@ class PPOBControllerSpec extends SCRSSpec with PPOBFixture with WithFakeApplicat
         }
       }
     }
-
-  "addressChoice" should {
-
-    val ppobDefined = Some("thing")
-    val ppobUndefined = None
-
-    val ctRegWithRO = buildCorporationTaxModel()
-    val ctReg = buildCorporationTaxModel(addressType = "")
-
-    "return a PPOBChoice with a value of PPOB if the supplied ppob option is defined" in new Setup {
-      val result = controller.addressChoice(ppobDefined, ctRegWithRO)
-
-      result shouldBe PPOBChoice("PPOB")
-    }
-
-    "return a PPOBChoice with a value of RO if the supplied ppob option is undefined and the addressType on the ctReg is RO" in new Setup {
-      val result = controller.addressChoice(ppobUndefined, ctRegWithRO)
-
-      result shouldBe PPOBChoice("RO")
-    }
-
-    "return a PPOBChoice with a blank value if the supplied ppob option is undefined and the addressType on the ctReg is not RO" in new Setup {
-      val result = controller.addressChoice(ppobUndefined, ctReg)
-
-      result shouldBe PPOBChoice("")
-    }
-  }
 
   "submit" should {
 

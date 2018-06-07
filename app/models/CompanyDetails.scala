@@ -146,7 +146,15 @@ case class CHROAddress(premises : String,
                        country : String = "UK",
                        po_box : Option[String],
                        postal_code : Option[String],
-                       region : Option[String])
+                       region : Option[String]) {
+
+  def mkString: String = {
+    s"""$premises $address_line_1${address_line_2.fold("")(l2 => s", $l2,")}
+      | $locality${region.fold("")(r => s", $r,")}
+      |${postal_code.fold("")(pc => s" $pc, ")}$country""".stripMargin
+  }
+
+}
 
 object CHROAddress extends CHAddressValidator {
 
