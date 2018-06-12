@@ -16,24 +16,19 @@
 
 package www
 
+import java.time.LocalDate
 import java.util.UUID
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
-import itutil.{FakeAppConfig, IntegrationSpecBase, LoginStub, WiremockHelper}
+import itutil._
 import org.jsoup.Jsoup
 import play.api.http.HeaderNames
 import play.api.test.FakeApplication
 
-class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with FakeAppConfig {
-
-  val mockHost = WiremockHelper.wiremockHost
-  val mockPort = WiremockHelper.wiremockPort
-  val testkey = "Fak3-t0K3n-f0r-pUBLic-r3p0SiT0rY"
+class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with FakeAppConfig with RequestsFinder {
 
   override implicit lazy val app = FakeApplication(additionalConfiguration = fakeConfig("microservice.services.JWE.key" -> testkey))
-
-  private def client(path: String) = ws.url(s"http://localhost:$port/register-your-company$path").withFollowRedirects(false)
 
   val userId = "/bar/foo"
   val testKeystoreKey = "testKey"
@@ -75,14 +70,13 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with F
       |}
      """.stripMargin
 
-
   def encodeURL(url: String) = java.net.URLEncoder.encode(url, "UTF-8")
 
-  def stubKeystoreCache(sessionId: String, key: String) = {
+  def stubKeystoreCache(sessionId: String, key: String, status: Int = 200) = {
     stubFor(put(urlMatching(s"/keystore/company-registration-frontend/$sessionId/data/$key"))
       .willReturn(
         aResponse()
-          .withStatus(200).
+          .withStatus(status).
           withBody(
             s"""{
                |"id": "$sessionId",
@@ -136,7 +130,6 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with F
     )
   }
 
-
   "Sign In" should  {
 
     "redirect to ho1 if status is held and no payment reference is present" in {
@@ -155,7 +148,7 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with F
 
       stubGetUserDetails(userId)
 
-      val fResponse = client("/post-sign-in").
+      val fResponse = buildClient("/post-sign-in").
         withHeaders(HeaderNames.COOKIE -> sessionCookie).
         get()
 
@@ -180,7 +173,7 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with F
 
       stubGetUserDetails(userId)
 
-      val fResponse = client("/post-sign-in").
+      val fResponse = buildClient("/post-sign-in").
         withHeaders(HeaderNames.COOKIE -> sessionCookie).
         get()
 
@@ -192,7 +185,7 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with F
 
   "Sign Out" should {
     "Return a redirect to GG sign out" in {
-      val response = await(client("/sign-out").get())
+      val response = await(buildClient("/sign-out").get())
 
       response.status shouldBe 303
 
@@ -206,7 +199,7 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with F
 
     "Return a redirect to GG sign out with relative continue URL" in {
       val continueURL = "/foo/bar"
-      val response = await(client(s"/sign-out?continueUrl=${encodeURL(continueURL)}").get())
+      val response = await(buildClient(s"/sign-out?continueUrl=${encodeURL(continueURL)}").get())
 
       response.status shouldBe 303
       val redirectTo = response.header(HeaderNames.LOCATION)
@@ -220,7 +213,7 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with F
 
     "Return a redirect to GG sign out with absolute continue URL" in {
       val continueURL = "http://foo.gov.uk/foo/bar"
-      val response = await(client(s"/sign-out?continueUrl=${encodeURL(continueURL)}").get())
+      val response = await(buildClient(s"/sign-out?continueUrl=${encodeURL(continueURL)}").get())
 
       response.status shouldBe 303
       val redirectTo = response.header(HeaderNames.LOCATION)
@@ -234,12 +227,44 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with F
 
     "Return a bad request if URL isn't valid" in {
       val continueURL = "//foo.gov.uk/foo/bar"
-      val response = await(client(s"/sign-out?continueUrl=${encodeURL(continueURL)}").get())
+      val response = await(buildClient(s"/sign-out?continueUrl=${encodeURL(continueURL)}").get())
 
       response.status shouldBe 400
       val document = Jsoup.parse(response.body)
       document.title() shouldBe "Bad request - 400"
       document.select("h1").text should include("Bad request")
+    }
+  }
+
+  "Renew session" should {
+    "update keystore and return an image with a status of 200 verifying the PUT to keystore" in {
+      val csrfToken = UUID.randomUUID().toString
+      val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
+      stubAuthorisation()
+      stubKeystoreCache(SessionId, "lastActionTimestamp")
+
+      val response = await(buildClient("/renew-session")
+        .withHeaders(HeaderNames.COOKIE -> sessionCookie)
+        .get())
+
+      response.status shouldBe 200
+      response.header("Content-Type") shouldBe Some("image/jpeg")
+      response.header("Content-Disposition") shouldBe Some("""inline; filename="renewSession.jpg"; filename*=utf-8''renewSession.jpg""")
+
+      val request = getPUTRequestJsonBody(s"/keystore/company-registration-frontend/$SessionId/data/lastActionTimestamp")
+      request.as[String] shouldBe LocalDate.now.toString
+    }
+
+    "throw an exception when keystore update fails and return a 500" in {
+      val csrfToken = UUID.randomUUID().toString
+      val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
+      stubAuthorisation()
+      stubKeystoreCache(SessionId, "lastActionTimestamp",status = 500)
+      val response = await(buildClient("/renew-session")
+        .withHeaders(HeaderNames.COOKIE -> sessionCookie)
+        .get())
+
+      response.status shouldBe 500
     }
   }
 }

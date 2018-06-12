@@ -16,6 +16,8 @@
 
 package services
 
+import java.time.LocalDate
+
 import connectors.KeystoreConnector
 import play.api.Logger
 import uk.gov.hmrc.http.HeaderCarrier
@@ -36,12 +38,15 @@ trait CommonService {
       case None =>
         Logger.error(s"[CommonService] [fetchRegistrationID] - Could not find a registration ID in keystore")
         throw RegistrationIDNotFoundException
-
     }
   }
 
   def cacheRegistrationID(registrationID: String)(implicit hc: HeaderCarrier): Future[CacheMap] = {
     keystoreConnector.cache("registrationID", registrationID)
+  }
+
+  def updateLastActionTimestamp()(implicit hc: HeaderCarrier): Future[CacheMap] = {
+    keystoreConnector.cache("lastActionTimestamp", LocalDate.now)
   }
 
 }

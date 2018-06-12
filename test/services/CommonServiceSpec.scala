@@ -16,10 +16,17 @@
 
 package services
 
+import java.time.LocalDate
+
 import helpers.SCRSSpec
-import play.api.libs.json.Json
+import org.mockito.Matchers
+import org.mockito.Mockito.when
+import play.api.libs.json.{Format, Json}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.cache.client.CacheMap
 import utils.{SCRSException, SCRSExceptions}
+
+import scala.concurrent.Future
 
 class CommonServiceSpec extends SCRSSpec {
 
@@ -55,6 +62,17 @@ class CommonServiceSpec extends SCRSSpec {
       mockKeystoreCache("registrationID", "12345", cacheMap)
 
       await(service.cacheRegistrationID("12345")) shouldBe cacheMap
+    }
+  }
+
+  "updateLastActionTimestamp" should {
+    val timestampCacheMap = CacheMap("lastActionTimestamp", Map("lastActionTimestamp" -> Json.toJson(LocalDate.now())))
+
+    "cache the passed timestamp in keystore" in new Setup {
+      when(mockKeystoreConnector.cache(Matchers.contains("lastActionTimestamp"), Matchers.any[LocalDate]())(Matchers.any[HeaderCarrier](), Matchers.any()))
+        .thenReturn(Future.successful(timestampCacheMap))
+
+      await(service.updateLastActionTimestamp()) shouldBe timestampCacheMap
     }
   }
 }

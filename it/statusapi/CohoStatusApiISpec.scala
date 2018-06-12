@@ -22,12 +22,7 @@ import play.api.test.FakeApplication
 
 class CohoStatusApiISpec extends IntegrationSpecBase with FakeAppConfig with LoginStub {
 
-  val mockHost = WiremockHelper.wiremockHost
-  val mockPort = WiremockHelper.wiremockPort
-
   override implicit lazy val app = FakeApplication(additionalConfiguration = fakeConfig())
-
-  private def client(path: String) = ws.url(s"http://localhost:$port/register-your-company$path").withFollowRedirects(false)
   private def intClient(path: String) = ws.url(s"http://localhost:$port/internal$path").withFollowRedirects(false)
 
   "Submission status proxy" should {

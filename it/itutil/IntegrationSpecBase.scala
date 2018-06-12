@@ -18,6 +18,7 @@ package itutil
 import org.scalatest._
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatestplus.play.OneServerPerSuite
+import play.api.test.FakeApplication
 import uk.gov.hmrc.play.test.UnitSpec
 import utils.{FeatureSwitch, SCRSFeatureSwitches}
 
@@ -25,6 +26,10 @@ trait IntegrationSpecBase extends UnitSpec
   with GivenWhenThen
   with OneServerPerSuite with ScalaFutures with IntegrationPatience with Matchers
   with WiremockHelper with BeforeAndAfterEach with BeforeAndAfterAll {
+
+  val mockHost = WiremockHelper.wiremockHost
+  val mockPort = WiremockHelper.wiremockPort
+  val testkey = "Fak3-t0K3n-f0r-pUBLic-r3p0SiT0rY"
 
   def setupFeatures(cohoFirstHandOff: Boolean = false,
                     businessActivitiesHandOff: Boolean = false,
