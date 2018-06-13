@@ -27,12 +27,9 @@ import scala.concurrent.Future
 
 class ReturningUserControllerISpec extends IntegrationSpecBase with LoginStub with BeforeAndAfterEach with FakeAppConfig {
 
-  val mockHost = WiremockHelper.wiremockHost
-  val mockPort = WiremockHelper.wiremockPort
 
   override implicit lazy val app = FakeApplication(additionalConfiguration = fakeConfig())
 
-  private def client(path: String) = ws.url(s"http://localhost:$port/register-your-company$path").withFollowRedirects(false)
 
   val userId = "/wibble"
 
@@ -48,7 +45,7 @@ class ReturningUserControllerISpec extends IntegrationSpecBase with LoginStub wi
 
       setupFeatures()
 
-      val post: Future[WSResponse] = client("/setting-up-new-limited-company")
+      val post: Future[WSResponse] = buildClient("/setting-up-new-limited-company")
         .withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
         .post(map)
       val response = await(post)
@@ -71,7 +68,7 @@ class ReturningUserControllerISpec extends IntegrationSpecBase with LoginStub wi
 
       setupFeatures(signPosting = true)
 
-      val post: Future[WSResponse] = client("/setting-up-new-limited-company")
+      val post: Future[WSResponse] = buildClient("/setting-up-new-limited-company")
         .withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
         .post(map)
       val response = await(post)

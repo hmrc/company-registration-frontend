@@ -19,13 +19,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class BasicCompanyDetailsControllerISpec extends IntegrationSpecBase with MongoSpecSupport with LoginStub with FakeAppConfig {
 
-  val mockHost = WiremockHelper.wiremockHost
-  val mockPort = WiremockHelper.wiremockPort
-  val testkey = "Fak3-t0K3n-f0r-pUBLic-r3p0SiT0rY"
-
   override implicit lazy val app = FakeApplication(additionalConfiguration = fakeConfig("microservice.services.JWE.key" -> testkey))
-
-  private def client(path: String) = ws.url(s"http://localhost:$port/register-your-company$path").withFollowRedirects(false)
 
   val userId = "/bar/foo"
   val regId = "regId5"
@@ -159,7 +153,7 @@ class BasicCompanyDetailsControllerISpec extends IntegrationSpecBase with MongoS
 
       stubGetUserDetails(userId)
 
-      val fResponse = client("/basic-company-details").
+      val fResponse = buildClient("/basic-company-details").
         withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").
         get()
 
@@ -185,7 +179,7 @@ class BasicCompanyDetailsControllerISpec extends IntegrationSpecBase with MongoS
 
       stubKeystore(SessionId, regId)
 
-      val fResponse = client(returnEncryptedRequest(Jwe.encrypt[JsObject](returnPayloadJson).get)).
+      val fResponse = buildClient(returnEncryptedRequest(Jwe.encrypt[JsObject](returnPayloadJson).get)).
         withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").
         get()
 
@@ -205,7 +199,7 @@ class BasicCompanyDetailsControllerISpec extends IntegrationSpecBase with MongoS
 
       stubKeystore(SessionId, regId)
 
-      val fResponse = client(returnEncryptedRequest("malformed-encrypted-json")).
+      val fResponse = buildClient(returnEncryptedRequest("malformed-encrypted-json")).
         withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").
         get()
 

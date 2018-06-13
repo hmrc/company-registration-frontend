@@ -15,8 +15,6 @@ class SessionIdFilterISpec extends IntegrationSpecBase
   with FakeAppConfig
   with MessagesHelper {
 
-  val mockHost = WiremockHelper.wiremockHost
-  val mockPort = WiremockHelper.wiremockPort
 
   override implicit lazy val app: Application = GuiceApplicationBuilder()
     .configure(fakeConfig())

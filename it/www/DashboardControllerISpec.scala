@@ -25,8 +25,7 @@ import play.api.libs.json.Json
 import play.api.test.FakeApplication
 
 class DashboardControllerISpec extends IntegrationSpecBase with LoginStub with FakeAppConfig {
-  val mockHost = WiremockHelper.wiremockHost
-  val mockPort = WiremockHelper.wiremockPort
+
 
   override implicit lazy val app = FakeApplication(additionalConfiguration = fakeConfig(
     "microservice.services.paye-registration.host" -> s"$mockHost",

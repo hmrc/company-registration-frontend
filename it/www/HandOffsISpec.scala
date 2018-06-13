@@ -9,12 +9,8 @@ import play.api.test.FakeApplication
 
 class HandOffsISpec extends IntegrationSpecBase with LoginStub with FakeAppConfig with HandOffFixtures {
 
-  val mockHost = WiremockHelper.wiremockHost
-  val mockPort = WiremockHelper.wiremockPort
-
   override implicit lazy val app: Application = FakeApplication(additionalConfiguration = fakeConfig())
 
-  def client(path: String) = ws.url(s"http://localhost:$port/register-your-company$path").withFollowRedirects(false)
   def followRequest(path: String) = ws.url(s"http://localhost:$port$path").withFollowRedirects(false)
 
   val userId = "test-user-id"
@@ -70,7 +66,7 @@ class HandOffsISpec extends IntegrationSpecBase with LoginStub with FakeAppConfi
       stubKeystore(SessionId, regId, 404)
 
       When(s"A GET request is made to $url with a payload")
-      val response = client(s"$url?request=$payload")
+      val response = buildClient(s"$url?request=$payload")
         .withHeaders(HeaderNames.COOKIE -> getSessionCookie(userId = userId))
         .get()
 

@@ -22,9 +22,6 @@ import play.api.test.FakeApplication
 
 class SubmissionApiISpec extends IntegrationSpecBase with FakeAppConfig with LoginStub {
 
-  val mockHost = WiremockHelper.wiremockHost
-  val mockPort = WiremockHelper.wiremockPort
-
   override implicit lazy val app = FakeApplication(additionalConfiguration = fakeConfig(
     "application.router" -> "testOnlyDoNotUseInAppConf.Routes"
   ))

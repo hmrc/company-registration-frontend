@@ -35,10 +35,6 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class RegistrationConfirmationISpec extends IntegrationSpecBase with MongoSpecSupport with LoginStub with FakeAppConfig {
 
-  val mockHost = WiremockHelper.wiremockHost
-  val mockPort = WiremockHelper.wiremockPort
-  val testkey = "Fak3-t0K3n-f0r-pUBLic-r3p0SiT0rY"
-
   override implicit lazy val app = FakeApplication(additionalConfiguration = fakeConfig("microservice.services.JWE.key" -> testkey))
 
   private def client(path: String) = ws.url(s"http://localhost:$port/register-your-company$path").withFollowRedirects(false)
@@ -49,7 +45,6 @@ class RegistrationConfirmationISpec extends IntegrationSpecBase with MongoSpecSu
   class Setup {
     val rc = app.injector.instanceOf[ReactiveMongoComponent]
     val repo = new NavModelRepo(rc)
-    //await(repo.repository.drop)
     await(repo.repository.ensureIndexes)
   }
   def confirmationEncryptedRequest(encrypted : String) = s"/registration-confirmation?request=$encrypted"
@@ -409,6 +404,4 @@ class RegistrationConfirmationISpec extends IntegrationSpecBase with MongoSpecSu
       response.header(HeaderNames.LOCATION).get should include("/register-your-company/something-went-wrong")
     }
   }
-
-
 }

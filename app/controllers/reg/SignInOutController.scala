@@ -202,7 +202,9 @@ trait SignInOutController extends FrontendController with ControllerErrorHandler
             "Access-Control-Allow-Credentials" -> "true"
           )
         }
-        Future.successful(Ok.sendFile(new File("conf/renewSession.jpg")).as("image/jpeg").withHeaders(headers: _*))
+        updateLastActionTimestamp map { _ =>
+          Ok.sendFile(new File("conf/renewSession.jpg")).as("image/jpeg").withHeaders(headers: _*)
+        }
       }
   }
 

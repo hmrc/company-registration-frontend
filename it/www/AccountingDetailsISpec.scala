@@ -18,7 +18,7 @@ package www
 import java.util.UUID
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import itutil.{FakeAppConfig, IntegrationSpecBase, LoginStub, WiremockHelper}
+import itutil.{FakeAppConfig, IntegrationSpecBase, LoginStub}
 import org.jsoup.Jsoup
 import play.api.http.HeaderNames
 import play.api.libs.json.Json
@@ -27,15 +27,8 @@ import play.api.test.FakeApplication
 
 class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with FakeAppConfig {
 
-  val mockHost = WiremockHelper.wiremockHost
-  val mockPort = WiremockHelper.wiremockPort
-
   override implicit lazy val app = FakeApplication(additionalConfiguration = fakeConfig())
-
-  private def client(path: String) = ws.url(s"http://localhost:$port/register-your-company$path").withFollowRedirects(false)
-
   val userId = "/bar/foo"
-
   def statusResponseFromCR(status:String = "draft", rID:String = "5") =
     s"""
        |{
@@ -60,7 +53,7 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fak
       stubKeystore(SessionId, "5")
 
       stubGet("/company-registration/corporation-tax-registration/5/accounting-details", 404, "")
-      val fResponse = client("/when-start-business").
+      val fResponse = buildClient("/when-start-business").
         withHeaders(HeaderNames.COOKIE -> getSessionCookie(userId=userId)).
         get()
 
@@ -93,7 +86,7 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fak
 
       stubGet("/company-registration/corporation-tax-registration/5/accounting-details", 200, crResponse)
 
-      val fResponse = client("/when-start-business").
+      val fResponse = buildClient("/when-start-business").
         withHeaders(HeaderNames.COOKIE -> getSessionCookie(userId=userId)).
         get()
 
@@ -124,7 +117,7 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fak
 
       stubGet("/company-registration/corporation-tax-registration/5/accounting-details", 200, crResponse)
 
-      val fResponse = client("/when-start-business").
+      val fResponse = buildClient("/when-start-business").
         withHeaders(HeaderNames.COOKIE -> getSessionCookie(userId=userId)).
         get()
 
@@ -150,7 +143,7 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fak
 
       val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
 
-      val fResponse = client("/when-start-business").
+      val fResponse = buildClient("/when-start-business").
         withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").
         post(Map(
           "csrfToken"->Seq("xxx-ignored-xxx"),
@@ -172,5 +165,4 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fak
       (json \ "startDateOfBusiness").as[String] shouldBe "2019-01-02"
     }
   }
-
 }

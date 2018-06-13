@@ -16,6 +16,8 @@
 
 package controllers
 
+import java.time.LocalDate
+
 import builders.AuthBuilder
 import connectors._
 import controllers.reg.SignInOutController
@@ -32,6 +34,7 @@ import play.api.test.Helpers.{contentType, _}
 import services.{EmailVerificationService, EnrolmentsService}
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, ~}
 import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolments}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.binders.ContinueUrl
 import uk.gov.hmrc.play.test.WithFakeApplication
@@ -387,6 +390,9 @@ class SignInOutControllerSpec extends SCRSSpec
 
   "renewSession" should {
     "return 200 when hit with Authorised User" in new Setup {
+      when(mockKeystoreConnector.cache(Matchers.contains("lastActionTimestamp"), Matchers.any[LocalDate]())(Matchers.any[HeaderCarrier](), Matchers.any()))
+        .thenReturn(Future.successful(cacheMap))
+
       showWithAuthorisedUser(controller.renewSession()) { a =>
         status(a) shouldBe 200
         contentType(a) shouldBe Some("image/jpeg")
@@ -397,6 +403,9 @@ class SignInOutControllerSpec extends SCRSSpec
     }
 
     "return CORS headers when a cors host is supplied" in new Setup(Some("http://localhost:12345")) {
+      when(mockKeystoreConnector.cache(Matchers.contains("lastActionTimestamp"), Matchers.any[LocalDate]())(Matchers.any[HeaderCarrier](), Matchers.any()))
+        .thenReturn(Future.successful(cacheMap))
+
       showWithAuthorisedUser(controller.renewSession()) { a =>
         status(a) shouldBe 200
         header("Access-Control-Allow-Origin", a) shouldBe Some("http://localhost:12345")
