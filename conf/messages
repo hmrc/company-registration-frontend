@@ -244,6 +244,7 @@ page.verification.verify-your-email.dropdown-text3                  = If we rese
 
 ## Questionnaire
 page.reg.questionnaire.title                                        = Send your feedback
+page.reg.questionnaire.reason                                       = We use your feedback to make our services better.
 page.reg.questionnaire.q1                                           = Were you able to achieve what you wanted today?
 page.reg.questionnaire.q1.a1                                        = Yes
 page.reg.questionnaire.q1.a2                                        = No
