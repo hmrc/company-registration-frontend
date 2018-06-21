@@ -35,6 +35,9 @@
 @form(action = controllers.reg.routes.QuestionnaireController.submit()){
 
     <h1 class="form-title heading-xlarge" id="main-heading">@Messages("page.reg.questionnaire.title")</h1>
+    <div class="form-group">
+    <p id="reason">@Messages("page.reg.questionnaire.reason")</p>
+    </div>
     <div id="trying_to_do" class="form-group">
         @inputRadioGroup(qForm("tryingToDo"),
             Seq("RegisterCompany_1" -> Messages("page.reg.questionnaire.q2.a1"),
