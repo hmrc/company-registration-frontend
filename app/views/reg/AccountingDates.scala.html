@@ -39,7 +39,11 @@
     </div>
 }
 
-@main_template(title = Messages("page.reg.accountingDates.description"), bodyClasses=None) {
+@pageScripts = {
+    <script src=@controllers.routes.Assets.at("javascripts/AccountingDates.js") type="text/javascript"></script>
+}
+
+@main_template(title = Messages("page.reg.accountingDates.description"), bodyClasses=None, pageScripts=Some(pageScripts)) {
 
 <a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
 
