@@ -9,6 +9,6 @@ $(document).ready($(function() {
             }
         });
 
-        ga("send", "event", "UserChoice", "AccountingDates", selection);
+        ga("send", "event", "AccountingDatesChoice", selection);
     });
 }));
