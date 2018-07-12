@@ -556,25 +556,29 @@ class CompanyRegistrationConnectorSpec extends SCRSSpec with CTDataFixture with 
   "fetchAcknowledgementReference" should {
 
     "return a succcess response when an Ack ref is found" in new Setup {
-      mockHttpGet("testUrl", ConfirmationReferences("a", Some("b"), Some("c"), "BRCT00000000123"))
+      when(mockWSHttp.GET(Matchers.anyString())(Matchers.any[HttpReads[ConfirmationReferences]](), Matchers.any[HeaderCarrier](), Matchers.any()))
+        .thenReturn(Future.successful(ConfirmationReferences("a", Some("b"), Some("c"), "BRCT00000000123")))
 
       await(connector.fetchConfirmationReferences("testRegID")) shouldBe ConfirmationReferencesSuccessResponse(ConfirmationReferences("a", Some("b"), Some("c"), "BRCT00000000123"))
     }
 
     "return a bad request response if a there is a bad request to company registration" in new Setup {
-      mockHttpGet("testUrl", Future.failed(new BadRequestException("bad request")))
+      when(mockWSHttp.GET(Matchers.anyString())(Matchers.any[HttpReads[ConfirmationReferences]](), Matchers.any[HeaderCarrier](), Matchers.any()))
+        .thenReturn(Future.failed(new BadRequestException("bad request")))
 
       await(connector.fetchConfirmationReferences("testRegID")) shouldBe ConfirmationReferencesBadRequestResponse
     }
 
     "return a not found response if a record cannot be found" in new Setup {
-      mockHttpGet("testUrl", Future.failed(new NotFoundException("not found")))
+      when(mockWSHttp.GET(Matchers.anyString())(Matchers.any[HttpReads[ConfirmationReferences]](), Matchers.any[HeaderCarrier](), Matchers.any()))
+        .thenReturn(Future.failed(new NotFoundException("not found")))
 
       await(connector.fetchConfirmationReferences("testRegID")) shouldBe ConfirmationReferencesNotFoundResponse
     }
 
     "return an error response when the error is not captured by the other responses" in new Setup {
-      mockHttpGet("testUrl", Future.failed(new Exception()))
+      when(mockWSHttp.GET(Matchers.anyString())(Matchers.any[HttpReads[ConfirmationReferences]](), Matchers.any[HeaderCarrier](), Matchers.any()))
+        .thenReturn(Future.failed(new Exception()))
 
       await(connector.fetchConfirmationReferences("testRegID")) shouldBe ConfirmationReferencesErrorResponse
     }

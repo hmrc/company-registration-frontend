@@ -19,11 +19,12 @@ package controllers.test
 import akka.actor.ActorSystem
 import akka.stream.{ActorMaterializer, Materializer}
 import connectors.CompanyRegistrationConnector
-import org.mockito.Matchers.any
+import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import play.api.test.FakeRequest
-import uk.gov.hmrc.http.HttpResponse
+import services.internal.CheckIncorporationService
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
@@ -34,10 +35,12 @@ class SubmissionTriggerControllerSpec extends UnitSpec with MockitoSugar {
   implicit def mat: Materializer = ActorMaterializer()
 
   val mockCRConnector = mock[CompanyRegistrationConnector]
+  val mockCheckIncorporationService = mock[CheckIncorporationService]
 
   class Setup {
     val controller = new SubmissionTriggerController {
       val cRConnector = mockCRConnector
+      val checkIncorpService = mockCheckIncorporationService
     }
   }
 
@@ -68,6 +71,29 @@ class SubmissionTriggerControllerSpec extends UnitSpec with MockitoSugar {
       val result = await(controller.triggerSubmissionCheck(FakeRequest()))
       status(result) shouldBe 500
       bodyOf(result) shouldBe "A http exception was caught - 500 body"
+    }
+  }
+
+  "incorporate" should {
+    val transId = "transactionID"
+    implicit val hc = HeaderCarrier()
+
+    "return an OK when the endpoints have been hit successfully" in new Setup {
+      when(mockCheckIncorporationService.incorporateTransactionId(eqTo(transId), eqTo(false))(any[HeaderCarrier]()))
+        .thenReturn(Future.successful(true))
+
+      val result = await(controller.incorporate(transId, false)(FakeRequest()))
+      status(result) shouldBe 200
+      bodyOf(result) shouldBe s"[SUCCESS] incorporating $transId"
+    }
+
+    "return an OK when the endpoints have returned unsuccessfully" in new Setup {
+      when(mockCheckIncorporationService.incorporateTransactionId(eqTo(transId), eqTo(true))(any[HeaderCarrier]()))
+        .thenReturn(Future.successful(false))
+
+      val result = await(controller.incorporate(transId, true)(FakeRequest()))
+      status(result) shouldBe 200
+      bodyOf(result) shouldBe s"[FAILED] to incorporate $transId"
     }
   }
 }
