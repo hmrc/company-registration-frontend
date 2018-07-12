@@ -53,7 +53,7 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fak
       stubKeystore(SessionId, "5")
 
       stubGet("/company-registration/corporation-tax-registration/5/accounting-details", 404, "")
-      val fResponse = buildClient("/when-start-business").
+      val fResponse = buildClient(controllers.reg.routes.AccountingDatesController.show().url).
         withHeaders(HeaderNames.COOKIE -> getSessionCookie(userId=userId)).
         get()
 
@@ -86,10 +86,9 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fak
 
       stubGet("/company-registration/corporation-tax-registration/5/accounting-details", 200, crResponse)
 
-      val fResponse = buildClient("/when-start-business").
+      val fResponse = buildClient(controllers.reg.routes.AccountingDatesController.show().url).
         withHeaders(HeaderNames.COOKIE -> getSessionCookie(userId=userId)).
         get()
-
 
       val response = await(fResponse)
 
@@ -117,7 +116,7 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fak
 
       stubGet("/company-registration/corporation-tax-registration/5/accounting-details", 200, crResponse)
 
-      val fResponse = buildClient("/when-start-business").
+      val fResponse = buildClient(controllers.reg.routes.AccountingDatesController.show().url).
         withHeaders(HeaderNames.COOKIE -> getSessionCookie(userId=userId)).
         get()
 
@@ -127,7 +126,6 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fak
       response.status shouldBe 303
       response.allHeaders("Location") shouldBe Seq("/register-your-company/company-registration-overview")
     }
-
   }
 
   "POST Accounting Details" should {
@@ -143,7 +141,7 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fak
 
       val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
 
-      val fResponse = buildClient("/when-start-business").
+      val fResponse = buildClient(controllers.reg.routes.AccountingDatesController.submit().url).
         withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").
         post(Map(
           "csrfToken"->Seq("xxx-ignored-xxx"),
@@ -163,6 +161,28 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fak
       val json = Json.parse(captor.getBodyAsString)
       (json \ "accountingDateStatus").as[String] shouldBe "FUTURE_DATE"
       (json \ "startDateOfBusiness").as[String] shouldBe "2019-01-02"
+    }
+    "return a 400 showing error messages to the user" in {
+      stubAuthorisation()
+      stubKeystore(SessionId, "5")
+      val csrfToken = UUID.randomUUID().toString
+      val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
+
+      val response = await(buildClient(controllers.reg.routes.AccountingDatesController.submit().url).
+        withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").
+        post(Map(
+          "csrfToken"->Seq("xxx-ignored-xxx"),
+          "businessStartDate"->Seq("futureDate"),
+          "businessStartDate-futureDate.year"->Seq("foo bar"),
+          "businessStartDate-futureDate.month"->Seq("wizz bang"),
+          "businessStartDate-futureDate.day"->Seq("buzz fuzzle")
+        )))
+
+     response.status shouldBe 400
+     val doc = Jsoup.parse(response.body)
+     Option(doc.getElementById("invalidDay-error-summary")).isDefined shouldBe true
+     Option(doc.getElementById("invalidMonth-error-summary")).isDefined shouldBe true
+     Option(doc.getElementById("invalidYear-error-summary")).isDefined shouldBe true
     }
   }
 }

@@ -50,7 +50,7 @@ trait CompletionCapacityController extends FrontendController with AuthFunction 
     ctAuthorised {
       checkStatus { regId =>
         businessRegConnector.retrieveMetadata map {
-          case BusinessRegistrationSuccessResponse(x) => Ok(CompletionCapacity(AboutYouForm.populateForm(x.completionCapacity.fold("")(cc => cc)))) //todo double check empty cc
+          case BusinessRegistrationSuccessResponse(x) => Ok(CompletionCapacity(AboutYouForm.populateForm(x.completionCapacity.getOrElse("")))) //todo double check empty cc
           case _ => Ok(CompletionCapacity(AboutYouForm.aboutYouFilled))
         }
       }

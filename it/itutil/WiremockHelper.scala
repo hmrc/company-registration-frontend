@@ -20,6 +20,7 @@ import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
+import models.{BusinessRegistration, Links}
 import org.scalatestplus.play.OneServerPerSuite
 import play.api.libs.ws.WSClient
 
@@ -48,7 +49,7 @@ trait WiremockHelper {
 
   def resetWiremock() = WireMock.reset()
 
-  def buildClient(path: String) = ws.url(s"http://localhost:$port/register-your-company$path").withFollowRedirects(false)
+  def buildClient(path: String) = ws.url(s"http://localhost:$port/register-your-company${path.replace("""/register-your-company""","")}").withFollowRedirects(false)
 
   def listAllStubs = listAllStubMappings
 
@@ -78,6 +79,17 @@ trait WiremockHelper {
           withBody(responseBody)
       )
     )
+
+
+  def stubBusinessRegRetrieveMetaDataNoRegId(responseStatus: Int, expectedBody: String) = {
+    stubGet(url = "/business-registration/business-tax-registration", status = responseStatus, body = expectedBody)
+  }
+  def stubBusinessRegRetrieveMetaDataWithRegId(regID: String, responseStatus: Int, expectedBody: String) = {
+    stubGet(url = s"/business-registration/business-tax-registration/$regID", status = responseStatus, body = expectedBody)
+  }
+  def stubUpdateBusinessRegistrationCompletionCapacity(regID: String, responseStatus: Int, body: String)  = {
+    stubPost(s"/business-registration/business-tax-registration/update/$regID", responseStatus, body)
+  }
 
   def stubKeystore(session: String, regId: String, status: Int = 200) = {
     val keystoreUrl = s"/keystore/company-registration-frontend/$session"
