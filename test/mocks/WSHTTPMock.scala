@@ -37,7 +37,7 @@ trait WSHTTPMock {
     }
 
     def mockHttpGet[T](url: String, thenReturn: Future[T]): OngoingStubbing[Future[T]] = {
-      when(mockWSHttp.GET[T](Matchers.anyString())(Matchers.any[HttpReads[T]](), Matchers.any[HeaderCarrier](), Matchers.any()))
+      when(mockWSHttp.GET[T](Matchers.eq(url))(Matchers.any[HttpReads[T]](), Matchers.any[HeaderCarrier](), Matchers.any()))
         .thenReturn(thenReturn)
     }
 

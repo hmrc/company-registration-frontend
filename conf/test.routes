@@ -44,3 +44,5 @@ GET      /dashboardStubbed                               controllers.test.TestEn
 GET      /hand-off-6                                     controllers.test.TestEndpointController.handOff6(transactionId: Option[String])
 
 GET      /edit-session/:newSessionId                     controllers.test.EditSessionController.editSession(newSessionId)
+
+GET      /incorporate/:txId                              controllers.test.SubmissionTriggerController.incorporate(txId, accepted: Boolean ?= true)

@@ -18,20 +18,30 @@ package controllers.test
 
 import connectors.CompanyRegistrationConnector
 import play.api.mvc.Action
+import services.internal.CheckIncorporationService
 import uk.gov.hmrc.play.frontend.controller.FrontendController
 
 object SubmissionTriggerController extends SubmissionTriggerController {
   val cRConnector = CompanyRegistrationConnector
+  val checkIncorpService = CheckIncorporationService
 }
 
 trait SubmissionTriggerController extends FrontendController {
 
-  val cRConnector : CompanyRegistrationConnector
+  val cRConnector: CompanyRegistrationConnector
+  val checkIncorpService: CheckIncorporationService
 
   def triggerSubmissionCheck = Action.async {
     implicit request =>
       cRConnector.checkAndProcessNextSubmission.map { res =>
         new Status(res.status)(res.body)
+      }
+  }
+
+  def incorporate(txId: String, accepted: Boolean) = Action.async {
+    implicit request =>
+      checkIncorpService.incorporateTransactionId(txId, accepted) map { success =>
+        Ok(if(success) s"[SUCCESS] incorporating $txId" else s"[FAILED] to incorporate $txId")
       }
   }
 }

@@ -17,15 +17,16 @@
 package connectors
 
 import config.WSHttp
+import play.api.Logger
 import play.api.libs.json.JsValue
 import services.MetricsService
-import uk.gov.hmrc.http.{CoreGet, HeaderCarrier, HttpException}
+import uk.gov.hmrc.http.{CoreGet, HeaderCarrier, HttpException, HttpResponse}
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 
 import scala.concurrent.Future
 
-object IncorpInfoConnector extends IncorpInfoConnector with ServicesConfig{
+object IncorpInfoConnector extends IncorpInfoConnector with ServicesConfig {
   val http : CoreGet = WSHttp
   val incorpInfoUrl = s"${baseUrl("incorp-info")}/incorporation-information"
 
@@ -54,6 +55,23 @@ trait IncorpInfoConnector {
     case ex: Throwable =>
       throw new Exception
 
+  }
+
+
+  def injectTestIncorporationUpdate(transId: String, isSuccess: Boolean)(implicit hc: HeaderCarrier): Future[Boolean] = {
+    val queryString = s"txId=$transId&date=2018-1-1${if(isSuccess) "&crn=12345678" else ""}&success=$isSuccess"
+
+    http.GET[HttpResponse](s"$incorpInfoUrl/test-only/add-incorp-update/?$queryString") map (_ => true) recover { case _ =>
+        Logger.error(s"[IncorpInfoConnector] [injectTestIncorporationUpdate] Failed to inject a test incorporation update into II for $transId")
+        false
+    }
+  }
+
+  def manuallyTriggerIncorporationUpdate(implicit hc:HeaderCarrier): Future[Boolean] = {
+    http.GET[HttpResponse](s"$incorpInfoUrl/test-only/manual-trigger/fireSubs") map (_ => true) recover { case _ =>
+        Logger.error(s"[IncorpInfoConnector] [manuallyTriggerIncorporationUpdate] Failed to trigger subscription processing on II")
+        false
+    }
   }
 
 }

@@ -16,18 +16,30 @@
 
 package services.internal
 
-import connectors.CohoAPIConnector
+import connectors.{CohoAPIConnector, CohoApiResponse, IncorpInfoConnector}
 import uk.gov.hmrc.http.HeaderCarrier
+
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 
 object CheckIncorporationService extends CheckIncorporationService {
   val cohoApiConnector = CohoAPIConnector
+  val incorpInfoConnector = IncorpInfoConnector
 }
 
 trait CheckIncorporationService {
 
   val cohoApiConnector: CohoAPIConnector
+  val incorpInfoConnector: IncorpInfoConnector
 
-  def fetchIncorporationStatus(timePoint: Option[String], itemsPerPage: Int)(implicit hc: HeaderCarrier) = {
+  def fetchIncorporationStatus(timePoint: Option[String], itemsPerPage: Int)(implicit hc: HeaderCarrier): Future[CohoApiResponse] = {
     cohoApiConnector.fetchIncorporationStatus(timePoint, itemsPerPage)
+  }
+
+  def incorporateTransactionId(transId: String, isSuccess: Boolean)(implicit hc: HeaderCarrier): Future[Boolean] = {
+    for {
+      incorporate <- incorpInfoConnector.injectTestIncorporationUpdate(transId, isSuccess)
+      triggerResponse <- incorpInfoConnector.manuallyTriggerIncorporationUpdate
+    } yield incorporate && triggerResponse
   }
 }
