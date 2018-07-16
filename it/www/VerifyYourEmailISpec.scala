@@ -26,7 +26,6 @@ import scala.concurrent.duration.FiniteDuration
 
 class VerifyYourEmailISpec extends IntegrationSpecBase with LoginStub with BeforeAndAfterEach with FakeAppConfig {
 
-
   override implicit lazy val app = FakeApplication(additionalConfiguration = fakeConfig())
 
   val userId = "/wibble"
