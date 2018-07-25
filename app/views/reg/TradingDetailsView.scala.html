@@ -32,9 +32,9 @@
     tradingDetails, dataJourney = Some("TradingDetails")
     )
 
-    <header class="page-header">
-        <h1 id="main-heading" class="heading-xlarge">@Messages("page.reg.ct61.description")</h1>
-    </header>
+
+        <h1 id="main-heading" class="heading-large">@Messages("page.reg.ct61.description")</h1>
+
 
     <div class="form-group">
         <p class="lede">@Messages("page.reg.ct61.lede")</p>
@@ -48,26 +48,9 @@
         </ul>
     </div>
     <details>
-        <summary class="summary">@Messages("page.reg.ct61.whyAsked")</summary>
-        <div class="panel-indent panel-indent--gutter">
-            <p>@Messages("page.reg.ct61.p1")</p>
-            <p>@Messages("page.reg.ct61.p2")</p>
-            <p>@Messages("page.reg.ct61.p3")</p>
-        </div>
-    </details>
-    <details>
         <summary class="summary">@Messages("page.reg.ct61.directorsLoan")</summary>
         <div class="panel-indent panel-indent--gutter">
             <p>@Messages("page.reg.ct61.dL.p1")</p>
-            <ul class="list list-bullet">
-                <li>@Messages("page.reg.ct61.dL.bullet1")</li>
-                <li>@Messages("page.reg.ct61.dL.bullet2")</li>
-            </ul>
-            <p>@Messages("page.reg.ct61.dL.p2")</p>
-            <ul class="list list-bullet">
-                <li>@Messages("page.reg.ct61.dL.bullet3")</li>
-                <li>@Messages("page.reg.ct61.dL.bullet4")</li>
-            </ul>
         </div>
     </details>
     @form(action = controllers.reg.routes.TradingDetailsController.submit()) {
