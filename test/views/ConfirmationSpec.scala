@@ -69,7 +69,7 @@ class ConfirmationSpec extends SCRSSpec with CompanyDetailsFixture with WithFake
             "heading-application-submitted" -> "Application submitted",
             "ltd-ref" -> txId,
             "ackref" -> ackref,
-            "next-steps" -> "What happens next?"
+            "next-steps" -> "What happens next"
           ) foreach { case (element, message) =>
             document.getElementById(element).text() shouldBe message
           }
