@@ -22,17 +22,17 @@
 @import uk.gov.hmrc.play.views.html.helpers.form
 
 @main_template(title = Messages("page.reg.Confirmation.description"), mainClass = None) {
-    <div class="govuk-box-highlight">
+    <div class="box-shaded-grey">
         <h1 id="heading-application-submitted" class="heading-xlarge">@Messages("page.reg.Confirmation.description")</h1>
-        <p class="font-large">
-            @Messages("page.reg.Confirmation.your.limited")<br>
-            <strong id="ltd-ref">@confirmationRefs.transactionId</strong>
-        </p>
-        <p class="font-large">
-            @Messages("page.reg.Confirmation.your.refnumber")<br>
-            <strong id="ackref">@confirmationRefs.acknowledgementReference</strong></p>
-        </p>
     </div>
+
+
+    <p>@Messages("page.reg.Confirmation.application-refs")</p>
+    <ul class="list list-bullet">
+        <li><strong style="font-weight: bold;" id="ltd-ref">@confirmationRefs.transactionId</strong> @Messages("page.reg.Confirmation.your.limited")</li>
+        <li><strong style="font-weight: bold;" id="ackref">@confirmationRefs.acknowledgementReference</strong> @Messages("page.reg.Confirmation.your.refnumber")</li>
+    </ul>
+    <p>@Messages("page.reg.Confirmation.email")</p>
 
     <h2 class="heading-medium" id="next-steps">@Messages("page.reg.Confirmation.next-steps")</h2>
 
@@ -40,13 +40,13 @@
     <ul class="list list-bullet">
         <li>@Messages("page.reg.Confirmation.next-steps.point1")</li>
         <li>@Messages("page.reg.Confirmation.next-steps.point2")</li>
+        <li>@Messages("page.reg.Confirmation.next-steps.point3")</li>
     </ul>
 
-    <div>
-        <p id="certificate">@Messages("page.reg.Confirmation.next-steps.certificate")</p>
-        <p id="security">@Messages("page.reg.Confirmation.next-steps.security")</p>
-        <p id="keep-safe-text">@Messages("page.reg.Confirmation.keep-safe.text")</p>
+    <div class="panel panel-border-wide">
+        <p>@Messages("page.reg.Confirmation.keep-safe.text")</p>
     </div>
+
 
     <br>
     @form(action = controllers.reg.routes.ConfirmationControllerImpl.submit()) {
@@ -55,6 +55,6 @@
         </div>
     }
     <div class="form-group">
-        <a href="questionnaire">@Messages("page.reg.Confirmation.questionnaire.link")</a>
+        <a href="questionnaire">@Messages("page.reg.Confirmation.questionnaire.link")</a><b> @Messages("page.reg.Confirmation.questionnaire.time")</b>
     </div>
 }
