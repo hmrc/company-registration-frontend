@@ -23,7 +23,15 @@
 
 @main_template(title = Messages("page.reg.Confirmation.description"), mainClass = None) {
     <div class="box-shaded-grey">
-        <h1 id="heading-application-submitted" class="heading-xlarge">@Messages("page.reg.Confirmation.description")</h1>
+        <h1 id="heading-application-submitted" class="heading-large">@Messages("page.reg.Confirmation.description")</h1>
+        <p class="font-large">
+            @Messages("page.reg.Confirmation.your.limited")<br>
+            <strong id="ltd-ref">@confirmationRefs.transactionId</strong>
+        </p>
+        <p class="font-large">
+            @Messages("page.reg.Confirmation.your.refnumber")<br>
+            <strong id="ackref">@confirmationRefs.acknowledgementReference</strong></p>
+        </p>
     </div>
 
 

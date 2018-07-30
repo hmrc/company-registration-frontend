@@ -54,9 +54,9 @@ page.reg.welcome.bullet.90-days                                     = must be co
 page.reg.welcome.cost                                               = It costs £12 to set up a company. Your information will be shared between Companies House and HMRC during the application process.
 
 ## Returning User
-page.reg.returningUser.description                                  = Are you starting a new registration?
-page.reg.returningUser.radioYesLabel                                = Yes
-page.reg.returningUser.radioNoLabel                                 = No - I''m continuing with an existing registration
+page.reg.returningUser.description                                  = Are you setting up a new limited company?
+page.reg.returningUser.radioYesLabel                                = Yes - I''m starting a new application
+page.reg.returningUser.radioNoLabel                                 = I''m continuing an existing application
 error.returningUser.required                                        = Tell us if you''re setting up a new limited company
 
 ## About you
@@ -90,11 +90,12 @@ page.reg.Confirmation.email                                         = We will em
 
 
 ## Accounting Dates
-page.reg.accountingDates.description                                = When will the company start doing business?
+page.reg.accountingDates.description                                = When will the company start trading?
 page.reg.accountingDates.lede1                                      = This is when the company starts buying or selling goods or services, even if it''s not yet making a profit.
-page.reg.accountingDates.radioOne                                   = The date it''s registered with Companies House
+page.reg.accountingDates.hint1                                      = The company must keep financial records from this date (which is the start of its first accounting period for Corporation Tax).
+page.reg.accountingDates.radioOne                                   = On the same date it gets set up
 page.reg.accountingDates.radioTwo                                   = On a different future date
-page.reg.accountingDates.radioThree                                 = I don''t have an exact date
+page.reg.accountingDates.radioThree                                 = I do not have an exact date
 page.reg.accountingDates.date.notFound                              = Enter a date at least 3 working days from now
 page.reg.accountingDates.day.notFound                               = Enter a day
 page.reg.accountingDates.month.notFound                             = Enter a month
@@ -104,9 +105,9 @@ page.reg.accountingDates.date.invalid-date                          = You have n
 page.reg.accountingDates.date.invalid-day                           = Enter a valid day
 page.reg.accountingDates.date.invalid-month                         = Enter a valid month
 page.reg.accountingDates.date.invalid-year                          = Enter a valid year
-page.reg.accountingDates.warning                                    = As soon as you start doing business you need to let HMRC know.
+page.reg.accountingDates.warning                                    = If your completed application is approved you will get a letter explaining how to tell HMRC when the company starts trading.
 page.reg.accountingDates.help                                       = Enter a date at least 3 working days from now and no more than 3 years in the future.
-error.businessStartDate.required                                    = Tell us when the company will start doing business
+error.businessStartDate.required                                    = Tell us when the company will start trading
 
 ## Company contact details
 page.reg.company-contact-details.description                        = Who should we contact about the company''s Corporation Tax?
@@ -147,24 +148,15 @@ page.reg.ppob.useOfficeAddress                                      = Use the co
 error.addressChoice.required                                        = Tell us where the company will carry out most of its business activities
 
 ## TradingDetails
-page.reg.ct61.description                                           = Will the company make or receive any of these types of payments?
+page.reg.ct61.description                                           = Within the next 3 months will the company make or receive any of the following?
 page.reg.ct61.lede                                                  = Tell us if your company will:
-page.reg.ct61.bullet1                                               = pay interest on director''s loans
+page.reg.ct61.bullet1                                               = pay interest on a director''s loan
 page.reg.ct61.bullet2                                               = make royalty payments to clients
 page.reg.ct61.bullet3                                               = receive interest on dividends from business investments outside the UK
-page.reg.ct61.whyAsked                                              = Why am I being asked this?
 page.reg.ct61.directorsLoan                                         = What is a director''s loan?
-page.reg.ct61.dL.p1                                                 = A director''s loan is when you get money from the company that isn''t:
-page.reg.ct61.dL.bullet1                                            = a salary, dividend or expense repayment
-page.reg.ct61.dL.bullet2                                            = money you''ve previously paid into or loaned the company
-page.reg.ct61.dL.p2                                                 = If you loan money to the company and you charge interest, the company must:
-page.reg.ct61.dL.bullet3                                            = pay you the interest less Income Tax at the basic rate of 20%
-page.reg.ct61.dL.bullet4                                            = report and pay the Income Tax every quarter to HMRC
-page.reg.ct61.p1                                                    = Certain types of payments need to have Income Tax deducted before they''re made. Any Income Tax collected from these payments then needs to be paid to HMRC.
-page.reg.ct61.p2                                                    = HMRC needs to know if you''ll make or receive any of these types of payments so you can complete the right return.
-page.reg.ct61.p3                                                    = You must tell HMRC if you start making or receiving any of these types of payments in the future.
-page.reg.ct61.radioNoLabel                                          = No, the company won''t make or receive any of these types of payments
-page.reg.ct61.radioYesLabel                                         = Yes, the company will make or receive at least one of these types of payments
+page.reg.ct61.dL.p1                                                 = In this instance, a director''s loan is when the company owes money to a director.
+page.reg.ct61.radioNoLabel                                          = No
+page.reg.ct61.radioYesLabel                                         = Yes
 error.regularPayments.required                                      = Tell us if within the next 3 months the company will make or receive any of the following
 
 ## Summary Page
@@ -238,14 +230,17 @@ page.verification.create-new-account.description.two                = You need t
 page.verification.create-new-account.bottomLink                     = Create a new Government Gateway account
 
 page.verification.verify-your-email.title                           = Confirm your email address
-page.verification.verify-your-email.description                     = We''re going to send an email to {0}.
-page.verification.verify-your-email.p1                              = Look for an email from the GOV.UK team with the subject ''Confirm your email address - Set up a limited company and register for Corporation Tax service''. Click the link in the email to confirm your address.
+page.verification.verify-your-email.description                     = We are going to send a message to {0}.
+page.verification.verify-your-email.p1                              = Look for an email from the GOV.UK team with the subject ''Confirm your email address''. Click the link in the email to confirm your address.
+page.verification.verify-your-email.hint1                           = This link expires after 24 hours.
 page.verification.verify-your-email.dropdown-title                  = If you haven''t received a confirmation email
 page.verification.verify-your-email.dropdown-text1                  = Check your junk folder. If it''s not there, you''ll need to
 page.verification.verify-your-email.dropdown-link1                  = start again
 page.verification.verify-your-email.dropdown-text2                  = or we can
 page.verification.verify-your-email.dropdown-link2                  = resend it
 page.verification.verify-your-email.dropdown-text3                  = If we resend an email, any previous links will expire.
+page.verification.verify-your-email.usage.heading                   = How we will use this email
+page.verification.verify-your-email.usage.p1                        = Once confirmed, Companies House will use this email to contact you if there are any questions about this application.
 
 ## Questionnaire
 page.reg.questionnaire.title                                        = Send your feedback

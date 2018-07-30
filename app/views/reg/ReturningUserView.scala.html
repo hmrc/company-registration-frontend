@@ -30,9 +30,9 @@
     returningUser, dataJourney = Some("ReturningUser")
     )
 
-    <header class="page-header">
-        <h1 id="main-heading" class="heading-xlarge">@Messages("page.reg.returningUser.description")</h1>
-    </header>
+
+        <h1 id="main-heading" class="heading-large">@Messages("page.reg.returningUser.description")</h1>
+
 
     @form(action = controllers.reg.routes.ReturningUserController.submit()) {
 
@@ -46,9 +46,8 @@
         '_legendClass -> "visually-hidden"
 
     )
-
     <div class="form-group">
-        <input class="button" type="submit" id="next" value="@Messages("common.button.save")">
+        <input class="button" type="submit" id="next" value="@Messages("common.button.continue")">
     </div>
     }
 }
