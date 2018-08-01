@@ -49,10 +49,6 @@ abstract class FrontendGlobal
     RepositoryEnsurer.ensureIndexes()
   }
 
-//  override def onLoadConfig(config: Configuration, path: File, classloader: ClassLoader, mode: Mode): Configuration = {
-//    super.onLoadConfig(config, path, classloader, mode)
-//  }
-
   override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit rh: Request[_]): Html = {
     implicit val appConfig = FrontendAppConfig
     views.html.error_template(pageTitle, heading, message)

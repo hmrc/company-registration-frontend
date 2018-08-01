@@ -1,9 +1,9 @@
+
 import play.routes.compiler.StaticRoutesGenerator
 import sbt.Keys._
 import sbt._
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin
-
 import play.sbt.routes.RoutesKeys.{routesGenerator, routesImport}
 
 trait MicroService {
@@ -11,6 +11,7 @@ trait MicroService {
   import uk.gov.hmrc._
   import DefaultBuildSettings._
   import uk.gov.hmrc.versioning.SbtGitVersioning
+  import uk.gov.hmrc.versioning.SbtGitVersioning.autoImport.majorVersion
 
   val appName: String
 
@@ -33,7 +34,8 @@ trait MicroService {
     .enablePlugins(Seq(play.sbt.PlayScala,
       SbtAutoBuildPlugin,
       SbtGitVersioning,
-      SbtDistributablesPlugin)
+      SbtDistributablesPlugin,
+      SbtArtifactory)
       ++ plugins : _*)
     .settings(playSettings ++ scoverageSettings : _*)
     .settings(scalaSettings: _*)
@@ -41,16 +43,16 @@ trait MicroService {
     .settings(publishingSettings: _*)
     .settings(defaultSettings(): _*)
     .settings(
-      targetJvm := "jvm-1.8",
       libraryDependencies ++= appDependencies,
-      parallelExecution in Test := false,
       fork in Test := true,
       retrieveManaged := true,
       routesGenerator := StaticRoutesGenerator,
       routesImport ++= Seq("uk.gov.hmrc.play.binders._"),
-      scalaVersion := "2.11.11"
+      scalaVersion := "2.11.11",
+      resolvers += Resolver.jcenterRepo
     )
     .configs(IntegrationTest)
-    .settings(inConfig(IntegrationTest)(Defaults.itSettings): _*)
     .settings(integrationTestSettings())
+    .settings( majorVersion := 2 )
+
 }
