@@ -95,6 +95,10 @@ GET        /corporation-tax-details                 controllers.handoff.Corporat
 GET        /business-activities                     controllers.handoff.BusinessActivitiesController.businessActivities
 GET        /business-activities-back                controllers.handoff.BusinessActivitiesController.businessActivitiesBack(request: String)
 
+#H03-1 / H03-2
+GET        /groups-handback                         controllers.handoff.GroupController.groupHandBack(request: String)
+GET        /psc-handoff                             controllers.handoff.GroupController.PSCGroupHandOff
+
 #HO4
 GET        /corporation-tax-summary                 controllers.handoff.CorporationTaxSummaryController.corporationTaxSummary(request : String)
 

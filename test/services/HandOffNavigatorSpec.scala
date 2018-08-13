@@ -63,7 +63,8 @@ class HandOffNavigatorSpec extends UnitSpec with MockitoSugar with WithFakeAppli
   val initNavModel = HandOffNavModel(
     Sender(Map(
       "1" -> NavLinks("http://localhost:9970/register-your-company/corporation-tax-details", "http://localhost:9970/register-your-company/return-to-about-you"),
-      "3" -> NavLinks("http://localhost:9970/register-your-company/corporation-tax-summary", "http://localhost:9970/register-your-company/business-activities-back"),
+      "3" -> NavLinks("http://localhost:9970/register-your-company/groups-handback", "http://localhost:9970/register-your-company/business-activities-back"),
+      "3-2" -> NavLinks("http://localhost:9970/register-your-company/corporation-tax-summary", "http://localhost:9970/register-your-company/business-activities-back"),
       "5" -> NavLinks("http://localhost:9970/register-your-company/registration-confirmation", "http://localhost:9970/register-your-company/return-to-corporation-tax-summary"),
       "5-2" -> NavLinks("http://localhost:9970/register-your-company/payment-complete",""))),
     Receiver(Map("0" -> NavLinks("http://localhost:9986/incorporation-frontend-stubs/basic-company-details", "")))
@@ -123,7 +124,6 @@ class HandOffNavigatorSpec extends UnitSpec with MockitoSugar with WithFakeAppli
 
       await(navigator.fetchNavModel(canCreate = true)) shouldBe initNavModel
     }
-
   }
 
   "cacheNavModel" should {
@@ -134,7 +134,7 @@ class HandOffNavigatorSpec extends UnitSpec with MockitoSugar with WithFakeAppli
       mockInsertNavModel()
       mockGetNavModel()
       val result = await(navigator.cacheNavModel(handOffNavModel, hc))
-      result.left.get shouldBe Some(handOffNavModel)
+      result.get shouldBe handOffNavModel
     }
   }
 
@@ -158,37 +158,6 @@ class HandOffNavigatorSpec extends UnitSpec with MockitoSugar with WithFakeAppli
     "return a NoSuchElementException if an unknown key is passed" in new Setup {
       val ex = intercept[NoSuchElementException](await(navigator.forwardTo(-1)(handOffNavModel, hc)))
       ex.getMessage shouldBe "key not found: -2"
-    }
-  }
-
-  "reverseFrom" should {
-
-    "return a reverse link from the current hand off receiver" in new Setup {
-      val result = await(navigator.reverseFrom(0)(handOffNavModel, hc))
-
-      result shouldBe "testReverseLinkFromReceiver0"
-    }
-  }
-
-  "jumpTo" should {
-
-    "return a jump link from the current hand off receiver" in new Setup {
-      val result = await(navigator.jumpTo("testJumpKey")(handOffNavModel, hc))
-
-      result shouldBe "testJumpLink"
-    }
-
-    "return a NoSuchElementException when a nav model is passed implicitly but does not contain jump links" in new Setup {
-      val ex = intercept[NoSuchElementException](await(navigator.jumpTo("testJumpKey")(handOffNavModelWithoutJumpLinks, hc)))
-
-      ex.getMessage shouldBe "key not found: testJumpKey"
-    }
-  }
-
-  "hmrcLinks" should {
-    "return a HandOffNavModel with a forward and reverse link" in new Setup {
-      val result = await(navigator.hmrcLinks(1)(handOffNavModel, hc))
-      result shouldBe NavLinks("testForwardLinkFromSender1", "testReverseLinkFromSender1")
     }
 
     "return a HandOffNavModel with a forward and reverse link if a string is passed in" in new Setup {

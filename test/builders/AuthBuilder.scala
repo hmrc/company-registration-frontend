@@ -62,6 +62,7 @@ trait AuthBuilder extends MockitoSugar {
     test(result)
   }
 
+
   def showWithAuthorisedUserRetrieval[A](action: Action[AnyContent], returnValue : A)(test: Future[Result] => Any) {
     mockAuthorisedUser(Future.successful(returnValue))
     val result = action.apply(SessionBuilder.buildRequestWithSession(userId))

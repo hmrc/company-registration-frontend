@@ -16,16 +16,15 @@
 
 package repositories
 
-import models.handoff.{HandOffNavModel, NavLinks, Receiver, Sender}
+import fixtures.HandOffFixtures
 import org.scalatest.concurrent.{Eventually, ScalaFutures}
-import play.api.libs.json.{JsObject, Json}
 import reactivemongo.api.indexes.{Index, IndexType}
 import uk.gov.hmrc.mongo.MongoSpecSupport
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class NavModelRepositorySpec extends UnitSpec with MongoSpecSupport with WithFakeApplication with ScalaFutures with Eventually {
+class NavModelRepositorySpec extends UnitSpec with MongoSpecSupport with WithFakeApplication with ScalaFutures with Eventually with HandOffFixtures {
 
   class Setup {
 
@@ -49,105 +48,49 @@ class NavModelRepositorySpec extends UnitSpec with MongoSpecSupport with WithFak
     def count = await(repo.count)
   }
 
-  val registrationID = "regID1"
-  val handOffNavModelData = HandOffNavModel(
-    Sender(
-      Map(
-        "1" -> NavLinks(
-          "testForwardLinkFromSender1",
-          "testReverseLinkFromSender1"
-        ),
-        "3" -> NavLinks(
-          "testForwardLinkFromSender3",
-          "testReverseLinkFromSender3"
-        )
-      )
-    ),
-    Receiver(
-      Map(
-        "0" -> NavLinks(
-          "testForwardLinkFromReceiver0",
-          "testReverseLinkFromReceiver0"
-        ),
-        "2" -> NavLinks(
-          "testForwardLinkFromReceiver2",
-          "testReverseLinkFromReceiver2"
-        )
-      ),
-      Map("testJumpKey" -> "testJumpLink"),
-      Some(Json.parse("""{"testCHBagKey": "testValue"}""").as[JsObject])
-    )
-  )
-
-  val handOffNavModelUpdated = HandOffNavModel(
-    Sender(
-      Map(
-        "1" -> NavLinks(
-          "testForwardLinkFromSender17373737373",
-          "testReverseLinkFromSender1"
-        ),
-        "3" -> NavLinks(
-          "testForwardLinkFromSender3",
-          "testReverseLinkFromSender3"
-        )
-      )
-    ),
-    Receiver(
-      Map(
-        "0" -> NavLinks(
-          "testForwardLinkFromReceiver0",
-          "testReverseLinkFromReceiver0"
-        ),
-        "2" -> NavLinks(
-          "testForwardLinkFromReceiver2",
-          "testReverseLinkFromReceiver2"
-        )
-      ),
-      Map("testJumpKey" -> "testJumpLink"),
-      Some(Json.parse("""{"testCHBagKey": "testValue"}""").as[JsObject])
-    )
-  )
+  val regId = "regID1"
+  val userId = "dummyUserId"
 
   "insertNavModel" should {
 
     "successfully insert a record in the correct format" in new Setup {
-      await(repo.insertNavModel(registrationID, handOffNavModelData))
+      await(repo.insertNavModel(regId, handOffNavModelDataUpTo3))
       await(repo.count) shouldBe 1
     }
 
     "successfully return the same handOffModelInserted" in new Setup {
-      await(repo.insertNavModel(registrationID,handOffNavModelData))
-      val navModelReturn = await(repo.getNavModel(registrationID))
-      navModelReturn.get shouldBe handOffNavModelData
+      await(repo.insertNavModel(regId,handOffNavModelDataUpTo3))
+      val navModelReturn = await(repo.getNavModel(regId))
+      navModelReturn.get shouldBe handOffNavModelDataUpTo3
 
     }
     "successfully update a record when data changes" in new Setup {
-      await(repo.insertNavModel(registrationID, handOffNavModelData))
-      await(repo.insertNavModel(registrationID, handOffNavModelUpdated))
+      await(repo.insertNavModel(regId, handOffNavModelDataUpTo3))
+      await(repo.insertNavModel(regId, handOffNavModelUpdatedUpTo3))
       await(repo.count) shouldBe 1
-      val navModelReturn = await(repo.getNavModel(registrationID))
-      navModelReturn.get shouldBe handOffNavModelUpdated
+      val navModelReturn = await(repo.getNavModel(regId))
+      navModelReturn.get shouldBe handOffNavModelUpdatedUpTo3
 
     }
     "return the handOffModel after insertion" in new Setup {
-      await(repo.insertNavModel(registrationID,handOffNavModelData))
-      val res = await(repo.insertNavModel(registrationID,handOffNavModelData))
-      res.get shouldBe handOffNavModelData
+      await(repo.insertNavModel(regId,handOffNavModelDataUpTo3))
+      val res = await(repo.insertNavModel(regId,handOffNavModelDataUpTo3))
+      res.get shouldBe handOffNavModelDataUpTo3
     }
   }
 
   "successfully return the same handOffModelInserted" in new Setup {
-    await(repo.insertNavModel(registrationID,handOffNavModelData))
-    val navModelReturn = await(repo.getNavModel(registrationID))
-    navModelReturn.get shouldBe handOffNavModelData
+    await(repo.insertNavModel(regId,handOffNavModelDataUpTo3))
+    val navModelReturn = await(repo.getNavModel(regId))
+    navModelReturn.get shouldBe handOffNavModelDataUpTo3
   }
 
   "successfully update a record when data changes" in new Setup {
-    await(repo.insertNavModel(registrationID, handOffNavModelData))
-    await(repo.insertNavModel(registrationID, handOffNavModelUpdated))
+    await(repo.insertNavModel(regId, handOffNavModelDataUpTo3))
+    await(repo.insertNavModel(regId, handOffNavModelUpdatedUpTo3))
     await(repo.count) shouldBe 1
-    val navModelReturn = await(repo.getNavModel(registrationID))
-    navModelReturn.get shouldBe handOffNavModelUpdated
+    val navModelReturn = await(repo.getNavModel(regId))
+    navModelReturn.get shouldBe handOffNavModelUpdatedUpTo3
   }
 
   "Indexes" ignore {

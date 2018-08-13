@@ -37,8 +37,6 @@ import scala.util.{Failure, Success}
 
 class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture with WithFakeApplication with AuthBuilder {
 
-
-
   class Setup {
     object TestController extends BasicCompanyDetailsController {
       val authConnector = mockAuthConnector

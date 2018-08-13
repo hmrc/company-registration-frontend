@@ -35,20 +35,14 @@ object JumpLinks {
   implicit val format = Json.format[JumpLinks]
 }
 
-
 case class Sender(nav: Map[String, NavLinks])
 
 case class Receiver(nav: Map[String, NavLinks],
                     jump: Map[String, String] = Map.empty,
                     chData: Option[JsObject] = None)
 
-
 case class HandOffNavModel(sender: Sender,
-                           receiver: Receiver){
-  def checkExistenceOfCHData = {
-    receiver.chData.isDefined
-  }
-}
+                           receiver: Receiver)
 
 object HandOffNavModel {
   implicit val formatNavLinks = Json.format[NavLinks]

@@ -153,11 +153,12 @@ trait SignInOutController extends FrontendController with ControllerErrorHandler
     def generateHandOffUrl(handOffID: String, payload: String): String = {
       import controllers.handoff.routes._
       Map(
-        "HO1b" -> BasicCompanyDetailsController.returnToAboutYou(payload).url,
-        "HO2" -> CorporationTaxDetailsController.corporationTaxDetails(payload).url,
-        "HO3b" -> BusinessActivitiesController.businessActivitiesBack(payload).url,
-        "HO4" -> CorporationTaxSummaryController.corporationTaxSummary(payload).url,
-        "HO5b" -> IncorporationSummaryController.returnToCorporationTaxSummary(payload).url
+        "HO1b"  -> BasicCompanyDetailsController.returnToAboutYou(payload).url,
+        "HO2"   -> CorporationTaxDetailsController.corporationTaxDetails(payload).url,
+        "HO3b"  -> BusinessActivitiesController.businessActivitiesBack(payload).url,
+        "HO3-1" -> GroupController.groupHandBack(payload).url,
+        "HO4"   -> CorporationTaxSummaryController.corporationTaxSummary(payload).url,
+        "HO5b"  -> IncorporationSummaryController.returnToCorporationTaxSummary(payload).url
       ).mapValues(url => s"${FrontendConfig.self}$url")(handOffID)
     }
 
