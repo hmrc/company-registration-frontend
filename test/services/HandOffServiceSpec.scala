@@ -29,7 +29,7 @@ import org.scalatest.BeforeAndAfterEach
 import play.api.libs.json.{JsObject, Json}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.test.WithFakeApplication
-import utils.JweEncryptor
+import utils.{JweDecryptor, JweEncryptor}
 
 import scala.concurrent.Future
 
@@ -44,14 +44,14 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
   val mockNavModelRepoObj = mockNavModelRepo
   val mockEncryptor = mock[JweEncryptor]
 
-
+  val testJwe = new JweEncryptor with JweDecryptor { val key = "Fak3-t0K3n-f0r-pUBLic-r3p0SiT0rY" }
   trait Setup {
     val service = new HandOffService {
       val compRegConnector = mockCompanyRegistrationConnector
       val returnUrl = "http://test"
       val externalUrl = "http://external"
       val keystoreConnector = mockKeystoreConnector
-      val encryptor = mockEncryptor
+      val encryptor = testJwe
       val authConnector = mockAuthConnector
       val navModelMongo = mockNavModelRepoObj
       lazy val timeout = 100
@@ -68,7 +68,7 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
 
   "buildBusinessActivitiesPayload" should {
 
-    val registrationID = UUID.randomUUID().toString
+    val registrationID = "12345-678910"
 
     "return an encrypted string" in new Setup {
 
@@ -92,29 +92,20 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
       when(mockCompanyRegistrationConnector.retrieveCompanyDetails(Matchers.eq(registrationID))(Matchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(Some(validCompanyDetailsResponseDifferentAddresses)))
 
-      val chPayload = JsObject(Seq("foo"->Json.toJson("bar")))
-
-      when(mockEncryptor.encrypt[BusinessActivitiesModel](Matchers.any[BusinessActivitiesModel]())(Matchers.any()))
-        .thenReturn(Some("xxx"))
-
       val result = await(service.buildBusinessActivitiesPayload(registrationID, externalID))
 
-      result shouldBe defined
-      result.get shouldBe "SIC codes" -> "xxx"
+      result.get._1 shouldBe "SIC codes"
 
-      val captor = ArgumentCaptor.forClass(classOf[BusinessActivitiesModel])
-      verify(mockEncryptor).encrypt(captor.capture())(Matchers.any())
-
-
+      val address = HandoffPPOB.fromCorePPOB(validCompanyDetailsResponseDifferentAddresses.pPOBAddress)
       val model = BusinessActivitiesModel(
-        "testExternalID",
+        externalID,
         registrationID,
-        Some(handoffPpob1),
+        Some(address),
         None,
         Json.parse("""{}""").as[JsObject],
         NavLinks("summary","regularPayments"))
 
-      captor.getValue shouldBe model
+      testJwe.decrypt[BusinessActivitiesModel](result.get._2).get shouldBe model
     }
   }
 
@@ -125,15 +116,80 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
         "1" -> NavLinks("http://localhost:9970/register-your-company/principal-place-of-business", "http://localhost:9970/register-your-company/register"),
         "3" -> NavLinks("", "http://localhost:9970/register-your-company/trading-details"),
         "5" -> NavLinks("", "http://localhost:9970/register-your-company/check-confirm-answers"))),
-      Receiver(Map("0" -> NavLinks("companyNameUrl", "")))
-    )
+      Receiver(Map("0" -> NavLinks("companyNameUrl", ""))))
 
-    "return a forward url and encrypted payload when there is no nav model in keystore" in new Setup {
-      mockKeystoreFetchAndGet("HandOffNavigation", None)
+    "return a forward url and encrypted payload when there is no nav model in the repository" in new Setup {
       mockInsertNavModel("testRegID",Some(initNavModel))
       mockGetNavModel(None)
       val result = await(service.companyNamePayload("testRegID", "testemail", "testname", externalID))
-      result shouldBe Some(("http://localhost:9986/incorporation-frontend-stubs/basic-company-details","xxx"))
+      result.get._1 shouldBe "http://localhost:9986/incorporation-frontend-stubs/basic-company-details"
+      val decrypted = testJwe.decrypt[BusinessActivitiesModel](result.get._2)
+      decrypted.get shouldBe BusinessActivitiesModel(
+        "testExternalID",
+        "testRegID",
+        None,None,
+        Json.obj(),
+        NavLinks(
+          "http://localhost:9970/register-your-company/corporation-tax-details",
+          "http://localhost:9970/register-your-company/return-to-about-you")
+      )
+    }
+  }
+
+  "buildPSCPayload" should {
+    val validNavModelForThisFunction = HandOffNavModel(
+      Sender(Map(
+        "3-2" -> NavLinks("SenderUrlToSummary", "ReverseUrlToTradingDetails"))
+      ),
+      Receiver(Map(
+        "3-1" -> NavLinks("PSCStubPage", "BusinessActivitiesStubPage")
+      ),
+        chData = Some(Json.obj("foo" -> "bar")))
+    )
+    "Return forward URL and encrypted payload" in new Setup {
+      when(mockKeystoreConnector.fetchAndGet[String](Matchers.eq("registrationID"))(Matchers.any(), Matchers.any()))
+        .thenReturn(Future.successful(Some("12345")))
+      mockGetNavModel(Some(validNavModelForThisFunction))
+
+      val result = await(service.buildPSCPayload("12345","12"))
+      result.get._1 shouldBe "PSCStubPage"
+      val decrypted = testJwe.decrypt[PSCHandOff](result.get._2)
+      decrypted.get shouldBe PSCHandOff("12","12345",Json.obj(), Some(Json.obj("foo" -> "bar")), NavLinks("SenderUrlToSummary","ReverseUrlToTradingDetails"))
+    }
+
+    "return exception when sender link does not exist in nav model" in new Setup {
+      val invalidNavModel = HandOffNavModel(
+        Sender(Map(
+          "3-123" -> NavLinks("SenderUrlToSummary", "ReverseUrlToTradingDetails"))
+        ),
+        Receiver(Map(
+          "3-1" -> NavLinks("PSCStubPage", "BusinessActivitiesStubPage")
+        )))
+      when(mockKeystoreConnector.fetchAndGet[String](Matchers.eq("registrationID"))(Matchers.any(), Matchers.any()))
+        .thenReturn(Future.successful(Some("12345")))
+      mockGetNavModel(Some(invalidNavModel))
+
+      intercept[Exception](await(service.buildPSCPayload("12345","12")))
+    }
+    "return exception when receiver link does not exist in nav model" in new Setup {
+      val invalidNavModel = HandOffNavModel(
+        Sender(Map(
+          "3-2" -> NavLinks("SenderUrlToSummary", "ReverseUrlToTradingDetails"))
+        ),
+        Receiver(Map(
+          "3-123" -> NavLinks("PSCStubPage", "BusinessActivitiesStubPage")
+        )))
+      when(mockKeystoreConnector.fetchAndGet[String](Matchers.eq("registrationID"))(Matchers.any(), Matchers.any()))
+        .thenReturn(Future.successful(Some("12345")))
+      mockGetNavModel(Some(invalidNavModel))
+
+      intercept[Exception](await(service.buildPSCPayload("12345","12")))
+    }
+    "return an exception when keystorefetchAndGet returns an exception" in new Setup {
+      when(mockKeystoreConnector.fetchAndGet[String](Matchers.eq("registrationID"))(Matchers.any(), Matchers.any()))
+        .thenReturn(Future.failed(new Exception("foo")))
+
+      intercept[Exception](await(service.buildPSCPayload("12345","12")))
     }
   }
 
@@ -163,7 +219,6 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
 
       testJsLinks.as[NavLinks].forward shouldBe "testForward"
       testJsLinks.as[NavLinks].reverse shouldBe "testBackward"
-
 
       testJsLinks.as[JumpLinks] shouldBe testJump
 
@@ -314,7 +369,14 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
       val result = await(service.summaryHandOff(externalID)).get
 
       result._1 shouldBe "testForwardLinkFromReceiver4"
-      result._2 shouldBe "xxx"
+      val decrypted = testJwe.decrypt[BusinessActivitiesModel](result._2)
+      decrypted.get shouldBe BusinessActivitiesModel(
+        "testExternalID",
+        "12345",
+        None,
+        Some(Json.obj("testCHBagKey" ->"testValue")),
+        Json.obj(),
+        NavLinks("testForwardLinkFromSender5","testReverseLinkFromSender5"))
     }
   }
 }

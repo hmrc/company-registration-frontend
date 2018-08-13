@@ -20,9 +20,10 @@ import connectors.{CompanyRegistrationConnector, KeystoreConnector, S4LConnector
 import models._
 import models.handoff._
 import play.api.Logger
-import play.api.libs.json.{Format, JsValue}
+import play.api.libs.json.{Format, JsObject, JsValue}
 import repositories._
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.binders.ContinueUrl
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
@@ -65,9 +66,6 @@ trait HandBackService extends CommonService with SCRSExceptions with HandOffNavi
 
   def processCompanyNameReverseHandBack(request: String)(implicit hc: HeaderCarrier): Future[Try[JsValue]] = {
     decryptHandBackRequest[JsValue](request){ res =>
-      //todo: SCRS-3193 - compare journey id against one in session for error handling
-      //(res \ "journey_id").as[String]
-
       Future.successful(Success(res))
     }
   }
@@ -92,58 +90,79 @@ trait HandBackService extends CommonService with SCRSExceptions with HandOffNavi
     validateLink(links.company_jurisdiction)
     validateLink(links.company_name)
   }
+  private def updateNavModelWithLinksAndCHDataFromCOHO(handOff: String, links: NavLinks, ch: JsObject, oldModel: HandOffNavModel): HandOffNavModel = {
+    oldModel.copy(
+      receiver = {
+        oldModel.receiver.copy(
+          nav = oldModel.receiver.nav ++ Map(handOff -> links),
+          chData = Some(ch)
+        )
+      })
+  }
 
 
   def processCompanyDetailsHandBack(request : String)(implicit hc : HeaderCarrier) : Future[Try[CompanyNameHandOffIncoming]] = {
-    def processNavModel(model: HandOffNavModel, payload: CompanyNameHandOffIncoming) = {
+    def processNavModel(model: HandOffNavModel, payload: CompanyNameHandOffIncoming): Future[Option[HandOffNavModel]] = {
       val navLinks = payload.links.as[NavLinks]
       val jumpLinks = payload.links.as[JumpLinks]
       validateLinks(navLinks)
       validateLinks(jumpLinks)
-      val updatedNavModel = model.copy(
-        receiver = model.receiver.copy(
-          nav = model.receiver.nav ++ Map("2" -> navLinks),
-          chData = Some(payload.ch),
-          jump = Map(
-            "company_name" -> jumpLinks.company_name,
-            "company_address" -> jumpLinks.company_address,
-            "company_jurisdiction" -> jumpLinks.company_jurisdiction
-          )
-        )
-      )
+      val navModelWithLinksAndCH = updateNavModelWithLinksAndCHDataFromCOHO("2", navLinks, payload.ch, model)
+      val updatedNavModel =  navModelWithLinksAndCH.copy(receiver = navModelWithLinksAndCH.receiver.copy(jump = Map(
+        "company_name" -> jumpLinks.company_name,
+        "company_address" -> jumpLinks.company_address,
+        "company_jurisdiction" -> jumpLinks.company_jurisdiction
+      )))
       cacheNavModel(updatedNavModel, hc)
     }
 
     decryptHandBackRequest[CompanyNameHandOffIncoming](request){
       payload =>
         for {
-          model <- fetchNavModel()
-          navResult <- processNavModel(model, payload)
-          storeResult <- storeCompanyDetails(payload)
+          model       <- fetchNavModel()
+          _           <- processNavModel(model, payload)
+          _           <- storeCompanyDetails(payload)
         } yield {
           Success(payload)
         }
     }
   }
 
-  def processSummaryPage1HandBack(request : String)(implicit hc : HeaderCarrier) : Future[Try[SummaryPage1HandOffIncoming]] = {
-    def processNavModel(model: HandOffNavModel, payload: SummaryPage1HandOffIncoming) = {
+  def processGroupsHandBack(request: String)(implicit hc: HeaderCarrier):Future[Try[GroupHandBackModel]] = {
+    def processNavModel(model: HandOffNavModel, payload: GroupHandBackModel): Future[Option[HandOffNavModel]] = {
       validateLinks(payload.links)
-      implicit val updatedModel = model.copy(
-        receiver = {
-          model.receiver.copy(
-            nav = model.receiver.nav ++ Map("4" -> payload.links),
-            chData = Some(payload.ch)
-          )
-        })
-      cacheNavModel
+      val updatedModel = updateNavModelWithLinksAndCHDataFromCOHO("3-1", payload.links, payload.ch, model)
+      cacheNavModel(updatedModel, hc)
+    }
+
+    decryptHandBackRequest[GroupHandBackModel](request) {
+      payload => {
+       payload.has_corporate_shareholders match {
+         case None => Future.successful(Success(payload))
+         case Some(_) => for {
+             nm             <- fetchNavModel()
+             cachedNavModel <- processNavModel(nm, payload)
+           } yield {
+             cachedNavModel.fold[Try[GroupHandBackModel]](
+               Failure(new Exception("[processGroupsHandBack] - Something went terribly wrong nav model did exist but upon updating it, it no longer exists")))(_ => Success(payload))
+           }
+         }
+       }
+      }
+    }
+
+  def processSummaryPage1HandBack(request: String)(implicit hc : HeaderCarrier) : Future[Try[SummaryPage1HandOffIncoming]] = {
+    def processNavModel(model: HandOffNavModel, payload: SummaryPage1HandOffIncoming): Future[Option[HandOffNavModel]] = {
+      validateLinks(payload.links)
+      val updatedModel = updateNavModelWithLinksAndCHDataFromCOHO("4", payload.links, payload.ch, model)
+      cacheNavModel(updatedModel, hc)
     }
 
     decryptHandBackRequest[SummaryPage1HandOffIncoming](request){
       payload =>
         for {
-          model <- fetchNavModel()
-          navResult <- processNavModel(model, payload)
+          model       <- fetchNavModel()
+          _           <- processNavModel(model, payload)
           storeResult <- storeSimpleHandOff(payload)
         } yield {
           storeResult match {
@@ -158,17 +177,11 @@ trait HandBackService extends CommonService with SCRSExceptions with HandOffNavi
 
   def decryptConfirmationHandback(request : String)(implicit hc : HeaderCarrier) : Future[Try[RegistrationConfirmationPayload]] = {
 
-    def processNavModel(model: HandOffNavModel, payload: RegistrationConfirmationPayload) = {
+    def processNavModel(model: HandOffNavModel, payload: RegistrationConfirmationPayload): Future[Option[HandOffNavModel]] = {
       validateLink(getForwardUrl(payload).get)
       val navLinks = NavLinks(getForwardUrl(payload).get,"")
-      implicit val updatedModel = model.copy(
-        receiver = {
-          model.receiver.copy(
-            nav = model.receiver.nav ++ Map("5-1" -> navLinks),
-            chData = Some(payload.ch)
-          )
-        })
-      cacheNavModel
+      val updatedModel = updateNavModelWithLinksAndCHDataFromCOHO("5-1", navLinks, payload.ch, model)
+      cacheNavModel(updatedModel, hc)
     }
 
     decryptHandBackRequest[RegistrationConfirmationPayload](request){
@@ -208,8 +221,6 @@ trait HandBackService extends CommonService with SCRSExceptions with HandOffNavi
   private[services] def storeSimpleHandOff(payload : SummaryPage1HandOffIncoming)(implicit hc : HeaderCarrier) : Future[Boolean] = {
     for {
       regID <- fetchRegistrationID
-      //chUpdated <- handOffConnector.updateCHData(regID, CompanyNameHandOffInformation("full-data", DateTime.now, payload.ch))
-      //TODO : Change return
     } yield true
   }
 

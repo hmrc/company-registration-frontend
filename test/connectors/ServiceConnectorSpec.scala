@@ -120,6 +120,14 @@ class ServiceConnectorSpec extends SCRSSpec {
       val response = await(result)
       response shouldBe Cancelled
     }
+    "return NotCancelled if getStatus returns anything but success" in new Setup {
+      when(mockHttp.DELETE[HttpResponse](any[String])(any(),any(), any())).thenReturn(Future.successful(HttpResponse(200)))
+      val s = (t: String) => Future.successful(ErrorResponse)
+      val result = connector.cancelReg("test-regId")(s)
+
+      val response = await(result)
+      response shouldBe NotCancelled
+    }
 
     "return Cancelled if user has cancelURL in paye status and delete is successful with different parameters in HTTP response" in new Setup {
 

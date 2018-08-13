@@ -51,6 +51,7 @@ class HandOffsISpec extends IntegrationSpecBase with LoginStub with FakeAppConfi
     ("HO1b", "/return-to-about-you", HO1B_PAYLOAD),
     ("HO2", "/corporation-tax-details", HO2_PAYLOAD),
     ("HO3b", "/business-activities-back", HO3B_PAYLOAD),
+    ("HO3-1", "/groups-handback", H03_1_PAYLOAD_FLAG),
     ("HO4", "/corporation-tax-summary", HO4_PAYLOAD),
     ("HO5b", "/return-to-corporation-tax-summary", HO5B_PAYLOAD)
   ).foreach { case (num, url, payload) =>
@@ -78,6 +79,7 @@ class HandOffsISpec extends IntegrationSpecBase with LoginStub with FakeAppConfi
       And("A new keystore entry is created")
       stubKeystoreSave(SessionId, regId, 200)
       stubKeystore(SessionId, regId)
+
 
       Then(s"The request is redirected back to $url with the payload as a query string")
       val responseBack = followRequest(redirect)

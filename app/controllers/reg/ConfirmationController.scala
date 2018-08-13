@@ -95,5 +95,4 @@ trait ConfirmationController extends FrontendController with AuthFunction with S
       Future.successful(Ok(views.html.errors.deskproSubmitted()))
     }
   }
-
 }

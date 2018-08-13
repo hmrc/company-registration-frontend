@@ -24,7 +24,7 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import play.api.http.HeaderNames
 import play.api.libs.Crypto
-import play.api.libs.json.Json
+import play.api.libs.json.{JsObject, Json}
 import play.api.libs.ws.WSCookie
 import uk.gov.hmrc.crypto.{CompositeSymmetricCrypto, Crypted, PlainText}
 import uk.gov.hmrc.http.SessionKeys
@@ -70,7 +70,7 @@ trait LoginStub extends SessionCookieBaker {
     cookieValue(cookieData(additionalData, userId, sessionId))
   }
 
-  def stubSuccessfulLogin(withSignIn: Boolean = false, userId: String = defaultUser): StubMapping = {
+  def stubSuccessfulLogin(withSignIn: Boolean = false, userId: String = defaultUser, otherParamsForAuth: Option[JsObject] = None): StubMapping = {
 
     if( withSignIn ) {
       val continueUrl = "/wibble"
@@ -81,25 +81,28 @@ trait LoginStub extends SessionCookieBaker {
           .withHeader(HeaderNames.LOCATION, continueUrl)))
     }
 
-    stubAuthorisation(200, Some(s"""
-                                   |{
-                                   |    "uri": "${userId}",
-                                   |    "internalId": "some-id",
-                                   |    "affinityGroup": "Organisation",
-                                   |    "loginTimes": {
-                                   |      "currentLogin": "2014-06-09T14:57:09.522Z",
-                                   |      "previousLogin": "2014-06-09T14:48:24.841Z"
-                                   |    },
-                                   |    "credentials": {
-                                   |      "providerId": "12345-credId",
-                                   |      "providerType": "GovernmmentGateway"
-                                   |    },
-                                   |    "email":"test@test.com",
-                                   |    "allEnrolments": [],
-                                   |    "confidenceLevel" : 50,
-                                   |    "credentialStrength": "weak"
-                                   |}
-            """.stripMargin))
+    val authJson = Json.parse(s"""
+                                 |{
+                                 |    "uri": "${userId}",
+                                 |    "internalId": "some-id",
+                                 |    "affinityGroup": "Organisation",
+                                 |    "loginTimes": {
+                                 |      "currentLogin": "2014-06-09T14:57:09.522Z",
+                                 |      "previousLogin": "2014-06-09T14:48:24.841Z"
+                                 |    },
+                                 |    "credentials": {
+                                 |      "providerId": "12345-credId",
+                                 |      "providerType": "GovernmmentGateway"
+                                 |    },
+                                 |    "email":"test@test.com",
+                                 |    "allEnrolments": [],
+                                 |    "confidenceLevel" : 50,
+                                 |    "credentialStrength": "weak"
+                                 |}
+            """.stripMargin).as[JsObject].deepMerge(otherParamsForAuth.fold(Json.obj())(identity))
+
+
+    stubAuthorisation(200, Some(authJson.toString()))
   }
 
   def setupSimpleAuthMocks(userId: String = defaultUser) = {

@@ -79,13 +79,14 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
 
   val testNavModel = HandOffNavModel(
     Sender(Map(
-      "1" -> NavLinks("returnFromCoho", "aboutYOu"),
-      "3" -> NavLinks("summary", "regularPayments"),
-      "5" -> NavLinks("confirmation", "summary"),
+      "1"   -> NavLinks("returnFromCoho", "aboutYOu"),
+      "3"   -> NavLinks("groupsHandback", "regularPayments"),
+      "3-2" -> NavLinks("summary", "regularPayments"),
+      "5"   -> NavLinks("confirmation", "summary"),
       "5-2" -> NavLinks("confirmation",""))),
     Receiver(Map(
-      "0" -> NavLinks("firstHandOff", "/ho1"),
-      "1" -> NavLinks("SIC codes", "/ho3")
+      "0"   -> NavLinks("firstHandOff", "/ho1"),
+      "1"   -> NavLinks("SIC codes", "/ho3")
     )))
 
   "updateCompanyDetails" should {
@@ -200,7 +201,6 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
   }
 
   "summary Page 1 hand back" should {
-
     "return a DecryptionError if the encrypted payload is empty" in new Setup {
       await(service.processSummaryPage1HandBack("")) shouldBe Failure(DecryptionError)
     }
@@ -213,7 +213,6 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
 
     "Decrypt and store the CH payload" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
-      mockKeystoreFetchAndGet[HandOffNavModel]("HandOffNavigation", Some(testNavModel))
 
       mockNavRepoGet("12345", testNavModel)
       mockNavRepoInsert("12345", testNavModel)
@@ -245,6 +244,93 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
             await(service.processSummaryPage1HandBack(encryptedRequest.get))
           }
         }
+    }
+  }
+  "processGroupsHandBack" should {
+  "return an error if the decryption payload is empty" in new Setup {
+    await(service.processGroupsHandBack("")) shouldBe Failure(DecryptionError)
+  }
+
+   "return a PayloadError if the decrypted payload is empty" in new Setup {
+     val payload = testJwe.encrypt[String]("")
+     payload shouldBe defined
+     await(service.processGroupsHandBack(payload.get)) shouldBe Failure(PayloadError)
+   }
+
+    "return groupHandOffModel when corporate shareholders flag is not present" in new Setup {
+      val groupModel = GroupHandBackModel(
+        "user",
+        "journeyid",
+        Json.obj("ch"->"value"),
+        Json.obj("hmrc"->"value"),
+        NavLinks("f", "r"),
+        None
+      )
+      val encryptedGroupModel = testJwe.encrypt[GroupHandBackModel](groupModel)
+      await(service.processGroupsHandBack(encryptedGroupModel.get)) shouldBe Success(groupModel)
+    }
+
+    "return groupHandOffModel when corporate shareholders flag is present" in new Setup {
+      val groupModel = GroupHandBackModel(
+        "user",
+        "journeyid",
+        Json.obj("ch"->"value"),
+        Json.obj("hmrc"->"value"),
+        NavLinks("/testForward", "/testReverse"),
+        Some(true)
+      )
+      mockKeystoreFetchAndGet("registrationID", Some("12345"))
+      mockNavRepoGet("12345", testNavModel)
+      mockNavRepoInsert("12345", testNavModel)
+
+      val encryptedGroupModel = testJwe.encrypt[GroupHandBackModel](groupModel)
+      await(service.processGroupsHandBack(encryptedGroupModel.get)) shouldBe Success(groupModel)
+    }
+    "throw IllegalArgumentException if one of the navLinks is invalid" in new Setup {
+      val groupModel = GroupHandBackModel(
+        "user",
+        "journeyid",
+        Json.obj("ch"->"value"),
+        Json.obj("hmrc"->"value"),
+        NavLinks("INVALIDXXX", "/testReverse"),
+        Some(true)
+      )
+      mockKeystoreFetchAndGet("registrationID", Some("12345"))
+      mockNavRepoGet("12345", testNavModel)
+      val encryptedGroupModel = testJwe.encrypt[GroupHandBackModel](groupModel)
+      intercept[IllegalArgumentException](await(service.processGroupsHandBack(encryptedGroupModel.get)))
+    }
+    "return Failure when NavModel Cache fails returning None" in new Setup {
+      val groupModel = GroupHandBackModel(
+        "user",
+        "journeyid",
+        Json.obj("ch"->"value"),
+        Json.obj("hmrc"->"value"),
+        NavLinks("/forward", "/testReverse"),
+        Some(true)
+      )
+      mockKeystoreFetchAndGet("registrationID", Some("12345"))
+      mockNavRepoGet("12345", testNavModel)
+      when(mockNavModelRepo.insertNavModel(Matchers.any(), Matchers.any[HandOffNavModel]))
+        .thenReturn(Future.successful(None))
+      val encryptedGroupModel = testJwe.encrypt[GroupHandBackModel](groupModel)
+      await(service.processGroupsHandBack(encryptedGroupModel.get)).isFailure shouldBe true
+    }
+
+    "return an exception when fetchNavModel returns an exception" in new Setup {
+        val groupModel = GroupHandBackModel(
+        "user",
+        "journeyid",
+        Json.obj("ch"->"value"),
+        Json.obj("hmrc"->"value"),
+        NavLinks("/forward", "/testReverse"),
+        Some(true)
+        )
+        mockKeystoreFetchAndGet("registrationID", Some("12345"))
+      when(mockNavModelRepo.getNavModel(Matchers.any()))
+        .thenReturn(Future.failed(new Exception("")))
+      val encryptedGroupModel = testJwe.encrypt[GroupHandBackModel](groupModel)
+      intercept[Exception](await(service.processGroupsHandBack(encryptedGroupModel.get)))
     }
   }
 

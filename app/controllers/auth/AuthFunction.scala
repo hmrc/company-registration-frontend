@@ -41,14 +41,11 @@ trait AuthFunction extends FrontendController with AuthorisedFunctions with Serv
     baseFunction (body) recover authErrorHandling(Some(hoID), Some(payload))
   }
 
-  def ctAuthorisedEnrolments(body: => (Enrolments) => Future[Result])(implicit request: Request[AnyContent]): Future[Result] = {
-    baseFunction.retrieve(allEnrolments)(body(_)) recover authErrorHandling()
-  }
-
   def ctAuthorisedOptStr(retrieval: Retrieval[Option[String]])(body: => (String) => Future[Result])
                         (implicit request: Request[AnyContent]): Future[Result] = {
     baseFunction.retrieve(retrieval) {
       case Some(ret) => body(ret)
+      case _ => Future.failed(InternalError(s"[AuthConnector] ctAuthorisedOptStr returned None when expecting Some of ${retrieval.propertyNames}"))
     } recover authErrorHandling()
   }
 

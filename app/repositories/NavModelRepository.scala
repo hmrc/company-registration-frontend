@@ -53,7 +53,6 @@ class NavModelRepoMongo(mongo: () => DB) extends ReactiveRepository[HandOffNavMo
 
   //TODO: Remove $or statements after 25th August to use selecting on ONLY '_id'
   override def getNavModel(registrationID: String): Future[Option[HandOffNavModel]] = {
-    //val selector = BSONDocument("_id" -> registrationID)
     val selector = BSONDocument(
       "$or" -> BSONArray(
         BSONDocument("registrationID" -> registrationID),
@@ -64,7 +63,6 @@ class NavModelRepoMongo(mongo: () => DB) extends ReactiveRepository[HandOffNavMo
   }
 
   override def insertNavModel(registrationID: String, hm : HandOffNavModel): Future[Option[HandOffNavModel]] = {
-    //val selector = BSONDocument("_id" -> registrationID)
     val selector = BSONDocument(
       "$or" -> BSONArray(
         BSONDocument("registrationID" -> registrationID),

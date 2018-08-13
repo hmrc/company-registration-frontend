@@ -69,8 +69,11 @@ trait ServiceConnector {
             case  HttpResponse(OK,_,_,_)  => Cancelled
             case _ => NotCancelled
         }
+          case _ => throw cantCancel
       } recover {
         case ex:HttpException => Logger.error(s"[ServiceConnector] [cancelReg] - ${ex.responseCode} response code was returned - reason : ${ex.message}  ", ex)
+          NotCancelled
+        case ex: cantCancelT => Logger.error(s"[ServiceConnector] [cancelReg] - $ex functionPassed in to return regId succeeded but didn't return a SuccessfulResponse (getStatus)")
           NotCancelled
         case ex:Throwable =>Logger.error(s"[ServiceConnector] [cancelReg] - Non-Http Exception caught", ex)
           NotCancelled

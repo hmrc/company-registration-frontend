@@ -16,19 +16,21 @@
 
 package services
 
+import java.util.NoSuchElementException
+
 import config.FrontendConfig
 import controllers.handoff._
 import models.handoff.{HandOffNavModel, NavLinks, Receiver, Sender}
-import play.api.mvc.Results.Redirect
-import play.api.mvc.{Call, Result}
+import play.api.Logger
+import play.api.mvc.Call
 import repositories._
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 import utils.{SCRSExceptions, SCRSFeatureSwitches}
 
 import scala.concurrent.Future
+import scala.util.Try
 import scala.util.control.NoStackTrace
 
 class NavModelNotFoundException extends NoStackTrace
@@ -54,6 +56,7 @@ trait HandOffNavigator extends CommonService with SCRSExceptions {
 
   def regularPaymentsBackUrl  = buildUrl(routes.BusinessActivitiesController.businessActivitiesBack(""))
   def summaryUrl              = buildUrl(routes.CorporationTaxSummaryController.corporationTaxSummary(""))
+  def groupHandBackUrl        = buildUrl(routes.GroupController.groupHandBack(""))
 
   def returnSummaryUrl        = buildUrl(routes.IncorporationSummaryController.returnToCorporationTaxSummary(""))
   def confirmationURL         = buildUrl(routes.RegistrationConfirmationController.registrationConfirmation(""))
@@ -79,7 +82,8 @@ trait HandOffNavigator extends CommonService with SCRSExceptions {
     val model = HandOffNavModel(
       Sender(Map(
         "1"   -> NavLinks(corporationTaxDetails, aboutYouUrl),
-        "3"   -> NavLinks(summaryUrl, regularPaymentsBackUrl),
+        "3"   -> NavLinks(groupHandBackUrl, regularPaymentsBackUrl),
+        "3-2" -> NavLinks(summaryUrl, regularPaymentsBackUrl),
         "5"   -> NavLinks(confirmationURL, returnSummaryUrl),
         "5-2" -> NavLinks(forwardConfirmationUrl,""))),
       Receiver(Map("0" -> NavLinks(firstHandoffURL, "")).withDefaultValue(NavLinks(postSignInUrl,postSignInUrl))))
@@ -87,12 +91,11 @@ trait HandOffNavigator extends CommonService with SCRSExceptions {
     cacheNavModel(model, hc) map (_ => model)
   }
 
-  def cacheNavModel(implicit navModel: HandOffNavModel, hc: HeaderCarrier): Future[Either[Option[HandOffNavModel], CacheMap]] = {
+  def cacheNavModel(implicit navModel: HandOffNavModel, hc: HeaderCarrier): Future[Option[HandOffNavModel]] = {
     fetchRegistrationID flatMap  { reg =>
-      navModelMongo.insertNavModel(reg, navModel).map(Left(_))
+      navModelMongo.insertNavModel(reg, navModel)
     }
   }
-
 
   private def previous(nav: String) = nav match {
     case s if s.contains("-") => val numbers = s.split('-').map(_.toInt)
@@ -100,32 +103,25 @@ trait HandOffNavigator extends CommonService with SCRSExceptions {
     case s => (s.toInt - 1).toString
   }
 
-  def forwardTo(navPosition: String)(implicit navModel: HandOffNavModel, hc: HeaderCarrier) = {
-    navModel.receiver.nav(previous(navPosition)).forward
+  def forwardTo(navPosition: String)(implicit navModel: HandOffNavModel, hc: HeaderCarrier): String = {
+    Try(navModel.receiver.nav(previous(navPosition)).forward)
+      .getOrElse(noNavModelPosition(navPosition))
   }
 
-  def forwardTo(navPosition: Int)(implicit navModel: HandOffNavModel, hc: HeaderCarrier) = {
-    navModel.receiver.nav((navPosition - 1).toString).forward
+  def forwardTo(navPosition: Int)(implicit navModel: HandOffNavModel, hc: HeaderCarrier): String = {
+    val getPreviousHandBackForwardLinks = navPosition - 1
+    Try(navModel.receiver.nav((navPosition - 1).toString).forward)
+      .getOrElse(noNavModelPosition(getPreviousHandBackForwardLinks))
   }
 
-  def reverseFrom(navPosition: Int)(implicit navModel: HandOffNavModel, hc: HeaderCarrier) = {
-    navModel.receiver.nav(navPosition.toString).reverse
+  def hmrcLinks(navPosition: String)(implicit navModel: HandOffNavModel, hc: HeaderCarrier): NavLinks = {
+    Try(navModel.sender.nav(navPosition))
+      .getOrElse(noNavModelPosition(navPosition))
   }
 
-  def jumpTo(jumpTarget: String)(implicit navModel: HandOffNavModel, hc: HeaderCarrier) = {
-    navModel.receiver.jump(jumpTarget)
-  }
-
-  def hmrcLinks(navPosition: String)(implicit navModel: HandOffNavModel, hc: HeaderCarrier) = {
-    navModel.sender.nav(navPosition)
-  }
-
-  def hmrcLinks(navPosition: Int)(implicit navModel: HandOffNavModel, hc: HeaderCarrier) = {
-    navModel.sender.nav(navPosition.toString)
-  }
-
-  def handleNotFound: PartialFunction[Throwable, Result] = {
-    case ex: NavModelNotFoundException => Redirect(postSignInCall)
+  private def noNavModelPosition(pos: Any)(implicit n: HandOffNavModel) =  {
+    Logger.warn(s"[HandOffNavigator] failed to find navLinks with pos: $pos - current NavModelLinks: ${n.sender.nav} ${n.receiver.nav} ${n.receiver.jump}")
+    throw new NoSuchElementException(s"key not found: $pos")
   }
 
   private[services] def firstHandoffURL: String = {

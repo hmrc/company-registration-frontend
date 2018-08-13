@@ -345,6 +345,14 @@ class SignInOutControllerSpec extends SCRSSpec
       redirectLocation(result) shouldBe Some(s"http://localhost:9970/register-your-company/business-activities-back?request=$payload")
     }
 
+    "process a deferred hand off 3-1" in new Setup {
+      mockCacheRegistrationID(regId, mockKeystoreConnector)
+      val handOffID = "HO3-1"
+      val result = await(controller.processDeferredHandoff(Some(handOffID), Some(payload), throttleResponse)(Future.successful(Results.Ok)))
+      status(result) shouldBe 303
+      redirectLocation(result) shouldBe Some(s"http://localhost:9970/register-your-company/groups-handback?request=$payload")
+    }
+
     "process a deferred hand off 4" in new Setup {
       mockCacheRegistrationID(regId, mockKeystoreConnector)
       val handOffID = "HO4"

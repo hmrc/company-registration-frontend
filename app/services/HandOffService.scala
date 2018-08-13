@@ -60,10 +60,23 @@ trait HandOffService extends CommonService with SCRSExceptions with ServicesConf
 
   def getURL(path : String) = s"$returnUrl$path"
 
+  def buildPSCPayload(regId: String, externalId: String)(implicit hc: HeaderCarrier): Future[Option[(String,String)]] = {
+    val navModel = fetchNavModel() map {
+      implicit model =>
+        (forwardTo("3-2"), hmrcLinks("3-2"), model.receiver.chData)
+    }
+    navModel.map { navmodel =>
+      val (url, links, chData) = navmodel
+      encryptor.encrypt[PSCHandOff](PSCHandOff(externalId, regId, Json.obj(), chData, links)) map {
+        (url, _)
+      }
+    }
+  }
+
   def buildBusinessActivitiesPayload(regId: String, externalId : String)(implicit hc : HeaderCarrier) : Future[Option[(String, String)]] = {
     val navModel = fetchNavModel() map {
       implicit model =>
-        (forwardTo(3), hmrcLinks(3), model.receiver.chData)
+        (forwardTo(3), hmrcLinks("3"), model.receiver.chData)
     }
 
     for {
@@ -86,7 +99,7 @@ trait HandOffService extends CommonService with SCRSExceptions with ServicesConf
                         (implicit hc : HeaderCarrier) : Future[Option[(String, String)]] = {
     val navModel = fetchNavModel(canCreate = true) map {
       implicit model =>
-        (forwardTo(1), hmrcLinks(1), model.receiver.chData)
+        (forwardTo(1), hmrcLinks("1"), model.receiver.chData)
     }
 
     for {
@@ -145,7 +158,7 @@ trait HandOffService extends CommonService with SCRSExceptions with ServicesConf
   def summaryHandOff(externalID : String)(implicit hc : HeaderCarrier) : Future[Option[(String, String)]] = {
     val navModel = fetchNavModel() map {
       implicit model =>
-        (forwardTo(5), hmrcLinks(5), model.receiver.chData)
+        (forwardTo(5), hmrcLinks("5"), model.receiver.chData)
     }
 
     for {

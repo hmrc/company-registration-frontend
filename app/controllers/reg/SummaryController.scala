@@ -104,8 +104,8 @@ with SessionRegistration with MessagesSupport {
     implicit request =>
       ctAuthorisedOptStr(Retrievals.externalId) { externalID =>
         (for {
-          journey_id <- fetchRegistrationID
-          navModel <- fetchNavModel()
+          _           <- fetchRegistrationID
+          navModel    <- fetchNavModel()
           backPayload <- handOffService.buildBackHandOff(externalID)
         } yield {
           val payload = Jwe.encrypt[BackHandoff](backPayload).getOrElse("")

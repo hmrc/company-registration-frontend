@@ -210,7 +210,7 @@ trait DashboardService extends SCRSExceptions with AlertLogging with CommonServi
     matchCTUTR match {
       case Some(true) => ctData
       case Some(false) =>
-        pagerduty(PagerDutyKeys.CT_UTR_MISMATCH,Some(" - for registration id: ${regId}"))
+        pagerduty(PagerDutyKeys.CT_UTR_MISMATCH,Some(s" - for registration id: $regId"))
         ctData.copy(ctutr = None)
       case _ =>
         ctData.copy(ctutr = None)
