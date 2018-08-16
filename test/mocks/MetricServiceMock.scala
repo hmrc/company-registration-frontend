@@ -44,6 +44,5 @@ object MetricServiceMock extends MetricsService with MockitoSugar {
   override val saveTradingDetailsToCRTimer: Timer = mockTimer
   override val saveFootprintToCRTimer: Timer = mockTimer
   override val blockedByEnrollment : Counter = mockCounter
-  override val retrieveCompanyProfileIITimer: Timer = mockTimer
   override val deskproResponseTimer: Timer = mockTimer
 }

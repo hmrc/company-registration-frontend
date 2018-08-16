@@ -49,9 +49,6 @@ object MetricsService extends MetricsService with MicroserviceMetrics {
   override val saveReviewAddressToCRTimer = metrics.defaultRegistry.timer("save-review-address-to-cr-timer")
   override val saveTradingDetailsToCRTimer = metrics.defaultRegistry.timer("save-trading-details-to-cr-timer")
   override val saveFootprintToCRTimer = metrics.defaultRegistry.timer("save-footprint-to-cr-timer")
-
-  override val retrieveCompanyProfileIITimer = metrics.defaultRegistry.timer("retrieve-company-profile-from-ii-timer")
-
   override val deskproResponseTimer = metrics.defaultRegistry.timer("deskpro-call-timer")
 }
 
@@ -78,8 +75,6 @@ trait MetricsService {
   val saveReviewAddressToCRTimer: Timer
   val saveTradingDetailsToCRTimer: Timer
   val saveFootprintToCRTimer: Timer
-
-  val retrieveCompanyProfileIITimer: Timer
 
   def processDataResponseWithMetrics[T](timer: Timer.Context, success: Option[Counter] = None, failed: Option[Counter] = None)(f: => Future[T]): Future[T] = {
     f map { data =>
