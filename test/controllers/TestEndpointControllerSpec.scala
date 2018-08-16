@@ -256,28 +256,6 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
     }
   }
 
-  "checkSubmissionStatus" should {
-
-    val registrationId = "testRegId"
-
-    val ctRecord = Json.toJson(buildCorporationTaxModel(rid = registrationId))
-
-    val heldRecord = Json.obj("submission" -> "testing")
-
-    "fetch CT record and held submission record and return a 200" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some(registrationId))
-      when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(Matchers.eq(registrationId))(Matchers.any()))
-        .thenReturn(Future.successful(ctRecord))
-      when(mockCompanyRegistrationConnector.fetchHeldSubmission(Matchers.eq(registrationId))(Matchers.any()))
-        .thenReturn(Future.successful(Some(heldRecord)))
-
-      showWithAuthorisedUser(controller.checkSubmissionStatus) {
-        result =>
-          status(result) shouldBe OK
-      }
-    }
-  }
-
   "updateTimepoint" should {
 
     val timepoint = "12345"

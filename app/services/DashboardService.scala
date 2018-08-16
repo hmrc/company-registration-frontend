@@ -102,7 +102,6 @@ trait DashboardService extends SCRSExceptions with AlertLogging with CommonServi
       incorpCTDash.status match {
         case "draft" => CouldNotBuild
         case "rejected" => RejectedIncorp
-        //case _ => getCompanyName(regId) map(cN => DashboardBuilt(Dashboard(incorpCTDash, payeDash, cN)))
         case _ => DashboardBuilt(Dashboard("", incorpCTDash, payeDash, vatDash, hasVatCred, featureFlag.vat.enabled)) //todo: leaving company name blank until story gets played to add it back
       }
     }
@@ -179,17 +178,6 @@ trait DashboardService extends SCRSExceptions with AlertLogging with CommonServi
     }
   }
 
-  private[services] def getCompanyName(regId: String)(implicit hc: HeaderCarrier): Future[String] = {
-    for {
-      confRefs <- companyRegistrationConnector.fetchConfirmationReferences(regId) map {
-        case ConfirmationReferencesSuccessResponse(refs) => refs
-        case _ => throw new ConfirmationRefsNotFoundException
-      }
-      transId = confRefs.transactionId
-      companyName <- incorpInfoConnector.getCompanyName(transId)
-    } yield companyName
-  }
-
   private[services] def buildHeld(regId: String, ctReg: JsValue)(implicit hc: HeaderCarrier): Future[IncorpAndCTDashboard] = {
     for {
       heldSubmissionDate <- companyRegistrationConnector.fetchHeldSubmissionTime(regId)
@@ -247,7 +235,5 @@ trait DashboardService extends SCRSExceptions with AlertLogging with CommonServi
         case _ => Future.successful(false)
       }
     }
-
-
   }
 }

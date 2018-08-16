@@ -16,19 +16,18 @@
 
 package services
 
-import audit.events.{EmailMismatchEvent, EmailVerifiedEvent}
+import audit.events.EmailMismatchEvent
 import builders.AuthBuilder
 import connectors.{NotStarted, SuccessfulResponse}
 import helpers.{AuthHelpers, SCRSSpec}
 import mocks.ServiceConnectorMock
 import models._
 import models.auth.AuthDetails
-import connectors.ConfirmationReferences
 import models.external.{OtherRegStatus, Statuses}
 import org.joda.time.DateTime
-import org.mockito.{ArgumentCaptor, Matchers}
 import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito._
+import org.mockito.{ArgumentCaptor, Matchers}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.{JsObject, JsValue, Json}
 import play.api.test.FakeRequest
@@ -97,7 +96,6 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers with ServiceConnect
       override val loggingTimes = mockLoggingTimes
 
       override def buildIncorpCTDashComponent(regId: String, enrolments: Enrolments)(implicit hc: HeaderCarrier) = Future.successful(dash)
-      override def getCompanyName(regId: String)(implicit hc: HeaderCarrier) = Future.successful("testCompanyName")
       override def getCurrentVatThreshold(implicit hc: HeaderCarrier) = ("85000")
 
      }
@@ -337,29 +335,6 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers with ServiceConnect
       }
     }
   }
-
-  "getCompanyName" should {
-
-    val confRefs = ConfirmationReferences(transId, Some(payRef), Some("12"), ackRef)
-    val companyName = "testCompanyName"
-
-    "return the company name returned from incorporation information" in new Setup {
-      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(eqTo(regId))(any()))
-        .thenReturn(Future.successful(ConfirmationReferencesSuccessResponse(confRefs)))
-      when(mockIncorpInfoConnector.getCompanyName(eqTo(transId))(any())).thenReturn(Future.successful(companyName))
-
-      val res = await(service.getCompanyName(regId))
-      res shouldBe companyName
-
-    }
-
-    "throw a ComfirmationRefsNotFoundException when confirmation refs cannot be retrieved" in new Setup {
-      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(eqTo(regId))(any()))
-        .thenReturn(Future.successful(ConfirmationReferencesErrorResponse))
-          intercept[ConfirmationRefsNotFoundException](await(service.getCompanyName(regId)))
-          }
-      }
-
   "buildHeld" should {
     "return a IncorpAndCTDashboard" in new Setup {
       val expected = IncorpAndCTDashboard("held", Some("10 October 2017"), Some(transId),

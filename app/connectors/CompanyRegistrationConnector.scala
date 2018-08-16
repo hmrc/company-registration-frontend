@@ -348,52 +348,7 @@ trait CompanyRegistrationConnector {
     }
   }
 
-  def checkAndProcessNextSubmission(implicit hc: HeaderCarrier): Future[HttpResponse] = {
-    http.GET[HttpResponse](s"$companyRegUrl/company-registration/test-only/submission-check")
-      .map(res => res)
-      .recover {
-      case ex: BadRequestException =>
-        Logger.error(s"[CompanyRegistrationConnector] [checkAndProcessNextSubmission] - ${ex.responseCode} ${ex.message}")
-        HttpResponse(BAD_REQUEST, responseString = Some(ex.getMessage))
-      case ex: NotFoundException =>
-        Logger.error(s"[CompanyRegistrationConnector] [checkAndProcessNextSubmission] - ${ex.responseCode} ${ex.message}")
-        HttpResponse(NOT_FOUND, responseString = Some(ex.getMessage))
-      case ex: Upstream4xxResponse =>
-        Logger.error(s"[CompanyRegistrationConnector] [checkAndProcessNextSubmission] - ${ex.upstreamResponseCode} ${ex.message}")
-        HttpResponse(ex.upstreamResponseCode, responseString = Some(ex.getMessage))
-      case ex: Upstream5xxResponse =>
-        Logger.error(s"[CompanyRegistrationConnector] [checkAndProcessNextSubmission] - ${ex.upstreamResponseCode} ${ex.message}")
-        HttpResponse(ex.upstreamResponseCode, responseString = Some(ex.getMessage))
-      case ex: HttpException =>
-        Logger.error(s"[CompanyRegistrationConnector] [checkAndProcessNextSubmission] - Unexpected Http Exception was caught: ${ex.responseCode} ${ex.message}")
-        HttpResponse(ex.responseCode, responseString = Some(ex.getMessage))
-      case ex: Throwable =>
-        Logger.error(s"[CompanyRegistrationConnector] [checkAndProcessNextSubmission] - Unexpected exception was caught: ${ex.getMessage}")
-        HttpResponse(INTERNAL_SERVER_ERROR, responseString = Some(ex.getMessage))
-    }
-  }
 
-  def fetchHeldSubmission(registrationId: String)(implicit hc: HeaderCarrier): Future[Option[JsValue]] = {
-    http.GET[JsValue](s"$companyRegUrl/company-registration/test-only/fetch-held-submission/$registrationId") map {
-      res => Some(res)
-    } recover {
-      case ex: BadRequestException =>
-        Logger.error(s"[CompanyRegistrationConnector] [fetchHeldSubmission] for RegId: $registrationId - ${ex.responseCode} ${ex.message}")
-        None
-      case ex: NotFoundException =>
-        Logger.info(s"[CompanyRegistrationConnector] [fetchHeldSubmission] for RegId: $registrationId - ${ex.responseCode} ${ex.message}")
-        None
-      case ex: Upstream4xxResponse =>
-        Logger.error(s"[CompanyRegistrationConnector] [fetchHeldSubmission] for RegId: $registrationId - ${ex.upstreamResponseCode} ${ex.message}")
-        None
-      case ex: Upstream5xxResponse =>
-        Logger.error(s"[CompanyRegistrationConnector] [fetchHeldSubmission] for RegId: $registrationId - ${ex.upstreamResponseCode} ${ex.message}")
-        None
-      case ex: Exception =>
-        Logger.error(s"[CompanyRegistrationConnector] [fetchHeldSubmission] for RegId: $registrationId - Unexpected error occurred: $ex")
-        None
-    }
-  }
 
   def fetchHeldSubmissionTime(registrationId: String)(implicit hc: HeaderCarrier): Future[Option[JsValue]] = {
     http.GET[JsValue](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationId/fetch-held-time") map {
@@ -419,10 +374,6 @@ trait CompanyRegistrationConnector {
 
   def updateTimepoint(timepoint: String)(implicit hc: HeaderCarrier) = {
     http.GET[String](s"$companyRegUrl/company-registration/test-only/update-timepoint/$timepoint")
-  }
-
-  def scheduleFeatureFlag(state: String)(implicit hc: HeaderCarrier) = {
-    http.GET[JsValue](s"$companyRegUrl/company-registration/test-only/feature-flag/submissionCheck/$state")
   }
 
   def retrieveEmail(registrationId: String)(implicit hc: HeaderCarrier): Future[Option[Email]] = {

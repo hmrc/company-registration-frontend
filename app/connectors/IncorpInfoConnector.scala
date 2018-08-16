@@ -29,49 +29,27 @@ import scala.concurrent.Future
 object IncorpInfoConnector extends IncorpInfoConnector with ServicesConfig {
   val http : CoreGet = WSHttp
   val incorpInfoUrl = s"${baseUrl("incorp-info")}/incorporation-information"
-
-  override val metricsService = MetricsService
 }
 
 trait IncorpInfoConnector {
   val http: CoreGet
   val incorpInfoUrl: String
 
-  val metricsService: MetricsService
-
-  def getCompanyName(transId: String)(implicit hc: HeaderCarrier): Future[String] = {
-    getCompanyProfile(transId).map(js => (js \ "company_name").as[String])
-  }
-
-  def getCompanyProfile(transId: String)(implicit hc: HeaderCarrier): Future[JsValue] = {
-    metricsService.processDataResponseWithMetrics[JsValue](metricsService.retrieveCompanyProfileIITimer.time()) {
-      http.GET[JsValue](s"$incorpInfoUrl/$transId/company-profile") recover handleError(transId, "getCompanyProfile")
-    }
-  }
-
-  private def handleError(transId: String, funcName: String):PartialFunction[Throwable, JsValue] = {
-    case ex: HttpException =>
-      throw new Exception(s"[IncorpInfoConnector] [$funcName] - An exception was caught. Response code : ${ex.responseCode} reason : ${ex.message}")
-    case ex: Throwable =>
-      throw new Exception
-
-  }
-
-
   def injectTestIncorporationUpdate(transId: String, isSuccess: Boolean)(implicit hc: HeaderCarrier): Future[Boolean] = {
     val queryString = s"txId=$transId&date=2018-1-1${if(isSuccess) "&crn=12345678" else ""}&success=$isSuccess"
 
-    http.GET[HttpResponse](s"$incorpInfoUrl/test-only/add-incorp-update/?$queryString") map (_ => true) recover { case _ =>
-        Logger.error(s"[IncorpInfoConnector] [injectTestIncorporationUpdate] Failed to inject a test incorporation update into II for $transId")
-        false
+    http.GET[HttpResponse](s"$incorpInfoUrl/test-only/add-incorp-update/?$queryString").map(_ => true)
+    .recover { case ex: Exception =>
+        Logger.error(s"[IncorpInfoConnector] [injectTestIncorporationUpdate] Failed to inject a test incorporation update into II for $transId with exception ${ex.getMessage}")
+       throw ex
     }
   }
 
   def manuallyTriggerIncorporationUpdate(implicit hc:HeaderCarrier): Future[Boolean] = {
-    http.GET[HttpResponse](s"$incorpInfoUrl/test-only/manual-trigger/fireSubs") map (_ => true) recover { case _ =>
-        Logger.error(s"[IncorpInfoConnector] [manuallyTriggerIncorporationUpdate] Failed to trigger subscription processing on II")
-        false
+    http.GET[HttpResponse](s"$incorpInfoUrl/test-only/manual-trigger/fireSubs").map(_ => true)
+    .recover { case ex: Exception =>
+        Logger.error(s"[IncorpInfoConnector] [manuallyTriggerIncorporationUpdate] Failed to trigger subscription processing on II with exception ${ex.getMessage}")
+        throw ex
     }
   }
-
 }

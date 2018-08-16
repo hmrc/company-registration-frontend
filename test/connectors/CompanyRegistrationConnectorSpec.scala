@@ -584,91 +584,6 @@ class CompanyRegistrationConnectorSpec extends SCRSSpec with CTDataFixture with 
     }
   }
 
-  "checkAndProcessNextSubmission" should {
-
-    "return a 200 response if the submission has been processed successfully" in new Setup {
-      val response = HttpResponse(OK, responseString = Some("Body"))
-      mockHttpGet[HttpResponse]("testUrl", response)
-
-      await(connector.checkAndProcessNextSubmission) shouldBe response
-    }
-    "return an BadRequest" in new Setup {
-      val response = HttpResponse(BAD_REQUEST, responseString = Some("Body"))
-      when(mockWSHttp.GET[HttpResponse](Matchers.anyString())(Matchers.any(), Matchers.any(), Matchers.any()))
-        .thenReturn(Future.successful(response))
-
-      await(connector.checkAndProcessNextSubmission) shouldBe response
-    }
-    "return a NotFound" in new Setup {
-      val response = HttpResponse(NOT_FOUND, responseString = Some("Body"))
-      when(mockWSHttp.GET[HttpResponse](Matchers.anyString())(Matchers.any(), Matchers.any(), Matchers.any()))
-        .thenReturn(Future.successful(response))
-
-      await(connector.checkAndProcessNextSubmission) shouldBe response
-    }
-    "return an Upstream4xxResponse" in new Setup {
-      val response = HttpResponse(429, responseString = Some("Body"))
-      when(mockWSHttp.GET[HttpResponse](Matchers.anyString())(Matchers.any(), Matchers.any(), Matchers.any()))
-        .thenReturn(Future.successful(response))
-
-      await(connector.checkAndProcessNextSubmission) shouldBe response
-    }
-    "return an Upstream5xxResponse" in new Setup {
-      val response = HttpResponse(500, responseString = Some("Body"))
-      when(mockWSHttp.GET[HttpResponse](Matchers.anyString())(Matchers.any(), Matchers.any(), Matchers.any()))
-        .thenReturn(Future.successful(response))
-
-      await(connector.checkAndProcessNextSubmission) shouldBe response
-    }
-    "return a 500 when encountering any other exception" in new Setup {
-      when(mockWSHttp.GET[HttpResponse](Matchers.anyString())(Matchers.any(), Matchers.any(), Matchers.any()))
-        .thenReturn(Future.failed(new Exception("ex")))
-
-      await(connector.checkAndProcessNextSubmission).status shouldBe 500
-    }
-  }
-
-  "fetchHeldSubmission" should {
-
-    val returnedJson = Json.parse("""{"test" : "ing"}""")
-
-    "return a JsValue" in new Setup {
-      mockHttpGet("testUrl", returnedJson)
-
-      await(connector.fetchHeldSubmission("testRegId")) shouldBe Some(returnedJson)
-    }
-    "return an BadRequest" in new Setup {
-      when(mockWSHttp.GET[JsValue](Matchers.anyString())(Matchers.any(), Matchers.any(), Matchers.any()))
-        .thenReturn(Future.failed(new BadRequestException("bad request")))
-
-      await(connector.fetchHeldSubmission("testRegId")) shouldBe None
-    }
-    "return a NotFound" in new Setup {
-      when(mockWSHttp.GET[JsValue](Matchers.anyString())(Matchers.any(), Matchers.any(), Matchers.any()))
-        .thenReturn(Future.failed(new NotFoundException("not found")))
-
-      await(connector.fetchHeldSubmission("testRegId")) shouldBe None
-    }
-    "return an Upstream4xxResponse" in new Setup {
-      when(mockWSHttp.GET[JsValue](Matchers.anyString())(Matchers.any(), Matchers.any(), Matchers.any()))
-        .thenReturn(Future.failed(Upstream4xxResponse("429", 429, 429)))
-
-      await(connector.fetchHeldSubmission("testRegId")) shouldBe None
-    }
-    "return an Upstream5xxResponse" in new Setup {
-      when(mockWSHttp.GET[JsValue](Matchers.anyString())(Matchers.any(), Matchers.any(), Matchers.any()))
-        .thenReturn(Future.failed(Upstream5xxResponse("500", 500, 500)))
-
-      await(connector.fetchHeldSubmission("testRegId")) shouldBe None
-    }
-    "return an AccountingDetailsBadRequestResponse when encountering any other exception" in new Setup {
-      when(mockWSHttp.GET[JsValue](Matchers.anyString())(Matchers.any(), Matchers.any(), Matchers.any()))
-        .thenReturn(Future.failed(new Exception("bad request")))
-
-      await(connector.fetchHeldSubmission("testRegId")) shouldBe None
-    }
-  }
-
   "updateTimepoint" should {
 
     val timepoint = "12345"
@@ -698,16 +613,6 @@ class CompanyRegistrationConnectorSpec extends SCRSSpec with CTDataFixture with 
       await(connector.updateEmail(registrationId, email)) shouldBe None
     }
   }
-
-  "scheduleFeatureFlag" should {
-
-    "return an " in new Setup {
-      mockHttpGet[JsValue]("testUrl", Json.parse("223"))
-
-      await(connector.scheduleFeatureFlag("state")) shouldBe Json.parse("223")
-    }
-  }
-
   "verifyEmail" should {
 
     val email = Email("testEmailAddress", "GG", true, true, true)
