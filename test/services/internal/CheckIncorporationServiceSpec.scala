@@ -16,7 +16,7 @@
 
 package services.internal
 
-import connectors.{CohoAPIConnector, CohoApiSuccessResponse, IncorpInfoConnector}
+import connectors.IncorpInfoConnector
 import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
@@ -28,64 +28,51 @@ import scala.concurrent.Future
 
 class CheckIncorporationServiceSpec extends UnitSpec with MockitoSugar {
 
-  val mockCohoApiConnector = mock[CohoAPIConnector]
   val mockIncorpInfoConnector = mock[IncorpInfoConnector]
 
   class Setup {
     val service = new CheckIncorporationService {
-      val cohoApiConnector = mockCohoApiConnector
       val incorpInfoConnector = mockIncorpInfoConnector
     }
   }
 
   implicit val hc = HeaderCarrier()
 
-  "fetchIncorporationStatus" should {
+  "Manual incorp" should {
 
-    val timePoint = Some("123456789")
-    val itemsPerPage = 1
-    val queryString = "/?timepoint=123456789&items_per_page=1"
-    val response = CohoApiSuccessResponse(Json.parse("""{"test":"json"}"""))
+    "incorporateTransactionId" should {
+      val transId = "transactionID"
 
-    "return a CohoApiResponse from the connector" in new Setup {
-      when(mockCohoApiConnector.fetchIncorporationStatus(eqTo(timePoint), eqTo(itemsPerPage))(any()))
-        .thenReturn(Future.successful(response))
+      "return false if the incorporation update did not get injected correctly" in new Setup {
+        when(mockIncorpInfoConnector.injectTestIncorporationUpdate(eqTo(transId), eqTo(true))(any[HeaderCarrier]()))
+          .thenReturn(Future.successful(false))
 
-      await(service.fetchIncorporationStatus(timePoint, itemsPerPage)) shouldBe response
-    }
-  }
+        when(mockIncorpInfoConnector.manuallyTriggerIncorporationUpdate(any[HeaderCarrier]()))
+          .thenReturn(Future.successful(true))
 
-  "incorporateTransactionId" should {
-    val transId = "transactionID"
+        await(service.incorporateTransactionId(transId, isSuccess = true)) shouldBe false
+      }
 
-    "return false if the incorporation update did not get injected correctly" in new Setup {
-      when(mockIncorpInfoConnector.injectTestIncorporationUpdate(eqTo(transId), eqTo(true))(any[HeaderCarrier]()))
-        .thenReturn(Future.successful(false))
+      "return false if the trigger was not fired correctly" in new Setup {
+        when(mockIncorpInfoConnector.injectTestIncorporationUpdate(eqTo(transId), eqTo(false))(any[HeaderCarrier]()))
+          .thenReturn(Future.successful(true))
 
-      when(mockIncorpInfoConnector.manuallyTriggerIncorporationUpdate(any[HeaderCarrier]()))
-        .thenReturn(Future.successful(true))
+        when(mockIncorpInfoConnector.manuallyTriggerIncorporationUpdate(any[HeaderCarrier]()))
+          .thenReturn(Future.successful(false))
 
-      await(service.incorporateTransactionId(transId, isSuccess = true)) shouldBe false
-    }
+        await(service.incorporateTransactionId(transId, isSuccess = false)) shouldBe false
+      }
 
-    "return false if the trigger was not fired correctly" in new Setup {
-      when(mockIncorpInfoConnector.injectTestIncorporationUpdate(eqTo(transId), eqTo(false))(any[HeaderCarrier]()))
-        .thenReturn(Future.successful(true))
+      "create an Incorporation Update and trigger a response from II" in new Setup {
+        when(mockIncorpInfoConnector.injectTestIncorporationUpdate(eqTo(transId), eqTo(false))(any[HeaderCarrier]()))
+          .thenReturn(Future.successful(true))
 
-      when(mockIncorpInfoConnector.manuallyTriggerIncorporationUpdate(any[HeaderCarrier]()))
-        .thenReturn(Future.successful(false))
+        when(mockIncorpInfoConnector.manuallyTriggerIncorporationUpdate(any[HeaderCarrier]()))
+          .thenReturn(Future.successful(true))
 
-      await(service.incorporateTransactionId(transId, isSuccess = false)) shouldBe false
-    }
-
-    "create an Incorporation Update and trigger a response from II" in new Setup {
-      when(mockIncorpInfoConnector.injectTestIncorporationUpdate(eqTo(transId), eqTo(false))(any[HeaderCarrier]()))
-        .thenReturn(Future.successful(true))
-
-      when(mockIncorpInfoConnector.manuallyTriggerIncorporationUpdate(any[HeaderCarrier]()))
-        .thenReturn(Future.successful(true))
-
-      await(service.incorporateTransactionId(transId, isSuccess = false)) shouldBe true
+        await(service.incorporateTransactionId(transId, isSuccess = false)) shouldBe true
+      }
     }
   }
 }
+
