@@ -22,11 +22,11 @@ import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
-object CheckIncorporationService extends CheckIncorporationService {
+object TestIncorporationService extends TestIncorporationService {
   val incorpInfoConnector = IncorpInfoConnector
 }
 
-trait CheckIncorporationService {
+trait TestIncorporationService {
 
   val incorpInfoConnector: IncorpInfoConnector
 

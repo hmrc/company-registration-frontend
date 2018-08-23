@@ -232,53 +232,6 @@ trait TestEndpointController extends FrontendController with AuthFunction with C
       cacheNavModel(nav, hc) map (_ => Ok("NavModel created"))
   }
 
-  def checkSubmissionStatus: Action[AnyContent] = Action.async {
-    implicit request =>
-      ctAuthorised {
-        def formatJsonToString(js: JsValue): String = {
-          Json.stringify(js)
-            .replaceAll("\\{", "\\{</br>")
-            .replaceAll(",", ",</br>")
-            .replaceAll("\\}", "</br>\\}")
-            .replaceAll(",</br>", ",</br>&emsp;")
-            .replaceAll("\\{</br>", "\\{</br>&emsp;")
-        }
-
-        val keys = Seq("tradingDetails", "contactDetails", "companyDetails", "accountingDetails", "accountsPreparation")
-
-        def exists(json: JsValue): Map[String, Boolean] = {
-          keys.map(key => (json \ key).asOpt[JsValue].fold((key, false))(_ => (key, true))).toMap
-        }
-
-        for {
-          regId <- fetchRegistrationID
-          ctRecord <- compRegConnector.retrieveCorporationTaxRegistration(regId)
-          heldSubmission <- compRegConnector.fetchHeldSubmission(regId)
-        } yield {
-
-          val heldData = heldSubmission.fold[Seq[JsValue]](Seq.empty)(hS => hS \\ "submission").map(formatJsonToString)
-
-          val ctData = exists(ctRecord).filter(_._2).keys.toSeq
-
-          val status: String = (ctRecord \ "status").asOpt[String].fold[String]("No status found for logged in user")(str => str)
-          val ct = formatJsonToString(ctRecord)
-          Ok(views.html.test.SubmissionStatus(status, ctData, heldData, ct))
-        }
-      }
-  }
-
-  def updateTimepoint(timepoint: String) = Action.async {
-    implicit request =>
-      compRegConnector.updateTimepoint(timepoint).map(_ => Ok)
-  }
-
-  def schedulerFeatureFlag(state: String) = Action.async {
-    implicit request =>
-      compRegConnector.scheduleFeatureFlag(state).map{ res =>
-        Ok(res)
-      }
-  }
-
   def simulateDesPost(ackRef: String) = Action.async {
     implicit request =>
       dynStubConnector.simulateDesPost(ackRef).map(_ => Ok)
