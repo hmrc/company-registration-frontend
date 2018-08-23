@@ -16,27 +16,18 @@
 
 package controllers.test
 
-import connectors.CompanyRegistrationConnector
 import play.api.mvc.Action
-import services.internal.CheckIncorporationService
+import services.internal.TestIncorporationService
 import uk.gov.hmrc.play.frontend.controller.FrontendController
 
-object SubmissionTriggerController extends SubmissionTriggerController {
-  val cRConnector = CompanyRegistrationConnector
-  val checkIncorpService = CheckIncorporationService
+object TestIncorporateController extends TestIncorporateController {
+
+  val checkIncorpService = TestIncorporationService
 }
 
-trait SubmissionTriggerController extends FrontendController {
+trait TestIncorporateController extends FrontendController {
 
-  val cRConnector: CompanyRegistrationConnector
-  val checkIncorpService: CheckIncorporationService
-
-  def triggerSubmissionCheck = Action.async {
-    implicit request =>
-      cRConnector.checkAndProcessNextSubmission.map { res =>
-        new Status(res.status)(res.body)
-      }
-  }
+  val checkIncorpService: TestIncorporationService
 
   def incorporate(txId: String, accepted: Boolean) = Action.async {
     implicit request =>

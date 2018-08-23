@@ -17,13 +17,6 @@ GET       /drop-ct-collection                            controllers.test.CTMong
 
 GET       /setup-nav-model                               controllers.test.TestEndpointController.setupTestNavModel
 
-GET       /submission-check-trigger                      controllers.test.SubmissionTriggerController.triggerSubmissionCheck
-
-GET       /check-submission-status                       controllers.test.TestEndpointController.checkSubmissionStatus
-GET       /update-timepoint/:timepoint                   controllers.test.TestEndpointController.updateTimepoint(timepoint: String)
-
-GET       /scheduler-feature-flag/:state                 controllers.test.TestEndpointController.schedulerFeatureFlag(state: String)
-
 GET       /post-etmp                                     controllers.test.ETMPNotificationTestController.show
 POST      /post-etmp                                     controllers.test.ETMPNotificationTestController.submit
 
@@ -45,4 +38,4 @@ GET      /hand-off-6                                     controllers.test.TestEn
 
 GET      /edit-session/:newSessionId                     controllers.test.EditSessionController.editSession(newSessionId)
 
-GET      /incorporate/:txId                              controllers.test.SubmissionTriggerController.incorporate(txId, accepted: Boolean ?= true)
+GET      /incorporate/:txId                              controllers.test.TestIncorporateController.incorporate(txId, accepted: Boolean ?= true)
