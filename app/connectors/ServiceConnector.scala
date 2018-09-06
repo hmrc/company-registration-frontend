@@ -62,13 +62,17 @@ trait ServiceConnector {
       case _ => throw cantCancel
     }
   }
+
   def cancelReg(regID:String)(f: String => Future[StatusResponse])(implicit hc:HeaderCarrier):Future[CancellationResponse] = {
       f(regID).flatMap{
         case a:SuccessfulResponse =>
-          http.DELETE[HttpResponse](a.status.cancelURL.getOrElse(throw cantCancel)).map {
-            case  HttpResponse(OK,_,_,_)  => Cancelled
-            case _ => NotCancelled
-        }
+          http.DELETE[HttpResponse](a.status.cancelURL.getOrElse(throw cantCancel)).map { resp =>
+          if (resp.status == OK) {
+            Cancelled
+          } else {
+            NotCancelled
+          }
+         }
           case _ => throw cantCancel
       } recover {
         case ex:HttpException => Logger.error(s"[ServiceConnector] [cancelReg] - ${ex.responseCode} response code was returned - reason : ${ex.message}  ", ex)
@@ -78,7 +82,5 @@ trait ServiceConnector {
         case ex:Throwable =>Logger.error(s"[ServiceConnector] [cancelReg] - Non-Http Exception caught", ex)
           NotCancelled
       }
-
-
   }
 }
