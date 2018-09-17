@@ -45,7 +45,7 @@ private object AppDependencies {
       "org.jsoup" % "jsoup" % "1.10.2" % scope,
       "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
       "uk.gov.hmrc" %% "reactivemongo-test" % "2.0.0" % scope,
-      "uk.gov.hmrc" %% "hmrctest" % "3.0.0" % scope,
+      "uk.gov.hmrc" %% "hmrctest" % "3.1.0" % scope,
       "org.mockito" % "mockito-all" % "2.0.2-beta" % scope
   )
 

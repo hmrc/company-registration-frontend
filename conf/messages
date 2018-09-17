@@ -298,9 +298,9 @@ page.reg.Dashboard.incSubmittedLineOne                              = If your ap
 page.reg.Dashboard.CTPendingLineOne                                 = We''ve received your application but can''t process it until we''ve set up the limited company.
 page.reg.Dashboard.CTSubmittedLineOne                               = If your application is successful we''ll send you:
 page.reg.Dashboard.CTSubmittedLineTwo                               = a letter with the company''s Unique Taxpayer Reference (UTR) within 15 working days of the submission date
-page.reg.Dashboard.CTSubmittedLineThree                             = an activation pin for Corporation Tax online within 7 days of being successfully registered for Corporation Tax
+page.reg.Dashboard.CTSubmittedLineThree                             = an activation code for Corporation Tax online within 7 days of being successfully registered for Corporation Tax
 page.reg.Dashboard.CTUnsuccessful                                   = Register using HMRC''s existing service
-page.reg.Dashboard.CTRegistered                                     = We''ve sent you an activation pin in the post. Use this to activate your Corporation Tax enrolment so you can manage Corporation Tax online.
+page.reg.Dashboard.CTRegistered                                     = We''ve sent you an activation code in the post. Use this to activate your Corporation Tax enrolment so you can manage Corporation Tax online.
 
 page.reg.Dashboard.PAYE.subHeading                                  = PAYE
 
@@ -322,7 +322,7 @@ page.reg.Dashboard.PAYE.employerHelpTextParagraph4                  = use subcon
 page.reg.Dashboard.PAYE.submitted                                   = Pending
 page.reg.Dashboard.PAYE.submittedParagraph1                         = It normally takes 5 working days to process your PAYE application. If your application is successful we''ll send you:
 page.reg.Dashboard.PAYE.submittedParagraph2                         = a letter with your employer reference number and accounts office reference number within 5 working days of the submission date
-page.reg.Dashboard.PAYE.submittedParagraph3                         = an activation PIN for PAYE Online within 7 days of your registration being successful
+page.reg.Dashboard.PAYE.submittedParagraph3                         = an activation code for PAYE Online within 7 days of your registration being successful
 
 page.reg.Dashboard.status.acknowledged                              = Registered
 
@@ -346,8 +346,9 @@ page.reg.Dashboard.VAT.helpTextBullet2                              = you though
 page.reg.Dashboard.VAT.helpTextThreshold                            = The current VAT registration threshold is £{0}.
 page.reg.Dashboard.VAT.helpTextParagraph1                           = If a company doesn''t meet these criteria, you can register a company voluntarily if it sells or intends to sell VAT taxable goods or services.
 page.reg.Dashboard.VAT.helpTextSubmittedHeader                      = If your application is successful we''ll send you:
-page.reg.Dashboard.VAT.helpTextSubmittedBullet1                     = an email to confirm the outcome of the application within 5 working days
+page.reg.Dashboard.VAT.helpTextSubmittedBullet1                     = an email to confirm the outcome of your application within 5 working days
 page.reg.Dashboard.VAT.helpTextSubmittedBullet2                     = a secure message with your VAT number to your business tax account
+page.reg.Dashboard.VAT.helpTextSubmittedBullet3                     = an activation code to do VAT online within 10 days of your registration being approved
 page.reg.Dashboard.VAT.pendingText                                  = We''ve received your application but can''t process it until we''ve set up your limited company.
 
 page.reg.Dashboard.status.incomplete                                = Incomplete
