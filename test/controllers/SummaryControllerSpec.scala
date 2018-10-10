@@ -147,7 +147,6 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with WithFakeAppl
           status(res) shouldBe SEE_OTHER
           redirectLocation(res) shouldBe Some("/register-your-company/post-sign-in")
       }
-
     }
     "redirect to the previous stub page" in new Setup {
       val request = FakeRequest().withFormUrlEncodedBody()

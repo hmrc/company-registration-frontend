@@ -102,14 +102,18 @@ class CompanyContactDetailsServiceSpec extends SCRSSpec with CompanyContactDetai
       Links(Some("testLink"))
     )
 
-    "return true if first names match" in new Setup {
+    "return false if first name match because contact name is to be removed" in new Setup {
       val firstName = "test"
-      service.isContactDetailsAmended(details, details.copy(contactFirstName = Some(firstName))) shouldBe true
+      service.isContactDetailsAmended(details, details.copy(contactFirstName = Some(firstName))) shouldBe false
+    }
+    "return false if middle name doesnt match because contact name is to be removed" in new Setup {
+      val middleName = "test"
+      service.isContactDetailsAmended(details, details.copy(contactMiddleName = Some(middleName))) shouldBe false
     }
 
-    "return true if last names match" in new Setup {
+    "return false if last name doesnt match because contact name is to be removed" in new Setup {
       val lastName = "test"
-      service.isContactDetailsAmended(details, details.copy(contactSurname = Some(lastName))) shouldBe true
+      service.isContactDetailsAmended(details, details.copy(contactSurname = Some(lastName))) shouldBe false
     }
 
     "return true if emails match" in new Setup {

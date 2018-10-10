@@ -119,25 +119,29 @@
 
   <h2 id="companyContactDetails" class="heading-medium">@Messages("page.reg.summary.heading.one.b")</h2>
   <dl class="govuk-check-your-answers cya-questions-long">
-    <div>
-      <dt class="cya-question">@Messages("page.reg.summary.companyContactName")</dt>
-      <dd id="companyContactName" class="cya-answer">@ctContactDets.contactName</dd>
-      <dd class="cya-change"><a href="@controllers.reg.routes.CompanyContactDetailsController.show" id="change-contact-details">@Messages("change")<span class="visually-hidden">@Messages("page.reg.summary.companyContactName.change")</span></a></dd>
-    </div>
 
-    <div>
+    @{ if(!ctContactDets.contactName.isEmpty()) {
+    <div id="contactNameBlock">
+      <dt class="cya-question">{Messages("page.reg.summary.companyContactName")}</dt>
+      <dd id="companyContactName" class="cya-answer">{ctContactDets.contactName}</dd>
+      <dd class="cya-change"><a href={s"${controllers.reg.routes.CompanyContactDetailsController.show}"} id="change-contact-details">{Messages("change")}<span class="visually-hidden">{Messages("page.reg.summary.companyContactName.change")}</span></a></dd>
+    </div>
+      }
+    }
+
+    <div id="contactEmailBlock">
       <dt class="cya-question">@Messages("page.reg.summary.companyContactEmail")</dt>
       <dd id="companyContactEmail" class="cya-answer">@ctContactDets.contactEmail</dd>
       <dd class="cya-change"><a href="@controllers.reg.routes.CompanyContactDetailsController.show" id="change-contact-details-email">@Messages("change")<span class="visually-hidden">@Messages("page.reg.summary.companyContactEmail.change")</span></a></dd>
     </div>
 
-    <div>
+    <div id="contactTelBlock">
       <dt class="cya-question">@Messages("page.reg.summary.companyContactDaytimeTelephoneNumber")</dt>
       <dd id="companyContactDaytimeTelephoneNumber" class="cya-answer">@ctContactDets.contactDaytimeTelephoneNumber</dd>
       <dd class="cya-change"><a href="@controllers.reg.routes.CompanyContactDetailsController.show" id="change-contact-details-phoneNumber">@Messages("change")<span class="visually-hidden">@Messages("page.reg.summary.companyContactDaytimeTelephoneNumber.change")</span></a></dd>
     </div>
 
-    <div>
+      <div id="contactMobBlock">
       <dt class="cya-question">@Messages("page.reg.summary.companycontactMobileNumber")</dt>
       <dd id="companycontactMobileNumber" class="cya-answer">@ctContactDets.contactMobileNumber</dd>
       <dd class="cya-change"><a href="@controllers.reg.routes.CompanyContactDetailsController.show" id="change-contact-details-mobileNumber">@Messages("change")<span class="visually-hidden">@Messages("page.reg.summary.companycontactMobileNumber.change")</span></a></dd>

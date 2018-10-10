@@ -119,7 +119,7 @@ trait CompanyContactDetailsService extends CommonService with SCRSExceptions {
   }
 
   private[services] def isContactDetailsAmended(details: CompanyContactDetails, ggDetails: CompanyContactDetails): Boolean = {
-    !CompanyContactDetails.isEqual(details, ggDetails)
+    !details.contactEmail.equals(ggDetails.contactEmail)
   }
 
   private[services] def auditChangeInContactDetails(externalID: String, authProviderId: String, rID: String,

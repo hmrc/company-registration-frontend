@@ -33,5 +33,4 @@ trait ThresholdService {
   def now: LocalDate
 
   def fetchCurrentVatThreshold(implicit hc: HeaderCarrier): Future[String] = VatThresholdConnector.getVATThreshold(now)
-
 }

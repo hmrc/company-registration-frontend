@@ -59,9 +59,6 @@ class CompanyContactModelSpec extends UnitSpec {
       val expectedJson = Json.parse(
         """
           |{
-          |  "firstName":"firstName",
-          |  "middleName":"middle",
-          |  "surname":"lastName",
           |  "telephoneNumber":"telNo",
           |  "mobileNumber":"mobNo",
           |  "email":"email"
@@ -69,7 +66,28 @@ class CompanyContactModelSpec extends UnitSpec {
         """.stripMargin)
 
       val companyDetailsPrepPopJson = Json.toJson(companyDetails)(CompanyContactDetailsMongo.prePopWrites)
+      companyDetailsPrepPopJson shouldBe expectedJson
+    }
+    "write with just tel, mob an email" in {
+      val companyDetails = CompanyContactDetailsMongo(
+        None,
+        None,
+        None,
+        Some("telNo"),
+        Some("mobNo"),
+        Some("email")
+      )
 
+      val expectedJson = Json.parse(
+        """
+          |{
+          |  "telephoneNumber":"telNo",
+          |  "mobileNumber":"mobNo",
+          |  "email":"email"
+          |}
+        """.stripMargin)
+
+      val companyDetailsPrepPopJson = Json.toJson(companyDetails)(CompanyContactDetailsMongo.prePopWrites)
       companyDetailsPrepPopJson shouldBe expectedJson
     }
   }

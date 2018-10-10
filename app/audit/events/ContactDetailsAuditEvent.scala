@@ -43,13 +43,7 @@ object ContactDetailsAuditEvent {
         JOURNEY_ID -> detail.regId,
         "businessContactDetails" -> Json.obj(
           filterOpts(
-            "originalFirstName" -> detail.ggContactDetails.contactFirstName,
-            "originalMiddleNames" -> detail.ggContactDetails.contactMiddleName,
-            "originalLastName" -> detail.ggContactDetails.contactSurname,
             "originalEmail" -> detail.ggContactDetails.contactEmail,
-            "submittedFirstName" -> detail.amendedContactDetails.contactFirstName,
-            "submittedMiddleNames" -> detail.amendedContactDetails.contactMiddleName,
-            "submittedLastName" -> detail.amendedContactDetails.contactSurname,
             "submittedEmail" -> detail.amendedContactDetails.contactEmail
           ): _*
         )

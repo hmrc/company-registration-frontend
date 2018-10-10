@@ -50,7 +50,7 @@ trait LoginStub extends SessionCookieBaker {
       val resp = aResponse().withStatus(status)
       val respHeaders = if (status == 401) resp.withHeader(HeaderNames.WWW_AUTHENTICATE, """MDTP detail="MissingBearerToken"""") else resp
 
-      body.fold(respHeaders)(respHeaders.withBody)
+      body.fold(respHeaders)(b => respHeaders.withBody(b))
     })
   }
 

@@ -35,13 +35,7 @@ class ContactDetailsAuditEventSpec extends UnitSpec {
            | "authProviderId":"credID",
            | "journeyId":"regID",
            | "businessContactDetails":{
-           |   "originalFirstName":"firstName",
-           |   "originalMiddleNames":"middleName",
-           |   "originalLastName":"lastName",
            |   "originalEmail":"foo@bar.wibble",
-           |   "submittedFirstName":"afirstName",
-           |   "submittedMiddleNames":"amiddleName",
-           |   "submittedLastName":"alastName",
            |   "submittedEmail":"afoo@bar.wibble"
            | }
            |}
@@ -75,55 +69,7 @@ class ContactDetailsAuditEventSpec extends UnitSpec {
       json shouldBe expected
     }
 
-    "output json in the correct format when 2 full contact detail models are provided with extended middle names" in {
-      val expected =
-        Json.parse("""
-                     |{
-                     | "externalUserId":"extID",
-                     | "authProviderId":"credID",
-                     | "journeyId":"regID",
-                     | "businessContactDetails":{
-                     |   "originalFirstName":"firstName",
-                     |   "originalMiddleNames":"middleName",
-                     |   "originalLastName":"lastName",
-                     |   "originalEmail":"foo@bar.wibble",
-                     |   "submittedFirstName":"afirstName",
-                     |   "submittedMiddleNames":"a middle Name",
-                     |   "submittedLastName":"alastName",
-                     |   "submittedEmail":"afoo@bar.wibble"
-                     | }
-                     |}
-                     |""".stripMargin)
-
-      val contactDetails = CompanyContactDetails(
-        Some("firstName"),
-        Some("middleName"),
-        Some("lastName"),
-        Some("012345"),
-        Some("012345"),
-        Some("foo@bar.wibble"),
-        Links(Some("link"))
-      )
-
-      val amendedContactDetails = CompanyContactDetails(
-        Some("afirstName"),
-        Some("a middle Name"),
-        Some("alastName"),
-        Some("012345"),
-        Some("012345"),
-        Some("afoo@bar.wibble"),
-        Links(Some("link"))
-      )
-
-      val detail = ContactDetailsAuditEventDetail(
-        "extID", "regID", "credID", contactDetails, amendedContactDetails
-      )
-
-      val json = Json.toJson(detail)(ContactDetailsAuditEvent.auditWrites)
-      json shouldBe expected
-    }
-
-    "output json in the correct format when all fields are None" in {
+    "output json in the correct format when all fields that should be in audit event are None" in {
       val expected =
         Json.parse("""
                      |{
@@ -135,14 +81,15 @@ class ContactDetailsAuditEventSpec extends UnitSpec {
                      |""".stripMargin)
 
       val contactDetails = CompanyContactDetails(
-        None, None,None, None, None, None,
+        Some("foo"), Some("bar"),Some("wizz"), None, None, None,
         Links(Some("link"))
       )
 
       val amendedContactDetails = CompanyContactDetails(
-        None, None,None, None, None, None,
+        Some("foo1"), Some("bar2"),Some("wizz3"), None, None, None,
         Links(Some("link"))
       )
+
 
       val detail = ContactDetailsAuditEventDetail(
         "extID", "regID", "credID", contactDetails, amendedContactDetails
@@ -152,7 +99,7 @@ class ContactDetailsAuditEventSpec extends UnitSpec {
       json shouldBe expected
     }
 
-    "output json in the correct format when only the firstNames are supplied" in {
+    "output json in the correct format when only email is supplied" in {
       val expected =
         Json.parse("""
                      |{
@@ -160,19 +107,19 @@ class ContactDetailsAuditEventSpec extends UnitSpec {
                      | "authProviderId":"credID",
                      | "journeyId":"regID",
                      | "businessContactDetails":{
-                     |  "originalFirstName":"firstName",
-                     |  "submittedFirstName":"amendedFirstName"
+                     |   "originalEmail":"foo@bar.wibble",
+                     |   "submittedEmail":"afoo@bar.wibble"
                      | }
                      |}
                      |""".stripMargin)
 
       val contactDetails = CompanyContactDetails(
-        contactFirstName = Some("firstName"), None, None, None, None, None,
+        None, None, None, None, None, Some("foo@bar.wibble"),
         Links(Some("link"))
       )
 
       val amendedContactDetails = CompanyContactDetails(
-        contactFirstName = Some("amendedFirstName"), None, None, None, None, None,
+        None, None, None, None, None, Some("afoo@bar.wibble"),
         Links(Some("link"))
       )
 
