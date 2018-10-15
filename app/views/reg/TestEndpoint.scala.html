@@ -24,7 +24,7 @@
 
 @(accountingDatesForm: Form[AccountingDatesModel],
   firstHandBackForm: Form[models.handoff.CompanyNameHandOffFormModel],
-  companyContactForm: Form[CompanyContactDetailsMongo],
+  companyContactForm: Form[CompanyContactDetailsApi],
   companyDetailsForm: Form[models.CompanyDetails],
   tradingDetailsForm : Form[TradingDetails],
   applicantForm : Form[AboutYouChoice])(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.AppConfig)
@@ -127,18 +127,6 @@
 
         <h3>Company contact details </h3>
         @input(
-            companyContactForm("contactFirstName"),
-            '_label -> "Contact name : "
-        )
-        @input(
-            companyContactForm("contactMiddleName"),
-            '_label -> "Contact name : "
-        )
-        @input(
-            companyContactForm("contactLastName"),
-            '_label -> "Contact name : "
-        )
-        @input(
             companyContactForm("contactEmail"),
             '_label -> "Contact email : "
         )
@@ -150,7 +138,6 @@
             companyContactForm("contactMobileNumber"),
             '_label -> "Contact mobile number : "
         )
-
         <h3>Accounting dates</h3>
         @input(
             accountingDatesForm("businessStartDate"),

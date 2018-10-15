@@ -34,7 +34,6 @@ trait SCRSValidators {
   val now : LocalDate
 
   private val nameRegex               = """^[a-zA-Z-]+(?:\W+[a-zA-Z-]+)+$""".r
-  private val contactNameRegex        = """^[A-Za-z '\\-]{1,100}$""".r
   private val emailRegex              = """^(?!.{71,})([-0-9a-zA-Z.+_]+@[-0-9a-zA-Z.+_]+\.[a-zA-Z]{1,11})$"""
   private val emailRegexDes           = """^[A-Za-z0-9\-_.@]{1,70}$"""
   private val phoneNumberRegex        = """^[0-9 ]{1,20}$""".r
@@ -55,7 +54,7 @@ trait SCRSValidators {
 
   def companyContactDetailsValidation = {
     Constraint("constraints.companyContactDetails")({
-      (model: CompanyContactViewModel) =>
+      (model: CompanyContactDetailsApi) =>
         (model.contactEmail, model.contactDaytimeTelephoneNumber, model.contactMobileNumber) match {
           case (Some(_), _, _) => Valid
           case (_, Some(_), _) => Valid
@@ -140,31 +139,6 @@ trait SCRSValidators {
       validatedYear
     ).flatten
   }
-
-  def validNameFormat(name: Name) : Boolean = {
-    val nameFormat: String = contactNameRegex.regex
-    name.firstName.matches(nameFormat) && name.middleName.fold(true)(_.matches(nameFormat)) && name.surname.fold(true)(_.matches(nameFormat))
-  }
-
-  val contactNameValidation: Constraint[String] = Constraint("constraints.nameCheck")({
-    fullName =>
-      val trimmedName = fullName.trim
-      val split: Name = SplitName.splitName(trimmedName)
-      val errors = split match {
-        case _ if trimmedName.contains(".") => Seq(ValidationError(Messages("validation.name.full-stop")))
-        case name if name.firstName.length > 100 => Seq(ValidationError(Messages("validation.firstMaxLength")))
-        case name if name.middleName.fold(false)(_.length > 100) => Seq(ValidationError(Messages("validation.middleMaxLength")))
-        case name if name.surname.isEmpty => Seq(ValidationError(Messages("validation.name.noSurname")))
-        case name if name.surname.get.length > 100 => Seq(ValidationError(Messages("validation.surnameMaxLength")))
-        case name if validNameFormat(name) => Nil
-        case _ => Seq(ValidationError(Messages("validation.name")))
-      }
-      if (errors.isEmpty) Valid else Invalid(errors)
-  })
-
-  val nameRequiredValidation: Constraint[String] = Constraint("constraints.nameRequired")({
-    name => if(name.trim == "") Invalid(ValidationError(Messages("validation.name.required"))) else Valid
-  })
 
   val emailValidation: Constraint[String] = Constraint("constraints.emailCheck")({
     text =>

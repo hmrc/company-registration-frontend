@@ -110,22 +110,15 @@ page.reg.accountingDates.help                                       = Enter a da
 error.businessStartDate.required                                    = Tell us when the company will start trading
 
 ## Company contact details
-page.reg.company-contact-details.description                        = Who should we contact about the company''s Corporation Tax?
-page.reg.company-contact-details.label-one                          = Contact name
+page.reg.company-contact-details.description                        = Give us one or more ways to contact {0}
 page.reg.company-contact-details.label-two                          = Email address
 page.reg.company-contact-details.label-three                        = Contact number
+page.reg.company-contact-details.label-three-hint                   = Give a mobile number, if you have one
 page.reg.company-contact-details.label-four                         = Other contact number
 page.reg.company-contact-details.validation.chooseOne               = Enter at least one contact detail for the company''s Corporation Tax
-page.reg.company-contact-details.helpMessage1                       = Provide at least one of the following contact details.
+page.reg.company-contact-details.helpMessage1                       = We will only do this if we have questions about the company''s Corporation Tax.
 
 ## General validation messages
-validation.name                                                     = Tell us the contact name using only letters (without accents), hyphens and apostrophes
-validation.name.noSurname                                           = A surname is required
-validation.name.full-stop                                           = Enter a name without using full stops
-validation.name.required                                            = Enter a contact name
-validation.firstMaxLength                                           = Enter a first name that''s 100 characters or less
-validation.middleMaxLength                                          = Enter a middle name that''s 100 characters or less
-validation.surnameMaxLength                                         = Enter a last name that''s 100 characters or less
 validation.email                                                    = Enter an email address using only letters, numbers and - . @ _ +
 validation.emailtoolong                                             = Enter an email address using 70 characters or less
 validation.phone-number                                             = The phone number you have provided is invalid
@@ -179,8 +172,6 @@ page.reg.summary.startDate                                          = When will 
 page.reg.summary.startDate.change                                   = when you will start doing business
 page.reg.summary.accountPrepDate                                    = Accounting period end date
 page.reg.summary.heading.one.b                                      = Company contact
-page.reg.summary.companyContactName                                 = What is the name of the company''s contact for Corporation Tax?
-page.reg.summary.companyContactName.change                          = the name of the company''s contact for Corporation Tax
 page.reg.summary.companyContactEmail                                = What is the email address of the company''s contact for Corporation Tax?
 page.reg.summary.companyContactEmail.change                         = the email address of the company''s contact for Corporation Tax
 page.reg.summary.companyContactDaytimeTelephoneNumber               = What is the phone number of the company''s contact for Corporation Tax?

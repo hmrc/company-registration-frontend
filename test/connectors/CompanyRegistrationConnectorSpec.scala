@@ -53,6 +53,19 @@ class CompanyRegistrationConnectorSpec extends SCRSSpec with CTDataFixture with 
       CompanyRegistrationConnector.http shouldBe WSHttp
     }
   }
+  "fetchCompanyName" should {
+    "return company name" in new Setup{
+      val corporationTaxRegistration = buildCorporationTaxModel()
+      mockHttpGet[JsValue]("testUrl", corporationTaxRegistration)
+      val res = await(connector.fetchCompanyName("foo"))
+      res shouldBe "testCompanyname"
+    }
+    "throw exception" in new Setup {
+      val corporationTaxRegistration = buildCorporationTaxModel().as[JsObject].-("companyDetails")
+      mockHttpGet[JsValue]("testUrl", corporationTaxRegistration)
+     intercept[Exception](await(connector.fetchCompanyName("foo")))
+    }
+  }
 
   "checkROValidPPOB" should {
     "return true if an RO address can be normalised" in new Setup{

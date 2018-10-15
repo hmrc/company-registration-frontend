@@ -43,40 +43,43 @@ trait CompanyContactDetailsController extends FrontendController with AuthFuncti
 
   val s4LConnector: S4LConnector
   val companyContactDetailsService: CompanyContactDetailsService
+  val companyRegistrationConnector: CompanyRegistrationConnector
   val metricsService: MetricsService
   implicit val appConfig: AppConfig
 
   val show = Action.async {
     implicit request =>
       ctAuthorisedCompanyContact { companyContactAuth =>
-        checkStatus { _ =>
-          companyContactDetailsService.fetchContactDetails(companyContactAuth).map {
-            contactDetails => Ok(CompanyContactDetails(CompanyContactForm.form.fill(contactDetails)))
-          }
+        checkStatus { regId =>
+          for {
+            contactDetails  <- companyContactDetailsService.fetchContactDetails(companyContactAuth)
+            companyName     <- companyRegistrationConnector.fetchCompanyName(regId)
+          } yield Ok(CompanyContactDetails(CompanyContactForm.form.fill(contactDetails),companyName))
         }
       }
   }
 
   val submit = Action.async {
     implicit request =>
-      ctAuthorisedCompanyContactAmend { (ccAuth, cred, eID) =>
+      ctAuthorisedCompanyContactAmend { (email, cred, eID) =>
         registered { regId =>
           CompanyContactForm.form.bindFromRequest().fold(
-            hasErrors => Future.successful(BadRequest(CompanyContactDetails(hasErrors))),
+            hasErrors =>
+              companyRegistrationConnector.fetchCompanyName(regId).map(cName => BadRequest(CompanyContactDetails(hasErrors, cName))),
             data => {
               val context = metricsService.saveContactDetailsToCRTimer.time()
               companyContactDetailsService.updateContactDetails(data) flatMap {
                 case CompanyContactDetailsSuccessResponse(details) =>
                   context.stop()
-                  companyContactDetailsService.checkIfAmendedDetails(ccAuth, cred, eID, details).flatMap { _ =>
-                    companyContactDetailsService.updatePrePopContactDetails(regId, details) map { _ =>
+                  companyContactDetailsService.checkIfAmendedDetails(email, cred, eID, details).flatMap { _ =>
+                    companyContactDetailsService.updatePrePopContactDetails(regId, models.CompanyContactDetails.toApiModel(details)) map { _ =>
                       Redirect(routes.AccountingDatesController.show())
                     }
                   }
-                case CompanyContactDetailsNotFoundResponse => Future.successful(NotFound(defaultErrorPage))
-                case CompanyContactDetailsBadRequestResponse => Future.successful(BadRequest(defaultErrorPage))
-                case CompanyContactDetailsForbiddenResponse => Future.successful(Forbidden(defaultErrorPage))
-                case _ => Future.successful(InternalServerError(defaultErrorPage))
+                case CompanyContactDetailsNotFoundResponse      => Future.successful(NotFound(defaultErrorPage))
+                case CompanyContactDetailsBadRequestResponse    => Future.successful(BadRequest(defaultErrorPage))
+                case CompanyContactDetailsForbiddenResponse     => Future.successful(Forbidden(defaultErrorPage))
+                case _                                          => Future.successful(InternalServerError(defaultErrorPage))
               }
             }
           )

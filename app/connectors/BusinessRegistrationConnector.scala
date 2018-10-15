@@ -93,9 +93,9 @@ trait BusinessRegistrationConnector {
     }
   }
 
-  def updatePrePopContactDetails(registrationId: String, contactDetails: CompanyContactDetailsMongo)(implicit hc: HeaderCarrier): Future[Boolean] = {
+  def updatePrePopContactDetails(registrationId: String, contactDetails: CompanyContactDetailsApi)(implicit hc: HeaderCarrier): Future[Boolean] = {
     val url = s"$businessRegUrl/business-registration/$registrationId/contact-details"
-    val json = Json.toJson(contactDetails)(CompanyContactDetailsMongo.prePopWrites)
+    val json = Json.toJson(contactDetails)(CompanyContactDetailsApi.prePopWrites)
 
     http.POST(url, json) map (_ => true) recover handlePrePopError("updatePrePopContactDetails")
   }

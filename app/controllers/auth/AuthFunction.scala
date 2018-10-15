@@ -16,7 +16,7 @@
 
 package controllers.auth
 
-import models.auth.{AuthDetails, BasicCompanyAuthDetails, CompanyContactAuthDetails}
+import models.auth.{AuthDetails, BasicCompanyAuthDetails}
 import play.api.Logger
 import play.api.mvc._
 import uk.gov.hmrc.auth.core.AuthProvider.GovernmentGateway
@@ -59,16 +59,16 @@ trait AuthFunction extends FrontendController with AuthorisedFunctions with Serv
     } recover authErrorHandling()
   }
 
-  def ctAuthorisedCompanyContact(body: => (CompanyContactAuthDetails) => Future[Result])(implicit request: Request[AnyContent]): Future[Result] = {
+  def ctAuthorisedCompanyContact(body: => (String) => Future[Result])(implicit request: Request[AnyContent]): Future[Result] = {
     baseFunction.retrieve(name and email) {
-      case nm ~ Some(em) => body(CompanyContactAuthDetails(nm.name.get, nm.lastName, em))
+      case nm ~ Some(em) => body(em)
     } recover authErrorHandling()
   }
 
-  def ctAuthorisedCompanyContactAmend(body: => (CompanyContactAuthDetails, Credentials, String) => Future[Result])
+  def ctAuthorisedCompanyContactAmend(body: => (String, Credentials, String) => Future[Result])
                                      (implicit request: Request[AnyContent]): Future[Result] = {
     baseFunction.retrieve(name and email and credentials and externalId) {
-      case nm ~ Some(em) ~ cr ~ Some(ei) => body(CompanyContactAuthDetails(nm.name.get, nm.lastName, em), cr, ei)
+      case nm ~ Some(em) ~ cr ~ Some(ei) => body(em, cr, ei)
     } recover authErrorHandling()
   }
 

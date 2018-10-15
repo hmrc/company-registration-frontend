@@ -63,6 +63,7 @@ class CompanyContactDetailsControllerSpec extends SCRSSpec with UserDetailsFixtu
   "show" should {
     "return a 200 when fetchContactDetails returns a model from S4L" in new Setup {
       CTRegistrationConnectorMocks.retrieveCTRegistration()
+      when(mockCompanyRegistrationConnector.fetchCompanyName(any())(any())).thenReturn(Future.successful("foo"))
       mockKeystoreFetchAndGet("registrationID",Some("1"))
       CompanyContactDetailsServiceMocks.fetchContactDetails(validCompanyContactDetailsModel)
 
@@ -74,6 +75,7 @@ class CompanyContactDetailsControllerSpec extends SCRSSpec with UserDetailsFixtu
 
     "return a 200 when fetchContactDetails returns nothing from S4L but returns a model from UserDetailsService" in new Setup {
       CTRegistrationConnectorMocks.retrieveCTRegistration()
+      when(mockCompanyRegistrationConnector.fetchCompanyName(any())(any())).thenReturn(Future.successful("foo"))
       mockKeystoreFetchAndGet("registrationID",Some("1"))
       CompanyContactDetailsServiceMocks.fetchContactDetails(validCompanyContactDetailsModel)
 
@@ -81,6 +83,16 @@ class CompanyContactDetailsControllerSpec extends SCRSSpec with UserDetailsFixtu
         result =>
           status(result) shouldBe OK
       }
+    }
+    "return exception if name is missing even though it is not used on the page anymore" in new Setup {
+      val AuthDetailsNoName = new ~(
+        Name(None,None),
+        Some("fakeEmail")
+      )
+      intercept[Exception](showWithAuthorisedUserRetrieval(controller.show, AuthDetailsNoName) {
+        result =>
+          status(result) shouldBe OK
+      })
     }
   }
 
@@ -105,6 +117,8 @@ class CompanyContactDetailsControllerSpec extends SCRSSpec with UserDetailsFixtu
     }
 
     "return a 400 with an invalid form" in new Setup {
+      when(mockCompanyRegistrationConnector.fetchCompanyName(any())(any())).thenReturn(Future.successful("foo"))
+      CTRegistrationConnectorMocks.retrieveCTRegistration()
       when(mockKeystoreConnector.fetchAndGet[String](any())(any(), any()))
         .thenReturn(Future.successful(Some("test")))
       when(mockCompanyContactDetailsService.updatePrePopContactDetails(any(), any())(any()))
@@ -116,6 +130,20 @@ class CompanyContactDetailsControllerSpec extends SCRSSpec with UserDetailsFixtu
         result =>
           status(result) shouldBe BAD_REQUEST
       }
+    }
+    "return exception if name is missing even though it is not used on the page anymore" in new Setup {
+      val authDetailsAmendNoName = new ~(
+        new ~(
+          new ~(
+            Name(None,None),
+            Some("fakeEmail")
+          ), Credentials("credID", "provID")
+        ), Some("extID")
+      )
+      intercept[Exception](submitWithAuthorisedUserRetrieval(controller.submit, FakeRequest().withFormUrlEncodedBody(invalidCompanyContactDetailsNameFormData: _*), authDetailsAmendNoName) {
+        result =>
+          status(result) shouldBe BAD_REQUEST
+      })
     }
   }
 }

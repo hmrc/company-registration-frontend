@@ -16,19 +16,16 @@
 
 package forms.test
 
-import models.CompanyContactDetailsMongo
+import models.CompanyContactDetailsApi
 import play.api.data.Form
 import play.api.data.Forms._
 
 object CompanyContactTestEndpointForm {
   val form = Form(
     mapping(
-      "contactFirstName" -> optional(text),
-      "contactMiddleName" -> optional(text),
-      "contactLastName" -> optional(text),
+      "contactEmail" -> optional(text),
       "contactDaytimeTelephoneNumber" -> optional(text),
-      "contactMobileNumber" -> optional(text),
-      "contactEmail" -> optional(text)
-    )(CompanyContactDetailsMongo.apply)(CompanyContactDetailsMongo.unapply)
+      "contactMobileNumber" -> optional(text)
+    )(CompanyContactDetailsApi.apply)(CompanyContactDetailsApi.unapply)
   )
 }

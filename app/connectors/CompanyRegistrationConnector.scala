@@ -52,6 +52,11 @@ trait CompanyRegistrationConnector {
       case _: NotFoundException => None
     }
   }
+  def fetchCompanyName(regId: String)(implicit hc: HeaderCarrier): Future[String] = {
+    retrieveCorporationTaxRegistration(regId).map{
+      json => (json \ "companyDetails" \ "companyName").validate[String].getOrElse(throw new Exception(s"Missing company Name for regId $regId"))
+    }
+  }
 
   def retrieveCorporationTaxRegistration(registrationID: String)(implicit hc: HeaderCarrier): Future[JsValue] = {
     http.GET[JsValue](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/corporation-tax-registration") recover {
@@ -263,7 +268,7 @@ trait CompanyRegistrationConnector {
     }
   }
 
-  def updateContactDetails(registrationID: String, contactDetails: CompanyContactDetailsMongo)(implicit hc: HeaderCarrier): Future[CompanyContactDetailsResponse] = {
+  def updateContactDetails(registrationID: String, contactDetails: CompanyContactDetailsApi)(implicit hc: HeaderCarrier): Future[CompanyContactDetailsResponse] = {
     val json = Json.toJson(contactDetails)
     http.PUT[JsValue, CompanyContactDetails](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/contact-details", json) map {
       response => CompanyContactDetailsSuccessResponse(response)

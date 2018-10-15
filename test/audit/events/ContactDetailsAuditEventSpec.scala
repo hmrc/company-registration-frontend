@@ -41,58 +41,15 @@ class ContactDetailsAuditEventSpec extends UnitSpec {
            |}
            |""".stripMargin)
 
-      val contactDetails = CompanyContactDetails(
-        Some("firstName"),
-        Some("middleName"),
-        Some("lastName"),
-        Some("012345"),
-        Some("012345"),
-        Some("foo@bar.wibble"),
-        Links(Some("link"))
-      )
-
       val amendedContactDetails = CompanyContactDetails(
-        Some("afirstName"),
-        Some("amiddleName"),
-        Some("alastName"),
-        Some("012345"),
-        Some("012345"),
         Some("afoo@bar.wibble"),
+        Some("012345"),
+        Some("012345"),
         Links(Some("link"))
       )
 
       val detail = ContactDetailsAuditEventDetail(
-        "extID", "regID", "credID", contactDetails, amendedContactDetails
-      )
-
-      val json = Json.toJson(detail)(ContactDetailsAuditEvent.auditWrites)
-      json shouldBe expected
-    }
-
-    "output json in the correct format when all fields that should be in audit event are None" in {
-      val expected =
-        Json.parse("""
-                     |{
-                     | "externalUserId":"extID",
-                     | "authProviderId":"credID",
-                     | "journeyId":"regID",
-                     | "businessContactDetails":{}
-                     |}
-                     |""".stripMargin)
-
-      val contactDetails = CompanyContactDetails(
-        Some("foo"), Some("bar"),Some("wizz"), None, None, None,
-        Links(Some("link"))
-      )
-
-      val amendedContactDetails = CompanyContactDetails(
-        Some("foo1"), Some("bar2"),Some("wizz3"), None, None, None,
-        Links(Some("link"))
-      )
-
-
-      val detail = ContactDetailsAuditEventDetail(
-        "extID", "regID", "credID", contactDetails, amendedContactDetails
+        "extID", "regID", "credID", "foo@bar.wibble", amendedContactDetails
       )
 
       val json = Json.toJson(detail)(ContactDetailsAuditEvent.auditWrites)
@@ -113,18 +70,38 @@ class ContactDetailsAuditEventSpec extends UnitSpec {
                      |}
                      |""".stripMargin)
 
-      val contactDetails = CompanyContactDetails(
-        None, None, None, None, None, Some("foo@bar.wibble"),
-        Links(Some("link"))
-      )
 
-      val amendedContactDetails = CompanyContactDetails(
-        None, None, None, None, None, Some("afoo@bar.wibble"),
+      val amendedContactDetails = CompanyContactDetails(Some("afoo@bar.wibble"),None, None,
         Links(Some("link"))
       )
 
       val detail = ContactDetailsAuditEventDetail(
-        "extID", "regID", "credID", contactDetails, amendedContactDetails
+        "extID", "regID", "credID", "foo@bar.wibble", amendedContactDetails
+      )
+
+      val json = Json.toJson(detail)(ContactDetailsAuditEvent.auditWrites)
+      json shouldBe expected
+    }
+    "output json when email is not supplied by the user" in {
+      val expected =
+        Json.parse("""
+                     |{
+                     | "externalUserId":"extID",
+                     | "authProviderId":"credID",
+                     | "journeyId":"regID",
+                     | "businessContactDetails":{
+                     |   "originalEmail":"foo@bar.wibble"
+                     | }
+                     |}
+                     |""".stripMargin)
+
+
+      val amendedContactDetails = CompanyContactDetails(None,None, None,
+        Links(Some("link"))
+      )
+
+      val detail = ContactDetailsAuditEventDetail(
+        "extID", "regID", "credID", "foo@bar.wibble", amendedContactDetails
       )
 
       val json = Json.toJson(detail)(ContactDetailsAuditEvent.auditWrites)

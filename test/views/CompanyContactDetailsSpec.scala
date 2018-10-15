@@ -21,10 +21,14 @@ import builders.AuthBuilder
 import controllers.reg.CompanyContactDetailsController
 import fixtures.{CompanyContactDetailsFixture, UserDetailsFixture}
 import org.jsoup.Jsoup
+import org.mockito.Matchers.any
+import org.mockito.Mockito.when
 import play.api.test.Helpers._
 import services.MetricsService
 import uk.gov.hmrc.auth.core.retrieve.{Name, ~}
 import uk.gov.hmrc.play.test.WithFakeApplication
+
+import scala.concurrent.Future
 
 class CompanyContactDetailsSpec extends SCRSSpec with CompanyContactDetailsFixture with UserDetailsFixture
   with WithFakeApplication with AuthBuilder {
@@ -46,19 +50,20 @@ class CompanyContactDetailsSpec extends SCRSSpec with CompanyContactDetailsFixtu
       CompanyContactDetailsServiceMocks.fetchContactDetails(validCompanyContactDetailsModel)
       mockKeystoreFetchAndGet("registrationID", Some("1"))
       CTRegistrationConnectorMocks.retrieveCTRegistration()
+      when(mockCompanyRegistrationConnector.fetchCompanyName(any())(any())).thenReturn(Future.successful("testCompanyname1"))
 
       showWithAuthorisedUserRetrieval(controller.show, new ~(Name(Some("first"), Some("last")), Some("email"))) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
 
-          document.title() shouldBe "Who should we contact about the company's Corporation Tax?"
-          document.getElementById("main-heading").text() shouldBe "Who should we contact about the company's Corporation Tax?"
-          document.getElementById("contactNameLabel").text() shouldBe "Contact name"
+          document.title() shouldBe "Give us one or more ways to contact testCompanyname1"
+          document.getElementById("main-heading").text() shouldBe "Give us one or more ways to contact testCompanyname1"
+          intercept[Exception](document.getElementById("contactNameLabel").text())
           document.getElementById("contactEmailLabel").text() shouldBe "Email address"
-          document.getElementById("contactDaytimePhoneLabel").text() shouldBe "Contact number"
+          document.getElementById("contactDaytimePhoneLabel").text() shouldBe "Contact number Give a mobile number, if you have one"
           document.getElementById("contactMobileLabel").text() shouldBe "Other contact number"
           document.getElementById("next").attr("value") shouldBe "Save and continue"
-          document.getElementById("helpMessage1").text() shouldBe "Provide at least one of the following contact details."
+          document.getElementById("helpMessage1").text() shouldBe "We will only do this if we have questions about the company's Corporation Tax."
       }
     }
   }

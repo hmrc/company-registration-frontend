@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@(contactDetails: CompanyContactDetailsMongo)(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.AppConfig)
+@(contactDetails: CompanyContactDetailsApi)(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.AppConfig)
 
 @main_template(title = "Feature switch", mainClass = Some("full-width")) {
 
@@ -24,10 +24,6 @@
             <h1 class="form-title heading-large" id="main-heading">Pre-pop company contact details</h1>
 
     </div>
-
-    <p>first name : <span id="first-name">@contactDetails.contactFirstName</span></p>
-    <p>middle : <span id="middle-name">@contactDetails.contactMiddleName</span></p>
-    <p>surname : <span id="surname">@contactDetails.contactSurname</span></p>
     <p>telephone number : <span  id="tel-number">@contactDetails.contactDaytimeTelephoneNumber</span></p>
     <p>mobile number : <span id="mobile-number">@contactDetails.contactMobileNumber</span></p>
     <p>email : <span id="email">@contactDetails.contactEmail</span></p>
