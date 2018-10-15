@@ -59,14 +59,14 @@ case class CompanyContactDetailsMongo(contactFirstName: Option[String],
 object CompanyContactDetailsMongo {
   implicit val formats = Json.format[CompanyContactDetailsMongo]
 
-  val prePopWrites = (
-    (__ \ "firstName").writeNullable[String] and
-      (__ \ "middleName").writeNullable[String] and
-      (__ \ "surname").writeNullable[String] and
-      (__ \ "telephoneNumber").writeNullable[String] and
-      (__ \ "mobileNumber").writeNullable[String] and
-      (__ \ "email").writeNullable[String]
-  )(unlift(CompanyContactDetailsMongo.unapply))
+  val prePopWrites = new OWrites[CompanyContactDetailsMongo] {
+    override def writes(o: CompanyContactDetailsMongo): JsObject = {
+      Seq(
+        o.contactDaytimeTelephoneNumber.map(a => Json.obj("telephoneNumber" -> a)),
+        o.contactMobileNumber.map(a => Json.obj("mobileNumber" -> a)),
+        o.contactEmail.map(a => Json.obj("email" -> a))).map(_.getOrElse(Json.obj())).fold[JsObject](Json.obj())((a,b) => a.deepMerge(b))
+    }
+  }
 
   val prePopReads = (
     (__ \ "firstName").readNullable[String] and
