@@ -143,9 +143,9 @@ with SessionRegistration with MessagesSupport {
     PPOBModel(pPOBAddress, addressChoice = "")
   }
 
-  def extractContactDetails (companyContactDetailsResponse: CompanyContactDetailsResponse): CompanyContactDetails = {
+  def extractContactDetails (companyContactDetailsResponse: CompanyContactDetailsResponse): CompanyContactDetailsApi = {
     companyContactDetailsResponse match {
-      case CompanyContactDetailsSuccessResponse(response) => response
+      case CompanyContactDetailsSuccessResponse(response) => CompanyContactDetails.toApiModel(response)
       case _ =>
         Logger.error(s"[SummaryController] [extractContactDetails] Could not find company details - suspected direct routing to summary page")
         throw new Exception ("could not find company contact details - suspected direct routing to summary page")

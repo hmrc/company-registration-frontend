@@ -17,7 +17,7 @@
 package fixtures
 
 import forms.CompanyContactForm
-import models.{CompanyContactDetails, CompanyContactViewModel, Links}
+import models.{CompanyContactDetails, CompanyContactDetailsApi, Links}
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.cache.client.CacheMap
 
@@ -27,96 +27,57 @@ trait CompanyContactDetailsFixture {
 
   lazy val companyContactForm = CompanyContactForm.form
 
-  def buildContactDetailsFormData(name: String = "test name",
-                                  email: String = "foo@bar.wibble",
-                                  telephoneNumber: String = "0123456789",
-                                  mobileNumber: String = "0123456789"): Map[String, String] = {
-    Map(
-      "contactName" -> name,
-      "contactEmail" -> email,
-      "contactDaytimeTelephoneNumber" -> telephoneNumber,
-      "contactMobileNumber" -> mobileNumber)
-  }
-
-  lazy val companyContactModelFromUserDetails = CompanyContactViewModel(
-    "testFirstName testMiddleName testLastName",
+  lazy val companyContactModelFromUserDetails = CompanyContactDetailsApi(
     Some("testEmail"),
     None,
     None
   )
 
   lazy val companyContactFormData = Seq(
-    "contactFirstName" -> "testFirstName",
-    "contactMiddleName" -> "testMiddleName",
-    "contactLastName" -> "testLastName",
     "contactEmail" -> "foo@bar.wibble",
     "contactDaytimeTelephoneNumber" -> "01234566789",
     "contactMobileNumber" -> "01234566789")
 
-  lazy val validCompanyContactDetailsModel = CompanyContactViewModel(
-    "testFirstName testMiddleName testLastName",
+  lazy val validCompanyContactDetailsModel = CompanyContactDetailsApi(
     Some("foo@bar.wibble"),
     Some("0123456789"),
     Some("0123456789"))
 
   lazy val validCompanyContactDetailsResponse = CompanyContactDetails(
-    Some("testFirstName"),
-    Some("testMiddleName"),
-    Some("testLastName"),
-    Some("0123456789"),
-    Some("0123456789"),
     Some("foo@bar.wibble"),
+    Some("0123456789"),
+    Some("0123456789"),
     Links(Some("testLink")))
 
   lazy val companyContactDetailsCacheMap = CacheMap("", Map("" -> Json.toJson("")))
 
   lazy val validCompanyContactDetailsFormData = Seq(
-    "contactName" -> "testFirstName testMiddleName testLastName",
     "contactEmail" -> "foo@bar.wibble",
     "contactDaytimeTelephoneNumber" -> "0123 345 6789",
     "contactMobileNumber" -> "07123 456789")
 
   lazy val invalidCompanyContactDetailsNameFormData = Seq(
-    "contactName" -> "testFirstName1212$ testMiddleName$ testLastName",
     "contactEmail" -> "foo@bar.wibble",
-    "contactDaytimeTelephoneNumber" -> "0123456789",
-    "contactMobileNumber" -> "0123456789")
+    "contactDaytimeTelephoneNumber" -> "01",
+    "contactMobileNumber" -> "0123456")
 
   lazy val invalidCompanyContactDetailsEmailFormData = Seq(
-    "contactName" -> "testFirstName testMiddleName testLastName",
     "contactEmail" -> "test",
     "contactDaytimeTelephoneNumber" -> "0123456789",
     "contactMobileNumber" -> "0123456789")
 
   lazy val invalidCompanyContactDetailsDaytimeTelephoneFormData = Seq(
-    "contactName" -> "testFirstName testMiddleName testLastName",
     "contactEmail" -> "foo@bar.wibble",
     "contactDaytimeTelephoneNumber" -> "0123456789dsdsdd",
     "contactMobileNumber" -> "0123456789")
 
   lazy val invalidCompanyContactDetailsMobileFormData = Seq(
-    "contactName" -> "testFirstName testMiddleName testLastName",
     "contactEmail" -> "foo@bar.wibble",
     "contactDaytimeTelephoneNumber" -> "0123456789",
     "contactMobileNumber" -> "0123456789sdsddsd")
 
-  lazy val invalidCompanyContactDetailsFormData = Seq(
-    "contactName" -> "&&£",
-    "contactEmail" -> "testemail.co.uk",
-    "contactDaytimeTelephoneNumber" -> "abc",
-    "contactMobileNumber" -> "abc")
-
-  lazy val invalidCompanyContactDetailsEmptyFormData = Seq(
-    "contactName" -> "",
-    "contactEmail" -> "",
-    "contactDaytimeTelephoneNumber" -> "",
-    "contactMobileNumber" -> "")
-
-
   lazy val invalidCompanyContactDetailsEmailTooLong = Seq(
-    "contactName" -> "testFirstName testMiddleName testLastName",
     "contactEmail" -> "uiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiuiu.com",
     "contactDaytimeTelephoneNumber" -> "0123456789",
     "contactMobileNumber" -> "0123456789")
-
 }

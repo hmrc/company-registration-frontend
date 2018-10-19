@@ -230,7 +230,7 @@ trait DashboardService extends SCRSExceptions with AlertLogging with CommonServi
           val mismatch = authDetails.email != crEmail.address
           if (mismatch) {
             for {
-              result  <- auditConnector.sendExtendedEvent(
+              result <- auditConnector.sendExtendedEvent(
                 new EmailMismatchEvent(
                   EmailMismatchEventDetail(
                     authDetails.externalId,
@@ -239,7 +239,7 @@ trait DashboardService extends SCRSExceptions with AlertLogging with CommonServi
                   )
                 )
               )
-              _       <- keystoreConnector.cache("emailMismatchAudit", mismatch)
+              _ <- keystoreConnector.cache("emailMismatchAudit", mismatch)
             } yield mismatch
           } else {
             Future.successful(mismatch)
@@ -247,7 +247,5 @@ trait DashboardService extends SCRSExceptions with AlertLogging with CommonServi
         case _ => Future.successful(false)
       }
     }
-
-
   }
 }

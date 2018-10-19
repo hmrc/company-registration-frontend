@@ -19,7 +19,7 @@ package connectors
 import config.WSHttp
 import fixtures.BusinessRegistrationFixture
 import helpers.SCRSSpec
-import models.{Address, BusinessRegistration, CompanyContactDetailsMongo}
+import models.{Address, BusinessRegistration, CompanyContactDetailsApi}
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import play.api.libs.json.JsValue
@@ -131,10 +131,7 @@ class BusinessRegistrationConnectorSpec extends SCRSSpec with BusinessRegistrati
 
   "updatePrePopContactDetails" should {
 
-    val companyDetails = CompanyContactDetailsMongo(
-      Some("firstName"),
-      Some("middle"),
-      Some("lastName"),
+    val companyDetails = CompanyContactDetailsApi(
       Some("telNo"),
       Some("mobNo"),
       Some("email")

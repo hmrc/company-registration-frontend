@@ -114,8 +114,8 @@ trait TestEndpointController extends FrontendController with AuthFunction with C
             case _ => CompanyNameHandOffFormModel(None, "", "", CHROAddress("", "", Some(""), "", "", Some(""), Some(""), Some("")), "", "", "")
           })
           val companyContactForm = CompanyContactTestEndpointForm.form.fill(contactDetails match {
-            case CompanyContactDetailsSuccessResponse(x) => x
-            case _ => CompanyContactDetails.empty
+            case CompanyContactDetailsSuccessResponse(x) => CompanyContactDetails.toApiModel(x)
+            case _ => CompanyContactDetailsApi(None,None,None)
           })
           val tradingDetailsForm = TradingDetailsForm.form.fill(tradingDetails.getOrElse(TradingDetails()))
           Ok(TestEndpoint(accountingDatesForm, handBackForm, companyContactForm, companyDetailsForm, tradingDetailsForm, applicantForm))
@@ -287,7 +287,7 @@ trait TestEndpointController extends FrontendController with AuthFunction with C
       ctAuthorised {
         registered { regId =>
           brConnector.fetchPrePopContactDetails(regId) map { js =>
-            val contactDetails = Json.fromJson(js)(CompanyContactDetailsMongo.prePopReads).get
+            val contactDetails = Json.fromJson(js)(CompanyContactDetailsApi.prePopReads).get
             Ok(views.html.test.PrePopContactDetails(contactDetails))
           }
         }

@@ -31,13 +31,13 @@ trait CompanyContactDetailsServiceMock {
   lazy val mockCompanyContactDetailsService = mock[CompanyContactDetailsService]
 
   object CompanyContactDetailsServiceMocks {
-    def fetchContactDetails(response: CompanyContactViewModel): OngoingStubbing[Future[CompanyContactViewModel]] = {
+    def fetchContactDetails(response: CompanyContactDetailsApi): OngoingStubbing[Future[CompanyContactDetailsApi]] = {
       when(mockCompanyContactDetailsService.fetchContactDetails(Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(response))
     }
 
     def updateContactDetails(response: CompanyContactDetailsResponse): OngoingStubbing[Future[CompanyContactDetailsResponse]] = {
-      when(mockCompanyContactDetailsService.updateContactDetails(Matchers.any[CompanyContactViewModel]())(Matchers.any()))
+      when(mockCompanyContactDetailsService.updateContactDetails(Matchers.any[CompanyContactDetailsApi]())(Matchers.any()))
         .thenReturn(Future.successful(response))
     }
   }

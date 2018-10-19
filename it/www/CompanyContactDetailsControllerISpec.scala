@@ -20,7 +20,8 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
     s"""
        |{
        |    "registrationID" : "${rID}",
-       |    "status" : "${status}"
+       |    "status" : "${status}",
+       |    "companyDetails": { "companyName": "fooBAR"}
        |}
      """.stripMargin
   val nameJson = Json.parse(
@@ -35,16 +36,15 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
       stubSuccessfulLogin(userId = userId, otherParamsForAuth = Some(nameJson))
       stubKeystore(SessionId, regId)
       stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR())
-      stubGet("/company-registration/corporation-tax-registration/5/contact-details", 404, "")
+      stubGet(s"/company-registration/corporation-tax-registration/$regId/contact-details", 404, "")
 
       val fResponse = await(buildClient(controllers.reg.routes.CompanyContactDetailsController.show().url)
         .withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
         .get())
       val doc = Jsoup.parse(fResponse.body)
       fResponse.status shouldBe 200
-      doc.getElementById("contactName").`val` shouldBe "foo bar"
     }
-    "return 200 with data from backend - contact name missing" in {
+    "return 200 with data from backend " in {
       val contactDetailsResp = Json.parse(
         """
           |{
@@ -60,45 +60,14 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
       stubSuccessfulLogin(userId = userId, otherParamsForAuth = Some(nameJson))
       stubKeystore(SessionId, regId)
       stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR())
-      stubGet("/company-registration/corporation-tax-registration/5/contact-details", 200, contactDetailsResp.toString())
+      stubGet(s"/company-registration/corporation-tax-registration/$regId/contact-details", 200, contactDetailsResp.toString())
 
       val fResponse = await(buildClient(controllers.reg.routes.CompanyContactDetailsController.show().url)
         .withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
         .get())
       val doc = Jsoup.parse(fResponse.body)
       fResponse.status shouldBe 200
-      doc.getElementById("contactName").`val` shouldBe ""
-      doc.getElementById("contactDaytimeTelephoneNumber").`val` shouldBe "12345678"
-      doc.getElementById("contactMobileNumber").`val` shouldBe "45678"
-      doc.getElementById("contactEmail").`val` shouldBe "foo@foo.com"
-    }
-    "return 200 when contact name is not missing in backend" in {
-      val contactDetailsResp = Json.parse(
-        """
-          |{
-          | "contactFirstName": "wizz",
-          | "contactMiddleName": "bar1",
-          | "contactSurname": "bar2",
-          | "contactDaytimeTelephoneNumber": "12345678",
-          | "contactMobileNumber": "45678",
-          | "contactEmail": "foo@foo.com",
-          | "links": {
-          | }
-          |}
-        """.stripMargin)
-
-      stubAuthorisation()
-      stubSuccessfulLogin(userId = userId, otherParamsForAuth = Some(nameJson))
-      stubKeystore(SessionId, regId)
-      stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR())
-      stubGet("/company-registration/corporation-tax-registration/5/contact-details", 200, contactDetailsResp.toString())
-
-      val fResponse = await(buildClient(controllers.reg.routes.CompanyContactDetailsController.show().url)
-        .withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
-        .get())
-      val doc = Jsoup.parse(fResponse.body)
-      fResponse.status shouldBe 200
-      doc.getElementById("contactName").`val` shouldBe "wizz bar1 bar2"
+      doc.getElementById("main-heading").html shouldBe "Give us one or more ways to contact fooBAR"
       doc.getElementById("contactDaytimeTelephoneNumber").`val` shouldBe "12345678"
       doc.getElementById("contactMobileNumber").`val` shouldBe "45678"
       doc.getElementById("contactEmail").`val` shouldBe "foo@foo.com"
@@ -109,9 +78,6 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
       val contactDetailsResp = Json.parse(
         """
           |{
-          | "contactFirstName": "foo",
-          | "contactMiddleName": "bar",
-          | "contactSurname": "wizz",
           | "contactDaytimeTelephoneNumber": "12345678910",
           | "contactMobileNumber": "1234567891011",
           | "contactEmail": "foo@foo.com",
@@ -129,7 +95,6 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
         withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck").post(
         Map(
           "csrfToken"->Seq("xxx-ignored-xxx"),
-          "contactName"->Seq("foo bar wizz"),
           "contactDaytimeTelephoneNumber"-> Seq("12345678910"),
           "contactMobileNumber" -> Seq("1234567891011"),
           "contactEmail" -> Seq("foo@foo.com")))
@@ -142,7 +107,7 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
       val prePop = Json.parse(getRequestBody("post",s"/business-registration/$regId/contact-details")).as[JsObject]
       prePop shouldBe Json.obj("telephoneNumber" -> "12345678910", "mobileNumber" -> "1234567891011", "email" -> "foo@foo.com")
     }
-    "return 400 when contact name is missing on submission" in {
+    "return 400 data is invalid" in {
       stubAuthorisation()
       stubSuccessfulLogin(userId = userId, otherParamsForAuth = Some(nameAndCredId))
       stubKeystore(SessionId, regId)
@@ -152,15 +117,16 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
         withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck").post(
         Map(
           "csrfToken"->Seq("xxx-ignored-xxx"),
-          "contactName"->Seq(""),
-          "contactDaytimeTelephoneNumber"-> Seq("12345678910"),
-          "contactMobileNumber" -> Seq("1234567891011"),
+          "contactDaytimeTelephoneNumber"-> Seq("1"),
+          "contactMobileNumber" -> Seq("12"),
           "contactEmail" -> Seq("foo@foo.com")))
       )
 
       response.status shouldBe 400
+      val doc = Jsoup.parse(response.body)
+      doc.getElementById("main-heading").html shouldBe "Give us one or more ways to contact fooBAR"
     }
-    "return 303 when minimum amount of fields are populated (which includes contact name) but contact name is not returned from backend" in {
+    "return 303 when minimum amount of fields are populated" in {
       val contactDetailsResp = Json.parse(
         """
           |{ "contactDaytimeTelephoneNumber": "12345678910",
@@ -178,7 +144,6 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
         withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck").post(
         Map(
           "csrfToken"->Seq("xxx-ignored-xxx"),
-          "contactName"->Seq("foo bar"),
           "contactDaytimeTelephoneNumber"-> Seq("12345678910"),
           "contactMobileNumber" -> Seq(""),
           "contactEmail" -> Seq("")))
@@ -193,8 +158,6 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
       val contactDetailsResp = Json.parse(
         """
           |{
-          | "contactFirstName": "foo",
-          | "contactSurname": "bar",
           | "contactDaytimeTelephoneNumber": "12345678910",
           | "contactEmail":"test@test.com",
           | "links": {

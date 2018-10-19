@@ -27,14 +27,7 @@ case class AuthDetails(
                         authProviderId: Credentials
                       )
 
-case class BasicCompanyAuthDetails(
-                                  name: String,
+case class BasicCompanyAuthDetails(name: String,
                                   email: String,
                                   externalId : String
-                                  )
-
-case class CompanyContactAuthDetails(
-                                    name: String,
-                                    lastName : Option[String],
-                                    email: String
                                   )

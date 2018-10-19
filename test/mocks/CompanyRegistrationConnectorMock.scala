@@ -67,7 +67,7 @@ trait CompanyRegistrationConnectorMock extends CorporationTaxFixture {
     }
 
     def updateContactDetails(response: CompanyContactDetailsResponse) ={
-      when(mockCompanyRegistrationConnector.updateContactDetails(Matchers.anyString(), Matchers.any[CompanyContactDetailsMongo]())(Matchers.any()))
+      when(mockCompanyRegistrationConnector.updateContactDetails(Matchers.anyString(), Matchers.any[CompanyContactDetailsApi]())(Matchers.any()))
         .thenReturn(Future.successful(response))
     }
 

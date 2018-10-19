@@ -16,7 +16,6 @@
 
 package audit.events
 
-import audit.TransactionNames
 import audit.TransactionNames.AMEND_PRE_POP_CONTACT_DETAILS
 import audit.events.RegistrationAuditEvent.{AUTH_PROVIDER_ID, EXT_USER_ID, JOURNEY_ID}
 import models.CompanyContactDetails
@@ -27,26 +26,21 @@ import uk.gov.hmrc.http.HeaderCarrier
 case class ContactDetailsAuditEventDetail(externalUserId: String,
                                           regId: String,
                                           credId: String,
-                                          ggContactDetails: CompanyContactDetails,
+                                          originalEmail: String,
                                           amendedContactDetails: CompanyContactDetails)
 
 object ContactDetailsAuditEvent {
-  private def filterOpts(seq: (String, Option[String])*): Seq[(String, Json.JsValueWrapper)] = {
-    seq.collect{ case (k, Some(v)) => (k, Json.toJsFieldJsValueWrapper(v)) }
-  }
 
   val auditWrites = new Writes[ContactDetailsAuditEventDetail] {
     def writes(detail: ContactDetailsAuditEventDetail) = {
+      val userSubmittedEmail = detail.amendedContactDetails.contactEmail.fold(Json.obj())(
+        e => Json.obj("submittedEmail" -> e))
       Json.obj(
         EXT_USER_ID -> detail.externalUserId,
         AUTH_PROVIDER_ID -> detail.credId,
         JOURNEY_ID -> detail.regId,
         "businessContactDetails" -> Json.obj(
-          filterOpts(
-            "originalEmail" -> detail.ggContactDetails.contactEmail,
-            "submittedEmail" -> detail.amendedContactDetails.contactEmail
-          ): _*
-        )
+            "originalEmail" -> Some(detail.originalEmail)).deepMerge(userSubmittedEmail)
       )
     }
   }
@@ -56,4 +50,4 @@ class ContactDetailsAuditEvent(detail : ContactDetailsAuditEventDetail)(implicit
   extends RegistrationAuditEvent(
     AMEND_PRE_POP_CONTACT_DETAILS,
     Json.toJson(detail)(ContactDetailsAuditEvent.auditWrites).as[JsObject]
-  )(hc, req)
+  )

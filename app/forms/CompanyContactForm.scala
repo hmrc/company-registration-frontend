@@ -17,20 +17,18 @@
 package forms
 
 import forms.templates.PhoneNoForm
-import models.CompanyContactViewModel
+import models.CompanyContactDetailsApi
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.i18n.Lang
-import uk.gov.hmrc.play.mappers.StopOnFirstFail
 import utils.SCRSValidators._
 
 object CompanyContactForm extends PhoneNoForm {
   def form(implicit lang:Lang) = Form(
     mapping(
-      "contactName" -> text.verifying(StopOnFirstFail(nameRequiredValidation, contactNameValidation)),
       "contactEmail" -> optional(text.verifying(emailValidation)),
       "contactDaytimeTelephoneNumber" -> phoneNoField,
       "contactMobileNumber" -> phoneNoField
-    )(CompanyContactViewModel.apply)(CompanyContactViewModel.unapply).verifying(companyContactDetailsValidation)
+    )(CompanyContactDetailsApi.apply)(CompanyContactDetailsApi.unapply).verifying(companyContactDetailsValidation)
   )
 }

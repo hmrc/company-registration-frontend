@@ -20,7 +20,6 @@ import _root_.connectors.{BusinessRegistrationConnector, PlatformAnalyticsConnec
 import fixtures.{CompanyContactDetailsFixture, UserDetailsFixture}
 import helpers.SCRSSpec
 import models._
-import models.auth.CompanyContactAuthDetails
 import org.mockito.Matchers
 import org.mockito.Mockito._
 
@@ -41,20 +40,20 @@ class CompanyContactDetailsServiceSpec extends SCRSSpec with CompanyContactDetai
     }
   }
 
-  val companyContactAuthDetails = CompanyContactAuthDetails("testFirstName testMiddleName", Some("testLastName"), "testEmail")
+  val companyContactAuthEmail = "testEmail"
 
   "fetchContactDetails" should {
     "return a company contact model if a record exists" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
       CTRegistrationConnectorMocks.retrieveContactDetails(CompanyContactDetailsSuccessResponse(validCompanyContactDetailsResponse))
 
-      await(service.fetchContactDetails(companyContactAuthDetails)) shouldBe validCompanyContactDetailsModel
+      await(service.fetchContactDetails(companyContactAuthEmail)) shouldBe validCompanyContactDetailsModel
     }
 
     "return a generated company contact model when no contact details record exists but user details retrieves a record" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
       CTRegistrationConnectorMocks.retrieveContactDetails(CompanyContactDetailsNotFoundResponse)
-      await(service.fetchContactDetails(companyContactAuthDetails)) shouldBe companyContactModelFromUserDetails
+      await(service.fetchContactDetails(companyContactAuthEmail)) shouldBe companyContactModelFromUserDetails
     }
 
     "return a company contact model with no email when a record is retrieved from user details with a DES invalid email" in new Setup {
@@ -63,21 +62,20 @@ class CompanyContactDetailsServiceSpec extends SCRSSpec with CompanyContactDetai
       when(mockPlatformAnalyticsConn.sendEvents(Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(()))
 
-      val expected = CompanyContactViewModel("testFirstName testMiddleName testLastName", None, None, None)
+      val invalidEmail = "invalid+des@email.com"
 
-      await(service.fetchContactDetails(companyContactAuthDetails.copy(email = "invalid+des@email.com"))) shouldBe expected
+      await(service.fetchContactDetails(invalidEmail)) shouldBe CompanyContactDetailsApi(None,None,None)
     }
 
-    "return a company contact model with no email when a record is retrieved from user details with an email over 70 characters" in new Setup {
+    "return a company contact model when  email when a record is retrieved from user details with an email over 70 characters" in new Setup {
 
       val email71chars = randStr(60) + "@bar.wibble"
 
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
       CTRegistrationConnectorMocks.retrieveContactDetails(CompanyContactDetailsNotFoundResponse)
 
-      val expected = CompanyContactViewModel("testFirstName testMiddleName testLastName", None, None, None)
 
-      await(service.fetchContactDetails(companyContactAuthDetails.copy(email = email71chars))) shouldBe expected
+      await(service.fetchContactDetails(email71chars)) shouldBe CompanyContactDetailsApi(None,None,None)
     }
   }
 
@@ -91,38 +89,23 @@ class CompanyContactDetailsServiceSpec extends SCRSSpec with CompanyContactDetai
   }
 
   "isContactDetailsAmended" should {
-
     val details = CompanyContactDetails(
-      Some("testFirstName"),
-      Some("testMiddleName"),
-      Some("testLastName"),
-      Some("123456789"),
-      Some("123456789"),
       Some("foo@bar.wibble"),
+      Some("123456789"),
+      Some("123456789"),
       Links(Some("testLink"))
     )
 
-    "return false if first name match because contact name is to be removed" in new Setup {
-      val firstName = "test"
-      service.isContactDetailsAmended(details, details.copy(contactFirstName = Some(firstName))) shouldBe false
-    }
-    "return false if middle name doesnt match because contact name is to be removed" in new Setup {
-      val middleName = "test"
-      service.isContactDetailsAmended(details, details.copy(contactMiddleName = Some(middleName))) shouldBe false
-    }
-
-    "return false if last name doesnt match because contact name is to be removed" in new Setup {
-      val lastName = "test"
-      service.isContactDetailsAmended(details, details.copy(contactSurname = Some(lastName))) shouldBe false
-    }
-
-    "return true if emails match" in new Setup {
+    "return true if email is different" in new Setup {
       val email = "test"
-      service.isContactDetailsAmended(details, details.copy(contactEmail = Some(email))) shouldBe true
+      service.isContactDetailsAmended(Some("foo"),"bar") shouldBe true
     }
 
-    "return false if details match" in new Setup {
-      service.isContactDetailsAmended(details, details) shouldBe false
+    "return false if email is provided but not different" in new Setup {
+      service.isContactDetailsAmended(Some("foo"), "foo") shouldBe false
+    }
+    "return true if email is NOT provided" in new Setup {
+      service.isContactDetailsAmended(None, "foo") shouldBe true
     }
   }
 }

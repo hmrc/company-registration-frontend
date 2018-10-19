@@ -18,117 +18,48 @@ package models
 
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
-import utils.SplitName
 
 import scala.language.implicitConversions
 
-case class CompanyContactViewModel(contactName: String,
-                                   contactEmail: Option[String],
-                                   contactDaytimeTelephoneNumber: Option[String],
-                                   contactMobileNumber: Option[String])
+case class CompanyContactDetailsApi(contactEmail: Option[String],
+                                    contactDaytimeTelephoneNumber: Option[String],
+                                    contactMobileNumber: Option[String])
 
-object CompanyContactViewModel {
-  implicit val formats = Json.format[CompanyContactViewModel]
+object CompanyContactDetailsApi {
+  implicit val formats = Json.format[CompanyContactDetailsApi]
 
-  implicit def toMongoModel(viewModel: CompanyContactViewModel): CompanyContactDetailsMongo = {
-
-    val name = SplitName.splitName(viewModel.contactName)
-
-    CompanyContactDetailsMongo(
-      Some(name.firstName),
-      name.middleName,
-      name.surname,
-      viewModel.contactDaytimeTelephoneNumber,
-      viewModel.contactMobileNumber,
-      viewModel.contactEmail
-    )
-  }
-
-  def empty = {
-    CompanyContactViewModel("", None, None, None)
-  }
-}
-
-case class CompanyContactDetailsMongo(contactFirstName: Option[String],
-                                      contactMiddleName: Option[String],
-                                      contactSurname: Option[String],
-                                      contactDaytimeTelephoneNumber: Option[String],
-                                      contactMobileNumber: Option[String],
-                                      contactEmail: Option[String])
-
-object CompanyContactDetailsMongo {
-  implicit val formats = Json.format[CompanyContactDetailsMongo]
-
-  val prePopWrites = new OWrites[CompanyContactDetailsMongo] {
-    override def writes(o: CompanyContactDetailsMongo): JsObject = {
+  val prePopWrites = new OWrites[CompanyContactDetailsApi] {
+    override def writes(o: CompanyContactDetailsApi): JsObject = {
       Seq(
+        o.contactEmail.map(a => Json.obj("email" -> a)),
         o.contactDaytimeTelephoneNumber.map(a => Json.obj("telephoneNumber" -> a)),
-        o.contactMobileNumber.map(a => Json.obj("mobileNumber" -> a)),
-        o.contactEmail.map(a => Json.obj("email" -> a))).map(_.getOrElse(Json.obj())).fold[JsObject](Json.obj())((a,b) => a.deepMerge(b))
+        o.contactMobileNumber.map(a => Json.obj("mobileNumber" -> a)))
+          .map(_.getOrElse(Json.obj())).fold[JsObject](Json.obj())((a,b) => a.deepMerge(b))
     }
   }
 
   val prePopReads = (
-    (__ \ "firstName").readNullable[String] and
-      (__ \ "middleName").readNullable[String] and
-      (__ \ "surname").readNullable[String] and
+      (__ \ "email").readNullable[String] and
       (__ \ "telephoneNumber").readNullable[String] and
-      (__ \ "mobileNumber").readNullable[String] and
-      (__ \ "email").readNullable[String]
-    )(CompanyContactDetailsMongo.apply _)
+      (__ \ "mobileNumber").readNullable[String]
+    )(CompanyContactDetailsApi.apply _)
 }
 
-case class CompanyContactDetails(contactFirstName: Option[String],
-                                 contactMiddleName: Option[String],
-                                 contactSurname: Option[String],
-                                 contactDaytimeTelephoneNumber: Option[String],
-                                 contactMobileNumber: Option[String],
-                                 contactEmail: Option[String],
-                                 links: Links)
+case class CompanyContactDetails(contactEmail: Option[String],
+                                  contactDaytimeTelephoneNumber: Option[String],
+                                  contactMobileNumber: Option[String],
+                                  links: Links)
 
 object CompanyContactDetails {
   implicit val formatsLinks = Json.format[Links]
-  implicit val formats = Json.format[CompanyContactDetails]
+  implicit val formats      = Json.format[CompanyContactDetails]
 
-  def isEqual(a: CompanyContactDetails, b: CompanyContactDetails): Boolean = {
-    Seq(
-      a.contactFirstName.equals(b.contactFirstName),
-      a.contactMiddleName.equals(b.contactMiddleName),
-      a.contactSurname.equals(b.contactSurname),
-      a.contactEmail.equals(b.contactEmail)
-    ).filter(eq => !eq).isEmpty
-  }
-
-  implicit def toMongoModel(companyContactDetails: CompanyContactDetails): CompanyContactDetailsMongo = {
-    CompanyContactDetailsMongo(
-      companyContactDetails.contactFirstName,
-      companyContactDetails.contactMiddleName,
-      companyContactDetails.contactSurname,
-      companyContactDetails.contactDaytimeTelephoneNumber,
-      companyContactDetails.contactMobileNumber,
-      companyContactDetails.contactEmail
-    )
-  }
-
-  implicit def toViewModel(companyContactDetails: CompanyContactDetails): CompanyContactViewModel = {
-
-    val contactName = (companyContactDetails.contactFirstName, companyContactDetails.contactMiddleName, companyContactDetails.contactSurname) match {
-      case (Some(f), Some(m), Some(l)) => s"$f $m $l"
-      case (Some(f), _, Some(l)) => s"$f $l"
-      case (Some(f), _, _) => f
-      case _ => ""
-    }
-
-    CompanyContactViewModel(
-      contactName,
+  def toApiModel(companyContactDetails: CompanyContactDetails): CompanyContactDetailsApi = {
+    CompanyContactDetailsApi(
       companyContactDetails.contactEmail,
       companyContactDetails.contactDaytimeTelephoneNumber,
       companyContactDetails.contactMobileNumber
     )
-  }
-
-  def empty = {
-    CompanyContactViewModel("", None, None, None)
   }
 }
 

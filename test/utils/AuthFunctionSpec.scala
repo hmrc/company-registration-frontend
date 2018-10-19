@@ -20,11 +20,12 @@ import builders.AuthBuilder
 import controllers.auth.AuthFunction
 import fixtures.LoginFixture
 import helpers.SCRSSpec
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, Reads}
 import play.api.mvc.{Result, Results}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.auth.core.retrieve.Retrievals
+import uk.gov.hmrc.auth.core.AuthConnector
+import uk.gov.hmrc.auth.core.retrieve._
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.WithFakeApplication
 
@@ -34,6 +35,7 @@ class AuthFunctionSpec extends SCRSSpec with AuthBuilder with WithFakeApplicatio
 
   override implicit val hc = HeaderCarrier()
   implicit val fr = FakeRequest()
+
 
   trait Setup {
     val support = new AuthFunction {
@@ -119,6 +121,55 @@ class AuthFunctionSpec extends SCRSSpec with AuthBuilder with WithFakeApplicatio
       val response = await(result)
       response.header.status shouldBe 500
       contentAsString(response) shouldBe ""
+    }
+  }
+  val authDetails = new ~(
+    Name(Some("myFirstName"), Some("myLastName")),
+    Some("fakeEmail")
+  )
+  val authMissing = new ~(
+    Name(Some("myFirstName"), Some("myLastName")),
+    None
+  )
+  val authDetailsAmend = new ~(
+    new ~(
+      new ~(
+        Name(Some("myFirstName"), Some("myLastName")),
+        Some("fakeEmail")
+      ), Credentials("credID", "provID")
+    ), Some("extID")
+  )
+  "ctAuthorisedCompanyContact" should {
+    "return Ok when all required components are returned from auth" in new Setup {
+      mockAuthorisedUser(Future.successful(authDetails))
+      val result = support.ctAuthorisedCompanyContact((s:String) => Future.successful(Results.Ok(s"$s")))
+      val response = await(result)
+      response.header.status shouldBe 200
+      contentAsString(response) shouldBe "fakeEmail"
+
+    }
+    "return internal server error When Not all the components are returned from auth" in new Setup {
+      mockAuthorisedUser(Future.successful(authMissing))
+      val result = support.ctAuthorisedCompanyContact((s:String) => Future.successful(Results.Ok(s"$s")))
+      intercept[Exception](await(result))
+    }
+  }
+  "ctAuthorisedCompanyContactAmend" should {
+    "return Ok when all required components are returned from auth" in new Setup {
+      mockAuthorisedUser(Future.successful(authDetailsAmend))
+      val result = support.ctAuthorisedCompanyContactAmend(
+        (s:String, c:Credentials, ss:String) => Future.successful(Results.Ok(s"$s$c$ss")))
+      val response = await(result)
+      response.header.status shouldBe 200
+      contentAsString(response) shouldBe "fakeEmailCredentials(credID,provID)extID"
+
+
+    }
+    "return internal server error When Not all the components are returned from auth" in new Setup {
+      mockAuthorisedUser(Future.successful(authDetails))
+      val result = support.ctAuthorisedCompanyContactAmend(
+        (s:String, c:Credentials, ss:String) => Future.successful(Results.Ok(s"$s$c$ss")))
+     intercept[Exception](await(result))
     }
   }
 }
