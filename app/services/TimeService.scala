@@ -36,14 +36,16 @@ object TimeService extends TimeService with ServicesConfig {
 
 object BankHolidays {
   val bankHolidaySet: BankHolidaySet = BankHolidaySet("england-and-wales", List(
-    BankHoliday(title = "Good Friday",            date = new LocalDate(2017, 4, 14)),
-    BankHoliday(title = "Easter Monday",          date = new LocalDate(2017, 4, 17)),
-    BankHoliday(title = "Early May bank holiday", date = new LocalDate(2017, 5, 1)),
-    BankHoliday(title = "Spring bank holiday",    date = new LocalDate(2017, 5, 29)),
-    BankHoliday(title = "Summer bank holiday",    date = new LocalDate(2017, 8, 28)),
-    BankHoliday(title = "Christmas Day",          date = new LocalDate(2017, 12, 25)),
-    BankHoliday(title = "Boxing Day",             date = new LocalDate(2017, 12, 26)),
-    BankHoliday(title = "New Year's Day",         date = new LocalDate(2018, 1, 1))
+    BankHoliday(title = "Christmas Day",          date = new LocalDate(2018, 12, 25)),
+    BankHoliday(title = "Boxing Day",             date = new LocalDate(2018, 12, 26)),
+    BankHoliday(title = "New Year's Day",         date = new LocalDate(2019, 1, 1)),
+    BankHoliday(title = "Good Friday",            date = new LocalDate(2019, 4, 19)),
+    BankHoliday(title = "Easter Monday",          date = new LocalDate(2019, 4, 22)),
+    BankHoliday(title = "Early May bank holiday", date = new LocalDate(2019, 5, 6)),
+    BankHoliday(title = "Spring bank holiday",    date = new LocalDate(2019, 5, 27)),
+    BankHoliday(title = "Summer bank holiday",    date = new LocalDate(2019, 8, 26)),
+    BankHoliday(title = "Christmas Day",          date = new LocalDate(2019, 12, 25)),
+    BankHoliday(title = "Boxing Day",             date = new LocalDate(2019, 12, 26))
   ))
 }
 
