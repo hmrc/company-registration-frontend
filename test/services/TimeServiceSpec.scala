@@ -131,10 +131,10 @@ class TimeServiceSpec extends UnitSpec with WithFakeApplication with MockitoSuga
       TimeService.futureWorkingDate(LocalDate.parse("2016-12-13"), 60)(bHSTest) shouldBe "07 03 2017"
     }
     "return a future date ignoring bank holidays" in {
-      TimeService.futureWorkingDate(LocalDate.parse("2017-04-13"), 1)(bHSTest) shouldBe "18 04 2017"
+      TimeService.futureWorkingDate(LocalDate.parse("2019-08-26"), 1)(bHSTest) shouldBe "27 08 2019"
     }
     "return a future date ignoring bank holidays 2 working days in the future" in {
-      TimeService.futureWorkingDate(LocalDate.parse("2017-04-13"), 2)(bHSTest) shouldBe "19 04 2017"
+      TimeService.futureWorkingDate(LocalDate.parse("2019-12-24"), 2)(bHSTest) shouldBe "30 12 2019"
     }
   }
 
