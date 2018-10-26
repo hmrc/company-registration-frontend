@@ -250,7 +250,7 @@ class EmailVerificationServiceSpec extends UnitSpec with SCRSSpec with WithFakeA
       email = testEmail,
       templateId = "register_your_company_verification_email",
       templateParameters = Map(),
-      linkExpiryDuration = "P1D",
+      linkExpiryDuration = "P3D",
       continueUrl = "TestUrl/register-your-company/post-sign-in"
     )
 
@@ -344,7 +344,7 @@ class EmailVerificationServiceSpec extends UnitSpec with SCRSSpec with WithFakeA
            |  "email":"foo@bar.wibble",
            |  "templateId":"register_your_company_verification_email",
            |  "templateParameters":{},
-           |  "linkExpiryDuration":"P1D",
+           |  "linkExpiryDuration":"P3D",
            |  "continueUrl":"TestUrl/register-your-company/post-sign-in"
            |}
          """.stripMargin

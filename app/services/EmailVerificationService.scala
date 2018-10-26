@@ -147,7 +147,7 @@ trait EmailVerificationService {
       email = address,
       templateId = emailVerificationTemplate,
       templateParameters = Map(),
-      linkExpiryDuration = "P1D",
+      linkExpiryDuration = "P3D",
       continueUrl = s"$returnUrl/register-your-company/post-sign-in"
     )
   }

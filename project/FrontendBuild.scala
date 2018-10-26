@@ -28,7 +28,7 @@ private object AppDependencies {
     "uk.gov.hmrc" %% "auth-client" % "2.16.0-play-25",
     "uk.gov.hmrc" %% "play-partials" % "6.1.0",
     "uk.gov.hmrc" %% "url-builder" % "2.1.0",
-    "uk.gov.hmrc" %% "http-caching-client" % "7.1.0",
+    "uk.gov.hmrc" %% "http-caching-client" % "7.2.0",
     "uk.gov.hmrc" %% "play-conditional-form-mapping" % "0.2.0",
     "org.bitbucket.b_c" % "jose4j" % "0.5.0",
     "uk.gov.hmrc" %% "time" % "3.2.0",
