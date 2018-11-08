@@ -39,6 +39,9 @@ POST       /principal-place-of-business             controllers.reg.PPOBControll
 GET        /principal-place-of-business-back        controllers.reg.PPOBController.back
 GET        /save-alf-address                        controllers.reg.PPOBController.saveALFAddress
 
+GET        /loan-payments-dividends                 controllers.reg.TradingDetailsController.show
+POST       /loan-payments-dividends                 controllers.reg.TradingDetailsController.submit
+
 GET        /trading-details                         controllers.reg.TradingDetailsController.show
 POST       /trading-details                         controllers.reg.TradingDetailsController.submit
 

@@ -26,7 +26,7 @@ private object AppDependencies {
     ws,
     "uk.gov.hmrc" %% "frontend-bootstrap" % "10.7.0",
     "uk.gov.hmrc" %% "auth-client" % "2.16.0-play-25",
-    "uk.gov.hmrc" %% "play-partials" % "6.1.0",
+    "uk.gov.hmrc" %% "play-partials" % "6.2.0",
     "uk.gov.hmrc" %% "url-builder" % "2.1.0",
     "uk.gov.hmrc" %% "http-caching-client" % "7.2.0",
     "uk.gov.hmrc" %% "play-conditional-form-mapping" % "0.2.0",

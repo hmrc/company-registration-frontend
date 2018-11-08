@@ -23,7 +23,19 @@
 
 @(tradingDetails : Form[TradingDetails])(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.AppConfig)
 
-@main_template(title = Messages("page.reg.ct61.description"), mainClass = None){
+@falseHiddenContent = {
+<div class="notice">
+    @Messages("page.reg.ct61.radioNoText")
+</div>
+}
+
+@trueHiddenContent = {
+<div class="notice">
+    @Messages("page.reg.ct61.radioYesText")
+</div>
+}
+
+@main_template(title = Messages("page.reg.ct61.title"), mainClass = None){
 
     <a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
 
@@ -35,6 +47,9 @@
 
         <h1 id="main-heading" class="heading-large">@Messages("page.reg.ct61.description")</h1>
 
+<div class="form-group">
+    <p class="lede">@Messages("page.reg.ct61.situationText")</p>
+</div>
 
     <div class="form-group">
         <p class="lede">@Messages("page.reg.ct61.lede")</p>
@@ -47,19 +62,17 @@
             <li>@Messages("page.reg.ct61.bullet3")</li>
         </ul>
     </div>
-    <details>
-        <summary class="summary">@Messages("page.reg.ct61.directorsLoan")</summary>
-        <div class="panel-indent panel-indent--gutter">
-            <p>@Messages("page.reg.ct61.dL.p1")</p>
-        </div>
-    </details>
+
     @form(action = controllers.reg.routes.TradingDetailsController.submit()) {
         <div class="form-group">
-            @inputRadioGroup(
+            @inputRadioGroupHidden(
                 tradingDetails("regularPayments"),
-                Seq(("true",Messages("page.reg.ct61.radioYesLabel")),("false",Messages("page.reg.ct61.radioNoLabel"))),
+                Seq("true" -> Messages("page.reg.ct61.radioYesLabel"),"false" -> Messages("page.reg.ct61.radioNoLabel")),
+                Seq("true" -> trueHiddenContent,
+                    "false" -> falseHiddenContent),
                 '_fieldsetId -> "regular-payments",
-                '_groupClass -> "inline",
+                '_idHidden -> "regularPayments",
+                '_classHidden -> "panel panel-indent",
                 '_labelClass -> "block-label radio-label",
                 '_legend -> Messages("page.reg.ct61.description"),
                 '_legendClass -> "visually-hidden"

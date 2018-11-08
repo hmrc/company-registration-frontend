@@ -90,7 +90,7 @@ class AccountingDatesControllerSpec extends SCRSSpec with WithFakeApplication wi
       submitWithAuthorisedUser(controller.submit, request)(
         result => {
           status(result) shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe Some("/register-your-company/trading-details")
+          redirectLocation(result) shouldBe Some("/register-your-company/loan-payments-dividends")
         }
       )
     }
@@ -101,7 +101,7 @@ class AccountingDatesControllerSpec extends SCRSSpec with WithFakeApplication wi
       submitWithAuthorisedUser(controller.submit, request)(
         result => {
           status(result) shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe Some("/register-your-company/trading-details")
+          redirectLocation(result) shouldBe Some("/register-your-company/loan-payments-dividends")
         }
       )
     }
@@ -112,7 +112,7 @@ class AccountingDatesControllerSpec extends SCRSSpec with WithFakeApplication wi
       submitWithAuthorisedUser(controller.submit, request)(
         result => {
           status(result) shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe Some("/register-your-company/trading-details")
+          redirectLocation(result) shouldBe Some("/register-your-company/loan-payments-dividends")
         }
       )
     }
