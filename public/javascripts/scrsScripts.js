@@ -12,6 +12,34 @@ $(document).ready($(function() {
     var other = $("#completionCapacity-other");
     var otherHidden = $("#other-hidden");
 
+    var no = $("#regularPayments-false");
+    var yes = $("#regularPayments-true");
+    var noToggle = $("#false-hidden");
+    var yesToggle = $("#true-hidden");
+
+
+     if(no.is(":checked")){
+         noToggle.show();
+     } else {
+         noToggle.hide();
+     }
+
+     if(yes.is(":checked")){
+          yesToggle.show();
+     } else {
+          yesToggle.hide();
+     }
+
+    no.on("change", function () {
+        yesToggle.hide();
+        noToggle.show();
+    });
+
+    yes.on("change", function () {
+        yesToggle.show();
+        noToggle.hide();
+    });
+
     if(other.is(":checked")){
         otherHidden.show();
     } else {
@@ -62,6 +90,7 @@ $(document).ready($(function() {
     });
 
     //////////////////////////////////////////////
+
      var hMRCEndDate = $("#choice-hmrc_defined");
      var companyEndDate = $("#choice-company_defined");
      var companyDateHidden =$("#COMPANY_DEFINED-hidden")

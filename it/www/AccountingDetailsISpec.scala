@@ -154,7 +154,7 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fak
       val response = await(fResponse)
 
       response.status shouldBe 303
-      response.header(HeaderNames.LOCATION) shouldBe Some("/register-your-company/trading-details")
+      response.header(HeaderNames.LOCATION) shouldBe Some("/register-your-company/loan-payments-dividends")
 
       val crPuts = findAll(putRequestedFor(urlMatching("/company-registration/corporation-tax-registration/5/accounting-details")))
       val captor = crPuts.get(0)

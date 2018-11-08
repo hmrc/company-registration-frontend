@@ -141,16 +141,18 @@ page.reg.ppob.useOfficeAddress                                      = Use the co
 error.addressChoice.required                                        = Tell us where the company will carry out most of its business activities
 
 ## TradingDetails
-page.reg.ct61.description                                           = Within the next 3 months will the company make or receive any of the following?
-page.reg.ct61.lede                                                  = Tell us if your company will:
-page.reg.ct61.bullet1                                               = pay interest on a director''s loan
-page.reg.ct61.bullet2                                               = make royalty payments to clients
-page.reg.ct61.bullet3                                               = receive interest on dividends from business investments outside the UK
-page.reg.ct61.directorsLoan                                         = What is a director''s loan?
-page.reg.ct61.dL.p1                                                 = In this instance, a director''s loan is when the company owes money to a director.
+page.reg.ct61.title                                                 = In its first 3 months, will the company pay interest on loans, pay royalties, or receive interest or dividend payments from overseas investments?
+page.reg.ct61.description                                           = In its first 3 months will the company do any of the following?
+page.reg.ct61.situationText                                         = In some situations, a company may need to account for Income Tax. The most common situations are listed below.
+page.reg.ct61.lede                                                  = Tell us if the company will:
+page.reg.ct61.bullet1                                               = pay interest on any non-bank loans, for example to a director who has loaned the company money
+page.reg.ct61.bullet2                                               = make royalty payments, for example for using someone else''s patent
+page.reg.ct61.bullet3                                               = receive interest or dividend payments from overseas investments
 page.reg.ct61.radioNoLabel                                          = No
+page.reg.ct61.radioNoText                                           = To understand when your company may need to account for Income Tax in the future, it is best to speak to an accountant.
 page.reg.ct61.radioYesLabel                                         = Yes
-error.regularPayments.required                                      = Tell us if within the next 3 months the company will make or receive any of the following
+page.reg.ct61.radioYesText                                          = You may need to report these payments to HM Revenue & Customs (HMRC) using form CT61. After the company is set up, we will send you the form. If you are not sure about what to include on it, speak to an accountant.
+error.regularPayments.required                                      = Tell us if the company will do one of these things in its first 3 months
 
 ## Summary Page
 page.reg.summary.description                                        = Check and confirm your answers
@@ -178,8 +180,8 @@ page.reg.summary.companyContactDaytimeTelephoneNumber               = What is th
 page.reg.summary.companyContactDaytimeTelephoneNumber.change        = the phone number of the company''s contact for Corporation Tax
 page.reg.summary.companycontactMobileNumber                         = What is the mobile number of the company''s contact for Corporation Tax?
 page.reg.summary.companycontactMobileNumber.change                  = the mobile number of the company''s contact for Corporation Tax
-page.reg.summary.tradingDetails                                     = Will the company make or receive interest on director''s loans, royalty payments to clients or interest on dividends from business investments outside the UK?
-page.reg.summary.tradingDetails.change                              = whether the company will make or receive interest on director''s loans, royalty payments to clients or interest on dividends from business investments outside the UK?
+page.reg.summary.tradingDetails                                     = In its first 3 months will the company pay interest on loans, pay royalties, or receive interest or dividend payments from overseas investments?
+page.reg.summary.tradingDetails.change                              = whether in its first 3 months the company will pay interest on loans, pay royalties, or receive interest or dividend payments from overseas investments
 page.reg.summary.notPlanningToStartYet                              = No plans to start trading or do a business activity yet
 page.reg.summary.dateRegistered                                     = The date that I''m registered
 page.reg.summary.PPOBSameAsRO                                       = Registered Office Address

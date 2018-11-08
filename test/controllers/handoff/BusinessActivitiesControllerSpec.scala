@@ -153,7 +153,7 @@ class BusinessActivitiesControllerSpec extends SCRSSpec with PayloadFixture with
         result =>
           status(result) shouldBe SEE_OTHER
           redirectLocation(result) shouldBe
-            Some("/register-your-company/trading-details")
+            Some("/register-your-company/loan-payments-dividends")
       }
     }
     "return a 303 if submitting with request data with authorisation but keystore has expired" in new Setup {
