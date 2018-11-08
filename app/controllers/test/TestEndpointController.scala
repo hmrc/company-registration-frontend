@@ -212,7 +212,7 @@ trait TestEndpointController extends FrontendController with AuthFunction with C
         Sender(
           nav = Map(
             "1" -> NavLinks("http://localhost:9970/register-your-company/corporation-tax-details", "http://localhost:9970/register-your-company/return-to-about-you"),
-            "3" -> NavLinks("http://localhost:9970/register-your-company/corporation-tax-summary", "http://localhost:9970/register-your-company/trading-details"),
+            "3" -> NavLinks("http://localhost:9970/register-your-company/corporation-tax-summary", "http://localhost:9970/register-your-company/loan-payments-dividends"),
             "5" -> NavLinks("http://localhost:9970/register-your-company/registration-confirmation", "http://localhost:9970/register-your-company/corporation-tax-summary")
           )
         ),

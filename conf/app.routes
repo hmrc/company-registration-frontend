@@ -42,9 +42,6 @@ GET        /save-alf-address                        controllers.reg.PPOBControll
 GET        /loan-payments-dividends                 controllers.reg.TradingDetailsController.show
 POST       /loan-payments-dividends                 controllers.reg.TradingDetailsController.submit
 
-GET        /trading-details                         controllers.reg.TradingDetailsController.show
-POST       /trading-details                         controllers.reg.TradingDetailsController.submit
-
 GET        /check-confirm-answers                   controllers.reg.SummaryController.show
 POST       /check-confirm-answers                   controllers.reg.SummaryController.submit
 GET        /return-to-business-activities           controllers.reg.SummaryController.back
