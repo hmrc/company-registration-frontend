@@ -57,9 +57,6 @@ class SummaryControllerISpec extends IntegrationSpecBase with LoginStub with Fak
     fResponse.status shouldBe 200
     doc.getElementById("companyContactDetails").id shouldBe "companyContactDetails"
     intercept[Exception](doc.getElementById("companyContactName").html)
-    doc.getElementById("change-contact-details-email").attr("href").contains(controllers.reg.routes.CompanyContactDetailsController.show().url) shouldBe true
-    doc.getElementById("contactEmailBlock").id shouldBe "contactEmailBlock"
-    doc.getElementById("contactTelBlock").id shouldBe "contactTelBlock"
-    doc.getElementById("contactMobBlock").id shouldBe "contactMobBlock"
+    doc.getElementById("change-contact-details").attr("href").contains(controllers.reg.routes.CompanyContactDetailsController.show().url) shouldBe true
   }
 }

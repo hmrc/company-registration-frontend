@@ -86,9 +86,7 @@ class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixtu
             "companyName" -> "testCompanyName",
             "ROAddress" -> "Premises Line1 Line2 Locality Region FX1 1ZZ Country",
             "PPOBAddress" -> "Registered Office Address",
-            "companyContactDaytimeTelephoneNumber" -> "0123456789",
-            "companycontactMobileNumber" -> "0123456789",
-            "companyContactEmail" -> "foo@bar.wibble",
+            "companyContact" -> "0123456789 foo@bar.wibble 0123456789",
             "startDate" -> "10/06/2020",
             "tradingDetails" -> "No"
           ) foreach { case (element, message) =>
@@ -123,9 +121,7 @@ class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixtu
             "companyName" -> "testCompanyName",
             "ROAddress" -> "Premises Line1 Line2 Locality Region Post Code Country",
             "PPOBAddress" -> "line1 line2 line3 line14 FX1 1ZZ",
-            "companyContactDaytimeTelephoneNumber" -> "0123456789",
-            "companycontactMobileNumber" -> "0123456789",
-            "companyContactEmail" -> "foo@bar.wibble",
+            "companyContact" -> "0123456789 foo@bar.wibble 0123456789",
             "startDate" -> "10/06/2020",
             "tradingDetails" -> "Yes"
           ) foreach { case (element, message) =>
