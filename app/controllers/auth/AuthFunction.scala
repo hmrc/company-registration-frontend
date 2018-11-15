@@ -89,7 +89,7 @@ trait AuthFunction extends FrontendController with AuthorisedFunctions with Serv
       case _: NoActiveSession => body
       case e: AuthorisationException =>
         Logger.error("Unexpected auth exception ", e)
-        Future.successful(InternalServerError)
+        Future.successful(Redirect(controllers.verification.routes.EmailVerificationController.createGGWAccountAffinityShow()))
     }
   }
 
@@ -99,19 +99,26 @@ trait AuthFunction extends FrontendController with AuthorisedFunctions with Serv
     "origin" -> Seq(origin)
   )
 
+
   def authErrorHandlingIncomplete(implicit request: Request[AnyContent]) : PartialFunction[Throwable, Result] = {
-    case _: NoActiveSession => Redirect(controllers.reg.routes.IncompleteRegistrationController.show())
-    case e: AuthorisationException =>
-      Logger.error("Unexpected auth exception ", e)
+    case _: NoActiveSession         => Redirect(controllers.reg.routes.IncompleteRegistrationController.show())
+    case InternalError(e)           =>
+      Logger.warn(s"Something went wrong with a call to Auth with exception: ${e}")
       InternalServerError
+    case e: AuthorisationException  =>
+      Logger.error(s"auth returned $e and redirected user to 'incorrect-account-type' page")
+      Redirect(controllers.verification.routes.EmailVerificationController.createGGWAccountAffinityShow())
   }
 
   def authErrorHandling(hoID : Option[String] = None, payload : Option[String] = None)
                               (implicit request: Request[AnyContent]) : PartialFunction[Throwable, Result] = {
-    case _: NoActiveSession => Redirect(SCRSExternalUrls.loginURL, loginParams(hoID, payload))
-    case e: AuthorisationException =>
-      Logger.error("Unexpected auth exception ", e)
+    case e: NoActiveSession => Redirect(SCRSExternalUrls.loginURL, loginParams(hoID, payload))
+    case InternalError(e)           =>
+      Logger.warn(s"Something went wrong with a call to Auth with exception: ${e}")
       InternalServerError
-  }
+    case e: AuthorisationException  =>
+      Logger.info(s"auth returned $e and redirected user to 'incorrect-account-type' page")
+      Redirect(controllers.verification.routes.EmailVerificationController.createGGWAccountAffinityShow())
 
+  }
 }
