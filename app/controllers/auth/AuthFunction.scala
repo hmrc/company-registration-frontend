@@ -82,16 +82,6 @@ trait AuthFunction extends FrontendController with AuthorisedFunctions with Serv
     } recover authErrorHandling()
   }
 
-  def onlyIfNotSignedIn(body: => Future[Result])(implicit hc : HeaderCarrier): Future[Result] = {
-    baseFunction {
-      Future.successful(Redirect(controllers.reg.routes.SignInOutController.postSignIn(None)))
-    } recoverWith {
-      case _: NoActiveSession => body
-      case e: AuthorisationException =>
-        Logger.error("Unexpected auth exception ", e)
-        Future.successful(Redirect(controllers.verification.routes.EmailVerificationController.createGGWAccountAffinityShow()))
-    }
-  }
 
   val origin: String = getString("appName")
   def loginParams(hoID : Option[String], payload : Option[String]) = Map(

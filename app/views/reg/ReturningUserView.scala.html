@@ -19,9 +19,16 @@
 @import play.api.Application
 @import views.html.helpers.{inputRadioGroupHidden, dateFieldsFreeInline, errorSummary, inputRadioGroup}
 
-@(returningUser : Form[models.ReturningUser])(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.AppConfig)
+@(returningUser : Form[models.ReturningUser],isUserLoggedin: Boolean)(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.AppConfig)
 
-@main_template(title = Messages("page.reg.returningUser.description"), mainClass = None){
+@yesHiddenContent = {
+<div class="notice">
+    @Messages("page.reg.returningUser.radioYesHintText")
+</div>
+}
+
+@main_template(title = Messages("page.reg.returningUser.title"), mainClass = None){
+
 
     <a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
 
@@ -33,10 +40,24 @@
 
         <h1 id="main-heading" class="heading-large">@Messages("page.reg.returningUser.description")</h1>
 
-
     @form(action = controllers.reg.routes.ReturningUserController.submit()) {
 
-    @inputRadioGroup(
+    @if(isUserLoggedin) {
+    @inputRadioGroupHidden(
+        returningUser("returningUser"),
+        Seq(("true",Messages("page.reg.returningUser.radioYesLabel")),("false",Messages("page.reg.returningUser.radioNoLabel"))),
+        Seq("true" -> yesHiddenContent),
+        '_fieldsetId -> "returning-user",
+        '_idHidden -> "returning-user",
+        '_groupClass -> "form-group",
+        '_classHidden -> "panel panel-indent",
+        '_labelClass -> "block-label radio-label",
+        '_legend -> Messages("page.reg.returningUser.description"),
+        '_legendClass -> "visually-hidden"
+
+    )
+    } else {
+        @inputRadioGroup(
         returningUser("returningUser"),
         Seq(("true",Messages("page.reg.returningUser.radioYesLabel")),("false",Messages("page.reg.returningUser.radioNoLabel"))),
         '_fieldsetId -> "returning-user",
@@ -44,8 +65,8 @@
         '_labelClass -> "block-label radio-label",
         '_legend -> Messages("page.reg.returningUser.description"),
         '_legendClass -> "visually-hidden"
-
     )
+    }
     <div class="form-group">
         <input class="button" type="submit" id="next" value="@Messages("common.button.continue")">
     </div>

@@ -50,24 +50,28 @@ trait ReturningUserController extends FrontendController with AuthFunction with 
   val eligBaseUrl : String
   val eligUri : String
 
-  val show = Action.async { implicit request =>
-    onlyIfNotSignedIn {
+
+  val show = Action.async {
+    implicit request => {
       val emptyForm = ReturningUserForm.form.fill(ReturningUser(""))
-      Future.successful(Ok(ReturningUserView(emptyForm)))
+      Future.successful(Ok(ReturningUserView(emptyForm,hc.authorization.isDefined)))
     }
   }
+
   val submit = Action.async {
-    implicit request =>
-      ReturningUserForm.form.bindFromRequest.fold(
-        errors => Future.successful(BadRequest(ReturningUserView(errors))),
-        success => {
-          success.returningUser match {
-            case "true" => Future.successful(Redirect(buildCreateAccountURL))
-            case "false" => Future.successful(Redirect(routes.SignInOutController.postSignIn(None)))
+    implicit request => {
+         ReturningUserForm.form.bindFromRequest.fold(
+          errors => Future.successful(BadRequest(ReturningUserView(errors, hc.authorization.isDefined))),
+          success => {
+            success.returningUser match {
+              case "true" => Future.successful(Redirect(buildCreateAccountURL).withNewSession)
+              case "false" => Future.successful(Redirect(routes.SignInOutController.postSignIn(None)))
+            }
           }
-        }
-      )
-  }
+        )
+      }
+      }
+
 
   private[controllers] def buildCreateAccountURL: String = {
     if (signPostingEnabled) {

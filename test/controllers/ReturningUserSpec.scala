@@ -37,12 +37,11 @@ class ReturningUserSpec extends SCRSSpec with AuthBuilder with WithFakeApplicati
   }
 
   "Sending a GET request to ReturningUserController" should {
-    "return a 303 and redirect you to post-sign-in if you are logged in" in new Setup {
+    "return a 200 and show the page if you are logged in" in new Setup {
       showWithAuthorisedUser(TestController.show) {
         result =>
-          status(result) shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe Some("/register-your-company/post-sign-in")
-      }
+          status(result) shouldBe OK
+       }
     }
 
     "return a 200 and show the page if you are not logged in" in new Setup {

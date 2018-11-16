@@ -54,9 +54,11 @@ page.reg.welcome.bullet.90-days                                     = must be co
 page.reg.welcome.cost                                               = It costs £12 to set up a company. Your information will be shared between Companies House and HMRC during the application process.
 
 ## Returning User
-page.reg.returningUser.description                                  = Are you setting up a new limited company?
-page.reg.returningUser.radioYesLabel                                = Yes - I''m starting a new application
-page.reg.returningUser.radioNoLabel                                 = I''m continuing an existing application
+page.reg.returningUser.description                                  = Are you starting a new application?
+page.reg.returningUser.title                                        = Are you setting up a new limited company?
+page.reg.returningUser.radioYesLabel                                = Yes
+page.reg.returningUser.radioYesHintText                             = We will sign you out so you can create a new Government Gateway user ID for this company.
+page.reg.returningUser.radioNoLabel                                 = No - I already started one
 error.returningUser.required                                        = Tell us if you''re setting up a new limited company
 
 ## About you
