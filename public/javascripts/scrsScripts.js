@@ -17,6 +17,24 @@ $(document).ready($(function() {
     var noToggle = $("#false-hidden");
     var yesToggle = $("#true-hidden");
 
+    var yesReturnUser = $("#returningUser-true");
+    var noReturnUser = $("#returningUser-false");
+    var yesToggleReturnUser = $("#true-hidden");
+
+
+     if(yesReturnUser.is(":checked")){
+          yesToggleReturnUser.show();
+     } else {
+          yesToggleReturnUser.hide();
+     }
+
+     yesReturnUser.on("change", function () {
+         yesToggleReturnUser.show();
+     });
+
+     noReturnUser.on("change", function () {
+         yesToggleReturnUser.hide();
+     });
 
      if(no.is(":checked")){
          noToggle.show();

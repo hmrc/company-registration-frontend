@@ -44,25 +44,6 @@ class AuthFunctionSpec extends SCRSSpec with AuthBuilder with WithFakeApplicatio
     }
   }
 
-  "LoggedInSupport" should {
-    "redirect to post-sign-in if the person is signed in" in new Setup {
-      mockAuthorisedUser({})
-      val result = support.onlyIfNotSignedIn(Results.Ok)
-
-      val response = await(result)
-      response.header.status shouldBe 303
-      redirectLocation(result) shouldBe Some("/register-your-company/post-sign-in")
-    }
-
-    "return an OK if the person is not signed in" in new Setup {
-      mockUnauthorisedUser()
-      val result = support.onlyIfNotSignedIn(Results.Ok)
-
-      val response = await(result)
-      response.header.status shouldBe OK
-    }
-  }
-
   "authErrorHandling" should {
     Map("case 1" -> "InsufficientConfidenceLevel",
     "case 2" -> "UnsupportedAffinityGroup",
