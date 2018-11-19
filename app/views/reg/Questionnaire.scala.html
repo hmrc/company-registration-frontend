@@ -27,8 +27,6 @@
 
 @main_template(title = Messages("page.reg.questionnaire.title"), mainClass = Some("full-width"), pageScripts=Some(pageScripts)) {
 
-<a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
-
     @errorSummary(
         Messages("common.errorSummary.label"), qForm, dataJourney = Some("Questionnaire")
     )
