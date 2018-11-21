@@ -22,7 +22,8 @@ case class PSCHandOff(user_id: String,
                       journey_id: String,
                       hmrc: JsObject,
                       ch: Option[JsObject],
-                      links: NavLinks)
+                      links: NavLinks,
+                      another_company_own_shares: Boolean = false)
 object PSCHandOff{
   implicit val format = Json.format[PSCHandOff]
 }
