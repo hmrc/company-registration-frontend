@@ -133,7 +133,8 @@ class GroupsControllerISpec extends IntegrationSpecBase with MongoSpecSupport wi
         "12345",
         Json.obj(),
         Some(Json.obj("testCHBagKey" -> "testValue")),
-        NavLinks("/forwardToNextHmrcPage","/reverseToPreviousHmrcPage"))
+        NavLinks("/forwardToNextHmrcPage","/reverseToPreviousHmrcPage"),
+        false)
       decryptedPayload.get shouldBe expected
     }
     "Redirect to post sign in if no nav model exists" in new Setup {
