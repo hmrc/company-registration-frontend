@@ -41,15 +41,15 @@
     <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
         <td colspan="2">
             <details>
-                <summary class="summary">@Messages("page.reg.Dashboard.VAT.helpLink")</summary>
-                <div class="panel-indent panel-indent--gutter">
-                    @Messages("page.reg.Dashboard.VAT.helpTextParagraph1")
+                <summary><span class="summary">@Messages("page.reg.Dashboard.VAT.helpLink")</span></summary>
+                <div class="panel panel-indent">
+                    <span>@Messages("page.reg.Dashboard.VAT.helpTextParagraph1")</span>
                     <ul class="list-bullet">
                         <li id="vatThresholdLastYear">@Messages("page.reg.Dashboard.VAT.helpTextParagraph2", vatDash.thresholds.get("yearly"))</li>
                         <li id="vatThresholdNext30Day">@Messages("page.reg.Dashboard.VAT.helpTextParagraph3", vatDash.thresholds.get("yearly"))</li>
                     </ul>
-                    <p>@Messages("page.reg.Dashboard.VAT.helpTextParagraph4")</p>
-                    <p id="vatThresholdAnnually">@Messages("page.reg.Dashboard.VAT.helpTextParagraph5", vatDash.thresholds.get("yearly"))</p>
+                    <span>@Messages("page.reg.Dashboard.VAT.helpTextParagraph4")</span>
+                    <span id="vatThresholdAnnually">@Messages("page.reg.Dashboard.VAT.helpTextParagraph5", vatDash.thresholds.get("yearly"))</span>
                 </div>
             </details>
         </td>

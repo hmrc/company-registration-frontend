@@ -31,6 +31,7 @@ common.dateMessage                                                  = Enter the 
 common.dateExample                                                  = For example,
 common.button.ConfirmAndContinue                                    = Confirm and continue
 common.period                                                       = .
+feedback.thankyou.title                                             = Feedback submitted
 
 
 ## Timeout page

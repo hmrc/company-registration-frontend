@@ -9,18 +9,6 @@ and easy to remove when required at a later date.
 
 */
 
-.dashboard table p,
-table .list-bullet li {
-	font-size: 14px;
-}
-
-@media (min-width: 641px) {
-	.dashboard table p,
-	table .list-bullet li {
-		font-size: 16px;
-	}
-}
-
 .dashboard table td:first-child {
 	width: 50%;
 }

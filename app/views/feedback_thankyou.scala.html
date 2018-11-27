@@ -21,5 +21,6 @@ messages: Messages, appConfig: config.AppConfig)
 
 @main_template(Messages("feedback.thankyou.title")) {
     @cachedStaticHtmlPartialRetriever.getPartialContent(partialUrl)
-    <a id="back" href='@redirectUrl' role="button" tabindex="0" class="button">@Messages("common.button.back")</a>
+<div> <a id="back" href='@redirectUrl' role="button" tabindex="0" class="button">@Messages("common.button.back")</a> </div>
+<br>
 }
