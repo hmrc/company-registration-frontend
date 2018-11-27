@@ -18,32 +18,32 @@
 @import models.external.Statuses._
 
 @inProgressActions = {
-    <tr class="tabular-data__cell--centred status--confirm-success">
-        <td>@Messages("page.reg.Dashboard.whatYouCanDo")</td>
-        <td>
-            <p style="font-size: 16px"><a id="@{prefixHtmlId}StartLink" href="@dash.links.startURL">@Messages("page.reg.Dashboard.actions.continueRegistrationLink")</a></p>
-            @if(dash.links.cancelURL.isDefined) {
-                <p style="font-size: 16px">
-                    <a id="@{prefixHtmlId}CancelLink" href="@dash.links.cancelURL">@Messages("page.reg.Dashboard.actions.cancelRegistrationLink")</a>
-                </p>
-            }
-        </td>
-    </tr>
+<tr class="tabular-data__cell--centred status--confirm-success">
+    <td>@Messages("page.reg.Dashboard.whatYouCanDo")</td>
+    <td>
+        <div><a id="@{prefixHtmlId}StartLink" href="@dash.links.startURL">@Messages("page.reg.Dashboard.actions.continueRegistrationLink")</a></div>
+        @if(dash.links.cancelURL.isDefined) {
+       <div>
+            <a id="@{prefixHtmlId}CancelLink" href="@dash.links.cancelURL">@Messages("page.reg.Dashboard.actions.cancelRegistrationLink")</a>
+       </div>
+        }
+    </td>
+</tr>
 }
 
 @submittedDetails = {
-    <tr class="tabular-data__cell--centred status--confirm-success">
-        <td>@Messages("page.reg.Dashboard.submissionDate")</td>
-        <td>
+<tr class="tabular-data__cell--centred status--confirm-success">
+    <td>@Messages("page.reg.Dashboard.submissionDate")</td>
+    <td>
 
-        </td>
-    </tr>
-    <tr class="tabular-data__cell--centred status--confirm-success">
-        <td>@Messages("page.reg.Dashboard.ref")</td>
-        <td>
-            @dash.ackRef
-        </td>
-    </tr>
+    </td>
+</tr>
+<tr class="tabular-data__cell--centred status--confirm-success">
+    <td>@Messages("page.reg.Dashboard.ref")</td>
+    <td>
+        @dash.ackRef
+    </td>
+</tr>
 }
 
 @heldDetails = {
@@ -56,23 +56,23 @@
 }
 
 @rejectedActions = {
-    <tr class="tabular-data__cell--centred status--confirm-success">
-        <td>@Messages("page.reg.Dashboard.whatYouCanDo")</td>
-        <td>
-            @if(dash.links.restartURL.isDefined) {
-                <a id="@{prefixHtmlId}Rej" href="@dash.links.restartURL">@Messages("page.reg.Dashboard.actions.unsuccessfulLink")</a>
-            }
-        </td>
-    </tr>
+<tr class="tabular-data__cell--centred status--confirm-success">
+    <td>@Messages("page.reg.Dashboard.whatYouCanDo")</td>
+    <td>
+        @if(dash.links.restartURL.isDefined) {
+        <a id="@{prefixHtmlId}Rej" href="@dash.links.restartURL">@Messages("page.reg.Dashboard.actions.unsuccessfulLink")</a>
+        }
+    </td>
+</tr>
 }
 
 @if(dash.status != NOT_STARTED) {
-    @{
-        dash.status match {
-            case "draft" | "invalid" | "locked" => inProgressActions
-            case "submitted" => submittedDetails
-            case "held" => heldDetails
-            case "rejected" => rejectedActions
+@{
+dash.status match {
+    case "draft" | "invalid" | "locked" => inProgressActions
+    case "submitted" => submittedDetails
+    case "held" => heldDetails
+    case "rejected" => rejectedActions
         }
     }
 }
