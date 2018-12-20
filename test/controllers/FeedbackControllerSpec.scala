@@ -77,6 +77,7 @@ class FeedbackControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
         override val corsRenewHost = Some("")
         override val timeoutInSeconds = ""
         override val timeoutDisplayLength = ""
+        override val govHostUrl: String = ""
       }
     }
   }

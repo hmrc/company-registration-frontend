@@ -49,7 +49,7 @@ trait QuestionnaireController extends FrontendController with MessagesSupport {
         success => {
           metricsService.numberOfQuestionnairesSubmitted.inc()
           qService.sendAuditEventOnSuccessfulSubmission(success)
-          Future.successful(Redirect(controllers.reg.routes.WelcomeController.show()))
+          Future.successful(Redirect(appConfig.govHostUrl))
         }
       )
   }
