@@ -29,6 +29,7 @@ trait AppConfig {
   val analyticsAutoLink: String
   val reportAProblemPartialUrl: String
   val reportAProblemNonJSUrl: String
+  val govHostUrl: String
 
   val contactFrontendPartialBaseUrl : String
   val serviceId : String
@@ -53,6 +54,7 @@ object FrontendAppConfig extends AppConfig with ServicesConfig {
   override lazy val analyticsAutoLink = loadConfig(s"google-analytics.autolink")
   override lazy val reportAProblemPartialUrl = s"/contact/problem_reports_ajax?service=$contactFormServiceIdentifier"
   override lazy val reportAProblemNonJSUrl = s"/contact/problem_reports_nonjs?service=$contactFormServiceIdentifier"
+  override lazy val govHostUrl = loadConfig(s"microservice.services.gov-uk.gov-host-domain")
 
   override lazy val contactFrontendPartialBaseUrl = baseUrl("contact-frontend")
   override lazy val serviceId = contactFormServiceIdentifier

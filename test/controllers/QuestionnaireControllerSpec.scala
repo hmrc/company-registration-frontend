@@ -16,6 +16,7 @@
 
 package controllers
 
+import config.AppConfig
 import controllers.reg.QuestionnaireController
 import mocks.{MetricServiceMock, SCRSMocks}
 import org.mockito.Matchers
@@ -23,6 +24,7 @@ import org.mockito.Mockito.when
 import org.scalatest.mockito.MockitoSugar
 import play.api.mvc.{AnyContent, Request}
 import play.api.test.FakeRequest
+import play.api.test.Helpers._
 import services.{MetricsService, QuestionnaireService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
@@ -35,9 +37,23 @@ class QuestionnaireControllerSpec extends UnitSpec with WithFakeApplication with
   val mockQuestionnaireService = mock[QuestionnaireService]
   class Setup {
     val controller = new QuestionnaireController {
-      override val metricsService: MetricsService = MetricServiceMock
-      override val qService =  mockQuestionnaireService
-      override val appConfig = mockAppConfig
+        override val metricsService: MetricsService = MetricServiceMock
+        override val qService =  mockQuestionnaireService
+        override val appConfig: AppConfig = new AppConfig {
+        override val assetsPrefix = ""
+        override val reportAProblemNonJSUrl = ""
+        override val contactFrontendPartialBaseUrl = ""
+        override val analyticsHost = ""
+        override val piwikURL = Some("")
+        override val analyticsToken = ""
+        override val analyticsAutoLink = ""
+        override val reportAProblemPartialUrl = ""
+        override val serviceId = "SCRS"
+        override val corsRenewHost = Some("")
+        override val timeoutInSeconds = ""
+        override val timeoutDisplayLength = ""
+        override val govHostUrl: String = "govukurl"
+      }
     }
 
     when(mockAppConfig.piwikURL).thenReturn(None)
@@ -71,6 +87,7 @@ class QuestionnaireControllerSpec extends UnitSpec with WithFakeApplication with
 
       val result = await(controller.submit(request))
       status(result) shouldBe 303
+      redirectLocation(result) shouldBe Some("govukurl")
     }
 
     "return a bad request on an unsuccessful form submission" in new Setup {
