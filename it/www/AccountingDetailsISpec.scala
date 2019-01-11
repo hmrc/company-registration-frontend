@@ -146,7 +146,7 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fak
         post(Map(
           "csrfToken"->Seq("xxx-ignored-xxx"),
           "businessStartDate"->Seq("futureDate"),
-          "businessStartDate-futureDate.year"->Seq("2019"),
+          "businessStartDate-futureDate.year"->Seq("2020"),
           "businessStartDate-futureDate.month"->Seq("1"),
           "businessStartDate-futureDate.day"->Seq("2")
         ))
@@ -160,7 +160,7 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fak
       val captor = crPuts.get(0)
       val json = Json.parse(captor.getBodyAsString)
       (json \ "accountingDateStatus").as[String] shouldBe "FUTURE_DATE"
-      (json \ "startDateOfBusiness").as[String] shouldBe "2019-01-02"
+      (json \ "startDateOfBusiness").as[String] shouldBe "2020-01-02"
     }
     "return a 400 showing error messages to the user" in {
       stubAuthorisation()
