@@ -1,5 +1,5 @@
 @*
- * Copyright 2018 HM Revenue & Customs
+ * Copyright 2019 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -73,12 +73,14 @@
     <div>
       <dt class="cya-question">@Messages("page.reg.summary.ROAddressText")</dt>
       <dd id="ROAddress" class="cya-answer">
-        @{if(s"${roAddress.premises} ${roAddress.address_line_1}".length <= 27) {
-        formatAddress(s"${roAddress.premises} ${roAddress.address_line_1}")
-        } else {
-        formatAddress(roAddress.premises)
-        formatAddress(roAddress.address_line_1)
-        }}
+
+          @if(s"${roAddress.premises} ${roAddress.address_line_1}".length <= 27) {
+          @formatAddress(s"${roAddress.premises} ${roAddress.address_line_1}")
+          } else {
+          @formatAddress(roAddress.premises)
+          @formatAddress(roAddress.address_line_1)
+          }
+
         @formatAddress(roAddress.address_line_2.fold[String]("")(s => s ))
         @formatAddress(roAddress.locality)
         @formatAddress(roAddress.region.fold[String]("")(s => s ))
