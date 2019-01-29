@@ -46,4 +46,10 @@ trait KeystoreMock {
       when(mockKeystoreConnector.remove()(Matchers.any()))
         .thenReturn(Future.successful(HttpResponse(200)))
     }
+
+  def mockKeystoreFetchAndGetFailed[T](key: String, exception: Throwable): OngoingStubbing[Future[Option[T]]] = {
+
+    when(mockKeystoreConnector.fetchAndGet[T](Matchers.eq(key))(Matchers.any[HeaderCarrier](), Matchers.any[Format[T]]()))
+      .thenReturn(Future.failed(exception))
+  }
 }

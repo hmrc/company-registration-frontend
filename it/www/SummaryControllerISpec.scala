@@ -47,7 +47,14 @@ class SummaryControllerISpec extends IntegrationSpecBase with LoginStub with Fak
     stubGet(s"/company-registration/corporation-tax-registration/$regId/trading-details", 200, Json.toJson(TradingDetails("true")).toString)
     stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, s"""{
                                                                                                               |    "registrationID" : "${regId}",
-                                                                                                              |    "status" : "draft"
+                                                                                                              |    "status" : "draft",
+                                                                                                              |        "verifiedEmail" : {
+                                                                                                                |        "address" : "user@test.com",
+                                                                                                                |        "type" : "GG",
+                                                                                                                |        "link-sent" : true,
+                                                                                                                |        "verified" : true,
+                                                                                                                |        "return-link-email-sent" : false
+                                                                                                                |    }
                                                                                                               |}""".stripMargin)
 
     val fResponse = await(buildClient(controllers.reg.routes.SummaryController.show().url)

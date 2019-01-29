@@ -22,7 +22,8 @@ import connectors.{CompanyRegistrationConnector, EmailVerificationConnector, Key
 import models.Email.GG
 import models.auth.AuthDetails
 import models.{Email, _}
-import play.api.mvc.{AnyContent, Request}
+import play.api.mvc.{AnyContent, Request, Result, Results}
+import play.api.mvc.Result._
 import uk.gov.hmrc.auth.core.retrieve.{Email => GGEmail}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.cache.client.CacheMap
@@ -36,6 +37,11 @@ import scala.util.control.NoStackTrace
 
 private[services] class EmailBlockNotFound extends NoStackTrace
 
+sealed trait EmailVerified
+case class NoEmail() extends EmailVerified
+case class VerifiedEmail() extends EmailVerified
+case class NotVerifiedEmail() extends EmailVerified
+
 object EmailVerificationService extends EmailVerificationService with ServicesConfig {
   val emailConnector = EmailVerificationConnector
   val templatedEmailConnector = SendTemplatedEmailConnector
@@ -44,6 +50,7 @@ object EmailVerificationService extends EmailVerificationService with ServicesCo
   val keystoreConnector = KeystoreConnector
   val auditConnector = FrontendAuditConnector
   val sendTemplatedEmailURL = getConfString("email.returnToSCRSURL", throw new Exception("email.returnToSCRSURL not found"))
+  val handOffService = HandOffServiceImpl
 }
 
 trait EmailVerificationService {
@@ -58,89 +65,63 @@ trait EmailVerificationService {
   val keystoreConnector : KeystoreConnector
   val auditConnector : AuditConnector
   val sendTemplatedEmailURL : String
+  val handOffService : HandOffService
 
-  private[services] def cacheEmail(email: String)(implicit hc: HeaderCarrier): Future[CacheMap] = {
-    keystoreConnector.cache("email", email)
+
+
+
+  private def emailChecks(compRegEmailOpt: Option[Email], rId:String, authDetails: AuthDetails)(implicit hc: HeaderCarrier,req: Request[AnyContent]): Future[Option[Email]] = {
+  compRegEmailOpt match {
+    case None => noEmailBlock(rId,authDetails).map(e => Some(e))
+    case Some(Email(address,_,_,_,_)) if address == "" => Future.successful(None)
+    case e => Future.successful(e)
   }
-
-  def isVerified(rId: String, oEmail: Option[Email], resend: Option[Boolean], authDetails : AuthDetails)
-                (implicit hc: HeaderCarrier, req: Request[AnyContent]): Future[(Option[Boolean], Option[String])] = {
-    getEmail(rId, oEmail, resend, authDetails) flatMap {
-      case Email("", _, _, _, _) => Future.successful((None, None))
-      case Email(address, _, _, true, _) => cacheEmail(address) map (_ => (Some(true), Some(address)))
-      case Email(address, _, false, _, _) => sendVerificationLink(address, rId, authDetails).map((_, Some(address)))
-      case Email(address, _, _, false, _) => verifyEmailAddress(address, rId, authDetails).map((_, Some(address)))
+}
+  private def noEmailBlock(regId:String, authDetails: AuthDetails)(implicit hc: HeaderCarrier,req: Request[AnyContent]) = {
+    val email = Email(authDetails.email, "GG", linkSent = false, verified = false, returnLinkEmailSent = false)
+    saveEmailBlock(regId, email) map { x =>
+      email
     }
   }
 
-  private[services] def getEmail(regId: String, oEmail: Option[Email], resend: Option[Boolean], authDetails: AuthDetails)
-                                (implicit hc: HeaderCarrier, req: Request[AnyContent]): Future[Email] = {
-    (oEmail, resend) match {
-      case (Some(email), Some(true)) => Future.successful(email.copy(linkSent = false))
-      case (Some(email), _) => Future.successful(email)
-      case (None, _) =>
-        val email = Email(authDetails.email, "GG", linkSent = false, verified = false, returnLinkEmailSent = false)
-        saveEmailBlock(regId, email, authDetails) map { x =>
-          email
+  def checkEmailStatus(rId: String, oEmail: Option[Email], authDetails : AuthDetails)
+  (implicit hc: HeaderCarrier, req: Request[AnyContent]): Future[EmailVerified] = {
+
+    def cacheReg(emv: EmailVerified) = handOffService.cacheRegistrationID(rId).map(_ => emv)
+    emailChecks(oEmail, rId, authDetails) flatMap {
+        case None => Future.successful(NoEmail())
+
+        case Some(Email(address, _, _, scrsVerified@true, _)) => cacheReg(VerifiedEmail())
+
+        case Some(Email(address, _, linkSent@true, _, _)) =>
+          verifyEmailAddressAndSaveEmailBlockWithFlag(address, rId) flatMap  {
+            case Some(true) => cacheReg(VerifiedEmail())
+            case _ => cacheReg(NotVerifiedEmail())
         }
-    }
+        case Some(Email(address, _, linkSent@false, _, _)) => cacheReg(NotVerifiedEmail())
+      }
   }
 
-  private[services] def verifyEmailAddress(address: String, rId: String, authDetails: AuthDetails)
-                                          (implicit hc: HeaderCarrier, req: Request[AnyContent]): Future[Option[Boolean]] = {
-    cacheEmail(address) flatMap { x =>
+
+  def verifyEmailAddressAndSaveEmailBlockWithFlag(address: String, rId: String)
+                                                                   (implicit hc: HeaderCarrier, req: Request[AnyContent]): Future[Option[Boolean]] = {
       emailConnector.checkVerifiedEmail(address) flatMap { emailVerified =>
-        saveEmailBlock(rId, Email(address, GG, linkSent = true, verified = emailVerified, returnLinkEmailSent = false), authDetails) map {
+        saveEmailBlock(rId, Email(address, GG, linkSent = true, verified = emailVerified, returnLinkEmailSent = false)) map {
           _ => Some(emailVerified)
         }
-      }
     }
   }
 
-  private[services] def sendVerificationLink(address: String, rId: String, authDetails: AuthDetails)
+  def sendVerificationLink(address: String, rId: String)
                                             (implicit hc: HeaderCarrier, req: Request[AnyContent]): Future[Option[Boolean]] = {
-    cacheEmail(address) flatMap { cache =>
-      emailConnector.requestVerificationEmail(generateEmailRequest(address)) flatMap {
-        sent =>
-          val verified = !sent // if not sent the it's because the email address was already verified
-          saveEmailBlock(rId, Email(address, GG, sent, verified, false), authDetails) map { seb =>
+      emailConnector.requestVerificationEmailReturnVerifiedEmailStatus(generateEmailRequest(address)) flatMap {
+        verified =>
+          //todo - move the audit: if existing email link sent false and then verified returns true then audit
+          saveEmailBlock(rId, Email(address, GG, !verified, verified, false)) map { seb =>
             Some(verified)
           }
-      }
     }
   }
-
-  def sendWelcomeEmail(rId: String, emailAddress : String, authDetails: AuthDetails)
-                      (implicit hc: HeaderCarrier, req: Request[AnyContent]): Future[Option[Boolean]] = {
-    fetchEmailBlock(rId) flatMap {
-      case Email(_, _, _, _, true) => Future.successful(Some(false))
-      case Email(_, _, _, _, false) =>
-        (if (signPostingEnabled) {
-          Future.successful(false)
-        } else {
-          templatedEmailConnector.requestTemplatedEmail(generateWelcomeEmailRequest(Seq(emailAddress)))
-        }) flatMap { sent =>
-          saveEmailBlock(
-            rId,
-            Email(emailAddress, "GG", linkSent = true, verified = true, returnLinkEmailSent = true),
-            authDetails
-          ) map { seb =>
-            Some(true)
-          }
-        }
-    }
-  }
-
-    private[services] def generateWelcomeEmailRequest(emailAddress: Seq[String]): SendTemplatedEmailRequest = {
-      SendTemplatedEmailRequest(
-      to = emailAddress,
-      templateId = registerYourCompanyEmailTemplate,
-      parameters = Map(
-      "returnLink" -> sendTemplatedEmailURL),
-      force = true
-    )
-  }
-
 
   private[services] def generateEmailRequest(address: String): EmailVerificationRequest = {
     EmailVerificationRequest(
@@ -151,22 +132,31 @@ trait EmailVerificationService {
       continueUrl = s"$returnUrl/register-your-company/post-sign-in"
     )
   }
+  def fetchEmailBlock(regId: String)(implicit hc: HeaderCarrier):Future[Option[Email]] ={
+    crConnector.retrieveEmail(regId)
+  }
 
-  def fetchEmailBlock(regId: String)(implicit hc: HeaderCarrier): Future[Email] = {
-    crConnector.retrieveEmail(regId) map {
-      case Some(email) => email
-      case None => throw new EmailBlockNotFound
+  def emailVerifiedStatusInSCRS(rId:String, f: () => Future[Result])(implicit hc: HeaderCarrier): Future[Result] = {
+
+    fetchEmailBlock(rId).flatMap {
+      e =>
+        if(e.exists(_.verified) || e.isEmpty) {
+          Future.successful(Results.Redirect(controllers.reg.routes.SignInOutController.postSignIn(None)))
+        } else {
+          f()
+        }
     }
   }
 
-  private def saveEmailBlock(regId: String, email: Email, authDetails: AuthDetails)(implicit hc: HeaderCarrier, req: Request[AnyContent]) = {
-    crConnector.updateEmail(regId, email) flatMap {
-      case oe@Some(Email(address, _, sent, true, _)) =>
-        val previouslyVerified = !sent
-        emailAuditing(regId, address, previouslyVerified, authDetails).map(_ => oe)
-      case oe =>
-        Future.successful(oe)
-    }
+  private def saveEmailBlock(regId: String, email: Email)(implicit hc: HeaderCarrier, req: Request[AnyContent]):Future[Option[Email]] = {
+    crConnector.updateEmail(regId, email)
+    //flatMap {
+//      case oe@Some(Email(address, _, linkSent, verified@true, _)) =>
+//        val previouslyVerified = !linkSent
+//        emailAuditing(regId, address, previouslyVerified, authDetails).map(_ => oe)
+//      case oe =>
+//        Future.successful(oe)
+    //}
   }
 
   private def emailAuditing(rId : String, emailAddress : String, previouslyVerified : Boolean, authDetails: AuthDetails)
@@ -187,5 +177,11 @@ trait EmailVerificationService {
     } yield result
   }
 
-  def signPostingEnabled: Boolean = SCRSFeatureSwitches.signPosting.enabled
+  private[services] def isUserScp(implicit hc : HeaderCarrier) : Future[Boolean] = {
+    //TODO this function will check whether a user is an SCP one when we get the technical detail on how to determine it.
+    //TODO for now this will always return false
+    Future.successful(false)
+  }
+
+
 }

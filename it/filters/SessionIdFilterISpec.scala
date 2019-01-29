@@ -22,10 +22,10 @@ class SessionIdFilterISpec extends IntegrationSpecBase
 
   val regId = "reg-id-12345"
 
-  "Loading the welcome page" should {
+  "Loading the returning user page" should {
 
     "redirect to post-sign-in when an invalid sessionId exists" in {
-      val response = await(buildClient("/register")
+      val response = await(buildClient("/setting-up-new-limited-company")
         .withHeaders(HeaderNames.COOKIE -> getSessionCookie(sessionId = invalidSessionId))
         .get())
 
@@ -34,14 +34,14 @@ class SessionIdFilterISpec extends IntegrationSpecBase
     }
 
     "successfully load the page when a valid session id exists" in {
-      val response = await(buildClient("/register")
+      val response = await(buildClient("/setting-up-new-limited-company")
         .withHeaders(HeaderNames.COOKIE -> getSessionCookie())
         .get())
 
       response.status shouldBe 200
 
       val document = Jsoup.parse(response.body)
-      document.title() shouldBe messages("page.reg.welcome.description")
+      document.title() shouldBe messages("page.reg.returningUser.title")
     }
   }
 }

@@ -37,6 +37,13 @@ trait CorporationTaxFixture {
          |    "status" : "$status",
          |    "formCreationTimestamp" : "2016-10-25T12:20:45Z",
          |    "language" : "en",
+         |    "verifiedEmail" : {
+         |        "address" : "user@test.com",
+         |        "type" : "GG",
+         |        "link-sent" : true,
+         |        "verified" : true,
+         |        "return-link-email-sent" : false
+         |    },
          |    "confirmationReferences" : {
          |        "acknowledgementReference" : "BRCT123456789",
          |        "transactionId" : "TRANS_ID-123456789",

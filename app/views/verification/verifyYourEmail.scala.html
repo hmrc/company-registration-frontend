@@ -34,7 +34,7 @@
                     @Messages("page.verification.verify-your-email.dropdown-text1")
                     <a link-analytics="EmailVerification:StartAgain" href="@controllers.verification.routes.EmailVerificationController.startAgain">@Messages("page.verification.verify-your-email.dropdown-link1")</a>
                     @Messages("page.verification.verify-your-email.dropdown-text2")
-                    <a href="@controllers.reg.routes.SignInOutController.postSignIn(Some(true))">@Messages("page.verification.verify-your-email.dropdown-link2")</a>@Messages("common.period")
+                    <a href="@controllers.verification.routes.EmailVerificationController.resendVerificationLink">@Messages("page.verification.verify-your-email.dropdown-link2")</a>@Messages("common.period")
                     @Messages("page.verification.verify-your-email.dropdown-text3")
                 </p>
             </div>

@@ -30,7 +30,6 @@ class ReturningUserControllerISpec extends IntegrationSpecBase with LoginStub wi
 
   override implicit lazy val app = FakeApplication(additionalConfiguration = fakeConfig())
 
-
   val userId = "/wibble"
 
   "POST /setting-up-new-limited-company" should {
@@ -39,34 +38,10 @@ class ReturningUserControllerISpec extends IntegrationSpecBase with LoginStub wi
       "returningUser" -> Seq("true")
     )
 
-    "redirect when starting a new registration to creating a new account if the signposting is disabled" in {
+
+    "redirect when starting a new registration to company registration eligibility frontend" in {
       val csrfToken = UUID.randomUUID().toString
       val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
-
-      setupFeatures()
-
-      val post: Future[WSResponse] = buildClient("/setting-up-new-limited-company")
-        .withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
-        .post(map)
-      val response = await(post)
-
-      response.status shouldBe 303
-
-      val redirectTo = response.header(HeaderNames.LOCATION)
-
-      redirectTo shouldBe defined
-      redirectTo map { r =>
-        r should include("/government-gateway-registration-frontend")
-        r should include("origin=company-registration-frontend")
-        r should include("register-your-company%2Fpost-sign-in")
-      }
-    }
-
-    "redirect when starting a new registration to company registration eligibility frontend if the signposting enabled" in {
-      val csrfToken = UUID.randomUUID().toString
-      val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
-
-      setupFeatures(signPosting = true)
 
       val post: Future[WSResponse] = buildClient("/setting-up-new-limited-company")
         .withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")

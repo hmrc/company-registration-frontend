@@ -19,30 +19,44 @@ package controllers.verification
 import akka.actor.ActorSystem
 import akka.stream.{ActorMaterializer, Materializer}
 import builders.AuthBuilder
-import mocks.{CompanyRegistrationConnectorMock, KeystoreMock}
+import helpers.SCRSSpec
+import mocks.{CompanyRegistrationConnectorMock, KeystoreMock, SCRSMocks}
+import models.Email
 import org.jsoup.Jsoup
+import org.mockito.Matchers
 import org.scalatest.mockito.MockitoSugar
+import org.mockito.Mockito._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import services.EmailVerificationService
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
-class EmailVerificationControllerSpec extends CompanyRegistrationConnectorMock with UnitSpec with MockitoSugar
+import scala.concurrent.{ExecutionContext, Future}
+
+
+
+class EmailVerificationControllerSpec extends CompanyRegistrationConnectorMock with UnitSpec with MockitoSugar with SCRSMocks with SCRSSpec
   with WithFakeApplication with KeystoreMock with AuthBuilder {
 
   implicit val system = ActorSystem("test")
-
+  def testVerifiedEmail = Email("verified", "GG", linkSent = true, verified = true, returnLinkEmailSent = true)
+  def testUnVerifiedEmail = Email("unverified", "GG", linkSent = true, verified = false, returnLinkEmailSent = true)
 
   implicit def mat: Materializer = ActorMaterializer()
+
 
   class Setup {
     val controller = new EmailVerificationController {
       val authConnector = mockAuthConnector
       val keystoreConnector = mockKeystoreConnector
       override val companyRegistrationConnector = mockCompanyRegistrationConnector
+      override val emailVerificationService = mockEmailService
 
       val createGGWAccountUrl = "testURL"
       val callbackUrl = "testCallBack"
       val frontEndUrl = "/testFrontEndUrl"
+
     }
   }
 
@@ -55,9 +69,14 @@ class EmailVerificationControllerSpec extends CompanyRegistrationConnectorMock w
       }
     }
 
+
     "display Confirm your email address page" in new Setup {
-      val email = "foo@bar.wibble"
-      mockKeystoreFetchAndGet("email", Some(email))
+      val email = "verified"
+      mockKeystoreFetchAndGet[String]("registrationID", Some("regid"))
+
+      when(mockEmailService.fetchEmailBlock(Matchers.eq("regid"))(Matchers.any[HeaderCarrier]())).
+        thenReturn(Some(testVerifiedEmail))
+
       showWithAuthorisedUser(controller.verifyShow)(
         result => {
           status(result) shouldBe 200
@@ -66,6 +85,27 @@ class EmailVerificationControllerSpec extends CompanyRegistrationConnectorMock w
           document.getElementById("description").text should include(email)
         }
       )
+    }
+  }
+
+  "resendVerificationLink" should {
+    "redirect to email verification page when resend is link is clicked" in new Setup {
+      val email = "unverified"
+      mockKeystoreFetchAndGet[String]("registrationID", Some("regid"))
+
+      when(mockEmailService.fetchEmailBlock(Matchers.eq("regid"))(Matchers.any[HeaderCarrier]())).
+        thenReturn(Some(testUnVerifiedEmail))
+
+      when(mockEmailService.sendVerificationLink(Matchers.eq(email),Matchers.eq("regid"))(Matchers.any[HeaderCarrier](),Matchers.any())).
+        thenReturn(Some(false))
+
+      showWithAuthorisedUser(controller.resendVerificationLink) {
+        result =>
+          status(result) shouldBe 303
+          redirectLocation(result) map {
+            _ should include("/sent-an-email")
+          }
+      }
     }
   }
 
@@ -104,7 +144,7 @@ class EmailVerificationControllerSpec extends CompanyRegistrationConnectorMock w
     "redirect the user to the welcome page from create new account" in new Setup {
       val result = controller.createSubmit(FakeRequest())
       status(result) shouldBe 303
-      redirectLocation(result) shouldBe Some("/register-your-company/register")
+      redirectLocation(result) shouldBe Some("/register-your-company/setting-up-new-limited-company")
     }
   }
 

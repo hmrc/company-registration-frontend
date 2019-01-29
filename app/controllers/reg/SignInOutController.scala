@@ -63,7 +63,7 @@ trait SignInOutController extends FrontendController with ControllerErrorHandler
   val keystoreConnector: KeystoreConnector
   val corsRenewHost: Option[String]
 
-  def postSignIn(resend: Option[Boolean], handOffID: Option[String] = None, payload: Option[String] = None): Action[AnyContent] = Action.async {
+  def postSignIn(resend: Option[Boolean] = None, handOffID: Option[String] = None, payload: Option[String] = None): Action[AnyContent] = Action.async {
     implicit request =>
        ctAuthorisedPostSignIn { authDetails =>
         hasOrgAffinity(authDetails.affinityGroup) {
@@ -72,17 +72,12 @@ trait SignInOutController extends FrontendController with ControllerErrorHandler
               checkHO5Progress(response) {
                 processDeferredHandoff(handOffID, payload, response) {
                   hasNoEnrolments(authDetails.enrolments) {
-                    emailService.isVerified(response.registrationId, response.emailData, resend, authDetails) flatMap {
-                      case (Some(true), Some(verifiedEmail)) =>
-                        for {
-                          a <- handOffService.cacheRegistrationID(response.registrationId)
-                          b <- emailService.sendWelcomeEmail(response.registrationId, verifiedEmail, authDetails)}
-                          yield {
-                            Redirect(routes.CompletionCapacityController.show())
-                          }
-                      case (Some(false), _) => Future.successful(Redirect(controllers.verification.routes.EmailVerificationController.verifyShow()))
-                      case (None, _) => Future.successful(Redirect(controllers.verification.routes.EmailVerificationController.createShow()))
-                      case _ => Future.successful(InternalServerError(defaultErrorPage))
+                    emailService.checkEmailStatus(response.registrationId, response.emailData, authDetails) map {
+                      case VerifiedEmail()      => Redirect(routes.CompletionCapacityController.show())
+                      case NotVerifiedEmail()   => Redirect(routes.RegistrationEmailController.show())
+                      case NoEmail()            => Redirect(controllers.verification.routes.EmailVerificationController.createShow())
+                      case _                    => InternalServerError(defaultErrorPage)
+
                     } recover {
                       case ex: Throwable =>
                         Logger.error(s"[SignInOutController] [postSignIn] error occurred during post sign in - ${ex.getMessage}")

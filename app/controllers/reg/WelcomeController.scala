@@ -19,31 +19,21 @@ package controllers.reg
 import config.{AppConfig, FrontendAppConfig}
 import play.api.mvc.Action
 import uk.gov.hmrc.play.frontend.controller.FrontendController
-import utils.{MessagesSupport, SCRSFeatureSwitches}
-import views.html.reg.Welcome
-
+import utils.MessagesSupport
 import scala.concurrent.Future
 
 object WelcomeController extends WelcomeController {
   override val appConfig =  FrontendAppConfig
 }
 
-
-
-
-
 trait WelcomeController extends FrontendController with MessagesSupport {
   implicit val appConfig: AppConfig
   val show = Action.async { implicit request =>
-    if (signPostingEnabled) {
-      Future.successful(PermanentRedirect(routes.ReturningUserController.show().url))
-    } else {
-      Future.successful(Ok(Welcome(SCRSFeatureSwitches.paye.enabled)))
-    }
+    Future.successful(PermanentRedirect(routes.ReturningUserController.show().url))
+
   }
   val submit = Action.async { implicit request =>
     Future.successful(Redirect(routes.ReturningUserController.show()))
   }
 
-  def signPostingEnabled: Boolean = SCRSFeatureSwitches.signPosting.enabled
 }

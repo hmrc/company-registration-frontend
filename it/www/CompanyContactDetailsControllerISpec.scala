@@ -21,7 +21,14 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
        |{
        |    "registrationID" : "${rID}",
        |    "status" : "${status}",
-       |    "companyDetails": { "companyName": "fooBAR"}
+       |    "companyDetails": { "companyName": "fooBAR"},
+       |    "verifiedEmail" : {
+       |        "address" : "user@test.com",
+       |        "type" : "GG",
+       |        "link-sent" : true,
+       |        "verified" : true,
+       |        "return-link-email-sent" : false
+       |    }
        |}
      """.stripMargin
   val nameJson = Json.parse(

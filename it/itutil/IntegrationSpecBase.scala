@@ -46,7 +46,7 @@ trait IntegrationSpecBase extends UnitSpec
     enableFeature(SCRSFeatureSwitches.businessActivitiesHandOff, businessActivitiesHandOff)
     enableFeature(SCRSFeatureSwitches.paye, paye)
     enableFeature(SCRSFeatureSwitches.vat, vat)
-    enableFeature(SCRSFeatureSwitches.signPosting, signPosting)
+
   }
 
   override def beforeEach() = {

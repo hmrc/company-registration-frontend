@@ -67,6 +67,13 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub with F
        |    },
        |    "accountsPreparation" : {
        |        "businessEndDateChoice" : "HMRC_DEFINED"
+       |    },
+       |        "verifiedEmail" : {
+       |        "address" : "user@test.com",
+       |        "type" : "GG",
+       |        "link-sent" : true,
+       |        "verified" : true,
+       |        "return-link-email-sent" : false
        |    }
        |}
      """.stripMargin

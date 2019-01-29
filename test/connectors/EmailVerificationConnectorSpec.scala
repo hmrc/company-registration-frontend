@@ -95,46 +95,46 @@ class EmailVerificationConnectorSpec extends SCRSSpec with UnitSpec with WithFak
 
   "requestVerificationEmail" should {
 
-    "Return a true when a new email verification request is successful" in new Setup {
+    "Return a false when a new email verification request is successful to indicate the email was NOT verified before" in new Setup {
       mockHttpPOST(connector.sendVerificationEmailURL, HttpResponse(CREATED))
 
-      await(connector.requestVerificationEmail(verificationRequest)) shouldBe true
+      await(connector.requestVerificationEmailReturnVerifiedEmailStatus(verificationRequest)) shouldBe false
     }
 
 
-    "Return a false when a new email verification request has already been sent" in new Setup {
+    "Return a true when a new email verification request has been sent because the email is already verified" in new Setup {
       when(mockWSHttp.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]))
         .thenReturn(Future.successful(HttpResponse(409)))
 
-      await(connector.requestVerificationEmail(verificationRequest)) shouldBe false
+      await(connector.requestVerificationEmailReturnVerifiedEmailStatus(verificationRequest)) shouldBe true
     }
 
     "Fail the future when the service cannot be found" in new Setup {
       when(mockWSHttp.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]))
         .thenReturn(Future.failed(new NotFoundException("error")))
 
-      intercept[EmailErrorResponse](await(connector.requestVerificationEmail(verificationRequest)))
+      intercept[EmailErrorResponse](await(connector.requestVerificationEmailReturnVerifiedEmailStatus(verificationRequest)))
     }
 
     "Fail the future when we send a bad request" in new Setup {
       when(mockWSHttp.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]))
         .thenReturn(Future.failed(new BadRequestException("error")))
 
-      intercept[EmailErrorResponse](await(connector.requestVerificationEmail(verificationRequest)))
+      intercept[EmailErrorResponse](await(connector.requestVerificationEmailReturnVerifiedEmailStatus(verificationRequest)))
     }
 
     "Fail the future when EVS returns an internal server error" in new Setup {
       when(mockWSHttp.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]))
         .thenReturn(Future.failed(new InternalServerException("error")))
 
-      intercept[EmailErrorResponse](await(connector.requestVerificationEmail(verificationRequest)))
+      intercept[EmailErrorResponse](await(connector.requestVerificationEmailReturnVerifiedEmailStatus(verificationRequest)))
     }
 
     "Fail the future when EVS returns an upstream error" in new Setup {
       when(mockWSHttp.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]))
         .thenReturn(Future.failed(new BadGatewayException("error")))
 
-      intercept[EmailErrorResponse](await(connector.requestVerificationEmail(verificationRequest)))
+      intercept[EmailErrorResponse](await(connector.requestVerificationEmailReturnVerifiedEmailStatus(verificationRequest)))
     }
 
   }

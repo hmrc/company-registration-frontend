@@ -60,7 +60,7 @@ trait EmailVerificationConnector extends HttpErrorFunctions {
     }
   }
 
-  def requestVerificationEmail(emailRequest : EmailVerificationRequest)(implicit hc : HeaderCarrier) : Future[Boolean] = {
+  def requestVerificationEmailReturnVerifiedEmailStatus(emailRequest : EmailVerificationRequest)(implicit hc : HeaderCarrier) : Future[Boolean] = {
     def errorMsg(status: String, ex: HttpException) = {
       Logger.error(s"[EmailVerificationConnector] [requestVerificationEmail] request to send verification email returned a $status - email not sent - reason = ${ex.getMessage}")
       throw new EmailErrorResponse(status)
@@ -70,11 +70,11 @@ trait EmailVerificationConnector extends HttpErrorFunctions {
       r.status match {
         case CREATED => {
           Logger.debug("[EmailVerificationConnector] [requestVerificationEmail] request to verification service successful")
-          true
+          false
         }
         case CONFLICT =>
           Logger.warn("[EmailVerificationConnector] [requestVerificationEmail] request to send verification email returned a 409 - email already verified")
-          false
+          true
       }
     } recover {
       case ex: BadRequestException => errorMsg("400", ex)

@@ -54,6 +54,69 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with F
        |}
      """.stripMargin
 
+  val throttleWithAnSCRSValidatedEmail =
+      s"""
+         |{
+         |  "registration-id" : "$regId",
+         |  "created" : true,
+         |  "confirmation-reference" : true,
+         |  "payment-reference" : true,
+         |  "email" : {
+         |      "address": "foo@bar.wibble",
+         |      "type": "GG",
+         |      "link-sent": true,
+         |      "verified": true
+         |  }
+         |}
+       """.stripMargin
+
+  val throttleWithOutAnSCRSValidatedEmail =
+    s"""
+       |{
+       |  "registration-id" : "$regId",
+       |  "created" : true,
+       |  "confirmation-reference" : true,
+       |  "payment-reference" : true,
+       |  "email" : {
+       |      "address": "foo@bar.wibble",
+       |      "type": "GG",
+       |      "link-sent": false,
+       |      "verified": false
+       |  }
+       |}
+       """.stripMargin
+
+  val throttleWithOutAnSCRSValidatedEmailButLinkSent =
+    s"""
+       |{
+       |  "registration-id" : "$regId",
+       |  "created" : true,
+       |  "confirmation-reference" : true,
+       |  "payment-reference" : true,
+       |  "email" : {
+       |      "address": "foo@bar.wibble",
+       |      "type": "GG",
+       |      "link-sent": true,
+       |      "verified": false
+       |  }
+       |}
+       """.stripMargin
+
+  val throttleWithNoEmailAddressInEmailBlock =
+    s"""
+       |{
+       |  "registration-id" : "$regId",
+       |  "created" : true,
+       |  "confirmation-reference" : true,
+       |  "payment-reference" : true,
+       |  "email" : {
+       |      "address": "",
+       |      "type": "GG",
+       |      "link-sent": false,
+       |      "verified": false
+       |  }
+       |}
+       """.stripMargin
 
   val userDetails =
     s"""
@@ -130,6 +193,20 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with F
     )
   }
 
+  def stubVerifyEmail(vEmail: String, vStatus: Int): StubMapping = {
+    val getUserUrl = s"/checkVerifiedEmailURL/$vEmail"
+    stubFor(get(urlMatching(getUserUrl))
+      .willReturn(
+        aResponse().
+          withStatus(vStatus).
+          withBody(s"""{
+                       |"email": "$vEmail"
+                       |}""".stripMargin
+      )
+    )
+    )
+  }
+
   "Sign In" should  {
 
     "redirect to ho1 if status is held and no payment reference is present" in {
@@ -181,6 +258,154 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with F
       response.status shouldBe 303
       response.header(HeaderNames.LOCATION).get should include("/register-your-company/basic-company-details")
     }
+    "redirect to completion capacity if status is draft and we have an SCRS verified email" in {
+
+      stubAuthorisation()
+      stubSuccessfulLogin(userId = userId)
+
+      val csrfToken = UUID.randomUUID().toString
+      val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
+
+      stubKeystoreCache(SessionId, "registrationID")
+      stubKeystoreGet(SessionId, regId)
+
+      stubGetRegistrationStatus(regId, "draft")
+      stubGet("/company-registration/throttle/check-user-access",200, throttleWithAnSCRSValidatedEmail)
+
+      stubGetUserDetails(userId)
+
+      val fResponse = buildClient("/post-sign-in").
+        withHeaders(HeaderNames.COOKIE -> sessionCookie).
+        get()
+
+      val response = await(fResponse)
+      response.status shouldBe 303
+      response.header(HeaderNames.LOCATION).get should include("/register-your-company/relationship-to-company")
+    }
+
+    "redirect to the email verification screen if status is draft and we don't have an SCRS verified email" in {
+
+      stubAuthorisation()
+      stubSuccessfulLogin(userId = userId)
+
+      val csrfToken = UUID.randomUUID().toString
+      val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
+
+      stubKeystoreCache(SessionId, "registrationID")
+      stubKeystoreGet(SessionId, regId)
+
+      stubGetRegistrationStatus(regId, "draft")
+      stubGet("/company-registration/throttle/check-user-access",200, throttleWithOutAnSCRSValidatedEmail)
+
+      stubGetUserDetails(userId)
+
+      val fResponse = buildClient("/post-sign-in").
+        withHeaders(HeaderNames.COOKIE -> sessionCookie).
+        get()
+
+      val response = await(fResponse)
+      response.status shouldBe 303
+      response.header(HeaderNames.LOCATION).get should include("/register-your-company/registration-email")
+    }
+
+    "redirect to the email verification screen if status is draft and we don't have an SCRS verified email but we have sent an email link and the email is still not verified" in {
+
+      stubAuthorisation()
+      stubSuccessfulLogin(userId = userId)
+
+      val csrfToken = UUID.randomUUID().toString
+      val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
+
+      stubKeystoreCache(SessionId, "registrationID")
+      stubKeystoreGet(SessionId, regId)
+
+      stubGetRegistrationStatus(regId, "draft")
+      stubGet("/company-registration/throttle/check-user-access",200, throttleWithOutAnSCRSValidatedEmailButLinkSent)
+
+      stubPut("/company-registration/corporation-tax-registration/regId5/update-email",200, """ {
+                                                                                              |  "address": "foo@bar.wibble",
+                                                                                              |  "type": "GG",
+                                                                                              |  "link-sent": true,
+                                                                                              |  "verified": false
+                                                                                              | }
+                                                                                            """.stripMargin)
+
+      stubGetUserDetails(userId)
+
+      stubVerifyEmail("foo@bar.wibble",404)
+
+      val fResponse = buildClient("/post-sign-in").
+        withHeaders(HeaderNames.COOKIE -> sessionCookie).
+        get()
+
+      val response = await(fResponse)
+      response.status shouldBe 303
+      response.header(HeaderNames.LOCATION).get should include("/register-your-company/registration-email")
+    }
+
+    "redirect to the completion capacity screen if status is draft and we don't have an SCRS verified email but we have sent an email link and the email is now verified" in {
+
+      stubAuthorisation()
+      stubSuccessfulLogin(userId = userId)
+
+      val csrfToken = UUID.randomUUID().toString
+      val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
+
+      stubKeystoreCache(SessionId, "registrationID")
+      stubKeystoreGet(SessionId, regId)
+
+      stubGetRegistrationStatus(regId, "draft")
+      stubGet("/company-registration/throttle/check-user-access",200, throttleWithOutAnSCRSValidatedEmailButLinkSent)
+
+      stubPut("/company-registration/corporation-tax-registration/regId5/update-email",200, """ {
+                                                                                              |  "address": "foo@bar.wibble",
+                                                                                              |  "type": "GG",
+                                                                                              |  "link-sent": true,
+                                                                                              |  "verified": false
+                                                                                              | }
+                                                                                            """.stripMargin)
+
+      stubGetUserDetails(userId)
+
+      stubVerifyEmail("foo@bar.wibble",200)
+
+      val fResponse = buildClient("/post-sign-in").
+        withHeaders(HeaderNames.COOKIE -> sessionCookie).
+        get()
+
+      val response = await(fResponse)
+      response.status shouldBe 303
+      response.header(HeaderNames.LOCATION).get should include("/register-your-company/relationship-to-company")
+    }
+
+    "redirect to the enter-your-details if status is draft and we don't have an SCRS verified email and there is no email address for the account" in {
+
+      stubAuthorisation()
+      stubSuccessfulLogin(userId = userId)
+
+      val csrfToken = UUID.randomUUID().toString
+      val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
+
+      stubKeystoreCache(SessionId, "registrationID")
+      stubKeystoreGet(SessionId, regId)
+
+      stubGetRegistrationStatus(regId, "draft")
+      stubGet("/company-registration/throttle/check-user-access",200, throttleWithNoEmailAddressInEmailBlock)
+
+      stubGetUserDetails(userId)
+
+      val fResponse = buildClient("/post-sign-in").
+        withHeaders(HeaderNames.COOKIE -> sessionCookie).
+        get()
+
+      val response = await(fResponse)
+      response.status shouldBe 303
+      response.header(HeaderNames.LOCATION).get should include("/register-your-company/enter-your-details")
+    }
+
+
+
+
   }
 
   "Sign Out" should {

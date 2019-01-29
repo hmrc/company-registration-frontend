@@ -39,6 +39,13 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fak
        |    },
        |    "accountsPreparation" : {
        |        "businessEndDateChoice" : "HMRC_DEFINED"
+       |    },
+       |        "verifiedEmail" : {
+       |        "address" : "user@test.com",
+       |        "type" : "GG",
+       |        "link-sent" : true,
+       |        "verified" : true,
+       |        "return-link-email-sent" : false
        |    }
        |}
      """.stripMargin
