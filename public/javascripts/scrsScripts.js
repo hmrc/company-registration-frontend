@@ -21,6 +21,23 @@ $(document).ready($(function() {
     var noReturnUser = $("#returningUser-false");
     var yesToggleReturnUser = $("#true-hidden");
 
+    var CurrentEmail = $("#registrationEmail-currentemail");
+    var OtherEmail = $("#registrationEmail-differentemail");
+    var noToggleCurrentEmail = $("#differentEmail-hidden");
+
+    if(OtherEmail.is(":checked")){
+          noToggleCurrentEmail.show();
+     } else {
+          noToggleCurrentEmail.hide();
+     }
+
+     OtherEmail.on("change", function () {
+         noToggleCurrentEmail.show();
+     });
+
+     CurrentEmail.on("change", function () {
+         noToggleCurrentEmail.hide();
+     });
 
      if(yesReturnUser.is(":checked")){
           yesToggleReturnUser.show();

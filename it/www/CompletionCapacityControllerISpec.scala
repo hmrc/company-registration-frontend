@@ -30,7 +30,14 @@ class CompletionCapacityControllerISpec extends IntegrationSpecBase with MongoSp
     s"""
        |{
        |    "registrationID" : "${rID}",
-       |    "status" : "${status}"
+       |    "status" : "${status}",
+       |        "verifiedEmail" : {
+       |        "address" : "user@test.com",
+       |        "type" : "GG",
+       |        "link-sent" : true,
+       |        "verified" : true,
+       |        "return-link-email-sent" : false
+       |    }
        |}
      """.stripMargin
 

@@ -39,20 +39,23 @@ page.timeout.description                                            = Your sessi
 page.timeout.p2                                                     = Sign back in to
 page.timeout.url                                                    = set up a limited company and register for Corporation Tax
 
+## Registration Email Page
+page.reg.registrationEmail.title                                    = Registration email
+page.reg.registrationEmail.heading                                  = Which email address do you want to use for this application?
+page.reg.registrationEmail.description                              = We will use this email address to create an account for you with Companies House so you can use the services they provide. We will also send you updates and confirmation emails about your registration.
+page.reg.registrationEmail.radio1                                   = {0}
+page.reg.registrationEmail.radio2                                   = A different email address
+page.reg.registrationEmail.enterEmail                               = Enter the email address
+error.registrationEmail.required                                    = Tell us which email address you want to use for this application
+error.DifferentEmail.required                                       = Enter a valid email
 
-## Welcome page
-page.reg.welcome.description                                        = Register a limited company
-page.reg.welcome.description.one                                    = Use this service to:
-page.reg.welcome.bullet.inc                                         = register a limited company with Companies House
-page.reg.welcome.bullet.ct                                          = register for Corporation Tax with HM Revenue and Customs (HMRC)
-page.reg.welcome.bullet.inc_ct                                      = set up a limited company and register it for Corporation Tax
-page.reg.welcome.bullet.paye                                        = register as an employer for PAYE
-page.reg.welcome.heading.beforeyoubegin                             = Register a limited company and set up Corporation Tax
-page.reg.welcome.yourapp                                            = Your application:
-page.reg.welcome.bullet.30-mins                                     = shouldn''t take more than 30 minutes to complete
-page.reg.welcome.bullet.one-go                                      = doesn''t have to be done in one go - you can save your details and finish it later
-page.reg.welcome.bullet.90-days                                     = must be completed within 90 days of starting - any information you''ve entered won''t be saved after that time
-page.reg.welcome.cost                                               = It costs £12 to set up a company. Your information will be shared between Companies House and HMRC during the application process.
+## Confirm Registration Email
+page.reg.confirmRegistrationEmail.title                             = Registration email
+page.reg.confirmRegistrationEmail.heading                           = Are you sure want to use {0} for this application?
+page.reg.confirmRegistrationEmail.p1                                = You must be able to access {0} to continue the application.
+page.reg.confirmRegistrationEmail.radio1                            = Yes
+page.reg.confirmRegistrationEmail.radio2                            = No - change it
+page.reg.confirmRegistrationEmail.error                             = Tell us if you want to use this email address for this application
 
 ## Returning User
 page.reg.returningUser.description                                  = Are you starting a new application?

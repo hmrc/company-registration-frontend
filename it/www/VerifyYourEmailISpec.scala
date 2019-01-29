@@ -52,16 +52,24 @@ class VerifyYourEmailISpec extends IntegrationSpecBase with LoginStub with Befor
   "GET /ryc/verify-your-email" should {
     "Show a page with the email when logged in" in {
       stubAuthorisation()
-
+      val emailResponseFromCr =
+        """ {
+          |  "address": "foo@bar.wibble",
+          |  "type": "GG",
+          |  "link-sent": false,
+          |  "verified": false,
+          |  "return-link-email-sent" : false
+          |
+          | }
+        """.stripMargin
       val email = "foo@bar.wibble"
       stubKeystore(SessionId, "5",  email)
-
+      stubGet("/company-registration/corporation-tax-registration/5/retrieve-email",200, emailResponseFromCr)
       val fResponse = buildClient("/sent-an-email").
         withHeaders(HeaderNames.COOKIE -> getSessionCookie(userId=userId)).
         get()
 
       val response = await(fResponse)(FiniteDuration(10, "seconds"))
-
       response.status shouldBe 200
 
       val document = Jsoup.parse(response.body)

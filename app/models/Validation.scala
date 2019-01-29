@@ -18,7 +18,7 @@ package models
 
 import play.api.data.format.Formatter
 import play.api.data.validation.ValidationError
-import play.api.data.{FormError, Forms}
+import play.api.data.{FormError, Forms, Mapping}
 import play.api.libs.functional.syntax._
 import play.api.libs.json.Reads.{maxLength, minLength, pattern}
 import play.api.libs.json._
@@ -59,7 +59,9 @@ trait CHAddressValidator {
 trait EmptyStringValidator {
   def customErrorTextValidation = Forms.of[String](stringFormat)
   def stringFormat: Formatter[String] = new Formatter[String] {
+
     def message(key:String) = s"error.$key.required"
+
     private def getNonEmpty(key: String, data: Map[String, String]) = data.getOrElse(key, "").trim match {
       case "" => None
       case entry => Some(entry)
@@ -67,5 +69,29 @@ trait EmptyStringValidator {
     def bind(key: String, data: Map[String, String]) = getNonEmpty(key, data).toRight(Seq(FormError(key, message(key), Nil)))
     def unbind(key: String, value: String) = Map(key -> value)
   }
+
+}
+
+trait RequiredBooleanForm {
+
+  val errorMsg: String = "error.required"
+
+  implicit def requiredBooleanFormatter: Formatter[Boolean] = new Formatter[Boolean] {
+
+    override val format = Some(("format.boolean", Nil))
+
+    // default play binding is to data.getOrElse(key, "false")
+    def bind(key: String, data: Map[String, String]) = {
+      Right(data.getOrElse(key,"")).right.flatMap {
+        case "true" => Right(true)
+        case "false" => Right(false)
+        case _ => Left(Seq(FormError(key, errorMsg, Nil)))
+      }
+    }
+
+    def unbind(key: String, value: Boolean) = Map(key -> value.toString)
+  }
+
+  val requiredBoolean: Mapping[Boolean] = Forms.of[Boolean](requiredBooleanFormatter)
 
 }

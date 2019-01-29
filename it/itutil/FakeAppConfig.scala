@@ -36,7 +36,9 @@ trait FakeAppConfig {
     "microservice.services.company-registration.port" -> s"$mockPort",
     "microservice.services.business-registration.host" -> s"$mockHost",
     "microservice.services.business-registration.port" -> s"$mockPort",
-    "microservice.timeoutInSeconds" -> "999999"
+    "microservice.timeoutInSeconds" -> "999999",
+    "microservice.services.email-vs.sendVerificationEmailURL" -> s"$mockUrl/sendVerificationEmailURL",
+    "microservice.services.email-vs.checkVerifiedEmailURL" -> s"$mockUrl/checkVerifiedEmailURL"
   ) ++ extraConfig
 
 }

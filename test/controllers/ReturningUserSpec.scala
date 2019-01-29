@@ -52,15 +52,7 @@ class ReturningUserSpec extends SCRSSpec with AuthBuilder with WithFakeApplicati
     }
 
     "Sending a POST request to ReturningUserController" should {
-      "return a 303 and send user to create account page page when they are starting a new registration" in new Setup {
-
-        val result = TestController.submit()(FakeRequest().withFormUrlEncodedBody("returningUser" -> "true"))
-        status(result) shouldBe SEE_OTHER
-        redirectLocation(result).get should include("CreateGGWAccountURL/government-gateway-registration-frontend")
-        redirectLocation(result).get should include("continue=CompRegFEURL%2Fregister-your-company%2Fpost-sign-in")
-      }
-      "return a 303 and send user to company registration eligibility when they start a new registration with signposting" in new Setup {
-        System.setProperty("feature.signPosting", "true")
+      "return a 303 and send user to company registration eligibility when they start a new registrationn" in new Setup {
 
         val result = TestController.submit()(FakeRequest().withFormUrlEncodedBody("returningUser" -> "true"))
         status(result) shouldBe SEE_OTHER

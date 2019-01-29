@@ -74,17 +74,9 @@ trait ReturningUserController extends FrontendController with AuthFunction with 
 
 
   private[controllers] def buildCreateAccountURL: String = {
-    if (signPostingEnabled) {
       s"$eligBaseUrl$eligUri"
-    } else {
-      val continueUrlUrl = controllers.reg.routes.SignInOutController.postSignIn(None).url
-      val ggrf = "government-gateway-registration-frontend"
-      val accountType = "accountType=organisation"
-      val origin = "origin=company-registration-frontend"
-      val continueURL = s"continue=${URLEncoder.encode(s"$compRegFeUrl$continueUrlUrl","UTF-8")}"
-      s"$createGGWAccountUrl/${ggrf}?${accountType}&${continueURL}&${origin}"
-    }
+
   }
 
-  def signPostingEnabled: Boolean = SCRSFeatureSwitches.signPosting.enabled
+
 }

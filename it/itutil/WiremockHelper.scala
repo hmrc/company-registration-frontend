@@ -22,6 +22,7 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import models.{BusinessRegistration, Links}
 import org.scalatestplus.play.OneServerPerSuite
+import play.api.libs.json.JsValue
 import play.api.libs.ws.WSClient
 
 object WiremockHelper {
@@ -106,7 +107,22 @@ trait WiremockHelper {
     )
   }
 
-  def stubKeystoreSave(session: String, regId: String, status: Int) = {
+  def stubKeystoreGetWithJson(session: String, regId: String, status: Int = 200, data: String) = {
+    val keystoreUrl = s"/keystore/company-registration-frontend/$session"
+    stubFor(get(urlMatching(keystoreUrl))
+      .willReturn(aResponse().
+        withStatus(status).
+        withBody(
+          s"""{
+             |"id": "$session",
+             |"data": ${data}
+             |}""".stripMargin
+        )
+      )
+    )
+  }
+
+  def stubKeystoreSave(session: String, regId: String, status: Int, key:String = "registrationID") = {
     val keystoreUrl = s"/keystore/company-registration-frontend/$session/data/registrationID"
     stubFor(put(urlMatching(keystoreUrl))
       .willReturn(aResponse().

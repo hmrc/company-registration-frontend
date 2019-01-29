@@ -15,6 +15,12 @@ GET        /cant-continue-submit                    controllers.reg.Registration
 GET        /register                                controllers.reg.WelcomeController.show
 POST       /register                                controllers.reg.WelcomeController.submit
 
+GET       /registration-email                       controllers.reg.RegistrationEmailController.show
+POST      /registration-email                       controllers.reg.RegistrationEmailController.submit
+
+GET       /companies-house-email-confirm            controllers.reg.RegistrationEmailConfirmationController.show
+POST      /companies-house-email-confirm            controllers.reg.RegistrationEmailConfirmationController.submit
+
 GET        /relationship-to-company                 controllers.reg.CompletionCapacityController.show
 POST       /relationship-to-company                 controllers.reg.CompletionCapacityController.submit
 
@@ -55,6 +61,7 @@ POST       /feedback                                controllers.feedback.Feedbac
 GET        /thankyou                                controllers.feedback.FeedbackController.thankyou
 
 GET        /post-sign-in                            controllers.reg.SignInOutController.postSignIn(resend: Option[Boolean] ?= None, handOffID: Option[String] ?= None, payload: Option[String] ?= None)
+
 POST       /post-sign-in                            controllers.reg.SignInOutController.postSignIn(resend: Option[Boolean] ?= None, handOffID: Option[String] ?= None, payload: Option[String] ?= None)
 
 GET        /sign-out                                controllers.reg.SignInOutController.signOut(continueUrl: Option[ContinueUrl])
@@ -74,6 +81,7 @@ GET        /enter-your-details                      controllers.verification.Ema
 POST       /enter-your-details                      controllers.verification.EmailVerificationController.createSubmit
 
 GET        /start-again                             controllers.verification.EmailVerificationController.startAgain
+GET        /resend-verification                     controllers.verification.EmailVerificationController.resendVerificationLink
 
 GET        /incorrect-account-type                  controllers.verification.EmailVerificationController.createGGWAccountAffinityShow
 POST       /incorrect-account-type                  controllers.verification.EmailVerificationController.createGGWAccountSubmit

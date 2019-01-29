@@ -24,14 +24,14 @@ import controllers.reg.SignInOutController
 import fixtures._
 import helpers.SCRSSpec
 import mocks.MetricServiceMock
-import models.ThrottleResponse
+import models.{Email, ThrottleResponse}
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import play.api.libs.json.Json
 import play.api.mvc.Results
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentType, _}
-import services.{EmailVerificationService, EnrolmentsService}
+import services.{EmailVerificationService, EnrolmentsService, VerifiedEmail}
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, ~}
 import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolments}
 import uk.gov.hmrc.http.HeaderCarrier
@@ -87,7 +87,7 @@ class SignInOutControllerSpec extends SCRSSpec
     }
 
     "return a 303 if accessing with authorisation for a new journey" in new Setup {
-      val expected = ThrottleResponse("12345", true, false, false)
+      val expected = ThrottleResponse("12345", true, false, false, Some(Email("email","GG",false,false,false)))
 
       when(mockEnrolmentsService.hasBannedRegimes(Matchers.any()))
         .thenReturn(Future.successful(false))
@@ -95,11 +95,8 @@ class SignInOutControllerSpec extends SCRSSpec
       when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(Matchers.any()))
         .thenReturn(Future.successful(FootprintFound(expected)))
 
-      when(mockEmailService.isVerified(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
-        .thenReturn(Future.successful((Some(true), Some("String"))))
-
-      when(mockEmailService.sendWelcomeEmail(Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
-        .thenReturn(Future.successful(Some(false)))
+      when(mockEmailService.checkEmailStatus(Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
+        .thenReturn(Future.successful(VerifiedEmail()))
 
       when(mockCompanyRegistrationConnector.fetchRegistrationStatus(Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(None))
@@ -115,7 +112,7 @@ class SignInOutControllerSpec extends SCRSSpec
     }
 
     "return a 303 if accessing with authorisation for an existing journey" in new Setup {
-      val expected = ThrottleResponse("12345", false, false, false)
+      val expected = ThrottleResponse("12345", false, false, false, Some(Email("email","GG",false,false,false)))
 
       when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(Matchers.any()))
         .thenReturn(Future.successful(FootprintFound(expected)))
@@ -126,11 +123,8 @@ class SignInOutControllerSpec extends SCRSSpec
       when(mockHandOffService.cacheRegistrationID(Matchers.eq(registrationID))(Matchers.any()))
         .thenReturn(Future.successful(cacheMap))
 
-      when(mockEmailService.isVerified(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
-        .thenReturn(Future.successful((Some(true), Some("String"))))
-
-      when(mockEmailService.sendWelcomeEmail(Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
-        .thenReturn(Future.successful(Some(true)))
+      when(mockEmailService.checkEmailStatus(Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
+        .thenReturn(Future.successful(VerifiedEmail()))
 
       showWithAuthorisedUserRetrieval(controller.postSignIn(None), authDetails) {
         result =>
@@ -233,8 +227,8 @@ class SignInOutControllerSpec extends SCRSSpec
       when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(Matchers.any()))
         .thenReturn(Future.successful(FootprintFound(expected)))
 
-      when(mockEmailService.isVerified(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
-        .thenReturn(Future.successful((Some(true), Some("String"))))
+      when(mockEmailService.checkEmailStatus(Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
+        .thenReturn(Future.successful(VerifiedEmail()))
 
       when(mockCompanyRegistrationConnector.fetchRegistrationStatus(Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(None))

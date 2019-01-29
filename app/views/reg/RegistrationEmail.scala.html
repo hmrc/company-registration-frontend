@@ -1,0 +1,69 @@
+@*
+ * Copyright 2019 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import uk.gov.hmrc.play.views.html.helpers.form
+@import uk.gov.hmrc.play.views.html.{helpers => govHelpers}
+@import views.html.helpers.{inputRadioGroupHidden, errorSummary}
+
+@(registrationEmail : Form[RegistrationEmailModel], email: String)(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.AppConfig)
+
+@differentHidden = {
+    @govHelpers.input(
+    registrationEmail("DifferentEmail"),
+    '_inputClass -> "form-control-1-2",
+    '_labelClass -> "form-label cascading",
+    '_label -> Messages("page.reg.registrationEmail.enterEmail")
+    )
+    }
+
+@main_template(title = Messages("page.reg.registrationEmail.title"), mainClass = None) {
+
+    <a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
+
+@errorSummary(
+Messages("common.errorSummary.label"),
+registrationEmail, dataJourney = Some("RegistrationEmailModel")
+)
+
+    <div class="form-group">
+        <h1 id="main-heading">@Messages("page.reg.registrationEmail.heading")</h1>
+
+        <div class="form-group">
+                <p id="para-one">@Messages("page.reg.registrationEmail.description")</p>
+        </div>
+
+        @form(action = controllers.reg.routes.RegistrationEmailController.submit()) {
+
+        <div class="form-group">
+            @inputRadioGroupHidden(
+            registrationEmail("registrationEmail"),
+            Seq("currentEmail" -> Messages("page.reg.registrationEmail.radio1", email),"differentEmail" -> Messages("page.reg.registrationEmail.radio2")),
+            Seq("differentEmail" -> differentHidden),
+            '_fieldsetId -> "registration-email",
+            '_classHidden -> "panel panel-indent",
+            '_labelClass -> "block-label radio-label",
+            '_legend -> Messages("page.reg.registrationEmail.heading"),
+            '_legendClass -> "visually-hidden"
+            )
+        </div>
+
+        <div class="form-group">
+            <input class="button" type="submit" id="next" value="@Messages("common.button.continue")">
+        </div>
+
+    </div>
+    }
+}

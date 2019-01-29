@@ -41,7 +41,14 @@ class GroupsControllerISpec extends IntegrationSpecBase with MongoSpecSupport wi
     val statusResponseFromCR = s"""
          |{
          |    "registrationID" : "$regId",
-         |    "status" : "draft"
+         |    "status" : "draft",
+         |        "verifiedEmail" : {
+         |        "address" : "user@test.com",
+         |        "type" : "GG",
+         |        "link-sent" : true,
+         |        "verified" : true,
+         |        "return-link-email-sent" : false
+         |    }
          |}
      """.stripMargin
 
