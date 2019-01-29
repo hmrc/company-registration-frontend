@@ -54,11 +54,21 @@ GET        /feedback                                controllers.feedback.Feedbac
 POST       /feedback                                controllers.feedback.FeedbackController.submit
 GET        /thankyou                                controllers.feedback.FeedbackController.thankyou
 
-GET        /post-sign-in                            controllers.reg.SignInOutController.postSignIn(resend: Option[Boolean], handOffID: Option[String] ?= None, payload: Option[String] ?= None)
+GET        /post-sign-in                            controllers.reg.SignInOutController.postSignIn(resend: Option[Boolean] ?= None, handOffID: Option[String] ?= None, payload: Option[String] ?= None)
+POST       /post-sign-in                            controllers.reg.SignInOutController.postSignIn(resend: Option[Boolean] ?= None, handOffID: Option[String] ?= None, payload: Option[String] ?= None)
+
 GET        /sign-out                                controllers.reg.SignInOutController.signOut(continueUrl: Option[ContinueUrl])
 
 GET        /sent-an-email                           controllers.verification.EmailVerificationController.verifyShow
 POST       /sent-an-email                           controllers.verification.EmailVerificationController.verifySubmit
+
+GET       /registration-email                       controllers.reg.SignInOutController.postSignIn(resend: Option[Boolean] ?= None, handOffID: Option[String] ?= None, payload: Option[String] ?= None)
+POST      /registration-email                       controllers.reg.SignInOutController.postSignIn(resend: Option[Boolean] ?= None, handOffID: Option[String] ?= None, payload: Option[String] ?= None)
+
+GET       /companies-house-email-confirm            controllers.reg.SignInOutController.postSignIn(resend: Option[Boolean] ?= None, handOffID: Option[String] ?= None, payload: Option[String] ?= None)
+POST      /companies-house-email-confirm            controllers.reg.SignInOutController.postSignIn(resend: Option[Boolean] ?= None, handOffID: Option[String] ?= None, payload: Option[String] ?= None)
+
+GET        /resend-verification                     controllers.reg.SignInOutController.postSignIn(resend: Option[Boolean] ?= None, handOffID: Option[String] ?= None, payload: Option[String] ?= None)
 
 GET        /enter-your-details                      controllers.verification.EmailVerificationController.createShow
 POST       /enter-your-details                      controllers.verification.EmailVerificationController.createSubmit
