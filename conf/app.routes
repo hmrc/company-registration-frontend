@@ -69,14 +69,12 @@ GET        /sign-out                                controllers.reg.SignInOutCon
 GET        /sent-an-email                           controllers.verification.EmailVerificationController.verifyShow
 POST       /sent-an-email                           controllers.verification.EmailVerificationController.verifySubmit
 
-GET       /registration-email                       controllers.reg.SignInOutController.postSignIn(resend: Option[Boolean] ?= None, handOffID: Option[String] ?= None, payload: Option[String] ?= None)
-POST      /registration-email                       controllers.reg.SignInOutController.postSignIn(resend: Option[Boolean] ?= None, handOffID: Option[String] ?= None, payload: Option[String] ?= None)
 
-GET       /companies-house-email-confirm            controllers.reg.SignInOutController.postSignIn(resend: Option[Boolean] ?= None, handOffID: Option[String] ?= None, payload: Option[String] ?= None)
-POST      /companies-house-email-confirm            controllers.reg.SignInOutController.postSignIn(resend: Option[Boolean] ?= None, handOffID: Option[String] ?= None, payload: Option[String] ?= None)
-
-GET        /resend-verification                     controllers.reg.SignInOutController.postSignIn(resend: Option[Boolean] ?= None, handOffID: Option[String] ?= None, payload: Option[String] ?= None)
-
+GET       /registration-email                       controllers.reg.RegistrationEmailController.show
+POST      /registration-email                       controllers.reg.RegistrationEmailController.submit
+GET       /companies-house-email-confirm            controllers.reg.RegistrationEmailConfirmationController.show
+POST      /companies-house-email-confirm            controllers.reg.RegistrationEmailConfirmationController.submit
+GET        /resend-verification                     controllers.verification.EmailVerificationController.resendVerificationLink
 GET        /enter-your-details                      controllers.verification.EmailVerificationController.createShow
 POST       /enter-your-details                      controllers.verification.EmailVerificationController.createSubmit
 
