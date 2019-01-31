@@ -17,7 +17,7 @@
 package controllers.reg
 
 import config.{AppConfig, FrontendAppConfig, FrontendAuthConnector}
-import connectors.KeystoreConnector
+import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthFunction
 import forms.RegistrationEmailForm
 import models.RegistrationEmailModel
@@ -27,7 +27,7 @@ import services.{CommonService, EmailVerificationService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.frontend.controller.FrontendController
-import utils.{MessagesSupport, SCRSExceptions}
+import utils.{MessagesSupport, SCRSExceptions, SessionRegistration}
 import views.html.reg.RegistrationEmail
 
 import scala.concurrent.Future
@@ -38,9 +38,10 @@ object RegistrationEmailController extends RegistrationEmailController with Serv
   val keystoreConnector = KeystoreConnector
   override val appConfig = FrontendAppConfig
   val emailVerification = EmailVerificationService
+  val companyRegistrationConnector: CompanyRegistrationConnector = CompanyRegistrationConnector
 }
 
-trait RegistrationEmailController extends FrontendController with AuthFunction with CommonService with SCRSExceptions with MessagesSupport {
+trait RegistrationEmailController extends FrontendController with AuthFunction with CommonService with SCRSExceptions with MessagesSupport with SessionRegistration {
 
 
   implicit val appConfig: AppConfig
@@ -50,7 +51,7 @@ trait RegistrationEmailController extends FrontendController with AuthFunction w
   val show: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorisedCompanyContact {
       emailFromAuth =>
-        fetchRegistrationID.flatMap{ regID =>
+        registered { regID =>
           emailVerification.emailVerifiedStatusInSCRS(regID, () => showLogic(emailFromAuth))
         }
     }
@@ -67,7 +68,7 @@ trait RegistrationEmailController extends FrontendController with AuthFunction w
   val submit: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorisedCompanyContact {
       emailFromAuth =>
-        fetchRegistrationID.flatMap{ regID =>
+        registered { regID =>
           emailVerification.emailVerifiedStatusInSCRS(regID, () => submitLogic(regID, emailFromAuth))
       }
     }

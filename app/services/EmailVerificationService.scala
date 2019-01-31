@@ -68,13 +68,13 @@ trait EmailVerificationService {
   val handOffService : HandOffService
 
 
-
-
   private def emailChecks(compRegEmailOpt: Option[Email], rId:String, authDetails: AuthDetails)(implicit hc: HeaderCarrier,req: Request[AnyContent]): Future[Option[Email]] = {
   compRegEmailOpt match {
-    case None => noEmailBlock(rId,authDetails).map(e => Some(e))
+    case _ if authDetails.email == "" => Future.successful(None)
     case Some(Email(address,_,_,_,_)) if address == "" => Future.successful(None)
-    case e => Future.successful(e)
+    case None if authDetails.email != "" => noEmailBlock(rId,authDetails).map(e =>  Some(e))
+
+    case em@Some(e) => Future.successful(em)
   }
 }
   private def noEmailBlock(regId:String, authDetails: AuthDetails)(implicit hc: HeaderCarrier,req: Request[AnyContent]) = {

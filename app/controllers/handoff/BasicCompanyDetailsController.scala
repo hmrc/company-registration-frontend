@@ -26,6 +26,7 @@ import uk.gov.hmrc.play.frontend.controller.FrontendController
 import utils.{DecryptionError, MessagesSupport, PayloadError, SessionRegistration}
 import views.html.{error_template, error_template_restart}
 
+import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
 object BasicCompanyDetailsController extends BasicCompanyDetailsController {
@@ -41,6 +42,7 @@ trait BasicCompanyDetailsController extends FrontendController with AuthFunction
 
   val handOffService : HandOffService
   val handBackService : HandBackService
+  val companyRegistrationConnector: CompanyRegistrationConnector
 
   implicit val appConfig: AppConfig
 
@@ -50,9 +52,13 @@ trait BasicCompanyDetailsController extends FrontendController with AuthFunction
       ctAuthorisedBasicCompanyDetails { basicAuth =>
         registered {
           regId =>
-            handOffService.companyNamePayload(regId, basicAuth.email, basicAuth.name, basicAuth.externalId) map {
-              case Some((url, payload)) => Redirect(handOffService.buildHandOffUrl(url, payload))
-              case None => BadRequest(error_template("", "", ""))
+            companyRegistrationConnector.retrieveEmail(regId).flatMap { emailBlock =>
+              emailBlock.fold(Future.successful(Redirect(controllers.reg.routes.SignInOutController.postSignIn()))) { email =>
+                handOffService.companyNamePayload(regId, email.address, basicAuth.name, basicAuth.externalId) map {
+                  case Some((url, payload)) => Redirect(handOffService.buildHandOffUrl(url, payload))
+                  case None => BadRequest(error_template("", "", ""))
+                }
+              }
             }
         }
       }

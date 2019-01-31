@@ -43,6 +43,7 @@ class RegistrationEmailConfirmationControllerSpec extends SCRSSpec with WithFake
       val authConnector = mockAuthConnector
       override val keystoreConnector = mockKeystoreConnector
       override val appConfig = mockAppConfig
+      override val companyRegistrationConnector = mockCompanyRegistrationConnector
       implicit val hc:HeaderCarrier = HeaderCarrier()
       implicit val fr= FakeRequest()
       def showLogicFun(f: Future[Result] = TestController.showLogic(HeaderCarrier(),FakeRequest())) = f
