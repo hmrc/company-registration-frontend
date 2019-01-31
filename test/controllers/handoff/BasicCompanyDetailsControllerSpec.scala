@@ -21,6 +21,7 @@ import config.FrontendAuthConnector
 import connectors.KeystoreConnector
 import fixtures.PayloadFixture
 import helpers.SCRSSpec
+import models.Email
 import models.handoff.CompanyNameHandOffIncoming
 import org.mockito.Matchers
 import org.mockito.Mockito._
@@ -80,6 +81,8 @@ class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture wit
 
         mockKeystoreFetchAndGet("registrationID", Some("1"))
 
+        when(mockCompanyRegistrationConnector.retrieveEmail(Matchers.any())(Matchers.any())).thenReturn(Future.successful(Some(Email("foo","bar",true,true,true))))
+
         when(mockHandOffService.companyNamePayload(Matchers.eq("1"), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any[HeaderCarrier]()))
           .thenReturn(Future.successful(Some(("testUrl/basic-company-details", "testEncryptedPayload"))))
 
@@ -100,7 +103,7 @@ class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture wit
       val encryptedPayload = Jwe.encrypt[CompanyNameHandOffIncoming](validCompanyNameHandBack).get
 
       mockKeystoreFetchAndGet("registrationID", Some("1"))
-
+      when(mockCompanyRegistrationConnector.retrieveEmail(Matchers.any())(Matchers.any())).thenReturn(Future.successful(Some(Email("foo","bar",true,true,true))))
       when(mockHandOffService.companyNamePayload(Matchers.eq("1"), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(Some(("testUrl/basic-company-details", encryptedPayload))))
 
@@ -119,13 +122,23 @@ class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture wit
     "return a 400 and display an error page when nothing is retrieved from user details" in new Setup {
 
       mockKeystoreFetchAndGet("registrationID", Some("1"))
-
+      when(mockCompanyRegistrationConnector.retrieveEmail(Matchers.any())(Matchers.any())).thenReturn(Future.successful(Some(Email("foo","bar",true,true,true))))
       when(mockHandOffService.companyNamePayload(Matchers.eq("1"), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(None))
 
       showWithAuthorisedUserRetrieval(TestController.basicCompanyDetails, authDetails) {
         result =>
           status(result) shouldBe BAD_REQUEST
+      }
+    }
+    "return a Redirect to post sign in if email block is None" in new Setup {
+
+      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      when(mockCompanyRegistrationConnector.retrieveEmail(Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
+      showWithAuthorisedUserRetrieval(TestController.basicCompanyDetails, authDetails) {
+        result =>
+          status(result) shouldBe 303
+          redirectLocation(result).get shouldBe controllers.reg.routes.SignInOutController.postSignIn().url
       }
     }
   }

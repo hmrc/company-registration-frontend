@@ -35,7 +35,7 @@ class BasicCompanyDetailsControllerISpec extends IntegrationSpecBase with MongoS
   val forwardPayloadString =
     s"""
        |{
-       |  "email_address" : "test@me.com",
+       |  "email_address" : "fudge@fromcomgreg.com",
        |  "user_id" : "Ext-xxx",
        |  "journey_id" : "$regId",
        |  "name" : "name",
@@ -131,9 +131,21 @@ class BasicCompanyDetailsControllerISpec extends IntegrationSpecBase with MongoS
     )
   }
 
+  val emailResponseFromCr =
+    """ {
+      |  "address": "fudge@fromcomgreg.com",
+      |  "type": "GG",
+      |  "link-sent": false,
+      |  "verified": false,
+      |  "return-link-email-sent" : false
+      |
+      | }
+    """.stripMargin
+
   "basicCompanyDetails" should {
 
-    "call coho with a request that contains a session block" in new Setup {
+
+    "call coho with a request that contains a session block and comp reg email is different to auth" in new Setup {
 
       stubSuccessfulLogin(userId = userId)
       stubAuthorisation(resp = Some(
@@ -147,7 +159,7 @@ class BasicCompanyDetailsControllerISpec extends IntegrationSpecBase with MongoS
 
       val csrfToken = UUID.randomUUID().toString
       val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
-
+      stubGet(s"/company-registration/corporation-tax-registration/$regId/retrieve-email",200, emailResponseFromCr)
       stubKeystore(SessionId, regId)
       await(repo.repository.insertNavModel(regId,handOffNavModel))
 

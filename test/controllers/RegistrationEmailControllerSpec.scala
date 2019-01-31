@@ -44,6 +44,7 @@ class RegistrationEmailControllerSpec extends SCRSSpec with WithFakeApplication 
       val authConnector = mockAuthConnector
       val keystoreConnector = mockKeystoreConnector
       override val appConfig = mockAppConfig
+      override val companyRegistrationConnector = mockCompanyRegistrationConnector
       override val emailVerification: EmailVerificationService = mockEmailService
       def showLogicFun(email:String = "fakeEmail") = showLogic(email)(HeaderCarrier(),FakeRequest())
       def submitLogicFun(regID: String = "regid", email:String = "fakeEmail", r:Request[AnyContent]) = submitLogic(email,regID)(HeaderCarrier(),r)

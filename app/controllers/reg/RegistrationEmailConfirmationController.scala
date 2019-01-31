@@ -17,7 +17,7 @@
 package controllers.reg
 
 import config.{AppConfig, FrontendAppConfig, FrontendAuthConnector}
-import connectors.KeystoreConnector
+import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthFunction
 import forms.ConfirmRegistrationEmailForm
 import models.{ConfirmRegistrationEmailModel, RegistrationEmailModel}
@@ -26,7 +26,7 @@ import services.{CommonService, EmailVerificationService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.frontend.controller.FrontendController
-import utils.{MessagesSupport, SCRSExceptions}
+import utils.{MessagesSupport, SCRSExceptions, SessionRegistration}
 import views.html.reg.ConfirmRegistrationEmail
 
 import scala.concurrent.Future
@@ -38,9 +38,10 @@ object RegistrationEmailConfirmationController extends RegistrationEmailConfirma
   val authConnector = FrontendAuthConnector
   val keystoreConnector = KeystoreConnector
   override val appConfig = FrontendAppConfig
+  val companyRegistrationConnector: CompanyRegistrationConnector = CompanyRegistrationConnector
 }
 
-trait RegistrationEmailConfirmationController extends FrontendController with AuthFunction with CommonService with SCRSExceptions with MessagesSupport {
+trait RegistrationEmailConfirmationController extends FrontendController with AuthFunction with CommonService with SCRSExceptions with MessagesSupport with SessionRegistration {
 
   val keystoreConnector: KeystoreConnector
   val emailVerificationService: EmailVerificationService
@@ -48,18 +49,15 @@ trait RegistrationEmailConfirmationController extends FrontendController with Au
 
   val show: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
-      fetchRegistrationID.flatMap {
-        regId =>
+      registered { regId =>
           emailVerificationService.emailVerifiedStatusInSCRS(regId, () => showLogic)
-
       }
     }
   }
 
   val submit: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
-      fetchRegistrationID.flatMap {
-        regId =>
+      registered { regId =>
           emailVerificationService.emailVerifiedStatusInSCRS(regId, () => submitLogic(regId))
       }
     }

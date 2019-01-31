@@ -49,37 +49,41 @@ trait SessionRegistration {
     registered { regId =>
       companyRegistrationConnector.retrieveCorporationTaxRegistration(regId) flatMap {
         ctReg =>
-          if (statuses.contains((ctReg \ "status").as[String])) {
-            Future.successful(Redirect(controllers.reg.routes.SignInOutController.postSignIn(None)))
-          } else {
-            f(regId)
-          }
-      }
-    }
-  }
-
-  def checkSCRSVerified(fullCorpModel: JsValue): Boolean = {
-    (fullCorpModel \ "verifiedEmail" \ "verified").asOpt[Boolean].fold {
-      Logger.info("[SessionRegistration] User does not have an Email Block redirecting to post sign in")
-      false
-    }(e => e)
-
-  }
-
-  def checkStatus(f: => String => Future[Result])(implicit hc: HeaderCarrier): Future[Result] = {
-    registered { regId =>
-      companyRegistrationConnector.retrieveCorporationTaxRegistration(regId) flatMap {
-        ctReg =>
           if (!checkSCRSVerified(ctReg)) {
             Future.successful(Redirect(controllers.reg.routes.SignInOutController.postSignIn(None)))
           } else {
-            (ctReg \ "status").as[String] match {
-              case "draft" => f(regId)
-              case "locked" | "held" => Future.successful(Redirect(controllers.reg.routes.SignInOutController.postSignIn(None)))
-              case _ => Future.successful(Redirect(controllers.dashboard.routes.DashboardController.show()))
+            if (statuses.contains((ctReg \ "status").as[String])) {
+              Future.successful(Redirect(controllers.reg.routes.SignInOutController.postSignIn(None)))
+            } else {
+              f(regId)
             }
           }
       }
     }
   }
-}
+
+    def checkSCRSVerified(fullCorpModel: JsValue): Boolean = {
+      (fullCorpModel \ "verifiedEmail" \ "verified").asOpt[Boolean].fold {
+        Logger.info("[SessionRegistration] User does not have an Email Block redirecting to post sign in")
+        false
+      }(e => e)
+
+    }
+
+    def checkStatus(f: => String => Future[Result])(implicit hc: HeaderCarrier): Future[Result] = {
+      registered { regId =>
+        companyRegistrationConnector.retrieveCorporationTaxRegistration(regId) flatMap {
+          ctReg =>
+            if (!checkSCRSVerified(ctReg)) {
+              Future.successful(Redirect(controllers.reg.routes.SignInOutController.postSignIn(None)))
+            } else {
+              (ctReg \ "status").as[String] match {
+                case "draft" => f(regId)
+                case "locked" | "held" => Future.successful(Redirect(controllers.reg.routes.SignInOutController.postSignIn(None)))
+                case _ => Future.successful(Redirect(controllers.dashboard.routes.DashboardController.show()))
+              }
+            }
+        }
+      }
+    }
+  }
