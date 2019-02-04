@@ -51,7 +51,7 @@ error.DifferentEmail.required                                       = Enter a va
 
 ## Confirm Registration Email
 page.reg.confirmRegistrationEmail.title                             = Registration email
-page.reg.confirmRegistrationEmail.heading                           = Are you sure want to use {0} for this application?
+page.reg.confirmRegistrationEmail.heading                           = Are you sure you want to use {0} for this application?
 page.reg.confirmRegistrationEmail.p1                                = You must be able to access {0} to continue the application.
 page.reg.confirmRegistrationEmail.radio1                            = Yes
 page.reg.confirmRegistrationEmail.radio2                            = No - change it
