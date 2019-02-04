@@ -34,6 +34,7 @@ object CancelRegistrationController extends CancelRegistrationController{
   val authConnector = FrontendAuthConnector
   val keystoreConnector = KeystoreConnector
   val companyRegistrationConnector = CompanyRegistrationConnector
+
   override val appConfig =  FrontendAppConfig
 }
 

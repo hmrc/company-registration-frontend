@@ -20,13 +20,16 @@ import builders.AuthBuilder
 import controllers.auth.AuthFunction
 import fixtures.LoginFixture
 import helpers.SCRSSpec
+import org.mockito.Matchers
+import org.mockito.Mockito._
 import play.api.http.HeaderNames
-import play.api.mvc.Results
+import play.api.mvc.{Result, Results}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.AuthorisationException
 import uk.gov.hmrc.auth.core.retrieve._
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.emailVerified
+import uk.gov.hmrc.http.{HeaderCarrier, InternalServerException}
 import uk.gov.hmrc.play.test.WithFakeApplication
 
 import scala.concurrent.Future
@@ -171,6 +174,12 @@ class AuthFunctionSpec extends SCRSSpec with AuthBuilder with WithFakeApplicatio
     Name(Some("myFirstName"), Some("myLastName")),
     Some("fakeEmail")
   )
+
+  val authVerifiedEmail = new ~(
+    Name(Some("myFirstName"), Some("myLastName")),
+    Some(true)
+  )
+
   val authMissing = new ~(
     Name(Some("myFirstName"), Some("myLastName")),
     None
@@ -214,6 +223,72 @@ class AuthFunctionSpec extends SCRSSpec with AuthBuilder with WithFakeApplicatio
       val result = support.ctAuthorisedCompanyContactAmend(
         (s:String, c:Credentials, ss:String) => Future.successful(Results.Ok(s"$s$c$ss")))
      intercept[Exception](await(result))
+    }
+  }
+
+  "scpVerifiedEmail" should {
+
+    "Return a true if the email has been verified and the SCP feature flag is true" in new Setup {
+
+      mockAuthorisedUser(Future.successful(Some(true)))
+      val res = support.scpVerifiedEmail(sCPEnabledFeature = true)
+      val awaitedFuture:Boolean =  await(res)
+
+      awaitedFuture shouldBe true
+    }
+
+    "Return a false if the email has been verified but the SCP feature flag is false." in new Setup {
+
+      mockAuthorisedUser(Future.successful(Some(true)))
+      val res = support.scpVerifiedEmail(sCPEnabledFeature = false)
+      val awaitedFuture:Boolean =  await(res)
+
+      awaitedFuture shouldBe false
+    }
+
+    "Return a false if the email has not been verified" in new Setup {
+
+      mockAuthorisedUser(Future.successful(Some(false)))
+      val res = support.scpVerifiedEmail(sCPEnabledFeature = false)
+      val awaitedFuture:Boolean =  await(res)
+
+      awaitedFuture shouldBe false
+    }
+
+    "Return a false if the email has not been verified and the SCP feature flag is true" in new Setup {
+
+      mockAuthorisedUser(Future.successful(Some(false)))
+      val res = support.scpVerifiedEmail(sCPEnabledFeature = true)
+      val awaitedFuture:Boolean =  await(res)
+
+      awaitedFuture shouldBe false
+    }
+
+    "Return a false if the email is missing and SCP feature flag is false" in new Setup {
+
+      mockAuthorisedUser(Future.successful(None))
+      val res = support.scpVerifiedEmail(sCPEnabledFeature = false)
+      val awaitedFuture:Boolean =  await(res)
+
+      awaitedFuture shouldBe false
+    }
+
+    "Return a false if the email is missing and SCP feature flag is true" in new Setup {
+
+      mockAuthorisedUser(Future.successful(None))
+      val res = support.scpVerifiedEmail(sCPEnabledFeature = true)
+      val awaitedFuture:Boolean =  await(res)
+
+      awaitedFuture shouldBe false
+    }
+
+    "Return a false if an error is returned from the SCP verified email function and SCP feature flag is true" in new Setup {
+
+      mockAuthorisedUser(Future.failed(new InternalServerException("error")))
+      val res = support.scpVerifiedEmail(sCPEnabledFeature = true)
+      val awaitedFuture:Boolean =  await(res)
+
+      awaitedFuture shouldBe false
     }
   }
 }

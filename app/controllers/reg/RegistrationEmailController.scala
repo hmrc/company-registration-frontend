@@ -22,19 +22,19 @@ import controllers.auth.AuthFunction
 import forms.RegistrationEmailForm
 import models.RegistrationEmailModel
 import play.api.data.Form
-import play.api.mvc.{Action, AnyContent, Request, Result}
+import play.api.mvc._
 import services.{CommonService, EmailVerificationService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.frontend.controller.FrontendController
-import utils.{MessagesSupport, SCRSExceptions, SessionRegistration}
+import utils.{MessagesSupport, SCRSExceptions, SCRSFeatureSwitches, SessionRegistration}
 import views.html.reg.RegistrationEmail
 
-import scala.concurrent.Future
+import scala.concurrent.{Await, Future}
 
 object RegistrationEmailController extends RegistrationEmailController with ServicesConfig {
   val authConnector = FrontendAuthConnector
-
+  val scrsFeatureSwitches = SCRSFeatureSwitches
   val keystoreConnector = KeystoreConnector
   override val appConfig = FrontendAppConfig
   val emailVerification = EmailVerificationService
@@ -47,7 +47,7 @@ trait RegistrationEmailController extends FrontendController with AuthFunction w
   implicit val appConfig: AppConfig
   val keystoreConnector: KeystoreConnector
   val emailVerification: EmailVerificationService
-
+  val scrsFeatureSwitches : SCRSFeatureSwitches
   val show: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorisedCompanyContact {
       emailFromAuth =>
@@ -57,7 +57,7 @@ trait RegistrationEmailController extends FrontendController with AuthFunction w
     }
   }
 
-  protected def showLogic(emailFromAuth:String)(implicit hc: HeaderCarrier, request: Request[AnyContent]): Future[Result] = {
+  protected def showLogic(emailFromAuth: String)(implicit hc: HeaderCarrier, request: Request[AnyContent]): Future[Result] = {
     keystoreConnector.fetchAndGet[RegistrationEmailModel]("RegEmail").map { regModelOpt =>
       val populatedForm: Form[RegistrationEmailModel] = RegistrationEmailForm.form.fill(regModelOpt.getOrElse(RegistrationEmailModel("", None)))
 
@@ -70,7 +70,7 @@ trait RegistrationEmailController extends FrontendController with AuthFunction w
       emailFromAuth =>
         registered { regID =>
           emailVerification.emailVerifiedStatusInSCRS(regID, () => submitLogic(regID, emailFromAuth))
-      }
+        }
     }
   }
 
@@ -79,13 +79,17 @@ trait RegistrationEmailController extends FrontendController with AuthFunction w
       hasErrors =>
         Future.successful(BadRequest(RegistrationEmail(hasErrors, emailFromAuth))),
       success =>
+
         if (success.currentEmail == "currentEmail") {
           emailVerification.sendVerificationLink(emailFromAuth, regID)
-            .map { emailVerifiedSuccess =>
-              if(emailVerifiedSuccess.contains(true)) {
-                Redirect(routes.CompletionCapacityController.show())
-              } else {
-                Redirect(controllers.verification.routes.EmailVerificationController.verifyShow())
+            .flatMap { emailVerifiedSuccess =>
+              scpVerifiedEmail(sCPEnabledFeature).map { ver =>
+                if (emailVerifiedSuccess.getOrElse(false) || ver) {
+                  Redirect(routes.CompletionCapacityController.show())
+                }
+                else {
+                  Redirect(controllers.verification.routes.EmailVerificationController.verifyShow())
+                }
               }
             }
         } else {
@@ -95,4 +99,11 @@ trait RegistrationEmailController extends FrontendController with AuthFunction w
         }
     )
   }
+ protected def sCPEnabledFeature = {
+    scrsFeatureSwitches("sCPEnabled") match {
+      case Some(fs) => fs.enabled
+      case _ => false
+    }
+  }
+
 }

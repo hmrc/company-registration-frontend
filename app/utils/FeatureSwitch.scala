@@ -109,6 +109,7 @@ trait SCRSFeatureSwitches {
   def contactUs                 = FeatureSwitch.getProperty("contactUs")
   def systemDate                = FeatureSwitch.getProperty("system-date")
   def healthCheck               = FeatureSwitch.getProperty("healthCheck")
+  def sCPEnabled                = FeatureSwitch.getProperty("sCPEnabled")
 
   def apply(name: String): Option[FeatureSwitch] = name match {
     case COHO                        => Some(cohoFirstHandOff)
@@ -119,6 +120,7 @@ trait SCRSFeatureSwitches {
     case "contactUs"                 => Some(contactUs)
     case "system-date"               => Some(systemDate)
     case "healthCheck"               => Some(healthCheck)
+    case "sCPEnabled"                => Some(sCPEnabled)
     case _                           => None
   }
 }

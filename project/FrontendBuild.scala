@@ -1,7 +1,6 @@
 import sbt._
 
 object FrontendBuild extends Build with MicroService {
-  import scala.util.Properties.envOrElse
   import sbt.Keys._
 
   val appName = "company-registration-frontend"
@@ -25,7 +24,7 @@ private object AppDependencies {
   val compile = Seq(
     ws,
     "uk.gov.hmrc" %% "frontend-bootstrap" % "10.9.0",
-    "uk.gov.hmrc" %% "auth-client" % "2.18.0-play-25",
+    "uk.gov.hmrc" %% "auth-client" % "2.19.0-play-25",
     "uk.gov.hmrc" %% "play-partials" % "6.3.0",
     "uk.gov.hmrc" %% "url-builder" % "2.1.0",
     "uk.gov.hmrc" %% "http-caching-client" % "7.2.0",

@@ -33,29 +33,37 @@ import uk.gov.hmrc.auth.core.retrieve.{Name, ~}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.test.WithFakeApplication
+import utils.{BooleanFeatureSwitch, SCRSFeatureSwitches}
 
 import scala.concurrent.Future
 
 
 class RegistrationEmailControllerSpec extends SCRSSpec with WithFakeApplication with MockitoSugar with AuthBuilder {
+  val mockSCRSFeatureSwitches = mock[SCRSFeatureSwitches]
 
   class Setup {
     val controller = new RegistrationEmailController {
+      override val scrsFeatureSwitches = mockSCRSFeatureSwitches
       val authConnector = mockAuthConnector
       val keystoreConnector = mockKeystoreConnector
       override val appConfig = mockAppConfig
       override val companyRegistrationConnector = mockCompanyRegistrationConnector
       override val emailVerification: EmailVerificationService = mockEmailService
-      def showLogicFun(email:String = "fakeEmail") = showLogic(email)(HeaderCarrier(),FakeRequest())
-      def submitLogicFun(regID: String = "regid", email:String = "fakeEmail", r:Request[AnyContent]) = submitLogic(email,regID)(HeaderCarrier(),r)
+
+      def showLogicFun(email: String = "fakeEmail") = showLogic(email)(HeaderCarrier(), FakeRequest())
+
+      def submitLogicFun(regID: String = "regid", email: String = "fakeEmail", r: Request[AnyContent]) = submitLogic(email, regID)(HeaderCarrier(), r)
+
     }
+
     case class funcMatcher(func: () => Future[Result]) extends ArgumentMatcher[() => Future[Result]] {
-      override def matches(oarg :scala.Any): Boolean = oarg match {
-        case a:(() => Future[Result]) => true
+      override def matches(oarg: scala.Any): Boolean = oarg match {
+        case a: (() => Future[Result]) => true
         case _ => false
       }
     }
-    val mockOfFunction  =  () => Future.successful(Results.Ok(""))
+
+    val mockOfFunction = () => Future.successful(Results.Ok(""))
   }
 
   "show" should {
@@ -68,11 +76,11 @@ class RegistrationEmailControllerSpec extends SCRSSpec with WithFakeApplication 
     "return 200, with data in keystore" in new Setup {
 
       val email = "foo@bar.wibble"
-      when(mockEmailService.emailVerifiedStatusInSCRS(Matchers.any(),Matchers.argThat(funcMatcher(mockOfFunction)))(Matchers.any())).thenReturn(Future.successful(awaitedFun))
+      when(mockEmailService.emailVerifiedStatusInSCRS(Matchers.any(), Matchers.argThat(funcMatcher(mockOfFunction)))(Matchers.any())).thenReturn(Future.successful(awaitedFun))
       mockKeystoreFetchAndGet[RegistrationEmailModel]("RegEmail", Some(RegistrationEmailModel("currentEmail", Some("differentEmail"))))
       mockKeystoreFetchAndGet[String]("registrationID", Some("regid"))
       val awaitedFun = await(controller.showLogicFun())
-      when(mockEmailService.emailVerifiedStatusInSCRS(Matchers.any(),Matchers.argThat(funcMatcher(mockOfFunction)))(Matchers.any())).thenReturn(Future.successful(awaitedFun))
+      when(mockEmailService.emailVerifiedStatusInSCRS(Matchers.any(), Matchers.argThat(funcMatcher(mockOfFunction)))(Matchers.any())).thenReturn(Future.successful(awaitedFun))
       showWithAuthorisedUserRetrieval(controller.show, authResult)(
         result => {
           status(result) shouldBe 200
@@ -84,10 +92,10 @@ class RegistrationEmailControllerSpec extends SCRSSpec with WithFakeApplication 
     }
     "return 200, with no data in keystore" in new Setup {
       mockKeystoreFetchAndGet[String]("registrationID", Some("regid"))
-      when(mockEmailService.emailVerifiedStatusInSCRS(Matchers.any(),Matchers.argThat(funcMatcher(mockOfFunction)))(Matchers.any())).thenReturn(Future.successful(awaitedFun))
+      when(mockEmailService.emailVerifiedStatusInSCRS(Matchers.any(), Matchers.argThat(funcMatcher(mockOfFunction)))(Matchers.any())).thenReturn(Future.successful(awaitedFun))
       mockKeystoreFetchAndGet[RegistrationEmailModel]("RegEmail", None)
       val awaitedFun = await(controller.showLogicFun())
-      when(mockEmailService.emailVerifiedStatusInSCRS(Matchers.any(),Matchers.argThat(funcMatcher(mockOfFunction)))(Matchers.any())).thenReturn(Future.successful(awaitedFun))
+      when(mockEmailService.emailVerifiedStatusInSCRS(Matchers.any(), Matchers.argThat(funcMatcher(mockOfFunction)))(Matchers.any())).thenReturn(Future.successful(awaitedFun))
       showWithAuthorisedUserRetrieval(controller.show, authResult)(
         result => {
           status(result) shouldBe 200
@@ -100,7 +108,7 @@ class RegistrationEmailControllerSpec extends SCRSSpec with WithFakeApplication 
       mockKeystoreFetchAndGet[String]("registrationID", Some("regid"))
       mockKeystoreFetchAndGetFailed[RegistrationEmailModel]("RegEmail", new Exception(""))
       val awaitedFun = intercept[Exception](await(controller.showLogicFun()))
-      when(mockEmailService.emailVerifiedStatusInSCRS(Matchers.any(),Matchers.argThat(funcMatcher(mockOfFunction)))(Matchers.any())).thenReturn(Future.failed(awaitedFun))
+      when(mockEmailService.emailVerifiedStatusInSCRS(Matchers.any(), Matchers.argThat(funcMatcher(mockOfFunction)))(Matchers.any())).thenReturn(Future.failed(awaitedFun))
       intercept[Exception](showWithAuthorisedUserRetrieval(controller.show, authResult)(
         result => {
           await(result)
@@ -111,6 +119,8 @@ class RegistrationEmailControllerSpec extends SCRSSpec with WithFakeApplication 
   }
 
   "submit" should {
+    val featureSwitchTrue = BooleanFeatureSwitch("sCPEnabled", true)
+    val featureSwitchFalse = BooleanFeatureSwitch("sCPEnabled", false)
 
     "return 400 when invalid data used " in new Setup {
 
@@ -123,7 +133,7 @@ class RegistrationEmailControllerSpec extends SCRSSpec with WithFakeApplication 
       mockKeystoreFetchAndGet[String]("registrationID", Some("regid"))
       mockKeystoreFetchAndGet[RegistrationEmailModel]("RegEmail", Some(RegistrationEmailModel("currentEmail", Some("differentEmail"))))
       val awaitedFun = await(controller.submitLogicFun("regid", r = req))
-      when(mockEmailService.emailVerifiedStatusInSCRS(Matchers.any(),Matchers.argThat(funcMatcher(mockOfFunction)))(Matchers.any())).thenReturn(Future.successful(awaitedFun))
+      when(mockEmailService.emailVerifiedStatusInSCRS(Matchers.any(), Matchers.argThat(funcMatcher(mockOfFunction)))(Matchers.any())).thenReturn(Future.successful(awaitedFun))
 
 
       submitWithAuthorisedUserRetrieval(controller.submit, req, authResult) {
@@ -135,20 +145,23 @@ class RegistrationEmailControllerSpec extends SCRSSpec with WithFakeApplication 
 
     }
 
-    "return 303 and redirect to CompletionCapacity route when success on currentEmail and sendLink returns true (meaning email verified) " in new Setup {
+    "return 303 and redirect to CompletionCapacity route when success on currentEmail and sendLink returns true (meaning email verified) and SCP verified is false" in new Setup {
 
       val authResult = new ~(
         Name(None, None),
         Some("fakeEmail")
       )
+
+      mockAuthorisedUser(Future.successful(Some(false)))
+      when(mockSCRSFeatureSwitches(Matchers.contains("sCPEnabled"))).thenReturn(Some(featureSwitchTrue))
       val req = FakeRequest().withFormUrlEncodedBody("registrationEmail" -> "currentEmail")
 
       mockKeystoreFetchAndGet[String]("registrationID", Some("regid"))
-      when(mockEmailService.sendVerificationLink(Matchers.any(),Matchers.any())(Matchers.any(),Matchers.any())).thenReturn(Future.successful(Some(true)))
+      when(mockEmailService.sendVerificationLink(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(Some(true)))
 
       mockKeystoreFetchAndGet[RegistrationEmailModel]("RegEmail", Some(RegistrationEmailModel("currentEmail", Some("differentEmail"))))
       val awaitedFun = await(controller.submitLogicFun("regid", r = req))
-      when(mockEmailService.emailVerifiedStatusInSCRS(Matchers.any(),Matchers.argThat(funcMatcher(mockOfFunction)))(Matchers.any())).thenReturn(Future.successful(awaitedFun))
+      when(mockEmailService.emailVerifiedStatusInSCRS(Matchers.any(), Matchers.argThat(funcMatcher(mockOfFunction)))(Matchers.any())).thenReturn(Future.successful(awaitedFun))
 
       submitWithAuthorisedUserRetrieval(controller.submit, req, authResult) {
         result =>
@@ -156,19 +169,96 @@ class RegistrationEmailControllerSpec extends SCRSSpec with WithFakeApplication 
           redirectLocation(result).get shouldBe controllers.reg.routes.CompletionCapacityController.show().url
       }
     }
-    "return 303 and redirect to Email Verification show route when success on currentEmail and sendLink returns false meaning email NOT verified " in new Setup {
+
+    "return 303 and redirect to CompletionCapacity route when success on currentEmail and sendLink returns true (meaning email verified) and SCP verified is true" in new Setup {
 
       val authResult = new ~(
         Name(None, None),
         Some("fakeEmail")
       )
+
+      mockAuthorisedUser(Future.successful(Some(true)))
+      when(mockSCRSFeatureSwitches(Matchers.contains("sCPEnabled"))).thenReturn(Some(featureSwitchTrue))
       val req = FakeRequest().withFormUrlEncodedBody("registrationEmail" -> "currentEmail")
 
       mockKeystoreFetchAndGet[String]("registrationID", Some("regid"))
-      when(mockEmailService.sendVerificationLink(Matchers.any(),Matchers.any())(Matchers.any(),Matchers.any())).thenReturn(Future.successful(Some(false)))
+      when(mockEmailService.sendVerificationLink(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(Some(true)))
+
       mockKeystoreFetchAndGet[RegistrationEmailModel]("RegEmail", Some(RegistrationEmailModel("currentEmail", Some("differentEmail"))))
       val awaitedFun = await(controller.submitLogicFun("regid", r = req))
-      when(mockEmailService.emailVerifiedStatusInSCRS(Matchers.any(),Matchers.argThat(funcMatcher(mockOfFunction)))(Matchers.any())).thenReturn(Future.successful(awaitedFun))
+      when(mockEmailService.emailVerifiedStatusInSCRS(Matchers.any(), Matchers.argThat(funcMatcher(mockOfFunction)))(Matchers.any())).thenReturn(Future.successful(awaitedFun))
+
+      submitWithAuthorisedUserRetrieval(controller.submit, req, authResult) {
+        result =>
+          status(result) shouldBe SEE_OTHER
+          redirectLocation(result).get shouldBe controllers.reg.routes.CompletionCapacityController.show().url
+      }
+    }
+    "return 303 and redirect to CompletionCapacity route when success on currentEmail and sendLink returns true (meaning email verified) and SCP verified is true with feature flag off" in new Setup {
+
+      val authResult = new ~(
+        Name(None, None),
+        Some("fakeEmail")
+      )
+
+      mockAuthorisedUser(Future.successful(Some(true)))
+      when(mockSCRSFeatureSwitches(Matchers.contains("sCPEnabled"))).thenReturn(Some(featureSwitchFalse))
+      val req = FakeRequest().withFormUrlEncodedBody("registrationEmail" -> "currentEmail")
+
+      mockKeystoreFetchAndGet[String]("registrationID", Some("regid"))
+      when(mockEmailService.sendVerificationLink(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(Some(true)))
+
+      mockKeystoreFetchAndGet[RegistrationEmailModel]("RegEmail", Some(RegistrationEmailModel("currentEmail", Some("differentEmail"))))
+      val awaitedFun = await(controller.submitLogicFun("regid", r = req))
+      when(mockEmailService.emailVerifiedStatusInSCRS(Matchers.any(), Matchers.argThat(funcMatcher(mockOfFunction)))(Matchers.any())).thenReturn(Future.successful(awaitedFun))
+
+      submitWithAuthorisedUserRetrieval(controller.submit, req, authResult) {
+        result =>
+          status(result) shouldBe SEE_OTHER
+          redirectLocation(result).get shouldBe controllers.reg.routes.CompletionCapacityController.show().url
+      }
+    }
+
+    "return 303 and redirect to CompletionCapacity route when success on currentEmail and sendLink returns true (email verified) and SCP verified is true with feature flag not set" in new Setup {
+
+      val authResult = new ~(
+        Name(None, None),
+        Some("fakeEmail")
+      )
+
+      mockAuthorisedUser(Future.successful(Some(true)))
+      when(mockSCRSFeatureSwitches(Matchers.contains("sCPEnabled"))).thenReturn(None)
+      val req = FakeRequest().withFormUrlEncodedBody("registrationEmail" -> "currentEmail")
+
+      mockKeystoreFetchAndGet[String]("registrationID", Some("regid"))
+      when(mockEmailService.sendVerificationLink(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(Some(true)))
+
+      mockKeystoreFetchAndGet[RegistrationEmailModel]("RegEmail", Some(RegistrationEmailModel("currentEmail", Some("differentEmail"))))
+      val awaitedFun = await(controller.submitLogicFun("regid", r = req))
+      when(mockEmailService.emailVerifiedStatusInSCRS(Matchers.any(), Matchers.argThat(funcMatcher(mockOfFunction)))(Matchers.any())).thenReturn(Future.successful(awaitedFun))
+
+      submitWithAuthorisedUserRetrieval(controller.submit, req, authResult) {
+        result =>
+          status(result) shouldBe SEE_OTHER
+          redirectLocation(result).get shouldBe controllers.reg.routes.CompletionCapacityController.show().url
+      }
+    }
+
+    "return 303 and redirect to Email Verification show route when success on currentEmail and sendLink returns false meaning email NOT verified and email not verified in SCP " in new Setup {
+
+      val authResult = new ~(
+        Name(None, None),
+        Some("fakeEmail")
+      )
+      mockAuthorisedUser(Future.successful(Some(false)))
+      when(mockSCRSFeatureSwitches(Matchers.contains("sCPEnabled"))).thenReturn(Some(featureSwitchTrue))
+      val req = FakeRequest().withFormUrlEncodedBody("registrationEmail" -> "currentEmail")
+
+      mockKeystoreFetchAndGet[String]("registrationID", Some("regid"))
+      when(mockEmailService.sendVerificationLink(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(Some(false)))
+      mockKeystoreFetchAndGet[RegistrationEmailModel]("RegEmail", Some(RegistrationEmailModel("currentEmail", Some("differentEmail"))))
+      val awaitedFun = await(controller.submitLogicFun("regid", r = req))
+      when(mockEmailService.emailVerifiedStatusInSCRS(Matchers.any(), Matchers.argThat(funcMatcher(mockOfFunction)))(Matchers.any())).thenReturn(Future.successful(awaitedFun))
 
       submitWithAuthorisedUserRetrieval(controller.submit, req, authResult) {
         result =>
@@ -176,26 +266,52 @@ class RegistrationEmailControllerSpec extends SCRSSpec with WithFakeApplication 
           redirectLocation(result).get shouldBe controllers.verification.routes.EmailVerificationController.verifyShow().url
       }
     }
-    "return 303 and redirect to Email Verification show route when success on currentEmail and sendLink returns None meaning email NOT verified " in new Setup {
+
+    "return 303 and redirect to Email Verification show route when success on currentEmail and sendLink returns false meaning email NOT verified and email is verified in SCP " in new Setup {
 
       val authResult = new ~(
         Name(None, None),
         Some("fakeEmail")
       )
-
+      mockAuthorisedUser(Future.successful(Some(true)))
+      when(mockSCRSFeatureSwitches(Matchers.contains("sCPEnabled"))).thenReturn(Some(featureSwitchTrue))
       val req = FakeRequest().withFormUrlEncodedBody("registrationEmail" -> "currentEmail")
 
       mockKeystoreFetchAndGet[String]("registrationID", Some("regid"))
-      when(mockEmailService.sendVerificationLink(Matchers.any(),Matchers.any())(Matchers.any(),Matchers.any())).thenReturn(Future.successful(None))
-
+      when(mockEmailService.sendVerificationLink(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(Some(false)))
       mockKeystoreFetchAndGet[RegistrationEmailModel]("RegEmail", Some(RegistrationEmailModel("currentEmail", Some("differentEmail"))))
       val awaitedFun = await(controller.submitLogicFun("regid", r = req))
-      when(mockEmailService.emailVerifiedStatusInSCRS(Matchers.any(),Matchers.argThat(funcMatcher(mockOfFunction)))(Matchers.any())).thenReturn(Future.successful(awaitedFun))
+      when(mockEmailService.emailVerifiedStatusInSCRS(Matchers.any(), Matchers.argThat(funcMatcher(mockOfFunction)))(Matchers.any())).thenReturn(Future.successful(awaitedFun))
 
       submitWithAuthorisedUserRetrieval(controller.submit, req, authResult) {
         result =>
           status(result) shouldBe SEE_OTHER
-          redirectLocation(result).get shouldBe controllers.verification.routes.EmailVerificationController.verifyShow().url
+          redirectLocation(result).get shouldBe controllers.reg.routes.CompletionCapacityController.show().url
+      }
+    }
+
+
+    "return 303 and redirect to Completion Capacity show route when success on currentEmail and sendLink returns None meaning email NOT verified  but email is verified in SCP " in new Setup {
+
+      val authResult = new ~(
+        Name(None, None),
+        Some("fakeEmail")
+      )
+      mockAuthorisedUser(Future.successful(Some(true)))
+      when(mockSCRSFeatureSwitches(Matchers.contains("sCPEnabled"))).thenReturn(Some(featureSwitchTrue))
+      val req = FakeRequest().withFormUrlEncodedBody("registrationEmail" -> "currentEmail")
+
+      mockKeystoreFetchAndGet[String]("registrationID", Some("regid"))
+      when(mockEmailService.sendVerificationLink(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(None))
+
+      mockKeystoreFetchAndGet[RegistrationEmailModel]("RegEmail", Some(RegistrationEmailModel("currentEmail", Some("differentEmail"))))
+      val awaitedFun = await(controller.submitLogicFun("regid", r = req))
+      when(mockEmailService.emailVerifiedStatusInSCRS(Matchers.any(), Matchers.argThat(funcMatcher(mockOfFunction)))(Matchers.any())).thenReturn(Future.successful(awaitedFun))
+
+      submitWithAuthorisedUserRetrieval(controller.submit, req, authResult) {
+        result =>
+          status(result) shouldBe SEE_OTHER
+          redirectLocation(result).get shouldBe controllers.reg.routes.CompletionCapacityController.show().url
       }
     }
 
@@ -213,7 +329,7 @@ class RegistrationEmailControllerSpec extends SCRSSpec with WithFakeApplication 
       mockKeystoreFetchAndGet[RegistrationEmailModel]("RegEmail", Some(RegistrationEmailModel("currentEmail", Some("differentEmail"))))
       mockKeystoreCache[RegistrationEmailModel]("RegEmail", RegistrationEmailModel("currentEmail", Some("differentEmail")), cm)
       val awaitedFun = await(controller.submitLogicFun("regid", r = req))
-      when(mockEmailService.emailVerifiedStatusInSCRS(Matchers.any(),Matchers.argThat(funcMatcher(mockOfFunction)))(Matchers.any())).thenReturn(Future.successful(awaitedFun))
+      when(mockEmailService.emailVerifiedStatusInSCRS(Matchers.any(), Matchers.argThat(funcMatcher(mockOfFunction)))(Matchers.any())).thenReturn(Future.successful(awaitedFun))
 
       submitWithAuthorisedUserRetrieval(controller.submit, req, authResult) {
         result =>

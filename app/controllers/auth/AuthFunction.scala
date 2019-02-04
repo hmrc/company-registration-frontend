@@ -22,6 +22,7 @@ import play.api.mvc._
 import uk.gov.hmrc.auth.core.AuthProvider.GovernmentGateway
 import uk.gov.hmrc.auth.core.retrieve.Retrievals._
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Retrieval, ~}
+import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.emailVerified
 import uk.gov.hmrc.auth.core.{AuthorisedFunctions, _}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.config.ServicesConfig
@@ -29,16 +30,20 @@ import uk.gov.hmrc.play.frontend.controller.FrontendController
 
 import scala.concurrent.Future
 
+
+
 trait AuthFunction extends FrontendController with AuthorisedFunctions with ServicesConfig {
 
   val baseFunction: AuthorisedFunction = authorised(AuthProviders(GovernmentGateway) and ConfidenceLevel.L50)
 
+
+
   def ctAuthorised(body: => Future[Result])(implicit request: Request[AnyContent]): Future[Result] = {
-    baseFunction (body) recover authErrorHandling()
+    baseFunction(body) recover authErrorHandling()
   }
 
-  def ctAuthorisedHandoff(hoID : String, payload : String)(body: => Future[Result])(implicit request: Request[AnyContent]): Future[Result] = {
-    baseFunction (body) recover authErrorHandling(Some(hoID), Some(payload))
+  def ctAuthorisedHandoff(hoID: String, payload: String)(body: => Future[Result])(implicit request: Request[AnyContent]): Future[Result] = {
+    baseFunction(body) recover authErrorHandling(Some(hoID), Some(payload))
   }
 
   def ctAuthorisedOptStr(retrieval: Retrieval[Option[String]])(body: => (String) => Future[Result])
@@ -64,6 +69,23 @@ trait AuthFunction extends FrontendController with AuthorisedFunctions with Serv
       case nm ~ Some(em) => body(em)
     } recover authErrorHandling()
   }
+
+  def scpVerifiedEmail(sCPEnabledFeature: Boolean)(implicit request: Request[AnyContent]): Future[Boolean] = {
+    if (sCPEnabledFeature) {
+      baseFunction.retrieve(emailVerified) {
+        case Some(em) => Future.successful(em)
+        case _ => Future.successful(false)
+      } recover {
+        case _ => false
+      }
+    }
+    else
+      {
+        Future.successful(false)
+      }
+
+  }
+
 
   def ctAuthorisedCompanyContactAmend(body: => (String, Credentials, String) => Future[Result])
                                      (implicit request: Request[AnyContent]): Future[Result] = {
