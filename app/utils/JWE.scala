@@ -18,24 +18,26 @@ package utils
 
 import java.nio.charset.{StandardCharsets => CS}
 
+import config.FrontendAppConfig
+import javax.inject.Inject
 import org.jose4j.jwe.{ContentEncryptionAlgorithmIdentifiers => CEAI, JsonWebEncryption => JWE, KeyManagementAlgorithmIdentifiers => KMAI}
 import org.jose4j.keys.AesKey
 import play.api.Logger
 import play.api.libs.json
 import play.api.libs.json.Json
-import uk.gov.hmrc.play.config.ServicesConfig
 
 import scala.util.control.NoStackTrace
 import scala.util.{Failure, Success, Try}
 
-object Jwe extends JweEncryptor with JweDecryptor with ServicesConfig {
+class Jwe @Inject()(appConfig: FrontendAppConfig) extends JweCommon {
   // $COVERAGE-OFF$
-  lazy val key = getConfString("JWE.key", throw new Exception("could not find JWE.key"))
+  lazy val key = appConfig.getConfString("JWE.key", throw new Exception("could not find JWE.key"))
   // $COVERAGE-ON$
 }
 
-trait JweEncryptor extends JweCommon {
-
+trait JweEncryptor {
+  val key:String
+  def aeskey(keytext: String): AesKey
   def encrypt[A](payload: A)(implicit wts: json.Writes[A]) : Option[String] = {
     try {
       val encryptor = new JWE()
@@ -56,8 +58,9 @@ trait JweEncryptor extends JweCommon {
 case object DecryptionError extends NoStackTrace
 case object PayloadError extends NoStackTrace
 
-trait JweDecryptor extends JweCommon {
-
+trait JweDecryptor {
+  val key:String
+  def aeskey(keytext: String): AesKey
   def decrypt[A](jweMessage:String)(implicit rds: json.Reads[A]) : Try[A] = {
     decryptRaw[A](jweMessage) flatMap {
       payload => unpack[A](payload)
@@ -96,7 +99,7 @@ trait JweDecryptor extends JweCommon {
   }
 }
 
-trait JweCommon {
-  protected val key: String
-  protected def aeskey(keytext: String) = new AesKey(keytext.getBytes(CS.ISO_8859_1))
+trait JweCommon extends JweDecryptor with JweEncryptor {
+  val key: String
+  def aeskey(keytext: String) = new AesKey(keytext.getBytes(CS.ISO_8859_1))
 }

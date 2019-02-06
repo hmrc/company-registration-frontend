@@ -20,7 +20,7 @@
 @import controllers.CRLanguageController
 @import play.api.Application
 
-@(contactDetails: Form[CompanyContactDetailsApi], companyName: String)(implicit request: Request[_], messages: Messages, lang: Lang, appConfig: config.AppConfig)
+@(contactDetails: Form[CompanyContactDetailsApi], companyName: String)(implicit request: Request[_], messages: Messages, lang: Lang, appConfig: config.FrontendAppConfig)
 
 @fieldSetClasses =  @{if(contactDetails.hasErrors && (contactDetails.errors.exists(_.args.nonEmpty))) "form-group-error" else "" }
 

@@ -17,15 +17,14 @@
 package services
 
 import connectors.{DeskproConnector, DeskproConnectorImpl}
+import javax.inject.Inject
 import models.external.Ticket
 import models.{Ticket => TicketForm}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
 
-object DeskproServiceImpl extends DeskproService {
-  override val deskproConnector = DeskproConnectorImpl
-}
+class DeskproServiceImpl @Inject()(val deskproConnector: DeskproConnector) extends DeskproService
 
 trait DeskproService {
   val deskproConnector : DeskproConnector

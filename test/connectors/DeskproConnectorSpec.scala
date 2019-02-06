@@ -30,7 +30,7 @@ class DeskproConnectorSpec extends SCRSSpec with SCRSMocks {
   class Setup {
     val connector = new DeskproConnector {
       override val deskProUrl: String = "testUrl"
-      override val http = mockWSHttp
+      override val wSHttp = mockWSHttp
       override val metricsService: MetricsService = MetricServiceMock
     }
 

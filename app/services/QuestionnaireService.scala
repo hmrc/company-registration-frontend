@@ -17,18 +17,16 @@
 package services
 
 import audit.events.QuestionnaireAuditEvent
-import config.FrontendAuditConnector
+import javax.inject.Inject
 import models.QuestionnaireModel
 import play.api.mvc.{AnyContent, Request}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
-import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
+import scala.concurrent.ExecutionContext.Implicits.global
 
 import scala.concurrent.Future
 
-object QuestionnaireService extends QuestionnaireService {
-  val auditConnector = FrontendAuditConnector
-}
+class QuestionnaireServiceImpl @Inject()(val auditConnector: AuditConnector) extends QuestionnaireService
 
 trait QuestionnaireService {
 
@@ -38,5 +36,4 @@ trait QuestionnaireService {
     val event = new QuestionnaireAuditEvent(questionnaire)
     auditConnector.sendExtendedEvent(event)
   }
-
 }

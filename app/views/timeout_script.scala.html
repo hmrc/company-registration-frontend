@@ -14,5 +14,5 @@
  * limitations under the License.
  *@
 
-@(appConfig: config.AppConfig)
+@(appConfig: config.FrontendAppConfig)
 <script type="text/javascript" charset="utf-8">$.timeoutDialog({timeout: @appConfig.timeoutInSeconds,countdown: 30,keep_alive_url: '/register-your-company/renew-session',logout_url: '/register-your-company/error/destroy-session'});var dialogOpen;</script>

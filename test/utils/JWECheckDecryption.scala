@@ -18,7 +18,6 @@ package utils
 
 import fixtures.JweFixture
 import helpers.SCRSSpec
-import org.jose4j.jwe.{ContentEncryptionAlgorithmIdentifiers => CEAI, JsonWebEncryption => JWE, KeyManagementAlgorithmIdentifiers => KMAI}
 import play.api.libs.json.{JsObject, Json}
 
 import scala.util.Success
@@ -26,8 +25,8 @@ import scala.util.Success
 class JWECheckDecryption extends SCRSSpec with JweFixture {
 
   class Setup {
-    def jweOverrideKey(overrideKey: String): JweEncryptor with JweDecryptor = new JweEncryptor with JweDecryptor {
-      override protected val key = overrideKey
+    def jweOverrideKey(overrideKey: String): JweCommon = new JweCommon {
+      override val key = overrideKey
     }
   }
 

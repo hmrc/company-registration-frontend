@@ -27,11 +27,11 @@ import scala.util.{Failure, Success}
 class JWESpec extends SCRSSpec with JweFixture {
 
   class Setup {
-    def jweOverrideKey(overrideKey: String): JweEncryptor with JweDecryptor = new JweEncryptor with JweDecryptor {
-      override protected val key = overrideKey
+    def jweOverrideKey(overrideKey: String) = new JweCommon {
+      override val key = overrideKey
     }
-    val jweWrongKey = new JweEncryptor with JweDecryptor {
-      override protected val key: String = "invalidKey"
+    val jweWrongKey = new JweCommon {
+      override val key: String = "invalidKey"
     }
   }
 
@@ -145,7 +145,7 @@ class JWESpec extends SCRSSpec with JweFixture {
 
     "fail when decrypting a payload with the wrong key" in {
 
-      val testJwe = new JweEncryptor {
+      val testJwe = new JweCommon {
         override val key = "XXScrsCohoHmrcSh4ar3dK3yF0rJw3XX"
       }
 

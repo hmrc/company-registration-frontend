@@ -16,6 +16,7 @@
 
 package services
 
+import config.FrontendAppConfig
 import fixtures.{CompanyDetailsFixture, PayloadFixture, SubmissionFixture}
 import helpers.SCRSSpec
 import models.handoff._
@@ -26,6 +27,7 @@ import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.binders.ContinueUrl
+import uk.gov.hmrc.play.config.ServicesConfig
 import utils._
 
 import scala.concurrent.Future
@@ -34,7 +36,9 @@ import scala.util.{Failure, Success}
 class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetailsFixture
   with SubmissionFixture with SCRSExceptions {
 
-  val testJwe = new JweEncryptor with JweDecryptor { val key = "Fak3-t0K3n-f0r-pUBLic-r3p0SiT0rY" }
+  val testJwe = new JweCommon {
+    override val key = "Fak3-t0K3n-f0r-pUBLic-r3p0SiT0rY"
+  }
 
   trait Setup {
     val service = new HandBackService {
@@ -44,6 +48,8 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
       override val navModelMongo = mockNavModelRepo
       override val jwe = testJwe
       val continueUrl = mock[ContinueUrl]
+      override val scrsFeatureSwitches: SCRSFeatureSwitches = mockSCRSFeatureSwitches
+      override val appConfig: FrontendAppConfig = mockAppConfig
     }
   }
 

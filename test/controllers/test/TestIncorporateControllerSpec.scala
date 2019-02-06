@@ -31,6 +31,7 @@ import scala.concurrent.Future
 class TestIncorporateControllerSpec extends UnitSpec with MockitoSugar {
 
   implicit val system = ActorSystem("test")
+
   implicit def mat: Materializer = ActorMaterializer()
 
   val mockCheckIncorporationService = mock[TestIncorporationService]

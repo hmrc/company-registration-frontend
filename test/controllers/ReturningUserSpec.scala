@@ -17,8 +17,11 @@
 package controllers
 
 import builders.AuthBuilder
+import config.FrontendAppConfig
+import controllers.auth.SCRSExternalUrls
 import controllers.reg.ReturningUserController
 import helpers.SCRSSpec
+import play.api.i18n.MessagesApi
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.play.test.WithFakeApplication
@@ -32,7 +35,8 @@ class ReturningUserSpec extends SCRSSpec with AuthBuilder with WithFakeApplicati
       val eligBaseUrl         = "EligURL"
       val compRegFeUrl        = "CompRegFEURL"
       val authConnector       = mockAuthConnector
-      override val appConfig = mockAppConfig
+      implicit val appConfig: FrontendAppConfig = fakeApplication.injector.instanceOf[FrontendAppConfig]
+      override val messagesApi = fakeApplication.injector.instanceOf[MessagesApi]
     }
   }
 

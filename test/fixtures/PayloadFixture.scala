@@ -20,7 +20,7 @@ import models.handoff._
 import models.{AccountingDatesHandOffModel, HandBackPayloadModel, _}
 import play.api.libs.json.{JsObject, Json}
 import uk.gov.hmrc.http.cache.client.CacheMap
-import utils.Jwe
+import utils.JweCommon
 
 trait PayloadFixture extends AddressFixture with JweFixture {
 
@@ -139,22 +139,22 @@ trait PayloadFixture extends AddressFixture with JweFixture {
 
   val registrationConfirmationPayload = confirmationHandoffPayload.copy(payment_amount = Some("50.00"),payment_reference = Some("fake-reference"), links = Json.obj())
 
-  lazy val firstHandBackEncrypted = Jwe.encrypt[HandBackPayloadModel](validFirstHandBack)
+  lazy val firstHandBackEncrypted = (jwe: JweCommon) =>  jwe.encrypt[HandBackPayloadModel](validFirstHandBack)
 
   lazy val secondHandOffWithAddressJson = """{"OID":"testOID","return_url":"testReturnUrl","address":{"houseNameNumber":"testHouseNumber","street":"testStreet","area":"testArea","postTown":"testPostTown","region":"testRegion","country":"testCountry","postCode":"FX1 1ZZ"}}"""
   lazy val secondHandOffWithNoAddressJson = """{"OID":"testOID","return_url":"testReturnUrl"}"""
 
   lazy val summaryHandOffModelPayload = SummaryHandOff("testUserID","testJourneyID",Json.obj("hmrc" -> "some hmrc data"),Some(Json.obj("ch" -> "some ch data")),Json.obj("links" -> "some links"))
 
-  lazy val summaryEncryptedPayload = Jwe.encrypt[SummaryHandOff](summaryHandOffModelPayload).get
+  lazy val summaryEncryptedPayload = (jwe: JweCommon) =>  jwe.encrypt[SummaryHandOff](summaryHandOffModelPayload).get
 
   lazy val summaryHandOffJson = """{"user_id":"testUserID","journey_id":"testJourneyID","hmrc":{"hmrc":"some hmrc data"},"ch":{"ch":"some ch data"},"links":{"links":"some links"}}"""
 
   lazy val validEncryptedPayload = """eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..PPxL3WE_9tU4L5dXO9w0YQ.SOZ66zJRwLLaqElHCo6fBczwKMDfhj__XKaDu3qlcJIrXQiGSySW28IPNdJ1fkrvoaMwVZCihe4wkDgnqetP3zcCHIYx0iaAwiEtTvAPozZkMYI8wonlH3-JEC1MN08mkR3rbw546sXBACGtwHh5OfvQCnUHIsVbpsASU6OGDVXeYsMqmczElmCAOuYnxNwr.wDdM5GD0dc7plwpq6Jfnkw"""
 
-  lazy val validEncryptedCompanyNameHandOff = Jwe.encrypt[CompanyNameHandOffIncoming](validCompanyNameHandBack)
+  lazy val validEncryptedCompanyNameHandOff = (jwe: JweCommon) =>  jwe.encrypt[CompanyNameHandOffIncoming](validCompanyNameHandBack)
 
-  lazy val validEncryptedBusinessActivities = Jwe.encrypt[BusinessActivitiesModel](validBusinessActivitiesPayload).get
+  lazy val validEncryptedBusinessActivities = (jwe: JweCommon) =>  jwe.encrypt[BusinessActivitiesModel](validBusinessActivitiesPayload).get
 
-  lazy val confirmationPayload = Jwe.encrypt[RegistrationConfirmationPayload](RegistrationConfirmationPayload("user","journey","transaction",Some("ref"),Some("amount"), Json.obj(), Json.obj(), Json.obj())).get
+  lazy val confirmationPayload = (jwe: JweCommon) =>  jwe.encrypt[RegistrationConfirmationPayload](RegistrationConfirmationPayload("user","journey","transaction",Some("ref"),Some("amount"), Json.obj(), Json.obj(), Json.obj())).get
 }

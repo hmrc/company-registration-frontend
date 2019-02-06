@@ -17,16 +17,15 @@
 package controllers
 
 import builders.AuthBuilder
-import connectors.KeystoreConnector
+import config.FrontendAppConfig
+import controllers.auth.SCRSExternalUrls
 import controllers.reg.RegistrationUnsuccessfulController
-import controllers.reg.RegistrationUnsuccessfulController.getConfString
 import helpers.SCRSSpec
 import org.mockito.Matchers
 import org.mockito.Mockito._
+import play.api.i18n.MessagesApi
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services.DeleteSubmissionService
-import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.test.WithFakeApplication
 
@@ -41,24 +40,10 @@ class RegistrationUnsuccessfulControllerSpec extends SCRSSpec with WithFakeAppli
       override val keystoreConnector = mockKeystoreConnector
       override val authConnector = mockAuthConnector
       override val deleteSubService = mockDeleteSubmissionService
-      override val companyRegistrationConnector = mockCompanyRegistrationConnector
-      override val appConfig = mockAppConfig
+      override val compRegConnector = mockCompanyRegistrationConnector
+      implicit val appConfig: FrontendAppConfig = fakeApplication.injector.instanceOf[FrontendAppConfig]
       override val registerCompanyGOVUKLink: String = "foobar"
-
-    }
-  }
-
-  "RegistrationUnsuccessful Controller" should {
-    "use the correct AuthConnector" in new Setup {
-      controller.authConnector shouldBe a[AuthConnector]
-    }
-
-    "use the correct keystore Connector" in new Setup {
-      controller.keystoreConnector shouldBe a[KeystoreConnector]
-    }
-
-    "use the correct Delete Submission service" in new Setup {
-      controller.deleteSubService shouldBe a[DeleteSubmissionService]
+      override val messagesApi = fakeApplication.injector.instanceOf[MessagesApi]
     }
   }
 

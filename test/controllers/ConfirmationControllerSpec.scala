@@ -17,6 +17,8 @@
 package controllers
 
 import builders.AuthBuilder
+import config.FrontendAppConfig
+import controllers.auth.SCRSExternalUrls
 import controllers.reg.ConfirmationController
 import fixtures.CompanyDetailsFixture
 import helpers.SCRSSpec
@@ -44,11 +46,11 @@ class ConfirmationControllerSpec extends SCRSSpec with CompanyDetailsFixture wit
   class Setup {
     val controller = new ConfirmationController {
       override val authConnector = mockAuthConnector
-      override val companyRegistrationConnector = mockCompanyRegistrationConnector
+      override val compRegConnector = mockCompanyRegistrationConnector
       override val keystoreConnector = mockKeystoreConnector
       override val deskproService = mockDeskproService
       implicit val messagesApi: MessagesApi = fakeApplication.injector.instanceOf[MessagesApi]
-      override val appConfig = mockAppConfig
+      implicit val appConfig: FrontendAppConfig = fakeApplication.injector.instanceOf[FrontendAppConfig]
     }
   }
 

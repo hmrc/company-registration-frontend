@@ -16,35 +16,32 @@
 
 package connectors
 
-import config.WSHttp
+import config.{FrontendAppConfig, WSHttp}
+import javax.inject.Inject
 import org.joda.time.LocalDate
 import play.api.Logger
-import play.api.http.Status._
 import play.api.libs.json.{JsNull, JsString}
 import uk.gov.hmrc.http._
-import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
+import scala.concurrent.ExecutionContext.Implicits.global
 
 import scala.concurrent.Future
 import scala.util.control.NoStackTrace
 
 private[connectors] class VatErrorResponse(s: String) extends NoStackTrace
 
-object VatThresholdConnector extends VatThresholdConnector with ServicesConfig {
-  val http: CoreGet = WSHttp
-  val serviceBaseUrl =  baseUrl("vat-registration")
-  val serviceUri = getConfString("vat-registration.uri", "/vatreg")
+class VatThresholdConnectorImpl @Inject()(appConfig: FrontendAppConfig, val wSHttp: WSHttp) extends VatThresholdConnector {
+  lazy val serviceBaseUrl =  appConfig.baseUrl("vat-registration")
+  lazy val serviceUri = appConfig.getConfString("vat-registration.uri", "/vatreg")
 }
 
 trait VatThresholdConnector extends HttpErrorFunctions {
-  val http : CoreGet
+  val wSHttp : CoreGet
   val serviceBaseUrl: String
   val serviceUri: String
 
-
   def getVATThreshold(date: LocalDate)(implicit hc: HeaderCarrier): Future[String] = {
     val url=s"${serviceBaseUrl}${serviceUri}/threshold/${date.toString}"
-    http.GET[HttpResponse](url).map{
+    wSHttp.GET[HttpResponse](url).map{
       _.json match {
         case JsNull   => logAndThrow(s"[getVATThreshold] taxable-threshold for $date not found")
         case json @ _ => (json \ "taxable-threshold").toOption match {

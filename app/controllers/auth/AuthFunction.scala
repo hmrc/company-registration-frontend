@@ -16,6 +16,7 @@
 
 package controllers.auth
 
+import config.FrontendAppConfig
 import models.auth.{AuthDetails, BasicCompanyAuthDetails}
 import play.api.Logger
 import play.api.mvc._
@@ -23,14 +24,12 @@ import uk.gov.hmrc.auth.core.AuthProvider.GovernmentGateway
 import uk.gov.hmrc.auth.core.retrieve.Retrievals._
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Retrieval, ~}
 import uk.gov.hmrc.auth.core.{AuthorisedFunctions, _}
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.frontend.controller.FrontendController
+import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
 import scala.concurrent.Future
 
-trait AuthFunction extends FrontendController with AuthorisedFunctions with ServicesConfig {
-
+trait AuthFunction extends FrontendController with AuthorisedFunctions {
+  val appConfig: FrontendAppConfig
   val baseFunction: AuthorisedFunction = authorised(AuthProviders(GovernmentGateway) and ConfidenceLevel.L50)
 
   def ctAuthorised(body: => Future[Result])(implicit request: Request[AnyContent]): Future[Result] = {
@@ -83,9 +82,9 @@ trait AuthFunction extends FrontendController with AuthorisedFunctions with Serv
   }
 
 
-  val origin: String = getString("appName")
+  lazy val origin: String = appConfig.getString("appName")
   def loginParams(hoID : Option[String], payload : Option[String]) = Map(
-    "continue" -> Seq(SCRSExternalUrls.continueURL(hoID, payload)),
+    "continue" -> Seq(appConfig.continueURL(hoID, payload)),
     "origin" -> Seq(origin)
   )
 
@@ -102,13 +101,12 @@ trait AuthFunction extends FrontendController with AuthorisedFunctions with Serv
 
   def authErrorHandling(hoID : Option[String] = None, payload : Option[String] = None)
                               (implicit request: Request[AnyContent]) : PartialFunction[Throwable, Result] = {
-    case e: NoActiveSession => Redirect(SCRSExternalUrls.loginURL, loginParams(hoID, payload))
+    case e: NoActiveSession => Redirect(appConfig.loginURL, loginParams(hoID, payload))
     case InternalError(e)           =>
       Logger.warn(s"Something went wrong with a call to Auth with exception: ${e}")
       InternalServerError
     case e: AuthorisationException  =>
       Logger.info(s"auth returned $e and redirected user to 'incorrect-account-type' page")
       Redirect(controllers.verification.routes.EmailVerificationController.createGGWAccountAffinityShow())
-
   }
 }

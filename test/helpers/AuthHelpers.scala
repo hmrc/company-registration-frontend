@@ -16,14 +16,15 @@
 
 package helpers
 
-import uk.gov.hmrc.play.frontend.auth.AuthContext
-import uk.gov.hmrc.play.frontend.auth.connectors.domain.{Accounts, Authority, ConfidenceLevel, CredentialStrength}
+import models.Authority
+import sun.security.krb5.internal.AuthContext
+import uk.gov.hmrc.auth.core.{ConfidenceLevel, CredentialStrength}
 
 trait AuthHelpers {
 
-  def buildAuthContext: AuthContext = AuthContext(createUserAuthority("testUserId"))
-
-  def createUserAuthority(userId: String, accounts: Accounts = Accounts()): Authority = {
-    Authority(userId, accounts, None, None, CredentialStrength.Weak, ConfidenceLevel.L50, None, Some("testEnrolmentUri"), None, "")
-  }
+//  def buildAuthContext: AuthContext = new AuthContext(createUserAuthority("testUserId"))
+//
+//  def createUserAuthority(userId: String, accounts: Accounts = Accounts()): Authority = {
+//    Authority(userId, accounts, None, None, CredentialStrength.Weak, ConfidenceLevel.L50, None, Some("testEnrolmentUri"), None, "")
+//  }
 }

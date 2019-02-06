@@ -20,10 +20,9 @@ import fixtures.PPOBFixture
 import uk.gov.hmrc.play.test.UnitSpec
 
 
-class ALFFormSpec extends UnitSpec with PPOBFixture{
+class ALFFormSpec extends UnitSpec with PPOBFixture {
 
   val form = PPOBForm.aLFForm
-
 
   "Creating a form with a valid post" when {
     "Enter a valid choice" should {
@@ -49,8 +48,5 @@ class ALFFormSpec extends UnitSpec with PPOBFixture{
         boundForm.hasErrors shouldBe true
       }
     }
-
-
-
   }
 }

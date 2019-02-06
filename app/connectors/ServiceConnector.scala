@@ -16,36 +16,40 @@
 
 package connectors
 
-import config.WSHttp
+import config.{FrontendAppConfig, WSHttp}
+import javax.inject.Inject
 import models.external.OtherRegStatus
 import play.api.Logger
 import play.api.http.Status._
 import uk.gov.hmrc.http._
-import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
+import scala.concurrent.ExecutionContext.Implicits.global
 
 import scala.concurrent.Future
 
-object PAYEConnector extends ServiceConnector with ServicesConfig  {
-  val http = WSHttp
-  val serviceBaseUrl =  baseUrl("paye-registration")
-  val serviceUri = getConfString("paye-registration.uri", "/paye-registration")
+class PAYEConnectorImpl @Inject()(val appConfig: FrontendAppConfig, val wSHttp: WSHttp) extends PAYEConnector
+
+trait PAYEConnector extends ServiceConnector  {
+  val appConfig: FrontendAppConfig
+  lazy val serviceBaseUrl =  appConfig.baseUrl("paye-registration")
+  lazy val serviceUri = appConfig.getConfString("paye-registration.uri", "/paye-registration")
 }
 
-object VATConnector extends ServiceConnector with ServicesConfig  {
-  val http = WSHttp
-  val serviceBaseUrl =  baseUrl("vat-registration")
-  val serviceUri = getConfString("vat-registration.uri", "/vatreg")
+class VATConnectorImpl @Inject()(val appConfig: FrontendAppConfig, val wSHttp: WSHttp) extends VATConnector
+
+trait VATConnector extends ServiceConnector  {
+  val appConfig: FrontendAppConfig
+  lazy val serviceBaseUrl =  appConfig.baseUrl("vat-registration")
+  lazy  val serviceUri = appConfig.getConfString("vat-registration.uri", "/vatreg")
 }
 
 trait ServiceConnector {
-  val http: HttpGet with HttpDelete with CoreGet with CoreDelete
+  val wSHttp: HttpGet with HttpDelete with CoreGet with CoreDelete
   val serviceBaseUrl: String
   val serviceUri: String
 
   def getStatus(regId: String)(implicit hc: HeaderCarrier): Future[StatusResponse] = {
     val url = s"$serviceBaseUrl$serviceUri/$regId/status"
-    http.GET[OtherRegStatus](url) map { SuccessfulResponse } recover {
+    wSHttp.GET[OtherRegStatus](url) map { SuccessfulResponse } recover {
       case ex: NotFoundException => NotStarted
       case ex: HttpException =>
         Logger.error(s"[ServiceConnector] [getStatus] - ${ex.responseCode} response code was returned - reason : ${ex.message}", ex)
@@ -66,7 +70,7 @@ trait ServiceConnector {
   def cancelReg(regID:String)(f: String => Future[StatusResponse])(implicit hc:HeaderCarrier):Future[CancellationResponse] = {
       f(regID).flatMap{
         case a:SuccessfulResponse =>
-          http.DELETE[HttpResponse](a.status.cancelURL.getOrElse(throw cantCancel)).map { resp =>
+          wSHttp.DELETE[HttpResponse](a.status.cancelURL.getOrElse(throw cantCancel)).map { resp =>
           if (resp.status == OK) {
             Cancelled
           } else {

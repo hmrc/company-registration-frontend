@@ -16,8 +16,10 @@
 
 package controllers
 
+import config.FrontendAppConfig
 import controllers.reg.WelcomeController
 import helpers.SCRSSpec
+import play.api.i18n.MessagesApi
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.play.test.WithFakeApplication
@@ -25,7 +27,8 @@ import uk.gov.hmrc.play.test.WithFakeApplication
 class WelcomeControllerSpec extends SCRSSpec with WithFakeApplication {
   class Setup {
     object TestController extends WelcomeController {
-      override val appConfig = mockAppConfig
+      implicit val appConfig: FrontendAppConfig = fakeApplication.injector.instanceOf[FrontendAppConfig]
+      override val messagesApi = fakeApplication.injector.instanceOf[MessagesApi]
     }
   }
 

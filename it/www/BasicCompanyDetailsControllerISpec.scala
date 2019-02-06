@@ -5,7 +5,8 @@ import java.util.UUID
 
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, stubFor, urlMatching}
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
-import itutil.{FakeAppConfig, IntegrationSpecBase, LoginStub, WiremockHelper}
+import config.FrontendAppConfig
+import itutil.{FakeAppConfig, IntegrationSpecBase, LoginStub}
 import models.handoff._
 import play.api.http.HeaderNames
 import play.api.libs.json.{JsObject, Json}
@@ -13,7 +14,7 @@ import play.api.test.FakeApplication
 import play.modules.reactivemongo.ReactiveMongoComponent
 import repositories.NavModelRepo
 import uk.gov.hmrc.mongo.MongoSpecSupport
-import utils.Jwe
+import utils.JweCommon
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -26,7 +27,10 @@ class BasicCompanyDetailsControllerISpec extends IntegrationSpecBase with MongoS
 
   class Setup {
     val rc = app.injector.instanceOf[ReactiveMongoComponent]
-    val repo = new NavModelRepo(rc)
+    val repo = new NavModelRepo {
+      override val mongo: ReactiveMongoComponent = rc
+      override val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+    }
     await(repo.repository.ensureIndexes)
   }
 
@@ -171,7 +175,7 @@ class BasicCompanyDetailsControllerISpec extends IntegrationSpecBase with MongoS
 
       val response = await(fResponse)
       val encryptedHandOffString  = response.header(HeaderNames.LOCATION).get.split("request=").takeRight(1)(0)
-      val decryptedHandoffJson  = Jwe.decrypt[JsObject](encryptedHandOffString).get
+      val decryptedHandoffJson  = app.injector.instanceOf[JweCommon].decrypt[JsObject](encryptedHandOffString).get
 
       response.status shouldBe 303
       response.header(HeaderNames.LOCATION).get should include("/initial-coho-link")
@@ -191,7 +195,7 @@ class BasicCompanyDetailsControllerISpec extends IntegrationSpecBase with MongoS
 
       stubKeystore(SessionId, regId)
 
-      val fResponse = buildClient(returnEncryptedRequest(Jwe.encrypt[JsObject](returnPayloadJson).get)).
+      val fResponse = buildClient(returnEncryptedRequest(app.injector.instanceOf[JweCommon].encrypt[JsObject](returnPayloadJson).get)).
         withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").
         get()
 

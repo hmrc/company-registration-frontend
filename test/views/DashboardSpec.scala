@@ -18,12 +18,14 @@ package views
 
 import _root_.helpers.SCRSSpec
 import builders.AuthBuilder
+import controllers.auth.SCRSExternalUrls
 import controllers.dashboard.DashboardController
 import models.external.Statuses
 import models.{Dashboard, IncorpAndCTDashboard, ServiceDashboard, ServiceLinks}
 import org.jsoup.Jsoup
 import org.mockito.Matchers
 import org.mockito.Mockito._
+import play.api.i18n.MessagesApi
 import play.api.test.Helpers._
 import services.{DashboardBuilt, DashboardService}
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, ~}
@@ -42,9 +44,10 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
       override val authConnector = mockAuthConnector
       override val keystoreConnector = mockKeystoreConnector
       override val dashboardService = mockDashboardService
-      override val companyRegistrationConnector = mockCompanyRegistrationConnector
+      override val compRegConnector = mockCompanyRegistrationConnector
       override val companiesHouseURL = "testUrl"
       override val appConfig = mockAppConfig
+      override val messagesApi = fakeApplication.injector.instanceOf[MessagesApi]
     }
   }
 

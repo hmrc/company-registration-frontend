@@ -16,16 +16,22 @@
 
 package config.filters
 
+import akka.stream.Materializer
+import javax.inject.Inject
 import play.api.Logger
-import play.api.mvc.{Filter, RequestHeader, Result}
+import play.api.http.DefaultHttpFilters
 import play.api.mvc.Results.Redirect
+import play.api.mvc.{Filter, RequestHeader, Result}
 import uk.gov.hmrc.play.HeaderCarrierConverter
-import uk.gov.hmrc.play.frontend.filters.MicroserviceFilterSupport
+import uk.gov.hmrc.play.bootstrap.filters.FrontendFilters
 import utils.SCRSValidators.desSessionRegex
 
 import scala.concurrent.Future
 
-object SessionIdFilter extends SessionIdFilter with MicroserviceFilterSupport
+class SCRSFilters @Inject()(defaultFilters: FrontendFilters,
+                            sessionIdFilter: SessionIdFilter) extends DefaultHttpFilters(defaultFilters.frontendFilters :+ sessionIdFilter: _*)
+
+class SessionIdFilterImpl @Inject()(val mat: Materializer) extends SessionIdFilter
 
 trait SessionIdFilter extends Filter {
 

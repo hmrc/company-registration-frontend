@@ -16,18 +16,25 @@
 
 package controllers.auth
 
+import config.FrontendAppConfig
 import controllers.reg.routes
-import play.api.Play
-import play.api.Play.current
-import uk.gov.hmrc.play.config.{RunMode, ServicesConfig}
+import javax.inject.Inject
 
-object SCRSExternalUrls extends RunMode with ServicesConfig {
-  private[SCRSExternalUrls] val companyAuthHost = Play.configuration.getString(s"microservice.services.auth.company-auth.url").getOrElse("")
-  private[SCRSExternalUrls] val loginCallback = Play.configuration.getString(s"microservice.services.auth.login-callback.url").getOrElse("")
-  private[SCRSExternalUrls] val loginPath = Play.configuration.getString(s"microservice.services.auth.login_path").getOrElse("")
-  private[SCRSExternalUrls] val logoutPath = Play.configuration.getString(s"microservice.services.auth.logout_path").getOrElse("")
+class SCRSExternalUrlsImpl @Inject()(val config: FrontendAppConfig) extends SCRSExternalUrls
 
-  val loginURL = s"$companyAuthHost$loginPath"
-  val logoutURL = s"$companyAuthHost$logoutPath"
+trait SCRSExternalUrls {
+  val config: FrontendAppConfig
+  private[SCRSExternalUrls] lazy val companyAuthHost = try{
+    config.getString(s"microservice.services.auth.company-auth.url")
+  } catch {case _ => ""}
+  private[SCRSExternalUrls] lazy val loginCallback = try { config.getString(s"microservice.services.auth.login-callback.url")}
+ catch {case _ => ""}
+  private[SCRSExternalUrls] lazy val loginPath = try {config.getString(s"microservice.services.auth.login_path")
+  } catch {case _ => ""}
+  private[SCRSExternalUrls] lazy val logoutPath = try {config.getString(s"microservice.services.auth.logout_path")
+  } catch {case _ => ""}
+
+  lazy val loginURL = s"$companyAuthHost$loginPath"
+  lazy val logoutURL = s"$companyAuthHost$logoutPath"
   def continueURL(handOffID: Option[String], payload: Option[String]) = s"$loginCallback${routes.SignInOutController.postSignIn(None, handOffID, payload).url}"
 }

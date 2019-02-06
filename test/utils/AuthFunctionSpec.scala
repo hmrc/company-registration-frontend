@@ -17,7 +17,8 @@
 package utils
 
 import builders.AuthBuilder
-import controllers.auth.AuthFunction
+import config.FrontendAppConfig
+import controllers.auth.{AuthFunction, SCRSExternalUrls}
 import fixtures.LoginFixture
 import helpers.SCRSSpec
 import play.api.http.HeaderNames
@@ -41,6 +42,7 @@ class AuthFunctionSpec extends SCRSSpec with AuthBuilder with WithFakeApplicatio
   trait Setup {
     val support = new AuthFunction {
       override def authConnector = mockAuthConnector
+      override val appConfig: FrontendAppConfig = fakeApplication.injector.instanceOf[FrontendAppConfig]
     }
   }
 

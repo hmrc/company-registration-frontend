@@ -19,9 +19,9 @@ package controllers.test
 import org.scalatest.mockito.MockitoSugar
 import org.scalatestplus.play.OneAppPerSuite
 import play.api.test.FakeRequest
-import uk.gov.hmrc.play.test.UnitSpec
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.SessionKeys
+import uk.gov.hmrc.play.test.UnitSpec
 
 class EditSessionControllerSpec extends UnitSpec with MockitoSugar with OneAppPerSuite {
 

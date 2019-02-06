@@ -19,7 +19,7 @@
 @import play.api.Application
 @import views.html.helpers.{inputRadioGroupHidden, dateFieldsFreeInline, errorSummary, inputRadioGroup}
 
-@(returningUser : Form[models.ReturningUser],isUserLoggedin: Boolean)(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.AppConfig)
+@(returningUser : Form[models.ReturningUser],isUserLoggedin: Boolean)(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.FrontendAppConfig)
 
 @yesHiddenContent = {
 <div class="notice">

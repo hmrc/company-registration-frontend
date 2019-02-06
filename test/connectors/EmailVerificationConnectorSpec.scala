@@ -36,7 +36,7 @@ class EmailVerificationConnectorSpec extends SCRSSpec with UnitSpec with WithFak
     val connector = new EmailVerificationConnector {
       override val sendVerificationEmailURL = "test sendVerificationEmailURL"
       override val checkVerifiedEmailURL = "test checkVerifiedEmailURL"
-      override val http = mockWSHttp
+      override val wSHttp = mockWSHttp
     }
   }
 
@@ -52,14 +52,13 @@ class EmailVerificationConnectorSpec extends SCRSSpec with UnitSpec with WithFak
 
   "Email Verification Connector" should {
 
-    "use the correct sendVerificationEmailURL" in {
-      EmailVerificationConnector.sendVerificationEmailURL shouldBe "http://localhost:9891/email-verification/verification-requests"
+    "use the correct sendVerificationEmailURL" in new Setup {
+      connector.sendVerificationEmailURL shouldBe "test sendVerificationEmailURL"
     }
-    "use the correct checkVerifiedEmailURL" in {
-      EmailVerificationConnector.checkVerifiedEmailURL shouldBe "http://localhost:9891/email-verification/verified-email-addresses"
+    "use the correct checkVerifiedEmailURL" in new Setup {
+      connector.checkVerifiedEmailURL shouldBe "test checkVerifiedEmailURL"
     }
   }
-
 
   "checkVerifiedEmail" should {
 

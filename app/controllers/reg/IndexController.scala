@@ -16,12 +16,13 @@
 
 package controllers.reg
 
+import javax.inject.Inject
 import play.api.mvc._
-import uk.gov.hmrc.play.frontend.controller.FrontendController
+import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
 import scala.concurrent.Future
 
-object IndexController extends IndexController
+class IndexControllerImpl @Inject()() extends IndexController
 
 trait IndexController extends FrontendController {
   val index = Action.async { implicit request =>

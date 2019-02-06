@@ -16,40 +16,38 @@
 
 package controllers.reg
 
-import java.net.URLEncoder
-
-import config.{AppConfig, FrontendAppConfig, FrontendAuthConnector, FrontendConfig}
+import config.FrontendAppConfig
 import controllers.auth.AuthFunction
 import forms.ReturningUserForm
+import javax.inject.Inject
 import models.ReturningUser
+import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.Action
-import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.frontend.controller.FrontendController
-import utils.{MessagesSupport, SCRSFeatureSwitches}
+import uk.gov.hmrc.auth.core.PlayAuthConnector
+import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import views.html.reg.ReturningUserView
 
 import scala.concurrent.Future
 
-object ReturningUserController extends ReturningUserController with ServicesConfig{
-  val createGGWAccountUrl = getConfString("gg-reg-fe.url", throw new Exception("Could not find config for gg-reg-fe url"))
-  val eligBaseUrl = getConfString(
+class ReturningUserControllerImpl @Inject()(val appConfig: FrontendAppConfig,
+                                            val authConnector: PlayAuthConnector,
+                                            val messagesApi: MessagesApi) extends ReturningUserController {
+  lazy val createGGWAccountUrl = appConfig.getConfString("gg-reg-fe.url", throw new Exception("Could not find config for gg-reg-fe url"))
+  lazy val eligBaseUrl = appConfig.getConfString(
     "company-registration-eligibility-frontend.url-prefix", throw new Exception("Could not find config for key: company-registration-eligibility-frontend.url-prefix")
   )
-  val eligUri = getConfString(
+  lazy val eligUri = appConfig.getConfString(
     "company-registration-eligibility-frontend.start-url", throw new Exception("Could not find config for key: company-registration-eligibility-frontend.start-url")
   )
-  val compRegFeUrl        = FrontendConfig.self
-  val authConnector       = FrontendAuthConnector
-  override val appConfig =  FrontendAppConfig
+ lazy val compRegFeUrl        = appConfig.self
 }
 
-trait ReturningUserController extends FrontendController with AuthFunction with MessagesSupport {
-  implicit val appConfig: AppConfig
+trait ReturningUserController extends FrontendController with AuthFunction with I18nSupport {
+  implicit val appConfig: FrontendAppConfig
   val createGGWAccountUrl: String
   val compRegFeUrl: String
   val eligBaseUrl : String
   val eligUri : String
-
 
   val show = Action.async {
     implicit request => {
@@ -72,11 +70,8 @@ trait ReturningUserController extends FrontendController with AuthFunction with 
       }
       }
 
-
   private[controllers] def buildCreateAccountURL: String = {
       s"$eligBaseUrl$eligUri"
 
   }
-
-
 }

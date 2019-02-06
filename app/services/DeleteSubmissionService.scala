@@ -17,16 +17,15 @@
 package services
 
 import connectors.CompanyRegistrationConnector
+import javax.inject.Inject
 import play.api.Logger
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
+import scala.concurrent.ExecutionContext.Implicits.global
 
 import scala.concurrent.Future
 
 
-object DeleteSubmissionService extends DeleteSubmissionService {
-  val crConnector = CompanyRegistrationConnector
-}
+class DeleteSubmissionServiceImpl @Inject()(val crConnector: CompanyRegistrationConnector) extends DeleteSubmissionService
 
 trait DeleteSubmissionService {
   val crConnector: CompanyRegistrationConnector

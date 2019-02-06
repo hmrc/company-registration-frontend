@@ -21,7 +21,7 @@ import java.time.LocalDate
 import helpers.SCRSSpec
 import org.mockito.Matchers
 import org.mockito.Mockito.when
-import play.api.libs.json.{Format, Json}
+import play.api.libs.json.Json
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.cache.client.CacheMap
 import utils.{SCRSException, SCRSExceptions}

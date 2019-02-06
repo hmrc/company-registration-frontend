@@ -16,31 +16,33 @@
 
 package controllers.dashboard
 
-import config.{AppConfig, FrontendAppConfig, FrontendAuthConnector}
+import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthFunction
 import controllers.reg.ControllerErrorHandler
+import javax.inject.Inject
 import play.api.Logger
+import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent}
 import services._
-import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.frontend.controller.FrontendController
-import utils.{MessagesSupport, SCRSExceptions, SessionRegistration}
+import uk.gov.hmrc.auth.core.PlayAuthConnector
+import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+import utils.{SCRSExceptions, SessionRegistration}
 
 import scala.concurrent.Future
 
-object DashboardController extends DashboardController with ServicesConfig {
-  val authConnector                = FrontendAuthConnector
-  val keystoreConnector            = KeystoreConnector
-  val dashboardService             = DashboardService
-  val companyRegistrationConnector = CompanyRegistrationConnector
-  val companiesHouseURL            = getConfString("coho-service.sign-in", throw new Exception("Could not find config for coho-sign-in url"))
-  override val appConfig =  FrontendAppConfig
+class DashboardControllerImpl @Inject()(val authConnector: PlayAuthConnector,
+                                        val keystoreConnector: KeystoreConnector,
+                                        val compRegConnector: CompanyRegistrationConnector,
+                                        val appConfig: FrontendAppConfig,
+                                        val dashboardService: DashboardService,
+                                        val messagesApi: MessagesApi) extends DashboardController {
+  lazy val companiesHouseURL = appConfig.getConfString("coho-service.sign-in", throw new Exception("Could not find config for coho-sign-in url"))
 }
 
 trait DashboardController extends FrontendController with AuthFunction with CommonService with SCRSExceptions
-with ControllerErrorHandler with SessionRegistration with MessagesSupport {
-  implicit val appConfig: AppConfig
+with ControllerErrorHandler with SessionRegistration with I18nSupport {
+  implicit val appConfig: FrontendAppConfig
 
   val companiesHouseURL: String
   val dashboardService: DashboardService

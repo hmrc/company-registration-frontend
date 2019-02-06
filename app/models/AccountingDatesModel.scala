@@ -17,7 +17,7 @@
 package models
 
 import play.api.libs.json.Json
-import services.TimeService
+import services.TimeHelper
 
 import scala.language.implicitConversions
 
@@ -41,7 +41,7 @@ object AccountingDatesModel {
 
   implicit def toModel(api:AccountingDetails) : AccountingDatesModel = {
     if(api.startDateOfBusiness.isDefined) {
-      val date = TimeService.splitDate(api.startDateOfBusiness.get)
+      val date = TimeHelper.splitDate(api.startDateOfBusiness.get)
       AccountingDatesModel(
         api.accountingDateStatus,
         Some(date(0)),
@@ -71,7 +71,7 @@ object AccountingDetailsRequest {
   implicit val formats = Json.format[AccountingDetailsRequest]
 
   def toRequest(accDates: AccountingDatesModel) : AccountingDetailsRequest = {
-      val formattedDate = TimeService.toDateTime(accDates.day, accDates.month, accDates.year).map(_.toString(TimeService.DATE_FORMAT))
+      val formattedDate = TimeHelper.toDateTime(accDates.day, accDates.month, accDates.year).map(_.toString(TimeHelper.DATE_FORMAT))
       AccountingDetailsRequest(accDates.crnDate, formattedDate)
   }
 }

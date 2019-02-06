@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@(appConfig: config.AppConfig,
+@(appConfig: config.FrontendAppConfig,
   title: String,
   mainClass: Option[String] = None,
   mainDataAttributes: Option[Html] = None,
@@ -145,8 +145,7 @@
     @contentHeader
 }
 
-@getHelpForm = @{reportAProblemLink(appConfig.reportAProblemPartialUrl, appConfig.reportAProblemNonJSUrl)}
-@getHelpFormOld = @{uiHelpers.reportAProblemLink(appConfig.reportAProblemPartialUrl, appConfig.reportAProblemNonJSUrl)}
+@gethelpForm = @{reportAProblemLink(appConfig.reportAProblemPartialUrl, appConfig.reportAProblemNonJSUrl)}
 
 @content = {
     @uiLayouts.main_content(
@@ -155,7 +154,7 @@
       mainDataAttributes = mainDataAttributes,
       mainContentHeader = mainContentHeader,
       serviceInfo = serviceInfo,
-      getHelpForm = if(SCRSFeatureSwitches.contactUs.enabled) getHelpForm else getHelpFormOld,
+      getHelpForm = gethelpForm,
       sidebar = sidebar)
 }
 

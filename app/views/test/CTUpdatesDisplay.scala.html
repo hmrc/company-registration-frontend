@@ -15,7 +15,7 @@
  *@
 
 @import models.test.ETMPCTRecordUpdates
-@(etmp : ETMPCTRecordUpdates)(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.AppConfig)
+@(etmp : ETMPCTRecordUpdates)(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.FrontendAppConfig)
 
 @import controllers.reg.routes._
 @import uk.gov.hmrc.play.views.html.helpers.{form, input}

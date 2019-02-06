@@ -17,20 +17,20 @@
 package controllers.handoff
 
 import builders.AuthBuilder
-import config.FrontendAuthConnector
-import connectors.KeystoreConnector
+import config.FrontendAppConfig
+import controllers.auth.SCRSExternalUrls
 import fixtures.{LoginFixture, PayloadFixture}
 import helpers.SCRSSpec
 import models.CHROAddress
 import models.handoff.CompanyNameHandOffIncoming
 import org.mockito.Matchers
 import org.mockito.Mockito._
+import play.api.i18n.MessagesApi
 import play.api.libs.json.{JsObject, Json}
 import play.api.test.Helpers._
-import services.{HandBackService, HandOffServiceImpl}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.WithFakeApplication
-import utils.{DecryptionError, PayloadError}
+import utils.{DecryptionError, JweCommon, PayloadError}
 
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
@@ -43,27 +43,11 @@ class CorporationTaxDetailsControllerSpec extends SCRSSpec with PayloadFixture w
       val keystoreConnector = mockKeystoreConnector
       val handOffService = mockHandOffService
       val handBackService = mockHandBackService
-      override val companyRegistrationConnector = mockCompanyRegistrationConnector
-      override val appConfig = mockAppConfig
+      override val compRegConnector = mockCompanyRegistrationConnector
+      implicit val appConfig: FrontendAppConfig = fakeApplication.injector.instanceOf[FrontendAppConfig]
+      override val messagesApi = fakeApplication.injector.instanceOf[MessagesApi]
     }
-  }
-
-  "CorporationTaxDetailsController" should {
-    "use the correct auth connector" in {
-      CorporationTaxDetailsController.authConnector shouldBe FrontendAuthConnector
-    }
-
-    "use the correct key store connector" in {
-      CorporationTaxDetailsController.keystoreConnector shouldBe KeystoreConnector
-    }
-
-    "use the correct hand off service" in {
-      CorporationTaxDetailsController.handOffService shouldBe HandOffServiceImpl
-    }
-
-    "use the correct hand back service" in {
-      CorporationTaxDetailsController.handBackService shouldBe HandBackService
-    }
+    val jweInstance = () => fakeApplication.injector.instanceOf[JweCommon]
   }
 
   "Sending a GET to the HandBackController companyNameHandBack" should {
@@ -79,10 +63,11 @@ class CorporationTaxDetailsControllerSpec extends SCRSSpec with PayloadFixture w
       Json.parse("""{"forward":"testForward","reverse":"testReverse"}""").as[JsObject])
 
     "return a SEE_OTHER if submitting without authorisation" in new Setup {
-      showWithUnauthorisedUser(TestController.corporationTaxDetails(firstHandBackEncrypted.get)) {
+      val payload = firstHandBackEncrypted(jweInstance())
+      showWithUnauthorisedUser(TestController.corporationTaxDetails(payload.get)) {
         result =>
           status(result) shouldBe SEE_OTHER
-          val url = authUrl("HO2", firstHandBackEncrypted.get)
+          val url = authUrl("HO2", payload.get)
           redirectLocation(result) shouldBe Some(url)
       }
     }

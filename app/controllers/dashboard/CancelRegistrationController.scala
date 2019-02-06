@@ -16,35 +16,37 @@
 
 package controllers.dashboard
 
-import config.{AppConfig, FrontendAppConfig, FrontendAuthConnector}
+import config.FrontendAppConfig
 import connectors._
 import controllers.auth.AuthFunction
 import forms.CancelForm
+import javax.inject.Inject
 import play.api.data.Form
+import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Request, Result}
 import play.twirl.api.Html
-import uk.gov.hmrc.play.frontend.controller.FrontendController
-import utils.{MessagesSupport, SessionRegistration}
+import uk.gov.hmrc.auth.core.PlayAuthConnector
+import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+import utils.SessionRegistration
 
 import scala.concurrent.Future
 
-object CancelRegistrationController extends CancelRegistrationController{
-  val payeConnector = PAYEConnector
-  val vatConnector = VATConnector
-  val authConnector = FrontendAuthConnector
-  val keystoreConnector = KeystoreConnector
-  val companyRegistrationConnector = CompanyRegistrationConnector
-  override val appConfig =  FrontendAppConfig
-}
+class CancelRegistrationControllerImpl @Inject()(val payeConnector: PAYEConnector,
+                                                 val vatConnector: VATConnector,
+                                                 val keystoreConnector: KeystoreConnector,
+                                                 val authConnector: PlayAuthConnector,
+                                                 val compRegConnector: CompanyRegistrationConnector,
+                                                 val appConfig: FrontendAppConfig,
+                                                 val messagesApi: MessagesApi) extends CancelRegistrationController
 
-trait CancelRegistrationController extends FrontendController with AuthFunction with SessionRegistration with MessagesSupport {
+trait CancelRegistrationController extends FrontendController with AuthFunction with SessionRegistration with I18nSupport {
 
-  val payeConnector: ServiceConnector
-  val vatConnector: ServiceConnector
+  val payeConnector: PAYEConnector
+  val vatConnector: VATConnector
   val keystoreConnector : KeystoreConnector
-  val companyRegistrationConnector : CompanyRegistrationConnector
+  val compRegConnector : CompanyRegistrationConnector
 
-  implicit val appConfig: AppConfig
+  implicit val appConfig: FrontendAppConfig
 
   def showCancelPAYE: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {

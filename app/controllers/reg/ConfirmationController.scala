@@ -16,40 +16,43 @@
 
 package controllers.reg
 
-import config.{AppConfig, FrontendAppConfig, FrontendAuthConnector}
+import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthFunction
 import forms.errors.DeskproForm
+import javax.inject.Inject
 import models.ConfirmationReferencesSuccessResponse
 import play.api.Logger
+import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent}
-import services.{CommonService, DeskproService, DeskproServiceImpl}
+import services.{CommonService, DeskproService}
+import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.auth.core.retrieve.Retrievals
-import uk.gov.hmrc.play.frontend.controller.FrontendController
-import utils.{MessagesSupport, SCRSExceptions, SessionRegistration}
+import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+import utils.{SCRSExceptions, SessionRegistration}
 import views.html.reg.Confirmation
 
 import scala.concurrent.Future
 
-object ConfirmationControllerImpl extends ConfirmationController {
-  val authConnector = FrontendAuthConnector
-  val companyRegistrationConnector = CompanyRegistrationConnector
-  val keystoreConnector = KeystoreConnector
-  val deskproService = DeskproServiceImpl
-  override val appConfig =  FrontendAppConfig
-}
+class ConfirmationControllerImpl @Inject()(val authConnector: PlayAuthConnector,
+                                           val compRegConnector: CompanyRegistrationConnector,
+                                           val keystoreConnector: KeystoreConnector,
+                                           val deskproService: DeskproService,
+                                           val appConfig: FrontendAppConfig,
+                                           val messagesApi: MessagesApi) extends ConfirmationController
 
 trait ConfirmationController extends FrontendController with AuthFunction with SessionRegistration with CommonService
-  with SCRSExceptions with ControllerErrorHandler with MessagesSupport {
+  with SCRSExceptions with ControllerErrorHandler with I18nSupport {
 
-  val companyRegistrationConnector: CompanyRegistrationConnector
+  val compRegConnector: CompanyRegistrationConnector
   val deskproService : DeskproService
-  implicit val appConfig: AppConfig
+  implicit val appConfig: FrontendAppConfig
+
   val show: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
       for {
         regID <- fetchRegistrationID
-        references <- companyRegistrationConnector.fetchConfirmationReferences(regID)
+        references <- compRegConnector.fetchConfirmationReferences(regID)
       } yield references match {
         case ConfirmationReferencesSuccessResponse(ref) => Ok(Confirmation(ref))
         case _ =>
@@ -83,7 +86,7 @@ trait ConfirmationController extends FrontendController with AuthFunction with S
         DeskproForm.form.bindFromRequest.fold(
           errors => Future.successful(BadRequest(views.html.errors.submissionFailed(errors))),
           success => deskproService.submitTicket(regID, success, uri) map {
-            _ => Redirect(controllers.reg.routes.ConfirmationControllerImpl.submittedTicket())
+            _ => Redirect(controllers.reg.routes.ConfirmationController.submittedTicket())
           }
         )
       )

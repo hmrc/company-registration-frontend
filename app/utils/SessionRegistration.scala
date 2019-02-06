@@ -22,14 +22,14 @@ import play.api.libs.json.JsValue
 import play.api.mvc.Result
 import play.api.mvc.Results.Redirect
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
+import scala.concurrent.ExecutionContext.Implicits.global
 
 import scala.concurrent.Future
 
 trait SessionRegistration {
 
   val keystoreConnector: KeystoreConnector
-  val companyRegistrationConnector: CompanyRegistrationConnector
+  val compRegConnector: CompanyRegistrationConnector
 
   def registered(f: => String => Future[Result])(implicit hc: HeaderCarrier): Future[Result] = registered()(f)
 
@@ -47,7 +47,7 @@ trait SessionRegistration {
 
   def checkStatuses(f: => String => Future[Result], statuses: Seq[String] = Seq("draft", "rejected"))(implicit hc: HeaderCarrier): Future[Result] = {
     registered { regId =>
-      companyRegistrationConnector.retrieveCorporationTaxRegistration(regId) flatMap {
+      compRegConnector.retrieveCorporationTaxRegistration(regId) flatMap {
         ctReg =>
           if (!checkSCRSVerified(ctReg)) {
             Future.successful(Redirect(controllers.reg.routes.SignInOutController.postSignIn(None)))
@@ -72,7 +72,7 @@ trait SessionRegistration {
 
     def checkStatus(f: => String => Future[Result])(implicit hc: HeaderCarrier): Future[Result] = {
       registered { regId =>
-        companyRegistrationConnector.retrieveCorporationTaxRegistration(regId) flatMap {
+        compRegConnector.retrieveCorporationTaxRegistration(regId) flatMap {
           ctReg =>
             if (!checkSCRSVerified(ctReg)) {
               Future.successful(Redirect(controllers.reg.routes.SignInOutController.postSignIn(None)))

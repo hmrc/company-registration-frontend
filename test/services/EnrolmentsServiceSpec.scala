@@ -16,7 +16,7 @@
 
 package services
 
-import config.WSHttp
+import config.{FrontendAppConfig, WSHttp}
 import mocks.SCRSMocks
 import org.scalatest.mockito.MockitoSugar
 import uk.gov.hmrc.auth.core.{Enrolment, EnrolmentIdentifier, Enrolments}
@@ -27,6 +27,7 @@ class EnrolmentsServiceSpec extends UnitSpec with WithFakeApplication with Mocki
   class Setup {
     object TestService extends EnrolmentsService {
       val http = mock[WSHttp with CoreGet]
+      override val frontendAppConfig: FrontendAppConfig = fakeApplication.injector.instanceOf[FrontendAppConfig]
     }
   }
 

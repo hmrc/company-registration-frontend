@@ -16,36 +16,38 @@
 
 package controllers.reg
 
-import config.{AppConfig, FrontendAppConfig, FrontendAuthConnector}
+import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector, S4LConnector}
 import controllers.auth.AuthFunction
 import forms.CompanyContactForm
+import javax.inject.Inject
 import models.{CompanyContactDetailsBadRequestResponse, CompanyContactDetailsForbiddenResponse, CompanyContactDetailsNotFoundResponse, CompanyContactDetailsSuccessResponse}
+import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.Action
 import services.{CompanyContactDetailsService, MetricsService}
-import uk.gov.hmrc.play.frontend.controller.FrontendController
-import utils.{MessagesSupport, SessionRegistration}
+import uk.gov.hmrc.auth.core.PlayAuthConnector
+import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+import utils.SessionRegistration
 import views.html.reg.CompanyContactDetails
 
 import scala.concurrent.Future
 
-object CompanyContactDetailsController extends CompanyContactDetailsController {
-  val authConnector = FrontendAuthConnector
-  val s4LConnector = S4LConnector
-  val companyContactDetailsService = CompanyContactDetailsService
-  val metricsService: MetricsService = MetricsService
-  val companyRegistrationConnector = CompanyRegistrationConnector
-  val keystoreConnector = KeystoreConnector
-  override val appConfig: AppConfig  = FrontendAppConfig
-}
+class CompanyContactDetailsControllerImpl @Inject()(val authConnector: PlayAuthConnector,
+                                                    val s4LConnector: S4LConnector,
+                                                    val metricsService: MetricsService,
+                                                    val compRegConnector: CompanyRegistrationConnector,
+                                                    val keystoreConnector: KeystoreConnector,
+                                                    val appConfig: FrontendAppConfig,
+                                                    val companyContactDetailsService: CompanyContactDetailsService,
+                                                    val messagesApi: MessagesApi) extends CompanyContactDetailsController
 
-trait CompanyContactDetailsController extends FrontendController with AuthFunction with ControllerErrorHandler with SessionRegistration with MessagesSupport {
+trait CompanyContactDetailsController extends FrontendController with AuthFunction with ControllerErrorHandler with SessionRegistration with I18nSupport {
 
   val s4LConnector: S4LConnector
   val companyContactDetailsService: CompanyContactDetailsService
-  val companyRegistrationConnector: CompanyRegistrationConnector
+  val compRegConnector: CompanyRegistrationConnector
   val metricsService: MetricsService
-  implicit val appConfig: AppConfig
+  implicit val appConfig: FrontendAppConfig
 
   val show = Action.async {
     implicit request =>
@@ -53,7 +55,7 @@ trait CompanyContactDetailsController extends FrontendController with AuthFuncti
         checkStatus { regId =>
           for {
             contactDetails  <- companyContactDetailsService.fetchContactDetails(companyContactAuth)
-            companyName     <- companyRegistrationConnector.fetchCompanyName(regId)
+            companyName     <- compRegConnector.fetchCompanyName(regId)
           } yield Ok(CompanyContactDetails(CompanyContactForm.form.fill(contactDetails),companyName))
         }
       }
@@ -65,7 +67,7 @@ trait CompanyContactDetailsController extends FrontendController with AuthFuncti
         registered { regId =>
           CompanyContactForm.form.bindFromRequest().fold(
             hasErrors =>
-              companyRegistrationConnector.fetchCompanyName(regId).map(cName => BadRequest(CompanyContactDetails(hasErrors, cName))),
+              compRegConnector.fetchCompanyName(regId).map(cName => BadRequest(CompanyContactDetails(hasErrors, cName))),
             data => {
               val context = metricsService.saveContactDetailsToCRTimer.time()
               companyContactDetailsService.updateContactDetails(data) flatMap {

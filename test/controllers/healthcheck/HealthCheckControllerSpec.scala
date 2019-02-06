@@ -16,6 +16,7 @@
 
 package controllers.healthcheck
 
+import config.FrontendAppConfig
 import helpers.SCRSSpec
 import play.api.i18n.MessagesApi
 import play.api.test.FakeRequest
@@ -27,7 +28,7 @@ class HealthCheckControllerSpec extends SCRSSpec with WithFakeApplication {
     val controller = new HealthCheckController {
       override def healthCheckFeature: Boolean = featureEnabled
       implicit val messagesApi: MessagesApi = fakeApplication.injector.instanceOf[MessagesApi]
-      val appConfig = mockAppConfig
+      implicit val appConfig: FrontendAppConfig = fakeApplication.injector.instanceOf[FrontendAppConfig]
     }
   }
 

@@ -18,9 +18,8 @@ package itutil
 import org.scalatest._
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatestplus.play.OneServerPerSuite
-import play.api.test.FakeApplication
 import uk.gov.hmrc.play.test.UnitSpec
-import utils.{FeatureSwitch, SCRSFeatureSwitches}
+import utils.{FeatureSwitch, FeatureSwitchManager, SCRSFeatureSwitches}
 
 trait IntegrationSpecBase extends UnitSpec
   with GivenWhenThen
@@ -38,14 +37,14 @@ trait IntegrationSpecBase extends UnitSpec
                     signPosting: Boolean = false) = {
     def enableFeature(fs: FeatureSwitch, enabled: Boolean) = {
       enabled match {
-        case true => FeatureSwitch.enable(fs)
-        case _ => FeatureSwitch.disable(fs)
+        case true => app.injector.instanceOf[FeatureSwitchManager].enable(fs)
+        case _ => app.injector.instanceOf[FeatureSwitchManager].disable(fs)
       }
     }
-    enableFeature(SCRSFeatureSwitches.cohoFirstHandOff, cohoFirstHandOff)
-    enableFeature(SCRSFeatureSwitches.businessActivitiesHandOff, businessActivitiesHandOff)
-    enableFeature(SCRSFeatureSwitches.paye, paye)
-    enableFeature(SCRSFeatureSwitches.vat, vat)
+    enableFeature(app.injector.instanceOf[SCRSFeatureSwitches].cohoFirstHandOff, cohoFirstHandOff)
+    enableFeature(app.injector.instanceOf[SCRSFeatureSwitches].businessActivitiesHandOff, businessActivitiesHandOff)
+    enableFeature(app.injector.instanceOf[SCRSFeatureSwitches].paye, paye)
+    enableFeature(app.injector.instanceOf[SCRSFeatureSwitches].vat, vat)
 
   }
 

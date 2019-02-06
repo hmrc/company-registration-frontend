@@ -19,6 +19,7 @@ package views
 import _root_.connectors.BusinessRegistrationConnector
 import _root_.helpers.SCRSSpec
 import builders.AuthBuilder
+import controllers.auth.SCRSExternalUrls
 import controllers.reg.PPOBController
 import fixtures.PPOBFixture
 import mocks.NavModelRepoMock
@@ -30,6 +31,7 @@ import play.api.i18n.MessagesApi
 import play.api.test.Helpers._
 import services.AddressLookupFrontendService
 import uk.gov.hmrc.play.test.WithFakeApplication
+import utils.JweCommon
 
 import scala.concurrent.Future
 
@@ -38,21 +40,20 @@ class PPOBSpec extends SCRSSpec with PPOBFixture with NavModelRepoMock with With
   val mockBusinessRegConnector = mock[BusinessRegistrationConnector]
   val mockAddressLookupFrontendService = mock[AddressLookupFrontendService]
 
-
   class SetupPage {
     val controller = new PPOBController {
       override val authConnector = mockAuthConnector
       override val s4LConnector = mockS4LConnector
       override val addressLookupService = mockAddressLookupService
       override val keystoreConnector = mockKeystoreConnector
-      override val companyRegistrationConnector = mockCompanyRegistrationConnector
+      override val compRegConnector = mockCompanyRegistrationConnector
       override val pPOBService = mockPPOBService
       override val handOffService = mockHandOffService
-      override val navModelMongo = mockNavModelRepoObj
       override val businessRegConnector = mockBusinessRegConnector
       override val addressLookupFrontendService = mockAddressLookupFrontendService
       implicit val messagesApi: MessagesApi = fakeApplication.injector.instanceOf[MessagesApi]
       override val appConfig = mockAppConfig
+      override val jwe: JweCommon = mockJweCommon
     }
   }
 

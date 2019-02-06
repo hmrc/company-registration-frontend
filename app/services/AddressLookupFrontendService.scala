@@ -17,21 +17,18 @@
 package services
 
 import connectors.AddressLookupConnector
+import javax.inject.Inject
 import models.NewAddress
 import play.api.mvc.{Call, Request}
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.config.ServicesConfig
 
 import scala.concurrent.Future
 import scala.util.control.NoStackTrace
 
 case class QueryStringMissingException() extends NoStackTrace
 
-object AddressLookupFrontendService extends AddressLookupFrontendService with ServicesConfig {
-  override val addressLookupFrontendConnector = AddressLookupConnector
-  override val metricsService = MetricsService
-}
-
+class AddressLookupFrontendServiceImpl @Inject()(val addressLookupFrontendConnector: AddressLookupConnector,
+                                                 val metricsService: MetricsService) extends AddressLookupFrontendService
 trait AddressLookupFrontendService {
 
   val addressLookupFrontendConnector: AddressLookupConnector

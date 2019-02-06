@@ -17,7 +17,7 @@
 @import uk.gov.hmrc.play.partials.FormPartialRetriever
 
 @(partialUrl : String, formBody : Option[Html])(implicit request : Request[_], formPartialRetriever: FormPartialRetriever,
-partialRetriever: FormPartialRetriever, messages: Messages, appConfig: config.AppConfig)
+partialRetriever: FormPartialRetriever, messages: Messages, appConfig: config.FrontendAppConfig)
 
 @main_template(title = Messages("page.feedback.description"), bodyClasses = None) {
     @formBody.getOrElse(formPartialRetriever.getPartialContent(partialUrl))

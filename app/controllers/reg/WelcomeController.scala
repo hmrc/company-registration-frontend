@@ -16,18 +16,19 @@
 
 package controllers.reg
 
-import config.{AppConfig, FrontendAppConfig}
+import config.FrontendAppConfig
+import javax.inject.Inject
+import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.Action
-import uk.gov.hmrc.play.frontend.controller.FrontendController
-import utils.MessagesSupport
+import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+
 import scala.concurrent.Future
 
-object WelcomeController extends WelcomeController {
-  override val appConfig =  FrontendAppConfig
-}
+class WelcomeControllerImpl @Inject()(val appConfig: FrontendAppConfig,
+                                      val messagesApi: MessagesApi) extends WelcomeController
 
-trait WelcomeController extends FrontendController with MessagesSupport {
-  implicit val appConfig: AppConfig
+trait WelcomeController extends FrontendController with I18nSupport {
+  implicit val appConfig: FrontendAppConfig
   val show = Action.async { implicit request =>
     Future.successful(PermanentRedirect(routes.ReturningUserController.show().url))
 
@@ -35,5 +36,4 @@ trait WelcomeController extends FrontendController with MessagesSupport {
   val submit = Action.async { implicit request =>
     Future.successful(Redirect(routes.ReturningUserController.show()))
   }
-
 }

@@ -1,5 +1,5 @@
 
-import play.routes.compiler.StaticRoutesGenerator
+import play.routes.compiler.{InjectedRoutesGenerator, StaticRoutesGenerator}
 import sbt.Keys._
 import sbt._
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
@@ -46,7 +46,7 @@ trait MicroService {
       libraryDependencies ++= appDependencies,
       fork in Test := true,
       retrieveManaged := true,
-      routesGenerator := StaticRoutesGenerator,
+      routesGenerator := InjectedRoutesGenerator,
       routesImport ++= Seq("uk.gov.hmrc.play.binders._"),
       scalaVersion := "2.11.11",
       resolvers += Resolver.jcenterRepo

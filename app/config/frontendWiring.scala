@@ -16,29 +16,28 @@
 
 package config
 
-import akka.actor.ActorSystem
-import akka.stream.{ActorMaterializer, Materializer}
-import play.api.mvc.Call
+import com.typesafe.config.Config
+import javax.inject.Inject
+import play.api.Configuration
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.crypto.ApplicationCrypto
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.http.cache.client.{SessionCache, ShortLivedCache, ShortLivedHttpCaching}
 import uk.gov.hmrc.http.hooks.HttpHooks
 import uk.gov.hmrc.play.audit.http.HttpAuditing
-import uk.gov.hmrc.play.audit.http.connector.{AuditConnector => Auditing}
-import uk.gov.hmrc.play.config.{AppName, RunMode, ServicesConfig}
-import uk.gov.hmrc.play.frontend.config.LoadAuditingConfig
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
+import uk.gov.hmrc.play.config.AppName
 import uk.gov.hmrc.play.http.ws._
-import uk.gov.hmrc.play.partials.CachedStaticHtmlPartialRetriever
-import uk.gov.hmrc.whitelist.AkamaiWhitelistFilter
-
 
 trait Hooks extends HttpHooks with HttpAuditing {
   override val hooks = NoneRequired
-  override lazy val auditConnector: Auditing = FrontendAuditConnector
 }
 
-object WSHttp extends WSHttp
+class WSHttpImpl @Inject()(config:Configuration, val auditConnector: AuditConnector) extends WSHttp {
+
+  override protected def configuration: Option[Config] = Option(config.underlying)
+  override protected def appNameConfiguration: Configuration = config
+}
 
 trait WSHttp extends
   WSGet with HttpGet with
@@ -47,65 +46,32 @@ trait WSHttp extends
   WSDelete with HttpDelete with
   WSPatch with HttpPatch with AppName with Hooks
 
-object FrontendAuditConnector extends Auditing with AppName with RunMode {
-  override lazy val auditingConfig = LoadAuditingConfig(s"auditing")
-}
-object FrontendAuthConnector extends PlayAuthConnector with ServicesConfig with WSHttp {
-  override val serviceUrl = baseUrl("auth")
-  override def http: CorePost = WSHttp
+class FrontendAuthConnector @Inject()(appConfig: FrontendAppConfig, val http: WSHttp) extends PlayAuthConnector {
+  override lazy val serviceUrl = appConfig.baseUrl("auth")
 }
 
-object WSHttpProxy extends WSHttp with WSProxy with RunMode with HttpAuditing with ServicesConfig {
-  override val appName = getString("appName")
-  override val wsProxyServer = WSProxyConfiguration(s"proxy")
-  override lazy val auditConnector = FrontendAuditConnector
-}
-
-object WSHttpWithAudit extends WSHttp with RunMode with AppName with HttpAuditing{
-  override val hooks = Seq(AuditingHook)
-  override lazy val auditConnector = FrontendAuditConnector
-}
-
-object CachedStaticHtmlPartialProvider extends CachedStaticHtmlPartialRetriever {
-  override val httpGet = WSHttp
-}
-
-
-object SCRSShortLivedHttpCaching extends ShortLivedHttpCaching with AppName with ServicesConfig {
-  override lazy val http = WSHttp
+class SCRSShortLivedHttpCaching @Inject()(val wSHttp: WSHttp, appConfig: FrontendAppConfig, val appNameConfiguration:Configuration) extends ShortLivedHttpCaching with AppName {
+  override lazy val http = wSHttp
   override lazy val defaultSource = appName
-  override lazy val baseUri = baseUrl("cachable.short-lived-cache")
-  override lazy val domain = getConfString("cachable.short-lived-cache.domain",
+  override lazy val baseUri = appConfig.baseUrl("cachable.short-lived-cache")
+  override lazy val domain = appConfig.getConfString("cachable.short-lived-cache.domain",
     throw new Exception(s"Could not find config 'cachable.short-lived-cache.domain'"))
 }
 
-object SCRSShortLivedCache extends ShortLivedCache {
-  override implicit lazy val crypto = ApplicationCrypto.JsonCrypto
-  override lazy val shortLiveCache = SCRSShortLivedHttpCaching
+class SCRSShortLivedCache @Inject()(cryptoInitialiser: CryptoInitialiser, val shortLiveCache: ShortLivedHttpCaching) extends ShortLivedCache {
+  override implicit lazy val crypto = cryptoInitialiser.cryptoInstance.JsonCrypto
+}
+class CryptoInitialiserImpl @Inject()(val applicationCrypto: ApplicationCrypto) extends CryptoInitialiser
+
+trait CryptoInitialiser {
+  val applicationCrypto: ApplicationCrypto
+  lazy val cryptoInstance = applicationCrypto
 }
 
-object SCRSSessionCache extends SessionCache with AppName with ServicesConfig {
-  override lazy val http = WSHttp
+class SCRSSessionCache @Inject()(appConfig: FrontendAppConfig, val wSHttp: WSHttp, val appNameConfiguration: Configuration) extends SessionCache with AppName {
+  override lazy val http = wSHttp
   override lazy val defaultSource = appName
-  override lazy val baseUri = baseUrl("cachable.session-cache")
-  override lazy val domain = getConfString("cachable.session-cache.domain",
+  override lazy val baseUri = appConfig.baseUrl("cachable.session-cache")
+  override lazy val domain = appConfig.getConfString("cachable.session-cache.domain",
     throw new Exception(s"Could not find config 'cachable.session-cache.domain'"))
-}
-
-object WhitelistFilter extends AkamaiWhitelistFilter
-  with RunMode {
-
-  implicit val system = ActorSystem("crf")
-  implicit def mat: Materializer = ActorMaterializer()
-
-  override def whitelist: Seq[String] = FrontendAppConfig.whitelist
-
-
-  override def excludedPaths: Seq[Call] = {
-    FrontendAppConfig.whitelistExcluded.map { path =>
-      Call("GET", path)
-    }
-  }
-
-  override def destination: Call = Call("GET", "https://www.tax.service.gov.uk/outage-register-your-company")
 }

@@ -18,15 +18,14 @@ package services
 
 import java.util.NoSuchElementException
 
-import config.FrontendConfig
+import config.FrontendAppConfig
 import controllers.handoff._
 import models.handoff.{HandOffNavModel, NavLinks, Receiver, Sender}
 import play.api.Logger
 import play.api.mvc.Call
 import repositories._
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
+import scala.concurrent.ExecutionContext.Implicits.global
 import utils.{SCRSExceptions, SCRSFeatureSwitches}
 
 import scala.concurrent.Future
@@ -36,34 +35,36 @@ import scala.util.control.NoStackTrace
 class NavModelNotFoundException extends NoStackTrace
 
 trait HandOffNavigator extends CommonService with SCRSExceptions {
-  _: ServicesConfig =>
 
+  val scrsFeatureSwitches: SCRSFeatureSwitches
+  val appConfig: FrontendAppConfig
+
+  lazy val leg = appConfig.selfFullLegacy
+  lazy val full = appConfig.selfFull
   val navModelMongo : NavModelRepository
-  def compRegFrontendUrl: String = if (SCRSFeatureSwitches.legacyEnv.enabled) {
-    FrontendConfig.selfFullLegacy
+  def compRegFrontendUrl: String = if (scrsFeatureSwitches.legacyEnv.enabled) {
+    leg
   } else {
-    FrontendConfig.selfFull
+    full
   }
 
-  private def buildUrl(call: Call) = {
-    val url = call.url
-    val stripLen = "?request=".length
-    s"$compRegFrontendUrl${url.substring(0, url.length - stripLen)}"
+  private def buildUrl(url: String) = {
+    s"$compRegFrontendUrl${url}"
   }
 
-  def corporationTaxDetails   = buildUrl(routes.CorporationTaxDetailsController.corporationTaxDetails(""))
-  def aboutYouUrl             = buildUrl(routes.BasicCompanyDetailsController.returnToAboutYou(""))
+  lazy val corporationTaxDetails   = buildUrl(routes.CorporationTaxDetailsController.corporationTaxDetails().url)
+  lazy val aboutYouUrl             = buildUrl(routes.BasicCompanyDetailsController.returnToAboutYou().url)
 
-  def regularPaymentsBackUrl  = buildUrl(routes.BusinessActivitiesController.businessActivitiesBack(""))
-  def summaryUrl              = buildUrl(routes.CorporationTaxSummaryController.corporationTaxSummary(""))
-  def groupHandBackUrl        = buildUrl(routes.GroupController.groupHandBack(""))
+  lazy val regularPaymentsBackUrl  = buildUrl(routes.BusinessActivitiesController.businessActivitiesBack().url)
+  lazy val summaryUrl              = buildUrl(routes.CorporationTaxSummaryController.corporationTaxSummary().url)
+  lazy val groupHandBackUrl        = buildUrl(routes.GroupController.groupHandBack().url)
 
-  def returnSummaryUrl        = buildUrl(routes.IncorporationSummaryController.returnToCorporationTaxSummary(""))
-  def confirmationURL         = buildUrl(routes.RegistrationConfirmationController.registrationConfirmation(""))
+  lazy val returnSummaryUrl        = buildUrl(routes.IncorporationSummaryController.returnToCorporationTaxSummary().url)
+  lazy val confirmationURL         = buildUrl(routes.RegistrationConfirmationController.registrationConfirmation().url)
 
-  def forwardConfirmationUrl  = buildUrl(routes.RegistrationConfirmationController.paymentConfirmation(""))
+  lazy val forwardConfirmationUrl  = buildUrl(routes.RegistrationConfirmationController.paymentConfirmation().url)
 
-  val postSignInCall = controllers.reg.routes.SignInOutController.postSignIn(None)
+   val postSignInCall = controllers.reg.routes.SignInOutController.postSignIn(None)
   val postSignInUrl = postSignInCall.url
 
   private val HANDOFF_NAV_KEY: String = "HandOffNavigation"
@@ -125,9 +126,9 @@ trait HandOffNavigator extends CommonService with SCRSExceptions {
   }
 
   private[services] def firstHandoffURL: String = {
-    SCRSFeatureSwitches.cohoFirstHandOff.enabled match {
-      case false => getConfString("coho-service.basic-company-details-stub", throw new Exception("could not find first handoff incorp stub"))
-      case true => getConfString("coho-service.basic-company-details", throw new Exception("could not find first handoff coho-service.url"))
+    scrsFeatureSwitches.cohoFirstHandOff.enabled match {
+      case false => appConfig.getConfString("coho-service.basic-company-details-stub", throw new Exception("could not find first handoff incorp stub"))
+      case true => appConfig.getConfString("coho-service.basic-company-details", throw new Exception("could not find first handoff coho-service.url"))
     }
   }
 }

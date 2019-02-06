@@ -26,7 +26,7 @@ class AddressLookupServiceSpec extends SCRSSpec with AddressLookupFixture {
 
   class Setup {
     val service = new AddressLookupService {
-      override val http = mockWSHttp
+      override val wSHttp = mockWSHttp
       override val addressLookupUrl = "testAddressLookupUrl"
     }
   }
