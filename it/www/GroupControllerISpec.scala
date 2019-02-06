@@ -53,12 +53,13 @@ class GroupControllerISpec extends IntegrationSpecBase with MongoSpecSupport wit
          |}
      """.stripMargin
 
-    val rc = app.injector.instanceOf[ReactiveMongoComponent]
+
     val repo = new NavModelRepo {
-      override val mongo: ReactiveMongoComponent = rc
+      override val mongo: ReactiveMongoComponent = app.injector.instanceOf[ReactiveMongoComponent]
       override val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
     }
-    await(repo.repository.drop) shouldBe true
+    await(repo.repository.drop)
+    await(repo.repository.count) shouldBe 0
     await(repo.repository.ensureIndexes)
     val jweDecryptor = app.injector.instanceOf[JweCommon]
   }
