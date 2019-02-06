@@ -16,14 +16,12 @@
 
 package controllers.test
 
+import javax.inject.Inject
 import play.api.mvc.Action
 import services.internal.TestIncorporationService
-import uk.gov.hmrc.play.frontend.controller.FrontendController
+import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
-object TestIncorporateController extends TestIncorporateController {
-
-  val checkIncorpService = TestIncorporationService
-}
+class TestIncorporateControllerImpl @Inject()(val checkIncorpService: TestIncorporationService) extends TestIncorporateController
 
 trait TestIncorporateController extends FrontendController {
 

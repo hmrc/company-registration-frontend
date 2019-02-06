@@ -16,36 +16,36 @@
 
 package controllers.reg
 
-import config.{AppConfig, FrontendAppConfig, FrontendAuthConnector}
+import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthFunction
 import forms.ConfirmRegistrationEmailForm
+import javax.inject.Inject
 import models.{ConfirmRegistrationEmailModel, RegistrationEmailModel}
+import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Request, Result}
 import services.{CommonService, EmailVerificationService}
+import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.frontend.controller.FrontendController
-import utils.{MessagesSupport, SCRSExceptions, SessionRegistration}
+import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+import utils.{SCRSExceptions, SessionRegistration}
 import views.html.reg.ConfirmRegistrationEmail
 
 import scala.concurrent.Future
 
 
-object RegistrationEmailConfirmationController extends RegistrationEmailConfirmationController with ServicesConfig {
+class RegistrationEmailConfirmationControllerImpl @Inject()(val emailVerificationService: EmailVerificationService,
+                                                            val authConnector: PlayAuthConnector,
+                                                            val keystoreConnector: KeystoreConnector,
+                                                            val appConfig: FrontendAppConfig,
+                                                            val compRegConnector: CompanyRegistrationConnector,
+                                                            val messagesApi: MessagesApi) extends RegistrationEmailConfirmationController
 
-  val emailVerificationService = EmailVerificationService
-  val authConnector = FrontendAuthConnector
-  val keystoreConnector = KeystoreConnector
-  override val appConfig = FrontendAppConfig
-  val companyRegistrationConnector: CompanyRegistrationConnector = CompanyRegistrationConnector
-}
-
-trait RegistrationEmailConfirmationController extends FrontendController with AuthFunction with CommonService with SCRSExceptions with MessagesSupport with SessionRegistration {
+trait RegistrationEmailConfirmationController extends FrontendController with AuthFunction with CommonService with SCRSExceptions with I18nSupport with SessionRegistration {
 
   val keystoreConnector: KeystoreConnector
   val emailVerificationService: EmailVerificationService
-  implicit val appConfig: AppConfig
+  implicit val appConfig: FrontendAppConfig
 
   val show: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
@@ -106,6 +106,4 @@ trait RegistrationEmailConfirmationController extends FrontendController with Au
       }
     }
   }
-
-
 }

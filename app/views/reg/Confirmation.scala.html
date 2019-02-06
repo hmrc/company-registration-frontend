@@ -17,7 +17,7 @@
 @import controllers.CRLanguageController
 @import play.api.Application
 
-@(confirmationRefs: models.connectors.ConfirmationReferences)(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.AppConfig)
+@(confirmationRefs: models.connectors.ConfirmationReferences)(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.FrontendAppConfig)
 
 @import uk.gov.hmrc.play.views.html.helpers.form
 
@@ -49,7 +49,7 @@
 
 
     <br>
-    @form(action = controllers.reg.routes.ConfirmationControllerImpl.submit()) {
+    @form(action = controllers.reg.routes.ConfirmationController.submit()) {
         <div class="form-group">
             <input class="button" type="submit" id="next" value="@Messages("page.reg.finish.btn")">
         </div>

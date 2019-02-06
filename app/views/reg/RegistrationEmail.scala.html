@@ -18,7 +18,7 @@
 @import uk.gov.hmrc.play.views.html.{helpers => govHelpers}
 @import views.html.helpers.{inputRadioGroupHidden, errorSummary}
 
-@(registrationEmail : Form[RegistrationEmailModel], email: String)(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.AppConfig)
+@(registrationEmail : Form[RegistrationEmailModel], email: String)(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.FrontendAppConfig)
 
 @differentHidden = {
     @govHelpers.input(

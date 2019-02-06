@@ -16,37 +16,42 @@
 
 package services
 
-import config.{FrontendAppConfig, FrontendConfig}
+import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
+import javax.inject.Inject
 import models.handoff.{BusinessActivitiesModel, CompanyNameHandOffModel, HandoffPPOB, _}
 import models.{ConfirmationReferencesSuccessResponse, SummaryHandOff}
 import play.api.libs.json.{JsObject, JsString, Json}
 import repositories.NavModelRepo
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
-import utils.{Jwe, JweEncryptor, SCRSExceptions}
+import scala.concurrent.ExecutionContext.Implicits.global
+import utils._
 
 import scala.concurrent.Future
 
-object HandOffServiceImpl extends HandOffService {
-  val keystoreConnector = KeystoreConnector
-  val returnUrl = FrontendConfig.self
-  val externalUrl = FrontendConfig.selfFull
-  val compRegConnector = CompanyRegistrationConnector
-  val encryptor = Jwe
-  val navModelMongo =  NavModelRepo.repository
-  lazy val timeout = FrontendAppConfig.timeoutInSeconds.toInt
-  lazy val timeoutDisplayLength = FrontendAppConfig.timeoutDisplayLength.toInt
+class HandOffServiceImpl @Inject()(
+
+                                   val keystoreConnector: KeystoreConnector,
+                                   val encryptor: JweCommon,
+                                   val appConfig: FrontendAppConfig,
+                                   val navModelRepo: NavModelRepo,
+                                   val compRegConnector: CompanyRegistrationConnector,
+                                   val scrsFeatureSwitches: SCRSFeatureSwitches) extends HandOffService {
+
+  lazy val returnUrl                 = appConfig.self
+  lazy val externalUrl               = appConfig.selfFull
+  lazy val navModelMongo             = navModelRepo.repository
+  lazy val timeout              = appConfig.timeoutInSeconds.toInt
+  lazy val timeoutDisplayLength = appConfig.timeoutDisplayLength.toInt
 }
 
-trait HandOffService extends CommonService with SCRSExceptions with ServicesConfig with HandOffNavigator {
+trait HandOffService extends HandOffNavigator {
 
-  val keystoreConnector: KeystoreConnector
   val returnUrl: String
   val externalUrl: String
   val compRegConnector: CompanyRegistrationConnector
-  val encryptor : JweEncryptor
+  val encryptor : JweCommon
   val timeout : Int
   val timeoutDisplayLength : Int
 

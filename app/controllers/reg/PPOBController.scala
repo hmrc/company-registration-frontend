@@ -18,51 +18,57 @@ package controllers.reg
 
 import _root_.connectors.{BusinessRegistrationConnector, CompanyRegistrationConnector, KeystoreConnector, S4LConnector}
 import address.client.RecordSet
-import config.{AppConfig, FrontendAppConfig, FrontendAuthConnector}
+import config.FrontendAppConfig
 import controllers.auth.AuthFunction
 import forms.PPOBForm
+import javax.inject.Inject
 import models._
 import models.handoff.BackHandoff
 import play.api.Logger
-import play.api.libs.json.{JsValue, Json}
+import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.libs.json.Json
 import play.api.mvc._
 import repositories.NavModelRepo
 import services._
+import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.auth.core.retrieve.Retrievals
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.frontend.controller.FrontendController
-import utils.{Jwe, MessagesSupport, SessionRegistration}
+import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+import utils._
 
 import scala.concurrent.Future
 
-object PPOBController extends PPOBController{
-  val authConnector = FrontendAuthConnector
-  val s4LConnector = S4LConnector
-  val keystoreConnector = KeystoreConnector
-  val addressLookupService = AddressLookupService
-  val addressLookupFrontendService = AddressLookupFrontendService
-  val companyRegistrationConnector = CompanyRegistrationConnector
-  val pPOBService = PPOBService
-  val handOffService = HandOffServiceImpl
-  val navModelMongo =  NavModelRepo.repository
-  val businessRegConnector = BusinessRegistrationConnector
-  override val appConfig =  FrontendAppConfig
+class PPOBControllerImpl @Inject()(val authConnector: PlayAuthConnector,
+                                   val s4LConnector: S4LConnector,
+                                   val keystoreConnector: KeystoreConnector,
+                                   val compRegConnector: CompanyRegistrationConnector,
+                                   val handOffService: HandOffService,
+                                   val businessRegConnector: BusinessRegistrationConnector,
+                                   val appConfig: FrontendAppConfig,
+                                   val navModelRepo: NavModelRepo,
+                                   val jwe: JweCommon,
+                                   val addressLookupService: AddressLookupService,
+                                   val addressLookupFrontendService: AddressLookupFrontendService,
+                                   val pPOBService: PPOBService,
+                                   val scrsFeatureSwitches: SCRSFeatureSwitches,
+                                   val messagesApi: MessagesApi) extends PPOBController {
+  lazy val navModelMongo =  navModelRepo.repository
 }
 
-trait PPOBController extends FrontendController with AuthFunction with HandOffNavigator with ServicesConfig with AddressConverter
-  with SessionRegistration with ControllerErrorHandler with MessagesSupport {
+trait PPOBController extends FrontendController with AuthFunction with AddressConverter
+  with SessionRegistration with ControllerErrorHandler with I18nSupport {
 
-  implicit val appConfig: AppConfig
+  implicit val appConfig: FrontendAppConfig
 
   val s4LConnector : S4LConnector
   val keystoreConnector : KeystoreConnector
   val addressLookupService : AddressLookupService
   val addressLookupFrontendService : AddressLookupFrontendService
-  val companyRegistrationConnector: CompanyRegistrationConnector
+  val compRegConnector: CompanyRegistrationConnector
   val pPOBService : PPOBService
   val handOffService : HandOffService
   val businessRegConnector: BusinessRegistrationConnector
+  val jwe: JweCommon
 
   implicit val formatRecordSet = Json.format[RecordSet]
 
@@ -138,16 +144,15 @@ trait PPOBController extends FrontendController with AuthFunction with HandOffNa
       }
   }
 
-
   def back: Action[AnyContent] = Action.async {
     implicit request =>
       ctAuthorisedOptStr(Retrievals.externalId) { externalID =>
         registered { _ =>
           (for {
-            navModel <- fetchNavModel()
+            navModel <- handOffService.fetchNavModel()
             backPayload <- handOffService.buildBackHandOff(externalID)
           } yield {
-            val payload = Jwe.encrypt[BackHandoff](backPayload).getOrElse("")
+            val payload = jwe.encrypt[BackHandoff](backPayload).getOrElse("")
             val url = navModel.receiver.nav("2").reverse
             Redirect(handOffService.buildHandOffUrl(url, payload))
           }).recover {

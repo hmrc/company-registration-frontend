@@ -16,35 +16,38 @@
 
 package controllers.reg
 
-import config.{AppConfig, FrontendAppConfig, FrontendAuthConnector}
+import config.FrontendAppConfig
 import connectors.{BusinessRegistrationConnector, BusinessRegistrationSuccessResponse, CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthFunction
 import forms.AboutYouForm
+import javax.inject.Inject
+import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent}
 import services.{MetaDataService, MetricsService}
-import uk.gov.hmrc.play.frontend.controller.FrontendController
-import utils.{MessagesSupport, SessionRegistration}
+import uk.gov.hmrc.auth.core.PlayAuthConnector
+import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+import utils.SessionRegistration
 import views.html.reg.CompletionCapacity
 
 import scala.concurrent.Future
 
-object CompletionCapacityController extends CompletionCapacityController {
-  val authConnector = FrontendAuthConnector
-  val keystoreConnector = KeystoreConnector
-  val businessRegConnector = BusinessRegistrationConnector
-  val metaDataService = MetaDataService
-  val metricsService: MetricsService = MetricsService
-  val companyRegistrationConnector = CompanyRegistrationConnector
-  override val appConfig           = FrontendAppConfig
+class CompletionCapacityControllerImpl @Inject()(
+                                                  val authConnector: PlayAuthConnector,
+                                                  val keystoreConnector: KeystoreConnector,
+                                                  val businessRegConnector: BusinessRegistrationConnector,
+                                                  val metricsService: MetricsService,
+                                                  val appConfig: FrontendAppConfig,
+                                                  val metaDataService: MetaDataService,
+                                                  val compRegConnector: CompanyRegistrationConnector,
+                                                  val messagesApi: MessagesApi
+                                                ) extends CompletionCapacityController
 
-}
-
-trait CompletionCapacityController extends FrontendController with AuthFunction with SessionRegistration with MessagesSupport {
+trait CompletionCapacityController extends FrontendController with AuthFunction with SessionRegistration with I18nSupport {
 
   val businessRegConnector: BusinessRegistrationConnector
   val metaDataService: MetaDataService
   val metricsService: MetricsService
-  implicit val appConfig: AppConfig
+  implicit val appConfig: FrontendAppConfig
 
   def show() : Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {

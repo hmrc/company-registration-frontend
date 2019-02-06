@@ -17,33 +17,35 @@
 package controllers.handoff
 
 import builders.AuthBuilder
-import config.AppConfig
+import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
+import controllers.auth.SCRSExternalUrls
 import fixtures.LoginFixture
 import helpers.SCRSSpec
 import models.handoff.{GroupHandBackModel, NavLinks}
-import play.api.test.Helpers.redirectLocation
-import services.{HandBackService, HandOffService, NavModelNotFoundException}
-import uk.gov.hmrc.play.test.WithFakeApplication
-import play.api.test.Helpers.defaultAwaitTimeout
 import org.mockito.Matchers._
 import org.mockito.Mockito._
+import play.api.i18n.MessagesApi
 import play.api.libs.json.Json
+import play.api.test.Helpers.{defaultAwaitTimeout, redirectLocation}
+import services.{HandBackService, HandOffService, NavModelNotFoundException}
+import uk.gov.hmrc.play.test.WithFakeApplication
 
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
 
-class GroupsControllerSpec extends SCRSSpec with LoginFixture with WithFakeApplication with AuthBuilder {
+class GroupControllerSpec extends SCRSSpec with LoginFixture with WithFakeApplication with AuthBuilder {
 
   class Setup {
-    object TestController extends GroupsController {
+    object TestController extends GroupController {
       val authConnector = mockAuthConnector
       val handBackService: HandBackService = mockHandBackService
       val handOffService: HandOffService = mockHandOffService
-      implicit val appConfig: AppConfig = mockAppConfig
+      implicit val appConfig: FrontendAppConfig = fakeApplication.injector.instanceOf[FrontendAppConfig]
       val keystoreConnector: KeystoreConnector = mockKeystoreConnector
-      val companyRegistrationConnector: CompanyRegistrationConnector = mockCompanyRegistrationConnector
+      val compRegConnector: CompanyRegistrationConnector = mockCompanyRegistrationConnector
+      override val messagesApi = fakeApplication.injector.instanceOf[MessagesApi]
     }
   }
   "groupHandBack" should {

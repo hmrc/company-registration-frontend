@@ -17,6 +17,8 @@
 package controllers
 
 import builders.AuthBuilder
+import config.FrontendAppConfig
+import controllers.auth.SCRSExternalUrls
 import controllers.reg.RegistrationEmailController
 import helpers.SCRSSpec
 import models.RegistrationEmailModel
@@ -25,6 +27,7 @@ import org.jsoup.nodes.Document
 import org.mockito.Mockito._
 import org.mockito.{ArgumentMatcher, Matchers}
 import org.scalatest.mockito.MockitoSugar
+import play.api.i18n.MessagesApi
 import play.api.mvc.{AnyContent, Request, Result, Results}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, _}
@@ -43,9 +46,10 @@ class RegistrationEmailControllerSpec extends SCRSSpec with WithFakeApplication 
     val controller = new RegistrationEmailController {
       val authConnector = mockAuthConnector
       val keystoreConnector = mockKeystoreConnector
-      override val appConfig = mockAppConfig
-      override val companyRegistrationConnector = mockCompanyRegistrationConnector
+      implicit val appConfig: FrontendAppConfig = fakeApplication.injector.instanceOf[FrontendAppConfig]
+      override val compRegConnector = mockCompanyRegistrationConnector
       override val emailVerification: EmailVerificationService = mockEmailService
+      override val messagesApi = fakeApplication.injector.instanceOf[MessagesApi]
       def showLogicFun(email:String = "fakeEmail") = showLogic(email)(HeaderCarrier(),FakeRequest())
       def submitLogicFun(regID: String = "regid", email:String = "fakeEmail", r:Request[AnyContent]) = submitLogic(email,regID)(HeaderCarrier(),r)
     }

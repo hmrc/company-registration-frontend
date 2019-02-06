@@ -19,7 +19,7 @@
 @import controllers.CRLanguageController
 @import play.api.Application
 
-@(qForm: Form[(models.QuestionnaireModel)])(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.AppConfig)
+@(qForm: Form[(models.QuestionnaireModel)])(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.FrontendAppConfig)
 
 @pageScripts = {
     <script src=@controllers.routes.Assets.at("javascripts/ExitQuestionnaire.js") type="text/javascript"></script>

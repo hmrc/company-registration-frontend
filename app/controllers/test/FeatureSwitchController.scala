@@ -16,31 +16,33 @@
 
 package controllers.test
 
+import com.google.inject.Inject
+import models.test.FeatureSwitch
 import play.api.mvc.Action
-import uk.gov.hmrc.play.frontend.controller.FrontendController
-import utils.{FeatureSwitch, SCRSFeatureSwitches, SCRSValidators, ValueSetFeatureSwitch}
+import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+import utils._
 
 import scala.concurrent.Future
 
-object FeatureSwitchController extends FeatureSwitchController
-
+class FeatureSwitchControllerImpl @Inject()(val scrsFeatureSwitches: SCRSFeatureSwitches,
+                                            val featureSwitchManager: FeatureSwitchManager) extends FeatureSwitchController
 
 trait FeatureSwitchController extends FrontendController {
 
-  val featureSwitch = FeatureSwitch
-
+  val scrsFeatureSwitches: SCRSFeatureSwitches
+  val featureSwitchManager: FeatureSwitchManager
   def handOffFeatureSwitch(featureName : String, featureState : String) = Action.async {
     implicit request =>
 
       def feature = featureState match {
-        case "stub" | "false"                                      => featureSwitch.disable(FeatureSwitch(featureName, enabled = false))
-        case "coho" | "true"                                       => featureSwitch.enable(FeatureSwitch(featureName, enabled = true))
-        case date if date.matches(SCRSValidators.datePatternRegex) => featureSwitch.setSystemDate(ValueSetFeatureSwitch(featureName, date))
-        case "time-clear"                                          => featureSwitch.setSystemDate(ValueSetFeatureSwitch(featureName, ""))
-        case _                                                     => featureSwitch.disable(FeatureSwitch(featureName, enabled = false))
+        case "stub" | "false"                                      => featureSwitchManager.disable(BooleanFeatureSwitch(featureName, enabled = false))
+        case "coho" | "true"                                       => featureSwitchManager.enable(BooleanFeatureSwitch(featureName, enabled = true))
+        case date if date.matches(SCRSValidators.datePatternRegex) => featureSwitchManager.setSystemDate(ValueSetFeatureSwitch(featureName, date))
+        case "time-clear"                                          => featureSwitchManager.setSystemDate(ValueSetFeatureSwitch(featureName, ""))
+        case _                                                     => featureSwitchManager.disable(BooleanFeatureSwitch(featureName, enabled = false))
       }
 
-      SCRSFeatureSwitches(featureName) match {
+      scrsFeatureSwitches(featureName) match {
         case Some(_) => {
           val f = feature
           Future.successful(Ok(f.toString))
@@ -48,5 +50,4 @@ trait FeatureSwitchController extends FrontendController {
         case None => Future.successful(BadRequest)
       }
   }
-
 }

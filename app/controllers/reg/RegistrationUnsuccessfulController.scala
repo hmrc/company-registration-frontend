@@ -16,31 +16,32 @@
 
 package controllers.reg
 
-import config.{AppConfig, FrontendAppConfig, FrontendAuthConnector}
+import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthFunction
+import javax.inject.Inject
+import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent}
 import services.DeleteSubmissionService
-import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.frontend.controller.FrontendController
-import utils.{MessagesSupport, SessionRegistration}
+import uk.gov.hmrc.auth.core.PlayAuthConnector
+import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+import utils.SessionRegistration
 import views.html.reg.RegistrationUnsuccessful
 
 import scala.concurrent.Future
 
-
-object RegistrationUnsuccessfulController extends RegistrationUnsuccessfulController {
-  val authConnector = FrontendAuthConnector
-  val keystoreConnector = KeystoreConnector
-  val deleteSubService = DeleteSubmissionService
-  val companyRegistrationConnector = CompanyRegistrationConnector
-  val registerCompanyGOVUKLink = getConfString("gov-uk.register-your-company", throw new Exception("Could not find config for key: gov-uk.register-your-company"))
-  override val appConfig =  FrontendAppConfig
+class RegistrationUnsuccessfulControllerImpl @Inject()(val authConnector: PlayAuthConnector,
+                                                       val keystoreConnector: KeystoreConnector,
+                                                       val compRegConnector: CompanyRegistrationConnector,
+                                                       val appConfig: FrontendAppConfig,
+                                                       val deleteSubService: DeleteSubmissionService,
+                                                       val messagesApi: MessagesApi) extends RegistrationUnsuccessfulController {
+  lazy val registerCompanyGOVUKLink  = appConfig.getConfString("gov-uk.register-your-company", throw new Exception("Could not find config for key: gov-uk.register-your-company"))
 }
 
-trait RegistrationUnsuccessfulController extends FrontendController with AuthFunction with SessionRegistration with MessagesSupport with ServicesConfig {
+trait RegistrationUnsuccessfulController extends FrontendController with AuthFunction with SessionRegistration with I18nSupport {
 
-  implicit val appConfig: AppConfig
+  implicit val appConfig: FrontendAppConfig
 
   val deleteSubService: DeleteSubmissionService
   val registerCompanyGOVUKLink: String

@@ -16,15 +16,20 @@
 
 package controllers.feedback
 
-import config.{AppConfig, FrontendAuthConnector}
+import config.FrontendAppConfig
+import mocks.SCRSMocks
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
+import play.api.Mode.Mode
 import play.api.http.Status
+import play.api.i18n.MessagesApi
 import play.api.mvc.{AnyContent, Request, RequestHeader}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import play.api.{Configuration, Mode}
 import play.twirl.api.Html
+import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.http.{HttpGet, HttpPost, HttpResponse}
 import uk.gov.hmrc.play.http.ws.WSPost
 import uk.gov.hmrc.play.partials.{CachedStaticHtmlPartialRetriever, FormPartialRetriever, HtmlPartial}
@@ -32,7 +37,7 @@ import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class FeedbackControllerSpec extends UnitSpec with MockitoSugar with WithFakeApplication {
+class FeedbackControllerSpec extends UnitSpec with MockitoSugar with WithFakeApplication with SCRSMocks {
   val fakeRequest = FakeRequest("GET", "/")
 
   val mockHttp = mock[HttpPost with WSPost]
@@ -54,7 +59,7 @@ class FeedbackControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
         override def getPartialContent(url: String, templateParameters: Map[String, String], errorMessage: Html)(implicit request: RequestHeader): Html = Html("")
       }
 
-      override val authConnector = FrontendAuthConnector
+      override val authConnector = mock[PlayAuthConnector]
 
       protected def loadPartial(url: String)(implicit request: RequestHeader): HtmlPartial = ???
 
@@ -64,21 +69,27 @@ class FeedbackControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
 
       override def contactFormReferer(implicit request: Request[AnyContent]): String = request.headers.get(REFERER).getOrElse("")
 
-      override val applicationConfig: AppConfig = new AppConfig {
-        override val assetsPrefix = ""
-        override val reportAProblemNonJSUrl = ""
-        override val contactFrontendPartialBaseUrl = ""
-        override val analyticsHost = ""
-        override val piwikURL = Some("")
-        override val analyticsToken = ""
-        override val analyticsAutoLink = ""
-        override val reportAProblemPartialUrl = ""
-        override val serviceId = "SCRS"
-        override val corsRenewHost = Some("")
-        override val timeoutInSeconds = ""
-        override val timeoutDisplayLength = ""
-        override val govHostUrl: String = ""
+      override val appConfig: FrontendAppConfig = new FrontendAppConfig {
+        override lazy val assetsPrefix = ""
+        override lazy val reportAProblemNonJSUrl = ""
+        override lazy val contactFrontendPartialBaseUrl = ""
+        override lazy val analyticsHost = ""
+        override lazy val piwikURL = Some("")
+        override lazy val analyticsToken = ""
+        override lazy val analyticsAutoLink = ""
+        override lazy val reportAProblemPartialUrl = ""
+        override lazy val serviceId = "SCRS"
+        override lazy val corsRenewHost = Some("")
+        override lazy val timeoutInSeconds = ""
+        override lazy val timeoutDisplayLength = ""
+        override lazy val govHostUrl: String = ""
+
+        override protected def mode: Mode = Mode.Test
+
+        override protected def runModeConfiguration: Configuration = mockConfiguration
       }
+
+      override def messagesApi: MessagesApi = fakeApplication.injector.instanceOf[MessagesApi]
     }
   }
 

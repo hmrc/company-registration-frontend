@@ -42,7 +42,7 @@ class PlatformAnalyticsConnectorSpec extends UnitSpec with MockitoSugar with Log
     val httpMock = mock[HttpPost with CorePost]
     val analyticsPlatformConnector = new PlatformAnalyticsConnector {
       override val serviceUrl = aServiceUrl
-      override val http = httpMock
+      override val wSHttp = httpMock
       override val gaClientId = "uuid"
     }
   }

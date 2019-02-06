@@ -17,10 +17,12 @@
 package services
 
 import config.FrontendAppConfig
+import javax.inject.Inject
 import uk.gov.hmrc.auth.core.Enrolments
 
-object EnrolmentsService extends EnrolmentsService
+class EnrolmentsServiceImpl @Inject()(val frontendAppConfig: FrontendAppConfig) extends EnrolmentsService
 
-trait EnrolmentsService extends {
-  def hasBannedRegimes(enrolments: Enrolments) : Boolean = enrolments.enrolments.exists(e => FrontendAppConfig.restrictedEnrolments.contains(e.key))
+trait EnrolmentsService {
+  val frontendAppConfig: FrontendAppConfig
+  def hasBannedRegimes(enrolments: Enrolments) : Boolean = enrolments.enrolments.exists(e => frontendAppConfig.restrictedEnrolments.contains(e.key))
 }

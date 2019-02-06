@@ -17,18 +17,17 @@
 package services
 
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
+import javax.inject.Inject
 import models.AccountingDatesModel.{FUTURE_DATE, NOT_PLANNING_TO_YET, WHEN_REGISTERED}
 import models.{AccountingDatesModel, AccountingDetailsRequest, AccountingDetailsResponse, AccountingDetailsSuccessResponse}
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
+import scala.concurrent.ExecutionContext.Implicits.global
 import utils.SCRSExceptions
 
 import scala.concurrent.Future
 
-object AccountingService extends AccountingService {
-  val companyRegistrationConnector = CompanyRegistrationConnector
-  val keystoreConnector = KeystoreConnector
-}
+class AccountingServiceImpl @Inject()(val companyRegistrationConnector: CompanyRegistrationConnector,
+                                      val keystoreConnector: KeystoreConnector) extends AccountingService
 
 trait AccountingService extends CommonService with SCRSExceptions {
 

@@ -16,10 +16,10 @@
 
 package connectors
 
-import config.WSHttp
 import helpers.SCRSSpec
 import org.mockito.Matchers
 import org.mockito.Mockito._
+import play.api.i18n.MessagesApi
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.Call
 import uk.gov.hmrc.http.{ForbiddenException, HeaderCarrier, HttpResponse, NotFoundException}
@@ -33,22 +33,20 @@ class AddressLookupConnectorSpec extends SCRSSpec with WithFakeApplication {
     val connector = new AddressLookupConnector {
       override val addressLookupFrontendURL = "testAddressLookupUrl"
       override val companyRegistrationFrontendURL = "testCompanyRegUrl"
-      override val http = mockWSHttp
+      override val wSHttp = mockWSHttp
       override val timeoutInSeconds= 22666
+      override val messagesApi = fakeApplication.injector.instanceOf[MessagesApi]
     }
   }
 
   val testAddress = Json.obj("foo" -> "bar")
 
   "AddressLookupConnector" should {
-    "use the correct addressLookupFrontendURL" in {
-      AddressLookupConnector.addressLookupFrontendURL shouldBe "http://localhost:9028"
+    "use the correct addressLookupFrontendURL" in new Setup {
+      connector.addressLookupFrontendURL shouldBe "testAddressLookupUrl"
     }
-    "use the correct companyRegistrationFrontendURL" in {
-      AddressLookupConnector.companyRegistrationFrontendURL shouldBe "http://localhost:9970"
-    }
-    "use the correct http" in {
-      AddressLookupConnector.http shouldBe WSHttp
+    "use the correct companyRegistrationFrontendURL" in new Setup {
+      connector.companyRegistrationFrontendURL shouldBe "testCompanyRegUrl"
     }
   }
 
@@ -95,5 +93,4 @@ class AddressLookupConnectorSpec extends SCRSSpec with WithFakeApplication {
       intercept[ALFLocationHeaderNotSet](await(connector.getOnRampURL("journeyId", call)))
     }
   }
-
 }

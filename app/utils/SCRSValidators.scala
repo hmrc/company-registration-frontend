@@ -23,34 +23,47 @@ import services.TimeService
 
 import scala.util.{Failure, Success, Try}
 
-object SCRSValidators extends SCRSValidators {
-  val timeService: TimeService = TimeService
-  val now : LocalDate          = LocalDate.now()
-}
-
-trait SCRSValidators {
-
-  val timeService: TimeService
-  val now : LocalDate
-
-  private val nameRegex               = """^[a-zA-Z-]+(?:\W+[a-zA-Z-]+)+$""".r
+object SCRSValidators {
+  val desSessionRegex                 = "^([A-Za-z0-9-]{0,60})$"
+  val deskproRegex                    = """^[A-Za-z\-.,()'"\s]+$"""
+  val postCodeRegex                   = """^[A-Z]{1,2}[0-9][0-9A-Z]? [0-9][A-Z]{2}$""".r
+  private val phoneNumberRegex        = """^[0-9 ]{1,20}$""".r
+  private val completionCapacityRegex = """^[A-Za-z0-9 '\-]{1,100}$""".r
   private val emailRegex              = """^(?!.{71,})([-0-9a-zA-Z.+_]+@[-0-9a-zA-Z.+_]+\.[a-zA-Z]{1,11})$"""
   private val emailRegexDes           = """^[A-Za-z0-9\-_.@]{1,70}$"""
-  private val phoneNumberRegex        = """^[0-9 ]{1,20}$""".r
-  val postCodeRegex                   = """^[A-Z]{1,2}[0-9][0-9A-Z]? [0-9][A-Z]{2}$""".r
-  private val addresslinelongRegex    = """^$|[a-zA-Z0-9,.\(\)/&'"\-]{1}[a-zA-Z0-9, .\(\)/&'"\-]{0,26}$""".r
-  private val addressline4Regex       = """^$|[a-zA-Z0-9,.\(\)/&'"\-]{1}[a-zA-Z0-9, .\(\)/&'"\-]{0,17}$""".r
-  private val nonEmptyRegex           = """^(?=\s*\S).*$""".r
-  private val completionCapacityRegex = """^[A-Za-z0-9 '\-]{1,100}$""".r
-
-  val desSessionRegex                 = "^([A-Za-z0-9-]{0,60})$"
   val datePatternRegex                = """([12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))"""
 
-  implicit val bHS = TimeService.bHS
+  def isValidPhoneNo(phone: String): Either[String, String] = {
+    def isValidNumber(s: String) = s.replaceAll(" ", "").matches("[0-9]+")
+    val digitCount = phone.trim.replaceAll(" ", "").length
 
-  val MAX_NAME_LENGTH = 300
+    (isValidNumber(phone), phone.trim.matches(phoneNumberRegex.toString())) match {
+      case (true, _) if digitCount > 20      => Left("validation.contactNum.tooLong")
+      case (true, _) if digitCount < 10      => Left("validation.contactNum.tooShort")
+      case (true, true)                      => Right(phone.trim)
+      case (true, false)                     => Right(phone.replaceAll(" ", ""))
+      case _                                 => Left("validation.contactNum")
+    }
+  }
 
+  val completionCapacityValidation: Constraint[String] = Constraint("constraints.completionCapacity")({
+    text =>
+      val errors = text.trim match {
+        case completionCapacityRegex() => Nil
+        case _ => Seq(ValidationError(Messages("validation.invalid")))
+      }
+      if (errors.isEmpty) Valid else Invalid(errors)
+  })
 
+  val emailValidation: Constraint[String] = Constraint("constraints.emailCheck")({
+    text =>
+      val errors = text match {
+        case t if t.matches(emailRegex) && t.matches(emailRegexDes) => Nil
+        case t if t.length > 70 => Seq(ValidationError(Messages("validation.emailtoolong")))
+        case _ => Seq(ValidationError(Messages("validation.email")))
+      }
+      if (errors.isEmpty) Valid else Invalid(errors)
+  })
 
   def companyContactDetailsValidation = {
     Constraint("constraints.companyContactDetails")({
@@ -63,6 +76,29 @@ trait SCRSValidators {
         }
     })
   }
+}
+
+class SCRSValidators(val timeService: TimeService) extends SCRSValidatorsT {
+  val now : LocalDate = LocalDate.now()
+}
+
+trait SCRSValidatorsT {
+
+  val timeService: TimeService
+  val now : LocalDate
+
+  private val nameRegex               = """^[a-zA-Z-]+(?:\W+[a-zA-Z-]+)+$""".r
+
+  private val addresslinelongRegex    = """^$|[a-zA-Z0-9,.\(\)/&'"\-]{1}[a-zA-Z0-9, .\(\)/&'"\-]{0,26}$""".r
+  private val addressline4Regex       = """^$|[a-zA-Z0-9,.\(\)/&'"\-]{1}[a-zA-Z0-9, .\(\)/&'"\-]{0,17}$""".r
+  private val nonEmptyRegex           = """^(?=\s*\S).*$""".r
+
+
+  val desSessionRegex                 = "^([A-Za-z0-9-]{0,60})$"
+
+  implicit lazy val bHS = timeService.bHS
+
+  val MAX_NAME_LENGTH = 300
 
   def accountingDateValidation = {
     Constraint("constraints.twoWorkingDays")({
@@ -117,7 +153,7 @@ trait SCRSValidators {
           val fieldErrors = validateDateFields(model.day.get, model.month.get, model.year.get)
           if(fieldErrors.nonEmpty) Invalid(fieldErrors) else {
             val date = s"${model.year.get}-${model.month.get}-${model.day.get}"
-            if(TimeService.validate(date)) Valid else Invalid(Seq(ValidationError("page.reg.accountingDates.date.invalid-date", "invalidDate")))
+            if(timeService.validate(date)) Valid else Invalid(Seq(ValidationError("page.reg.accountingDates.date.invalid-date", "invalidDate")))
           }
         case _ => Valid
       }
@@ -139,37 +175,4 @@ trait SCRSValidators {
       validatedYear
     ).flatten
   }
-
-  val emailValidation: Constraint[String] = Constraint("constraints.emailCheck")({
-    text =>
-      val errors = text match {
-        case t if t.matches(emailRegex) && t.matches(emailRegexDes) => Nil
-        case t if t.length > 70 => Seq(ValidationError(Messages("validation.emailtoolong")))
-        case _ => Seq(ValidationError(Messages("validation.email")))
-      }
-      if (errors.isEmpty) Valid else Invalid(errors)
-  })
-
-  def isValidPhoneNo(phone: String): Either[String, String] = {
-    def isValidNumber(s: String) = s.replaceAll(" ", "").matches("[0-9]+")
-    val digitCount = phone.trim.replaceAll(" ", "").length
-
-    (isValidNumber(phone), phone.trim.matches(phoneNumberRegex.toString())) match {
-      case (true, _) if digitCount > 20      => Left("validation.contactNum.tooLong")
-      case (true, _) if digitCount < 10      => Left("validation.contactNum.tooShort")
-      case (true, true)                      => Right(phone.trim)
-      case (true, false)                     => Right(phone.replaceAll(" ", ""))
-      case _                                 => Left("validation.contactNum")
-    }
-  }
-
-  val completionCapacityValidation: Constraint[String] = Constraint("constraints.completionCapacity")({
-    text =>
-      val errors = text.trim match {
-        case completionCapacityRegex() => Nil
-        case _ => Seq(ValidationError(Messages("validation.invalid")))
-      }
-
-      if (errors.isEmpty) Valid else Invalid(errors)
-  })
 }

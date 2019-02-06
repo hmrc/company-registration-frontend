@@ -16,19 +16,20 @@
 
 package services
 
-import audit.events.{EmailMismatchEvent, EmailVerifiedEvent}
+import audit.events.EmailMismatchEvent
 import builders.AuthBuilder
+import config.FrontendAppConfig
 import connectors.{NotStarted, SuccessfulResponse}
-import helpers.{AuthHelpers, SCRSSpec}
+import helpers.SCRSSpec
 import mocks.ServiceConnectorMock
 import models._
 import models.auth.AuthDetails
-import connectors.ConfirmationReferences
+import models.connectors.ConfirmationReferences
 import models.external.{OtherRegStatus, Statuses}
 import org.joda.time.DateTime
-import org.mockito.{ArgumentCaptor, Matchers}
 import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito._
+import org.mockito.{ArgumentCaptor, Matchers}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.{JsObject, JsValue, Json}
 import play.api.test.FakeRequest
@@ -41,10 +42,7 @@ import utils.{BooleanFeatureSwitch, SCRSFeatureSwitches}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class DashboardServiceSpec extends SCRSSpec with AuthHelpers with ServiceConnectorMock with AuthBuilder with GuiceOneAppPerSuite {
-
-  implicit val auth = buildAuthContext
-
+class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthBuilder with GuiceOneAppPerSuite {
 
   val payeTestBaseUrl = "test"
   val payeTestUri = "/paye-uri"
@@ -74,7 +72,8 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers with ServiceConnect
       override val featureFlag = mockfeatureFlag
       override val loggingDays = mockLoggingDays
       override val loggingTimes = mockLoggingTimes
-
+      override val thresholdService: ThresholdService = mockThresholdService
+      override val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
     }
   }
 
@@ -95,6 +94,9 @@ class DashboardServiceSpec extends SCRSSpec with AuthHelpers with ServiceConnect
       override val featureFlag = mockfeatureFlag
       override val loggingDays = mockLoggingDays
       override val loggingTimes = mockLoggingTimes
+      override val thresholdService: ThresholdService = mockThresholdService
+      override val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+
 
       override def buildIncorpCTDashComponent(regId: String, enrolments: Enrolments)(implicit hc: HeaderCarrier) = Future.successful(dash)
       override def getCompanyName(regId: String)(implicit hc: HeaderCarrier) = Future.successful("testCompanyName")

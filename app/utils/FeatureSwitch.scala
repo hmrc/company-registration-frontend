@@ -16,16 +16,19 @@
 
 package utils
 
+import javax.inject.Inject
 import org.joda.time.format.ISODateTimeFormat
 import org.joda.time.{DateTime, DateTimeZone}
 import play.api.libs.json.Json
 
 
-sealed trait FeatureSwitch {
+sealed trait FeatureSwitch extends FeatureSwitchManager {
   def name: String
   def enabled: Boolean
   def value: String
 }
+
+
 
 case class BooleanFeatureSwitch(name: String, enabled: Boolean) extends FeatureSwitch {
   override def value = ""
@@ -48,7 +51,9 @@ case class ValueSetFeatureSwitch(name: String, setValue: String) extends Feature
   override def value   = setValue
 }
 
-object FeatureSwitch {
+class FeatureSwitchManagerImpl @Inject()() extends FeatureSwitchManager
+
+trait FeatureSwitchManager {
 
   val DatesIntervalExtractor = """(\S+)_(\S+)""".r
   val UNSPECIFIED            = "X"
@@ -85,30 +90,27 @@ object FeatureSwitch {
 
   def setSystemDate(fs: FeatureSwitch): FeatureSwitch   = setProperty(fs.name, fs.value)
   def clearSystemDate(fs: FeatureSwitch): FeatureSwitch = setProperty(fs.name, "")
-
   def apply(name: String, enabled: Boolean = false): FeatureSwitch = getProperty(name)
   def unapply(fs: FeatureSwitch): Option[(String, Boolean)]        = Some(fs.name -> fs.enabled)
-
-  implicit val formats = Json.format[FeatureSwitch]
 }
 
-object SCRSFeatureSwitches extends SCRSFeatureSwitches {
+class SCRSFeatureSwitchesImpl @Inject()(val featureSwitchManager: FeatureSwitchManager) extends SCRSFeatureSwitches {
   val COHO = "cohoFirstHandOff"
 }
 
 trait SCRSFeatureSwitches {
 
+  val featureSwitchManager: FeatureSwitchManager
   val COHO: String
   val LEGACY_ENV: String = "legacyEnv"
 
-  def cohoFirstHandOff          = FeatureSwitch.getProperty(COHO)
-  def businessActivitiesHandOff = FeatureSwitch.getProperty("businessActivitiesHandOff")
-  def paye                      = FeatureSwitch.getProperty("paye")
-  def vat                       = FeatureSwitch.getProperty("vat")
-  def legacyEnv                 = FeatureSwitch.getProperty(LEGACY_ENV)
-  def contactUs                 = FeatureSwitch.getProperty("contactUs")
-  def systemDate                = FeatureSwitch.getProperty("system-date")
-  def healthCheck               = FeatureSwitch.getProperty("healthCheck")
+  def cohoFirstHandOff          = featureSwitchManager.getProperty(COHO)
+  def businessActivitiesHandOff = featureSwitchManager.getProperty("businessActivitiesHandOff")
+  def paye                      = featureSwitchManager.getProperty("paye")
+  def vat                       = featureSwitchManager.getProperty("vat")
+  def legacyEnv                 = featureSwitchManager.getProperty(LEGACY_ENV)
+  def systemDate                = featureSwitchManager.getProperty("system-date")
+  def healthCheck               = featureSwitchManager.getProperty("healthCheck")
 
   def apply(name: String): Option[FeatureSwitch] = name match {
     case COHO                        => Some(cohoFirstHandOff)
@@ -116,7 +118,6 @@ trait SCRSFeatureSwitches {
     case "paye"                      => Some(paye)
     case "vat"                       => Some(vat)
     case LEGACY_ENV                  => Some(legacyEnv)
-    case "contactUs"                 => Some(contactUs)
     case "system-date"               => Some(systemDate)
     case "healthCheck"               => Some(healthCheck)
     case _                           => None

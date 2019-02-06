@@ -3,6 +3,7 @@ package www
 
 import java.util.UUID
 
+import config.FrontendAppConfig
 import fixtures.HandOffFixtures
 import itutil.{FakeAppConfig, IntegrationSpecBase, LoginStub, PayloadExtractor}
 import models.handoff.{NavLinks, PSCHandOff}
@@ -12,11 +13,11 @@ import play.api.test.FakeApplication
 import play.modules.reactivemongo.ReactiveMongoComponent
 import repositories.NavModelRepo
 import uk.gov.hmrc.mongo.MongoSpecSupport
-import utils.Jwe
+import utils.JweCommon
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class GroupsControllerISpec extends IntegrationSpecBase with MongoSpecSupport with LoginStub with FakeAppConfig with HandOffFixtures {
+class GroupControllerISpec extends IntegrationSpecBase with MongoSpecSupport with LoginStub with FakeAppConfig with HandOffFixtures {
 
   override implicit lazy val app = FakeApplication(additionalConfiguration = fakeConfig())
   val userId = "test-user-id"
@@ -53,10 +54,13 @@ class GroupsControllerISpec extends IntegrationSpecBase with MongoSpecSupport wi
      """.stripMargin
 
     val rc = app.injector.instanceOf[ReactiveMongoComponent]
-    val repo = new NavModelRepo(rc)
+    val repo = new NavModelRepo {
+      override val mongo: ReactiveMongoComponent = rc
+      override val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+    }
     await(repo.repository.drop) shouldBe true
     await(repo.repository.ensureIndexes)
-    val jweDecryptor = Jwe
+    val jweDecryptor = app.injector.instanceOf[JweCommon]
   }
 
   s"${controllers.handoff.routes.GroupController.groupHandBack("").url}" should {

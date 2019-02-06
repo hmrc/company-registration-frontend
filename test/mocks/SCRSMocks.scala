@@ -16,18 +16,21 @@
 
 package mocks
 
-import config.AppConfig
-import connectors.{EmailVerificationConnector, IncorpInfoConnector, KeystoreConnector, SendTemplatedEmailConnector}
+import config.FrontendAppConfig
+import connectors._
+import controllers.auth.SCRSExternalUrls
 import org.mockito.Matchers
-import org.mockito.Matchers.{any, eq => eqTo}
+import org.mockito.Matchers.any
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
+import play.api.Configuration
 import play.api.libs.json.JsValue
 import services._
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.cache.client.{CacheMap, SessionCache}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.model.Audit
+import utils.{FeatureSwitchManager, JweCommon, SCRSFeatureSwitches}
 
 import scala.concurrent.Future
 
@@ -53,9 +56,18 @@ trait SCRSMocks
   lazy val mockPPOBService = mock[PPOBService]
   lazy val mockCommonService = mock[CommonService]
   lazy val mockMetaDataService = mock[MetaDataService]
+  lazy val mockThresholdService = mock[ThresholdService]
   lazy val mockEmailVerificationConnector = mock[EmailVerificationConnector]
   lazy val mockSendTemplateEmailConnector = mock[SendTemplatedEmailConnector]
-  lazy implicit val mockAppConfig = mock[AppConfig]
+  lazy implicit val mockAppConfig = mock[FrontendAppConfig]
+  lazy val mockPAYEConnector = mock[PAYEConnector]
+  lazy val mockVATConnector = mock[VATConnector]
+  lazy val mockSCRSFeatureSwitches = mock[SCRSFeatureSwitches]
+  lazy val mockFeatureSwitchManager = mock[FeatureSwitchManager]
+  lazy val mockJweCommon = mock[JweCommon]
+  lazy val mockConfiguration = mock[Configuration]
+  lazy val mockTimeService = mock[TimeService]
+
 
   def mockFetchRegistrationID[T <: CommonService](response: String, mock : T) = {
     when(mock.fetchRegistrationID(Matchers.any[HeaderCarrier]()))
@@ -84,5 +96,14 @@ trait SCRSMocks
     reset(mockCommonService)
     reset(mockEmailVerificationConnector)
     reset(mockSendTemplateEmailConnector)
+    reset(mockPAYEConnector)
+    reset(mockVATConnector)
+    reset(mockSCRSFeatureSwitches)
+    reset(mockJweCommon)
+    reset(mockThresholdService)
+    reset(mockFeatureSwitchManager)
+
+    reset(mockConfiguration)
+    reset(mockTimeService)
   }
 }

@@ -16,12 +16,6 @@
 
 package utils
 
-trait MessagesSupport {
-  import play.api.Play.current
-  import play.api.i18n.{Messages => RealMessages}
-  implicit val msg: RealMessages = RealMessages.Implicits.applicationMessages
-}
-
 
 // reduce & isolate the deprecation warnings
 object Messages {

@@ -18,7 +18,6 @@ package services
 
 import java.util.UUID
 
-import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import fixtures.TradingDetailsFixtures
 import helpers.SCRSSpec
 import mocks.SCRSMocks

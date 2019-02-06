@@ -16,34 +16,36 @@
 
 package controllers.handoff
 
-import config.{AppConfig, FrontendAppConfig, FrontendAuthConnector}
+import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthFunction
 import controllers.reg.ControllerErrorHandler
+import javax.inject.Inject
 import play.api.Logger
+import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent}
-import services.{HandBackService, HandOffService, HandOffServiceImpl, NavModelNotFoundException}
+import services.{HandBackService, HandOffService, NavModelNotFoundException}
+import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.auth.core.retrieve.Retrievals
-import uk.gov.hmrc.play.frontend.controller.FrontendController
-import utils.{DecryptionError, MessagesSupport, PayloadError, SessionRegistration}
+import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+import utils.{DecryptionError, PayloadError, SessionRegistration}
 import views.html.error_template_restart
 
 import scala.util.{Failure, Success}
 
-object IncorporationSummaryController extends IncorporationSummaryController {
-  val authConnector = FrontendAuthConnector
-  val keystoreConnector = KeystoreConnector
-  val handOffService = HandOffServiceImpl
-  val handBackService = HandBackService
-  val companyRegistrationConnector = CompanyRegistrationConnector
-  override val appConfig =  FrontendAppConfig
-}
+class IncorporationSummaryControllerImpl @Inject()(val authConnector: PlayAuthConnector,
+                                                   val keystoreConnector: KeystoreConnector,
+                                                   val handOffService: HandOffService,
+                                                   val appConfig: FrontendAppConfig,
+                                                   val compRegConnector: CompanyRegistrationConnector,
+                                                   val handBackService: HandBackService,
+                                                   val messagesApi: MessagesApi) extends IncorporationSummaryController
 
-trait IncorporationSummaryController extends FrontendController with AuthFunction with SessionRegistration with ControllerErrorHandler with MessagesSupport {
+trait IncorporationSummaryController extends FrontendController with AuthFunction with SessionRegistration with ControllerErrorHandler with I18nSupport {
   val handOffService : HandOffService
 
   val handBackService : HandBackService
-  implicit val appConfig: AppConfig
+  implicit val appConfig: FrontendAppConfig
 
   //HO5
   def incorporationSummary: Action[AnyContent] = Action.async {

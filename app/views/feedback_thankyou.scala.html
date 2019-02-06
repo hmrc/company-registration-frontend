@@ -17,7 +17,7 @@
 @import uk.gov.hmrc.play.partials.CachedStaticHtmlPartialRetriever
 
 @(partialUrl: String, redirectUrl: String)(implicit request: Request[_], cachedStaticHtmlPartialRetriever: CachedStaticHtmlPartialRetriever,
-messages: Messages, appConfig: config.AppConfig)
+messages: Messages, appConfig: config.FrontendAppConfig)
 
 @main_template(Messages("feedback.thankyou.title")) {
     @cachedStaticHtmlPartialRetriever.getPartialContent(partialUrl)

@@ -16,19 +16,18 @@
 
 package connectors
 
-import config.WSHttp
+import config.{FrontendAppConfig, WSHttp}
+import javax.inject.Inject
 import models._
 import play.api.Logger
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.http._
-import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
+import scala.concurrent.ExecutionContext.Implicits.global
 
 import scala.concurrent.Future
 
-object BusinessRegistrationConnector extends BusinessRegistrationConnector with ServicesConfig {
-  val businessRegUrl = baseUrl("business-registration")
-  val http : CoreGet with CorePost = WSHttp
+class BusinessRegistrationConnectorImpl @Inject()(val wsHttp: WSHttp, val appConfig: FrontendAppConfig) extends BusinessRegistrationConnector {
+ lazy val businessRegUrl = appConfig.baseUrl("business-registration")
 }
 
 sealed trait BusinessRegistrationResponse
@@ -40,17 +39,17 @@ case class BusinessRegistrationErrorResponse(err: Exception) extends BusinessReg
 trait BusinessRegistrationConnector {
 
   val businessRegUrl: String
-  val http: CoreGet with CorePost
+  val wsHttp: CoreGet with CorePost
 
   def createMetadataEntry(implicit hc: HeaderCarrier): Future[BusinessRegistration] = {
     val json = Json.toJson[BusinessRegistrationRequest](BusinessRegistrationRequest("en"))
-    http.POST[JsValue, BusinessRegistration](s"$businessRegUrl/business-registration/business-tax-registration", json)
+    wsHttp.POST[JsValue, BusinessRegistration](s"$businessRegUrl/business-registration/business-tax-registration", json)
   }
 
   def retrieveAndUpdateCompletionCapacity(registrationID : String, completionCapacity : String)(implicit hc : HeaderCarrier) : Future[BusinessRegistration] = {
     retrieveMetadata(registrationID) flatMap {
       case BusinessRegistrationSuccessResponse(resp) =>
-        http.POST[JsValue, BusinessRegistration](s"$businessRegUrl/business-registration/business-tax-registration/update/$registrationID",
+        wsHttp.POST[JsValue, BusinessRegistration](s"$businessRegUrl/business-registration/business-tax-registration/update/$registrationID",
           Json.toJson[BusinessRegistration](resp.copy(completionCapacity = Some(completionCapacity))))
       case unknown => {
         Logger.warn(s"[BusinessRegistrationConnector][retrieveAndUpdateCompletionCapacity] Unexpected result, unable to get BR doc : ${unknown}")
@@ -60,7 +59,7 @@ trait BusinessRegistrationConnector {
   }
 
   def retrieveMetadata(regId: String)(implicit hc: HeaderCarrier, rds: HttpReads[BusinessRegistration]): Future[BusinessRegistrationResponse] = {
-    http.GET[BusinessRegistration](s"$businessRegUrl/business-registration/business-tax-registration/$regId") map {
+    wsHttp.GET[BusinessRegistration](s"$businessRegUrl/business-registration/business-tax-registration/$regId") map {
       metaData =>
         BusinessRegistrationSuccessResponse(metaData)
     } recover {
@@ -77,7 +76,7 @@ trait BusinessRegistrationConnector {
   }
 
   def retrieveMetadata(implicit hc: HeaderCarrier, rds: HttpReads[BusinessRegistration]): Future[BusinessRegistrationResponse] = {
-    http.GET[BusinessRegistration](s"$businessRegUrl/business-registration/business-tax-registration") map {
+    wsHttp.GET[BusinessRegistration](s"$businessRegUrl/business-registration/business-tax-registration") map {
       metaData =>
         BusinessRegistrationSuccessResponse(metaData)
     } recover {
@@ -97,24 +96,24 @@ trait BusinessRegistrationConnector {
     val url = s"$businessRegUrl/business-registration/$registrationId/contact-details"
     val json = Json.toJson(contactDetails)(CompanyContactDetailsApi.prePopWrites)
 
-    http.POST(url, json) map (_ => true) recover handlePrePopError("updatePrePopContactDetails")
+    wsHttp.POST(url, json) map (_ => true) recover handlePrePopError("updatePrePopContactDetails")
   }
 
   def fetchPrePopContactDetails(registrationId: String)(implicit hc: HeaderCarrier): Future[JsValue] = {
     val url = s"$businessRegUrl/business-registration/$registrationId/contact-details"
-    http.GET(url) map (_.json)
+    wsHttp.GET(url) map (_.json)
   }
 
   def updatePrePopAddress(registrationId: String, address: Address)(implicit hc: HeaderCarrier): Future[Boolean] = {
     val url = s"$businessRegUrl/business-registration/$registrationId/addresses"
     val json = Json.toJson(address)(Address.prePopWrites)
 
-    http.POST(url, json) map (_ => true) recover handlePrePopError("updatePrePopAddress")
+    wsHttp.POST(url, json) map (_ => true) recover handlePrePopError("updatePrePopAddress")
   }
 
   def fetchPrePopAddress(registrationId: String)(implicit hc: HeaderCarrier): Future[JsValue] = {
     val url = s"$businessRegUrl/business-registration/$registrationId/addresses"
-    http.GET(url) map (_.json)
+    wsHttp.GET(url) map (_.json)
   }
 
   private def handlePrePopError(funcName: String): PartialFunction[Throwable, Boolean] = {

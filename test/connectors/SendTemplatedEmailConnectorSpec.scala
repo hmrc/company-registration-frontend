@@ -37,7 +37,7 @@ class SendTemplatedEmailConnectorSpec extends SCRSSpec with UnitSpec with Mockit
   trait Setup {
     val connector = new SendTemplatedEmailConnector {
       override val sendTemplatedEmailURL = "test sendTemplatedEmailURL"
-      override val http = mockWSHttp
+      override val wSHttp = mockWSHttp
 
     }
   }
@@ -122,6 +122,4 @@ class SendTemplatedEmailConnectorSpec extends SCRSSpec with UnitSpec with Mockit
       intercept[Upstream4xxResponse](connector.customRead("test","test", response))
     }
   }
-
-
 }

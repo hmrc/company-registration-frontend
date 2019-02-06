@@ -4,15 +4,15 @@ package fixtures
 import models.CHROAddress
 import models.handoff._
 import play.api.libs.json.{JsObject, JsValue, Json}
-import utils.{JweDecryptor, JweEncryptor}
+import utils.JweCommon
 
 trait HandOffFixtures {
 
   val userId: String
   val regId: String
 
-  private val jwe = new JweEncryptor with JweDecryptor {
-    override protected val key: String = "Fak3-t0K3n-f0r-pUBLic-r3p0SiT0rY"
+  private val jwe = new JweCommon {
+    override  val key: String = "Fak3-t0K3n-f0r-pUBLic-r3p0SiT0rY"
   }
 
   lazy val HO2_MODEL = CompanyNameHandOffIncoming(

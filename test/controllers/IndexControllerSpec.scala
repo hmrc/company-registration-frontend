@@ -23,9 +23,13 @@ import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 class IndexControllerSpec extends UnitSpec with WithFakeApplication {
 
+  class Setup {
+    val controller = new IndexController{}
+  }
+
   "IndexController.show" should {
-    "Return a 303" in {
-      val result = IndexController.index()(FakeRequest())
+    "Return a 303" in new Setup {
+      val result = controller.index()(FakeRequest())
       status(result) shouldBe SEE_OTHER
     }
   }

@@ -18,6 +18,7 @@ package views
 
 import _root_.helpers.SCRSSpec
 import builders.AuthBuilder
+import controllers.auth.SCRSExternalUrls
 import controllers.reg.SummaryController
 import fixtures.{AccountingDetailsFixture, CorporationTaxFixture, SCRSFixtures}
 import mocks.NavModelRepoMock
@@ -25,10 +26,11 @@ import models._
 import org.jsoup.Jsoup
 import org.mockito.Matchers
 import org.mockito.Mockito._
+import play.api.i18n.MessagesApi
 import play.api.test.Helpers._
-import services.MetaDataService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.WithFakeApplication
+import utils.JweCommon
 
 import scala.concurrent.Future
 
@@ -44,12 +46,14 @@ class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixtu
     val controller = new SummaryController {
       val authConnector = mockAuthConnector
       val s4LConnector = mockS4LConnector
-      val companyRegistrationConnector = mockCompanyRegistrationConnector
+      val compRegConnector = mockCompanyRegistrationConnector
       val keystoreConnector = mockKeystoreConnector
       val metaDataService = mockMetaDataService
       val handOffService = mockHandOffService
       val navModelMongo = mockNavModelRepoObj
       override val appConfig = mockAppConfig
+      override val jwe: JweCommon = mockJweCommon
+      override val messagesApi = fakeApplication.injector.instanceOf[MessagesApi]
     }
   }
 

@@ -16,48 +16,56 @@
 
 package controllers.test
 
-import config.{AppConfig, FrontendAppConfig, FrontendAuthConnector}
+import config.FrontendAppConfig
 import connectors._
 import controllers.auth.AuthFunction
 import forms._
 import forms.test.{CompanyContactTestEndpointForm, FeatureSwitchForm}
+import javax.inject.Inject
 import models._
 import models.connectors.ConfirmationReferences
 import models.handoff._
 import models.test.FeatureSwitch
-import org.joda.time.LocalDateTime
 import play.api.Logger
-import play.api.libs.json.{JsValue, Json}
+import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent}
 import repositories.NavModelRepo
-import services.{CommonService, DashboardService, HandOffNavigator, MetaDataService}
+import services._
+import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.auth.core.retrieve.Retrievals
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads}
-import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.frontend.controller.FrontendController
-import utils.{BooleanFeatureSwitch, MessagesSupport, SCRSExceptions, SCRSFeatureSwitches, SessionRegistration, FeatureSwitch => FeatureSwitchUtil}
+import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+import utils._
 import views.html.reg.TestEndpoint
 
 import scala.concurrent.Future
 
 
-object TestEndpointController extends TestEndpointController {
-  val authConnector                = FrontendAuthConnector
-  val s4LConnector                 = S4LConnector
-  val keystoreConnector            = KeystoreConnector
-  val compRegConnector             = CompanyRegistrationConnector
-  val scrsFeatureSwitches          = SCRSFeatureSwitches
-  val metaDataService              = MetaDataService
-  val dynStubConnector             = DynamicStubConnector
-  val brConnector                  = BusinessRegistrationConnector
-  val navModelMongo                = NavModelRepo.repository
-  val companyRegistrationConnector = CompanyRegistrationConnector
-  val dashboardService             = DashboardService
-  override val appConfig           = FrontendAppConfig
+class TestEndpointControllerImpl @Inject()(
+                                            val authConnector: PlayAuthConnector,
+                                            val s4LConnector: S4LConnector,
+                                            val keystoreConnector: KeystoreConnector,
+                                            val compRegConnector: CompanyRegistrationConnector,
+                                            val scrsFeatureSwitches: SCRSFeatureSwitches,
+                                            val metaDataService: MetaDataService,
+                                            val dynStubConnector: DynamicStubConnector,
+                                            val brConnector: BusinessRegistrationConnector,
+                                            val navModelRepo: NavModelRepo,
+                                            val dashboardService: DashboardService,
+                                            val appConfig: FrontendAppConfig,
+                                            val messagesApi: MessagesApi,
+                                            val timeService: TimeService,
+                                            val handOffService: HandOffService,
+                                            val featureSwitchManager: FeatureSwitchManager
+                                          ) extends TestEndpointController {
+  lazy val navModelMongo = navModelRepo.repository
+
+  lazy val coHoURL = appConfig.getConfString("coho-service.sign-in", throw new Exception("Could not find config for coho-sign-in url"))
 }
 
 trait TestEndpointController extends FrontendController with AuthFunction with CommonService
-  with SCRSExceptions with ServicesConfig with HandOffNavigator with SessionRegistration with MessagesSupport {
+  with SCRSExceptions with SessionRegistration with I18nSupport {
 
   val s4LConnector: S4LConnector
   val keystoreConnector: KeystoreConnector
@@ -67,8 +75,14 @@ trait TestEndpointController extends FrontendController with AuthFunction with C
   val dynStubConnector: DynamicStubConnector
   val brConnector: BusinessRegistrationConnector
   val dashboardService: DashboardService
-  implicit val appConfig: AppConfig
-  val coHoURL = getConfString("coho-service.sign-in", throw new Exception("Could not find config for coho-sign-in url"))
+  implicit val appConfig: FrontendAppConfig
+  val timeService: TimeService
+  val handOffService: HandOffService
+  val featureSwitchManager: FeatureSwitchManager
+  val coHoURL:String
+  lazy val accDForm: AccountingDatesFormT = new AccountingDatesForm(timeService)
+
+
 
   private def convertToForm(data: CompanyNameHandOffIncoming) : CompanyNameHandOffFormModel = {
     CompanyNameHandOffFormModel(
@@ -105,7 +119,7 @@ trait TestEndpointController extends FrontendController with AuthFunction with C
                 CHROAddress("testPremises", "testAddressLine1", None, "testLocality", "UK", None, Some("ZZ1 1ZZ"), None), PPOB("RO", None), jurisdiction = "testJurisdiction")
             )
           )
-          val accountingDatesForm = AccountingDatesForm.form.fill(accountingDates match {
+          val accountingDatesForm = accDForm.form.fill(accountingDates match {
             case AccountingDetailsSuccessResponse(success) => success
             case _ => AccountingDatesModel("WHEN_REGISTERED", None, None, None)
           })
@@ -127,7 +141,7 @@ trait TestEndpointController extends FrontendController with AuthFunction with C
     implicit request =>
       ctAuthorised {
         val applicantData = AboutYouForm.endpointForm.bindFromRequest().get
-        val accountingDates = AccountingDatesForm.form.bindFromRequest().get
+        lazy val accountingDates = accDForm.form.bindFromRequest().get
         val companyContactDetails = CompanyContactTestEndpointForm.form.bindFromRequest().get
         val companyDetailsRequest = CompanyDetailsForm.form.bindFromRequest().get
         val tradingDetailsRequest = TradingDetailsForm.form.bindFromRequest().get
@@ -175,12 +189,12 @@ trait TestEndpointController extends FrontendController with AuthFunction with C
         errors => Future.successful(BadRequest(views.html.test.FeatureSwitch(errors))),
         success => {
           Seq(
-            BooleanFeatureSwitch(SCRSFeatureSwitches.COHO, success.firstHandOff.toBoolean),
-            BooleanFeatureSwitch(SCRSFeatureSwitches.LEGACY_ENV, success.legacyEnv.toBoolean)
+            BooleanFeatureSwitch(scrsFeatureSwitches.COHO, success.firstHandOff.toBoolean),
+            BooleanFeatureSwitch(scrsFeatureSwitches.LEGACY_ENV, success.legacyEnv.toBoolean)
           ) foreach { fs =>
             fs.enabled match {
-              case true => FeatureSwitchUtil.enable(fs)
-              case false => FeatureSwitchUtil.disable(fs)
+              case true => featureSwitchManager.enable(fs)
+              case false => featureSwitchManager.disable(fs)
             }
           }
 
@@ -191,16 +205,15 @@ trait TestEndpointController extends FrontendController with AuthFunction with C
   }
 
   private[test] def fetchFirstHandOffSwitch: Boolean = {
-    import SCRSFeatureSwitches.COHO
-    scrsFeatureSwitches(COHO) match {
+    scrsFeatureSwitches(scrsFeatureSwitches.COHO) match {
       case Some(fs) => fs.enabled
       case _ => false
     }
   }
 
   private[test] def fetchLegacyEnvSwitch: Boolean = {
-    import SCRSFeatureSwitches.LEGACY_ENV
-    scrsFeatureSwitches(LEGACY_ENV) match {
+
+    scrsFeatureSwitches(scrsFeatureSwitches.LEGACY_ENV) match {
       case Some(fs) => fs.enabled
       case _ => false
     }
@@ -229,7 +242,7 @@ trait TestEndpointController extends FrontendController with AuthFunction with C
           )
         )
       )
-      cacheNavModel(nav, hc) map (_ => Ok("NavModel created"))
+      handOffService.cacheNavModel(nav, hc) map (_ => Ok("NavModel created"))
   }
 
   def simulateDesPost(ackRef: String) = Action.async {

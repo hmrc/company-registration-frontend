@@ -16,43 +16,47 @@
 
 package controllers.reg
 
-import config.{AppConfig, FrontendAppConfig, FrontendAuthConnector}
+import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector, S4LConnector}
 import controllers.auth.AuthFunction
+import javax.inject.Inject
 import models._
 import models.handoff.BackHandoff
 import play.api.Logger
+import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{Action, AnyContent}
 import repositories.NavModelRepo
 import services._
+import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.auth.core.retrieve.Retrievals
-import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.frontend.controller.FrontendController
-import utils.{Jwe, MessagesSupport, SCRSExceptions, SessionRegistration}
+import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+import utils._
 import views.html.reg.Summary
 
 import scala.concurrent.Future
 
-object SummaryController extends SummaryController {
-  val authConnector = FrontendAuthConnector
-  val s4LConnector = S4LConnector
-  val companyRegistrationConnector = CompanyRegistrationConnector
-  val keystoreConnector = KeystoreConnector
-  val metaDataService = MetaDataService
-  val handOffService = HandOffServiceImpl
-  val navModelMongo =  NavModelRepo.repository
-  override val appConfig =  FrontendAppConfig
-
+class SummaryControllerImpl @Inject()(val authConnector: PlayAuthConnector,
+                                      val s4LConnector: S4LConnector,
+                                      val compRegConnector: CompanyRegistrationConnector,
+                                      val keystoreConnector: KeystoreConnector,
+                                      val metaDataService: MetaDataService,
+                                      val handOffService: HandOffService,
+                                      val navModelRepo: NavModelRepo,
+                                      val appConfig: FrontendAppConfig,
+                                      val scrsFeatureSwitches: SCRSFeatureSwitches,
+                                      val jwe: JweCommon,
+                                      val messagesApi: MessagesApi) extends SummaryController {
+  lazy val navModelMongo = navModelRepo.repository
 }
 
-trait SummaryController extends FrontendController with AuthFunction with CommonService with SCRSExceptions
-with HandOffNavigator with ServicesConfig with ControllerErrorHandler
-with SessionRegistration with MessagesSupport {
-  implicit val appConfig: AppConfig
+trait SummaryController extends FrontendController with AuthFunction with CommonService with SCRSExceptions with ControllerErrorHandler
+with SessionRegistration with I18nSupport {
+  implicit val appConfig: FrontendAppConfig
 
   val s4LConnector : S4LConnector
-  val companyRegistrationConnector : CompanyRegistrationConnector
+  val compRegConnector : CompanyRegistrationConnector
+  val jwe: JweCommon
 
   val metaDataService : MetaDataService
   val handOffService : HandOffService
@@ -63,11 +67,11 @@ with SessionRegistration with MessagesSupport {
         checkStatus { regID =>
           (for {
             cc <- metaDataService.getApplicantData(regID)
-            accountingDates <- companyRegistrationConnector.retrieveAccountingDetails(regID)
-            ctContactDets <- companyRegistrationConnector.retrieveContactDetails(regID)
-            companyDetails <- companyRegistrationConnector.retrieveCompanyDetails(regID)
-            Some(tradingDetails) <- companyRegistrationConnector.retrieveTradingDetails(regID)
-            cTRecord <- companyRegistrationConnector.retrieveCorporationTaxRegistration(regID)
+            accountingDates <- compRegConnector.retrieveAccountingDetails(regID)
+            ctContactDets <- compRegConnector.retrieveContactDetails(regID)
+            companyDetails <- compRegConnector.retrieveCompanyDetails(regID)
+            Some(tradingDetails) <- compRegConnector.retrieveTradingDetails(regID)
+            cTRecord <- compRegConnector.retrieveCorporationTaxRegistration(regID)
           } yield {
             companyDetails match {
               case Some(details) =>
@@ -105,10 +109,10 @@ with SessionRegistration with MessagesSupport {
       ctAuthorisedOptStr(Retrievals.externalId) { externalID =>
         (for {
           _           <- fetchRegistrationID
-          navModel    <- fetchNavModel()
+          navModel    <- handOffService.fetchNavModel()
           backPayload <- handOffService.buildBackHandOff(externalID)
         } yield {
-          val payload = Jwe.encrypt[BackHandoff](backPayload).getOrElse("")
+          val payload = jwe.encrypt[BackHandoff](backPayload).getOrElse("")
           Redirect(handOffService.buildHandOffUrl(s"${navModel.receiver.nav("4").reverse}", payload))
         }) recover {
           case ex: NavModelNotFoundException => Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))
@@ -121,7 +125,7 @@ with SessionRegistration with MessagesSupport {
       ctAuthorisedOptStr(Retrievals.externalId) { externalID =>
         (for {
           journeyID <- fetchRegistrationID
-          navModel <- fetchNavModel()
+          navModel <- handOffService.fetchNavModel()
         } yield {
           val payload = Json.obj(
             "user_id" -> externalID,
@@ -131,7 +135,7 @@ with SessionRegistration with MessagesSupport {
             "links" -> Json.obj()
           )
           val url = navModel.receiver.jump(backKey)
-          val encryptedPayload = Jwe.encrypt[JsObject](payload).get
+          val encryptedPayload = jwe.encrypt[JsObject](payload).get
           Redirect(handOffService.buildHandOffUrl(url, encryptedPayload))
         }) recover {
           case ex: NavModelNotFoundException => Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))

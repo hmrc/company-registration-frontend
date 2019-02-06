@@ -16,20 +16,20 @@
 
 package services
 
-import java.util.UUID
-
 import builders.AuthBuilder
+import config.FrontendAppConfig
 import fixtures._
 import helpers.SCRSSpec
 import mocks.{KeystoreMock, NavModelRepoMock}
 import models.handoff._
+import org.mockito.Matchers
 import org.mockito.Mockito._
-import org.mockito.{ArgumentCaptor, Matchers}
 import org.scalatest.BeforeAndAfterEach
 import play.api.libs.json.{JsObject, Json}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.test.WithFakeApplication
-import utils.{JweDecryptor, JweEncryptor}
+import utils.{BooleanFeatureSwitch, JweCommon, JweEncryptor, SCRSFeatureSwitches}
 
 import scala.concurrent.Future
 
@@ -44,7 +44,8 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
   val mockNavModelRepoObj = mockNavModelRepo
   val mockEncryptor = mock[JweEncryptor]
 
-  val testJwe = new JweEncryptor with JweDecryptor { val key = "Fak3-t0K3n-f0r-pUBLic-r3p0SiT0rY" }
+  val testJwe = new JweCommon { val key = "Fak3-t0K3n-f0r-pUBLic-r3p0SiT0rY" }
+
   trait Setup {
     val service = new HandOffService {
       val compRegConnector = mockCompanyRegistrationConnector
@@ -56,6 +57,8 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
       val navModelMongo = mockNavModelRepoObj
       lazy val timeout = 100
       lazy val timeoutDisplayLength = 30
+      override val scrsFeatureSwitches: SCRSFeatureSwitches = mockSCRSFeatureSwitches
+      override val appConfig: FrontendAppConfig = fakeApplication.injector.instanceOf[FrontendAppConfig]
     }
   }
 
@@ -121,6 +124,8 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
     "return a forward url and encrypted payload when there is no nav model in the repository" in new Setup {
       mockInsertNavModel("testRegID",Some(initNavModel))
       mockGetNavModel(None)
+      when(mockSCRSFeatureSwitches.legacyEnv).thenReturn(BooleanFeatureSwitch("foo",false))
+      when(mockSCRSFeatureSwitches.cohoFirstHandOff).thenReturn(BooleanFeatureSwitch("foo",false))
       val result = await(service.companyNamePayload("testRegID", "testemail", "testname", externalID))
       result.get._1 shouldBe "http://localhost:9986/incorporation-frontend-stubs/basic-company-details"
       val decrypted = testJwe.decrypt[BusinessActivitiesModel](result.get._2)

@@ -17,20 +17,21 @@
 package controllers.handoff
 
 import builders.AuthBuilder
-import config.FrontendAuthConnector
-import connectors.KeystoreConnector
+import config.FrontendAppConfig
+import controllers.auth.SCRSExternalUrls
 import fixtures.{LoginFixture, PayloadFixture}
 import helpers.SCRSSpec
 import models.connectors.ConfirmationReferences
 import models.{ConfirmationReferencesSuccessResponse, DESFailureDeskpro, DESFailureRetriable, RegistrationConfirmationPayload}
 import org.mockito.Matchers
 import org.mockito.Mockito._
+import play.api.i18n.MessagesApi
 import play.api.libs.json.Json
 import play.api.test.Helpers._
-import services.{HandBackService, NavModelNotFoundException}
+import services.NavModelNotFoundException
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.WithFakeApplication
-import utils.DecryptionError
+import utils.{DecryptionError, JweCommon}
 
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
@@ -45,24 +46,12 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
       val authConnector = mockAuthConnector
       val keystoreConnector = mockKeystoreConnector
       val handBackService = mockHandBackService
-      val companyRegistrationConnector = mockCompanyRegistrationConnector
+      val compRegConnector = mockCompanyRegistrationConnector
       val handOffService = mockHandOffService
-      override val appConfig = mockAppConfig
+      implicit val appConfig: FrontendAppConfig = fakeApplication.injector.instanceOf[FrontendAppConfig]
+      override val messagesApi = fakeApplication.injector.instanceOf[MessagesApi]
     }
-  }
-
-  "RegistrationConfirmationController" should {
-    "use the correct auth connector" in {
-      RegistrationConfirmationController.authConnector shouldBe FrontendAuthConnector
-    }
-
-    "use the correct keystore connector" in {
-      RegistrationConfirmationController.keystoreConnector shouldBe KeystoreConnector
-    }
-
-    "use the correct hand back service" in {
-      RegistrationConfirmationController.handBackService shouldBe HandBackService
-    }
+    val jweInstance = () => fakeApplication.injector.instanceOf[JweCommon]
   }
 
   val externalID = Some("test-exid")
@@ -79,7 +68,8 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
 
     "return a SEE_OTHER if sending a valid request with authorisation" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("1"))
-      when(mockHandBackService.decryptConfirmationHandback(Matchers.eq(confirmationPayload))(Matchers.any()))
+      val payloadEncr = confirmationPayload(jweInstance())
+      when(mockHandBackService.decryptConfirmationHandback(Matchers.eq(payloadEncr))(Matchers.any()))
         .thenReturn(Future.successful(Success(payload)))
 
       when(mockHandBackService.storeConfirmationHandOff(Matchers.any(), Matchers.any())(Matchers.any()))
@@ -88,7 +78,7 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
       when(mockHandBackService.payloadHasForwardLinkAndNoPaymentRefs(Matchers.any()))
         .thenReturn(false)
 
-      showWithAuthorisedUserRetrieval(TestController.registrationConfirmation(confirmationPayload), externalID) {
+      showWithAuthorisedUserRetrieval(TestController.registrationConfirmation(payloadEncr), externalID) {
         result =>
           status(result) shouldBe SEE_OTHER
           redirectLocation(result) shouldBe Some("/register-your-company/application-submitted")
@@ -97,7 +87,8 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
 
     "redirect to next url if Handoff 5.1 and if sending a valid request with authorisation" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("1"))
-      when(mockHandBackService.decryptConfirmationHandback(Matchers.eq(confirmationPayload))(Matchers.any()))
+      val payloadEncr = confirmationPayload(jweInstance())
+      when(mockHandBackService.decryptConfirmationHandback(Matchers.eq(payloadEncr))(Matchers.any()))
         .thenReturn(Future.successful(Success(payload)))
 
       when(mockHandBackService.storeConfirmationHandOff(Matchers.any(), Matchers.any())(Matchers.any()))
@@ -110,7 +101,7 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
 
       when(mockHandOffService.buildHandOffUrl(Matchers.any(),Matchers.any())).thenReturn("coho-url?request=encrypted-payload")
 
-      showWithAuthorisedUserRetrieval(TestController.registrationConfirmation(confirmationPayload), externalID) {
+      showWithAuthorisedUserRetrieval(TestController.registrationConfirmation(payloadEncr), externalID) {
         result =>
           status(result) shouldBe SEE_OTHER
           redirectLocation(result) shouldBe Some("coho-url?request=encrypted-payload")
@@ -119,10 +110,11 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
 
     "redirect to signInOutController if no nav model is found" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("1"))
-      when(mockHandBackService.decryptConfirmationHandback(Matchers.eq(confirmationPayload))(Matchers.any()))
+      val payloadEncr = confirmationPayload(jweInstance())
+      when(mockHandBackService.decryptConfirmationHandback(Matchers.eq(payloadEncr))(Matchers.any()))
         .thenReturn(Future.failed(new NavModelNotFoundException))
 
-      showWithAuthorisedUserRetrieval(TestController.registrationConfirmation(confirmationPayload), externalID) {
+      showWithAuthorisedUserRetrieval(TestController.registrationConfirmation(payloadEncr), externalID) {
         result =>
           status(result) shouldBe SEE_OTHER
           redirectLocation(result) shouldBe Some("/register-your-company/post-sign-in")
@@ -131,7 +123,8 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
 
     "return a BadRequest if a confirmation handoff cannot be built" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("1"))
-      when(mockHandBackService.decryptConfirmationHandback(Matchers.eq(confirmationPayload))(Matchers.any()))
+      val payloadEncr = confirmationPayload(jweInstance())
+      when(mockHandBackService.decryptConfirmationHandback(Matchers.eq(payloadEncr))(Matchers.any()))
         .thenReturn(Future.successful(Success(payload)))
 
       when(mockHandBackService.storeConfirmationHandOff(Matchers.any(), Matchers.any())(Matchers.any()))
@@ -142,7 +135,7 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
 
       when(mockHandOffService.buildPaymentConfirmationHandoff(Matchers.any())(Matchers.any())).thenReturn(Future.successful(None))
 
-      showWithAuthorisedUserRetrieval(TestController.registrationConfirmation(confirmationPayload), externalID) {
+      showWithAuthorisedUserRetrieval(TestController.registrationConfirmation(payloadEncr), externalID) {
         result =>
           status(result) shouldBe BAD_REQUEST
       }
@@ -150,13 +143,14 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
 
     "return a SEE_OTHER if sending a request with authorisation but has a deskpro error" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("1"))
-      when(mockHandBackService.decryptConfirmationHandback(Matchers.eq(confirmationPayload))(Matchers.any()))
+      val payloadEncr = confirmationPayload(jweInstance())
+      when(mockHandBackService.decryptConfirmationHandback(Matchers.eq(payloadEncr))(Matchers.any()))
         .thenReturn(Future.successful(Success(payload)))
 
       when(mockHandBackService.storeConfirmationHandOff(Matchers.any(), Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(DESFailureDeskpro))
 
-      showWithAuthorisedUserRetrieval(TestController.registrationConfirmation(confirmationPayload), externalID) {
+      showWithAuthorisedUserRetrieval(TestController.registrationConfirmation(payloadEncr), externalID) {
         result =>
           status(result) shouldBe SEE_OTHER
           redirectLocation(result) shouldBe Some("/register-your-company/something-went-wrong")
@@ -165,13 +159,14 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
 
     "return a SEE_OTHER if sending a request with authorisation but is put into a retriable state" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("1"))
-      when(mockHandBackService.decryptConfirmationHandback(Matchers.eq(confirmationPayload))(Matchers.any()))
+      val payloadEncr = confirmationPayload(jweInstance())
+      when(mockHandBackService.decryptConfirmationHandback(Matchers.eq(payloadEncr))(Matchers.any()))
         .thenReturn(Future.successful(Success(payload)))
 
       when(mockHandBackService.storeConfirmationHandOff(Matchers.any(), Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(DESFailureRetriable))
 
-      showWithAuthorisedUserRetrieval(TestController.registrationConfirmation(confirmationPayload), externalID) {
+      showWithAuthorisedUserRetrieval(TestController.registrationConfirmation(payloadEncr), externalID) {
         result =>
           status(result) shouldBe SEE_OTHER
           redirectLocation(result) shouldBe Some("/register-your-company/submission-failure")
@@ -180,10 +175,11 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
 
     "return a SEE_OTHER if sending a valid request with auth but keystore does not exist" in new Setup {
       mockKeystoreFetchAndGet("registrationID", None)
-      when(mockHandBackService.decryptConfirmationHandback(Matchers.eq(confirmationPayload))(Matchers.any()))
+      val payloadEncr = confirmationPayload(jweInstance())
+      when(mockHandBackService.decryptConfirmationHandback(Matchers.eq(payloadEncr))(Matchers.any()))
         .thenReturn(Future.successful(Success(payload)))
 
-      showWithAuthorisedUserRetrieval(TestController.registrationConfirmation(confirmationPayload), externalID) {
+      showWithAuthorisedUserRetrieval(TestController.registrationConfirmation(payloadEncr), externalID) {
         result =>
           status(result) shouldBe SEE_OTHER
           redirectLocation(result) shouldBe Some("/register-your-company/post-sign-in")
@@ -206,7 +202,8 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
   "paymentConfirmation" should {
     "redirect to the Confirmation page" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("1"))
-      when(mockHandBackService.decryptConfirmationHandback(Matchers.eq(confirmationPayload))(Matchers.any()))
+      val payloadEncr = confirmationPayload(jweInstance())
+      when(mockHandBackService.decryptConfirmationHandback(Matchers.eq(payloadEncr))(Matchers.any()))
         .thenReturn(Future.successful(Success(payload)))
 
       when(mockHandBackService.storeConfirmationHandOff(Matchers.any(), Matchers.any())(Matchers.any()))
@@ -215,7 +212,7 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
       when(mockHandBackService.payloadHasForwardLinkAndNoPaymentRefs(Matchers.any()))
         .thenReturn(false)
 
-      showWithAuthorisedUserRetrieval(TestController.paymentConfirmation(confirmationPayload), externalID) {
+      showWithAuthorisedUserRetrieval(TestController.paymentConfirmation(payloadEncr), externalID) {
         result =>
           status(result) shouldBe SEE_OTHER
           redirectLocation(result) shouldBe Some("/register-your-company/application-submitted")

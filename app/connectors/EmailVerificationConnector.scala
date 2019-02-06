@@ -16,27 +16,26 @@
 
 package connectors
 
-import config.WSHttp
+import config.{FrontendAppConfig, WSHttp}
+import javax.inject.Inject
 import models.EmailVerificationRequest
 import play.api.Logger
 import play.api.http.Status._
 import uk.gov.hmrc.http._
-import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
+import scala.concurrent.ExecutionContext.Implicits.global
 
 import scala.concurrent.Future
 import scala.util.control.NoStackTrace
 
 private[connectors] class EmailErrorResponse(s: String) extends NoStackTrace
 
-object EmailVerificationConnector extends EmailVerificationConnector with ServicesConfig {
-  val http: CoreGet with CorePost with CorePut = WSHttp
-  val sendVerificationEmailURL = getConfString("email-vs.sendVerificationEmailURL", throw new Exception("email.sendVerificationEmailURL not found"))
-  val checkVerifiedEmailURL = getConfString("email-vs.checkVerifiedEmailURL", throw new Exception("email.checkVerifiedEmailURL not found"))
+class EmailVerificationConnectorImpl @Inject()(val wSHttp: WSHttp, val appConfig: FrontendAppConfig) extends EmailVerificationConnector {
+  lazy val sendVerificationEmailURL = appConfig.getConfString("email-vs.sendVerificationEmailURL", throw new Exception("email.sendVerificationEmailURL not found"))
+  lazy val checkVerifiedEmailURL = appConfig.getConfString("email-vs.checkVerifiedEmailURL", throw new Exception("email.checkVerifiedEmailURL not found"))
 }
 
 trait EmailVerificationConnector extends HttpErrorFunctions {
-  val http : CoreGet with CorePost with CorePut
+  val wSHttp : CoreGet with CorePost with CorePut
   val sendVerificationEmailURL : String
   val checkVerifiedEmailURL : String
 
@@ -49,7 +48,7 @@ trait EmailVerificationConnector extends HttpErrorFunctions {
       Logger.debug(s"[EmailVerificationConnector] [checkVerifiedEmail] request to check verified email returned a $status - email not found / not verified")
       false
     }
-    http.GET[HttpResponse](s"$checkVerifiedEmailURL/$email") map {
+    wSHttp.GET[HttpResponse](s"$checkVerifiedEmailURL/$email") map {
       _.status match {
         case OK => true
       }
@@ -66,7 +65,7 @@ trait EmailVerificationConnector extends HttpErrorFunctions {
       throw new EmailErrorResponse(status)
     }
 
-    http.POST[EmailVerificationRequest, HttpResponse] (s"$sendVerificationEmailURL", emailRequest) map { r =>
+    wSHttp.POST[EmailVerificationRequest, HttpResponse] (s"$sendVerificationEmailURL", emailRequest) map { r =>
       r.status match {
         case CREATED => {
           Logger.debug("[EmailVerificationConnector] [requestVerificationEmail] request to verification service successful")
@@ -93,5 +92,4 @@ trait EmailVerificationConnector extends HttpErrorFunctions {
       case 502 => throw new BadGatewayException("Email service returned an upstream error")
       case _ => handleResponse(http, url)(response)
     }
-
 }

@@ -16,19 +16,19 @@
 
 package connectors
 
-import config.SCRSShortLivedCache
+import javax.inject.Inject
 import play.api.libs.json.Format
 import uk.gov.hmrc.http.cache.client.{CacheMap, ShortLivedCache}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
+import scala.concurrent.ExecutionContext.Implicits.global
 
 import scala.concurrent.Future
 
-object S4LConnector extends S4LConnector
+class S4LConnectorImpl @Inject()(val shortCache: ShortLivedCache) extends S4LConnector
 
 trait S4LConnector {
 
-  val shortCache : ShortLivedCache = SCRSShortLivedCache
+  val shortCache : ShortLivedCache
 
   def saveForm[T](userId: String, formId: String, data: T)(implicit hc: HeaderCarrier, format: Format[T]): Future[CacheMap] = {
     shortCache.cache[T](userId, formId, data)

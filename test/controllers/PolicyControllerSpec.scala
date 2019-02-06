@@ -16,8 +16,9 @@
 
 package controllers
 
-import config.AppConfig
+import config.FrontendAppConfig
 import helpers.SCRSSpec
+import play.api.i18n.MessagesApi
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.play.test.WithFakeApplication
@@ -26,7 +27,8 @@ class PolicyControllerSpec extends SCRSSpec with WithFakeApplication {
 
   class Setup {
     val controller = new PolicyController {
-      override val appConfig: AppConfig = mockAppConfig
+      implicit val appConfig: FrontendAppConfig = fakeApplication.injector.instanceOf[FrontendAppConfig]
+      override val messagesApi = fakeApplication.injector.instanceOf[MessagesApi]
     }
   }
 
@@ -36,5 +38,4 @@ class PolicyControllerSpec extends SCRSSpec with WithFakeApplication {
       status(result) shouldBe OK
     }
   }
-
 }

@@ -16,40 +16,56 @@
 
 package repositories
 
-import javax.inject.{Inject, Singleton}
-
+import config.FrontendAppConfig
+import javax.inject.Inject
 import models.handoff.HandOffNavModel
+import play.api.Logger
 import play.api.libs.json.JsObject
-import play.modules.reactivemongo.{MongoDbConnection, ReactiveMongoComponent}
+import play.modules.reactivemongo.ReactiveMongoComponent
 import reactivemongo.api.DB
 import reactivemongo.bson.{BSONArray, BSONDocument, BSONObjectID}
+import reactivemongo.play.json.ImplicitBSONHandlers._
 import uk.gov.hmrc.mongo.ReactiveRepository
-import uk.gov.hmrc.play.config.ServicesConfig
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
 
-@Singleton
-class NavModelRepo @Inject()(mongo: ReactiveMongoComponent) {
-  lazy val repository: NavModelRepoMongo = new NavModelRepoMongo(mongo.mongoConnector.db)
 
+class NavModelRepoImpl @Inject()(val mongo: ReactiveMongoComponent,
+                                 val appConfig: FrontendAppConfig) extends NavModelRepo
+
+trait NavModelRepo {
+  val mongo: ReactiveMongoComponent
+  val appConfig: FrontendAppConfig
+
+  lazy val expireAfterSeconds: Long = appConfig.getConfInt("navModel-time-to-live.ttl", throw new Exception("could not find config key navModel-time-to-live.ttl"))
+  lazy val repository: NavModelRepoMongo = new NavModelRepoMongo(mongo.mongoConnector.db, expireAfterSeconds)
 }
-
-object NavModelRepo extends MongoDbConnection with ServicesConfig {
-  lazy val repository: NavModelRepoMongo = new NavModelRepoMongo(db)
-  lazy val expireAfterSeconds = getConfInt("navModel-time-to-live.ttl", throw new Exception("could not find config key navModel-time-to-live.ttl"))
-}
-
 trait NavModelRepository {
   def getNavModel(registrationID:String):Future[Option[HandOffNavModel]]
   def insertNavModel(registrationID: String,hm:HandOffNavModel): Future[Option[HandOffNavModel]]
 }
 
-class NavModelRepoMongo(mongo: () => DB) extends ReactiveRepository[HandOffNavModel, BSONObjectID]("NavModel", mongo,HandOffNavModel.formats)
+class NavModelRepoMongo(mongo: () => DB, expireSeconds: Long) extends ReactiveRepository[HandOffNavModel, BSONObjectID]("NavModel", mongo,HandOffNavModel.formats)
   with NavModelRepository
   with TTLIndexing[HandOffNavModel, BSONObjectID] {
 
-  override val expireAfterSeconds: Long = NavModelRepo.expireAfterSeconds
+  override lazy val expireAfterSeconds: Long = expireSeconds
+
+  indexEnsurer("nav-model-repo")
+
+  def indexEnsurer(name: String): Unit = {
+    ensureIndexes map {
+      r => {
+        Logger.info( s"Ensure Indexes for ${name} returned ${r}" )
+        Logger.info( s"Repo ${name} has ${indexes.size} indexes" )
+        indexes map { index =>
+          val name = index.name.getOrElse("<no-name>")
+          Logger.info(s"Repo:${name} Index:${name} Details:${index}")
+        }
+      }
+    }
+  }
 
   //TODO: Remove $or statements after 25th August to use selecting on ONLY '_id'
   override def getNavModel(registrationID: String): Future[Option[HandOffNavModel]] = {

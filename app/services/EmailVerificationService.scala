@@ -17,20 +17,16 @@
 package services
 
 import audit.events.{EmailVerifiedEvent, EmailVerifiedEventDetail}
-import config.{FrontendAuditConnector, FrontendConfig}
+import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, EmailVerificationConnector, KeystoreConnector, SendTemplatedEmailConnector}
+import javax.inject.Inject
 import models.Email.GG
 import models.auth.AuthDetails
 import models.{Email, _}
 import play.api.mvc.{AnyContent, Request, Result, Results}
-import play.api.mvc.Result._
-import uk.gov.hmrc.auth.core.retrieve.{Email => GGEmail}
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
-import utils.SCRSFeatureSwitches
+import scala.concurrent.ExecutionContext.Implicits.global
 
 import scala.concurrent.Future
 import scala.util.control.NoStackTrace
@@ -42,15 +38,15 @@ case class NoEmail() extends EmailVerified
 case class VerifiedEmail() extends EmailVerified
 case class NotVerifiedEmail() extends EmailVerified
 
-object EmailVerificationService extends EmailVerificationService with ServicesConfig {
-  val emailConnector = EmailVerificationConnector
-  val templatedEmailConnector = SendTemplatedEmailConnector
-  val crConnector = CompanyRegistrationConnector
-  val returnUrl = FrontendConfig.self
-  val keystoreConnector = KeystoreConnector
-  val auditConnector = FrontendAuditConnector
-  val sendTemplatedEmailURL = getConfString("email.returnToSCRSURL", throw new Exception("email.returnToSCRSURL not found"))
-  val handOffService = HandOffServiceImpl
+class EmailVerificationServiceImpl @Inject()(val emailConnector: EmailVerificationConnector,
+                                             val crConnector: CompanyRegistrationConnector,
+                                             val keystoreConnector: KeystoreConnector,
+                                             val auditConnector: AuditConnector,
+                                             val handOffService: HandOffService,
+                                             val appConfig: FrontendAppConfig,
+                                             val templatedEmailConnector: SendTemplatedEmailConnector) extends EmailVerificationService {
+  lazy val returnUrl = appConfig.self
+  lazy val sendTemplatedEmailURL = appConfig.getConfString("email.returnToSCRSURL", throw new Exception("email.returnToSCRSURL not found"))
 }
 
 trait EmailVerificationService {
@@ -182,6 +178,4 @@ trait EmailVerificationService {
     //TODO for now this will always return false
     Future.successful(false)
   }
-
-
 }

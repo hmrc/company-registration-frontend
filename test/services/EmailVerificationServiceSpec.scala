@@ -22,7 +22,7 @@ import audit.events.EmailVerifiedEvent
 import fixtures.UserDetailsFixture
 import helpers.SCRSSpec
 import models.auth.AuthDetails
-import models.{Email, EmailVerificationRequest, SendTemplatedEmailRequest}
+import models.{Email, EmailVerificationRequest}
 import org.mockito.Mockito._
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer

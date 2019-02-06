@@ -39,7 +39,7 @@ class ServiceConnectorSpec extends SCRSSpec {
     val connector = new ServiceConnector {
       override val serviceBaseUrl = baseUrl
       override val serviceUri = baseUri
-      override val http = mockHttp
+      override val wSHttp = mockHttp
     }
   }
 
@@ -168,5 +168,4 @@ class ServiceConnectorSpec extends SCRSSpec {
       response shouldBe NotCancelled
     }
   }
-
 }

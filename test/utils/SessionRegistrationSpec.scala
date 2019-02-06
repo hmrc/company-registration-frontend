@@ -38,8 +38,7 @@ class SessionRegistrationSpec extends UnitSpec with CompanyRegistrationConnector
 
     object SessionRegistration extends SessionRegistration {
         val keystoreConnector = mockKeyStore
-        val companyRegistrationConnector = mockCompanyRegistrationConnector
-
+        val compRegConnector = mockCompanyRegistrationConnector
     }
 
     before {

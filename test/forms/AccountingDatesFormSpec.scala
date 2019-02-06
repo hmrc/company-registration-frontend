@@ -26,7 +26,7 @@ class AccountingDatesFormSpec extends UnitSpec {
   val curDateTime = DateTime.parse("2022-02-28T08:00")
   val curLocalDate = LocalDate.parse("2022-02-28")
 
-  def testForm(newnow : LocalDate = curLocalDate) = new AccountingDatesForm {
+  def testForm(newnow : LocalDate = curLocalDate) = new AccountingDatesFormT {
     override val timeService: TimeService = new TimeService {
       override val bHS: BankHolidaySet = BankHolidays.bankHolidaySet
       override val dayEndHour: Int = 14

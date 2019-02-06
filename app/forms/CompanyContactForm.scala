@@ -21,7 +21,8 @@ import models.CompanyContactDetailsApi
 import play.api.data.Form
 import play.api.data.Forms._
 import play.api.i18n.Lang
-import utils.SCRSValidators._
+import utils.SCRSValidators.{emailValidation, companyContactDetailsValidation}
+
 
 object CompanyContactForm extends PhoneNoForm {
   def form(implicit lang:Lang) = Form(

@@ -18,11 +18,13 @@ package views
 
 import _root_.helpers.SCRSSpec
 import builders.AuthBuilder
+import controllers.auth.SCRSExternalUrls
 import controllers.reg.CompanyContactDetailsController
 import fixtures.{CompanyContactDetailsFixture, UserDetailsFixture}
 import org.jsoup.Jsoup
 import org.mockito.Matchers.any
 import org.mockito.Mockito.when
+import play.api.i18n.MessagesApi
 import play.api.test.Helpers._
 import services.MetricsService
 import uk.gov.hmrc.auth.core.retrieve.{Name, ~}
@@ -39,9 +41,10 @@ class CompanyContactDetailsSpec extends SCRSSpec with CompanyContactDetailsFixtu
       override val s4LConnector = mockS4LConnector
       override val companyContactDetailsService = mockCompanyContactDetailsService
       override val metricsService = mock[MetricsService]
-      override val companyRegistrationConnector = mockCompanyRegistrationConnector
+      override val compRegConnector = mockCompanyRegistrationConnector
       override val keystoreConnector= mockKeystoreConnector
       override val appConfig = mockAppConfig
+      override val messagesApi = fakeApplication.injector.instanceOf[MessagesApi]
     }
   }
 

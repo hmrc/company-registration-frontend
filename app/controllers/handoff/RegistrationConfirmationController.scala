@@ -16,35 +16,37 @@
 
 package controllers.handoff
 
-import config.{AppConfig, FrontendAppConfig, FrontendAuthConnector}
+import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthFunction
+import javax.inject.Inject
 import models.{ConfirmationReferencesSuccessResponse, DESFailureRetriable}
 import play.api.Logger
+import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Request, Result}
-import services.{HandBackService, HandOffService, HandOffServiceImpl, NavModelNotFoundException}
+import services.{HandBackService, HandOffService, NavModelNotFoundException}
+import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.frontend.controller.FrontendController
+import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils._
 import views.html.{error_template, error_template_restart}
 
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
-object RegistrationConfirmationController extends RegistrationConfirmationController {
-  val authConnector = FrontendAuthConnector
-  val keystoreConnector = KeystoreConnector
-  val handOffService = HandOffServiceImpl
-  val handBackService = HandBackService
-  val companyRegistrationConnector = CompanyRegistrationConnector
-  override val appConfig =  FrontendAppConfig
-}
+class RegistrationConfirmationControllerImpl @Inject()(val authConnector: PlayAuthConnector,
+                                                       val keystoreConnector: KeystoreConnector,
+                                                       val handOffService: HandOffService,
+                                                       val appConfig: FrontendAppConfig,
+                                                       val compRegConnector: CompanyRegistrationConnector,
+                                                       val handBackService: HandBackService,
+                                                       val messagesApi: MessagesApi) extends RegistrationConfirmationController
 
-trait RegistrationConfirmationController extends FrontendController with AuthFunction with MessagesSupport with SessionRegistration {
+trait RegistrationConfirmationController extends FrontendController with AuthFunction with I18nSupport with SessionRegistration {
   val handBackService: HandBackService
 
   val handOffService: HandOffService
-  implicit val appConfig: AppConfig
+  implicit val appConfig: FrontendAppConfig
 
   //HO5.1 & old HO6
   def registrationConfirmation(requestData: String): Action[AnyContent] = Action.async {
@@ -55,9 +57,9 @@ trait RegistrationConfirmationController extends FrontendController with AuthFun
             handBackService.decryptConfirmationHandback(requestData) flatMap {
               case Success(s) => handBackService.storeConfirmationHandOff(s, regid).flatMap {
                 case _ if handBackService.payloadHasForwardLinkAndNoPaymentRefs(s) => getPaymentHandoffResult(externalID)
-                case ConfirmationReferencesSuccessResponse(_) => Future.successful(Redirect(controllers.reg.routes.ConfirmationControllerImpl.show()))
-                case DESFailureRetriable => Future.successful(Redirect(controllers.reg.routes.ConfirmationControllerImpl.resubmitPage()))
-                case _ => Future.successful(Redirect(controllers.reg.routes.ConfirmationControllerImpl.deskproPage()))
+                case ConfirmationReferencesSuccessResponse(_) => Future.successful(Redirect(controllers.reg.routes.ConfirmationController.show()))
+                case DESFailureRetriable => Future.successful(Redirect(controllers.reg.routes.ConfirmationController.resubmitPage()))
+                case _ => Future.successful(Redirect(controllers.reg.routes.ConfirmationController.deskproPage()))
               }
               case Failure(DecryptionError) => Future.successful(BadRequest(error_template_restart("6", "DecryptionError")))
               case unknown => Future.successful {

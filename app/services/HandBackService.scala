@@ -16,39 +16,42 @@
 
 package services
 
+import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector, S4LConnector}
+import javax.inject.Inject
 import models._
 import models.handoff._
 import play.api.Logger
 import play.api.libs.json.{Format, JsObject, JsValue}
 import repositories._
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.binders.ContinueUrl
-import uk.gov.hmrc.play.config.ServicesConfig
-import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
+import scala.concurrent.ExecutionContext.Implicits.global
 import utils._
 
 import scala.concurrent.Future
 import scala.util.control.NoStackTrace
 import scala.util.{Failure, Success, Try}
 
-object HandBackService extends HandBackService{
-  val compRegConnector = CompanyRegistrationConnector
-  val keystoreConnector = KeystoreConnector
-  val s4LConnector = S4LConnector
-  val navModelMongo =  NavModelRepo.repository
-  val jwe = Jwe
+class HandBackServiceImpl @Inject()(val compRegConnector: CompanyRegistrationConnector,
+                                    val keystoreConnector: KeystoreConnector,
+                                    val s4LConnector: S4LConnector,
+                                    val navModelRepo: NavModelRepo,
+                                    val jwe: JweCommon,
+                                    val appConfig: FrontendAppConfig,
+                                    val scrsFeatureSwitches: SCRSFeatureSwitches) extends HandBackService {
+
+  lazy val navModelMongo = navModelRepo.repository
 }
 
 case object PayloadNotSavedError extends NoStackTrace
 
-trait HandBackService extends CommonService with SCRSExceptions with HandOffNavigator with ServicesConfig {
+trait HandBackService extends HandOffNavigator {
 
   val compRegConnector: CompanyRegistrationConnector
+  val jwe : JweCommon
   val keystoreConnector: KeystoreConnector
   val s4LConnector : S4LConnector
-  val jwe : JweEncryptor with JweDecryptor
 
   private[services] def decryptHandBackRequest[T](request: String)(f: T => Future[Try[T]])(implicit hc: HeaderCarrier, formats: Format[T]): Future[Try[T]] = {
     request.isEmpty match {

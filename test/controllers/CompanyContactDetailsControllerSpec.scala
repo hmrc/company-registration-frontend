@@ -17,6 +17,8 @@
 package controllers
 
 import builders.AuthBuilder
+import config.FrontendAppConfig
+import controllers.auth.SCRSExternalUrls
 import controllers.reg.CompanyContactDetailsController
 import fixtures.{CompanyContactDetailsFixture, UserDetailsFixture}
 import helpers.SCRSSpec
@@ -24,6 +26,7 @@ import mocks.MetricServiceMock
 import models.CompanyContactDetailsSuccessResponse
 import org.mockito.Matchers.any
 import org.mockito.Mockito._
+import play.api.i18n.MessagesApi
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.MetricsService
@@ -41,9 +44,10 @@ class CompanyContactDetailsControllerSpec extends SCRSSpec with UserDetailsFixtu
       override val s4LConnector = mockS4LConnector
       override val companyContactDetailsService = mockCompanyContactDetailsService
       override val metricsService: MetricsService = MetricServiceMock
-      override val companyRegistrationConnector = mockCompanyRegistrationConnector
+      override val compRegConnector = mockCompanyRegistrationConnector
       override val keystoreConnector= mockKeystoreConnector
-      override val appConfig = mockAppConfig
+      implicit val appConfig: FrontendAppConfig = fakeApplication.injector.instanceOf[FrontendAppConfig]
+      override val messagesApi = fakeApplication.injector.instanceOf[MessagesApi]
     }
   }
 

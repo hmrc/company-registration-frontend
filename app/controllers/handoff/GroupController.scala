@@ -16,34 +16,35 @@
 
 package controllers.handoff
 
-import config.{AppConfig, FrontendAppConfig, FrontendAuthConnector}
+import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthFunction
+import javax.inject.Inject
 import models.handoff.GroupHandBackModel
+import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent}
-import services.{HandBackService, HandOffService, HandOffServiceImpl, NavModelNotFoundException}
+import services.{HandBackService, HandOffService, NavModelNotFoundException}
+import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.auth.core.retrieve.Retrievals
-import uk.gov.hmrc.play.frontend.controller.FrontendController
-import utils.{MessagesSupport, SessionRegistration}
+import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+import utils.SessionRegistration
 import views.html.error_template_restart
 
 import scala.util.Success
 
-object GroupController extends GroupsController {
-  val authConnector = FrontendAuthConnector
-  val keystoreConnector = KeystoreConnector
-  val handOffService = HandOffServiceImpl
-  val handBackService = HandBackService
-  val companyRegistrationConnector = CompanyRegistrationConnector
+class GroupControllerImpl @Inject()(val authConnector: PlayAuthConnector,
+                                    val keystoreConnector: KeystoreConnector,
+                                    val handOffService: HandOffService,
+                                    val appConfig: FrontendAppConfig,
+                                    val compRegConnector: CompanyRegistrationConnector,
+                                    val handBackService: HandBackService,
+                                    val messagesApi: MessagesApi) extends GroupController
 
-  override val appConfig =  FrontendAppConfig
-}
-
-trait GroupsController extends FrontendController with AuthFunction with MessagesSupport with SessionRegistration {
+trait GroupController extends FrontendController with AuthFunction with I18nSupport with SessionRegistration {
 
   val handBackService: HandBackService
   val handOffService: HandOffService
-  implicit val appConfig: AppConfig
+  implicit val appConfig: FrontendAppConfig
 
   // 3.1 handback
   def groupHandBack(requestData: String): Action[AnyContent] = Action.async {

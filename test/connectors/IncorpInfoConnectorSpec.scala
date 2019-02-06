@@ -30,8 +30,7 @@ class IncorpInfoConnectorSpec extends SCRSSpec {
     class Setup {
         val connector = new IncorpInfoConnector {
           override val incorpInfoUrl = iiUrl
-          override val http = mockWSHttp
-
+          override val wSHttp = mockWSHttp
           override val metricsService = MetricServiceMock
          }
      }

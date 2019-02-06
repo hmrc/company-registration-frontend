@@ -17,25 +17,31 @@
 package controllers
 
 import builders.AuthBuilder
+import config.FrontendAppConfig
 import connectors._
+import controllers.auth.SCRSExternalUrls
 import controllers.test.TestEndpointController
 import fixtures.{CorporationTaxFixture, SCRSFixtures}
+import forms.{AccountingDatesForm, AccountingDatesFormT}
 import helpers.SCRSSpec
 import models._
 import models.connectors.ConfirmationReferences
 import models.handoff._
+import org.joda.time.{DateTime, LocalDate}
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
+import play.api.i18n.MessagesApi
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services.DashboardService
+import services.{BankHolidays, DashboardService, HandOffService, TimeService}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.test.WithFakeApplication
-import utils.{BooleanFeatureSwitch, SCRSFeatureSwitches}
+import uk.gov.hmrc.time.workingdays.BankHolidaySet
+import utils.{BooleanFeatureSwitch, FeatureSwitchManager}
 
 import scala.concurrent.Future
 
@@ -50,12 +56,12 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
 
   val userIds = UserIDs("testInternal","testExternal")
 
-  val mockSCRSFeatureSwitches           = mock[SCRSFeatureSwitches]
   val mockDynamicStubConnector          = mock[DynamicStubConnector]
   val mockBusinessRegistrationConnector = mock[BusinessRegistrationConnector]
   val mockDashboardService              = mock[DashboardService]
 
   class Setup {
+    resetMocks()
     val controller = new TestEndpointController {
       override val dashboardService             = mockDashboardService
       override val authConnector                = mockAuthConnector
@@ -67,12 +73,24 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
       val dynStubConnector                      = mockDynamicStubConnector
       val brConnector                           = mockBusinessRegistrationConnector
       val navModelMongo                         = mockNavModelRepoObj
-      override val companyRegistrationConnector = mockCompanyRegistrationConnector
-      override val appConfig = mockAppConfig
+      val coHoURL = "foobarwizzbangwollop"
+      override val messagesApi = fakeApplication.injector.instanceOf[MessagesApi]
+      implicit val appConfig: FrontendAppConfig = fakeApplication.injector.instanceOf[FrontendAppConfig]
+      override val timeService: TimeService = mockTimeService
+      override val handOffService: HandOffService = mockHandOffService
+      override val featureSwitchManager: FeatureSwitchManager = mockFeatureSwitchManager
+      override lazy val accDForm = new AccountingDatesFormT{
+        override val timeService = new TimeService {
+          override val bHS: BankHolidaySet = BankHolidays.bankHolidaySet
+          override val dayEndHour: Int = 1
+          override def currentDateTime: DateTime = DateTime.now
+          override def currentLocalDate: LocalDate = LocalDate.now
+        }
+        override val now: LocalDate = LocalDate.now
+      }
     }
 
     implicit val hc = HeaderCarrier()
-
   }
 
   val registrationID = "testRegID"
@@ -247,10 +265,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
     )
 
     "cache a fully formed nav model for use in acceptance tests" in new Setup {
-      mockInsertNavModel("foo",Some(navModel))
-      mockKeystoreFetchAndGet[String]("registrationID",Some("foo"))
-      mockKeystoreFetchAndGet[HandOffNavModel]("HandOffNavigation",None)
-      mockGetNavModel(Some(navModel))
+      when(mockHandOffService.cacheNavModel(Matchers.any(),Matchers.any())).thenReturn(Future.successful(Some(navModel)))
       val result = controller.setupTestNavModel(FakeRequest())
       status(result) shouldBe OK
     }

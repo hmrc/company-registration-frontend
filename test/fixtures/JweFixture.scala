@@ -22,11 +22,11 @@ import java.util.Base64
 import org.jose4j.keys.AesKey
 import org.jose4j.lang.ByteUtil
 import play.api.libs.json.{JsValue, Json}
-import utils.{JweDecryptor, JweEncryptor}
+import utils.JweCommon
 
 trait JweFixture {
 
-  object JweWithTestKey extends JweEncryptor with JweDecryptor {
+  object JweWithTestKey extends JweCommon{
     override val key = "Fak3-t0K3n-f0r-pUBLic-r3p0SiT0rY"
   }
 

@@ -16,20 +16,21 @@
 
 package controllers.reg
 
-import config.{AppConfig, FrontendAppConfig}
+import config.FrontendAppConfig
+import javax.inject.Inject
+import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.Action
-import uk.gov.hmrc.play.frontend.controller.FrontendController
-import utils.MessagesSupport
+import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import views.html.reg.IncompleteRegistration
 
 import scala.concurrent.Future
 
-object IncompleteRegistrationController extends IncompleteRegistrationController {
-  override val appConfig =  FrontendAppConfig
-}
+class IncompleteRegistrationControllerImpl @Inject()(val appConfig: FrontendAppConfig,
+                                                     val messagesApi: MessagesApi) extends IncompleteRegistrationController
 
-trait IncompleteRegistrationController extends FrontendController with MessagesSupport {
-  implicit val appConfig: AppConfig
+trait IncompleteRegistrationController extends FrontendController with I18nSupport {
+  implicit val appConfig: FrontendAppConfig
+
   val show = Action.async { implicit request =>
     Future.successful(Ok(IncompleteRegistration()))
   }

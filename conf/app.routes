@@ -27,15 +27,15 @@ POST       /relationship-to-company                 controllers.reg.CompletionCa
 GET        /when-start-business                     controllers.reg.AccountingDatesController.show
 POST       /when-start-business                     controllers.reg.AccountingDatesController.submit
 
-GET        /application-submitted                   controllers.reg.ConfirmationControllerImpl.show
-POST       /application-submitted                   controllers.reg.ConfirmationControllerImpl.submit
+GET        /application-submitted                   controllers.reg.ConfirmationController.show
+POST       /application-submitted                   controllers.reg.ConfirmationController.submit
 
-GET        /something-went-wrong                    controllers.reg.ConfirmationControllerImpl.deskproPage
-POST       /something-went-wrong                    controllers.reg.ConfirmationControllerImpl.submitTicket
+GET        /something-went-wrong                    controllers.reg.ConfirmationController.deskproPage
+POST       /something-went-wrong                    controllers.reg.ConfirmationController.submitTicket
 
-GET        /ticket-submitted                        controllers.reg.ConfirmationControllerImpl.submittedTicket
+GET        /ticket-submitted                        controllers.reg.ConfirmationController.submittedTicket
 
-GET        /submission-failure                      controllers.reg.ConfirmationControllerImpl.resubmitPage
+GET        /submission-failure                      controllers.reg.ConfirmationController.resubmitPage
 
 GET        /contact-about-corporation-tax           controllers.reg.CompanyContactDetailsController.show
 POST       /contact-about-corporation-tax           controllers.reg.CompanyContactDetailsController.submit
@@ -64,7 +64,7 @@ GET        /post-sign-in                            controllers.reg.SignInOutCon
 
 POST       /post-sign-in                            controllers.reg.SignInOutController.postSignIn(resend: Option[Boolean] ?= None, handOffID: Option[String] ?= None, payload: Option[String] ?= None)
 
-GET        /sign-out                                controllers.reg.SignInOutController.signOut(continueUrl: Option[ContinueUrl])
+GET        /sign-out                                controllers.reg.SignInOutController.signOut(continueUrl: Option[ContinueUrl] ?= None)
 
 GET        /sent-an-email                           controllers.verification.EmailVerificationController.verifyShow
 POST       /sent-an-email                           controllers.verification.EmailVerificationController.verifySubmit
@@ -102,31 +102,31 @@ GET        /cookies-privacy-terms                   controllers.PolicyController
 
 #HO1 / HO1b
 GET        /basic-company-details                   controllers.handoff.BasicCompanyDetailsController.basicCompanyDetails
-GET        /return-to-about-you                     controllers.handoff.BasicCompanyDetailsController.returnToAboutYou(request: String)
+GET        /return-to-about-you                     controllers.handoff.BasicCompanyDetailsController.returnToAboutYou(request: String ?= "")
 
 #HO2
-GET        /corporation-tax-details                 controllers.handoff.CorporationTaxDetailsController.corporationTaxDetails(request : String)
+GET        /corporation-tax-details                 controllers.handoff.CorporationTaxDetailsController.corporationTaxDetails(request : String ?= "")
 
 #HO3 / HO3b
 GET        /business-activities                     controllers.handoff.BusinessActivitiesController.businessActivities
-GET        /business-activities-back                controllers.handoff.BusinessActivitiesController.businessActivitiesBack(request: String)
+GET        /business-activities-back                controllers.handoff.BusinessActivitiesController.businessActivitiesBack(request: String ?= "")
 
 #H03-1 / H03-2
-GET        /groups-handback                         controllers.handoff.GroupController.groupHandBack(request: String)
+GET        /groups-handback                         controllers.handoff.GroupController.groupHandBack(request: String ?= "")
 GET        /psc-handoff                             controllers.handoff.GroupController.PSCGroupHandOff
 
 #HO4
-GET        /corporation-tax-summary                 controllers.handoff.CorporationTaxSummaryController.corporationTaxSummary(request : String)
+GET        /corporation-tax-summary                 controllers.handoff.CorporationTaxSummaryController.corporationTaxSummary(request : String ?= "")
 
 #HO5 / HO5b
 GET        /incorporation-summary                   controllers.handoff.IncorporationSummaryController.incorporationSummary
-GET        /return-to-corporation-tax-summary       controllers.handoff.IncorporationSummaryController.returnToCorporationTaxSummary(request : String)
+GET        /return-to-corporation-tax-summary       controllers.handoff.IncorporationSummaryController.returnToCorporationTaxSummary(request : String ?= "")
 
 #HO5.1
-GET        /registration-confirmation               controllers.handoff.RegistrationConfirmationController.registrationConfirmation(request : String)
+GET        /registration-confirmation               controllers.handoff.RegistrationConfirmationController.registrationConfirmation(request : String ?= "")
 
 #HO6
-GET        /payment-complete                        controllers.handoff.RegistrationConfirmationController.paymentConfirmation(request : String)
+GET        /payment-complete                        controllers.handoff.RegistrationConfirmationController.paymentConfirmation(request : String ?= "")
 
 GET        /application-in-progress                 controllers.reg.ApplicationInProgressController.redirect
 
