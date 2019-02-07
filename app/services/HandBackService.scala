@@ -16,9 +16,10 @@
 
 package services
 
+import javax.inject.Inject
+
 import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector, S4LConnector}
-import javax.inject.Inject
 import models._
 import models.handoff._
 import play.api.Logger
@@ -26,9 +27,9 @@ import play.api.libs.json.{Format, JsObject, JsValue}
 import repositories._
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.binders.ContinueUrl
-import scala.concurrent.ExecutionContext.Implicits.global
 import utils._
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.control.NoStackTrace
 import scala.util.{Failure, Success, Try}

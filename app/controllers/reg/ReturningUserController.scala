@@ -16,10 +16,11 @@
 
 package controllers.reg
 
+import javax.inject.Inject
+
 import config.FrontendAppConfig
 import controllers.auth.AuthFunction
 import forms.ReturningUserForm
-import javax.inject.Inject
 import models.ReturningUser
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.Action

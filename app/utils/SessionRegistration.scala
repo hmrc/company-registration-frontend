@@ -22,8 +22,8 @@ import play.api.libs.json.JsValue
 import play.api.mvc.Result
 import play.api.mvc.Results.Redirect
 import uk.gov.hmrc.http.HeaderCarrier
-import scala.concurrent.ExecutionContext.Implicits.global
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 trait SessionRegistration {

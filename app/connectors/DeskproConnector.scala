@@ -16,15 +16,16 @@
 
 package connectors
 
-import config.{FrontendAppConfig, WSHttp}
 import javax.inject.Inject
+
+import config.{FrontendAppConfig, WSHttp}
 import models.external.Ticket
 import play.api.Logger
 import play.api.libs.json._
 import services.MetricsService
 import uk.gov.hmrc.http.{CorePost, HeaderCarrier}
-import scala.concurrent.ExecutionContext.Implicits.global
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class DeskproConnectorImpl @Inject()(val appConfig: FrontendAppConfig,

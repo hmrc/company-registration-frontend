@@ -19,10 +19,9 @@ package controllers
 import builders.AuthBuilder
 import config.FrontendAppConfig
 import connectors._
-import controllers.auth.SCRSExternalUrls
 import controllers.test.TestEndpointController
 import fixtures.{CorporationTaxFixture, SCRSFixtures}
-import forms.{AccountingDatesForm, AccountingDatesFormT}
+import forms.AccountingDatesFormT
 import helpers.SCRSSpec
 import models._
 import models.connectors.ConfirmationReferences

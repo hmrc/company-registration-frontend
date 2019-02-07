@@ -27,7 +27,6 @@ import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfterEach
 import play.api.libs.json.{JsObject, Json}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.test.WithFakeApplication
 import utils.{BooleanFeatureSwitch, JweCommon, JweEncryptor, SCRSFeatureSwitches}
 

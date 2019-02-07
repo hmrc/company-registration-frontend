@@ -19,7 +19,6 @@ package views
 import _root_.connectors.BusinessRegistrationConnector
 import _root_.helpers.SCRSSpec
 import builders.AuthBuilder
-import controllers.auth.SCRSExternalUrls
 import controllers.reg.PPOBController
 import fixtures.PPOBFixture
 import mocks.NavModelRepoMock

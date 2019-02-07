@@ -16,14 +16,15 @@
 
 package connectors
 
-import config.{FrontendAppConfig, WSHttp}
 import javax.inject.Inject
+
+import config.{FrontendAppConfig, WSHttp}
 import play.api.Logger
 import play.api.libs.json.JsValue
 import services.MetricsService
 import uk.gov.hmrc.http.{CoreGet, HeaderCarrier, HttpException, HttpResponse}
-import scala.concurrent.ExecutionContext.Implicits.global
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class IncorpInfoConnectorImpl @Inject()(appConfig: FrontendAppConfig, val wSHttp: WSHttp, val metricsService: MetricsService) extends IncorpInfoConnector {

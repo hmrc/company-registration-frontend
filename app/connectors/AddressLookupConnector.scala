@@ -16,8 +16,9 @@
 
 package connectors
 
-import config.{FrontendAppConfig, WSHttp}
 import javax.inject.Inject
+
+import config.{FrontendAppConfig, WSHttp}
 import models.NewAddress
 import play.api.Logger
 import play.api.i18n.{I18nSupport, MessagesApi}

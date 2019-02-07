@@ -16,11 +16,12 @@
 
 package controllers.reg
 
+import javax.inject.Inject
+
 import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthFunction
 import forms.AccountingDatesForm
-import javax.inject.Inject
 import models.{AccountingDatesModel, AccountingDetailsNotFoundResponse, AccountingDetailsSuccessResponse}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.Action

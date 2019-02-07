@@ -16,14 +16,15 @@
 
 package services
 
-import connectors.{BusinessRegistrationConnector, BusinessRegistrationSuccessResponse, KeystoreConnector}
 import javax.inject.Inject
+
+import connectors.{BusinessRegistrationConnector, BusinessRegistrationSuccessResponse, KeystoreConnector}
 import models.{AboutYouChoice, AboutYouChoiceForm, BusinessRegistration}
 import play.api.Logger
 import uk.gov.hmrc.http.HeaderCarrier
-import scala.concurrent.ExecutionContext.Implicits.global
 import utils.SCRSExceptions
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class MetaDataServiceImpl @Inject()(val businessRegConnector: BusinessRegistrationConnector,

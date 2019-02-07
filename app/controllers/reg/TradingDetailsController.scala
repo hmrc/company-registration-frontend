@@ -16,11 +16,12 @@
 
 package controllers.reg
 
+import javax.inject.Inject
+
 import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthFunction
 import forms.TradingDetailsForm
-import javax.inject.Inject
 import models.{TradingDetailsErrorResponse, TradingDetailsForbiddenResponse, TradingDetailsNotFoundResponse, TradingDetailsSuccessResponse}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.Action

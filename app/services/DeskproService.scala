@@ -16,8 +16,9 @@
 
 package services
 
-import connectors.{DeskproConnector, DeskproConnectorImpl}
 import javax.inject.Inject
+
+import connectors.DeskproConnector
 import models.external.Ticket
 import models.{Ticket => TicketForm}
 import uk.gov.hmrc.http.HeaderCarrier

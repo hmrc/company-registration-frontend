@@ -19,7 +19,6 @@ package controllers
 import builders.AuthBuilder
 import config.FrontendAppConfig
 import connectors.BusinessRegistrationConnector
-import controllers.auth.SCRSExternalUrls
 import controllers.reg.PPOBController
 import fixtures.PPOBFixture
 import helpers.SCRSSpec

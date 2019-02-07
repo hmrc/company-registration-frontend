@@ -17,11 +17,12 @@
 package connectors
 
 import javax.inject.Inject
+
 import play.api.libs.json.Format
 import uk.gov.hmrc.http.cache.client.{CacheMap, ShortLivedCache}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import scala.concurrent.ExecutionContext.Implicits.global
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class S4LConnectorImpl @Inject()(val shortCache: ShortLivedCache) extends S4LConnector

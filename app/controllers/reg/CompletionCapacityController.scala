@@ -16,11 +16,12 @@
 
 package controllers.reg
 
+import javax.inject.Inject
+
 import config.FrontendAppConfig
 import connectors.{BusinessRegistrationConnector, BusinessRegistrationSuccessResponse, CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthFunction
 import forms.AboutYouForm
-import javax.inject.Inject
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent}
 import services.{MetaDataService, MetricsService}

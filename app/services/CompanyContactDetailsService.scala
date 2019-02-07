@@ -16,18 +16,19 @@
 
 package services
 
+import javax.inject.Inject
+
 import audit.events.{ContactDetailsAuditEvent, ContactDetailsAuditEventDetail}
 import connectors._
-import javax.inject.Inject
 import models._
 import play.api.mvc.{AnyContent, Request}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
-import scala.concurrent.ExecutionContext.Implicits.global
 import utils.SCRSExceptions
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class CompanyContactDetailsServiceImpl @Inject()(val businessRegConnector: BusinessRegistrationConnector,

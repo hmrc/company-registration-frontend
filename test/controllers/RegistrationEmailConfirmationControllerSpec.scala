@@ -18,7 +18,6 @@ package controllers
 
 import builders.AuthBuilder
 import config.FrontendAppConfig
-import controllers.auth.SCRSExternalUrls
 import controllers.reg.RegistrationEmailConfirmationController
 import helpers.SCRSSpec
 import mocks.SCRSMocks

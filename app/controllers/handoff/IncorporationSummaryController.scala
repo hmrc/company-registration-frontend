@@ -16,11 +16,12 @@
 
 package controllers.handoff
 
+import javax.inject.Inject
+
 import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthFunction
 import controllers.reg.ControllerErrorHandler
-import javax.inject.Inject
 import play.api.Logger
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent}

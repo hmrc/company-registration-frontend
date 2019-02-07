@@ -19,7 +19,6 @@ package config
 import com.google.inject.AbstractModule
 import config.filters.{SessionIdFilter, SessionIdFilterImpl}
 import connectors._
-import controllers.auth.{SCRSExternalUrls, SCRSExternalUrlsImpl}
 import controllers.dashboard.{CancelRegistrationController, CancelRegistrationControllerImpl, DashboardController, DashboardControllerImpl}
 import controllers.feedback.{FeedbackController, FeedbackControllerImpl}
 import controllers.handoff._
@@ -28,7 +27,6 @@ import controllers.reg._
 import controllers.test._
 import controllers.verification.{EmailVerificationController, EmailVerificationControllerImpl}
 import controllers.{PolicyController, PolicyControllerImpl}
-import play.modules.reactivemongo.{ReactiveMongoComponent, ReactiveMongoComponentImpl}
 import repositories.{NavModelRepo, NavModelRepoImpl}
 import services._
 import services.internal.{TestIncorporationService, TestIncorporationServiceImpl}
@@ -68,7 +66,6 @@ class Module extends AbstractModule {
     bind(classOf[PAYEConnector]).to(classOf[PAYEConnectorImpl]).asEagerSingleton()
     bind(classOf[VATConnector]).to(classOf[VATConnectorImpl]).asEagerSingleton()
     bind(classOf[VatThresholdConnector]).to(classOf[VatThresholdConnectorImpl]).asEagerSingleton()
-    bind(classOf[SCRSExternalUrls]).to(classOf[SCRSExternalUrlsImpl]).asEagerSingleton()
 
     bind(classOf[SCRSFeatureSwitches]).to(classOf[SCRSFeatureSwitchesImpl]).asEagerSingleton()
     bind(classOf[FeatureSwitchManager]).to(classOf[FeatureSwitchManagerImpl]).asEagerSingleton()

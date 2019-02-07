@@ -22,6 +22,7 @@ import play.api.Logger
 import play.api.mvc._
 import uk.gov.hmrc.auth.core.AuthProvider.GovernmentGateway
 import uk.gov.hmrc.auth.core.retrieve.Retrievals._
+import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.emailVerified
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Retrieval, ~}
 import uk.gov.hmrc.auth.core.{AuthorisedFunctions, _}
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
@@ -109,4 +110,23 @@ trait AuthFunction extends FrontendController with AuthorisedFunctions {
       Logger.info(s"auth returned $e and redirected user to 'incorrect-account-type' page")
       Redirect(controllers.verification.routes.EmailVerificationController.createGGWAccountAffinityShow())
   }
+
+    def scpVerifiedEmail(sCPEnabledFeature: Boolean)(implicit request: Request[AnyContent]): Future[Boolean] = {
+        if (sCPEnabledFeature) {
+          baseFunction.retrieve(emailVerified) {
+                case Some(em) => Future.successful(em)
+                case _ => Future.successful(false)
+        } recover {
+                case _ => false
+        }
+          }
+        else
+          {
+              Future.successful(false)
+            }
+
+        }
+
+
+
 }

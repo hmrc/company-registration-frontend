@@ -16,8 +16,9 @@
 
 package config
 
-import config.filters.SessionIdFilter
 import javax.inject.Inject
+
+import config.filters.SessionIdFilter
 import play.api.http.DefaultHttpFilters
 import play.api.i18n.MessagesApi
 import play.api.mvc.Request

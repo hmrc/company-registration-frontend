@@ -16,18 +16,19 @@
 
 package services
 
+import javax.inject.Inject
+
 import address.client.RecordSet
 import audit.events._
 import connectors.{CompanyRegistrationConnector, KeystoreConnector, S4LConnector}
-import javax.inject.Inject
 import models.{Address => OldAddress, _}
 import play.api.libs.json.{JsValue, Json, OFormat}
 import play.api.mvc.{AnyContent, Request}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
-import scala.concurrent.ExecutionContext.Implicits.global
 import utils.SCRSExceptions
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class PPOBServiceImpl @Inject()(val compRegConnector: CompanyRegistrationConnector,

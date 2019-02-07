@@ -18,7 +18,6 @@ package controllers
 
 import builders.AuthBuilder
 import config.FrontendAppConfig
-import controllers.auth.SCRSExternalUrls
 import controllers.dashboard.DashboardController
 import helpers.SCRSSpec
 import models.{Dashboard, IncorpAndCTDashboard, ServiceDashboard, ServiceLinks}

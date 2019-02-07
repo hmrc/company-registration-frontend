@@ -17,9 +17,9 @@
 package utils
 
 import javax.inject.Inject
+
 import org.joda.time.format.ISODateTimeFormat
 import org.joda.time.{DateTime, DateTimeZone}
-import play.api.libs.json.Json
 
 
 sealed trait FeatureSwitch extends FeatureSwitchManager {
@@ -111,6 +111,7 @@ trait SCRSFeatureSwitches {
   def legacyEnv                 = featureSwitchManager.getProperty(LEGACY_ENV)
   def systemDate                = featureSwitchManager.getProperty("system-date")
   def healthCheck               = featureSwitchManager.getProperty("healthCheck")
+  def sCPEnabled                = featureSwitchManager.getProperty("sCPEnabled")
 
   def apply(name: String): Option[FeatureSwitch] = name match {
     case COHO                        => Some(cohoFirstHandOff)
@@ -120,6 +121,7 @@ trait SCRSFeatureSwitches {
     case LEGACY_ENV                  => Some(legacyEnv)
     case "system-date"               => Some(systemDate)
     case "healthCheck"               => Some(healthCheck)
+    case "sCPEnabled"                => Some(sCPEnabled)
     case _                           => None
   }
 }

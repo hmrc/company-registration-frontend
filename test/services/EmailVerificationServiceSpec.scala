@@ -81,7 +81,7 @@ class EmailVerificationServiceSpec extends UnitSpec with SCRSSpec with WithFakeA
     }
 
 
-    val emailService = new EmailVerificationService{
+    val emailService = new EmailVerificationService {
       val emailConnector = mockEmailConnector
       val templatedEmailConnector = mockSendTemplateEmailConnector
       val crConnector = mockCrConnector
@@ -94,13 +94,19 @@ class EmailVerificationServiceSpec extends UnitSpec with SCRSSpec with WithFakeA
   }
 
   def testDefaultEmail = Email("testEmail", "GG", linkSent = false, verified = false, returnLinkEmailSent = false)
+
   def testVerifiedEmail = Email("verified", "GG", linkSent = true, verified = true, returnLinkEmailSent = true)
+
   def testUnverifiedEmail = Email("unverified", "GG", linkSent = true, verified = false, returnLinkEmailSent = false)
+
   def testExistingEmail = Email("existing", "GG", linkSent = false, verified = true, returnLinkEmailSent = false)
+
   def testNoEmail = Email("", "", linkSent = false, verified = false, returnLinkEmailSent = false)
+
   val regId = UUID.randomUUID().toString
 
   import scala.language.implicitConversions
+
   implicit def toAnswerWithArgs[T](f: InvocationOnMock => T): Answer[T] = new Answer[T] {
     override def answer(i: InvocationOnMock): T = f(i)
   }
@@ -140,23 +146,23 @@ class EmailVerificationServiceSpec extends UnitSpec with SCRSSpec with WithFakeA
   "checkVerifiedEmail" should {
     "return true when email is verified" in new Setup {
       when(mockEmailConnector.checkVerifiedEmail(Matchers.anyString())(Matchers.any()))
-      .thenReturn(Future.successful(true))
+        .thenReturn(Future.successful(true))
 
       when(mockKsConnector.cache(Matchers.eq("email"), Matchers.any())(Matchers.any(), Matchers.any()))
-      .thenReturn(Future.successful(CacheMap("x", Map())))
+        .thenReturn(Future.successful(CacheMap("x", Map())))
 
       when(mockCrConnector.updateEmail(Matchers.eq(regId), Matchers.any[Email]())(Matchers.any[HeaderCarrier]()))
-        .thenAnswer( (i: InvocationOnMock) => Future.successful(Some(i.getArguments()(1).asInstanceOf[Email])) )
+        .thenAnswer((i: InvocationOnMock) => Future.successful(Some(i.getArguments()(1).asInstanceOf[Email])))
 
       val captor = ArgumentCaptor.forClass(classOf[EmailVerifiedEvent])
 
       when(mockAuditConnector.sendExtendedEvent(captor.capture())(Matchers.any[HeaderCarrier](), Matchers.any[ExecutionContext]()))
-      .thenReturn(Future.successful(Success))
+        .thenReturn(Future.successful(Success))
 
       await(emailService.verifyEmailAddressAndSaveEmailBlockWithFlag("testEmail", regId)) shouldBe Some(true)
 
       //todo audit event is moving
-//      (captor.getValue.detail \ "previouslyVerified").as[Boolean] shouldBe false
+      //      (captor.getValue.detail \ "previouslyVerified").as[Boolean] shouldBe false
     }
     "return false when email is unverified" in new Setup {
       when(mockEmailConnector.checkVerifiedEmail(Matchers.anyString())(Matchers.any()))
@@ -197,16 +203,16 @@ class EmailVerificationServiceSpec extends UnitSpec with SCRSSpec with WithFakeA
         .thenReturn(Future.successful(false))
 
       when(mockCrConnector.updateEmail(Matchers.eq(regId), Matchers.any[Email]())(Matchers.any[HeaderCarrier]()))
-        .thenAnswer( (i: InvocationOnMock) => Future.successful(Some(i.getArguments()(1).asInstanceOf[Email])) )
+        .thenAnswer((i: InvocationOnMock) => Future.successful(Some(i.getArguments()(1).asInstanceOf[Email])))
 
       val captor = ArgumentCaptor.forClass(classOf[EmailVerifiedEvent])
 
       when(mockAuditConnector.sendExtendedEvent(captor.capture())(Matchers.any[HeaderCarrier](), Matchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(Success))
 
-      await(emailService.sendVerificationLink("testEmail", regId))shouldBe Some(false)
-//todo - audit event has moved
-//      (captor.getValue.detail \ "previouslyVerified").as[Boolean] shouldBe true
+      await(emailService.sendVerificationLink("testEmail", regId)) shouldBe Some(false)
+      //todo - audit event has moved
+      //      (captor.getValue.detail \ "previouslyVerified").as[Boolean] shouldBe true
     }
   }
 
@@ -232,7 +238,7 @@ class EmailVerificationServiceSpec extends UnitSpec with SCRSSpec with WithFakeA
 
       val resultAsJson = Json.toJson(result)
 
-      val expectedJson = Json.parse{
+      val expectedJson = Json.parse {
         s"""
            |{
            |  "email":"foo@bar.wibble",
@@ -247,11 +253,4 @@ class EmailVerificationServiceSpec extends UnitSpec with SCRSSpec with WithFakeA
       resultAsJson shouldBe expectedJson
     }
   }
-
-  "isUserSCP" should {
-    "always return a false for now" in new Setup {
-      await(stubbedService.isUserScp) shouldBe false
-    }
-  }
-
 }

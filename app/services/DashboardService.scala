@@ -16,10 +16,11 @@
 
 package services
 
+import javax.inject.Inject
+
 import _root_.connectors._
 import audit.events.{EmailMismatchEvent, EmailMismatchEventDetail}
 import config.FrontendAppConfig
-import javax.inject.Inject
 import models._
 import models.auth.AuthDetails
 import models.external.{OtherRegStatus, Statuses}
@@ -29,9 +30,9 @@ import play.api.mvc.{AnyContent, Call, Request}
 import uk.gov.hmrc.auth.core.Enrolments
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import scala.concurrent.ExecutionContext.Implicits.global
 import utils._
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.control.NoStackTrace
 import scala.util.{Failure, Success, Try}

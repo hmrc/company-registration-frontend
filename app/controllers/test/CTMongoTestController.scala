@@ -16,8 +16,9 @@
 
 package controllers.test
 
-import config.{FrontendAppConfig, WSHttp}
 import javax.inject.Inject
+
+import config.{FrontendAppConfig, WSHttp}
 import play.api.libs.json.JsValue
 import play.api.mvc.Action
 import uk.gov.hmrc.http.{HeaderCarrier, HttpGet}

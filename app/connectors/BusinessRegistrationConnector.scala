@@ -16,14 +16,15 @@
 
 package connectors
 
-import config.{FrontendAppConfig, WSHttp}
 import javax.inject.Inject
+
+import config.{FrontendAppConfig, WSHttp}
 import models._
 import play.api.Logger
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.http._
-import scala.concurrent.ExecutionContext.Implicits.global
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class BusinessRegistrationConnectorImpl @Inject()(val wsHttp: WSHttp, val appConfig: FrontendAppConfig) extends BusinessRegistrationConnector {

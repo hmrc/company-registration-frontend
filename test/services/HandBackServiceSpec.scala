@@ -27,7 +27,6 @@ import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.binders.ContinueUrl
-import uk.gov.hmrc.play.config.ServicesConfig
 import utils._
 
 import scala.concurrent.Future

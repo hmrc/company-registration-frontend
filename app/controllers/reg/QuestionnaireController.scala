@@ -16,9 +16,10 @@
 
 package controllers.reg
 
+import javax.inject.Inject
+
 import config.FrontendAppConfig
 import forms.QuestionnaireForm
-import javax.inject.Inject
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.Action
 import services.{MetricsService, QuestionnaireService}

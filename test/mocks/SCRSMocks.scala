@@ -18,7 +18,6 @@ package mocks
 
 import config.FrontendAppConfig
 import connectors._
-import controllers.auth.SCRSExternalUrls
 import org.mockito.Matchers
 import org.mockito.Matchers.any
 import org.mockito.Mockito._

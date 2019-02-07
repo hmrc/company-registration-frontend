@@ -19,7 +19,6 @@ package controllers.handoff
 import builders.AuthBuilder
 import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
-import controllers.auth.SCRSExternalUrls
 import fixtures.LoginFixture
 import helpers.SCRSSpec
 import models.handoff.{GroupHandBackModel, NavLinks}

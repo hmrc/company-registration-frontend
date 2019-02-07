@@ -16,12 +16,13 @@
 
 package controllers.test
 
+import javax.inject.Inject
+
 import config.FrontendAppConfig
 import connectors._
 import controllers.auth.AuthFunction
 import forms._
 import forms.test.{CompanyContactTestEndpointForm, FeatureSwitchForm}
-import javax.inject.Inject
 import models._
 import models.connectors.ConfirmationReferences
 import models.handoff._

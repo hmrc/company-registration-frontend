@@ -16,10 +16,11 @@
 
 package controllers.handoff
 
+import javax.inject.Inject
+
 import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthFunction
-import javax.inject.Inject
 import models.handoff.GroupHandBackModel
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent}

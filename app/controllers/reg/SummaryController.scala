@@ -16,10 +16,11 @@
 
 package controllers.reg
 
+import javax.inject.Inject
+
 import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector, S4LConnector}
 import controllers.auth.AuthFunction
-import javax.inject.Inject
 import models._
 import models.handoff.BackHandoff
 import play.api.Logger

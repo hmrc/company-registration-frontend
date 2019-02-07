@@ -16,12 +16,13 @@
 
 package services
 
-import connectors.CompanyRegistrationConnector
 import javax.inject.Inject
+
+import connectors.CompanyRegistrationConnector
 import play.api.Logger
 import uk.gov.hmrc.http.HeaderCarrier
-import scala.concurrent.ExecutionContext.Implicits.global
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 

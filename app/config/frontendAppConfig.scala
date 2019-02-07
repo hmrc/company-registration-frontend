@@ -16,10 +16,9 @@
 
 package config
 
-import java.util.Base64
+import javax.inject.Inject
 
 import controllers.reg.routes
-import javax.inject.Inject
 import play.api.Mode.Mode
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.play.config.ServicesConfig

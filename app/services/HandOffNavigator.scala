@@ -22,12 +22,11 @@ import config.FrontendAppConfig
 import controllers.handoff._
 import models.handoff.{HandOffNavModel, NavLinks, Receiver, Sender}
 import play.api.Logger
-import play.api.mvc.Call
 import repositories._
 import uk.gov.hmrc.http.HeaderCarrier
-import scala.concurrent.ExecutionContext.Implicits.global
 import utils.{SCRSExceptions, SCRSFeatureSwitches}
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.Try
 import scala.util.control.NoStackTrace
