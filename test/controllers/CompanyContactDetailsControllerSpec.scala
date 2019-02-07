@@ -18,7 +18,6 @@ package controllers
 
 import builders.AuthBuilder
 import config.FrontendAppConfig
-import controllers.auth.SCRSExternalUrls
 import controllers.reg.CompanyContactDetailsController
 import fixtures.{CompanyContactDetailsFixture, UserDetailsFixture}
 import helpers.SCRSSpec

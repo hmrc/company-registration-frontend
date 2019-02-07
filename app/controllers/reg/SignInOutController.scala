@@ -17,13 +17,13 @@
 package controllers.reg
 
 import java.io.File
+import javax.inject.Inject
 
 import config.FrontendAppConfig
 import connectors._
-import controllers.auth.{AuthFunction, SCRSExternalUrls}
+import controllers.auth.AuthFunction
 import controllers.handoff.{routes => handoffRoutes}
 import controllers.verification.{routes => emailRoutes}
-import javax.inject.Inject
 import models.ThrottleResponse
 import play.api.Logger
 import play.api.Play.current

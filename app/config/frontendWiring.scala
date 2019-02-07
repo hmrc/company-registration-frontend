@@ -16,8 +16,9 @@
 
 package config
 
-import com.typesafe.config.Config
 import javax.inject.Inject
+
+import com.typesafe.config.Config
 import play.api.Configuration
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.crypto.ApplicationCrypto

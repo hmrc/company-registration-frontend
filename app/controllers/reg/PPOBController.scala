@@ -16,12 +16,13 @@
 
 package controllers.reg
 
+import javax.inject.Inject
+
 import _root_.connectors.{BusinessRegistrationConnector, CompanyRegistrationConnector, KeystoreConnector, S4LConnector}
 import address.client.RecordSet
 import config.FrontendAppConfig
 import controllers.auth.AuthFunction
 import forms.PPOBForm
-import javax.inject.Inject
 import models._
 import models.handoff.BackHandoff
 import play.api.Logger

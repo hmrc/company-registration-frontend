@@ -16,11 +16,12 @@
 
 package controllers.test
 
+import javax.inject.Inject
+
 import config.FrontendAppConfig
 import connectors.S4LConnector
 import controllers.auth.AuthFunction
 import forms.SubmissionForm
-import javax.inject.Inject
 import models.SubmissionModel
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent}

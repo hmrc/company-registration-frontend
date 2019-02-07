@@ -19,7 +19,6 @@ package controllers
 import builders.AuthBuilder
 import config.FrontendAppConfig
 import connectors.{BusinessRegistrationConnector, BusinessRegistrationSuccessResponse}
-import controllers.auth.SCRSExternalUrls
 import controllers.reg.CompletionCapacityController
 import fixtures.BusinessRegistrationFixture
 import helpers.SCRSSpec

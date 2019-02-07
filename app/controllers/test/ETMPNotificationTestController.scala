@@ -16,10 +16,11 @@
 
 package controllers.test
 
+import javax.inject.Inject
+
 import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, DynamicStubConnector, KeystoreConnector}
 import forms.test.ETMPPost
-import javax.inject.Inject
 import models.test.{ETMPAcknowledgment, ETMPCTRecordUpdates, ETMPNotification}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent}

@@ -9,20 +9,26 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import controllers.reg.routes
 import itutil.{FakeAppConfig, IntegrationSpecBase, LoginStub}
 import org.jsoup.Jsoup
+import org.scalatest.mockito.MockitoSugar
 import play.api.http.HeaderNames
 import play.api.libs.json.Json
 import play.api.test.FakeApplication
 import uk.gov.hmrc.mongo.MongoSpecSupport
+import utils.{BooleanFeatureSwitch, SCRSFeatureSwitches}
 
-class RegistrationEmailControllerISpec extends IntegrationSpecBase with MongoSpecSupport with LoginStub with FakeAppConfig  {
+class RegistrationEmailControllerISpec extends IntegrationSpecBase with MongoSpecSupport with LoginStub with FakeAppConfig with MockitoSugar  {
 
   override implicit lazy val app = FakeApplication(additionalConfiguration = fakeConfig())
+  val mockSCRSFeatureSwitches = mock[SCRSFeatureSwitches]
 
   class Setup {
     val userId = "test-user-id"
     val regId = "12345"
     val csrfToken = () => UUID.randomUUID().toString
     val sessionCookie = () => getSessionCookie(Map("csrfToken" -> csrfToken()), userId)
+    val scrsFeatureSwitches = mockSCRSFeatureSwitches
+    val featureSwitchTrue = BooleanFeatureSwitch("sCPEnabled", true)
+    val featureSwitchFalse = BooleanFeatureSwitch("sCPEnabled", false)
 
     def stubVerifyEmail(vStatus: Int): StubMapping = {
       val postUserUrl = s"/sendVerificationEmailURL"
@@ -88,7 +94,6 @@ class RegistrationEmailControllerISpec extends IntegrationSpecBase with MongoSpe
       res.status shouldBe 200
       val doc = Jsoup.parse(res.body)
       doc.body().toString.contains("test@test.com") shouldBe true
-      println("docc"+ doc)
       doc.getElementById("registrationEmail-currentemail").attr("checked") shouldBe ""
       doc.getElementById("registrationEmail-differentemail").attr("checked") shouldBe "checked"
       doc.getElementById("DifferentEmail").`val` shouldBe "sausage"
@@ -273,7 +278,7 @@ class RegistrationEmailControllerISpec extends IntegrationSpecBase with MongoSpe
       res.status shouldBe 303
       res.header(HeaderNames.LOCATION).get shouldBe routes.RegistrationEmailConfirmationController.show().url
     }
-    "return 303 to post sign in if user is already verified in CR" in new Setup {
+    "return 303 to post sign in if user is already verified in CR backend" in new Setup {
       stubAuthorisation()
       stubSuccessfulLogin(userId = userId, otherParamsForAuth = Some(Json.obj("name" -> "foobar")))
       val emailResponseFromCr =
@@ -306,5 +311,53 @@ class RegistrationEmailControllerISpec extends IntegrationSpecBase with MongoSpe
       res.status shouldBe 303
       res.header(HeaderNames.LOCATION).get shouldBe routes.SignInOutController.postSignIn().url
     }
+
+
+      "return 303 to completion capacity if SCP Enabled and email is SCP Verified" in new Setup {
+          setupFeatures(scpEnabled = true)
+          stubAuthorisation()
+          stubSuccessfulLogin(userId = userId, otherParamsForAuth = Some(Json.obj("name" -> "foobar", "emailVerified" -> true)))
+          stubKeystore(SessionId, regId)
+          stubPut("/company-registration/corporation-tax-registration/test/update-email", 200,
+              """ {
+          |  "address": "foo@bar.wibble",
+          |  "type": "SCP",
+          |  "link-sent": false,
+          |  "verified": true,
+          |  "return-link-email-sent" : false
+          | }
+        """.stripMargin)
+
+            val emailResponseFromCr =
+              """ {
+        |  "address": "foo@bar.wibble",
+        |  "type": "GG",
+        |  "link-sent": false,
+        |  "verified": false,
+        |  "return-link-email-sent" : false
+        |
+        | }
+      """.stripMargin
+
+          val data: String =
+            """
+        |{
+        | "registrationID" : "test"
+        |}
+      """.stripMargin
+        stubGet("/company-registration/corporation-tax-registration/test/retrieve-email",200, emailResponseFromCr)
+        stubKeystoreGetWithJson(SessionId, regId, 200, data)
+
+          val res = await(buildClient(controllers.reg.routes.RegistrationEmailController.submit().url)
+            .withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
+          .post(Map(
+              "csrfToken" -> Seq("xxx-ignored-xxx"),
+              "registrationEmail" -> Seq("currentEmail")
+                )))
+
+          res.status shouldBe 303
+        res.header(HeaderNames.LOCATION).get shouldBe controllers.reg.routes.CompletionCapacityController.show().url
+        }
   }
+
 }

@@ -16,12 +16,13 @@
 
 package services.internal
 
-import connectors.IncorpInfoConnector
 import javax.inject.Inject
+
+import connectors.IncorpInfoConnector
 import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 class TestIncorporationServiceImpl @Inject()(val incorpInfoConnector: IncorpInfoConnector) extends TestIncorporationService
 

@@ -16,8 +16,9 @@
 
 package repositories
 
-import config.FrontendAppConfig
 import javax.inject.Inject
+
+import config.FrontendAppConfig
 import models.handoff.HandOffNavModel
 import play.api.Logger
 import play.api.libs.json.JsObject

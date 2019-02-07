@@ -16,11 +16,11 @@
 
 package services
 
-import connectors.VatThresholdConnector
 import javax.inject.Inject
+
+import connectors.VatThresholdConnector
 import org.joda.time.LocalDate
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.config.ServicesConfig
 
 import scala.concurrent.Future
 

@@ -16,11 +16,12 @@
 
 package controllers.reg
 
+import javax.inject.Inject
+
 import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector, S4LConnector}
 import controllers.auth.AuthFunction
 import forms.CompanyContactForm
-import javax.inject.Inject
 import models.{CompanyContactDetailsBadRequestResponse, CompanyContactDetailsForbiddenResponse, CompanyContactDetailsNotFoundResponse, CompanyContactDetailsSuccessResponse}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.Action

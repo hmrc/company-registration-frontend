@@ -20,7 +20,6 @@ import java.util.UUID
 
 import builders.AuthBuilder
 import config.FrontendAppConfig
-import controllers.auth.SCRSExternalUrls
 import controllers.reg.SummaryController
 import fixtures.{AccountingDetailsFixture, CorporationTaxFixture, SCRSFixtures, TradingDetailsFixtures}
 import helpers.SCRSSpec
@@ -33,7 +32,6 @@ import play.api.libs.json.{JsObject, Json, Writes}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.NavModelNotFoundException
-import sun.misc.resources.Messages_zh_CN
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.WithFakeApplication
 import utils.JweCommon

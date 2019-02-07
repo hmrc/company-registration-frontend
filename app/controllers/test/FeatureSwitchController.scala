@@ -17,7 +17,6 @@
 package controllers.test
 
 import com.google.inject.Inject
-import models.test.FeatureSwitch
 import play.api.mvc.Action
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils._

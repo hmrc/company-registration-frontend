@@ -17,9 +17,9 @@
 package utils
 
 import java.nio.charset.{StandardCharsets => CS}
+import javax.inject.Inject
 
 import config.FrontendAppConfig
-import javax.inject.Inject
 import org.jose4j.jwe.{ContentEncryptionAlgorithmIdentifiers => CEAI, JsonWebEncryption => JWE, KeyManagementAlgorithmIdentifiers => KMAI}
 import org.jose4j.keys.AesKey
 import play.api.Logger

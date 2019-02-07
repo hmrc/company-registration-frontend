@@ -16,18 +16,18 @@
 
 package services
 
+import javax.inject.Inject
+
 import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
-import javax.inject.Inject
 import models.handoff.{BusinessActivitiesModel, CompanyNameHandOffModel, HandoffPPOB, _}
 import models.{ConfirmationReferencesSuccessResponse, SummaryHandOff}
 import play.api.libs.json.{JsObject, JsString, Json}
 import repositories.NavModelRepo
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.config.ServicesConfig
-import scala.concurrent.ExecutionContext.Implicits.global
 import utils._
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class HandOffServiceImpl @Inject()(

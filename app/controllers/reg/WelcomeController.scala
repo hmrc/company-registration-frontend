@@ -16,8 +16,9 @@
 
 package controllers.reg
 
-import config.FrontendAppConfig
 import javax.inject.Inject
+
+import config.FrontendAppConfig
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.Action
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController

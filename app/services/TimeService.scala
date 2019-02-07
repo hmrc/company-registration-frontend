@@ -17,9 +17,9 @@
 package services
 
 import java.text.SimpleDateFormat
+import javax.inject.Inject
 
 import config.FrontendAppConfig
-import javax.inject.Inject
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.{DateTime, LocalDate}
 import uk.gov.hmrc.time.DateTimeUtils._

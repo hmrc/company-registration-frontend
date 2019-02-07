@@ -19,7 +19,6 @@ package controllers
 import builders.AuthBuilder
 import config.FrontendAppConfig
 import connectors._
-import controllers.auth.SCRSExternalUrls
 import controllers.dashboard.CancelRegistrationController
 import forms.CancelForm
 import helpers.SCRSSpec

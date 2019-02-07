@@ -16,11 +16,12 @@
 
 package controllers.dashboard
 
+import javax.inject.Inject
+
 import config.FrontendAppConfig
 import connectors._
 import controllers.auth.AuthFunction
 import forms.CancelForm
-import javax.inject.Inject
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Request, Result}

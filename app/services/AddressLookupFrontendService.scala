@@ -16,8 +16,9 @@
 
 package services
 
-import connectors.AddressLookupConnector
 import javax.inject.Inject
+
+import connectors.AddressLookupConnector
 import models.NewAddress
 import play.api.mvc.{Call, Request}
 import uk.gov.hmrc.http.HeaderCarrier

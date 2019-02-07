@@ -16,13 +16,14 @@
 
 package connectors
 
-import config.{FrontendAppConfig, WSHttp}
 import javax.inject.Inject
+
+import config.{FrontendAppConfig, WSHttp}
 import play.api.Logger
 import play.api.libs.json.{Json, Writes}
 import uk.gov.hmrc.http.{CorePost, HeaderCarrier, HttpPost, HttpResponse}
-import scala.concurrent.ExecutionContext.Implicits.global
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.Random
 

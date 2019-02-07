@@ -18,7 +18,6 @@ package views
 
 import _root_.helpers.SCRSSpec
 import builders.AuthBuilder
-import controllers.auth.SCRSExternalUrls
 import controllers.reg.ConfirmationController
 import fixtures.CompanyDetailsFixture
 import models.ConfirmationReferencesSuccessResponse

@@ -18,7 +18,6 @@ package controllers
 
 import builders.AuthBuilder
 import config.FrontendAppConfig
-import controllers.auth.SCRSExternalUrls
 import controllers.reg.ConfirmationController
 import fixtures.CompanyDetailsFixture
 import helpers.SCRSSpec

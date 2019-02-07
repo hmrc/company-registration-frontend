@@ -22,9 +22,9 @@ import connectors.KeystoreConnector
 import play.api.Logger
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.cache.client.CacheMap
-import scala.concurrent.ExecutionContext.Implicits.global
 import utils.SCRSExceptions
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 trait CommonService {

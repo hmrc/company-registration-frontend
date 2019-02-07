@@ -20,7 +20,6 @@ import akka.actor.ActorSystem
 import akka.stream.{ActorMaterializer, Materializer}
 import builders.AuthBuilder
 import config.FrontendAppConfig
-import controllers.auth.SCRSExternalUrls
 import helpers.SCRSSpec
 import mocks.{CompanyRegistrationConnectorMock, KeystoreMock, SCRSMocks}
 import models.Email

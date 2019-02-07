@@ -16,9 +16,10 @@
 
 package services
 
+import javax.inject.Inject
+
 import address.client.{AddressRecord, RecordSet}
 import config.{FrontendAppConfig, WSHttp}
-import javax.inject.Inject
 import play.api.Logger
 import play.api.libs.json.JsValue
 import uk.gov.hmrc.http.{CoreGet, HeaderCarrier, HttpReads}

@@ -16,13 +16,14 @@
 
 package services
 
-import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import javax.inject.Inject
+
+import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import models.{TradingDetails, TradingDetailsResponse}
 import uk.gov.hmrc.http.HeaderCarrier
-import scala.concurrent.ExecutionContext.Implicits.global
 import utils.SCRSExceptions
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class TradingDetailsServiceImpl @Inject()(val keystoreConnector: KeystoreConnector,

@@ -21,7 +21,6 @@ import java.util.UUID
 import builders.AuthBuilder
 import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
-import controllers.auth.SCRSExternalUrls
 import controllers.reg.TradingDetailsController
 import fixtures.TradingDetailsFixtures
 import helpers.SCRSSpec

@@ -16,14 +16,15 @@
 
 package connectors
 
-import config.{FrontendAppConfig, WSHttp}
 import javax.inject.Inject
+
+import config.{FrontendAppConfig, WSHttp}
 import models.IncorporationResponse
 import models.test.ETMPNotification
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.http._
-import scala.concurrent.ExecutionContext.Implicits.global
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class DynamicStubConnectorImpl @Inject()(val wSHttp: WSHttp, appConfig: FrontendAppConfig) extends DynamicStubConnector {

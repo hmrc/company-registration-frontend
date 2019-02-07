@@ -16,14 +16,15 @@
 
 package connectors
 
-import config.{FrontendAppConfig, WSHttp}
 import javax.inject.Inject
+
+import config.{FrontendAppConfig, WSHttp}
 import org.joda.time.LocalDate
 import play.api.Logger
 import play.api.libs.json.{JsNull, JsString}
 import uk.gov.hmrc.http._
-import scala.concurrent.ExecutionContext.Implicits.global
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.control.NoStackTrace
 

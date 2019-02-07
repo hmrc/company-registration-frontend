@@ -17,13 +17,10 @@
 package utils
 
 import helpers.SCRSSpec
-import mocks.SCRSMocks
-import models.test.FeatureSwitch
 import org.joda.time.DateTime
 import org.mockito.Matchers
-import org.scalatest.BeforeAndAfterEach
-import uk.gov.hmrc.play.test.UnitSpec
 import org.mockito.Mockito._
+import org.scalatest.BeforeAndAfterEach
 import org.scalatest.mockito.MockitoSugar
 
 class FeatureSwitchSpec extends SCRSSpec with BeforeAndAfterEach  with MockitoSugar {

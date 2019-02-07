@@ -16,11 +16,12 @@
 
 package controllers.reg
 
+import javax.inject.Inject
+
 import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthFunction
 import forms.errors.DeskproForm
-import javax.inject.Inject
 import models.ConfirmationReferencesSuccessResponse
 import play.api.Logger
 import play.api.i18n.{I18nSupport, MessagesApi}

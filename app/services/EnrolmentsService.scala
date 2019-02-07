@@ -16,8 +16,9 @@
 
 package services
 
-import config.FrontendAppConfig
 import javax.inject.Inject
+
+import config.FrontendAppConfig
 import uk.gov.hmrc.auth.core.Enrolments
 
 class EnrolmentsServiceImpl @Inject()(val frontendAppConfig: FrontendAppConfig) extends EnrolmentsService

@@ -17,8 +17,8 @@
 package forms
 
 import models.{ConfirmRegistrationEmailModel, RequiredBooleanForm}
-import play.api.data.Forms._
 import play.api.data.Form
+import play.api.data.Forms._
 
 
 object ConfirmRegistrationEmailForm extends RequiredBooleanForm {

@@ -16,9 +16,10 @@
 
 package services
 
+import javax.inject.Inject
+
 import com.codahale.metrics.{Counter, Timer}
 import com.kenshoo.play.metrics.Metrics
-import javax.inject.Inject
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future

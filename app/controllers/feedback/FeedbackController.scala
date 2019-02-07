@@ -17,10 +17,10 @@
 package controllers.feedback
 
 import java.net.URLEncoder
+import javax.inject.Inject
 
 import config._
 import controllers.auth._
-import javax.inject.Inject
 import play.api.Logger
 import play.api.http.{Status => HttpStatus}
 import play.api.i18n.{I18nSupport, MessagesApi}

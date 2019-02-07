@@ -28,9 +28,8 @@ import org.scalatest.mockito.MockitoSugar
 import play.api.libs.json.{JsObject, Json}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.cache.client.CacheMap
-import uk.gov.hmrc.play.config.ServicesConfig
 import uk.gov.hmrc.play.test.WithFakeApplication
-import utils.{BooleanFeatureSwitch, FeatureSwitch, SCRSFeatureSwitches}
+import utils.{BooleanFeatureSwitch, SCRSFeatureSwitches}
 
 import scala.concurrent.Future
 

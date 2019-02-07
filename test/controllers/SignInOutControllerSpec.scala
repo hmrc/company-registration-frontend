@@ -21,7 +21,6 @@ import java.time.LocalDate
 import builders.AuthBuilder
 import config.FrontendAppConfig
 import connectors._
-import controllers.auth.SCRSExternalUrls
 import controllers.reg.SignInOutController
 import fixtures._
 import helpers.SCRSSpec
