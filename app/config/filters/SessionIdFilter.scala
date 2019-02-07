@@ -29,7 +29,7 @@ import utils.SCRSValidators.desSessionRegex
 import scala.concurrent.Future
 
 class SCRSFilters @Inject()(defaultFilters: FrontendFilters,
-                            sessionIdFilter: SessionIdFilter) extends DefaultHttpFilters(defaultFilters.frontendFilters :+ sessionIdFilter: _*)
+                            sessionIdFilter: SessionIdFilter) extends DefaultHttpFilters(defaultFilters.filters :+ sessionIdFilter: _*)
 
 class SessionIdFilterImpl @Inject()(val mat: Materializer) extends SessionIdFilter
 
