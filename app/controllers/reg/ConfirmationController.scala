@@ -69,12 +69,6 @@ trait ConfirmationController extends FrontendController with AuthFunction with S
     }
   }
 
-  val resubmitPage: Action[AnyContent] = Action.async { implicit request =>
-    ctAuthorised {
-      Future.successful(Ok(views.html.errors.submissionTimeout()))
-    }
-  }
-
   val deskproPage: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
       Future.successful(Ok(views.html.errors.submissionFailed(DeskproForm.form)))

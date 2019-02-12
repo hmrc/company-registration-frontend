@@ -59,7 +59,7 @@ trait RegistrationConfirmationController extends FrontendController with AuthFun
               case Success(s) => handBackService.storeConfirmationHandOff(s, regid).flatMap {
                 case _ if handBackService.payloadHasForwardLinkAndNoPaymentRefs(s) => getPaymentHandoffResult(externalID)
                 case ConfirmationReferencesSuccessResponse(_) => Future.successful(Redirect(controllers.reg.routes.ConfirmationController.show()))
-                case DESFailureRetriable => Future.successful(Redirect(controllers.reg.routes.ConfirmationController.resubmitPage()))
+                case DESFailureRetriable => Future.successful(Redirect(controllers.reg.routes.ConfirmationController.show()))
                 case _ => Future.successful(Redirect(controllers.reg.routes.ConfirmationController.deskproPage()))
               }
               case Failure(DecryptionError) => Future.successful(BadRequest(error_template_restart("6", "DecryptionError")))

@@ -354,7 +354,7 @@ trait CompanyRegistrationConnector {
 
   def fetchHeldSubmissionTime(registrationId: String)(implicit hc: HeaderCarrier): Future[Option[JsValue]] = {
     wsHttp.GET[JsValue](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationId/fetch-held-time") map {
-      res => Some(res)
+     res => Some(res)
     } recover {
       case ex: BadRequestException =>
         Logger.error(s"[CompanyRegistrationConnector] [fetchHeldTime] for RegId: $registrationId - ${ex.responseCode} ${ex.message}")

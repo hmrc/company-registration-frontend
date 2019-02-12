@@ -110,6 +110,46 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
       }
     }
 
+    "make sure that the dashboard has the correct elements when the registration status is locked but not submission date" in new Setup {
+
+      val dashboard = Dashboard(
+        "testCompanyName",
+        IncorpAndCTDashboard(
+          "locked", None, Some("trans-12345"), Some("pay-12345"), None, None, Some("ack-12345"), None, None
+        ),
+        ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo")), Some(payeThresholds)),
+        ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
+      )
+
+      when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
+        .thenReturn(Future.successful(Some(regId)))
+
+      when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
+        .thenReturn(Future.successful(DashboardBuilt(dashboard)))
+
+      when(mockDashboardService.checkForEmailMismatch(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
+        .thenReturn(Future.successful(true))
+
+      showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
+        result =>
+          val document = Jsoup.parse(contentAsString(result))
+          document.title() shouldBe "Company registration overview"
+
+          Map(
+            "incorpStatusText" -> "Pending",
+            "incorpTransID" -> "trans-12345",
+            "incorpPaymentReference" -> "pay-12345",
+            "incorpSubmittedText" -> "If your application is successful we'll send you an email with the company registration number and certificate within 2 working days of the submission date.",
+            "ctStatusText" -> "Pending",
+            "ackRef" -> "ack-12345",
+            "ctPendingText" -> "We've received your application but can't process it until we've set up the limited company."
+          ) foreach { case (element, message) =>
+            document.getElementById(element).text() shouldBe message
+          }
+          intercept[NullPointerException](document.getElementById("incorpSubmissionDate").`val`)
+      }
+    }
+
     "make sure that the dashboard has the correct elements when the registration status is submitted" in new Setup {
 
       val dashboard = Dashboard(
