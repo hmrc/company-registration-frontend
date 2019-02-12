@@ -144,17 +144,6 @@ class ConfirmationControllerSpec extends SCRSSpec with CompanyDetailsFixture wit
     }
   }
 
-  "resubmitPage" should {
-    "Return a 200" in new Setup {
-
-      submitWithAuthorisedUser(controller.resubmitPage, FakeRequest().withFormUrlEncodedBody(Nil: _*)) {
-        result =>
-          status(result) shouldBe OK
-          contentAsString(result) should include(Messages("errorPages.retrySubmission.p2"))
-      }
-    }
-  }
-
   "deskproPage" should {
     "Return a 200" in new Setup {
       pendingUntilFixed {

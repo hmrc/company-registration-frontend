@@ -384,7 +384,7 @@ class RegistrationConfirmationISpec extends IntegrationSpecBase with MongoSpecSu
 
       val response = await(fResponse)
       response.status shouldBe 303
-      response.header(HeaderNames.LOCATION).get should include("/register-your-company/submission-failure")
+      response.header(HeaderNames.LOCATION).get should include("/register-your-company/application-submitted")
     }
 
     "updating confirmation references with 403 should return a deskpro page" in new Setup {

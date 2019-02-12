@@ -35,8 +35,6 @@ POST       /something-went-wrong                    controllers.reg.Confirmation
 
 GET        /ticket-submitted                        controllers.reg.ConfirmationController.submittedTicket
 
-GET        /submission-failure                      controllers.reg.ConfirmationController.resubmitPage
-
 GET        /contact-about-corporation-tax           controllers.reg.CompanyContactDetailsController.show
 POST       /contact-about-corporation-tax           controllers.reg.CompanyContactDetailsController.submit
 

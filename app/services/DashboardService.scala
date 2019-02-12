@@ -176,7 +176,7 @@ trait DashboardService extends SCRSExceptions with AlertLogging with CommonServi
     companyRegistrationConnector.retrieveCorporationTaxRegistration(regId) flatMap {
       ctReg =>
         (ctReg \ "status").as[String] match {
-          case "held"         => buildHeld(regId, ctReg)
+          case "held" | "locked" => buildHeld(regId, ctReg)
           case "acknowledged" => Future.successful(buildAcknowledged(regId, ctReg, enrolments))
           case _ => Future.successful(ctReg.as[IncorpAndCTDashboard](IncorpAndCTDashboard.reads(None)))
         }
@@ -197,9 +197,9 @@ trait DashboardService extends SCRSExceptions with AlertLogging with CommonServi
   private[services] def buildHeld(regId: String, ctReg: JsValue)(implicit hc: HeaderCarrier): Future[IncorpAndCTDashboard] = {
     for {
       heldSubmissionDate <- companyRegistrationConnector.fetchHeldSubmissionTime(regId)
-      submissionDate = extractSubmissionDate(heldSubmissionDate.get)
+      submissionDate      = heldSubmissionDate.map(date => extractSubmissionDate(date))
     } yield {
-      ctReg.as[IncorpAndCTDashboard](IncorpAndCTDashboard.reads(Option(submissionDate)))
+      ctReg.as[IncorpAndCTDashboard](IncorpAndCTDashboard.reads(submissionDate))
     }
   }
 

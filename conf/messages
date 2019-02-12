@@ -388,13 +388,7 @@ errorPages.failedSubmission.error.name_required                     = Please pro
 errorPages.failedSubmission.error.email_too_long                    = Your email can''t be longer than 255 characters
 errorPages.failedSubmission.error.email_format                      = Enter an email address using only letters, numbers and - . @ _ +
 errorPages.failedSubmission.error.message_too_long                  = Your message can''t be longer than 1000 characters
-errorPages.failedSubmission.error.message_required                  = Please enter details of what you were doing.
-
-## Retry Submission
-errorPages.retrySubmission.description                              = We couldn''t process your application
-errorPages.retrySubmission.p1                                       = Sorry, there is a technical problem and we couldn''t process your application. Any details you entered have been saved.
-errorPages.retrySubmission.p2                                       = Please resend your application.
-errorPages.retrySubmission.button                                   = Resend
+errorPages.failedSubmission.error.message_required                  = Please enter details of what you were doing. 
 
 ## Deskpro Submitted
 errorPages.deskproSubmitted.description                             = Thank you

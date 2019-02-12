@@ -233,6 +233,13 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
       val res = await(service.buildIncorpCTDashComponent(regId, noEnrolments))
       res shouldBe IncorpAndCTDashboard("held", Some("10 October 2017"), Some(transId), Some(payRef), None, None, Some(ackRef), None, None)
     }
+    "return a correct IncorpAndCTDashboard when the status is locked" in new Setup {
+      when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(eqTo(regId))(any())).thenReturn(Future.successful(ctRegJson("locked")))
+      when(mockCompanyRegistrationConnector.fetchHeldSubmissionTime(eqTo(regId))(any())).thenReturn(Future.successful(None))
+
+      val res = await(service.buildIncorpCTDashComponent(regId, noEnrolments))
+      res shouldBe IncorpAndCTDashboard("locked", None, Some(transId), Some(payRef), None, None, Some(ackRef), None, None)
+    }
 
     "return a correct IncorpAndCTDashboard when the status is submitted" in new Setup {
       when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(eqTo(regId))(any()))
@@ -363,7 +370,7 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
       }
 
   "buildHeld" should {
-    "return a IncorpAndCTDashboard" in new Setup {
+    "return a IncorpAndCTDashboard where submission date is returned from cr" in new Setup {
       val expected = IncorpAndCTDashboard("held", Some("10 October 2017"), Some(transId),
         Some(payRef), None, None, Some(ackRef), None, None)
 
@@ -376,6 +383,17 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
       val result = await(service.buildHeld(regId, ctRegJson("held")))
       result shouldBe expected
     }
+    "return a IncorpAndCTDashboard where submission date is NOT returned from cr" in new Setup {
+      val expected = IncorpAndCTDashboard("locked", None, Some(transId),
+        Some(payRef), None, None, Some(ackRef), None, None)
+
+      when(mockCompanyRegistrationConnector.fetchHeldSubmissionTime(eqTo(regId))(any()))
+        .thenReturn(Future.successful(None))
+
+      val result = await(service.buildHeld(regId, ctRegJson("locked")))
+      result shouldBe expected
+    }
+
   }
 
   "extractSubmissionDate" should {
