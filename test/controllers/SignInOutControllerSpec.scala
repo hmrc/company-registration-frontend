@@ -111,6 +111,42 @@ class SignInOutControllerSpec extends SCRSSpec
           redirectLocation(result) shouldBe Some("/register-your-company/relationship-to-company")
       }
     }
+    "return a 303 to 'no email' page if email does not exist in auth" in new Setup {
+      val authDetailsNoEmail = new ~(
+        new ~(
+          new ~(
+            new ~(
+              Some(AffinityGroup.Organisation),
+              Enrolments(Set())
+            ), None
+          ), Some("foo")
+        ), Credentials("test", "test")
+      )
+
+      showWithAuthorisedUserRetrieval(controller.postSignIn(None), authDetailsNoEmail) {
+        result =>
+          status(result) shouldBe SEE_OTHER
+          redirectLocation(result).get shouldBe controllers.verification.routes.EmailVerificationController.createShow().url
+      }
+
+    }
+    "return 500 if incorrect details are returned from auth" in new Setup {
+      val authDetailsNoEmailAndNoOrgType = new ~(
+        new ~(
+          new ~(
+            new ~(
+              None,
+              Enrolments(Set())
+            ), Some("test")
+          ), None
+        ), Credentials("test", "test")
+      )
+
+      showWithAuthorisedUserRetrieval(controller.postSignIn(None), authDetailsNoEmailAndNoOrgType) {
+        result =>
+         status(result) shouldBe 500
+      }
+    }
 
     "return a 303 if accessing with authorisation for an existing journey" in new Setup {
       val expected = ThrottleResponse("12345", false, false, false, Some(Email("email","GG",false,false,false)))

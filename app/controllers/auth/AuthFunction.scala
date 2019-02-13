@@ -56,12 +56,22 @@ trait AuthFunction extends FrontendController with AuthorisedFunctions {
   def ctAuthorisedBasicCompanyDetails(body: => (BasicCompanyAuthDetails) => Future[Result])(implicit request: Request[AnyContent]): Future[Result] = {
     baseFunction.retrieve(name and email and externalId) {
       case nm ~ Some(em) ~ Some(ei) => body(BasicCompanyAuthDetails(nm.name.get, em, ei))
+      case nm ~ None ~ Some(ei) => {
+        Logger.info("ctAuthorisedBasicCompanyDetails user does not have email on gg record (call from auth)")
+        Future.successful(Redirect(controllers.verification.routes.EmailVerificationController.createShow()))
+      }
+      case _ => Future.failed(InternalError("ctAuthorisedBasicCompanyDetails auth response was incorrect to what we expected when we were extracting Retrievals"))
     } recover authErrorHandling()
   }
 
   def ctAuthorisedCompanyContact(body: => (String) => Future[Result])(implicit request: Request[AnyContent]): Future[Result] = {
     baseFunction.retrieve(name and email) {
       case nm ~ Some(em) => body(em)
+      case nm ~ None => {
+        Logger.info("ctAuthorisedCompanyContact user does not have email on gg record (call from auth)")
+        Future.successful(Redirect(controllers.verification.routes.EmailVerificationController.createShow()))
+      }
+      case _ => Future.failed(InternalError("ctAuthorisedCompanyContact auth response was incorrect to what we expected when we were extracting Retrievals"))
     } recover authErrorHandling()
   }
 
@@ -69,6 +79,11 @@ trait AuthFunction extends FrontendController with AuthorisedFunctions {
                                      (implicit request: Request[AnyContent]): Future[Result] = {
     baseFunction.retrieve(name and email and credentials and externalId) {
       case nm ~ Some(em) ~ cr ~ Some(ei) => body(em, cr, ei)
+      case nm ~ None ~ cr ~ Some(ei) => {
+        Logger.info("ctAuthorisedCompanyContactAmend user does not have email on gg record (call from auth)")
+        Future.successful(Redirect(controllers.verification.routes.EmailVerificationController.createShow()))
+      }
+      case _ => Future.failed(InternalError("ctAuthorisedCompanyContactAmend auth response was incorrect to what we expected when we were extracting Retrievals"))
     } recover authErrorHandling()
   }
 
@@ -79,6 +94,11 @@ trait AuthFunction extends FrontendController with AuthorisedFunctions {
   def ctAuthorisedPostSignIn(body: => (AuthDetails) => Future[Result])(implicit request: Request[AnyContent]): Future[Result] = {
     baseFunction.retrieve(affinityGroup and allEnrolments and email and internalId and credentials) {
       case Some(ag) ~ ae ~ Some(em) ~ Some(ii) ~ api => body(AuthDetails(ag, ae, em, ii, api))
+      case Some(ag) ~ ae ~ None ~ Some(ii) ~ api => {
+        Logger.info("ctAuthorisedPostSignIn user does not have email on gg record (call from auth)")
+        Future.successful(Redirect(controllers.verification.routes.EmailVerificationController.createShow()))
+      }
+      case _ => Future.failed(InternalError("ctAuthorisedPostSignIn auth response was incorrect to what we expected when we were extracting Retrievals"))
     } recover authErrorHandling()
   }
 
@@ -114,19 +134,14 @@ trait AuthFunction extends FrontendController with AuthorisedFunctions {
     def scpVerifiedEmail(sCPEnabledFeature: Boolean)(implicit request: Request[AnyContent]): Future[Boolean] = {
         if (sCPEnabledFeature) {
           baseFunction.retrieve(emailVerified) {
-                case Some(em) => Future.successful(em)
-                case _ => Future.successful(false)
-        } recover {
+            case Some(em) => Future.successful(em)
+            case _ => Future.successful(false)
+          } recover {
                 case _ => false
-        }
           }
-        else
-          {
+        } else {
               Future.successful(false)
             }
 
         }
-
-
-
 }
