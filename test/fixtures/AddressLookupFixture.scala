@@ -18,7 +18,6 @@ package fixtures
 
 import play.api.libs.json.Json
 import services.AddressLookupSuccessResponse
-//import uk.gov.hmrc.address.client.v1.{Country, Address, AddressRecord, RecordSet}
 import address.client.{Address, AddressRecord, Country, RecordSet}
 
 trait AddressLookupFixture {

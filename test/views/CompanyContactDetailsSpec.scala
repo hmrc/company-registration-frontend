@@ -20,10 +20,12 @@ import _root_.helpers.SCRSSpec
 import builders.AuthBuilder
 import controllers.reg.CompanyContactDetailsController
 import fixtures.{CompanyContactDetailsFixture, UserDetailsFixture}
+import models.Email
 import org.jsoup.Jsoup
 import org.mockito.Matchers.any
 import org.mockito.Mockito.when
 import play.api.i18n.MessagesApi
+import play.api.libs.json.Json
 import play.api.test.Helpers._
 import services.MetricsService
 import uk.gov.hmrc.auth.core.retrieve.{Name, ~}
@@ -45,16 +47,35 @@ class CompanyContactDetailsSpec extends SCRSSpec with CompanyContactDetailsFixtu
       override val appConfig = mockAppConfig
       override val messagesApi = fakeApplication.injector.instanceOf[MessagesApi]
     }
+
+    val ctDocFirstTimeThrough =
+    Json.parse(
+      s"""
+         |{
+         |    "OID" : "123456789",
+         |    "registrationID" : "1",
+         |    "status" : "draft",
+         |    "formCreationTimestamp" : "2016-10-25T12:20:45Z",
+         |    "language" : "en",
+         |    "verifiedEmail" : {
+         |        "address" : "user@test.com",
+         |        "type" : "GG",
+         |        "link-sent" : true,
+         |        "verified" : true,
+         |        "return-link-email-sent" : false
+         |    }
+         |}""".stripMargin)
   }
 
   "show" should{
-    "display the CompanyContactDetails page with the correct elements" in new Setup {
+    "display the CompanyContactDetails page with the correct elements passed into it" in new Setup {
       CompanyContactDetailsServiceMocks.fetchContactDetails(validCompanyContactDetailsModel)
       mockKeystoreFetchAndGet("registrationID", Some("1"))
-      CTRegistrationConnectorMocks.retrieveCTRegistration()
+      CTRegistrationConnectorMocks.retrieveCTRegistration(ctDocFirstTimeThrough)
       when(mockCompanyRegistrationConnector.fetchCompanyName(any())(any())).thenReturn(Future.successful("testCompanyname1"))
+      when(mockCompanyRegistrationConnector.retrieveEmail(any())(any())).thenReturn(Future.successful(Some(Email("verified@email","GG",true,true,true))))
 
-      showWithAuthorisedUserRetrieval(controller.show, new ~(Name(Some("first"), Some("last")), Some("email"))) {
+      showWithAuthorisedUser(controller.show) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
 
@@ -62,6 +83,7 @@ class CompanyContactDetailsSpec extends SCRSSpec with CompanyContactDetailsFixtu
           document.getElementById("main-heading").text() shouldBe "Give us one or more ways to contact testCompanyname1"
           intercept[Exception](document.getElementById("contactNameLabel").text())
           document.getElementById("contactEmailLabel").text() shouldBe "Email address"
+          document.getElementById("contactEmail").attr("value") shouldBe "foo@bar.wibble"
           document.getElementById("contactDaytimePhoneLabel").text() shouldBe "Contact number Give a mobile number, if you have one"
           document.getElementById("contactMobileLabel").text() shouldBe "Other contact number"
           document.getElementById("next").attr("value") shouldBe "Save and continue"

@@ -20,9 +20,7 @@ import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
-import models.{BusinessRegistration, Links}
 import org.scalatestplus.play.OneServerPerSuite
-import play.api.libs.json.JsValue
 import play.api.libs.ws.WSClient
 
 object WiremockHelper {

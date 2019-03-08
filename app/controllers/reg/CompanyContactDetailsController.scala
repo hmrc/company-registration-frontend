@@ -52,12 +52,12 @@ trait CompanyContactDetailsController extends FrontendController with AuthFuncti
 
   val show = Action.async {
     implicit request =>
-      ctAuthorisedCompanyContact { companyContactAuth =>
+      ctAuthorised {
         checkStatus { regId =>
           for {
-            contactDetails  <- companyContactDetailsService.fetchContactDetails(companyContactAuth)
-            companyName     <- compRegConnector.fetchCompanyName(regId)
-          } yield Ok(CompanyContactDetails(CompanyContactForm.form.fill(contactDetails),companyName))
+            contactDetails <- companyContactDetailsService.fetchContactDetails
+            companyName    <- compRegConnector.fetchCompanyName(regId)
+          } yield Ok(CompanyContactDetails(CompanyContactForm.form.fill(contactDetails), companyName))
         }
       }
   }
@@ -79,10 +79,10 @@ trait CompanyContactDetailsController extends FrontendController with AuthFuncti
                       Redirect(routes.AccountingDatesController.show())
                     }
                   }
-                case CompanyContactDetailsNotFoundResponse      => Future.successful(NotFound(defaultErrorPage))
-                case CompanyContactDetailsBadRequestResponse    => Future.successful(BadRequest(defaultErrorPage))
-                case CompanyContactDetailsForbiddenResponse     => Future.successful(Forbidden(defaultErrorPage))
-                case _                                          => Future.successful(InternalServerError(defaultErrorPage))
+                case CompanyContactDetailsNotFoundResponse => Future.successful(NotFound(defaultErrorPage))
+                case CompanyContactDetailsBadRequestResponse => Future.successful(BadRequest(defaultErrorPage))
+                case CompanyContactDetailsForbiddenResponse => Future.successful(Forbidden(defaultErrorPage))
+                case _ => Future.successful(InternalServerError(defaultErrorPage))
               }
             }
           )

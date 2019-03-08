@@ -2,7 +2,7 @@
 package www
 
 import fixtures.HandOffFixtures
-import itutil.{FakeAppConfig, IntegrationSpecBase, LoginStub, WiremockHelper}
+import itutil.{FakeAppConfig, IntegrationSpecBase, LoginStub}
 import play.api.Application
 import play.api.http.HeaderNames
 import play.api.test.FakeApplication

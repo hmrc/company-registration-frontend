@@ -32,7 +32,7 @@ trait CompanyContactDetailsServiceMock {
 
   object CompanyContactDetailsServiceMocks {
     def fetchContactDetails(response: CompanyContactDetailsApi): OngoingStubbing[Future[CompanyContactDetailsApi]] = {
-      when(mockCompanyContactDetailsService.fetchContactDetails(Matchers.any())(Matchers.any()))
+      when(mockCompanyContactDetailsService.fetchContactDetails(Matchers.any()))
         .thenReturn(Future.successful(response))
     }
 

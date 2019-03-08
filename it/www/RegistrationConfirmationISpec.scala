@@ -21,7 +21,7 @@ import java.util.UUID
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, stubFor, urlMatching}
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import config.FrontendAppConfig
-import itutil.{FakeAppConfig, IntegrationSpecBase, LoginStub, WiremockHelper}
+import itutil.{FakeAppConfig, IntegrationSpecBase, LoginStub}
 import models.RegistrationConfirmationPayload
 import models.handoff.{HandOffNavModel, NavLinks, Receiver, Sender}
 import play.api.http.HeaderNames
@@ -29,12 +29,11 @@ import play.api.libs.json.{JsObject, Json}
 import play.api.test.FakeApplication
 import play.modules.reactivemongo.ReactiveMongoComponent
 import repositories.NavModelRepo
-import uk.gov.hmrc.mongo.MongoSpecSupport
-import utils.{Jwe, JweCommon}
+import utils.JweCommon
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class RegistrationConfirmationISpec extends IntegrationSpecBase with MongoSpecSupport with LoginStub with FakeAppConfig {
+class RegistrationConfirmationISpec extends IntegrationSpecBase with LoginStub with FakeAppConfig {
 
   override implicit lazy val app = FakeApplication(additionalConfiguration = fakeConfig("microservice.services.JWE.key" -> testkey))
 

@@ -18,17 +18,17 @@ package repositories
 
 import fixtures.HandOffFixtures
 import org.scalatest.concurrent.{Eventually, ScalaFutures}
+import play.modules.reactivemongo.ReactiveMongoComponent
 import reactivemongo.api.indexes.{Index, IndexType}
-import uk.gov.hmrc.mongo.MongoSpecSupport
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class NavModelRepositorySpec extends UnitSpec with MongoSpecSupport with WithFakeApplication with ScalaFutures with Eventually with HandOffFixtures {
+class NavModelRepositorySpec extends UnitSpec with WithFakeApplication with ScalaFutures with Eventually with HandOffFixtures {
 
   class Setup {
-
-    val repo = new NavModelRepoMongo(mongo,100)
+    val rc = fakeApplication.injector.instanceOf[ReactiveMongoComponent]
+    val repo = new NavModelRepoMongo(rc.mongoConnector.db,100)
 
     await(repo.drop)
     await(repo.ensureIndexes)
@@ -37,8 +37,8 @@ class NavModelRepositorySpec extends UnitSpec with MongoSpecSupport with WithFak
   }
 
   class SetupWithIndexes(indexList: List[Index]) {
-
-    val repo = new NavModelRepoMongo(mongo,100){
+    val rc = fakeApplication.injector.instanceOf[ReactiveMongoComponent]
+    val repo = new NavModelRepoMongo(rc.mongoConnector.db,100){
       override def additionalIndexes: List[Index] = indexList
     }
 

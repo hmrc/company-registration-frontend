@@ -24,10 +24,9 @@ import itutil.{FakeAppConfig, IntegrationSpecBase, LoginStub}
 import play.api.Application
 import play.api.http.HeaderNames
 import play.api.test.FakeApplication
-import uk.gov.hmrc.mongo.MongoSpecSupport
 
 
-class RegistrationEmailConfirmationISpec extends IntegrationSpecBase with MongoSpecSupport with LoginStub with FakeAppConfig {
+class RegistrationEmailConfirmationISpec extends IntegrationSpecBase with LoginStub with FakeAppConfig {
 
   override implicit lazy val app: Application = FakeApplication(additionalConfiguration = fakeConfig())
 

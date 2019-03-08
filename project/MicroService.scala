@@ -1,10 +1,10 @@
 
-import play.routes.compiler.{InjectedRoutesGenerator, StaticRoutesGenerator}
+import play.routes.compiler.InjectedRoutesGenerator
+import play.sbt.routes.RoutesKeys.{routesGenerator, routesImport}
 import sbt.Keys._
 import sbt._
-import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin
-import play.sbt.routes.RoutesKeys.{routesGenerator, routesImport}
+import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
 
 trait MicroService {
 

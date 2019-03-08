@@ -13,12 +13,11 @@ import play.api.libs.json.{JsObject, Json}
 import play.api.test.FakeApplication
 import play.modules.reactivemongo.ReactiveMongoComponent
 import repositories.NavModelRepo
-import uk.gov.hmrc.mongo.MongoSpecSupport
 import utils.JweCommon
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class BasicCompanyDetailsControllerISpec extends IntegrationSpecBase with MongoSpecSupport with LoginStub with FakeAppConfig {
+class BasicCompanyDetailsControllerISpec extends IntegrationSpecBase with LoginStub with FakeAppConfig {
 
   override implicit lazy val app = FakeApplication(additionalConfiguration = fakeConfig("microservice.services.JWE.key" -> testkey))
 

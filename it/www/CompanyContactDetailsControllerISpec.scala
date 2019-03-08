@@ -31,17 +31,32 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
        |    }
        |}
      """.stripMargin
+
+  val emailResponseFromCRLowLevel =
+    s"""
+
+       |    {
+       |        "address" : "user@test.com",
+       |        "type" : "GG",
+       |        "link-sent" : true,
+       |        "verified" : true,
+       |        "return-link-email-sent" : false
+       |    }
+
+     """.stripMargin
+
   val nameJson = Json.parse(
     """{ "name": {"name": "foo", "lastName": "bar"}}""".stripMargin).as[JsObject]
   val nameAndCredId = Json.obj("externalId" -> "fooBarWizz1") ++ nameJson
 
   "show" should {
 
-    "return 200 when no data is returned from backend, auth returns name successfully" in {
+    "return 200 when no data is returned from backend" in {
 
       stubAuthorisation()
-      stubSuccessfulLogin(userId = userId, otherParamsForAuth = Some(nameJson))
+      stubSuccessfulLogin(userId = userId)
       stubKeystore(SessionId, regId)
+      stubGet(s"/company-registration/corporation-tax-registration/$regId/retrieve-email", 200, emailResponseFromCRLowLevel)
       stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR())
       stubGet(s"/company-registration/corporation-tax-registration/$regId/contact-details", 404, "")
 
@@ -64,8 +79,9 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
         """.stripMargin)
 
       stubAuthorisation()
-      stubSuccessfulLogin(userId = userId, otherParamsForAuth = Some(nameJson))
+      stubSuccessfulLogin(userId = userId)
       stubKeystore(SessionId, regId)
+      stubGet(s"/company-registration/corporation-tax-registration/$regId/retrieve-email", 200, emailResponseFromCRLowLevel)
       stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR())
       stubGet(s"/company-registration/corporation-tax-registration/$regId/contact-details", 200, contactDetailsResp.toString())
 

@@ -21,6 +21,7 @@ import javax.inject.Inject
 import audit.events.{ContactDetailsAuditEvent, ContactDetailsAuditEventDetail}
 import connectors._
 import models._
+import play.api.Logger
 import play.api.mvc.{AnyContent, Request}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.auth.core.retrieve.Credentials
@@ -44,14 +45,31 @@ trait CompanyContactDetailsService extends CommonService with SCRSExceptions {
   val auditConnector: AuditConnector
   val platformAnalyticsConnector: PlatformAnalyticsConnector
 
-  def fetchContactDetails(emailFromAuth : String)(implicit hc: HeaderCarrier): Future[CompanyContactDetailsApi] = {
-    fetchRegistrationID flatMap {
-      companyRegistrationConnector.retrieveContactDetails
-    } flatMap {
-      case CompanyContactDetailsSuccessResponse(details) => Future.successful(CompanyContactDetails.toApiModel(details))
-      case _ =>
-        if (isEmailValid(emailFromAuth)) {
-          Future.successful(CompanyContactDetailsApi(Some(emailFromAuth), None, None))
+  def fetchContactDetails(implicit hc: HeaderCarrier): Future[CompanyContactDetailsApi] = {
+
+
+    val getVerifiedEmailAndContactDetails: Future[(String, CompanyContactDetailsResponse)] = for {
+      regId <- fetchRegistrationID
+      verEmail <- companyRegistrationConnector.retrieveEmail(regId) map {
+        e =>
+          e.fold {
+            Logger.warn("[CompanyContactDetails] - No Email in verified block")
+            throw new NoSuchElementException("Verified Email not found")
+          } {
+            _.address
+          }
+      }
+      contactDetails <- companyRegistrationConnector.retrieveContactDetails(regId)
+    } yield {
+      (verEmail, contactDetails)
+    }
+
+
+    getVerifiedEmailAndContactDetails.flatMap {
+      case (_, CompanyContactDetailsSuccessResponse(details)) => Future.successful(CompanyContactDetails.toApiModel(details))
+      case (verifiedEmail, _) =>
+        if (isEmailValid(verifiedEmail)) {
+          Future.successful(CompanyContactDetailsApi(Some(verifiedEmail), None, None))
         } else {
           platformAnalyticsConnector.sendEvents(GAEvents.invalidDESEmailFromUserDetails).map { _ =>
             CompanyContactDetailsApi(None, None, None)

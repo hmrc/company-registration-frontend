@@ -24,8 +24,8 @@ import play.api.http.HeaderNames
 import play.api.mvc.{Action, Results}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.auth.core.{AffinityGroup, AuthConnector, AuthorisationException, Enrolments}
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name, Retrievals, ~}
+import uk.gov.hmrc.auth.core.{AffinityGroup, AuthConnector, AuthorisationException, Enrolments}
 import uk.gov.hmrc.http.InternalServerException
 import uk.gov.hmrc.play.test.WithFakeApplication
 

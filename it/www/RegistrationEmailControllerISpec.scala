@@ -13,10 +13,9 @@ import org.scalatest.mockito.MockitoSugar
 import play.api.http.HeaderNames
 import play.api.libs.json.Json
 import play.api.test.FakeApplication
-import uk.gov.hmrc.mongo.MongoSpecSupport
 import utils.{BooleanFeatureSwitch, SCRSFeatureSwitches}
 
-class RegistrationEmailControllerISpec extends IntegrationSpecBase with MongoSpecSupport with LoginStub with FakeAppConfig with MockitoSugar  {
+class RegistrationEmailControllerISpec extends IntegrationSpecBase with LoginStub with FakeAppConfig with MockitoSugar  {
 
   override implicit lazy val app = FakeApplication(additionalConfiguration = fakeConfig())
   val mockSCRSFeatureSwitches = mock[SCRSFeatureSwitches]

@@ -16,12 +16,10 @@
 package www
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import itutil.{FakeAppConfig, IntegrationSpecBase, LoginStub, WiremockHelper}
+import itutil.{FakeAppConfig, IntegrationSpecBase, LoginStub}
 import org.joda.time.LocalDate
-import org.joda.time.format.DateTimeFormatter
 import org.jsoup.Jsoup
 import play.api.http.HeaderNames
-import play.api.libs.json.Json
 import play.api.test.FakeApplication
 
 class DashboardControllerISpec extends IntegrationSpecBase with LoginStub with FakeAppConfig {
