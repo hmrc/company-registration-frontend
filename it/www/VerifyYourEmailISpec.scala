@@ -16,7 +16,7 @@
 package www
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import itutil.{FakeAppConfig, IntegrationSpecBase, LoginStub, WiremockHelper}
+import itutil.{FakeAppConfig, IntegrationSpecBase, LoginStub}
 import org.jsoup.Jsoup
 import org.scalatest.BeforeAndAfterEach
 import play.api.http.HeaderNames

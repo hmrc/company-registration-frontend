@@ -17,7 +17,7 @@ package www
 
 import java.util.UUID
 
-import itutil.{FakeAppConfig, IntegrationSpecBase, LoginStub, WiremockHelper}
+import itutil.{FakeAppConfig, IntegrationSpecBase, LoginStub}
 import org.scalatest.BeforeAndAfterEach
 import play.api.http.HeaderNames
 import play.api.libs.ws.WSResponse

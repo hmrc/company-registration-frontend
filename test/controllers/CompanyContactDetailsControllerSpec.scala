@@ -70,7 +70,7 @@ class CompanyContactDetailsControllerSpec extends SCRSSpec with UserDetailsFixtu
       mockKeystoreFetchAndGet("registrationID",Some("1"))
       CompanyContactDetailsServiceMocks.fetchContactDetails(validCompanyContactDetailsModel)
 
-      showWithAuthorisedUserRetrieval(controller.show, authDetails) {
+      showWithAuthorisedUser(controller.show) {
         result =>
           status(result) shouldBe OK
       }
@@ -82,7 +82,7 @@ class CompanyContactDetailsControllerSpec extends SCRSSpec with UserDetailsFixtu
       mockKeystoreFetchAndGet("registrationID",Some("1"))
       CompanyContactDetailsServiceMocks.fetchContactDetails(validCompanyContactDetailsModel)
 
-      showWithAuthorisedUserRetrieval(controller.show, authDetails) {
+      showWithAuthorisedUser(controller.show) {
         result =>
           status(result) shouldBe OK
       }

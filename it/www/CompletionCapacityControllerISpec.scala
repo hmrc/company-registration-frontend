@@ -9,9 +9,8 @@ import org.jsoup.Jsoup
 import play.api.http.HeaderNames
 import play.api.libs.json.Json
 import play.api.test.FakeApplication
-import uk.gov.hmrc.mongo.MongoSpecSupport
 
-class CompletionCapacityControllerISpec extends IntegrationSpecBase with MongoSpecSupport with LoginStub with FakeAppConfig  {
+class CompletionCapacityControllerISpec extends IntegrationSpecBase with LoginStub with FakeAppConfig  {
 
   override implicit lazy val app = FakeApplication(additionalConfiguration = fakeConfig())
   val regId = "5"

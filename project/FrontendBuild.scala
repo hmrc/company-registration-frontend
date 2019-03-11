@@ -1,7 +1,6 @@
 import sbt._
 
 object FrontendBuild extends Build with MicroService {
-  import scala.util.Properties.envOrElse
   import sbt.Keys._
 
   val appName = "company-registration-frontend"
@@ -23,20 +22,20 @@ private object AppDependencies {
 
   val compile = Seq(
     ws,
-    "uk.gov.hmrc" %% "bootstrap-play-25" % "4.3.0",
-    "uk.gov.hmrc" %% "auth-client" % "2.19.0-play-25",
-    "uk.gov.hmrc" %% "play-partials" % "6.3.0",
+    "uk.gov.hmrc" %% "bootstrap-play-25" % "4.9.0",
+    "uk.gov.hmrc" %% "auth-client" % "2.20.0-play-25",
+    "uk.gov.hmrc" %% "play-partials" % "6.5.0",
     "uk.gov.hmrc" %% "url-builder" % "2.1.0",
-    "uk.gov.hmrc" %% "http-caching-client" % "8.0.0",
+    "uk.gov.hmrc" %% "http-caching-client" % "8.1.0",
     "uk.gov.hmrc" %% "play-conditional-form-mapping" % "0.2.0",
     "org.bitbucket.b_c" % "jose4j" % "0.5.0",
-    "uk.gov.hmrc" %% "time" % "3.2.0",
+    "uk.gov.hmrc" %% "time" % "3.3.0",
     "uk.gov.hmrc" %% "play-whitelist-filter" % "2.0.0",
     "commons-validator" % "commons-validator" % "1.6",
     "uk.gov.hmrc" %% "play-language" % "3.4.0",
-    "uk.gov.hmrc" %% "play-reactivemongo" % "6.2.0",
+    "uk.gov.hmrc" %% "play-reactivemongo" % "6.4.0",
     "uk.gov.hmrc" %% "govuk-template" % "5.27.0-play-25",
-    "uk.gov.hmrc" %% "play-ui" % "7.31.0-play-25"
+    "uk.gov.hmrc" %% "play-ui" % "7.33.0-play-25"
   )
 
   def defaultTest(scope: String) = Seq(
@@ -45,8 +44,7 @@ private object AppDependencies {
       "org.pegdown" % "pegdown" % "1.6.0" % scope,
       "org.jsoup" % "jsoup" % "1.10.2" % scope,
       "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
-      "uk.gov.hmrc" %% "reactivemongo-test" % "2.0.0" % scope,
-      "uk.gov.hmrc" %% "hmrctest" % "3.3.0" % scope,
+      "uk.gov.hmrc" %% "hmrctest" % "3.6.0-play-25" % scope,
       "org.mockito" % "mockito-all" % "2.0.2-beta" % scope
   )
 

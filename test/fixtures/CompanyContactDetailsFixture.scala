@@ -28,7 +28,7 @@ trait CompanyContactDetailsFixture {
   lazy val companyContactForm = CompanyContactForm.form
 
   lazy val companyContactModelFromUserDetails = CompanyContactDetailsApi(
-    Some("testEmail"),
+    Some("verified@email"),
     None,
     None
   )

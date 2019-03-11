@@ -18,6 +18,7 @@ package config
 
 import javax.inject.Inject
 
+import akka.actor.ActorSystem
 import com.typesafe.config.Config
 import play.api.Configuration
 import uk.gov.hmrc.auth.core.PlayAuthConnector
@@ -34,7 +35,7 @@ trait Hooks extends HttpHooks with HttpAuditing {
   override val hooks = NoneRequired
 }
 
-class WSHttpImpl @Inject()(config:Configuration, val auditConnector: AuditConnector) extends WSHttp {
+class WSHttpImpl @Inject()(config:Configuration, val auditConnector: AuditConnector, val actorSystem: ActorSystem) extends WSHttp {
 
   override protected def configuration: Option[Config] = Option(config.underlying)
   override protected def appNameConfiguration: Configuration = config
