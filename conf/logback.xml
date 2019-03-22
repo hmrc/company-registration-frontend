@@ -61,7 +61,7 @@
     <logger name="javax.management" level="INFO"/>
 
     <logger name="org.eclipse.jetty" level="INFO"/>
-
+    <logger name="reactivemongo.core.actors.MongoDBSystem" level="INFO"/>
     <logger name="org.apache.http" level="INFO"/>
 
     <logger name="org.jboss" level="INFO"/>

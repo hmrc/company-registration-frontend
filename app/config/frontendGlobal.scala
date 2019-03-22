@@ -17,13 +17,12 @@
 package config
 
 import javax.inject.Inject
-
 import config.filters.SessionIdFilter
 import play.api.http.DefaultHttpFilters
 import play.api.i18n.MessagesApi
 import play.api.mvc.Request
 import play.twirl.api.Html
-import uk.gov.hmrc.play.bootstrap.filters.MicroserviceFilters
+import uk.gov.hmrc.play.bootstrap.filters.{FrontendFilters}
 import uk.gov.hmrc.play.bootstrap.http.FrontendErrorHandler
 
 class SCRSErrorHandler @Inject()(val appConfig: FrontendAppConfig,
@@ -36,4 +35,4 @@ trait FrontendErrorHandlerSCRS extends FrontendErrorHandler {
     views.html.error_template(pageTitle, heading, message)
   }
 }
-class SCRSFilters @Inject()(defaultFilters : MicroserviceFilters, seshFilter: SessionIdFilter) extends DefaultHttpFilters(defaultFilters.filters :+ seshFilter: _*)
+class SCRSFilters @Inject()(defaultFilters : FrontendFilters, seshFilter: SessionIdFilter) extends DefaultHttpFilters(defaultFilters.filters :+ seshFilter: _*)
