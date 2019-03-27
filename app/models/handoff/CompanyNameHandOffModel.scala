@@ -52,6 +52,7 @@ case class CompanyNameHandOffIncoming(journey_id : Option[String],
                                       company_name : String,
                                       registered_office_address : CHROAddress,
                                       jurisdiction : String,
+                                      transactionId : String,
                                       ch: JsObject,
                                       hmrc: JsObject,
                                       links: JsObject) {
@@ -66,6 +67,7 @@ object CompanyNameHandOffIncoming {
     (__ \ "company_name").format[String] and
     (__ \ "registered_office_address").format[CHROAddress] and
     (__ \ "jurisdiction").format[String] and
+    (__ \ "transaction_id").format[String] and
     (__ \ "ch").format[JsObject] and
     (__ \ "hmrc").format[JsObject] and
     (__ \ "links").format[JsObject]

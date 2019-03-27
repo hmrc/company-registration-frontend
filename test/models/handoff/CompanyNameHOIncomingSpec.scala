@@ -34,7 +34,7 @@ class CompanyNameHOIncomingSpec extends UnitSpec with JsonFormatValidation {
 
   def jsonLine(key: String, value: Option[String], comma: Boolean = true): String = value.fold("")(v =>s""""${key}" : "${v}"${lineEnd(comma)}""")
 
-  def inJson(regId: String, userId: String, companyName: String, jurisdiction: String, roAddressJson: String = roJson()) = {
+  def inJson(regId: String, userId: String, companyName: String, jurisdiction: String, txid: String, roAddressJson: String = roJson()) = {
     s"""
        |{
        |  ${jsonLine("journey_id", regId)}
@@ -42,6 +42,7 @@ class CompanyNameHOIncomingSpec extends UnitSpec with JsonFormatValidation {
        |  ${jsonLine("company_name", companyName)}
        |  ${jsonLineRaw("registered_office_address", roAddressJson)}
        |  ${jsonLine("jurisdiction", jurisdiction)}
+       |  ${jsonLine("transaction_id", txid)}
        |  "ch": {},
        |  "hmrc": {},
        |  "links": {}
@@ -66,12 +67,12 @@ class CompanyNameHOIncomingSpec extends UnitSpec with JsonFormatValidation {
 
   "Incoming model" should {
     "Be able to be parsed from basic JSON" in {
-      val json = inJson("r", "u", "name", "j")
+      val json = inJson("r", "u", "name", "j", "txid")
       val empty = Json.obj()
 
       val expected = CompanyNameHandOffIncoming(Some("r"), "u", "name",
         CHROAddress("p", "1", None, "l", "c", Some("pb"), Some("pc"), Some("r")),
-        "j", empty, empty, empty)
+        "j", "txid", empty, empty, empty)
 
       val result = Json.parse(json).validate[CompanyNameHandOffIncoming]
 
@@ -79,12 +80,12 @@ class CompanyNameHOIncomingSpec extends UnitSpec with JsonFormatValidation {
     }
 
     "accept a company name that contains special characters" in {
-      val companyName = ("Company Name Ltd<>@")
-      val json = inJson("r", "u", companyName, "j")
+      val companyName = "Company Name Ltd<>@"
+      val json = inJson("r", "u", companyName, "j", "txid")
       val empty = Json.obj()
       val expected = CompanyNameHandOffIncoming(Some("r"), "u", companyName,
         CHROAddress("p", "1", None, "l", "c", Some("pb"), Some("pc"), Some("r")),
-        "j", empty, empty, empty)
+        "j", "txid", empty, empty, empty)
 
       val result = Json.parse(json).validate[CompanyNameHandOffIncoming]
 

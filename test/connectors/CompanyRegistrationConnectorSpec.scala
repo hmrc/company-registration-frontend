@@ -640,8 +640,6 @@ class CompanyRegistrationConnectorSpec extends SCRSSpec with CTDataFixture with 
     val email = Email("testEmailAddress", "GG", true, true, true)
     val registrationId = "12345"
 
-    val json = Json.obj("test" -> "ing")
-
     "return successful json" in new Setup {
       mockHttpGet[Email]("testUrl", email)
 
@@ -685,6 +683,65 @@ class CompanyRegistrationConnectorSpec extends SCRSSpec with CTDataFixture with 
         .thenReturn(Future.successful(registrationNoStatus))
 
       val result: Option[String] = await(connector.fetchRegistrationStatus(regID))
+
+      result shouldBe None
+    }
+  }
+  "saveTXIDAfterHO2" should {
+
+    val registrationId = "12345"
+    val txId = "123abc"
+    val successfulResponse = HttpResponse(200)
+
+    "return a 200 response if CR call returns 200" in new Setup {
+      mockHttpPUT[JsValue, HttpResponse]("testUrl", successfulResponse)
+
+      val result = await(connector.saveTXIDAfterHO2(registrationId, txId))
+
+      result shouldBe Some(successfulResponse)
+    }
+
+    "return a None if CR call returns a Bad request" in new Setup {
+      when(mockWSHttp.PUT[JsValue, HttpResponse](Matchers.anyString(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[HeaderCarrier](), Matchers.any()))
+        .thenReturn(Future.failed(new BadRequestException("400")))
+
+      val result = await(connector.saveTXIDAfterHO2(registrationId, txId))
+
+      result shouldBe None
+    }
+
+    "return a None if CR call returns a NotFoundException" in new Setup {
+      when(mockWSHttp.PUT[JsValue, HttpResponse](Matchers.anyString(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[HeaderCarrier](), Matchers.any()))
+        .thenReturn(Future.failed(new NotFoundException("404")))
+
+      val result = await(connector.saveTXIDAfterHO2(registrationId, txId))
+
+      result shouldBe None
+    }
+
+    "return a None if CR call returns a Upstream4xxResponse" in new Setup {
+      when(mockWSHttp.PUT[JsValue, HttpResponse](Matchers.anyString(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[HeaderCarrier](), Matchers.any()))
+        .thenReturn(Future.failed(new Upstream4xxResponse("429", 429, 429)))
+
+      val result = await(connector.saveTXIDAfterHO2(registrationId, txId))
+
+      result shouldBe None
+    }
+
+    "return a None if CR call returns a Upstream5xxResponse" in new Setup {
+      when(mockWSHttp.PUT[JsValue, HttpResponse](Matchers.anyString(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[HeaderCarrier](), Matchers.any()))
+        .thenReturn(Future.failed(new Upstream5xxResponse("503", 503, 503)))
+
+      val result = await(connector.saveTXIDAfterHO2(registrationId, txId))
+
+      result shouldBe None
+    }
+
+    "return a None if CR call returns a Exception" in new Setup {
+      when(mockWSHttp.PUT[JsValue, HttpResponse](Matchers.anyString(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[HeaderCarrier](), Matchers.any()))
+        .thenReturn(Future.failed(new Exception("500")))
+
+      val result = await(connector.saveTXIDAfterHO2(registrationId, txId))
 
       result shouldBe None
     }

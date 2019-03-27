@@ -32,6 +32,7 @@ trait PayloadFixture extends AddressFixture with JweFixture {
       "TestCompanyName",
       simpleRoAddress,
       "testJuri",
+      "testTxID",
       Json.parse("""{"ch" : 1}""").as[JsObject],
       Json.parse("""{"ch" : 1}""").as[JsObject],
       Json.parse("""{"forward":"testForward","reverse":"testReverse"}""").as[JsObject])
@@ -76,6 +77,7 @@ trait PayloadFixture extends AddressFixture with JweFixture {
     "TestCompanyName",
     basicRoAddress,
     "testJurisdiction",
+    "testTxID",
     Json.parse("""{"registrationId":"12345"}""").as[JsObject],
     Json.parse("""{"registrationId":"12345"}""").as[JsObject],
     Json.parse("""{"forward":"testForward","reverse":"testReverse"}""").as[JsObject]

@@ -38,6 +38,7 @@ trait CompanyDetailsFixture {
         Some("")
       ),
       "testJurisdiction",
+      "testTxID",
       Json.parse("""{"ch" : 1}""").as[JsObject],
       Json.parse("""{"hmrc" : 1}""").as[JsObject],
       Json.parse("""{"forward":"testForward","reverse":"testReverse"}""").as[JsObject]

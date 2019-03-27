@@ -24,7 +24,7 @@ import models.{CompanyDetails, RegistrationConfirmationPayload}
 import org.mockito.Mockito._
 import org.mockito.{ArgumentCaptor, Matchers}
 import play.api.libs.json.{JsValue, Json}
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.binders.ContinueUrl
 import utils._
@@ -122,7 +122,8 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
         "postal_code" -> "testPostcode",
         "country" -> "testCountry"
       ),
-      "jurisdiction" -> "testJurisdiction"
+      "jurisdiction" -> "testJurisdiction",
+      "transaction_id" -> "testTxId"
     )
 
     def companyDetailsLinks(forward: String = "/testForward",
@@ -150,19 +151,22 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
     "Decrypt and store the CH payload" in new Setup {
 
       val returnCacheMap = CacheMap("", Map("" -> Json.toJson(testNavModel)))
-
-      mockKeystoreFetchAndGet("registrationID", Some("12345"))
+      val testRegId = "12345"
+      mockKeystoreFetchAndGet("registrationID", Some(testRegId))
       mockKeystoreFetchAndGet("HandOffNavigation", Some(testNavModel))
 
-      mockCrRetrieve("12345", None)
-      mockCrUpdate("12345", ho2UpdatedRequest)
+      mockCrRetrieve(testRegId, None)
+      mockCrUpdate(testRegId, ho2UpdatedRequest)
 
-      mockNavRepoGet("12345", testNavModel)
-      mockNavRepoInsert("12345", testNavModel)
+      mockNavRepoGet(testRegId, testNavModel)
+      mockNavRepoInsert(testRegId, testNavModel)
+
 
       val name = "Foo Name"
       val r = simpleRequest() ++ companyDetails(name) ++ companyDetailsLinks()
       val encryptedRequest = testJwe.encrypt[JsValue](r)
+      when(mockCompanyRegistrationConnector.saveTXIDAfterHO2(testRegId,"testTxId"))
+        .thenReturn(Future.successful(Some(HttpResponse(200))))
 
       encryptedRequest shouldBe defined
 

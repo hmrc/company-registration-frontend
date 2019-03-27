@@ -25,7 +25,7 @@ import models.handoff._
 import play.api.Logger
 import play.api.libs.json.{Format, JsObject, JsValue}
 import repositories._
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.binders.ContinueUrl
 import utils._
 
@@ -123,13 +123,16 @@ trait HandBackService extends HandOffNavigator {
     decryptHandBackRequest[CompanyNameHandOffIncoming](request){
       payload =>
         for {
+          regID       <- fetchRegistrationID
           model       <- fetchNavModel()
           _           <- processNavModel(model, payload)
-          _           <- storeCompanyDetails(payload)
+          _           <- storeCompanyDetails(payload, regID)
+          _           <- compRegConnector.saveTXIDAfterHO2(regID,payload.transactionId)
         } yield {
           Success(payload)
         }
     }
+
   }
 
   def processGroupsHandBack(request: String)(implicit hc: HeaderCarrier):Future[Try[GroupHandBackModel]] = {
@@ -215,11 +218,9 @@ trait HandBackService extends HandOffNavigator {
     }
   }
 
-  private[services] def storeCompanyDetails(payload : CompanyNameHandOffIncoming)(implicit hc : HeaderCarrier) : Future[CompanyDetails] = {
-    for {
-      regID <- fetchRegistrationID
-      updated <- updateCompanyDetails(regID, payload)
-    } yield updated
+  private[services] def storeCompanyDetails(payload : CompanyNameHandOffIncoming, regId:String)(implicit hc : HeaderCarrier) : Future[CompanyDetails] = {
+     updateCompanyDetails(regId, payload)
+
   }
 
   private[services] def storeSimpleHandOff(payload : SummaryPage1HandOffIncoming)(implicit hc : HeaderCarrier) : Future[Boolean] = {

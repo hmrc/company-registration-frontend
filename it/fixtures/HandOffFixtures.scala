@@ -25,14 +25,15 @@ trait HandOffFixtures {
       Some("Line 2,"),
       "Locality",
       "Country",
-      Some(""),
+      Some("PO Box"),
       Some("FX1 1ZZ"),
-      Some("")
+      Some("Region")
     ),
     "testJurisdiction",
+    "txid",
     Json.obj(),
     Json.obj(),
-    Json.parse("""{"forward":"testForward","reverse":"testReverse"}""").as[JsObject]
+    Json.parse("""{"forward":"/testForward","reverse":"/testReverse","company_name" : "/String","company_address" : "/String","company_jurisdiction" : "/String"}""").as[JsObject]
   )
   lazy val H03_1_MODEL_SHAREHOLDERS_FLAG = GroupHandBackModel(
     userId,
@@ -67,6 +68,43 @@ trait HandOffFixtures {
   lazy val H03_1_PAYLOAD_NO_FLAG = jwe.encrypt[GroupHandBackModel](H03_1_MODEL_NO_SHAREHOLDERS_FLAG).get
   lazy val HO4_PAYLOAD = jwe.encrypt[SummaryPage1HandOffIncoming](HO4_MODEL).get
   val HO5B_PAYLOAD = jwe.encrypt[JsValue](Json.parse("""{"test":"json"}""")).get
+
+  val handOffNavModelDataUpTo1 = HandOffNavModel(
+    Sender(
+      Map(
+        "5" -> NavLinks(
+          "testForwardLinkFromSender5",
+          "testReverseLinkFromSender5"
+        ),
+        "5-2" -> NavLinks(
+          "testForwardLinkFromSender5-2",
+          "testReverseLinkFromSender5-2"
+        ),
+        "1" -> NavLinks(
+          "testForwardLinkFromSender1",
+          "testReverseLinkFromSender1"
+        ),
+        "3-2" -> NavLinks(
+          "testForwardLinkFromSender3-2",
+          "testReverseLinkFromSender3-2"
+        ),
+        "3" -> NavLinks(
+          "testForwardLinkFromSender3",
+          "testReverseLinkFromSender3"
+        )
+      )
+    ),
+    Receiver(
+      Map(
+        "0" -> NavLinks(
+          "testForwardLinkFromReceiver0",
+          "testReverseLinkFromReceiver0"
+        )
+      ),
+      Map("testJumpKey" -> "testJumpLink"),
+      Some(Json.parse("""{"testCHBagKey": "testValue"}""").as[JsObject])
+    )
+  )
 
   val handOffNavModelDataUpTo3 = HandOffNavModel(
     Sender(

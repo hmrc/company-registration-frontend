@@ -57,6 +57,7 @@ class CorporationTaxDetailsControllerSpec extends SCRSSpec with PayloadFixture w
       "TestCompanyName",
       CHROAddress("","",Some(""),"","",Some(""),Some(""),Some("")),
       "testJuri",
+      "txid",
       Json.parse("""{"ch" : 1}""").as[JsObject],
       Json.parse("""{"ch" : 1}""").as[JsObject],
       Json.parse("""{"forward":"testForward","reverse":"testReverse"}""").as[JsObject])
