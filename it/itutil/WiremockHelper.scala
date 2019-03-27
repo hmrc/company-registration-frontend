@@ -89,6 +89,12 @@ trait WiremockHelper {
   def stubUpdateBusinessRegistrationCompletionCapacity(regID: String, responseStatus: Int, body: String)  = {
     stubPost(s"/business-registration/business-tax-registration/update/$regID", responseStatus, body)
   }
+  def stubRetrieveCRCompanyDetails(regID: String, responseStatus: Int, body: String = "{}")  = {
+    stubGet(url = s"/company-registration/corporation-tax-registration/$regID/company-details", responseStatus, body)
+  }
+  def stubUpdateCRCompanyDetails(regID: String, responseStatus: Int, body: String = "{}")  = {
+    stubPut(url = s"/company-registration/corporation-tax-registration/$regID/company-details", responseStatus, body)
+  }
 
   def stubKeystore(session: String, regId: String, status: Int = 200) = {
     val keystoreUrl = s"/keystore/company-registration-frontend/$session"

@@ -51,33 +51,34 @@ trait CompanyRegistrationConnector {
       case _: NotFoundException => None
     }
   }
+
   def fetchCompanyName(regId: String)(implicit hc: HeaderCarrier): Future[String] = {
-    retrieveCorporationTaxRegistration(regId).map{
+    retrieveCorporationTaxRegistration(regId).map {
       json => (json \ "companyDetails" \ "companyName").validate[String].getOrElse(throw new Exception(s"Missing company Name for regId $regId"))
     }
   }
 
   def retrieveCorporationTaxRegistration(registrationID: String)(implicit hc: HeaderCarrier): Future[JsValue] = {
     wsHttp.GET[JsValue](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/corporation-tax-registration") recover {
-        case ex: BadRequestException =>
-          Logger.error(s"[CompanyRegistrationConnector] [retrieveCorporationTaxRegistration] for RegId: $registrationID - ${ex.responseCode} ${ex.message}")
-          throw ex
-        case ex: NotFoundException =>
-          Logger.info(s"[CompanyRegistrationConnector] [retrieveCorporationTaxRegistration] for RegId: $registrationID - ${ex.responseCode} ${ex.message}")
-          throw ex
-        case ex: Upstream4xxResponse =>
-          Logger.error(s"[CompanyRegistrationConnector] [retrieveCorporationTaxRegistration] for RegId: $registrationID - ${ex.upstreamResponseCode} ${ex.message}")
-          throw ex
-        case ex: Upstream5xxResponse =>
-          Logger.error(s"[CompanyRegistrationConnector] [retrieveCorporationTaxRegistration] for RegId: $registrationID - ${ex.upstreamResponseCode} ${ex.message}")
-          throw ex
-        case ex: Exception =>
-          Logger.error(s"[CompanyRegistrationConnector] [retrieveCorporationTaxRegistration] for RegId: $registrationID - Unexpected error occurred: $ex")
-          throw ex
-      }
+      case ex: BadRequestException =>
+        Logger.error(s"[CompanyRegistrationConnector] [retrieveCorporationTaxRegistration] for RegId: $registrationID - ${ex.responseCode} ${ex.message}")
+        throw ex
+      case ex: NotFoundException =>
+        Logger.info(s"[CompanyRegistrationConnector] [retrieveCorporationTaxRegistration] for RegId: $registrationID - ${ex.responseCode} ${ex.message}")
+        throw ex
+      case ex: Upstream4xxResponse =>
+        Logger.error(s"[CompanyRegistrationConnector] [retrieveCorporationTaxRegistration] for RegId: $registrationID - ${ex.upstreamResponseCode} ${ex.message}")
+        throw ex
+      case ex: Upstream5xxResponse =>
+        Logger.error(s"[CompanyRegistrationConnector] [retrieveCorporationTaxRegistration] for RegId: $registrationID - ${ex.upstreamResponseCode} ${ex.message}")
+        throw ex
+      case ex: Exception =>
+        Logger.error(s"[CompanyRegistrationConnector] [retrieveCorporationTaxRegistration] for RegId: $registrationID - Unexpected error occurred: $ex")
+        throw ex
+    }
   }
 
-  def checkROValidPPOB(registrationID: String, ro:CHROAddress)(implicit hc:HeaderCarrier): Future[Option[NewAddress]] = {
+  def checkROValidPPOB(registrationID: String, ro: CHROAddress)(implicit hc: HeaderCarrier): Future[Option[NewAddress]] = {
     implicit val roWrites = CHROAddress.formats
     val json = Json.toJson(ro)
 
@@ -336,7 +337,7 @@ trait CompanyRegistrationConnector {
     }
   }
 
-  def updateReferences(registrationID : String, payload: ConfirmationReferences)(implicit hc: HeaderCarrier): Future[ConfirmationReferencesResponse] = {
+  def updateReferences(registrationID: String, payload: ConfirmationReferences)(implicit hc: HeaderCarrier): Future[ConfirmationReferencesResponse] = {
     wsHttp.PUT[JsValue, ConfirmationReferences](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/confirmation-references", Json.toJson(payload)) map {
       res => ConfirmationReferencesSuccessResponse(res)
     } recover {
@@ -354,7 +355,7 @@ trait CompanyRegistrationConnector {
 
   def fetchHeldSubmissionTime(registrationId: String)(implicit hc: HeaderCarrier): Future[Option[JsValue]] = {
     wsHttp.GET[JsValue](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationId/fetch-held-time") map {
-     res => Some(res)
+      res => Some(res)
     } recover {
       case ex: BadRequestException =>
         Logger.error(s"[CompanyRegistrationConnector] [fetchHeldTime] for RegId: $registrationId - ${ex.responseCode} ${ex.message}")
@@ -375,10 +376,10 @@ trait CompanyRegistrationConnector {
   }
 
   def retrieveEmail(registrationId: String)(implicit hc: HeaderCarrier): Future[Option[Email]] = {
-    wsHttp.GET[Email](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationId/retrieve-email").map{
+    wsHttp.GET[Email](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationId/retrieve-email").map {
       e => Some(e)
     } recover {
-      case e : NotFoundException =>
+      case e: NotFoundException =>
         None
       case ex: BadRequestException =>
         Logger.info(s"[CompanyRegistrationConnector] [retrieveEmail] - Could not find a CT document for rid - $registrationId")
@@ -388,7 +389,7 @@ trait CompanyRegistrationConnector {
 
   def updateEmail(registrationId: String, email: Email)(implicit hc: HeaderCarrier): Future[Option[Email]] = {
     val json = Json.toJson(email)
-    wsHttp.PUT[JsValue, Email](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationId/update-email", json).map{
+    wsHttp.PUT[JsValue, Email](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationId/update-email", json).map {
       e => Some(e)
     } recover {
       case ex: BadRequestException =>
@@ -413,4 +414,28 @@ trait CompanyRegistrationConnector {
   def deleteRegistrationSubmission(registrationId: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
     wsHttp.DELETE[HttpResponse](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationId/delete-submission")
   }
+
+
+  def saveTXIDAfterHO2(registrationID: String, txid: String)(implicit hc: HeaderCarrier): Future[Option[HttpResponse]] = {
+    val json = Json.obj("transaction_id" -> txid)
+    wsHttp.PUT[JsValue, HttpResponse](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/handOff2Reference-ackRef-save", json).map  {
+      res => Some(res)} recover {
+      case ex: BadRequestException =>
+        Logger.error(s"[CompanyRegistrationConnector] [saveTXIDAfterHO2] for RegId: $registrationID - ${ex.responseCode} ${ex.message}")
+        None
+      case ex: NotFoundException =>
+        Logger.info(s"[CompanyRegistrationConnector] [saveTXIDAfterHO2] for RegId: $registrationID - ${ex.responseCode} ${ex.message}")
+        None
+      case ex: Upstream4xxResponse =>
+        Logger.error(s"[CompanyRegistrationConnector] [saveTXIDAfterHO2] for RegId: $registrationID - ${ex.upstreamResponseCode} ${ex.message}")
+        None
+      case ex: Upstream5xxResponse =>
+        Logger.error(s"[CompanyRegistrationConnector] [saveTXIDAfterHO2] for RegId: $registrationID - ${ex.upstreamResponseCode} ${ex.message}")
+        None
+      case ex: Exception =>
+        Logger.error(s"[CompanyRegistrationConnector] [saveTXIDAfterHO2] for RegId: $registrationID - Unexpected error occurred: $ex")
+        None
+    }
+  }
+
 }
