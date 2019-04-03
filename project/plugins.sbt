@@ -16,6 +16,6 @@ addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.3.5")
 
 addSbtPlugin("uk.gov.hmrc" % "sbt-bobby" % "0.33.0")
 
-addSbtPlugin("uk.gov.hmrc" % "sbt-artifactory" % "0.17.0")
+addSbtPlugin("uk.gov.hmrc" % "sbt-artifactory" % "0.18.0")
 
 evictionWarningOptions in update := EvictionWarningOptions.default.withWarnTransitiveEvictions(false).withWarnDirectEvictions(false).withWarnScalaVersionEviction(false)

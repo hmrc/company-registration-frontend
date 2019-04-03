@@ -144,11 +144,11 @@ trait DashboardService extends SCRSExceptions with AlertLogging with CommonServi
 
   def getCurrentPayeThresholds: Map[String, Int] = {
     val now = SystemDate.getSystemDate
-    val taxYearStart = LocalDate.parse("2018-04-06")
+    val taxYearStart = LocalDate.parse("2019-04-06")
     if (now.isEqual(taxYearStart) || now.isAfter(taxYearStart)) {
-      Map("weekly" -> 116, "monthly" -> 503, "annually" -> 6032)
+      Map("weekly" -> 118, "monthly" -> 512, "annually" -> 6136)
     } else {
-      Map("weekly" -> 113, "monthly" -> 490, "annually" -> 5876)
+      Map("weekly" -> 116, "monthly" -> 503, "annually" -> 6032)
     }
   }
 
