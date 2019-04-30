@@ -18,6 +18,7 @@ package connectors
 
 import helpers.SCRSSpec
 import mocks.MetricServiceMock
+import models.{CHROAddress, Shareholder}
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.{HttpResponse, NotFoundException, Upstream5xxResponse}
 
@@ -88,6 +89,89 @@ class IncorpInfoConnectorSpec extends SCRSSpec {
       mockHttpGet(s"$iiUrl/test-only/manual-trigger/fireSubs", Future.failed(new Upstream5xxResponse("502", 502, 502)))
       val res = await(connector.manuallyTriggerIncorporationUpdate)
       res shouldBe false
+    }
+  }
+  "returnListOfShareholdersFromTxApi" should {
+    val listOfShareHoldersFromII = Json.parse("""[{
+                                                |  "percentage_dividend_rights": 75,
+                                                |  "percentage_voting_rights": 75.0,
+                                                |  "percentage_capital_rights": 75,
+                                                |  "corporate_name": "big company",
+                                                |    "address": {
+                                                |    "premises": "11",
+                                                |    "address_line_1": "Add L1",
+                                                |    "address_line_2": "Add L2",
+                                                |    "locality": "London",
+                                                |    "country": "United Kingdom",
+                                                |    "postal_code": "ZZ1 1ZZ"
+                                                |      }
+                                                |    },{
+                                                |  "percentage_dividend_rights": 75,
+                                                |  "percentage_voting_rights": 74.3,
+                                                |  "percentage_capital_rights": 75,
+                                                |  "corporate_name": "big company 1",
+                                                |    "address": {
+                                                |    "premises": "11 FOO",
+                                                |    "address_line_1": "Add L1 1",
+                                                |    "address_line_2": "Add L2 2",
+                                                |    "locality": "London 1",
+                                                |    "country": "United Kingdom 1",
+                                                |    "postal_code": "ZZ1 1ZZ 1"
+                                                |      }
+                                                |    },{
+                                                |    "surname": "foo will never show",
+                                                |    "forename" : "bar will never show",
+                                                |    "percentage_dividend_rights": 75,
+                                                |    "percentage_voting_rights": 75,
+                                                |    "percentage_capital_rights": 75,
+                                                |    "address": {
+                                                |    "premises": "11",
+                                                |    "address_line_1": "Add L1",
+                                                |    "address_line_2": "Add L2",
+                                                |    "locality": "London",
+                                                |    "country": "United Kingdom",
+                                                |    "postal_code": "ZZ1 1ZZ"
+                                                |      }
+                                                |    }
+                                                |]""".stripMargin)
+
+    val listOfShareholders = List(
+      Shareholder("big company",Some(75.0),Some(75.0),Some(75.0),CHROAddress("11","Add L1",Some("Add L2"),"London","United Kingdom",None,Some("ZZ1 1ZZ"),None)),
+      Shareholder("big company 1",Some(74.3),Some(75.0),Some(75.0),CHROAddress("11 FOO","Add L1 1",Some("Add L2 2"),"London 1","United Kingdom 1",None,Some("ZZ1 1ZZ 1"),None))
+    )
+    "return a list of shareholders in right of either when 200 returned" in new Setup {
+
+      mockHttpGet(s"$iiUrl/shareholders/$transId",
+        Future.successful(
+          HttpResponse(200,Some(listOfShareHoldersFromII))))
+
+      val res = await(connector.returnListOfShareholdersFromTxApi(transId))
+      res.right.get shouldBe listOfShareholders
+
+    }
+    "return an empty list for a 204" in new Setup {
+      mockHttpGet(s"$iiUrl/shareholders/$transId",
+        Future.successful(
+          HttpResponse(204,Some(listOfShareHoldersFromII))))
+
+      val res = await(connector.returnListOfShareholdersFromTxApi(transId))
+      res.right.get shouldBe List.empty[Shareholder]
+    }
+    "return empty list if json is unparsable as a list of shareholders" in new Setup {
+      mockHttpGet(s"$iiUrl/shareholders/$transId",
+        Future.successful(
+          HttpResponse(200,Some(Json.obj("foo" -> "bar")))))
+
+      val res = await(connector.returnListOfShareholdersFromTxApi(transId))
+      res.right.get shouldBe List.empty[Shareholder]
+    }
+    "return a left if txapi returns a exception" in new Setup {
+      val ex = new Exception("foo")
+      mockHttpGet(s"$iiUrl/shareholders/$transId",
+        Future.failed(ex))
+
+      val res = await(connector.returnListOfShareholdersFromTxApi(transId))
+      res.left.get shouldBe ex
     }
   }
 }

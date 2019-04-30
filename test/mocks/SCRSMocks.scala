@@ -35,7 +35,6 @@ import scala.concurrent.Future
 
 trait SCRSMocks
   extends CompanyContactDetailsServiceMock
-    with AddressLookupServiceMock
     with AccountingServiceMock
     with CompanyRegistrationConnectorMock
     with KeystoreMock
@@ -45,6 +44,9 @@ trait SCRSMocks
     with HandBackServiceMock
     with NavModelRepoMock {
   this: MockitoSugar =>
+
+  val mockAddressLookupConnector = mock[AddressLookupConnector]
+  val mockMetricsService = mock[MetricsService]
 
   lazy val mockSessionCache = mock[SessionCache]
   lazy val mockAudit = mock[Audit]
@@ -56,6 +58,7 @@ trait SCRSMocks
   lazy val mockCommonService = mock[CommonService]
   lazy val mockMetaDataService = mock[MetaDataService]
   lazy val mockThresholdService = mock[ThresholdService]
+  lazy val mockAddressLookupService = mock[AddressLookupFrontendService]
   lazy val mockEmailVerificationConnector = mock[EmailVerificationConnector]
   lazy val mockSendTemplateEmailConnector = mock[SendTemplatedEmailConnector]
   lazy implicit val mockAppConfig = mock[FrontendAppConfig]
@@ -66,6 +69,7 @@ trait SCRSMocks
   lazy val mockJweCommon = mock[JweCommon]
   lazy val mockConfiguration = mock[Configuration]
   lazy val mockTimeService = mock[TimeService]
+  lazy val mockGroupService = mock[GroupService]
 
 
   def mockFetchRegistrationID[T <: CommonService](response: String, mock : T) = {
@@ -81,7 +85,6 @@ trait SCRSMocks
     reset(mockAuditConnector)
     reset(mockS4LConnector)
     reset(mockWSHttp)
-    reset(mockAddressLookupService)
     reset(mockKeystoreConnector)
     reset(mockSessionCache)
     reset(mockCompanyRegistrationConnector)
@@ -101,8 +104,11 @@ trait SCRSMocks
     reset(mockJweCommon)
     reset(mockThresholdService)
     reset(mockFeatureSwitchManager)
-
+    reset(mockAddressLookupConnector)
+    reset(mockAddressLookupService)
     reset(mockConfiguration)
     reset(mockTimeService)
+    reset(mockGroupService)
+    reset(mockMetricsService)
   }
 }

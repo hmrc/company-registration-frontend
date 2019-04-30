@@ -21,6 +21,7 @@ import config.filters.{SessionIdFilter, SessionIdFilterImpl}
 import connectors._
 import controllers.dashboard.{CancelRegistrationController, CancelRegistrationControllerImpl, DashboardController, DashboardControllerImpl}
 import controllers.feedback.{FeedbackController, FeedbackControllerImpl}
+import controllers.groups._
 import controllers.handoff._
 import controllers.healthcheck.{HealthCheckController, HealthCheckControllerImpl}
 import controllers.reg._
@@ -71,8 +72,6 @@ class Module extends AbstractModule {
     bind(classOf[FeatureSwitchManager]).to(classOf[FeatureSwitchManagerImpl]).asEagerSingleton()
 
 
-
-
     //services
     bind(classOf[ThresholdService]).to(classOf[ThresholdServiceImpl]).asEagerSingleton()
     bind(classOf[DashboardService]).to(classOf[DashboardServiceImpl]).asEagerSingleton()
@@ -85,7 +84,6 @@ class Module extends AbstractModule {
     bind(classOf[CompanyContactDetailsService]).to(classOf[CompanyContactDetailsServiceImpl]).asEagerSingleton()
     bind(classOf[MetaDataService]).to(classOf[MetaDataServiceImpl]).asEagerSingleton()
     bind(classOf[DeskproService]).to(classOf[DeskproServiceImpl]).asEagerSingleton()
-    bind(classOf[AddressLookupService]).to(classOf[AddressLookupServiceImpl]).asEagerSingleton()
     bind(classOf[AddressLookupFrontendService]).to(classOf[AddressLookupFrontendServiceImpl]).asEagerSingleton()
     bind(classOf[PPOBService]).to(classOf[PPOBServiceImpl]).asEagerSingleton()
     bind(classOf[QuestionnaireService]).to(classOf[QuestionnaireServiceImpl]).asEagerSingleton()
@@ -94,6 +92,7 @@ class Module extends AbstractModule {
     bind(classOf[EnrolmentsService]).to(classOf[EnrolmentsServiceImpl]).asEagerSingleton()
     bind(classOf[TradingDetailsService]).to(classOf[TradingDetailsServiceImpl]).asEagerSingleton()
     bind(classOf[TestIncorporationService]).to(classOf[TestIncorporationServiceImpl]).asEagerSingleton()
+    bind(classOf[GroupService]).to(classOf[GroupServiceImpl]).asEagerSingleton()
 
     //controllers
     bind(classOf[CancelRegistrationController]).to(classOf[CancelRegistrationControllerImpl]).asEagerSingleton()
@@ -128,6 +127,10 @@ class Module extends AbstractModule {
     bind(classOf[TradingDetailsController]).to(classOf[TradingDetailsControllerImpl]).asEagerSingleton()
     bind(classOf[WelcomeController]).to(classOf[WelcomeControllerImpl]).asEagerSingleton()
     bind(classOf[EmailVerificationController]).to(classOf[EmailVerificationControllerImpl]).asEagerSingleton()
+    bind(classOf[GroupReliefController]).to(classOf[GroupReliefControllerImpl]).asEagerSingleton()
+    bind(classOf[GroupNameController]).to(classOf[GroupNameControllerImpl]).asEagerSingleton()
+    bind(classOf[GroupUtrController]).to(classOf[GroupUtrControllerImpl]).asEagerSingleton()
+    bind(classOf[GroupAddressController]).to(classOf[GroupAddressControllerImpl]).asEagerSingleton()
 
     //test controllers
     bind(classOf[CTMongoTestController]).to(classOf[CTMongoTestControllerImpl]).asEagerSingleton()

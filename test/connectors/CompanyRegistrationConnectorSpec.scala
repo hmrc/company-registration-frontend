@@ -746,4 +746,73 @@ class CompanyRegistrationConnectorSpec extends SCRSSpec with CTDataFixture with 
       result shouldBe None
     }
   }
+
+  "getGroups" should {
+    "return Some(groups)" in new Setup {
+      when(mockWSHttp.GET[HttpResponse](Matchers.anyString())(any(),any(),any())).thenReturn (
+        Future.successful(HttpResponse(200, Some(Json.toJson(Groups(true,None,None,None)))))
+      )
+      val res = await(connector.getGroups(""))
+      res shouldBe Some(Groups(true,None,None,None))
+    }
+    "return None when status 204" in new Setup {
+      when(mockWSHttp.GET[HttpResponse](Matchers.anyString())(any(),any(),any())).thenReturn (
+        Future.successful(HttpResponse(204, Some(Json.toJson(Groups(true,None,None,None)))))
+      )
+      val res = await(connector.getGroups(""))
+      res shouldBe None
+    }
+    "return exception" in new Setup {
+      when(mockWSHttp.GET[HttpResponse](Matchers.anyString())(any(),any(),any())).thenReturn (
+        Future.failed(new Exception(""))
+      )
+      intercept[Exception](await(connector.getGroups("")))
+    }
+
+  }
+  "updateGroups" should {
+    "return groups when groups json is valid" in new Setup {
+      mockHttpPUT[Groups, HttpResponse]("testUrl",HttpResponse(200,Some(Json.toJson(Groups(true,None,None,None)))))
+      val res = await(connector.updateGroups("",Groups(true,None,None,None)))
+    }
+    "return exception if json is valid on return of update" in new Setup {
+      mockHttpPUT[Groups, HttpResponse]("testUrl",HttpResponse(200,Some(Json.obj())))
+intercept[Exception](await(connector.updateGroups("",Groups(true,None,None,None))))
+    }
+  }
+  "delete groups" should {
+    "return true" in new Setup {
+      when(mockWSHttp.DELETE[HttpResponse](Matchers.anyString())(any(),any(),any())).thenReturn (
+        Future.successful(HttpResponse(200, None))
+      )
+      val res = await(connector.deleteGroups(""))
+      res shouldBe true
+    }
+    "return exception" in new Setup {
+      when(mockWSHttp.DELETE[HttpResponse](Matchers.anyString())(any(),any(),any())).thenReturn (
+        Future.failed(new Exception(""))
+      )
+      intercept[Exception](await(connector.deleteGroups("")))
+    }
+  }
+
+  "shareholderListValidationEndpoint" should {
+    "return list of desable shareholder names if status 200" in new Setup {
+      mockHttpPOST("", HttpResponse(200, Some(Json.toJson(List("foo","bar")))
+      ))
+      val res = await(connector.shareholderListValidationEndpoint(List.empty))
+      res shouldBe List("foo", "bar")
+    }
+    "return empty list if status 204" in new Setup {
+      mockHttpPOST("", HttpResponse(204, Some(Json.toJson(List("foo","bar")))
+      ))
+      val res = await(connector.shareholderListValidationEndpoint(List.empty))
+      res shouldBe List.empty
+    }
+    "return empty list if non 2xx status is returned from CR" in new Setup {
+   mockHttpFailedPOST("",new Exception(""))
+      val res = await(connector.shareholderListValidationEndpoint(List.empty))
+      res shouldBe List.empty
+    }
+  }
 }

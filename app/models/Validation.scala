@@ -41,10 +41,6 @@ object Validation {
   }
 }
 
-trait HMRCAddressValidator {
-  val maxLineLength = 27
-}
-
 trait CHAddressValidator {
 
   import Validation.lengthFmt

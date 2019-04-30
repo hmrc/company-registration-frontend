@@ -18,6 +18,7 @@ package www
 import java.util.UUID
 
 import com.github.tomakehurst.wiremock.client.WireMock._
+import fixtures.Fixtures
 import itutil.{FakeAppConfig, IntegrationSpecBase, LoginStub}
 import org.jsoup.Jsoup
 import play.api.http.HeaderNames
@@ -25,30 +26,10 @@ import play.api.libs.json.Json
 import play.api.test.FakeApplication
 
 
-class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with FakeAppConfig {
+class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with FakeAppConfig with Fixtures {
 
   override implicit lazy val app = FakeApplication(additionalConfiguration = fakeConfig())
   val userId = "/bar/foo"
-  def statusResponseFromCR(status:String = "draft", rID:String = "5") =
-    s"""
-       |{
-       |    "registrationID" : "${rID}",
-       |    "status" : "${status}",
-       |    "accountingDetails" : {
-       |        "accountingDateStatus" : "NOT_PLANNING_TO_YET"
-       |    },
-       |    "accountsPreparation" : {
-       |        "businessEndDateChoice" : "HMRC_DEFINED"
-       |    },
-       |        "verifiedEmail" : {
-       |        "address" : "user@test.com",
-       |        "type" : "GG",
-       |        "link-sent" : true,
-       |        "verified" : true,
-       |        "return-link-email-sent" : false
-       |    }
-       |}
-     """.stripMargin
 
   "GET Accounting Details" should {
 

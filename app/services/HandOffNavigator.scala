@@ -57,11 +57,18 @@ trait HandOffNavigator extends CommonService with SCRSExceptions {
   lazy val regularPaymentsBackUrl  = buildUrl(routes.BusinessActivitiesController.businessActivitiesBack().url)
   lazy val summaryUrl              = buildUrl(routes.CorporationTaxSummaryController.corporationTaxSummary().url)
   lazy val groupHandBackUrl        = buildUrl(routes.GroupController.groupHandBack().url)
+  lazy val groupBackHandBackUrl    = buildUrl(routes.GroupController.pSCGroupHandBack().url)
+  lazy val groupReliefUrl          = buildUrl(controllers.groups.routes.GroupReliefController.show().url)
+  lazy val groupNameUrl            = buildUrl(controllers.groups.routes.GroupNameController.show().url)
+  lazy val groupAddressUrl         = buildUrl(controllers.groups.routes.GroupAddressController.show().url)
+  lazy val groupUTRUrl             = buildUrl(controllers.groups.routes.GroupUtrController.show().url)
 
   lazy val returnSummaryUrl        = buildUrl(routes.IncorporationSummaryController.returnToCorporationTaxSummary().url)
   lazy val confirmationURL         = buildUrl(routes.RegistrationConfirmationController.registrationConfirmation().url)
 
   lazy val forwardConfirmationUrl  = buildUrl(routes.RegistrationConfirmationController.paymentConfirmation().url)
+  lazy val renewSessionUrl         = buildUrl(controllers.reg.routes.SignInOutController.renewSession().url)
+  lazy val destorySessionUrl       = buildUrl(controllers.reg.routes.SignInOutController.destroySession().url)
 
    val postSignInCall = controllers.reg.routes.SignInOutController.postSignIn(None)
   val postSignInUrl = postSignInCall.url

@@ -18,13 +18,12 @@ package fixtures
 
 import models.CHROAddress
 
-trait PPOBFixture extends AddressFixture with AddressLookupFixture {
+trait PPOBFixture extends AddressFixture {
 
   lazy val validCHROAddress = CHROAddress("Premises","address line 1",Some("address line 2"),"locality","Country",Some("Po Box"),Some("FX1 1ZZ"),Some("Region"))
 
   lazy val validPPOBFormDataWithROAddress =
     validAddressWithHouseNameFormData ++
-    validAddressLookupFormData ++
     Seq(
       "addressGroup" -> "",
       "addressChoice" -> "RO",

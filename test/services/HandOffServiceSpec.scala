@@ -21,6 +21,7 @@ import config.FrontendAppConfig
 import fixtures._
 import helpers.SCRSSpec
 import mocks.{KeystoreMock, NavModelRepoMock}
+import models._
 import models.handoff._
 import org.mockito.Matchers
 import org.mockito.Mockito._
@@ -141,6 +142,10 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
   }
 
   "buildPSCPayload" should {
+    val groups = Groups(true,
+      nameOfCompany = Some(GroupCompanyName("foo","Other")),
+      addressAndType = Some(GroupsAddressAndType("ALF",NewAddress("1 abc", "2 abc",Some("3 abc"), Some("4 abc"),Some("ZZ1 1ZZ"),Some("country A")))),
+      groupUTR = Some(GroupUTR(Some("1234567890"))))
     val validNavModelForThisFunction = HandOffNavModel(
       Sender(Map(
         "3-2" -> NavLinks("SenderUrlToSummary", "ReverseUrlToTradingDetails"))
@@ -150,15 +155,49 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
       ),
         chData = Some(Json.obj("foo" -> "bar")))
     )
-    "Return forward URL and encrypted payload" in new Setup {
+    "Return forward URL and encrypted payload with groups of NONE" in new Setup {
       when(mockKeystoreConnector.fetchAndGet[String](Matchers.eq("registrationID"))(Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(Some("12345")))
       mockGetNavModel(Some(validNavModelForThisFunction))
 
-      val result = await(service.buildPSCPayload("12345","12"))
+      val result = await(service.buildPSCPayload("12345","12",None))
       result.get._1 shouldBe "PSCStubPage"
-      val decrypted = testJwe.decrypt[PSCHandOff](result.get._2)
-      decrypted.get shouldBe PSCHandOff("12","12345",Json.obj(), Some(Json.obj("foo" -> "bar")), NavLinks("SenderUrlToSummary","ReverseUrlToTradingDetails"))
+      val decrypted = testJwe.decrypt[JsObject](result.get._2)
+      decrypted.get shouldBe Json.parse(
+        """{
+          |"user_id":"12","journey_id":"12345","hmrc":{},"another_company_own_shares":false,
+          |"ch":{"foo":"bar"},
+          |"links":{"forward":"SenderUrlToSummary","reverse":"http://localhost:9970/register-your-company/business-activities-back"}
+          |} """.stripMargin)
+    }
+    "Return forward URL and encrypted payload with full groups" in new Setup {
+      when(mockKeystoreConnector.fetchAndGet[String](Matchers.eq("registrationID"))(Matchers.any(), Matchers.any()))
+        .thenReturn(Future.successful(Some("12345")))
+      mockGetNavModel(Some(validNavModelForThisFunction))
+
+      val result = await(service.buildPSCPayload("12345","12",Some(groups)))
+      result.get._1 shouldBe "PSCStubPage"
+      val decrypted = testJwe.decrypt[JsObject](result.get._2)
+      decrypted.get shouldBe Json.parse(
+        """
+          |{"user_id":"12","journey_id":"12345","hmrc":{},"another_company_own_shares":true,"ch":{"foo":"bar"},"parent_company":{"name":"foo","address":{"address_line_1":"1 abc","address_line_2":"2 abc","address_line_3":"3 abc","address_line_4":"4 abc","country":"country A","postal_code":"ZZ1 1ZZ"},"tax_reference":"*******890"},"links":{"forward":"SenderUrlToSummary","reverse":"http://localhost:9970/register-your-company/groups-back-handback","loss_relief_group":"http://localhost:9970/register-your-company/group-relief","parent_address":"http://localhost:9970/register-your-company/owning-companys-address","parent_company_name":"http://localhost:9970/register-your-company/owning-companys-name","parent_tax_reference":"http://localhost:9970/register-your-company/owning-companys-utr"},"loss_relief_group":true} """.stripMargin)
+    }
+    "Return forward URL and encrypted payload with groups but relief is false" in new Setup {
+      when(mockKeystoreConnector.fetchAndGet[String](Matchers.eq("registrationID"))(Matchers.any(), Matchers.any()))
+        .thenReturn(Future.successful(Some("12345")))
+      mockGetNavModel(Some(validNavModelForThisFunction))
+
+      val result = await(service.buildPSCPayload("12345","12",Some(Groups(false,None,None,None))))
+      result.get._1 shouldBe "PSCStubPage"
+      val decrypted = testJwe.decrypt[JsObject](result.get._2)
+      decrypted.get shouldBe Json.parse(
+        """{"user_id":"12","journey_id":"12345","hmrc":{},"another_company_own_shares":true,"ch":{"foo":"bar"},"links":{"forward":"SenderUrlToSummary","reverse":"http://localhost:9970/register-your-company/groups-back-handback","loss_relief_group":"http://localhost:9970/register-your-company/group-relief"},"loss_relief_group":false}""".stripMargin)
+    }
+    "throw exception if groups block incomplete" in new Setup {
+      when(mockKeystoreConnector.fetchAndGet[String](Matchers.eq("registrationID"))(Matchers.any(), Matchers.any()))
+        .thenReturn(Future.successful(Some("12345")))
+      mockGetNavModel(Some(validNavModelForThisFunction))
+      intercept[Exception](await(service.buildPSCPayload("12345","12",Some(Groups(true,None,None,Some(GroupUTR(None)))))))
     }
 
     "return exception when sender link does not exist in nav model" in new Setup {
@@ -173,7 +212,7 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
         .thenReturn(Future.successful(Some("12345")))
       mockGetNavModel(Some(invalidNavModel))
 
-      intercept[Exception](await(service.buildPSCPayload("12345","12")))
+      intercept[Exception](await(service.buildPSCPayload("12345","12",None)))
     }
     "return exception when receiver link does not exist in nav model" in new Setup {
       val invalidNavModel = HandOffNavModel(
@@ -187,13 +226,13 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
         .thenReturn(Future.successful(Some("12345")))
       mockGetNavModel(Some(invalidNavModel))
 
-      intercept[Exception](await(service.buildPSCPayload("12345","12")))
+      intercept[Exception](await(service.buildPSCPayload("12345","12",None)))
     }
     "return an exception when keystorefetchAndGet returns an exception" in new Setup {
       when(mockKeystoreConnector.fetchAndGet[String](Matchers.eq("registrationID"))(Matchers.any(), Matchers.any()))
         .thenReturn(Future.failed(new Exception("foo")))
 
-      intercept[Exception](await(service.buildPSCPayload("12345","12")))
+      intercept[Exception](await(service.buildPSCPayload("12345","12",None)))
     }
   }
 
@@ -201,8 +240,8 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
     "return a jsObject" in new Setup {
       service.renewSessionObject shouldBe JsObject(Map(
         "timeout" -> Json.toJson(service.timeout - service.timeoutDisplayLength),
-        "keepalive_url" -> Json.toJson(s"http://external${controllers.reg.routes.SignInOutController.renewSession().url}"),
-        "signedout_url" -> Json.toJson(s"http://external${controllers.reg.routes.SignInOutController.destroySession().url}")))
+        "keepalive_url" -> Json.toJson(s"http://localhost:9970${controllers.reg.routes.SignInOutController.renewSession().url}"),
+        "signedout_url" -> Json.toJson(s"http://localhost:9970${controllers.reg.routes.SignInOutController.destroySession().url}")))
     }
   }
 
@@ -381,6 +420,68 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
         Some(Json.obj("testCHBagKey" ->"testValue")),
         Json.obj(),
         NavLinks("testForwardLinkFromSender5","testReverseLinkFromSender5"))
+    }
+  }
+  "groupsCheckerForPSCHandOff" should {
+    "return None if None passed in" in new Setup {
+      val res = service.groupsCheckerForPSCHandOff(None)
+      res shouldBe None
+    }
+    "return Some of groups if group relief is false and a random block exists" in new Setup {
+      val res = service.groupsCheckerForPSCHandOff(Some(Groups(false, nameOfCompany = Some(GroupCompanyName("foo", "Other")),
+        addressAndType = Some(GroupsAddressAndType("ALF", NewAddress("1 abc", "2 abc", Some("3 abc"), Some("4 abc"), Some("country A"), Some("ZZ1 1ZZ")))),
+        groupUTR = Some(GroupUTR(Some("1234567890"))))))
+      res shouldBe Some(Groups(false, None, None, None))
+    }
+    "return exception when of groups if group relief is true and a random blocks DONT exist" in new Setup {
+      intercept[Exception](service.groupsCheckerForPSCHandOff(Some(Groups(true, None, None, Some(GroupUTR(Some("foooo")))))))
+    }
+    "return no exception when of groups if group relief is true and all blocks exist" in new Setup {
+      val goodGroups = Groups(true,
+        nameOfCompany = Some(GroupCompanyName("foo", "Other")),
+        addressAndType = Some(GroupsAddressAndType("ALF", NewAddress("1 abc", "2 abc", Some("3 abc"), Some("4 abc"), Some("country A"), Some("ZZ1 1ZZ")))),
+        groupUTR = Some(GroupUTR(Some("1234567890"))))
+      val res = service.groupsCheckerForPSCHandOff(Some(goodGroups))
+      res.get shouldBe goodGroups
+    }
+  }
+  "buildTheStaticJumpLinksForGroupsBasedOnGroupsData" should {
+    "return a list of jump links for Group block with true as loss relief" in new Setup {
+      val res = service.buildTheStaticJumpLinksForGroupsBasedOnGroupsData(Some(Groups(true,None,None,None)))
+      res.get shouldBe JumpLinksForGroups(
+        "http://localhost:9970/register-your-company/group-relief",
+        Some("http://localhost:9970/register-your-company/owning-companys-address"),
+        Some("http://localhost:9970/register-your-company/owning-companys-name"),
+        Some("http://localhost:9970/register-your-company/owning-companys-utr"))
+    }
+    "return a 1 jump links for Group block with false as loss relief" in new Setup {
+      val res = service.buildTheStaticJumpLinksForGroupsBasedOnGroupsData(Some(Groups(false,None,None,None)))
+      res.get shouldBe JumpLinksForGroups(
+        "http://localhost:9970/register-your-company/group-relief",
+        None,
+        None,
+        None)
+    }
+    "return None if None is passed in" in new Setup {
+      val res = service.buildTheStaticJumpLinksForGroupsBasedOnGroupsData(None)
+      res shouldBe None
+    }
+  }
+  "buildParentCompanyNameOutOfGroups" should {
+    "return None if group relief is false" in new Setup {
+      service.buildParentCompanyNameOutOfGroups(Some(Groups(false,None,None,None))) shouldBe None
+    }
+    "return ParentCompany name populated with groups data" in new Setup {
+      val goodGroups = Groups(true,
+        nameOfCompany = Some(GroupCompanyName("foo", "Other")),
+        addressAndType = Some(GroupsAddressAndType("ALF", NewAddress("1 abc", "2 abc", Some("3 abc"), Some("4 abc"), Some("country A"), Some("ZZ1 1ZZ")))),
+        groupUTR = Some(GroupUTR(Some("1234567890"))))
+      service.buildParentCompanyNameOutOfGroups(Some(goodGroups)) shouldBe Some(
+        ParentCompany(
+          "foo",
+          NewAddress("1 abc", "2 abc", Some("3 abc"), Some("4 abc"), Some("country A"), Some("ZZ1 1ZZ")),
+          Some("1234567890"))
+      )
     }
   }
 }

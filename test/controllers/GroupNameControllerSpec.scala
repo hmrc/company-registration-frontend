@@ -1,0 +1,263 @@
+/*
+ * Copyright 2019 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package controllers
+
+import builders.AuthBuilder
+import config.FrontendAppConfig
+import controllers.groups.GroupNameController
+import helpers.SCRSSpec
+import models.{Email, NewAddress, _}
+import org.mockito.Matchers.any
+import org.mockito.Mockito._
+import org.mockito.{ArgumentMatcher, Matchers}
+import org.scalatest.mockito.MockitoSugar
+import play.api.i18n.MessagesApi
+import play.api.libs.json.Json
+import play.api.mvc.{Request, Result, Results}
+import play.api.test.FakeRequest
+import play.api.test.Helpers._
+import services.GroupPageEnum
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.test.WithFakeApplication
+
+import scala.concurrent.Future
+
+class GroupNameControllerSpec extends SCRSSpec with WithFakeApplication with MockitoSugar with AuthBuilder {
+
+  class Setup {
+    implicit val r = FakeRequest()
+    val controller = new GroupNameController {
+      val groupService = mockGroupService
+      val authConnector = mockAuthConnector
+      val keystoreConnector = mockKeystoreConnector
+      val metaDataService = mockMetaDataService
+      override val compRegConnector = mockCompanyRegistrationConnector
+      implicit val appConfig: FrontendAppConfig = fakeApplication.injector.instanceOf[FrontendAppConfig]
+      override val messagesApi = fakeApplication.injector.instanceOf[MessagesApi]
+      val theFunction = showFunc(_: Groups, _: String)(_: Request[_])
+      val submitFunction = submitFunc("1")(_: Groups)(_: Request[_])
+    }
+
+    case class funcMatcher(func: Groups => Future[Result]) extends ArgumentMatcher[Groups => Future[Result]] {
+      override def matches(oarg: scala.Any): Boolean = true
+    }
+
+    def cTDoc(status: String, groupBlock: String) = Json.parse(
+      s"""
+         | {
+         |    "internalId" : "Int-f9bf61e1-9f5e-42b6-8676-0949fb1253e7",
+         |    "registrationID" : "2971",
+         |    "status" : "${status}",
+         |    "formCreationTimestamp" : "2019-04-09T09:06:55+01:00",
+         |    "language" : "en",
+         |    "confirmationReferences" : {
+         |        "acknowledgement-reference" : "BRCT00000000017",
+         |        "transaction-id" : "000-434-2971"
+         |    },
+         |    "companyDetails" : {
+         |        "companyName" : "Company Name Ltd",
+         |        "cHROAddress" : {
+         |            "premises" : "14",
+         |            "address_line_1" : "St Test Walk",
+         |            "address_line_2" : "Testley",
+         |            "country" : "UK",
+         |            "locality" : "Testford",
+         |            "postal_code" : "TE1 1ST",
+         |            "region" : "Testshire"
+         |        },
+         |        "pPOBAddress" : {
+         |            "addressType" : "RO",
+         |            "address" : {
+         |                "addressLine1" : "14 St Test Walk",
+         |                "addressLine2" : "Testley",
+         |                "addressLine3" : "Testford",
+         |                "addressLine4" : "Testshire",
+         |                "postCode" : "TE1 1ST",
+         |                "country" : "UK",
+         |                "txid" : "93cf1cfc-75fd-4ac0-96ac-5f0018c70a8f"
+         |            }
+         |        },
+         |        "jurisdiction" : "ENGLAND_AND_WALES"
+         |    },
+         |    "verifiedEmail" : {
+         |        "address" : "user@test.com",
+         |        "type" : "GG",
+         |        "link-sent" : true,
+         |        "verified" : true,
+         |        "return-link-email-sent" : false
+         |    }
+         |    ${groupBlock}
+         |}""".stripMargin)
+
+  }
+
+  "The GroupNameController" should {
+    "redirect whilst the user is un authorised when sending a GET" in new Setup {
+      showWithUnauthorisedUser(controller.show()) {
+        result => {
+          val response = await(result)
+          status(response) shouldBe SEE_OTHER
+        }
+      }
+    }
+  }
+
+
+  "Redirect the user to post sign in if the user is authorised but has no registration id in session" in new Setup {
+    mockKeystoreFetchAndGet("registrationID", None)
+
+    showWithAuthorisedUser(controller.show()) {
+      result => {
+        val response = await(result)
+        status(response) shouldBe SEE_OTHER
+        response.header.headers("Location") shouldBe "/register-your-company/post-sign-in"
+      }
+    }
+  }
+
+  "Redirect the user to post sign in if the user is authorised but with incorrect status" in new Setup {
+    mockKeystoreFetchAndGet("registrationID", Some("reg123"))
+    CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("held", ""))
+
+    when(mockGroupService.retrieveGroups(Matchers.any[String])(Matchers.any[HeaderCarrier]))
+      .thenReturn(Future.successful(None))
+
+    showWithAuthorisedUser(controller.show()) {
+
+      result => {
+        val response = await(result)
+        status(response) shouldBe SEE_OTHER
+        response.header.headers("Location") shouldBe "/register-your-company/post-sign-in"
+      }
+    }
+  }
+
+  "display the page whilst the user is authorised" in new Setup {
+    val testGroups = Groups(true, Some(GroupCompanyName("testGroupCompanyname1", "type")),
+      Some(GroupsAddressAndType("type", NewAddress("l1", "l2", None, None, None, None, None))),
+      None)
+    mockKeystoreFetchAndGet("registrationID", Some("1"))
+    val mockOfFunc = (g: Groups) => Future.successful(Results.Ok(""))
+    CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
+    when(mockCompanyRegistrationConnector.retrieveEmail(any())(any())).thenReturn(Future.successful(Some(Email("verified@email", "GG", true, true, true))))
+    when(mockGroupService.retrieveGroups(any())(any())).thenReturn(Future.successful(Some(testGroups)))
+    when(mockGroupService.checkGroupNameMatchAndPotentiallyDropOptionalBlocks(any(), any())(any()))
+      .thenReturn(Future.successful(List("1"), testGroups))
+    val res: Future[Result] = Future.successful(await(controller.theFunction(testGroups, "1", r)))
+    when(mockGroupService.groupsUserSkippedPage(any[Option[Groups]](), any[GroupPageEnum.Value]())(Matchers.argThat(funcMatcher(mockOfFunc)))).thenReturn(res)
+
+    showWithAuthorisedUser(controller.show) {
+      result =>
+        status(result) shouldBe OK
+    }
+  }
+
+  "display and empty page whilst the user is authorised and no name stored in CR" in new Setup {
+    val testGroups = Groups(true, None, None,None)
+
+    mockKeystoreFetchAndGet("registrationID", Some("1"))
+    val mockOfFunc = (g: Groups) => Future.successful(Results.Ok(""))
+    CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
+    when(mockCompanyRegistrationConnector.retrieveEmail(any())(any())).thenReturn(Future.successful(Some(Email("verified@email", "GG", true, true, true))))
+    when(mockGroupService.retrieveGroups(any())(any())).thenReturn(Future.successful(Some(testGroups)))
+    when(mockGroupService.checkGroupNameMatchAndPotentiallyDropOptionalBlocks(any(), any())(any()))
+      .thenReturn(Future.successful(List("1"), testGroups))
+    val res: Future[Result] = Future.successful(await(controller.theFunction(testGroups, "1", r)))
+    when(mockGroupService.groupsUserSkippedPage(any[Option[Groups]](), any[GroupPageEnum.Value]())(Matchers.argThat(funcMatcher(mockOfFunc)))).thenReturn(res)
+
+    showWithAuthorisedUser(controller.show) {
+      result =>
+        status(result) shouldBe OK
+    }
+  }
+
+  "return a bad request if the form submitted is incorrect" in new Setup {
+    val testGroups = Groups(true, Some(GroupCompanyName("testGroupCompanyname1", "type")),
+      Some(GroupsAddressAndType("type", NewAddress("l1", "l2", None, None, None, None, None))),
+      None)
+    mockKeystoreFetchAndGet("registrationID", Some("1"))
+    val mockOfFunc = (g: Groups) => Future.successful(Results.Ok(""))
+    CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
+    when(mockCompanyRegistrationConnector.retrieveEmail(any())(any())).thenReturn(Future.successful(Some(Email("verified@email", "GG", true, true, true))))
+    when(mockGroupService.retrieveGroups(any())(any())).thenReturn(Future.successful(Some(testGroups)))
+    when(mockGroupService.checkGroupNameMatchAndPotentiallyDropOptionalBlocks(any(), any())(any()))
+      .thenReturn(Future.successful(List("1"), testGroups))
+    when(mockGroupService.updateGroupName(any(), any(), any())(any())).thenReturn(Future.successful(testGroups))
+    val res: Future[Result] = Future.successful(await(controller.submitFunction(testGroups, FakeRequest().withFormUrlEncodedBody("group-Name" -> "otherName", "other-Name" -> "bob co"))))
+    when(mockGroupService.groupsUserSkippedPage(any[Option[Groups]](), any[GroupPageEnum.Value]())(Matchers.argThat(funcMatcher(mockOfFunc)))).thenReturn(res)
+
+    submitWithAuthorisedUser(controller.submit(), FakeRequest().withFormUrlEncodedBody(
+      "group-Name" -> "otherName",
+      "other-Name" -> "bob co"
+    )) {
+      result =>
+        status(result) shouldBe BAD_REQUEST
+    }
+  }
+
+
+  "return a 303 if the user has entered OTHER name" in new Setup {
+    val testGroups = Groups(true, Some(GroupCompanyName("testGroupCompanyname1", "type")),
+      Some(GroupsAddressAndType("type", NewAddress("l1", "l2", None, None, None, None, None))),
+      None)
+    mockKeystoreFetchAndGet("registrationID", Some("1"))
+    val mockOfFunc = (g: Groups) => Future.successful(Results.Ok(""))
+    CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
+    when(mockCompanyRegistrationConnector.retrieveEmail(any())(any())).thenReturn(Future.successful(Some(Email("verified@email", "GG", true, true, true))))
+    when(mockGroupService.retrieveGroups(any())(any())).thenReturn(Future.successful(Some(testGroups)))
+    when(mockGroupService.checkGroupNameMatchAndPotentiallyDropOptionalBlocks(any(), any())(any()))
+      .thenReturn(Future.successful(List("1"), testGroups))
+    when(mockGroupService.updateGroupName(any(), any(), any())(any())).thenReturn(Future.successful(testGroups))
+    val res: Future[Result] = Future.successful(await(controller.submitFunction(testGroups, FakeRequest().withFormUrlEncodedBody("groupName" -> "otherName", "otherName" -> "bob co"))))
+    when(mockGroupService.groupsUserSkippedPage(any[Option[Groups]](), any[GroupPageEnum.Value]())(Matchers.argThat(funcMatcher(mockOfFunc)))).thenReturn(res)
+
+    submitWithAuthorisedUser(controller.submit(), FakeRequest().withFormUrlEncodedBody(
+      "groupName" -> "otherName",
+      "otherName" -> "bob co"
+    )) {
+      result =>
+        status(result) shouldBe SEE_OTHER
+        result.header.headers("Location") shouldBe "/register-your-company/owning-companys-address"
+    }
+  }
+
+
+  "return a 303 if the user has selected the pre-popped name radio button" in new Setup {
+    val testGroups = Groups(true, Some(GroupCompanyName("testGroupCompanyname1", "type")),
+      Some(GroupsAddressAndType("type", NewAddress("l1", "l2", None, None, None, None, None))),
+      None)
+    mockKeystoreFetchAndGet("registrationID", Some("1"))
+    val mockOfFunc = (g: Groups) => Future.successful(Results.Ok(""))
+    CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
+    when(mockCompanyRegistrationConnector.retrieveEmail(any())(any())).thenReturn(Future.successful(Some(Email("verified@email", "GG", true, true, true))))
+    when(mockGroupService.retrieveGroups(any())(any())).thenReturn(Future.successful(Some(testGroups)))
+    when(mockGroupService.checkGroupNameMatchAndPotentiallyDropOptionalBlocks(any(), any())(any()))
+      .thenReturn(Future.successful(List("1"), testGroups))
+    when(mockGroupService.updateGroupName(any(), any(), any())(any())).thenReturn(Future.successful(testGroups))
+    val res: Future[Result] = Future.successful(await(controller.submitFunction(testGroups, FakeRequest().withFormUrlEncodedBody("groupName" -> "Bob Group", "otherName" -> ""))))
+    when(mockGroupService.groupsUserSkippedPage(any[Option[Groups]](), any[GroupPageEnum.Value]())(Matchers.argThat(funcMatcher(mockOfFunc)))).thenReturn(res)
+
+    submitWithAuthorisedUser(controller.submit(), FakeRequest().withFormUrlEncodedBody(
+      "groupName" -> "Bob Group",
+      "otherName" -> ""
+    )) {
+      result =>
+        status(result) shouldBe SEE_OTHER
+        result.header.headers("Location") shouldBe "/register-your-company/owning-companys-address"
+    }
+  }
+}

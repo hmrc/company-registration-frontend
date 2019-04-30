@@ -109,8 +109,10 @@ GET        /corporation-tax-details                 controllers.handoff.Corporat
 GET        /business-activities                     controllers.handoff.BusinessActivitiesController.businessActivities
 GET        /business-activities-back                controllers.handoff.BusinessActivitiesController.businessActivitiesBack(request: String ?= "")
 
-#H03-1 / H03-2
+#H03-1 / H03b-1 / H03-2 / back link
 GET        /groups-handback                         controllers.handoff.GroupController.groupHandBack(request: String ?= "")
+GET        /back-to-shareholders                    controllers.handoff.GroupController.back
+GET        /groups-back-handback                    controllers.handoff.GroupController.pSCGroupHandBack(request: String ?= "")
 GET        /psc-handoff                             controllers.handoff.GroupController.PSCGroupHandOff
 
 #HO4
@@ -141,7 +143,19 @@ POST       /cancel-paye                             controllers.dashboard.Cancel
 GET        /cancel-vat                              controllers.dashboard.CancelRegistrationController.showCancelVAT
 POST       /cancel-vat                              controllers.dashboard.CancelRegistrationController.submitCancelVAT
 
+#Groups section
+GET        /group-relief                            controllers.groups.GroupReliefController.show
+POST       /group-relief                            controllers.groups.GroupReliefController.submit
 
+GET        /owning-companys-name                    controllers.groups.GroupNameController.show
+POST       /owning-companys-name                    controllers.groups.GroupNameController.submit
+
+GET        /owning-companys-utr                     controllers.groups.GroupUtrController.show
+POST       /owning-companys-utr                     controllers.groups.GroupUtrController.submit
+
+GET        /owning-companys-address                 controllers.groups.GroupAddressController.show
+POST       /owning-companys-address                 controllers.groups.GroupAddressController.submit
+GET        /save-alf-address-groups                  controllers.groups.GroupAddressController.handbackFromALF
 
 ## DEPRECATED
 

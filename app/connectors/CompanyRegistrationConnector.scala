@@ -96,6 +96,21 @@ trait CompanyRegistrationConnector {
     }
   }
 
+  def checkValidShareHolderAddressFromCoho(registrationID: String, ro: CHROAddress)(implicit hc: HeaderCarrier): Future[Option[NewAddress]] = {
+    implicit val roWrites = CHROAddress.formats
+    val json = Json.toJson(ro)
+
+    wsHttp.POST[JsValue, HttpResponse](s"$companyRegUrl/company-registration/corporation-tax-registration/check-return-business-address", json) map {
+      _.json.asOpt[NewAddress](Groups.formatsNewAddressGroups)
+    } recover {
+      case _: BadRequestException =>
+        None
+      case ex: Exception =>
+        Logger.error(s"[CompanyRegistrationConnector] [checkROAddress] for RegId: $registrationID")
+        throw ex
+    }
+  }
+
   def retrieveOrCreateFootprint()(implicit hc: HeaderCarrier): Future[FootprintResponse] = {
 
     wsHttp.GET[ThrottleResponse](s"$companyRegUrl/company-registration/throttle/check-user-access") map {
@@ -372,6 +387,57 @@ trait CompanyRegistrationConnector {
       case ex: Exception =>
         Logger.error(s"[CompanyRegistrationConnector] [fetchHeldTime] for RegId: $registrationId - Unexpected error occurred: $ex")
         None
+    }
+  }
+
+  def getGroups(registrationId:String)(implicit hc:HeaderCarrier): Future[Option[Groups]] = {
+    wsHttp.GET[HttpResponse](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationId/groups").map {
+      res => if (res.status == 200) {
+        res.json.validate[Groups].fold[Option[Groups]](errors => {
+          Logger.error(s"[getGroups] could not parse groups json to Groups $registrationId for keys ${errors.map(_._1)}")
+          Option.empty[Groups]
+        }, successG => Some(successG))
+      } else {
+        None
+      }
+    }
+  }
+
+
+  def updateGroups(registrationId:String, groups: Groups)(implicit hc:HeaderCarrier): Future[Groups] = {
+    wsHttp.PUT[Groups, HttpResponse](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationId/groups", groups).map {
+          res => res.json.validate[Groups].fold[Groups](errors => {
+        Logger.error(s"[getGroups] could not parse groups json to Groups $registrationId for keys ${errors.map(_._1)}")
+        throw new Exception("Update returned invalid json")
+      }, identity)
+    }
+  }
+
+  def deleteGroups(registrationId:String)(implicit hc:HeaderCarrier): Future[Boolean] = {
+    wsHttp.DELETE[HttpResponse](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationId/groups").map{
+      _ => true
+    }.recoverWith {
+      case e =>
+        Logger.error(s"Delete of groups block failed for $registrationId ${e.getMessage}")
+        Future.failed(e)
+    }
+  }
+
+  def shareholderListValidationEndpoint(listOfShareholders: List[String])(implicit hc:HeaderCarrier): Future[List[String]] = {
+    wsHttp.POST[List[String], HttpResponse](s"$companyRegUrl/company-registration/corporation-tax-registration/check-list-of-group-names", listOfShareholders).map { res =>
+      if(res.status == 200) {
+        res.json.validate[List[String]].getOrElse {
+          Logger.error(s"[shareholderListValidationEndpoint] returned 200 but the list was unparsable, returning empty list to the user, sessionId: ${hc.sessionId}")
+          List.empty[String]
+        }
+      } else {
+        Logger.error(s"[shareholderListValidationEndpoint] returned 204 because NONE of the names returned from TxApi pass the des validation, empty list returned, sessionId: ${hc.sessionId}")
+        List.empty[String]
+      }
+    }.recover{
+      case e =>
+        Logger.error(s"[shareholderListValidationEndpoint] Something went wrong when calling CR, returning empty list to user: ${hc.sessionId}, ${e.getMessage}")
+        List.empty[String]
     }
   }
 
