@@ -17,6 +17,7 @@
 package utils
 
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
+import models.Groups
 import play.api.Logger
 import play.api.libs.json.JsValue
 import play.api.mvc.Result

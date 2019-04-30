@@ -154,6 +154,7 @@ trait SignInOutController extends FrontendController with ControllerErrorHandler
         "HO2"   -> CorporationTaxDetailsController.corporationTaxDetails(payload).url,
         "HO3b"  -> BusinessActivitiesController.businessActivitiesBack(payload).url,
         "HO3-1" -> GroupController.groupHandBack(payload).url,
+        "HO3b-1"  -> GroupController.pSCGroupHandBack(payload).url,
         "HO4"   -> CorporationTaxSummaryController.corporationTaxSummary(payload).url,
         "HO5b"  -> IncorporationSummaryController.returnToCorporationTaxSummary(payload).url
       ).mapValues(url => s"${appConfig.self}$url")(handOffID)

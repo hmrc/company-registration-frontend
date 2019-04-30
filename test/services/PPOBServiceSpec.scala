@@ -41,7 +41,6 @@ class PPOBServiceSpec extends SCRSSpec with CompanyDetailsFixture with SCRSExcep
       override val keystoreConnector = mockKeystoreConnector
       override val s4LConnector = mockS4LConnector
       val auditConnector = mockAuditConnector
-      val addressLookupService = mockAddressLookupService
     }
   }
 

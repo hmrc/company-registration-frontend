@@ -407,10 +407,12 @@ errorPages.incorporationRejected.link                               = https://ww
 errorPages.incorporationRejected.para4.1                            = GOV.UK page.
 
 
-## Address Lookup
+## Address Lookup Generic and Specific Page Config
 ##      Lookup Page
-page.addressLookup.lookup.title                                     = Company address
-page.addressLookup.lookup.heading                                   = Find the address where the company will carry out most of its business activities
+page.addressLookup.Groups.lookup.heading                            = Find %%''s registered office address
+page.addressLookup.PPOB.lookup.heading                              = Find the address where the company will carry out most of its business activities
+
+page.addressLookup.lookup.title                                     = Find the address
 page.addressLookup.lookup.filter                                    = Property name or number
 page.addressLookup.lookup.submit                                    = Find address
 page.addressLookup.lookup.manual                                    = Enter address manually
@@ -427,7 +429,10 @@ page.addressLookup.edit.line2                                       = Address li
 page.addressLookup.edit.line3                                       = Address line 3
 
 ##      Confirm Page
-page.addressLookup.confirm.description                              = Confirm where the company will carry out most of its business activities
+page.addressLookup.confirm.title                                    = Confirm the address
+page.addressLookup.PPOB.confirm.description                         = Confirm where the company will carry out most of its business activities
+page.addressLookup.Groups.confirm.description                       = Confirm %%''s registered office address
+
 page.addressLookup.confirm.continue                                 = Confirm and continue
 page.addressLookup.confirm.change                                   = Change
 
@@ -461,3 +466,42 @@ footer.phone.call_support                                           = Call our s
 
 #HealthCheck
 page.healthcheck.header                                             = Service healthy
+
+#Groups
+page.groups.groupRelief.title                                          = Group relief
+page.groups.groupRelief.heading                                        = For Corporation Tax, will {0} be in the same group for group relief purposes as the company that owns it?
+page.groups.groupRelief.p1                                             = This can be the parent company if it is in the same group as {0}.
+page.groups.groupRelief.dropdownTitle                                  = What is group relief?
+page.groups.groupRelief.dropdownText                                   = Any company that is a member of a group for group relief purposes may claim or surrender losses and other amounts to or from other members of that group to reduce their Corporation Tax liability.
+page.groups.groupRelief.yesLabel                                       = Yes
+page.groups.groupRelief.noLabel                                        = No
+error.groupRelief.required                                             = Tell us whether for Corporation Tax, the new company will be in the same group for group relief purposes as the company that owns it
+
+page.groups.groupName.title                                            = What is the name of the owning company?
+page.groups.groupName.heading                                          = What is the name of the owning company?
+page.groups.groupName.somethingElse                                    = Something else
+error.groupName.required                                               = Tell us the owning company''s name
+page.groups.groupName.enterName                                        = Enter the company name
+page.groups.groupName.noCompanyNameEntered                             = Enter the owning company''s name
+page.groups.groupName.20CharsOrLess                                    = Enter the name using 20 characters or less
+page.groups.groupName.invalidFormat                                    = Enter the name using only letters, numbers, spaces, hyphens and apostrophes
+
+page.groups.groupAddress.title                                         = What is {0}''s registered office address?
+page.groups.groupAddress.heading                                       = What is {0}''s registered office address?
+page.groups.groupAddress.helpText                                      = This is the address on its Companies House public record.
+page.groups.groupAddress.differentAddress                              = A different address
+page.groups.groupAddress.radio1                                        = {0}
+error.groupAddress.required                                            = Tell us the owning company’s registered office address
+
+page.groups.groupUtr.title                                             = Do you know {0}''s Unique Taxpayer Reference (UTR)?
+page.groups.groupUtr.heading                                           = Do you know {0}''s Unique Taxpayer Reference (UTR)?
+page.groups.groupUtr.p1                                                = It is a 10-digit number and will be on any tax returns or documents from HMRC. It might be called a ''company tax reference''.
+page.groups.groupUtr.yesLabel                                          = Yes
+page.groups.groupUtr.noLabel                                           = No
+page.groups.groupUtr.utrLabel                                          = Enter the UTR
+page.groups.groupUtr.helpText                                          = For example, 1234567890
+error.groupUtr.required                                                = Tell us whether you know the owning company''s UTR
+error.groupUtr.yesButNoUtr                                             = Enter the owning company''s UTR
+error.groupUtr.utrMoreThan10Chars                                      = Enter a UTR using 10 digits or less
+error.groupUtr.utrHasSymbols                                           = Enter a UTR using only numbers
+

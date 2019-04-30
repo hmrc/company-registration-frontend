@@ -50,6 +50,7 @@ with ControllerErrorHandler with SessionRegistration with I18nSupport {
 
   val show: Action[AnyContent] = Action.async {
     implicit request =>
+
       ctAuthorisedPostSignIn { authDetails =>
         registered { regId =>
           dashboardService.checkForEmailMismatch(regId, authDetails) flatMap { _ =>

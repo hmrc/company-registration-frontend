@@ -1,0 +1,66 @@
+@*
+ * Copyright 2019 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import uk.gov.hmrc.play.views.html.helpers.{form}
+@import controllers.CRLanguageController
+@import play.api.Application
+@import views.html.helpers.{inputRadioGroupHidden, dateFieldsFreeInline, errorSummary, inputRadioGroup}
+
+
+
+@(groupRelief : Form[Boolean], companyName: String)(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.FrontendAppConfig)
+
+@main_template(title = Messages("page.groups.groupRelief.title"), mainClass = None){
+
+<a id="back" class="link-back" href="@controllers.handoff.routes.GroupController.back()">@messages("common.button.back")</a>
+
+    @errorSummary(
+    Messages("common.errorSummary.label"),
+    groupRelief, dataJourney = Some("GroupRelief")
+    )
+
+
+        <h1 id="main-heading" class="heading-large">@messages("page.groups.groupRelief.heading", companyName)</h1>
+
+<div id="paragraph-one" class="form-group">
+    <p>@Messages("page.groups.groupRelief.p1", companyName)</p>
+</div>
+
+<div class="form-group">
+    <details>
+        <summary class="summary">@Messages("page.groups.groupRelief.dropdownTitle")</summary>
+        <div class="panel panel-border-narrow">
+            <p>@Messages("page.groups.groupRelief.dropdownText")</p>
+        </div>
+    </details>
+</div>
+
+    @form(action = controllers.groups.routes.GroupReliefController.submit()) {
+        <div class="form-group">
+            @inputRadioGroup(
+            groupRelief("groupRelief"),
+                Seq("true" -> Messages("page.groups.groupRelief.yesLabel"),"false" -> Messages("page.groups.groupRelief.noLabel")),
+                '_labelClass -> "block-label radio-label",
+                '_legend -> Messages("page.groups.groupRelief.title"),
+                '_legendClass -> "visually-hidden"
+            )
+        </div>
+
+        <div class="form-group">
+            <input class="button" type="submit" id="next" value="@Messages("common.button.save")">
+        </div>
+    }
+}

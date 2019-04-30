@@ -19,6 +19,7 @@ package connectors
 import javax.inject.Inject
 
 import config.{FrontendAppConfig, WSHttp}
+import models.Shareholder
 import play.api.Logger
 import play.api.libs.json.JsValue
 import services.MetricsService
@@ -48,14 +49,31 @@ trait IncorpInfoConnector {
     }
   }
 
+  def returnListOfShareholdersFromTxApi(transId: String)(implicit hc: HeaderCarrier): Future[Either[Exception,List[Shareholder]]] = {
+    wSHttp.GET[HttpResponse](s"$incorpInfoUrl/shareholders/$transId").map { res =>
+      if(res.status == 200) {
+        res.json.validate[List[Shareholder]].asEither match {
+          case Right(l) => Right(l)
+          case Left(l) => Logger.error(s"[returnListOfShareholdersFromTxApi] II returned list of shareholders but data was unparseable, returning empty list to user: $transId")
+            Right(List.empty[Shareholder])
+        }
+      } else {
+        Logger.error(s"[returnListOfShareholdersFromTxApi] II returned NO shareholders -  This is a problem with the data on the transactional API $transId")
+        Right(List.empty[Shareholder])
+      }
+    }.recover {
+      case e :Exception =>
+          Logger.error(s"[returnListOfShareholdersFromTxApi] Something went wrong when calling II: $transId, ${e.getMessage}")
+        Left(e)
+    }
+  }
+
   private def handleError(transId: String, funcName: String):PartialFunction[Throwable, JsValue] = {
     case ex: HttpException =>
       throw new Exception(s"[IncorpInfoConnector] [$funcName] - An exception was caught. Response code : ${ex.responseCode} reason : ${ex.message}")
     case ex: Throwable =>
       throw new Exception
-
   }
-
 
   def injectTestIncorporationUpdate(transId: String, isSuccess: Boolean)(implicit hc: HeaderCarrier): Future[Boolean] = {
     val queryString = s"txId=$transId&date=2018-1-1${if(isSuccess) "&crn=12345678" else ""}&success=$isSuccess"

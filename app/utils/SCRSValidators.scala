@@ -29,9 +29,11 @@ object SCRSValidators {
   val postCodeRegex                   = """^[A-Z]{1,2}[0-9][0-9A-Z]? [0-9][A-Z]{2}$""".r
   private val phoneNumberRegex        = """^[0-9 ]{1,20}$""".r
   private val completionCapacityRegex = """^[A-Za-z0-9 '\-]{1,100}$""".r
+  private val utrRegex                = """^[0-9]{0,10}$"""
   private val emailRegex              = """^(?!.{71,})([-0-9a-zA-Z.+_]+@[-0-9a-zA-Z.+_]+\.[a-zA-Z]{1,11})$"""
   private val emailRegexDes           = """^[A-Za-z0-9\-_.@]{1,70}$"""
   val datePatternRegex                = """([12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))"""
+  val shareholderNameRegex              = """[A-Z a-z 0-9\\'-]{1,20}$"""
 
   def isValidPhoneNo(phone: String): Either[String, String] = {
     def isValidNumber(s: String) = s.replaceAll(" ", "").matches("[0-9]+")
@@ -51,6 +53,30 @@ object SCRSValidators {
       val errors = text.trim match {
         case completionCapacityRegex() => Nil
         case _ => Seq(ValidationError(Messages("validation.invalid")))
+      }
+      if (errors.isEmpty) Valid else Invalid(errors)
+  })
+
+  val shareholderNameValidation: Constraint[String] = Constraint("constraints.shareholderName")({
+    text =>
+      val textTrimmed = text.trim
+      val errors = textTrimmed match {
+        case t if t.length == 0 => Seq(ValidationError("page.groups.groupName.noCompanyNameEntered"))
+        case t if t.length > 20 => Seq(ValidationError("page.groups.groupName.20CharsOrLess"))
+        case t if !t.matches(shareholderNameRegex) => Seq(ValidationError("page.groups.groupName.invalidFormat"))
+        case t if t.matches(shareholderNameRegex) => Nil
+      }
+      if (errors.isEmpty) Valid else Invalid(errors)
+  })
+
+  val UtrValidation: Constraint[String] = Constraint("constraints.utr")({
+    text =>
+      val errors = text match {
+        case t if t.length == 0 => Seq(ValidationError("error.groupUtr.yesButNoUtr"))
+        case t if t.matches(utrRegex) => Nil
+        case t if t.length > 10 => Seq(ValidationError("error.groupUtr.utrMoreThan10Chars"))
+        case t if !t.matches("[0-9]+") => Seq(ValidationError("error.groupUtr.utrHasSymbols"))
+        case _ => Seq(ValidationError("error.groupUtr.yesButNoUtr"))
       }
       if (errors.isEmpty) Valid else Invalid(errors)
   })

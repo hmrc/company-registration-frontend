@@ -179,7 +179,7 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
   val vatVarEnrolment = Enrolments(Set(Enrolment("HMCE-VATVAR-ORG", Seq(EnrolmentIdentifier("test-paye-identifier", "test-paye-value")), "testState")))
   val noEnrolments = Enrolments(Set())
 
-  val payeThresholds = Map("weekly" -> 116, "monthly" -> 503, "annually" -> 6032)
+  val payeThresholds = Map("weekly" -> 118, "monthly" -> 512, "annually" -> 6136)
   val vatThresholds = Map("yearly" -> 85000)
     "buildDashboard" should {
 

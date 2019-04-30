@@ -106,6 +106,7 @@ trait SCRSFeatureSwitches {
 
   def cohoFirstHandOff          = featureSwitchManager.getProperty(COHO)
   def businessActivitiesHandOff = featureSwitchManager.getProperty("businessActivitiesHandOff")
+  def pscHandOff                = featureSwitchManager.getProperty("pscHandOff")
   def paye                      = featureSwitchManager.getProperty("paye")
   def vat                       = featureSwitchManager.getProperty("vat")
   def legacyEnv                 = featureSwitchManager.getProperty(LEGACY_ENV)
@@ -116,6 +117,7 @@ trait SCRSFeatureSwitches {
   def apply(name: String): Option[FeatureSwitch] = name match {
     case COHO                        => Some(cohoFirstHandOff)
     case "businessActivitiesHandOff" => Some(businessActivitiesHandOff)
+    case "pscHandOff"                => Some(pscHandOff)
     case "paye"                      => Some(paye)
     case "vat"                       => Some(vat)
     case LEGACY_ENV                  => Some(legacyEnv)

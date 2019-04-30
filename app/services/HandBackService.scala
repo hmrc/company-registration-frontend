@@ -79,6 +79,11 @@ trait HandBackService extends HandOffNavigator {
       Future.successful(Success(res))
     }
   }
+  def processGroupsHandBck(request: String)(implicit hc: HeaderCarrier): Future[Try[JsValue]] = {
+    decryptHandBackRequest[JsValue](request){ res =>
+      Future.successful(Success(res))
+    }
+  }
 
   private def validateLink(link: String): Unit = {
     ContinueUrl(link)

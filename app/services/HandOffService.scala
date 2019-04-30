@@ -17,11 +17,10 @@
 package services
 
 import javax.inject.Inject
-
 import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import models.handoff.{BusinessActivitiesModel, CompanyNameHandOffModel, HandoffPPOB, _}
-import models.{ConfirmationReferencesSuccessResponse, SummaryHandOff}
+import models.{ConfirmationReferencesSuccessResponse, Groups, SummaryHandOff}
 import play.api.libs.json.{JsObject, JsString, Json}
 import repositories.NavModelRepo
 import uk.gov.hmrc.http.HeaderCarrier
@@ -65,14 +64,68 @@ trait HandOffService extends HandOffNavigator {
 
   def getURL(path : String) = s"$returnUrl$path"
 
-  def buildPSCPayload(regId: String, externalId: String)(implicit hc: HeaderCarrier): Future[Option[(String,String)]] = {
+  private[services] val groupsCheckerForPSCHandOff = (groups: Option[Groups]) => groups.map {
+    case g@Groups(true, name, addr, utr) if name.isDefined && addr.isDefined && utr.isDefined => g
+    case g@Groups(true, name, addr, utr) => throw new Exception(s"[groupsChecker] Groups block incomplete, user skipped journey ${name.isDefined}, ${addr.isDefined}, ${utr.isDefined}")
+    case g@Groups(false,_, _,_) => Groups(false,None,None,None)
+  }
+ private[services] val buildTheStaticJumpLinksForGroupsBasedOnGroupsData = (groups: Option[Groups]) => groups.map(
+    og => if(!og.groupRelief) {
+      JumpLinksForGroups(
+        groupReliefUrl
+        , None, None, None
+      )
+    } else {
+      JumpLinksForGroups(
+       groupReliefUrl,
+        Some(groupAddressUrl),
+        Some(groupNameUrl),
+        Some(groupUTRUrl)
+      )
+    }
+  )
+  private[services] val buildParentCompanyNameOutOfGroups = (groups: Option[Groups]) => {
+    groups.flatMap{
+      og => if(og.groupRelief) {
+        Some(ParentCompany(
+          og.nameOfCompany.get.name,
+          og.addressAndType.get.address,
+          og.groupUTR.get.UTR))
+      } else {
+        None
+      }
+    }
+  }
+
+  def buildPSCPayload(regId: String, externalId: String, groups: Option[Groups])(implicit hc: HeaderCarrier): Future[Option[(String,String)]] = {
     val navModel = fetchNavModel() map {
       implicit model =>
         (forwardTo("3-2"), hmrcLinks("3-2"), model.receiver.chData)
     }
+
     navModel.map { navmodel =>
       val (url, links, chData) = navmodel
-      encryptor.encrypt[PSCHandOff](PSCHandOff(externalId, regId, Json.obj(), chData, links)) map {
+       val groupsInfluenced3bor3b1BackHandOff = (groups: Option[Groups]) => {
+       links.copy(reverse = groups.fold(regularPaymentsBackUrl)(groupsExists =>
+         groupBackHandBackUrl
+       ))
+        }
+
+      val groupsUpdatedAndChecked =  groupsCheckerForPSCHandOff(groups)
+      val jumpLinks = buildTheStaticJumpLinksForGroupsBasedOnGroupsData(groupsUpdatedAndChecked)
+      val parentCompanyName = buildParentCompanyNameOutOfGroups(groupsUpdatedAndChecked)
+
+      encryptor.encrypt[PSCHandOff](PSCHandOff(
+        externalId,
+        regId,
+        Json.obj(),
+        chData,
+        groupsInfluenced3bor3b1BackHandOff(groups),
+        groupsUpdatedAndChecked.isDefined,
+        groupsUpdatedAndChecked.map(_.groupRelief),
+        buildParentCompanyNameOutOfGroups(groupsUpdatedAndChecked),
+        jumpLinks
+      )) map {
         (url, _)
       }
     }
@@ -127,8 +180,8 @@ trait HandOffService extends HandOffNavigator {
   lazy val renewSessionObject: JsObject = {
     JsObject(Map(
       "timeout" -> Json.toJson(timeout - timeoutDisplayLength),
-      "keepalive_url" -> Json.toJson(s"$externalUrl${controllers.reg.routes.SignInOutController.renewSession().url}"),
-      "signedout_url" -> Json.toJson(s"$externalUrl${controllers.reg.routes.SignInOutController.destroySession().url}")
+      "keepalive_url" -> Json.toJson(renewSessionUrl),
+      "signedout_url" -> Json.toJson(destorySessionUrl)
     ))
   }
 

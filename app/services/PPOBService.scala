@@ -16,13 +16,11 @@
 
 package services
 
-import javax.inject.Inject
-
-import address.client.RecordSet
 import audit.events._
 import connectors.{CompanyRegistrationConnector, KeystoreConnector, S4LConnector}
+import javax.inject.Inject
 import models.{Address => OldAddress, _}
-import play.api.libs.json.{JsValue, Json, OFormat}
+import play.api.libs.json.JsValue
 import play.api.mvc.{AnyContent, Request}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
@@ -34,17 +32,13 @@ import scala.concurrent.Future
 class PPOBServiceImpl @Inject()(val compRegConnector: CompanyRegistrationConnector,
                                 val keystoreConnector: KeystoreConnector,
                                 val s4LConnector: S4LConnector,
-                                val auditConnector: AuditConnector,
-                                val addressLookupService: AddressLookupService) extends PPOBService
+                                val auditConnector: AuditConnector) extends PPOBService
 
 trait PPOBService extends SCRSExceptions {
   val keystoreConnector: KeystoreConnector
   val compRegConnector: CompanyRegistrationConnector
   val s4LConnector : S4LConnector
   val auditConnector : AuditConnector
-  val addressLookupService : AddressLookupService
-
-  implicit val formatRecordSet: OFormat[RecordSet] = Json.format[RecordSet]
 
   def retrieveCompanyDetails(regID: String)(implicit hc: HeaderCarrier): Future[CompanyDetails] = {
     for {

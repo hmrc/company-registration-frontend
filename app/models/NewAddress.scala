@@ -49,59 +49,6 @@ object NewAddress {
   val readAddressType: Reads[String] = (__ \\ "addressType").read[String]
 
 
-
-  val roReads: Reads[NewAddress] = new Reads[NewAddress] {
-    def reads(json: JsValue): JsResult[NewAddress] = {
-
-      val oPremises      = (json \ "companyDetails" \ "cHROAddress" \ "premises").asOpt[String]
-      val oAddressLine1  = (json \ "companyDetails" \ "cHROAddress" \ "address_line_1").asOpt[String]
-      val oAddressLine2  = (json \ "companyDetails" \ "cHROAddress" \ "address_line_2").asOpt[String]
-      val oLocality      = (json \ "companyDetails" \ "cHROAddress" \ "locality").asOpt[String]
-      val oPostalCode    = (json \ "companyDetails" \ "cHROAddress" \ "postal_code").asOpt[String]
-      val oCountry       = (json \ "companyDetails" \ "cHROAddress" \ "country").asOpt[String]
-
-      val (oLine1, oLine2) = oPremises match {
-        case Some(premises) => oAddressLine1 match {
-          case Some(addressLine1) => if((premises + " " + addressLine1).length > 26) {
-            (Some(premises), Some(addressLine1))
-          } else {
-            (Some(premises + " " + addressLine1), None)
-          }
-          case None => (Some(premises), None)
-        }
-        case None => (oAddressLine1, None)
-      }
-
-      val lines: Seq[String] = Seq(oLine1, oLine2, oAddressLine2, oLocality).flatten
-
-      def incorrectAddressErrorMessage(msg: String): String = {
-        s"$msg\n" +
-          s"Lines defined:\n" +
-          s"premises: ${oPremises.isDefined}\n" +
-          s"address line 1: ${oAddressLine1.isDefined}\n" +
-          s"address line 2: ${oAddressLine2.isDefined}\n" +
-          s"locality: ${oLocality.isDefined}\n" +
-          s"postcode: ${oPostalCode.isDefined}\n" +
-          s"country: ${oCountry.isDefined}"
-      }
-
-      if(lines.length < 2) {
-        JsError(incorrectAddressErrorMessage(s"Only ${lines.length} address lines returned for RO Address"))
-      } else if (oPostalCode.isEmpty && oCountry.isEmpty) {
-        JsError(incorrectAddressErrorMessage(s"Neither postcode nor country returned for RO Address"))
-      } else {
-        JsSuccess(NewAddress(
-          addressLine1  = trimLine(lines.head, 27),
-          addressLine2  = trimLine(lines(1), 27),
-          addressLine3  = trimLine(lines.lift(2), 27),
-          addressLine4  = trimLine(lines.lift(3), 18),
-          postcode      = oPostalCode,
-          country       = if(oPostalCode.isEmpty) oCountry else None
-        ))
-      }
-    }
-  }
-
   val ppobFormats: Format[NewAddress] = {
     val ppobPath = __ \ "companyDetails" \ "pPOBAddress" \ "address"
     (

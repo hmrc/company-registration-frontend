@@ -25,6 +25,44 @@ $(document).ready($(function() {
     var OtherEmail = $("#registrationEmail-differentemail");
     var noToggleCurrentEmail = $("#differentEmail-hidden");
 
+    var otherGroupName = $("#groupName-othername");
+    var otherGroupNameHiddenInput = $("#otherName-hidden");
+
+     if(otherGroupName.is(":checked")){
+           otherGroupNameHiddenInput.show();
+      } else {
+           otherGroupNameHiddenInput.hide();
+      }
+
+      var otherGroupNameFields = $('[name="groupName"]')
+
+      otherGroupNameFields.on("change", function () {
+          if(otherGroupName.is(":checked")){
+                otherGroupNameHiddenInput.show();
+           } else {
+                otherGroupNameHiddenInput.hide();
+           }
+           });
+
+
+    var noutr = $("#groupUtr-noutr");
+    var utr = $("#groupUtr-utr");
+    var enterUtr = $("#utr-hidden");
+
+    if(utr.is(":checked")){
+          enterUtr.show();
+     } else {
+          enterUtr.hide();
+     }
+
+     utr.on("change", function () {
+         enterUtr.show();
+     });
+
+     noutr.on("change", function () {
+         enterUtr.hide();
+     });
+
     if(OtherEmail.is(":checked")){
           noToggleCurrentEmail.show();
      } else {

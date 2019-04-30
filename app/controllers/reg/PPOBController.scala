@@ -16,18 +16,15 @@
 
 package controllers.reg
 
-import javax.inject.Inject
-
 import _root_.connectors.{BusinessRegistrationConnector, CompanyRegistrationConnector, KeystoreConnector, S4LConnector}
-import address.client.RecordSet
 import config.FrontendAppConfig
 import controllers.auth.AuthFunction
 import forms.PPOBForm
+import javax.inject.Inject
 import models._
 import models.handoff.BackHandoff
 import play.api.Logger
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.libs.json.Json
 import play.api.mvc._
 import repositories.NavModelRepo
 import services._
@@ -48,7 +45,6 @@ class PPOBControllerImpl @Inject()(val authConnector: PlayAuthConnector,
                                    val appConfig: FrontendAppConfig,
                                    val navModelRepo: NavModelRepo,
                                    val jwe: JweCommon,
-                                   val addressLookupService: AddressLookupService,
                                    val addressLookupFrontendService: AddressLookupFrontendService,
                                    val pPOBService: PPOBService,
                                    val scrsFeatureSwitches: SCRSFeatureSwitches,
@@ -56,22 +52,19 @@ class PPOBControllerImpl @Inject()(val authConnector: PlayAuthConnector,
   lazy val navModelMongo =  navModelRepo.repository
 }
 
-trait PPOBController extends FrontendController with AuthFunction with AddressConverter
+trait PPOBController extends FrontendController with AuthFunction
   with SessionRegistration with ControllerErrorHandler with I18nSupport {
 
   implicit val appConfig: FrontendAppConfig
 
   val s4LConnector : S4LConnector
   val keystoreConnector : KeystoreConnector
-  val addressLookupService : AddressLookupService
   val addressLookupFrontendService : AddressLookupFrontendService
   val compRegConnector: CompanyRegistrationConnector
   val pPOBService : PPOBService
   val handOffService : HandOffService
   val businessRegConnector: BusinessRegistrationConnector
   val jwe: JweCommon
-
-  implicit val formatRecordSet = Json.format[RecordSet]
 
   def show: Action[AnyContent] = Action.async {
     implicit request =>
@@ -132,7 +125,7 @@ trait PPOBController extends FrontendController with AuthFunction with AddressCo
                 case "PPOB" =>
                   Future.successful(Redirect(controllers.reg.routes.CompanyContactDetailsController.show()))
                 case "Other" =>
-                  addressLookupFrontendService.buildAddressLookupUrl("ctreg1", controllers.reg.routes.PPOBController.saveALFAddress()) map {
+                  addressLookupFrontendService.buildAddressLookupUrl(controllers.reg.routes.PPOBController.saveALFAddress(), "PPOB") map {
                     redirectUrl => Redirect(redirectUrl)
                   }
                 case unexpected =>
@@ -178,10 +171,5 @@ trait PPOBController extends FrontendController with AuthFunction with AddressCo
     )
 
     businessRegConnector.updatePrePopAddress(regId, a)
-  }
-
-  private def getAddressFromRecordSetByID(recordSet: RecordSet, id: String): Option[Address] = {
-    val address = for(r <- recordSet.addresses if r.id == id) yield r
-    if (address.nonEmpty) Some(addressLookupService.convertLookupAddressToHMRCFormat(address.head)) else None
   }
 }

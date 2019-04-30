@@ -32,10 +32,7 @@ class AddressLookupConnectorSpec extends SCRSSpec with WithFakeApplication {
   trait Setup {
     val connector = new AddressLookupConnector {
       override val addressLookupFrontendURL = "testAddressLookupUrl"
-      override val companyRegistrationFrontendURL = "testCompanyRegUrl"
       override val wSHttp = mockWSHttp
-      override val timeoutInSeconds= 22666
-      override val messagesApi = fakeApplication.injector.instanceOf[MessagesApi]
     }
   }
 
@@ -44,9 +41,6 @@ class AddressLookupConnectorSpec extends SCRSSpec with WithFakeApplication {
   "AddressLookupConnector" should {
     "use the correct addressLookupFrontendURL" in new Setup {
       connector.addressLookupFrontendURL shouldBe "testAddressLookupUrl"
-    }
-    "use the correct companyRegistrationFrontendURL" in new Setup {
-      connector.companyRegistrationFrontendURL shouldBe "testCompanyRegUrl"
     }
   }
 
@@ -85,12 +79,12 @@ class AddressLookupConnectorSpec extends SCRSSpec with WithFakeApplication {
     "return url" in new Setup {
       mockHttpPOST[JsObject, HttpResponse]("testUrl", alfResponse())
 
-      await(await(connector.getOnRampURL("journeyId", call))) shouldBe redirectUrl
+      await(await(connector.getOnRampURL(Json.obj()))) shouldBe redirectUrl
     }
     "return an ALFLocationHeaderNotSet" in new Setup {
       mockHttpPOST[JsObject, HttpResponse]("testUrl", alfResponse(false))
 
-      intercept[ALFLocationHeaderNotSet](await(connector.getOnRampURL("journeyId", call)))
+      intercept[ALFLocationHeaderNotSet](await(connector.getOnRampURL(Json.obj())))
     }
   }
 }

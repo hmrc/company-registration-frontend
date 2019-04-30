@@ -61,12 +61,13 @@ trait WiremockHelper {
       )
     )
 
-  def stubPost(url: String, status: Integer, responseBody: String) =
+  def stubPost(url: String, status: Integer, responseBody: String, responseHeader: (String, String) = ("", "")) =
     stubFor(post(urlMatching(url))
       .willReturn(
         aResponse().
           withStatus(status).
           withBody(responseBody)
+          withHeader(responseHeader._1, responseHeader._2)
       )
     )
 
@@ -78,7 +79,6 @@ trait WiremockHelper {
           withBody(responseBody)
       )
     )
-
 
   def stubBusinessRegRetrieveMetaDataNoRegId(responseStatus: Int, expectedBody: String) = {
     stubGet(url = "/business-registration/business-tax-registration", status = responseStatus, body = expectedBody)
