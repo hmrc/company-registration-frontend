@@ -239,19 +239,20 @@
                             </td>
                         </tr>
                     }
-                    @if(dash.incDash.status == "acknowledged"){
+                    @if(dash.incDash.status == "acknowledged" && dash.incDash.ctutr.isEmpty){
                         <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
                             <td colspan="2">
-                                <span>@Messages("page.reg.Dashboard.CTRegistered")</span>
+                                <span id="noCTEnrolmentMessage">@Messages("page.reg.Dashboard.CTRegistered")</span>
                             </td>
                         </tr>
-                        @if(dash.incDash.ctutr.isDefined){
+                    }
+                     @if(dash.incDash.status == "acknowledged" && dash.incDash.ctutr.isDefined){
                         <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
                             <td class="check-your-answers">@Messages("page.reg.Dashboard.ctutr")</td>
                             <td id="ctutrText">@dash.incDash.ctutr.get</td>
                         </tr>
                         }
-                    }
+
                 </tbody>
             </table>
 
