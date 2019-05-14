@@ -219,6 +219,8 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
           ) foreach { case (element, message) =>
             document.getElementById(element).text() shouldBe message
           }
+          document.getElementById("noCTEnrolmentMessage") shouldBe null
+
       }
     }
 
@@ -336,6 +338,48 @@ class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
             }
 
             document.getElementById("ctutrText") shouldBe null
+        }
+      }
+    }
+
+    Set(
+      "04", "05"
+    ) foreach { status =>
+      s"make sure that the dashboard has the correct elements when ETMP has accepted the CT submission but no IR_CT enrolement  ($status status)" in new Setup {
+        val dashboard = Dashboard(
+          "testCompanyName",
+          IncorpAndCTDashboard(
+            "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some(status), None
+          ),
+          ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo")), Some(payeThresholds)),
+          ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
+        )
+
+        when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
+          .thenReturn(Future.successful(Some(regId)))
+
+        when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
+          .thenReturn(Future.successful(DashboardBuilt(dashboard)))
+
+        when(mockDashboardService.checkForEmailMismatch(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
+          .thenReturn(Future.successful(true))
+
+        showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
+          result =>
+            val document = Jsoup.parse(contentAsString(result))
+            document.title() shouldBe "Company registration overview"
+
+            Map(
+              "incorpStatusText" -> "Registered",
+              "crn" -> "crn123",
+              "ctStatusText" -> "Registered",
+              "noCTEnrolmentMessage" -> "We've sent you an activation code in the post. Use this to activate your Corporation Tax enrolment so you can manage Corporation Tax online."
+            ) foreach { case (element, message) =>
+              document.getElementById(element).text() shouldBe message
+            }
+
+            document.getElementById("ctutrText") shouldBe null
+
         }
       }
     }
