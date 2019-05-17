@@ -23,7 +23,7 @@ import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfter
 import org.scalatest.mockito.MockitoSugar
 import play.api.http.Status._
-import play.api.libs.json.JsValue
+import play.api.libs.json.{JsObject, JsValue}
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
@@ -63,27 +63,27 @@ class EmailVerificationConnectorSpec extends SCRSSpec with UnitSpec with WithFak
   "checkVerifiedEmail" should {
 
     "Return a true when passed an email that has been verified" in new Setup {
-      mockHttpGet(connector.checkVerifiedEmailURL, HttpResponse(OK))
+      mockHttpPOST(connector.checkVerifiedEmailURL, HttpResponse(OK))
 
       await(connector.checkVerifiedEmail(verifiedEmail)) shouldBe true
     }
 
     "Return a false when passed an email that exists but has not been found or not been verified" in new Setup {
-      when(mockWSHttp.GET[HttpResponse](Matchers.anyString())(Matchers.any(), Matchers.any[HeaderCarrier](), Matchers.any[ExecutionContext]))
+      when(mockWSHttp.POST[JsObject, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[HeaderCarrier](), Matchers.any[ExecutionContext]))
         .thenReturn(Future.failed(new NotFoundException("error")))
 
       await(connector.checkVerifiedEmail(verifiedEmail)) shouldBe false
     }
 
     "Return a false when passed an email but met an unexpected error" in new Setup {
-      when(mockWSHttp.GET[HttpResponse](Matchers.anyString())(Matchers.any(), Matchers.any[HeaderCarrier](), Matchers.any[ExecutionContext]))
+      when(mockWSHttp.POST[JsObject, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[HeaderCarrier](), Matchers.any[ExecutionContext]))
         .thenReturn(Future.failed(new InternalServerException("error")))
 
       await(connector.checkVerifiedEmail(verifiedEmail)) shouldBe false
     }
 
     "Return a false when passed an email but encountered an upstream service error" in new Setup {
-      when(mockWSHttp.GET[HttpResponse](Matchers.anyString())(Matchers.any(), Matchers.any[HeaderCarrier](), Matchers.any[ExecutionContext]))
+      when(mockWSHttp.POST[JsObject, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[HeaderCarrier](), Matchers.any[ExecutionContext]))
         .thenReturn(Future.failed(new BadGatewayException("error")))
 
       await(connector.checkVerifiedEmail(verifiedEmail)) shouldBe false
