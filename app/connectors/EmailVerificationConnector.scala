@@ -17,11 +17,11 @@
 package connectors
 
 import javax.inject.Inject
-
 import config.{FrontendAppConfig, WSHttp}
 import models.EmailVerificationRequest
 import play.api.Logger
 import play.api.http.Status._
+import play.api.libs.json.{JsObject, Json}
 import uk.gov.hmrc.http._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -49,7 +49,7 @@ trait EmailVerificationConnector extends HttpErrorFunctions {
       Logger.debug(s"[EmailVerificationConnector] [checkVerifiedEmail] request to check verified email returned a $status - email not found / not verified")
       false
     }
-    wSHttp.GET[HttpResponse](s"$checkVerifiedEmailURL/$email") map {
+    wSHttp.POST[JsObject, HttpResponse](s"$checkVerifiedEmailURL/$email", Json.obj("email" -> email)) map {
       _.status match {
         case OK => true
       }
