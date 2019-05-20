@@ -49,7 +49,7 @@ trait EmailVerificationConnector extends HttpErrorFunctions {
       Logger.debug(s"[EmailVerificationConnector] [checkVerifiedEmail] request to check verified email returned a $status - email not found / not verified")
       false
     }
-    wSHttp.POST[JsObject, HttpResponse](s"$checkVerifiedEmailURL/$email", Json.obj("email" -> email)) map {
+    wSHttp.POST[JsObject, HttpResponse](s"$checkVerifiedEmailURL", Json.obj("email" -> email)) map {
       _.status match {
         case OK => true
       }

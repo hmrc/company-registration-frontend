@@ -194,7 +194,7 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with F
   }
 
   def stubVerifyEmail(vEmail: String, vStatus: Int): StubMapping = {
-    val postUserUrl = s"/checkVerifiedEmailURL/$vEmail"
+    val postUserUrl = s"/checkVerifiedEmailURL"
     stubFor(post(urlMatching(postUserUrl))
       .willReturn(
         aResponse().
