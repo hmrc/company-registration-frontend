@@ -102,7 +102,7 @@ trait DashboardService extends SCRSExceptions with AlertLogging with CommonServi
     for {
       incorpCTDash <- buildIncorpCTDashComponent(regId, enrolments)
       payeDash <- buildPAYEDashComponent(regId, enrolments)
-      hasVatCred = hasEnrolment(enrolments, List("HMCE-VATDEC-ORG", "HMCE-VATVAR-ORG"))
+      hasVatCred = hasEnrolment(enrolments, List(appConfig.HMCE_VATDEC_ORG, appConfig.HMCE_VATVAR_ORG))
       vatDash <- buildVATDashComponent(regId, enrolments)
     } yield {
       incorpCTDash.status match {
@@ -114,7 +114,7 @@ trait DashboardService extends SCRSExceptions with AlertLogging with CommonServi
   }
 
   private[services] def hasEnrolment(authEnrolments: Enrolments, enrolmentKeys: Seq[String])(implicit hc: HeaderCarrier): Boolean = {
-    authEnrolments.enrolments.exists(e => appConfig.restrictedEnrolments.contains(e.key))
+    authEnrolments.enrolments.exists(e => enrolmentKeys.contains(e.key))
   }
 
   private[services] def statusToServiceDashboard(res: Future[StatusResponse], enrolments: Enrolments, payeEnrolments: Seq[String], thresholds: Option[Map[String, Int]])
@@ -136,7 +136,7 @@ trait DashboardService extends SCRSExceptions with AlertLogging with CommonServi
     implicit val cancelURL: Call = controllers.dashboard.routes.CancelRegistrationController.showCancelPAYE()
 
     if (featureFlag.paye.enabled) {
-      statusToServiceDashboard(payeConnector.getStatus(regId), enrolments, List("IR-PAYE"), Some(getCurrentPayeThresholds))
+      statusToServiceDashboard(payeConnector.getStatus(regId), enrolments, List(appConfig.IR_PAYE), Some(getCurrentPayeThresholds))
     } else {
       Future.successful(toDashboard(OtherRegStatus(Statuses.NOT_ENABLED, None, None, None, None), None))
     }
@@ -159,7 +159,7 @@ trait DashboardService extends SCRSExceptions with AlertLogging with CommonServi
     getCurrentVatThreshold flatMap { threshold =>
       Try(threshold.toInt) match {
         case Success(intThreshold) => if (featureFlag.vat.enabled) {
-        statusToServiceDashboard(vatConnector.getStatus(regId), enrolments, List("HMCE-VATDEC-ORG", "HMCE-VATVAR-ORG"), Some(Map("yearly" -> intThreshold)))
+        statusToServiceDashboard(vatConnector.getStatus(regId), enrolments, List(appConfig.HMCE_VATDEC_ORG,appConfig.HMCE_VATVAR_ORG), Some(Map("yearly" -> intThreshold)))
       } else {
           Future.successful(toDashboard(OtherRegStatus(Statuses.NOT_ENABLED, None, None, None, None), Some(Map("yearly" -> intThreshold))))
         }
@@ -207,7 +207,7 @@ trait DashboardService extends SCRSExceptions with AlertLogging with CommonServi
     val ctData = ctReg.as[IncorpAndCTDashboard](IncorpAndCTDashboard.reads(None))
     val matchCTUTR = for {
       ctutr     <- ctData.ctutr
-      enrolment <- enrolments.getEnrolment("IR-CT")
+      enrolment <- enrolments.getEnrolment(appConfig.IR_CT)
       id        <- enrolment.getIdentifier("UTR") if enrolment.isActivated
     } yield id.value == ctutr
 

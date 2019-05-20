@@ -178,6 +178,8 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
   val vatEnrolment = Enrolments(Set(Enrolment("HMCE-VATDEC-ORG", Seq(EnrolmentIdentifier("test-paye-identifier", "test-paye-value")), "testState")))
   val vatVarEnrolment = Enrolments(Set(Enrolment("HMCE-VATVAR-ORG", Seq(EnrolmentIdentifier("test-paye-identifier", "test-paye-value")), "testState")))
   val noEnrolments = Enrolments(Set())
+  val ctAndVatEnrolment = Enrolments(Set(Enrolment("IR-CT", Seq(EnrolmentIdentifier("UTR", "1234567890")), "activated"),
+                                         Enrolment("HMCE-VATDEC-ORG", Seq(EnrolmentIdentifier("test-paye-identifier", "test-paye-value")), "testState")))
 
   val payeThresholds = Map("weekly" -> 118, "monthly" -> 512, "annually" -> 6136)
   val vatThresholds = Map("yearly" -> 85000)
@@ -322,6 +324,15 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
       result shouldBe payeDash
     }
 
+    "return a not started Status when nothing is fetched from paye-registration and the user does not have a PAYE enrolment but has a IR-CT enrolement" in new Setup {
+      val payeDash = ServiceDashboard(Statuses.NOT_STARTED, None, None, payeLinks, Some(payeThresholds))
+      mockPayeFeature(true)
+      getStatusMock(NotStarted)
+
+      val result = await(service.buildPAYEDashComponent(regId, ctEnrolment("1234567890",true)))
+      result shouldBe payeDash
+    }
+
     "return a not enabled Status when the paye feature is turned off" in new Setup {
       val payeDash = ServiceDashboard(Statuses.NOT_ENABLED, None, None, payeLinks, None)
       mockPayeFeature(false)
@@ -344,6 +355,16 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
         val result = await(service.hasEnrolment(noEnrolments, List("IR-PAYE")))
         result shouldBe false
       }
+
+      "there is an auth IR-CT enrolment is present when IR-PAYE is not allowsed" in new Setup {
+        val result = await(service.hasEnrolment(ctEnrolment("1234567890",true), List("IR-PAYE")))
+        result shouldBe false
+      }
+      "there is an auth IR-CT and VAT enrolment and IR-PAYE is not allowsed" in new Setup {
+        val result = await(service.hasEnrolment(ctAndVatEnrolment, List("IR-PAYE")))
+        result shouldBe false
+      }
+
     }
   }
 
