@@ -64,7 +64,7 @@ trait CompanyContactDetailsController extends FrontendController with AuthFuncti
 
   val submit = Action.async {
     implicit request =>
-      ctAuthorisedCompanyContactAmend { (email, cred, eID) =>
+      ctAuthorisedEmailCredsExtId { (email, cred, eID) =>
         registered { regId =>
           CompanyContactForm.form.bindFromRequest().fold(
             hasErrors =>

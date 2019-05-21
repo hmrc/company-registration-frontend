@@ -34,7 +34,6 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
 
   val emailResponseFromCRLowLevel =
     s"""
-
        |    {
        |        "address" : "user@test.com",
        |        "type" : "GG",

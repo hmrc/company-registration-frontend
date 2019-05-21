@@ -75,15 +75,16 @@ trait AuthFunction extends FrontendController with AuthorisedFunctions {
     } recover authErrorHandling()
   }
 
-  def ctAuthorisedCompanyContactAmend(body: => (String, Credentials, String) => Future[Result])
-                                     (implicit request: Request[AnyContent]): Future[Result] = {
+
+  def ctAuthorisedEmailCredsExtId(body: => (String, Credentials, String) => Future[Result])
+                                 (implicit request: Request[AnyContent]): Future[Result] = {
     baseFunction.retrieve(name and email and credentials and externalId) {
       case nm ~ Some(em) ~ cr ~ Some(ei) => body(em, cr, ei)
       case nm ~ None ~ cr ~ Some(ei) => {
-        Logger.info("ctAuthorisedCompanyContactAmend user does not have email on gg record (call from auth)")
+        Logger.info("ctAuthorisedEmailCredsExtId user does not have email on gg record (call from auth)")
         Future.successful(Redirect(controllers.verification.routes.EmailVerificationController.createShow()))
       }
-      case _ => Future.failed(InternalError("ctAuthorisedCompanyContactAmend auth response was incorrect to what we expected when we were extracting Retrievals"))
+      case _ => Future.failed(InternalError("ctAuthorisedEmailCredsExtId auth response was incorrect to what we expected when we were extracting Retrievals"))
     } recover authErrorHandling()
   }
 
@@ -131,17 +132,12 @@ trait AuthFunction extends FrontendController with AuthorisedFunctions {
       Redirect(controllers.verification.routes.EmailVerificationController.createGGWAccountAffinityShow())
   }
 
-    def scpVerifiedEmail(sCPEnabledFeature: Boolean)(implicit request: Request[AnyContent]): Future[Boolean] = {
-        if (sCPEnabledFeature) {
-          baseFunction.retrieve(emailVerified) {
-            case Some(em) => Future.successful(em)
-            case _ => Future.successful(false)
-          } recover {
-                case _ => false
-          }
-        } else {
-              Future.successful(false)
-            }
-
-        }
+    def scpVerifiedEmail(implicit request: Request[AnyContent]): Future[Boolean] = {
+      baseFunction.retrieve(emailVerified) {
+        case Some(em) => Future.successful(em)
+        case _ => Future.successful(false)
+      } recover {
+        case _ => false
+      }
+    }
 }

@@ -76,7 +76,7 @@ trait EmailVerificationService {
 }
   private def noEmailBlock(regId:String, authDetails: AuthDetails)(implicit hc: HeaderCarrier,req: Request[AnyContent]) = {
     val email = Email(authDetails.email, "GG", linkSent = false, verified = false, returnLinkEmailSent = false)
-    saveEmailBlock(regId, email) map { x =>
+    saveEmailBlock(regId, email,authDetails.authProviderId.providerId, authDetails.externalId) map { x =>
       email
     }
   }
@@ -85,13 +85,14 @@ trait EmailVerificationService {
   (implicit hc: HeaderCarrier, req: Request[AnyContent]): Future[EmailVerified] = {
 
     def cacheReg(emv: EmailVerified) = handOffService.cacheRegistrationID(rId).map(_ => emv)
+
     emailChecks(oEmail, rId, authDetails) flatMap {
         case None => Future.successful(NoEmail())
 
         case Some(Email(address, _, _, scrsVerified@true, _)) => cacheReg(VerifiedEmail())
 
         case Some(Email(address, _, linkSent@true, _, _)) =>
-          verifyEmailAddressAndSaveEmailBlockWithFlag(address, rId) flatMap  {
+          verifyEmailAddressAndSaveEmailBlockWithFlag(address, rId, authDetails.authProviderId.providerId,authDetails.externalId) flatMap  {
             case Some(true) => cacheReg(VerifiedEmail())
             case _ => cacheReg(NotVerifiedEmail())
         }
@@ -100,21 +101,20 @@ trait EmailVerificationService {
   }
 
 
-  def verifyEmailAddressAndSaveEmailBlockWithFlag(address: String, rId: String)
+  def verifyEmailAddressAndSaveEmailBlockWithFlag(address: String, rId: String, authProviderId: String, externalId: String)
                                                                    (implicit hc: HeaderCarrier, req: Request[AnyContent]): Future[Option[Boolean]] = {
       emailConnector.checkVerifiedEmail(address) flatMap { emailVerified =>
-        saveEmailBlock(rId, Email(address, GG, linkSent = true, verified = emailVerified, returnLinkEmailSent = false)) map {
+        saveEmailBlock(rId, Email(address, GG, linkSent = true, verified = emailVerified, returnLinkEmailSent = false), authProviderId, externalId) map {
           _ => Some(emailVerified)
         }
     }
   }
 
-  def sendVerificationLink(address: String, rId: String)
+  def sendVerificationLink(address: String, rId: String, authProviderId: String, externalId:String)
                                             (implicit hc: HeaderCarrier, req: Request[AnyContent]): Future[Option[Boolean]] = {
       emailConnector.requestVerificationEmailReturnVerifiedEmailStatus(generateEmailRequest(address)) flatMap {
         verified =>
-          //todo - move the audit: if existing email link sent false and then verified returns true then audit
-          saveEmailBlock(rId, Email(address, GG, !verified, verified, false)) map { seb =>
+          saveEmailBlock(rId, Email(address, GG, !verified, verified, false),authProviderId,externalId) map { seb =>
             Some(verified)
           }
     }
@@ -145,29 +145,27 @@ trait EmailVerificationService {
     }
   }
 
-  def saveEmailBlock(regId: String, email: Email)(implicit hc: HeaderCarrier, req: Request[AnyContent]):Future[Option[Email]] = {
+  def saveEmailBlock(regId: String, email: Email, authProviderId: String, externalId: String)(implicit hc: HeaderCarrier, req: Request[AnyContent]): Future[Option[Email]] = {
     crConnector.updateEmail(regId, email)
-    //flatMap {
-//      case oe@Some(Email(address, _, linkSent, verified@true, _)) =>
-//        val previouslyVerified = !linkSent
-//        emailAuditing(regId, address, previouslyVerified, authDetails).map(_ => oe)
-//      case oe =>
-//        Future.successful(oe)
-    //}
+      .flatMap { emailFromUpdate =>
+        if(email.verified) {
+          emailAuditing(regId, email.address, authProviderId, externalId).map(_ => emailFromUpdate)
+        } else {
+          Future.successful(emailFromUpdate)
+        }
+      }
   }
 
-  private def emailAuditing(rId : String, emailAddress : String, previouslyVerified : Boolean, authDetails: AuthDetails)
+  private def emailAuditing(rId : String, emailAddress : String, authProviderId: String, externalId: String)
                            (implicit hc : HeaderCarrier, req: Request[AnyContent]) = {
     for {
       result <- auditConnector.sendExtendedEvent(
         new EmailVerifiedEvent(
           EmailVerifiedEventDetail(
-            authDetails.externalId,
-            authDetails.authProviderId.providerId,
+            externalId,
+            authProviderId,
             rId,
-            emailAddress,
-            isVerifiedEmailAddress = true,
-            previouslyVerified
+            emailAddress
           )
         )
       )

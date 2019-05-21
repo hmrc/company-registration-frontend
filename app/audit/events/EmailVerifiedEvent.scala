@@ -24,8 +24,8 @@ case class EmailVerifiedEventDetail(externalUserId : String,
                                     authProviderId : String,
                                     journeyId : String,
                                     emailAddress : String,
-                                    isVerifiedEmailAddress : Boolean,
-                                    previouslyVerified : Boolean)
+                                    isVerifiedEmailAddress : Boolean = true,
+                                    previouslyVerified : Boolean = true)
 
 object EmailVerifiedEventDetail {
   implicit val format = Json.format[EmailVerifiedEventDetail]

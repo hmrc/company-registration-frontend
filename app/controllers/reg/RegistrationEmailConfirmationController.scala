@@ -57,13 +57,12 @@ trait RegistrationEmailConfirmationController extends FrontendController with Au
   }
 
   val submit: Action[AnyContent] = Action.async { implicit request =>
-    ctAuthorised {
+    ctAuthorisedEmailCredsExtId { (email, creds, extId) =>
       registered { regId =>
-          emailVerificationService.emailVerifiedStatusInSCRS(regId, () => submitLogic(regId))
+          emailVerificationService.emailVerifiedStatusInSCRS(regId, () => submitLogic(regId, creds.providerId, extId))
       }
     }
   }
-
 
   protected def showLogic(implicit hc: HeaderCarrier, request: Request[AnyContent]): Future[Result] = {
     for {
@@ -79,7 +78,7 @@ trait RegistrationEmailConfirmationController extends FrontendController with Au
     }
   }
 
-  protected def submitLogic(regId:String)(implicit hc: HeaderCarrier, request: Request[AnyContent]): Future[Result] = {
+  protected def submitLogic(regId:String, providerIdFromAuth: String, externalIdFromAuth:String)(implicit hc: HeaderCarrier, request: Request[AnyContent]): Future[Result] = {
 
     keystoreConnector.fetchAndGet[RegistrationEmailModel]("RegEmail").flatMap { regEmail =>
       if (!regEmail.exists(_.differentEmail.isDefined)) {
@@ -92,7 +91,7 @@ trait RegistrationEmailConfirmationController extends FrontendController with Au
             Future.successful(BadRequest(ConfirmRegistrationEmail(hasErrors, diffEmail))),
           success =>
             if (success.confirmEmail) {
-              emailVerificationService.sendVerificationLink(diffEmail, regId)
+              emailVerificationService.sendVerificationLink(diffEmail, regId, providerIdFromAuth, externalIdFromAuth)
                 .map { emailVerifiedSuccess =>
                   if (emailVerifiedSuccess.contains(true)) {
                     Redirect(routes.CompletionCapacityController.show())

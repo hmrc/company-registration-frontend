@@ -20,13 +20,14 @@ import java.util.UUID
 
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, post, stubFor, urlMatching}
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
-import itutil.{FakeAppConfig, IntegrationSpecBase, LoginStub}
+import itutil.{FakeAppConfig, IntegrationSpecBase, LoginStub, RequestsFinder}
 import play.api.Application
 import play.api.http.HeaderNames
+import play.api.libs.json.{JsObject, Json}
 import play.api.test.FakeApplication
 
 
-class RegistrationEmailConfirmationISpec extends IntegrationSpecBase with LoginStub with FakeAppConfig {
+class RegistrationEmailConfirmationISpec extends IntegrationSpecBase with LoginStub with FakeAppConfig with RequestsFinder {
 
   override implicit lazy val app: Application = FakeApplication(additionalConfiguration = fakeConfig())
 
@@ -80,9 +81,14 @@ class RegistrationEmailConfirmationISpec extends IntegrationSpecBase with LoginS
       awaitedFuture.status shouldBe 200
     }
   }
+  val nameJson = Json.parse(
+    """{ "name": {"name": "foo", "lastName": "bar"}}""".stripMargin).as[JsObject]
+  val nameAndCredId = Json.obj("externalId" -> "fooBarWizz1") ++ nameJson
+
   s"${controllers.reg.routes.RegistrationEmailConfirmationController.submit().url}" should {
     "POST for submit should return 303 and redirect to Completion Capacity if YES is selected AND email is already verified" in {
       stubAuthorisation()
+      stubSuccessfulLogin(userId = userId,otherParamsForAuth = Some(nameAndCredId))
       stubVerifyEmail(vStatus = 409)
       val emailResponseFromCr =
         """ {
@@ -123,10 +129,13 @@ class RegistrationEmailConfirmationISpec extends IntegrationSpecBase with LoginS
       val awaitedFuture = await(fResponse)
       awaitedFuture.status shouldBe 303
       awaitedFuture.header(HeaderNames.LOCATION) shouldBe Some("/register-your-company/relationship-to-company")
+      val audit = Json.parse(getRequestBody("post","/write/audit")).as[JsObject] \ "detail"
+      audit.get shouldBe Json.parse("""{"externalUserId":"fooBarWizz1","authProviderId":"12345-credId","journeyId":"test","emailAddress":"foo","isVerifiedEmailAddress":true,"previouslyVerified":true}""")
     }
 
     "POST for submit should return 303 and redirect to Email verification if YES is selected AND email is NOT verified" in {
       stubAuthorisation()
+      stubSuccessfulLogin(userId = userId,otherParamsForAuth = Some(nameAndCredId))
       stubVerifyEmail(vStatus = 201)
       val emailResponseFromCr =
         """ {
@@ -171,6 +180,7 @@ class RegistrationEmailConfirmationISpec extends IntegrationSpecBase with LoginS
 
     "POST for submit should return 303 and redirect to Email verification if YES is selected AND email is NOT verified, but link was sent prior" in {
       stubAuthorisation()
+      stubSuccessfulLogin(userId = userId,otherParamsForAuth = Some(nameAndCredId))
       stubVerifyEmail(vStatus = 201)
       val emailResponseFromCr =
         """ {
@@ -215,6 +225,7 @@ class RegistrationEmailConfirmationISpec extends IntegrationSpecBase with LoginS
 
     "POST for submit should return 303 and redirect to Registration Email if NO is selected" in {
       stubAuthorisation()
+      stubSuccessfulLogin(userId = userId,otherParamsForAuth = Some(nameAndCredId))
       val emailResponseFromCr =
         """ {
           |  "address": "foo@bar.wibble",
@@ -258,6 +269,7 @@ class RegistrationEmailConfirmationISpec extends IntegrationSpecBase with LoginS
 
     "POST for submit should return 303 and redirect to Post Sign In if no data is available from the previous page" in {
       stubAuthorisation()
+      stubSuccessfulLogin(userId = userId,otherParamsForAuth = Some(nameAndCredId))
       val emailResponseFromCr =
         """ {
           |  "address": "foo@bar.wibble",
@@ -286,6 +298,7 @@ class RegistrationEmailConfirmationISpec extends IntegrationSpecBase with LoginS
 
     "POST for submit should return 400 if bad data is submitted" in {
       stubAuthorisation()
+      stubSuccessfulLogin(userId = userId,otherParamsForAuth = Some(nameAndCredId))
       val emailResponseFromCr =
         """ {
           |  "address": "foo@bar.wibble",

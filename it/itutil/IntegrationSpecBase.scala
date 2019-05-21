@@ -34,8 +34,7 @@ trait IntegrationSpecBase extends UnitSpec
                     businessActivitiesHandOff: Boolean = false,
                     paye: Boolean = false,
                     vat: Boolean = false,
-                    signPosting: Boolean = false,
-                    scpEnabled:Boolean = false) = {
+                    signPosting: Boolean = false) = {
     def enableFeature(fs: FeatureSwitch, enabled: Boolean) = {
       enabled match {
         case true => app.injector.instanceOf[FeatureSwitchManager].enable(fs)
@@ -46,7 +45,6 @@ trait IntegrationSpecBase extends UnitSpec
     enableFeature(app.injector.instanceOf[SCRSFeatureSwitches].businessActivitiesHandOff, businessActivitiesHandOff)
     enableFeature(app.injector.instanceOf[SCRSFeatureSwitches].paye, paye)
     enableFeature(app.injector.instanceOf[SCRSFeatureSwitches].vat, vat)
-    enableFeature(app.injector.instanceOf[SCRSFeatureSwitches].sCPEnabled, scpEnabled)
 
   }
 

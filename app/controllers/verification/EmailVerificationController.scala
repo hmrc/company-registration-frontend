@@ -78,7 +78,7 @@ trait EmailVerificationController extends FrontendController with AuthFunction w
 
   val resendVerificationLink: Action[AnyContent] = Action.async {
     implicit request =>
-      ctAuthorised {
+      ctAuthorisedEmailCredsExtId { (email, creds, extId) =>
         keystoreConnector.fetchAndGet[String]("registrationID").flatMap {
           _.fold(
             Future.successful(Redirect(controllers.reg.routes.SignInOutController.postSignIn(None)))) { rId =>
@@ -88,7 +88,7 @@ trait EmailVerificationController extends FrontendController with AuthFunction w
               emailBlockv => emailBlockv.fold[Future[Result]](
               Future.successful(Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))))
             (email =>
-              emailVerificationService.sendVerificationLink(email.address, rId).map {_  => Redirect(controllers.verification.routes.EmailVerificationController.verifyShow())}))
+              emailVerificationService.sendVerificationLink(email.address, rId,creds.providerId,extId).map {_  => Redirect(controllers.verification.routes.EmailVerificationController.verifyShow())}))
           }
         }
       }

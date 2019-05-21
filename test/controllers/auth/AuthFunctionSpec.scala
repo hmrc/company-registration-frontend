@@ -56,7 +56,7 @@ class AuthFunctionSpec extends SCRSSpec with PayloadFixture with WithFakeApplica
     }
     def fudgeControllerActionctAuthorisedCompanyContactAmend = Action.async {
       implicit request =>
-        authFunc.ctAuthorisedCompanyContactAmend { (a,b,c) =>
+        authFunc.ctAuthorisedEmailCredsExtId { (a, b, c) =>
           Future.successful(Results.Ok("foo"))
         }
     }
@@ -226,46 +226,20 @@ class AuthFunctionSpec extends SCRSSpec with PayloadFixture with WithFakeApplica
   }
     "scpVerifiedEmail" should {
 
-    "Return a true if the email has been verified and the SCP feature flag is true" in new Setup {
+    "Return a true if the email has been verified e" in new Setup {
 
       mockAuthorisedUser(Future.successful(Some(true)))
-      val res = authFunc.scpVerifiedEmail(sCPEnabledFeature = true)
+      val res = authFunc.scpVerifiedEmail
       val awaitedFuture: Boolean = await(res)
 
       awaitedFuture shouldBe true
     }
 
-    "Return a false if the email has been verified but the SCP feature flag is false." in new Setup {
-
-      mockAuthorisedUser(Future.successful(Some(true)))
-      val res = authFunc.scpVerifiedEmail(sCPEnabledFeature = false)
-      val awaitedFuture: Boolean = await(res)
-
-      awaitedFuture shouldBe false
-    }
 
     "Return a false if the email has not been verified" in new Setup {
 
       mockAuthorisedUser(Future.successful(Some(false)))
-      val res = authFunc.scpVerifiedEmail(sCPEnabledFeature = false)
-      val awaitedFuture: Boolean = await(res)
-
-      awaitedFuture shouldBe false
-    }
-
-    "Return a false if the email has not been verified and the SCP feature flag is true" in new Setup {
-
-      mockAuthorisedUser(Future.successful(Some(false)))
-      val res = authFunc.scpVerifiedEmail(sCPEnabledFeature = true)
-      val awaitedFuture: Boolean = await(res)
-
-      awaitedFuture shouldBe false
-    }
-
-    "Return a false if the email is missing and SCP feature flag is false" in new Setup {
-
-      mockAuthorisedUser(Future.successful(None))
-      val res = authFunc.scpVerifiedEmail(sCPEnabledFeature = false)
+      val res = authFunc.scpVerifiedEmail
       val awaitedFuture: Boolean = await(res)
 
       awaitedFuture shouldBe false
@@ -274,7 +248,7 @@ class AuthFunctionSpec extends SCRSSpec with PayloadFixture with WithFakeApplica
     "Return a false if the email is missing and SCP feature flag is true" in new Setup {
 
       mockAuthorisedUser(Future.successful(None))
-      val res = authFunc.scpVerifiedEmail(sCPEnabledFeature = true)
+      val res = authFunc.scpVerifiedEmail
       val awaitedFuture: Boolean = await(res)
 
       awaitedFuture shouldBe false
@@ -283,7 +257,7 @@ class AuthFunctionSpec extends SCRSSpec with PayloadFixture with WithFakeApplica
     "Return a false if an error is returned from the SCP verified email function and SCP feature flag is true" in new Setup {
 
       mockAuthorisedUser(Future.failed(new InternalServerException("error")))
-      val res = authFunc.scpVerifiedEmail(sCPEnabledFeature = true)
+      val res = authFunc.scpVerifiedEmail
       val awaitedFuture: Boolean = await(res)
 
       awaitedFuture shouldBe false
