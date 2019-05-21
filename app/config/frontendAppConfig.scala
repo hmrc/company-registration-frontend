@@ -55,17 +55,16 @@ trait FrontendAppConfig extends ServicesConfig {
     lazy val timeoutInSeconds: String = loadConfig("microservice.timeoutInSeconds")
     lazy val timeoutDisplayLength: String = loadConfig("microservice.timeoutDisplayLength")
 
-  private lazy val IR_CT           = "IR-CT"
-  private lazy val IR_PAYE         = "IR-PAYE"
-  private lazy val HMCE_VATDEC_ORG = "HMCE-VATDEC-ORG"
-  private lazy val HMCE_VATVAR_ORG = "HMRC-VATVAR-ORG"
-  private lazy val IR_SA_PART_ORG  = "IR-SA-PART-ORG"
-  private lazy val IR_SA_TRUST_ORG = "IR-SA-TRUST-ORG"
-  private lazy val IR_SA           = "IR-SA"
+    val IR_CT           = "IR-CT"
+    val IR_PAYE         = "IR-PAYE"
+    val HMCE_VATDEC_ORG = "HMCE-VATDEC-ORG"
+    val HMCE_VATVAR_ORG = "HMCE-VATVAR-ORG"
+    val IR_SA_PART_ORG  = "IR-SA-PART-ORG"
+    val IR_SA_TRUST_ORG = "IR-SA-TRUST-ORG"
+    val IR_SA           = "IR-SA"
 
   lazy val SAEnrolments         = List(IR_SA_PART_ORG, IR_SA_TRUST_ORG, IR_SA)
   lazy val restrictedEnrolments = List(IR_CT, IR_PAYE, HMCE_VATDEC_ORG, HMCE_VATVAR_ORG) ++ SAEnrolments
-
 
   lazy val self = getConfString("comp-reg-frontend.url", throw new Exception("Could not find config for comp-reg-frontend url"))
   lazy val selfFull = getConfString("comp-reg-frontend.fullurl", self)
