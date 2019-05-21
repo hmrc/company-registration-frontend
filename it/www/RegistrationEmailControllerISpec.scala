@@ -7,27 +7,26 @@ import java.util.UUID
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import controllers.reg.routes
-import itutil.{FakeAppConfig, IntegrationSpecBase, LoginStub}
+import itutil.{FakeAppConfig, IntegrationSpecBase, LoginStub, RequestsFinder}
 import org.jsoup.Jsoup
 import org.scalatest.mockito.MockitoSugar
 import play.api.http.HeaderNames
-import play.api.libs.json.Json
+import play.api.libs.json.{JsObject, Json}
 import play.api.test.FakeApplication
-import utils.{BooleanFeatureSwitch, SCRSFeatureSwitches}
+import utils.SCRSFeatureSwitches
 
-class RegistrationEmailControllerISpec extends IntegrationSpecBase with LoginStub with FakeAppConfig with MockitoSugar  {
+class RegistrationEmailControllerISpec extends IntegrationSpecBase with LoginStub with FakeAppConfig with MockitoSugar with RequestsFinder  {
 
   override implicit lazy val app = FakeApplication(additionalConfiguration = fakeConfig())
-  val mockSCRSFeatureSwitches = mock[SCRSFeatureSwitches]
 
   class Setup {
     val userId = "test-user-id"
     val regId = "12345"
     val csrfToken = () => UUID.randomUUID().toString
     val sessionCookie = () => getSessionCookie(Map("csrfToken" -> csrfToken()), userId)
-    val scrsFeatureSwitches = mockSCRSFeatureSwitches
-    val featureSwitchTrue = BooleanFeatureSwitch("sCPEnabled", true)
-    val featureSwitchFalse = BooleanFeatureSwitch("sCPEnabled", false)
+    val nameJson = Json.parse(
+      """{ "name": {"name": "foo", "lastName": "bar"}}""".stripMargin).as[JsObject]
+    val nameAndCredId = Json.obj("externalId" -> "fooBarWizz1") ++ nameJson
 
     def stubVerifyEmail(vStatus: Int): StubMapping = {
       val postUserUrl = s"/sendVerificationEmailURL"
@@ -163,7 +162,7 @@ class RegistrationEmailControllerISpec extends IntegrationSpecBase with LoginStu
   s"${controllers.reg.routes.RegistrationEmailController.submit().url}" should {
     "return 303 to email verification when user submits valid data of currentEmail, but email verify returns false" in new Setup {
       stubAuthorisation()
-      stubSuccessfulLogin(userId = userId, otherParamsForAuth = Some(Json.obj("name" -> "foobar")))
+      stubSuccessfulLogin(userId = userId, otherParamsForAuth = Some(nameAndCredId))
       val emailResponseFromCr =
         """ {
           |  "address": "foo@bar.wibble",
@@ -204,7 +203,7 @@ class RegistrationEmailControllerISpec extends IntegrationSpecBase with LoginStu
     }
     "return 303 to completion capacity when user submits valid data of currentEmail & email verify returns true" in new Setup {
       stubAuthorisation()
-      stubSuccessfulLogin(userId = userId, otherParamsForAuth = Some(Json.obj("name" -> "foobar")))
+      stubSuccessfulLogin(userId = userId,otherParamsForAuth = Some(nameAndCredId))
       val emailResponseFromCr =
         """ {
           |  "address": "foo@bar.wibble",
@@ -239,13 +238,15 @@ class RegistrationEmailControllerISpec extends IntegrationSpecBase with LoginStu
           "csrfToken" -> Seq("xxx-ignored-xxx"),
           "registrationEmail" -> Seq("currentEmail")
         )))
+      val audit = Json.parse(getRequestBody("post","/write/audit")).as[JsObject] \ "detail"
+      audit.get shouldBe Json.parse("""{"externalUserId":"fooBarWizz1","authProviderId":"12345-credId","journeyId":"test","emailAddress":"test@test.com","isVerifiedEmailAddress":true,"previouslyVerified":true}""")
 
       res.status shouldBe 303
       res.header(HeaderNames.LOCATION).get shouldBe controllers.reg.routes.CompletionCapacityController.show().url
     }
     "return 303 to email confirmation controller when user enters different email" in new Setup {
       stubAuthorisation()
-      stubSuccessfulLogin(userId = userId, otherParamsForAuth = Some(Json.obj("name" -> "foobar")))
+      stubSuccessfulLogin(userId = userId, otherParamsForAuth = Some(nameAndCredId))
       val emailResponseFromCr =
         """ {
           |  "address": "foo@bar.wibble",
@@ -279,7 +280,7 @@ class RegistrationEmailControllerISpec extends IntegrationSpecBase with LoginStu
     }
     "return 303 to post sign in if user is already verified in CR backend" in new Setup {
       stubAuthorisation()
-      stubSuccessfulLogin(userId = userId, otherParamsForAuth = Some(Json.obj("name" -> "foobar")))
+      stubSuccessfulLogin(userId = userId, otherParamsForAuth = Some(nameAndCredId))
       val emailResponseFromCr =
         """ {
           |  "address": "foo@bar.wibble",
@@ -312,10 +313,9 @@ class RegistrationEmailControllerISpec extends IntegrationSpecBase with LoginStu
     }
 
 
-      "return 303 to completion capacity if SCP Enabled and email is SCP Verified" in new Setup {
-          setupFeatures(scpEnabled = true)
+      "return 303 to completion capacity if SCP Verified" in new Setup {
           stubAuthorisation()
-          stubSuccessfulLogin(userId = userId, otherParamsForAuth = Some(Json.obj("name" -> "foobar", "emailVerified" -> true)))
+          stubSuccessfulLogin(userId = userId,otherParamsForAuth = Some(nameAndCredId.deepMerge(Json.obj(  "emailVerified" -> true))))
           stubKeystore(SessionId, regId)
           stubPut("/company-registration/corporation-tax-registration/test/update-email", 200,
               """ {
@@ -358,5 +358,4 @@ class RegistrationEmailControllerISpec extends IntegrationSpecBase with LoginStu
         res.header(HeaderNames.LOCATION).get shouldBe controllers.reg.routes.CompletionCapacityController.show().url
         }
   }
-
 }

@@ -73,7 +73,7 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
 
       when(mockHandBackService.storeConfirmationHandOff(Matchers.any(), Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(ConfirmationReferencesSuccessResponse(ConfirmationReferences("test", Some("test"), Some("test"), "test"))))
-      //TODO: add mock
+
       when(mockHandBackService.payloadHasForwardLinkAndNoPaymentRefs(Matchers.any()))
         .thenReturn(false)
 

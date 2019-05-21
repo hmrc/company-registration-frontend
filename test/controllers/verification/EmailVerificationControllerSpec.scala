@@ -30,6 +30,7 @@ import org.scalatest.mockito.MockitoSugar
 import play.api.i18n.MessagesApi
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name, ~}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
 
@@ -89,6 +90,14 @@ class EmailVerificationControllerSpec extends CompanyRegistrationConnectorMock w
   }
 
   "resendVerificationLink" should {
+    val authResult = new ~(
+      new ~(
+        new ~(
+          Name(None,None),
+          Some("fakeEmail")
+        ), Credentials("provId", "provType")
+      ), Some("extID")
+    )
     "redirect to email verification page when resend is link is clicked" in new Setup {
       val email = "unverified"
       mockKeystoreFetchAndGet[String]("registrationID", Some("regid"))
@@ -96,10 +105,10 @@ class EmailVerificationControllerSpec extends CompanyRegistrationConnectorMock w
       when(mockEmailService.fetchEmailBlock(Matchers.eq("regid"))(Matchers.any[HeaderCarrier]())).
         thenReturn(Some(testUnVerifiedEmail))
 
-      when(mockEmailService.sendVerificationLink(Matchers.eq(email),Matchers.eq("regid"))(Matchers.any[HeaderCarrier](),Matchers.any())).
+      when(mockEmailService.sendVerificationLink(Matchers.eq(email),Matchers.eq("regid"),Matchers.any(),Matchers.any())(Matchers.any[HeaderCarrier](),Matchers.any())).
         thenReturn(Some(false))
 
-      showWithAuthorisedUser(controller.resendVerificationLink) {
+      showWithAuthorisedUserRetrieval(controller.resendVerificationLink, authResult) {
         result =>
           status(result) shouldBe 303
           redirectLocation(result) map {
