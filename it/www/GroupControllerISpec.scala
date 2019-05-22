@@ -142,6 +142,77 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with FakeA
       response.status shouldBe 400
     }
   }
+"pSCGroupHandBack" should {
+  "redirect to group utr with full group block" in new Setup {
+    stubSuccessfulLogin(userId = userId)
+    stubFootprint(200, footprintResponse(regId))
+    stubKeystore(SessionId, regId)
+    stubGet(s"/company-registration/corporation-tax-registration/$regId/confirmation-references", 200, s"""  {
+                                                                                                          |        "acknowledgement-reference" : "ABCD00000000001",
+                                                                                                          |        "transaction-id" : "$txid",
+                                                                                                          |        "payment-reference" : "PAY_REF-123456789",
+                                                                                                          |        "payment-amount" : "12"
+                                                                                                          |    }""".stripMargin)
+    val groups = Json.parse("""{
+                              |   "groupRelief": true,
+                              |   "nameOfCompany": {
+                              |     "name": "foo",
+                              |     "nameType" : "Other"
+                              |   },
+                              |   "addressAndType" : {
+                              |     "addressType" : "ALF",
+                              |       "address" : {
+                              |         "line1": "1 abc",
+                              |         "line2" : "2 abc",
+                              |         "line3" : "3 abc",
+                              |         "line4" : "4 abc",
+                              |         "country" : "country A",
+                              |         "postcode" : "ZZ1 1ZZ"
+                              |     }
+                              |   },
+                              |   "groupUTR" : {
+                              |     "UTR" : "1234567890"
+                              |   }
+                              |}""".stripMargin).toString()
+    stubGet(s"/company-registration/corporation-tax-registration/$regId/groups",200, groups)
+    await(repo.repository.insertNavModel(regId, handOffNavModelDataUpTo3))
+    await(repo.repository.count) shouldBe 1
+
+    val fResponse = buildClient(controllers.handoff.routes.GroupController.pSCGroupHandBack(HO3B_PAYLOAD).url).
+      withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck").
+      get()
+
+    val response = await(fResponse)
+    response.status shouldBe 303
+    response.header(HeaderNames.LOCATION).get shouldBe "/register-your-company/owning-companys-utr"
+  }
+  "redirect to group relief with relief == false" in new Setup {
+    stubSuccessfulLogin(userId = userId)
+    stubFootprint(200, footprintResponse(regId))
+    stubKeystore(SessionId, regId)
+    stubGet(s"/company-registration/corporation-tax-registration/$regId/confirmation-references", 200, s"""  {
+                                                                                                          |        "acknowledgement-reference" : "ABCD00000000001",
+                                                                                                          |        "transaction-id" : "$txid",
+                                                                                                          |        "payment-reference" : "PAY_REF-123456789",
+                                                                                                          |        "payment-amount" : "12"
+                                                                                                          |    }""".stripMargin)
+    val groups = Json.parse("""{
+                              |   "groupRelief": false
+                              |
+                              |}""".stripMargin).toString()
+    stubGet(s"/company-registration/corporation-tax-registration/$regId/groups",200, groups)
+    await(repo.repository.insertNavModel(regId, handOffNavModelDataUpTo3))
+    await(repo.repository.count) shouldBe 1
+
+    val fResponse = buildClient(controllers.handoff.routes.GroupController.pSCGroupHandBack(HO3B_PAYLOAD).url).
+      withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck").
+      get()
+
+    val response = await(fResponse)
+    response.status shouldBe 303
+    response.header(HeaderNames.LOCATION).get shouldBe "/register-your-company/group-relief"
+  }
+}
 
   s"${controllers.handoff.routes.GroupController.PSCGroupHandOff().url}" should {
     "Redirect to PSC hand off url from 3-1 entry in nav Model with NO GROUPS in cr" in new Setup {

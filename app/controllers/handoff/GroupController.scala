@@ -133,7 +133,7 @@ trait GroupController extends FrontendController with AuthFunction with I18nSupp
       }
       ctAuthorisedHandoff("HO3b-1", request) {
         registeredHandOff("HO3b-1", request) { regID =>
-          handBackService.processGroupsHandBack(request).flatMap {
+          handBackService.processGroupsHandBck(request).flatMap {
             case Success(_) => groupService.retrieveGroups(regID).map(groupsRedirect)
             case Failure(PayloadError) => Future.successful(BadRequest(error_template_restart("3b-1", "PayloadError")))
             case Failure(DecryptionError) => Future.successful(BadRequest(error_template_restart("3b-1", "DecryptionError")))
