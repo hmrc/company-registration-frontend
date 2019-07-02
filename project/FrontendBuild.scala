@@ -10,7 +10,7 @@ object FrontendBuild extends Build with MicroService {
   override lazy val playSettings : Seq[Setting[_]] = Seq(
     dependencyOverrides += "org.scala-lang" % "scala-library" % "2.11.8",
     dependencyOverrides += "uk.gov.hmrc" %% "domain" % "5.6.0-play-25",
-    dependencyOverrides += "uk.gov.hmrc" %% "secure" % "7.0.0",
+    dependencyOverrides += "uk.gov.hmrc" %% "secure" % "7.10.0",
     dependencyOverrides += "io.netty" % "netty" % "3.9.8.Final",
     dependencyOverrides += "com.typesafe.play" % "twirl-api_2.11" % "1.1.1"
   )
@@ -22,8 +22,8 @@ private object AppDependencies {
 
   val compile = Seq(
     ws,
-    "uk.gov.hmrc" %% "bootstrap-play-25" % "4.11.0",
-    "uk.gov.hmrc" %% "auth-client" % "2.21.0-play-25",
+    "uk.gov.hmrc" %% "bootstrap-play-25" % "4.13.0",
+    "uk.gov.hmrc" %% "auth-client" % "2.22.0-play-25",
     "uk.gov.hmrc" %% "play-partials" % "6.9.0-play-25",
     "uk.gov.hmrc" %% "url-builder" % "2.1.0",
     "uk.gov.hmrc" %% "http-caching-client" % "8.4.0-play-25",
@@ -35,7 +35,7 @@ private object AppDependencies {
     "uk.gov.hmrc" %% "play-language" % "3.4.0",
     "uk.gov.hmrc" %% "play-reactivemongo" % "6.7.0",
     "uk.gov.hmrc" %% "govuk-template" % "5.27.0-play-25",
-    "uk.gov.hmrc" %% "play-ui" % "7.39.0-play-25"
+    "uk.gov.hmrc" %% "play-ui" % "7.40.0-play-25"
   )
 
   def defaultTest(scope: String) = Seq(
@@ -44,7 +44,7 @@ private object AppDependencies {
       "org.pegdown" % "pegdown" % "1.6.0" % scope,
       "org.jsoup" % "jsoup" % "1.10.2" % scope,
       "com.typesafe.play" %% "play-test" % PlayVersion.current % scope,
-      "uk.gov.hmrc" %% "hmrctest" % "3.8.0-play-25" % scope,
+      "uk.gov.hmrc" %% "hmrctest" % "3.9.0-play-25" % scope,
       "org.mockito" % "mockito-all" % "2.0.2-beta" % scope
   )
 
