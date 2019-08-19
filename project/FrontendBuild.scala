@@ -22,19 +22,19 @@ private object AppDependencies {
 
   val compile = Seq(
     ws,
-    "uk.gov.hmrc" %% "bootstrap-play-25" % "4.13.0",
-    "uk.gov.hmrc" %% "auth-client" % "2.22.0-play-25",
+    "uk.gov.hmrc" %% "bootstrap-play-25" % "4.14.0",
+    "uk.gov.hmrc" %% "auth-client" % "2.27.0-play-25",
     "uk.gov.hmrc" %% "play-partials" % "6.9.0-play-25",
-    "uk.gov.hmrc" %% "url-builder" % "2.1.0",
+    "uk.gov.hmrc" %% "url-builder" % "3.3.0-play-25",
     "uk.gov.hmrc" %% "http-caching-client" % "8.4.0-play-25",
-    "uk.gov.hmrc" %% "play-conditional-form-mapping" % "0.2.0",
+    "uk.gov.hmrc" %% "play-conditional-form-mapping" % "1.1.0-play-25",
     "org.bitbucket.b_c" % "jose4j" % "0.5.0",
     "uk.gov.hmrc" %% "time" % "3.6.0",
     "uk.gov.hmrc" %% "play-whitelist-filter" % "2.0.0",
     "commons-validator" % "commons-validator" % "1.6",
     "uk.gov.hmrc" %% "play-language" % "3.4.0",
     "uk.gov.hmrc" %% "play-reactivemongo" % "6.7.0",
-    "uk.gov.hmrc" %% "govuk-template" % "5.27.0-play-25",
+    "uk.gov.hmrc" %% "govuk-template" % "5.37.0-play-25",
     "uk.gov.hmrc" %% "play-ui" % "7.40.0-play-25"
   )
 
