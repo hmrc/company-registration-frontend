@@ -48,7 +48,7 @@ trait WiremockHelper {
 
   def resetWiremock() = WireMock.reset()
 
-  def buildClient(path: String) = ws.url(s"http://localhost:$port/register-your-company${path.replace("""/register-your-company""","")}").withFollowRedirects(false)
+  def buildClient(path: String) = ws.url(s"http://localhost:$port/register-your-company${path.replace("""/register-your-company""", "")}").withFollowRedirects(false)
 
   def listAllStubs = listAllStubMappings
 
@@ -80,19 +80,33 @@ trait WiremockHelper {
       )
     )
 
+  def stubPut(url: String, requestBody: String)(status: Integer, responseBody: String) =
+    stubFor(put(urlMatching(url))
+      .withRequestBody(equalTo(requestBody))
+      .willReturn(
+        aResponse().
+          withStatus(status).
+          withBody(responseBody)
+      )
+    )
+
   def stubBusinessRegRetrieveMetaDataNoRegId(responseStatus: Int, expectedBody: String) = {
     stubGet(url = "/business-registration/business-tax-registration", status = responseStatus, body = expectedBody)
   }
+
   def stubBusinessRegRetrieveMetaDataWithRegId(regID: String, responseStatus: Int, expectedBody: String) = {
     stubGet(url = s"/business-registration/business-tax-registration/$regID", status = responseStatus, body = expectedBody)
   }
-  def stubUpdateBusinessRegistrationCompletionCapacity(regID: String, responseStatus: Int, body: String)  = {
+
+  def stubUpdateBusinessRegistrationCompletionCapacity(regID: String, responseStatus: Int, body: String) = {
     stubPost(s"/business-registration/business-tax-registration/update/$regID", responseStatus, body)
   }
-  def stubRetrieveCRCompanyDetails(regID: String, responseStatus: Int, body: String = "{}")  = {
+
+  def stubRetrieveCRCompanyDetails(regID: String, responseStatus: Int, body: String = "{}") = {
     stubGet(url = s"/company-registration/corporation-tax-registration/$regID/company-details", responseStatus, body)
   }
-  def stubUpdateCRCompanyDetails(regID: String, responseStatus: Int, body: String = "{}")  = {
+
+  def stubUpdateCRCompanyDetails(regID: String, responseStatus: Int, body: String = "{}") = {
     stubPut(url = s"/company-registration/corporation-tax-registration/$regID/company-details", responseStatus, body)
   }
 
@@ -126,7 +140,7 @@ trait WiremockHelper {
     )
   }
 
-  def stubKeystoreSave(session: String, regId: String, status: Int, key:String = "registrationID") = {
+  def stubKeystoreSave(session: String, regId: String, status: Int, key: String = "registrationID") = {
     val keystoreUrl = s"/keystore/company-registration-frontend/$session/data/registrationID"
     stubFor(put(urlMatching(keystoreUrl))
       .willReturn(aResponse().
