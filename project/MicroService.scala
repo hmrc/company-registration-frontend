@@ -15,9 +15,9 @@ trait MicroService {
 
   val appName: String
 
-  lazy val appDependencies : Seq[ModuleID] = ???
-  lazy val plugins : Seq[Plugins] = Seq.empty
-  lazy val playSettings : Seq[Setting[_]] = Seq.empty
+  lazy val appDependencies: Seq[ModuleID] = ???
+  lazy val plugins: Seq[Plugins] = Seq.empty
+  lazy val playSettings: Seq[Setting[_]] = Seq.empty
 
   lazy val scoverageSettings = {
     // Semicolon-separated list of regexs matching classes to exclude
@@ -36,8 +36,8 @@ trait MicroService {
       SbtGitVersioning,
       SbtDistributablesPlugin,
       SbtArtifactory)
-      ++ plugins : _*)
-    .settings(playSettings ++ scoverageSettings : _*)
+      ++ plugins: _*)
+    .settings(playSettings ++ scoverageSettings: _*)
     .settings(scalaSettings: _*)
     .settings(scalacOptions ++= Seq("-feature", "-unchecked", "-deprecation", "-language:reflectiveCalls"))
     .settings(publishingSettings: _*)
@@ -53,6 +53,6 @@ trait MicroService {
     )
     .configs(IntegrationTest)
     .settings(integrationTestSettings())
-    .settings( majorVersion := 2 )
-
+    .settings(majorVersion := 2)
+    .settings(javaOptions in IntegrationTest += "-Dlogger.resource=logback-test.xml")
 }
