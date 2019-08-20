@@ -234,7 +234,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
   "updateFeatureSwitch" should {
 
     "submit a valid feature switch form" in new Setup {
-      val request = FakeRequest().withFormUrlEncodedBody("firstHandOff" -> "true", "legacyEnv" -> "true")
+      val request = FakeRequest().withFormUrlEncodedBody("firstHandOff" -> "true", "legacyEnv" -> "true", "takeovers" -> "true")
       val result = controller.updateFeatureSwitch()(request)
 
       status(result) shouldBe OK

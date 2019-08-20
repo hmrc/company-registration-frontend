@@ -24,7 +24,6 @@
 @main_template(title = "Feature switch", mainClass = Some("full-width")) {
 
 <div class="grid-row">
-    <div class="column-one-third">
 
             <h1 class="form-title heading-large" id="main-heading">Feature switch</h1>
 
@@ -46,11 +45,19 @@
             '_labelClass -> "block-label radio-label",
             '_groupClass -> "form-group inline"
             )
+
+            <h2>Takeovers section</h2>
+            @inputRadioGroup(
+                featureSwitchForm("takeovers"),
+                Seq("true" -> "Enabled", "false" -> "Disabled"),
+                '_labelClass -> "block-label radio-label",
+                '_groupClass -> "form-group inline"
+            )
+
             <div class="form-group">
                 <input class="button" type="submit" id="next" value="Submit">
             </div>
         }
-    </div>
 
 </div>
 }

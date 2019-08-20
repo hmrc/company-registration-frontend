@@ -103,6 +103,7 @@ trait SCRSFeatureSwitches {
   val featureSwitchManager: FeatureSwitchManager
   val COHO: String
   val LEGACY_ENV: String = "legacyEnv"
+  val takeoversKey: String = "takeovers"
 
   def cohoFirstHandOff          = featureSwitchManager.getProperty(COHO)
   def businessActivitiesHandOff = featureSwitchManager.getProperty("businessActivitiesHandOff")
@@ -112,6 +113,7 @@ trait SCRSFeatureSwitches {
   def legacyEnv                 = featureSwitchManager.getProperty(LEGACY_ENV)
   def systemDate                = featureSwitchManager.getProperty("system-date")
   def healthCheck               = featureSwitchManager.getProperty("healthCheck")
+  def takeovers: FeatureSwitch                 = featureSwitchManager.getProperty(takeoversKey)
 
   def apply(name: String): Option[FeatureSwitch] = name match {
     case COHO                        => Some(cohoFirstHandOff)
@@ -122,6 +124,7 @@ trait SCRSFeatureSwitches {
     case LEGACY_ENV                  => Some(legacyEnv)
     case "system-date"               => Some(systemDate)
     case "healthCheck"               => Some(healthCheck)
+    case `takeoversKey`              => Some(takeovers)
     case _                           => None
   }
 }

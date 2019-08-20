@@ -179,7 +179,8 @@ trait TestEndpointController extends FrontendController with AuthFunction with C
     implicit request =>
       val firstHandOffSwitch = fetchFirstHandOffSwitch.toString
       val legacyEnvSwitch = fetchLegacyEnvSwitch.toString
-      val form = FeatureSwitchForm.form.fill(FeatureSwitch(firstHandOffSwitch, legacyEnvSwitch))
+      val takeoverSwitch = fetchTakeoverSwitch.toString
+      val form = FeatureSwitchForm.form.fill(FeatureSwitch(firstHandOffSwitch, legacyEnvSwitch, takeoverSwitch))
 
       Future.successful(Ok(views.html.test.FeatureSwitch(form)))
   }
@@ -191,7 +192,8 @@ trait TestEndpointController extends FrontendController with AuthFunction with C
         success => {
           Seq(
             BooleanFeatureSwitch(scrsFeatureSwitches.COHO, success.firstHandOff.toBoolean),
-            BooleanFeatureSwitch(scrsFeatureSwitches.LEGACY_ENV, success.legacyEnv.toBoolean)
+            BooleanFeatureSwitch(scrsFeatureSwitches.LEGACY_ENV, success.legacyEnv.toBoolean),
+            BooleanFeatureSwitch(scrsFeatureSwitches.takeoversKey, success.takeovers.toBoolean)
           ) foreach { fs =>
             fs.enabled match {
               case true => featureSwitchManager.enable(fs)
@@ -215,6 +217,13 @@ trait TestEndpointController extends FrontendController with AuthFunction with C
   private[test] def fetchLegacyEnvSwitch: Boolean = {
 
     scrsFeatureSwitches(scrsFeatureSwitches.LEGACY_ENV) match {
+      case Some(fs) => fs.enabled
+      case _ => false
+    }
+  }
+
+  private[test] def fetchTakeoverSwitch: Boolean = {
+    scrsFeatureSwitches(scrsFeatureSwitches.takeoversKey) match {
       case Some(fs) => fs.enabled
       case _ => false
     }
