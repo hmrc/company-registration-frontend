@@ -97,6 +97,9 @@ trait FrontendAppConfig extends ServicesConfig {
   lazy val loginURL = s"$companyAuthHost$loginPath"
   lazy val logoutURL = s"$companyAuthHost$logoutPath"
 
+  def prepopAddressUrl(registrationId: String): String =
+    s"${baseUrl("business-registration")}/business-registration/$registrationId/addresses"
+
   def continueURL(handOffID: Option[String], payload: Option[String]) = s"$loginCallback${routes.SignInOutController.postSignIn(None, handOffID, payload).url}"
 
   lazy val companyRegistrationUrl: String = baseUrl("company-registration")

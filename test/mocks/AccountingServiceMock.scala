@@ -41,4 +41,4 @@ trait AccountingServiceMock {
         .thenReturn(Future.successful(accountingDetailsResponse))
     }
   }
-  }
+}

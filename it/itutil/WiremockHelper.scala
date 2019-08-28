@@ -19,6 +19,7 @@ import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig
+import com.github.tomakehurst.wiremock.matching.StringValuePattern
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import org.scalatestplus.play.OneServerPerSuite
 import play.api.libs.ws.WSClient
@@ -68,6 +69,15 @@ trait WiremockHelper {
           withStatus(status).
           withBody(responseBody)
           withHeader(responseHeader._1, responseHeader._2)
+      )
+    )
+
+  def stubPostWithData(url: String, postData: String)(status: Int, responseBody: String): StubMapping =
+    stubFor(post(urlMatching(url))
+      .withRequestBody(equalTo(postData))
+      .willReturn(aResponse()
+        .withStatus(status)
+        .withBody(responseBody)
       )
     )
 
