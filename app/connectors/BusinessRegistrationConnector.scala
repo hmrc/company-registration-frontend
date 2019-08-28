@@ -17,7 +17,6 @@
 package connectors
 
 import javax.inject.Inject
-
 import config.{FrontendAppConfig, WSHttp}
 import models._
 import play.api.Logger
