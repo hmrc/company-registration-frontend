@@ -24,6 +24,7 @@ import org.jsoup.Jsoup
 import play.api.http.HeaderNames
 import play.api.libs.json.Json
 import play.api.test.FakeApplication
+import java.time.LocalDate
 
 
 class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with FakeAppConfig with Fixtures {
@@ -121,6 +122,7 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fak
 
       stubAuthorisation()
       val csrfToken = UUID.randomUUID().toString
+      val testYear = LocalDate.now.getYear + 1
 
       stubKeystore(SessionId, "5")
 
@@ -134,7 +136,7 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fak
         post(Map(
           "csrfToken"->Seq("xxx-ignored-xxx"),
           "businessStartDate"->Seq("futureDate"),
-          "businessStartDate-futureDate.year"->Seq("2020"),
+          "businessStartDate-futureDate.year"->Seq(testYear.toString),
           "businessStartDate-futureDate.month"->Seq("1"),
           "businessStartDate-futureDate.day"->Seq("2")
         ))
@@ -148,7 +150,7 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fak
       val captor = crPuts.get(0)
       val json = Json.parse(captor.getBodyAsString)
       (json \ "accountingDateStatus").as[String] shouldBe "FUTURE_DATE"
-      (json \ "startDateOfBusiness").as[String] shouldBe "2020-01-02"
+      (json \ "startDateOfBusiness").as[String] shouldBe s"$testYear-01-02"
     }
     "return a 400 showing error messages to the user" in {
       stubAuthorisation()
