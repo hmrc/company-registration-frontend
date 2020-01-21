@@ -86,7 +86,7 @@ trait JweDecryptor {
     Try(Json.parse(payload).validate[A]) flatMap(
       _ fold(
         errs => {
-          Logger.warn(errs.toString())
+          Logger.error(errs.toString())
           Failure(PayloadError)
         },
         valid => Success(valid)
