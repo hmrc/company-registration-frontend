@@ -25,7 +25,7 @@ This service is written in [Scala](http://www.scala-lang.org/) and [Play](http:/
 ## Run the application
 
 To run the application execute 
-(values for routes,keys and feature switches can be found in the service manager config repository): 
+(values for the keys can be found in the service manager config repository):
 
 ```
 sbt 'run 9970 -Dapplication.router=testOnlyDoNotUseInAppConf.Routes -Dmicroservice.services.JWE.key=<decryption_Key> -Dmicroservice.services.coho-api.token=<api_key> -Dfeature.pscHandOff=true' 
