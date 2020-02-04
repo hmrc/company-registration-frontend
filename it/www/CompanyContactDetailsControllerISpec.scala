@@ -4,14 +4,13 @@ package www
 import java.util.UUID
 
 import com.github.tomakehurst.wiremock.client.WireMock.{findAll, postRequestedFor, urlMatching}
-import itutil.{FakeAppConfig, IntegrationSpecBase, LoginStub, RequestsFinder}
+import itutil.{IntegrationSpecBase, LoginStub, RequestsFinder}
 import org.jsoup.Jsoup
 import play.api.http.HeaderNames
 import play.api.libs.json.{JsObject, Json}
-import play.api.test.FakeApplication
 
-class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with LoginStub with FakeAppConfig with RequestsFinder {
-  override implicit lazy val app = FakeApplication(additionalConfiguration = fakeConfig())
+class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with LoginStub with RequestsFinder {
+
   val userId = "/bar/foo"
   val csrfToken = UUID.randomUUID().toString
   val regId = "5"
@@ -51,13 +50,12 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
   "show" should {
 
     "return 200 when no data is returned from backend" in {
-
-      stubAuthorisation()
       stubSuccessfulLogin(userId = userId)
       stubKeystore(SessionId, regId)
       stubGet(s"/company-registration/corporation-tax-registration/$regId/retrieve-email", 200, emailResponseFromCRLowLevel)
       stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR())
       stubGet(s"/company-registration/corporation-tax-registration/$regId/contact-details", 404, "")
+      stubContactDetails(regId, 404)
 
       val fResponse = await(buildClient(controllers.reg.routes.CompanyContactDetailsController.show().url)
         .withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
@@ -108,20 +106,20 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
           |}
         """.stripMargin)
 
-      stubAuthorisation()
       stubSuccessfulLogin(userId = userId, otherParamsForAuth = Some(nameAndCredId))
       stubKeystore(SessionId, regId)
       stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR())
       stubPut(s"/company-registration/corporation-tax-registration/$regId/contact-details", 200, contactDetailsResp.toString())
-      val response = await(buildClient(controllers.reg.routes.CompanyContactDetailsController.submit().url).
-        withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck").post(
+      stubContactDetails(regId, 200)
+
+      val response = await(buildClient(controllers.reg.routes.CompanyContactDetailsController.submit().url)
+        .withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck").post(
         Map(
           "csrfToken"->Seq("xxx-ignored-xxx"),
           "contactDaytimeTelephoneNumber"-> Seq("12345678910"),
           "contactMobileNumber" -> Seq("1234567891011"),
           "contactEmail" -> Seq("foo@foo.com")))
       )
-
       response.status shouldBe 303
       response.header(HeaderNames.LOCATION).get shouldBe controllers.reg.routes.AccountingDatesController.show().url
       val audit = Json.parse(getRequestBody("post","/write/audit")).as[JsObject] \ "detail" \ "businessContactDetails"
@@ -134,7 +132,6 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
       stubSuccessfulLogin(userId = userId, otherParamsForAuth = Some(nameAndCredId))
       stubKeystore(SessionId, regId)
       stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR())
-
       val response = await(buildClient(controllers.reg.routes.CompanyContactDetailsController.submit().url).
         withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck").post(
         Map(
@@ -162,6 +159,7 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
       stubKeystore(SessionId, regId)
       stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR())
       stubPut(s"/company-registration/corporation-tax-registration/$regId/contact-details", 200, contactDetailsResp.toString())
+      stubContactDetails(regId, 200)
       val response = await(buildClient(controllers.reg.routes.CompanyContactDetailsController.submit().url).
         withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck").post(
         Map(
@@ -192,6 +190,7 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
       stubKeystore(SessionId, regId)
       stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR())
       stubPut(s"/company-registration/corporation-tax-registration/$regId/contact-details", 200, contactDetailsResp.toString())
+      stubContactDetails(regId, 200)
       val response = await(buildClient(controllers.reg.routes.CompanyContactDetailsController.submit().url).
         withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck").post(
         Map(

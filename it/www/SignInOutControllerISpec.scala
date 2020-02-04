@@ -24,11 +24,8 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import itutil._
 import org.jsoup.Jsoup
 import play.api.http.HeaderNames
-import play.api.test.FakeApplication
 
-class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with FakeAppConfig with RequestsFinder {
-
-  override implicit lazy val app = FakeApplication(additionalConfiguration = fakeConfig("microservice.services.JWE.key" -> testkey))
+class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with RequestsFinder {
 
   val userId = "/bar/foo"
   val testKeystoreKey = "testKey"
@@ -410,6 +407,8 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with F
 
   "Sign Out" should {
     "Return a redirect to GG sign out" in {
+      stubAuthorisation()
+
       val response = await(buildClient("/sign-out").get())
 
       response.status shouldBe 303
@@ -423,6 +422,8 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with F
     }
 
     "Return a redirect to GG sign out with relative continue URL" in {
+      stubAuthorisation()
+
       val continueURL = "/foo/bar"
       val response = await(buildClient(s"/sign-out?continueUrl=${encodeURL(continueURL)}").get())
 
@@ -437,6 +438,8 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with F
     }
 
     "Return a redirect to GG sign out with absolute continue URL" in {
+      stubAuthorisation()
+
       val continueURL = "http://foo.gov.uk/foo/bar"
       val response = await(buildClient(s"/sign-out?continueUrl=${encodeURL(continueURL)}").get())
 
@@ -451,6 +454,8 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with F
     }
 
     "Return a bad request if URL isn't valid" in {
+      stubAuthorisation()
+
       val continueURL = "//foo.gov.uk/foo/bar"
       val response = await(buildClient(s"/sign-out?continueUrl=${encodeURL(continueURL)}").get())
 

@@ -33,7 +33,7 @@ trait LoginStub extends SessionCookieBaker {
   private val defaultUser = "/foo/bar"
 
   val SessionId         = s"stubbed-${UUID.randomUUID}"
-  val invalidSessionId  = s"FAKE_PRF::NON-COMPSDOJ OMSDDf"
+  val invalidSessionId  = s"FAKE_PRF::NON-COMPSDOJ%OMSDDf"
 
   private def cookieData(additionalData: Map[String, String], userId: String = defaultUser, sessionId: String = SessionId): Map[String, String] = {
     Map(

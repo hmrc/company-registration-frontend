@@ -1,16 +1,14 @@
 
 package connectors
 
+import itutil.IntegrationSpecBase
 import itutil.servicestubs.BusinessRegistrationStub
-import itutil.{FakeAppConfig, IntegrationSpecBase}
 import models.Address
 import play.api.http.Status._
 import play.api.libs.json.Json
-import play.api.test.FakeApplication
 import uk.gov.hmrc.http.HeaderCarrier
 
-class PrepopAddressConnectorISpec extends IntegrationSpecBase with BusinessRegistrationStub with FakeAppConfig {
-  override implicit lazy val app: FakeApplication = FakeApplication(additionalConfiguration = fakeConfig())
+class PrepopAddressConnectorISpec extends IntegrationSpecBase with BusinessRegistrationStub {
 
   lazy val connector: PrepopAddressConnector = app.injector.instanceOf[PrepopAddressConnector]
   implicit val headerCarrier: HeaderCarrier = HeaderCarrier()
@@ -27,7 +25,7 @@ class PrepopAddressConnectorISpec extends IntegrationSpecBase with BusinessRegis
     val testRegId = "12345"
 
     def prepopAddressSeq(n: Int): Seq[Address] =
-      1 to n map(_ => Address(None, addrLine1, addrLine2, addrLine3, addrLine4, postcode, country))
+      1 to n map (_ => Address(None, addrLine1, addrLine2, addrLine3, addrLine4, postcode, country))
   }
 
   s"GET /business-registration/$testRegId/addresses" should {

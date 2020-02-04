@@ -16,16 +16,14 @@
 
 package connectors
 
-import itutil.{FakeAppConfig, IntegrationSpecBase}
+import itutil.IntegrationSpecBase
 import itutil.servicestubs.TakeoverStub
 import models.TakeoverDetails
 import play.api.http.Status._
 import play.api.libs.json.Json
-import play.api.test.FakeApplication
 import uk.gov.hmrc.http.HeaderCarrier
 
-class TakeoverConnectorISpec extends IntegrationSpecBase with TakeoverStub with FakeAppConfig {
-  override implicit lazy val app: FakeApplication = FakeApplication(additionalConfiguration = fakeConfig())
+class TakeoverConnectorISpec extends IntegrationSpecBase with TakeoverStub {
 
   lazy val takeoverConnector: TakeoverConnector = app.injector.instanceOf[TakeoverConnector]
   private implicit val headerCarrier: HeaderCarrier = HeaderCarrier()

@@ -16,30 +16,12 @@
 package www
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import itutil.{FakeAppConfig, IntegrationSpecBase, LoginStub}
+import itutil.{IntegrationSpecBase, LoginStub}
 import org.joda.time.LocalDate
 import org.jsoup.Jsoup
 import play.api.http.HeaderNames
-import play.api.test.FakeApplication
 
-class DashboardControllerISpec extends IntegrationSpecBase with LoginStub with FakeAppConfig {
-
-
-  override implicit lazy val app = FakeApplication(additionalConfiguration = fakeConfig(
-    "microservice.services.paye-registration.host" -> s"$mockHost",
-    "microservice.services.paye-registration.port" -> s"$mockPort",
-    "microservice.services.vat-registration.host" -> s"$mockHost",
-    "microservice.services.vat-registration.port" -> s"$mockPort",
-    "microservice.services.paye-registration-www.url-prefix" -> "paye-url",
-    "microservice.services.paye-registration-www.start-url" -> "/start",
-    "microservice.services.vat-registration-www.url-prefix" -> "vat-url",
-    "microservice.services.vat-registration-www.start-url" -> "/start",
-    "auditing.consumer.baseUri.host" -> s"$mockHost",
-    "auditing.consumer.baseUri.port" -> s"$mockPort",
-
-    "auditing.enabled" -> s"true",
-    "auditing.traceRequests" -> s"true"
-  ))
+class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
 
   val regId = "5"
   val localDate = LocalDate.now()
@@ -47,15 +29,16 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub with F
   val enrolmentsURI = "/test/enrolments"
   val timestamp = "2017-05-16T16:01:55Z"
 
-  val jsonOtherRegStatusDraft = s"""{
-                |   "status": "draft",
-                |   "lastUpdate": "$timestamp",
-                |   "cancelURL": "testCancelURL/$regId/del"
-                |}""".stripMargin
+  val jsonOtherRegStatusDraft =
+    s"""{
+       |   "status": "draft",
+       |   "lastUpdate": "$timestamp",
+       |   "cancelURL": "testCancelURL/$regId/del"
+       |}""".stripMargin
 
   val emailResult = """{ "address": "a@a.a", "type": "GG", "link-sent": true, "verified": false , "return-link-email-sent" : false}"""
 
-  def statusResponseFromCR(status:String = "draft", rID:String = "5") =
+  def statusResponseFromCR(status: String = "draft", rID: String = "5") =
     s"""
        |{
        |    "registrationID" : "$rID",
@@ -92,7 +75,7 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub with F
     )
   }
 
-  def stubKeystoreDashboard(session: String, regId: String, email : String) = {
+  def stubKeystoreDashboard(session: String, regId: String, email: String) = {
     val keystoreUrl = s"/keystore/company-registration-frontend/${session}"
 
     stubFor(get(urlMatching(keystoreUrl))
@@ -120,9 +103,9 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub with F
           withStatus(200).
           withBody(
             s"""{
-                |"taxable-threshold": "85000",
-                |"since": "2017-04-01"
-                |}""".stripMargin
+               |"taxable-threshold": "85000",
+               |"since": "2017-04-01"
+               |}""".stripMargin
           )
       )
     )
@@ -136,16 +119,16 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub with F
           withStatus(200).
           withBody(
             s"""{
-                |"taxable-threshold": "85000pounds",
-                |"since": "2017-04-01"
-                |}""".stripMargin
+               |"taxable-threshold": "85000pounds",
+               |"since": "2017-04-01"
+               |}""".stripMargin
           )
       )
     )
   }
 
 
-  def stubKeystoreDashboardMismatchedResult(session: String, regId: String, email : String, mismatchResult : Boolean) = {
+  def stubKeystoreDashboardMismatchedResult(session: String, regId: String, email: String, mismatchResult: Boolean) = {
     val keystoreUrl = s"/keystore/company-registration-frontend/${session}"
 
     stubFor(get(urlMatching(keystoreUrl))
@@ -154,13 +137,13 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub with F
           withStatus(200).
           withBody(
             s"""{
-                |"id": "${session}",
-                |"data": {
-                |  "registrationID": "${regId}",
-                |  "email" : "${email}",
-                |  "emailMismatchAudit" : $mismatchResult
-                |}
-                |}""".stripMargin
+               |"id": "${session}",
+               |"data": {
+               |  "registrationID": "${regId}",
+               |  "email" : "${email}",
+               |  "emailMismatchAudit" : $mismatchResult
+               |}
+               |}""".stripMargin
           )
       )
     )
@@ -173,9 +156,9 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub with F
           .withStatus(200).
           withBody(
             s"""{
-                |"id": "$sessionId",
-                |"data": {}
-                |}""".stripMargin
+               |"id": "$sessionId",
+               |"data": {}
+               |}""".stripMargin
           )
       )
     )
@@ -195,7 +178,7 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub with F
 
       setupFeatures(paye = true, vat = false)
 
-      stubSuccessfulLogin(userId=userId)
+      stubSuccessfulLogin(userId = userId)
       setupSimpleAuthWithEnrolmentsMocks(enrolmentsURI)
 
       stubKeystoreDashboard(SessionId, regId, "|||fake|||email")
@@ -209,7 +192,7 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub with F
       stubGet(s"$enrolmentsURI", 200, "[]")
 
       val fResponse = buildClient("/company-registration-overview").
-        withHeaders(HeaderNames.COOKIE -> getSessionCookie(userId=userId)).
+        withHeaders(HeaderNames.COOKIE -> getSessionCookie(userId = userId)).
         get()
 
       val response = await(fResponse)
@@ -237,7 +220,7 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub with F
 
       setupFeatures(paye = true)
 
-      stubSuccessfulLogin(userId=userId)
+      stubSuccessfulLogin(userId = userId)
       setupSimpleAuthWithEnrolmentsMocks(enrolmentsURI)
       stubVATThresholdAmount(LocalDate.now())
       stubKeystoreDashboardMismatchedResult(SessionId, regId, "|||fake|||email", true)
@@ -248,7 +231,7 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub with F
       stubGet(s"$enrolmentsURI", 200, "[]")
 
       val fResponse = buildClient("/company-registration-overview").
-        withHeaders(HeaderNames.COOKIE -> getSessionCookie(userId=userId)).
+        withHeaders(HeaderNames.COOKIE -> getSessionCookie(userId = userId)).
         get()
 
       val response = await(fResponse)
@@ -265,7 +248,7 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub with F
     "not display the VAT block when the vat feature switch is OFF" in {
       setupFeatures(paye = true)
 
-      stubSuccessfulLogin(userId=userId)
+      stubSuccessfulLogin(userId = userId)
       setupSimpleAuthWithEnrolmentsMocks(enrolmentsURI)
       stubVATThresholdAmount(LocalDate.now())
       stubKeystoreDashboard(SessionId, regId, "|||fake|||email")
@@ -278,7 +261,7 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub with F
       stubGet(s"$enrolmentsURI", 200, """[]""")
 
       val fResponse = buildClient("/company-registration-overview").
-        withHeaders(HeaderNames.COOKIE -> getSessionCookie(userId=userId)).
+        withHeaders(HeaderNames.COOKIE -> getSessionCookie(userId = userId)).
         get()
 
       val response = await(fResponse)
@@ -296,7 +279,7 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub with F
     "not display the dashboard if we get a non int value for the threshold" in {
       setupFeatures(paye = true)
 
-      stubSuccessfulLogin(userId=userId)
+      stubSuccessfulLogin(userId = userId)
       setupSimpleAuthWithEnrolmentsMocks(enrolmentsURI)
       stubIncorrectVATThresholdAmount(LocalDate.now())
       stubKeystoreDashboard(SessionId, regId, "|||fake|||email")
@@ -309,14 +292,13 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub with F
       stubGet(s"$enrolmentsURI", 200, """[]""")
 
       val fResponse = buildClient("/company-registration-overview").
-        withHeaders(HeaderNames.COOKIE -> getSessionCookie(userId=userId)).
+        withHeaders(HeaderNames.COOKIE -> getSessionCookie(userId = userId)).
         get()
 
       val response = await(fResponse)
       response.status shouldBe 500
 
     }
-
 
 
     "correctly display the VAT block" when {
@@ -347,32 +329,32 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub with F
         doc.getElementById("vatThreshold").text shouldBe "The current VAT registration threshold is £85,000."
       }
 
-        "the vat feature switch is ON and status is HELD" in {
-          setupFeatures(paye = true, vat = true)
+      "the vat feature switch is ON and status is HELD" in {
+        setupFeatures(paye = true, vat = true)
 
-          stubSuccessfulLogin(userId = userId)
-          setupSimpleAuthWithEnrolmentsMocks(enrolmentsURI)
-          stubVATThresholdAmount(LocalDate.now())
-          stubKeystoreDashboard(SessionId, regId, "|||fake|||email")
-          stubKeystoreCache(SessionId, "emailMismatchAudit")
+        stubSuccessfulLogin(userId = userId)
+        setupSimpleAuthWithEnrolmentsMocks(enrolmentsURI)
+        stubVATThresholdAmount(LocalDate.now())
+        stubKeystoreDashboard(SessionId, regId, "|||fake|||email")
+        stubKeystoreCache(SessionId, "emailMismatchAudit")
 
-          stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR("held", regId))
-          stubGet(s"/company-registration/corporation-tax-registration/$regId/fetch-held-time", 200, "1504774767050")
-          stubGet(s"/company-registration/corporation-tax-registration/$regId/retrieve-email", 200, emailResult)
-          stubGet(s"/paye-registration/$regId/status", 200, jsonOtherRegStatusDraft)
-          stubGet(s"/vatreg/$regId/status", 200, jsonOtherRegStatusDraft)
-          stubGet(s"$enrolmentsURI", 200, "[]")
+        stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR("held", regId))
+        stubGet(s"/company-registration/corporation-tax-registration/$regId/fetch-held-time", 200, "1504774767050")
+        stubGet(s"/company-registration/corporation-tax-registration/$regId/retrieve-email", 200, emailResult)
+        stubGet(s"/paye-registration/$regId/status", 200, jsonOtherRegStatusDraft)
+        stubGet(s"/vatreg/$regId/status", 200, jsonOtherRegStatusDraft)
+        stubGet(s"$enrolmentsURI", 200, "[]")
 
-          val fResponse = buildClient("/company-registration-overview").
-            withHeaders(HeaderNames.COOKIE -> getSessionCookie(userId = userId)).
-            get()
+        val fResponse = buildClient("/company-registration-overview").
+          withHeaders(HeaderNames.COOKIE -> getSessionCookie(userId = userId)).
+          get()
 
-          val response = await(fResponse)
-          response.status shouldBe 200
+        val response = await(fResponse)
+        response.status shouldBe 200
 
-          val doc = Jsoup.parse(response.body)
-          doc.getElementById("vatThreshold").text shouldBe "The current VAT registration threshold is £85,000."
-        }
+        val doc = Jsoup.parse(response.body)
+        doc.getElementById("vatThreshold").text shouldBe "The current VAT registration threshold is £85,000."
+      }
 
       "the vat feature switch is OFF and status is HELD" in {
         setupFeatures(paye = true)
