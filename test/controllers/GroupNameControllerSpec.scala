@@ -24,7 +24,7 @@ import models.{Email, NewAddress, _}
 import org.mockito.Matchers.any
 import org.mockito.Mockito._
 import org.mockito.{ArgumentMatcher, Matchers}
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.i18n.MessagesApi
 import play.api.libs.json.Json
 import play.api.mvc.{Request, Result, Results}

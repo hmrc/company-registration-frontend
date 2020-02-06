@@ -17,7 +17,7 @@
 @import uk.gov.hmrc.play.views.html.helpers.form
 @import views.html.helpers.inputRadioGroup
 
-@(cancelSelection : Form[Boolean])(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.FrontendAppConfig)
+@(cancelSelection : Form[Boolean])(implicit request: Request[_], messages: Messages, appConfig: config.FrontendAppConfig)
 
 @main_template(title = Messages("page.reg.cancelpaye.description"), mainClass = None){
 
@@ -28,12 +28,12 @@
           <br>
           <p>@Messages("page.reg.cancelpaye.p1")</p>
           <br>
-    
+
    @form(action = controllers.dashboard.routes.CancelRegistrationController.submitCancelPAYE()) {
         <div class="form-group">
             @inputRadioGroup(
                 cancelSelection("cancelService"),
-                Seq(("true",Messages("page.reg.cancelservice.radioYesLabel")),("false",Messages("page.reg.cancelservice.radioNoLabel"))),
+                Seq(("true", Messages("page.reg.cancelservice.radioYesLabel")),("false", Messages("page.reg.cancelservice.radioNoLabel"))),
                 '_fieldsetId -> "cancel-paye",
                 '_groupClass -> "inline",
                 '_labelClass -> "block-label radio-label",

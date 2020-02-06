@@ -16,12 +16,11 @@
 
 package controllers.reg
 
-import javax.inject.Inject
-
 import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthFunction
 import forms.AccountingDatesForm
+import javax.inject.Inject
 import models.{AccountingDatesModel, AccountingDetailsNotFoundResponse, AccountingDetailsSuccessResponse}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.Action
@@ -44,7 +43,7 @@ class AccountingDatesControllerImpl @Inject()(val authConnector: PlayAuthConnect
 
 trait AccountingDatesController extends FrontendController with AuthFunction with ControllerErrorHandler with SessionRegistration with I18nSupport {
 
-  val accountingService : AccountingService
+  val accountingService: AccountingService
   val metricsService: MetricsService
   val timeService: TimeService
   lazy val accDForm = new AccountingDatesForm(timeService)
@@ -73,8 +72,8 @@ trait AccountingDatesController extends FrontendController with AuthFunction wit
           val context = metricsService.saveAccountingDatesToCRTimer.time()
           data => {
             val updatedData = data.crnDate match {
-              case "whenRegistered"   => data.copy(crnDate = AccountingDatesModel.WHEN_REGISTERED, day = None, month = None, year = None)
-              case "futureDate"       => data.copy(crnDate = AccountingDatesModel.FUTURE_DATE)
+              case "whenRegistered" => data.copy(crnDate = AccountingDatesModel.WHEN_REGISTERED, day = None, month = None, year = None)
+              case "futureDate" => data.copy(crnDate = AccountingDatesModel.FUTURE_DATE)
               case "notPlanningToYet" => data.copy(crnDate = AccountingDatesModel.NOT_PLANNING_TO_YET, day = None, month = None, year = None)
             }
             accountingService.updateAccountingDetails(updatedData) map {

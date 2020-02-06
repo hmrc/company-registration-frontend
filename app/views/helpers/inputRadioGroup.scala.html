@@ -19,7 +19,7 @@
 @import play.api.i18n._
 @import views.html.helper._
 
-@elements = @{new FieldElements(field.id, field, null, args.toMap, messages) }
+@elements = @{new FieldElements(field.id, field, Html(""), args.toMap, messages) }
 @fieldsetClass = {@elements.args.get('_groupClass)@if(elements.hasErrors){ form-group-error}}
 @labelAfter = @{ elements.args.get('_labelAfter).getOrElse(false).asInstanceOf[Boolean] }
 <fieldset class="@fieldsetClass" id="@elements.field.name"

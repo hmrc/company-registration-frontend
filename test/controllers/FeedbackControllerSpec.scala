@@ -20,7 +20,7 @@ import config.FrontendAppConfig
 import mocks.SCRSMocks
 import org.mockito.Matchers
 import org.mockito.Mockito._
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.Mode.Mode
 import play.api.http.Status
 import play.api.i18n.MessagesApi
@@ -108,7 +108,7 @@ class FeedbackControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
   "POST /feedback" should {
     val fakePostRequest = FakeRequest("POST", "/register-your-company/feedback").withFormUrlEncodedBody("test" -> "test")
     "return form with thank you for valid selections" in new Setup {
-      when(mockHttp.POSTForm[HttpResponse](Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]())).thenReturn(
+      when(mockHttp.POSTForm[HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]())).thenReturn(
         Future.successful(HttpResponse(Status.OK, responseString = Some("1234"))))
 
       val result = target.submit(fakePostRequest)
@@ -116,21 +116,21 @@ class FeedbackControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
     }
 
     "return form with errors for invalid selections" in new Setup {
-      when(mockHttp.POSTForm[HttpResponse](Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]())).thenReturn(
+      when(mockHttp.POSTForm[HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]())).thenReturn(
         Future.successful(HttpResponse(Status.BAD_REQUEST, responseString = Some("<p>:^(</p>"))))
       val result = target.submit(fakePostRequest)
       status(result) shouldBe Status.BAD_REQUEST
     }
 
     "return error for other http code back from contact-frontend" in new Setup {
-      when(mockHttp.POSTForm[HttpResponse](Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]())).thenReturn(
+      when(mockHttp.POSTForm[HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]())).thenReturn(
         Future.successful(HttpResponse(418))) // 418 - I'm a teapot
       val result = target.submit(fakePostRequest)
       status(result) shouldBe Status.INTERNAL_SERVER_ERROR
     }
 
     "return internal server error when there is an empty form" in new Setup {
-      when(mockHttp.POSTForm[HttpResponse](Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]())).thenReturn(
+      when(mockHttp.POSTForm[HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]())).thenReturn(
         Future.successful(HttpResponse(Status.OK, responseString = Some("1234"))))
 
       val result = target.submit(fakeRequest)

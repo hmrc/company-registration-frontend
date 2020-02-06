@@ -20,7 +20,7 @@ import ch.qos.logback.classic.Level
 import mocks.{CompanyRegistrationConnectorMock, KeystoreMock}
 import org.mockito.Mockito._
 import org.scalatest.concurrent.Eventually
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import org.scalatest.{BeforeAndAfter, LoneElement}
 import play.api.Logger
 import play.api.mvc.Results

@@ -21,7 +21,7 @@ import controllers.reg.QuestionnaireController
 import mocks.{MetricServiceMock, SCRSMocks}
 import org.mockito.Matchers
 import org.mockito.Mockito.when
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.Mode.Mode
 import play.api.i18n.MessagesApi
 import play.api.mvc.{AnyContent, Request}

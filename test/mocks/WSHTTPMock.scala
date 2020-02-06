@@ -19,7 +19,7 @@ package mocks
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.mockito.stubbing.OngoingStubbing
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.Writes
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads}
 import uk.gov.hmrc.play.http.ws.WSHttp
@@ -48,7 +48,7 @@ trait WSHTTPMock {
     }
 
     def mockHttpPUT[I, O](url: String, thenReturn: O, mockWSHttp: WSHttp = mockWSHttp): OngoingStubbing[Future[O]] = {
-      when(mockWSHttp.PUT[I, O](Matchers.anyString(), Matchers.any[I]())
+      when(mockWSHttp.PUT[I, O](Matchers.anyString(), Matchers.any[I](), Matchers.any())
         (Matchers.any[Writes[I]](), Matchers.any[HttpReads[O]](), Matchers.any[HeaderCarrier](), Matchers.any()))
         .thenReturn(Future.successful(thenReturn))
     }

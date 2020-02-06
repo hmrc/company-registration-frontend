@@ -23,10 +23,12 @@ import controllers.groups.GroupAddressController
 import helpers.SCRSSpec
 import models._
 import org.jsoup.Jsoup
+import org.jsoup.nodes.Element
+import org.jsoup.select.Elements
 import org.mockito.Matchers.any
 import org.mockito.Mockito.when
 import org.mockito.{ArgumentMatcher, Matchers}
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.i18n.MessagesApi
 import play.api.mvc.{Request, Result, Results}
 import play.api.test.FakeRequest
@@ -34,6 +36,7 @@ import play.api.test.Helpers._
 import services.{AddressLookupFrontendService, GroupPageEnum, GroupService}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.play.test.WithFakeApplication
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -140,7 +143,7 @@ class GroupAddressControllerspec extends SCRSSpec with WithFakeApplication with 
             val doc = Jsoup.parse(contentAsString(result))
             doc.getElementById("groupAddress-foo").attr("checked") shouldBe ""
             val label = await(doc.getElementsByTag("label")
-              .filter(e => !e.attr("for","groupAddress-foo").isEmpty)).first()
+              .filter{e: Elements => !e.attr("for","groupAddress-foo").isEmpty}).first()
             label.text shouldBe "bar"
             doc.getElementById("groupAddress-other").attr("checked") shouldBe ""
         }
@@ -164,7 +167,7 @@ class GroupAddressControllerspec extends SCRSSpec with WithFakeApplication with 
             val doc = Jsoup.parse(contentAsString(result))
             doc.getElementById("groupAddress-foo").attr("checked") shouldBe "checked"
             val label = await(doc.getElementsByTag("label")
-              .filter(e => !e.attr("for","groupAddress-foo").isEmpty)).first()
+              .filter{e: Elements => !e.attr("for","groupAddress-foo").isEmpty}).first()
             label.text shouldBe "bar"
             doc.getElementById("groupAddress-other").attr("checked") shouldBe ""
         }

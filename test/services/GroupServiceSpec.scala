@@ -19,7 +19,7 @@ import connectors.{CompanyRegistrationConnector, IncorpInfoConnector, KeystoreCo
 import mocks.SCRSMocks
 import models._
 import models.connectors.ConfirmationReferences
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.mvc.Results
 import play.api.test.Helpers._
 import uk.gov.hmrc.play.test.UnitSpec

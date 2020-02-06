@@ -20,7 +20,7 @@ import connectors._
 import org.mockito.Matchers
 import org.mockito.Mockito.when
 import org.mockito.stubbing.OngoingStubbing
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
@@ -31,17 +31,21 @@ trait ServiceConnectorMock {
 
   val mockServiceConnector = mock[ServiceConnector]
 
-  def getStatusMock(response: StatusResponse, mockConn: ServiceConnector = mockServiceConnector) : OngoingStubbing[Future[StatusResponse]] = {
-    when(mockConn.getStatus(Matchers.any[String])
+  def getStatusMock(regid: String)(response: StatusResponse, mockConn: ServiceConnector = mockServiceConnector): OngoingStubbing[Future[StatusResponse]] = {
+    when(mockConn.getStatus(Matchers.eq(regid))
     (Matchers.any[HeaderCarrier]))
       .thenReturn(Future.successful(response))
   }
-  def cancelRegMock(response:CancellationResponse, mockConn: ServiceConnector = mockServiceConnector): OngoingStubbing[Future[CancellationResponse]] = {
-    when(mockConn.cancelReg(Matchers.any[String])(Matchers.any[Function1[String, Future[StatusResponse]]]())(Matchers.any[HeaderCarrier])).thenReturn(Future.successful(response))
+
+  def cancelRegMock(regid: String)(response: CancellationResponse, mockConn: ServiceConnector = mockServiceConnector): OngoingStubbing[Future[CancellationResponse]] = {
+    when(mockConn.cancelReg(Matchers.eq(regid))(Matchers.any[String => Future[StatusResponse]]())(Matchers.any[HeaderCarrier]))
+      .thenReturn(Future.successful(response))
   }
-  def canStatusBeCancelledMock(response:Future[String], mockConn: ServiceConnector = mockServiceConnector)
-  :OngoingStubbing[Future[String]] ={
-    when(mockConn.canStatusBeCancelled(Matchers.any[String])
-    (Matchers.any[Function1[String, Future[StatusResponse]]]())(Matchers.any[HeaderCarrier])).thenReturn(response)
+
+  def canStatusBeCancelledMock(regid: String)(response: Future[String], mockConn: ServiceConnector = mockServiceConnector)
+  : OngoingStubbing[Future[String]] = {
+    when(mockConn.canStatusBeCancelled(Matchers.eq(regid))
+    (Matchers.any[String => Future[StatusResponse]]())(Matchers.any[HeaderCarrier]))
+      .thenReturn(response)
   }
 }

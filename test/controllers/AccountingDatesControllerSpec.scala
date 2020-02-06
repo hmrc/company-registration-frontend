@@ -44,7 +44,7 @@ class AccountingDatesControllerSpec extends SCRSSpec with WithFakeApplication wi
       override val metricsService: MetricsService = MetricServiceMock
       override val timeService: TimeService = fakeApplication.injector.instanceOf[TimeService]
       override val compRegConnector = mockCompanyRegistrationConnector
-      override val keystoreConnector= mockKeystoreConnector
+      override val keystoreConnector = mockKeystoreConnector
       implicit val appConfig: FrontendAppConfig = fakeApplication.injector.instanceOf[FrontendAppConfig]
       override val messagesApi = fakeApplication.injector.instanceOf[MessagesApi]
     }
@@ -52,7 +52,7 @@ class AccountingDatesControllerSpec extends SCRSSpec with WithFakeApplication wi
 
   "The AccountingDatesController" should {
     "be using the correct save4later connector" in new Setup {
-      controller.accountingService shouldBe a [AccountingService]
+      controller.accountingService shouldBe a[AccountingService]
     }
   }
 
@@ -89,7 +89,7 @@ class AccountingDatesControllerSpec extends SCRSSpec with WithFakeApplication wi
 
     "Redirect to account preparation if the user chooses when registered" in new Setup {
       AccountingServiceMocks.updateAccountingDetails(validAccountingResponse)
-      val request = FakeRequest().withFormUrlEncodedBody(whenRegisteredData.toSeq : _*)
+      val request = FakeRequest().withFormUrlEncodedBody(whenRegisteredData.toSeq: _*)
       submitWithAuthorisedUser(controller.submit, request)(
         result => {
           status(result) shouldBe SEE_OTHER
@@ -100,7 +100,7 @@ class AccountingDatesControllerSpec extends SCRSSpec with WithFakeApplication wi
 
     "Redirect to account preparation if the user chooses Future date" in new Setup {
       AccountingServiceMocks.updateAccountingDetails(validAccountingResponse)
-      val request = FakeRequest().withFormUrlEncodedBody(futureDateData.toSeq : _*)
+      val request = FakeRequest().withFormUrlEncodedBody(futureDateData.toSeq: _*)
       submitWithAuthorisedUser(controller.submit, request)(
         result => {
           status(result) shouldBe SEE_OTHER
@@ -111,7 +111,7 @@ class AccountingDatesControllerSpec extends SCRSSpec with WithFakeApplication wi
 
     "Redirect to account preparation if the user chooses 'not planning to yet'" in new Setup {
       AccountingServiceMocks.updateAccountingDetails(validAccountingResponse)
-      val request = FakeRequest().withFormUrlEncodedBody(notPlanningToYetdata.toSeq : _*)
+      val request = FakeRequest().withFormUrlEncodedBody(notPlanningToYetdata.toSeq: _*)
       submitWithAuthorisedUser(controller.submit, request)(
         result => {
           status(result) shouldBe SEE_OTHER
@@ -121,8 +121,8 @@ class AccountingDatesControllerSpec extends SCRSSpec with WithFakeApplication wi
     }
 
     "return a 400 when an invalid form is presented" in new Setup {
-      val request = FakeRequest().withFormUrlEncodedBody(invalidDateData.toSeq : _*)
-      submitWithAuthorisedUser(controller.submit, request){
+      val request = FakeRequest().withFormUrlEncodedBody(invalidDateData.toSeq: _*)
+      submitWithAuthorisedUser(controller.submit, request) {
         result =>
           status(result) shouldBe BAD_REQUEST
       }
@@ -130,8 +130,8 @@ class AccountingDatesControllerSpec extends SCRSSpec with WithFakeApplication wi
 
     "return a 404 when a not found response is returned from company-registration" in new Setup {
       AccountingServiceMocks.updateAccountingDetails(AccountingDetailsNotFoundResponse)
-      val request = FakeRequest().withFormUrlEncodedBody(whenRegisteredData.toSeq : _*)
-      submitWithAuthorisedUser(controller.submit, request){
+      val request = FakeRequest().withFormUrlEncodedBody(whenRegisteredData.toSeq: _*)
+      submitWithAuthorisedUser(controller.submit, request) {
         result =>
           status(result) shouldBe NOT_FOUND
       }
@@ -139,8 +139,8 @@ class AccountingDatesControllerSpec extends SCRSSpec with WithFakeApplication wi
 
     "return a 400 when a bad request response is returned from company-registration" in new Setup {
       AccountingServiceMocks.updateAccountingDetails(AccountingDetailsBadRequestResponse)
-      val request = FakeRequest().withFormUrlEncodedBody(notPlanningToYetdata.toSeq : _*)
-      submitWithAuthorisedUser(controller.submit, request){
+      val request = FakeRequest().withFormUrlEncodedBody(notPlanningToYetdata.toSeq: _*)
+      submitWithAuthorisedUser(controller.submit, request) {
         result =>
           status(result) shouldBe BAD_REQUEST
       }
