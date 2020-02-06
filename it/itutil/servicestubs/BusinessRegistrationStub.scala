@@ -5,10 +5,10 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import connectors.PrepopAddresses
 import itutil.WiremockHelper
 import models.Address
-import org.scalatestplus.play.OneServerPerSuite
+import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.libs.json.{JsValue, Json}
 
-trait BusinessRegistrationStub extends WiremockHelper { this: OneServerPerSuite =>
+trait BusinessRegistrationStub extends WiremockHelper { this: GuiceOneServerPerSuite =>
 
   private def busRegUrl(registrationId: String): String =
     s"/business-registration/$registrationId/addresses"

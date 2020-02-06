@@ -17,30 +17,72 @@ package itutil
 
 import org.scalatest._
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
-import org.scalatestplus.play.OneServerPerSuite
+import org.scalatestplus.play.guice.GuiceOneServerPerSuite
+import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.{Application, Environment, Mode}
 import uk.gov.hmrc.play.test.UnitSpec
 import utils.{FeatureSwitch, FeatureSwitchManager, SCRSFeatureSwitches}
+import WiremockHelper._
 
 trait IntegrationSpecBase extends UnitSpec
-  with GivenWhenThen
-  with OneServerPerSuite with ScalaFutures with IntegrationPatience with Matchers
-  with WiremockHelper with BeforeAndAfterEach with BeforeAndAfterAll {
+  with GivenWhenThen with GuiceOneServerPerSuite with ScalaFutures with Matchers
+  with WiremockHelper with BeforeAndAfterEach with BeforeAndAfterAll with IntegrationPatience {
 
-  val mockHost = WiremockHelper.wiremockHost
-  val mockPort = WiremockHelper.wiremockPort
   val testkey = "Fak3-t0K3n-f0r-pUBLic-r3p0SiT0rY"
+
+  override implicit lazy val app: Application = new GuiceApplicationBuilder()
+    .in(Environment.simple(mode = Mode.Test))
+    .configure(config)
+    .build
+
+  def config: Map[String, String] = Map(
+    "play.filters.csrf.header.bypassHeaders.X-Requested-With" -> "*",
+    "play.filters.csrf.header.bypassHeaders.Csrf-Token" -> "nocheck",
+    "auditing.consumer.baseUri.host" -> s"$wiremockHost",
+    "auditing.consumer.baseUri.port" -> s"$wiremockPort",
+    "microservice.services.gg-reg-fe.url" -> s"wibble",
+    "microservice.services.cachable.session-cache.host" -> s"$wiremockHost",
+    "microservice.services.cachable.session-cache.port" -> s"$wiremockPort",
+    "microservice.services.cachable.session-cache.domain" -> "keystore",
+    "microservice.services.auth.host" -> s"$wiremockHost",
+    "microservice.services.auth.port" -> s"$wiremockPort",
+    "microservice.services.company-registration.host" -> s"$wiremockHost",
+    "microservice.services.company-registration.port" -> s"$wiremockPort",
+    "microservice.services.incorp-info.host" -> s"$wiremockHost",
+    "microservice.services.incorp-info.port" -> s"$wiremockPort",
+    "microservice.services.address-lookup-frontend.host" -> s"$wiremockHost",
+    "microservice.services.address-lookup-frontend.port" -> s"$wiremockPort",
+    "microservice.services.business-registration.host" -> s"$wiremockHost",
+    "microservice.services.business-registration.port" -> s"$wiremockPort",
+    "microservice.timeoutInSeconds" -> "999999",
+    "microservice.services.email-vs.sendVerificationEmailURL" -> s"$url/sendVerificationEmailURL",
+    "microservice.services.email-vs.checkVerifiedEmailURL" -> s"$url/checkVerifiedEmailURL",
+    "microservice.services.paye-registration.host" -> s"$wiremockHost",
+    "microservice.services.paye-registration.port" -> s"$wiremockPort",
+    "microservice.services.vat-registration.host" -> s"$wiremockHost",
+    "microservice.services.vat-registration.port" -> s"$wiremockPort",
+    "microservice.services.paye-registration-www.url-prefix" -> "paye-url",
+    "microservice.services.paye-registration-www.start-url" -> "/start",
+    "microservice.services.vat-registration-www.url-prefix" -> "vat-url",
+    "microservice.services.vat-registration-www.start-url" -> "/start",
+    "auditing.enabled" -> s"true",
+    "auditing.traceRequests" -> s"true",
+    "microservice.services.JWE.key" -> testkey
+  )
 
   def setupFeatures(cohoFirstHandOff: Boolean = false,
                     businessActivitiesHandOff: Boolean = false,
                     paye: Boolean = false,
                     vat: Boolean = false,
-                    signPosting: Boolean = false) = {
-    def enableFeature(fs: FeatureSwitch, enabled: Boolean) = {
-      enabled match {
-        case true => app.injector.instanceOf[FeatureSwitchManager].enable(fs)
-        case _ => app.injector.instanceOf[FeatureSwitchManager].disable(fs)
+                    signPosting: Boolean = false): FeatureSwitch = {
+    def enableFeature(fs: FeatureSwitch, enabled: Boolean): FeatureSwitch = {
+      if (enabled) {
+        app.injector.instanceOf[FeatureSwitchManager].enable(fs)
+      } else {
+        app.injector.instanceOf[FeatureSwitchManager].disable(fs)
       }
     }
+
     enableFeature(app.injector.instanceOf[SCRSFeatureSwitches].cohoFirstHandOff, cohoFirstHandOff)
     enableFeature(app.injector.instanceOf[SCRSFeatureSwitches].businessActivitiesHandOff, businessActivitiesHandOff)
     enableFeature(app.injector.instanceOf[SCRSFeatureSwitches].paye, paye)
@@ -48,16 +90,17 @@ trait IntegrationSpecBase extends UnitSpec
 
   }
 
-  override def beforeEach() = {
+  override def beforeEach(): Unit = {
+    super.beforeEach()
     resetWiremock()
   }
 
-  override def beforeAll() = {
+  override def beforeAll(): Unit = {
     super.beforeAll()
     startWiremock()
   }
 
-  override def afterAll() = {
+  override def afterAll(): Unit = {
     stopWiremock()
     super.afterAll()
   }

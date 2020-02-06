@@ -3,28 +3,20 @@ package filters
 
 import itutil._
 import org.jsoup.Jsoup
-import org.scalatest.BeforeAndAfterEach
-import play.api.Application
 import play.api.http.HeaderNames
-import play.api.inject.guice.GuiceApplicationBuilder
 
 class SessionIdFilterISpec extends IntegrationSpecBase
   with LoginStub
-  with BeforeAndAfterEach
-  with WiremockHelper
-  with FakeAppConfig
   with MessagesHelper {
 
-
-  override implicit lazy val app: Application = GuiceApplicationBuilder()
-    .configure(fakeConfig())
-    .build()
+  override def beforeEach(): Unit = {}
 
   val regId = "reg-id-12345"
 
   "Loading the returning user page" should {
-
     "redirect to post-sign-in when an invalid sessionId exists" in {
+      stubAudit
+
       val response = await(buildClient("/setting-up-new-limited-company")
         .withHeaders(HeaderNames.COOKIE -> getSessionCookie(sessionId = invalidSessionId))
         .get())
@@ -34,6 +26,8 @@ class SessionIdFilterISpec extends IntegrationSpecBase
     }
 
     "successfully load the page when a valid session id exists" in {
+      stubAudit
+
       val response = await(buildClient("/setting-up-new-limited-company")
         .withHeaders(HeaderNames.COOKIE -> getSessionCookie())
         .get())

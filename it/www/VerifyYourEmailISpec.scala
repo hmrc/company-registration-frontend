@@ -16,17 +16,13 @@
 package www
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import itutil.{FakeAppConfig, IntegrationSpecBase, LoginStub}
+import itutil.{IntegrationSpecBase, LoginStub}
 import org.jsoup.Jsoup
-import org.scalatest.BeforeAndAfterEach
 import play.api.http.HeaderNames
-import play.api.test.FakeApplication
 
 import scala.concurrent.duration.FiniteDuration
 
-class VerifyYourEmailISpec extends IntegrationSpecBase with LoginStub with BeforeAndAfterEach with FakeAppConfig {
-
-  override implicit lazy val app = FakeApplication(additionalConfiguration = fakeConfig())
+class VerifyYourEmailISpec extends IntegrationSpecBase with LoginStub {
 
   val userId = "/wibble"
 
@@ -38,15 +34,15 @@ class VerifyYourEmailISpec extends IntegrationSpecBase with LoginStub with Befor
           withStatus(200).
           withBody(
             s"""{
-                |"id": "${session}",
-                |"data": {
-                |  "registrationID": "${regId}",
-                |  "email": "${email}"
-                |}
-                |}""".stripMargin
+               |"id": "${session}",
+               |"data": {
+               |  "registrationID": "${regId}",
+               |  "email": "${email}"
+               |}
+               |}""".stripMargin
           )
-        )
       )
+    )
   }
 
   "GET /ryc/verify-your-email" should {
@@ -63,10 +59,10 @@ class VerifyYourEmailISpec extends IntegrationSpecBase with LoginStub with Befor
           | }
         """.stripMargin
       val email = "foo@bar.wibble"
-      stubKeystore(SessionId, "5",  email)
-      stubGet("/company-registration/corporation-tax-registration/5/retrieve-email",200, emailResponseFromCr)
+      stubKeystore(SessionId, "5", email)
+      stubGet("/company-registration/corporation-tax-registration/5/retrieve-email", 200, emailResponseFromCr)
       val fResponse = buildClient("/sent-an-email").
-        withHeaders(HeaderNames.COOKIE -> getSessionCookie(userId=userId)).
+        withHeaders(HeaderNames.COOKIE -> getSessionCookie(userId = userId)).
         get()
 
       val response = await(fResponse)(FiniteDuration(10, "seconds"))

@@ -18,10 +18,11 @@ package itutil
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig
-import com.github.tomakehurst.wiremock.matching.StringValuePattern
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
-import org.scalatestplus.play.OneServerPerSuite
+import org.scalatestplus.play.guice.GuiceOneServerPerSuite
+import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
 
 object WiremockHelper {
@@ -31,14 +32,14 @@ object WiremockHelper {
 }
 
 trait WiremockHelper {
-  self: OneServerPerSuite =>
+  self: GuiceOneServerPerSuite =>
 
   import WiremockHelper._
 
-  lazy val ws = app.injector.instanceOf(classOf[WSClient])
+  lazy val ws: WSClient = app.injector.instanceOf(classOf[WSClient])
 
-  val wmConfig = wireMockConfig().port(wiremockPort) //.notifier(new ConsoleNotifier(true))
-  val wireMockServer = new WireMockServer(wmConfig)
+  lazy val wmConfig: WireMockConfiguration = wireMockConfig().port(wiremockPort)
+  lazy val wireMockServer = new WireMockServer(wmConfig)
 
   def startWiremock() = {
     wireMockServer.start()
@@ -119,6 +120,34 @@ trait WiremockHelper {
   def stubUpdateCRCompanyDetails(regID: String, responseStatus: Int, body: String = "{}") = {
     stubPut(url = s"/company-registration/corporation-tax-registration/$regID/company-details", responseStatus, body)
   }
+
+  def stubHandOffReference(regId: String, responseStatus: Int, transactionId: String = "testTxId"): StubMapping = {
+    stubPut(url = s"/company-registration/corporation-tax-registration/$regId/handOff2Reference-ackRef-save", responseStatus, Json.obj("transaction_id" -> transactionId).toString)
+  }
+
+  def stubContactDetails(regId: String, responseStatus: Int, body: String = "{}"): StubMapping = {
+    stubPost(url = s"/business-registration/$regId/contact-details", responseStatus, body)
+  }
+
+  def stubCorporationTaxRegistration(regId: String): StubMapping = {
+    stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200,
+      s"""{
+         |    "registrationID" : "${regId}",
+         |    "status" : "draft",
+         |        "verifiedEmail" : {
+         |        "address" : "user@test.com",
+         |        "type" : "GG",
+         |        "link-sent" : true,
+         |        "verified" : true,
+         |        "return-link-email-sent" : false
+         |    }
+         |}""".stripMargin)
+  }
+
+  def stubAudit: StubMapping = {
+    stubPost("/write/audit", 200, "{}")
+  }
+
 
   def stubKeystore(session: String, regId: String, status: Int = 200) = {
     val keystoreUrl = s"/keystore/company-registration-frontend/$session"

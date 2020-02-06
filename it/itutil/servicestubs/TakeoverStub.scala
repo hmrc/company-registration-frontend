@@ -18,11 +18,11 @@ package itutil.servicestubs
 
 import itutil.WiremockHelper
 import models.TakeoverDetails
-import org.scalatestplus.play.OneServerPerSuite
+import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.libs.json.Json
 
 trait TakeoverStub extends WiremockHelper {
-  this: OneServerPerSuite =>
+  this: GuiceOneServerPerSuite =>
   def takeoverUrl(registrationId: String) = s"/company-registration/corporation-tax-registration/$registrationId/takeover-details"
 
   def stubGetTakeoverDetails(registrationId: String, status: Int, optTakeoverDetails: Option[TakeoverDetails] = None): Unit = {

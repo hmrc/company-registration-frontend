@@ -17,29 +17,26 @@ package www
 
 import java.util.UUID
 
-import itutil.{FakeAppConfig, IntegrationSpecBase, LoginStub}
-import org.scalatest.BeforeAndAfterEach
+import itutil.{IntegrationSpecBase, LoginStub}
 import play.api.http.HeaderNames
 import play.api.libs.ws.WSResponse
-import play.api.test.FakeApplication
 
 import scala.concurrent.Future
 
-class ReturningUserControllerISpec extends IntegrationSpecBase with LoginStub with BeforeAndAfterEach with FakeAppConfig {
-
-
-  override implicit lazy val app = FakeApplication(additionalConfiguration = fakeConfig())
+class ReturningUserControllerISpec extends IntegrationSpecBase with LoginStub {
 
   val userId = "/wibble"
 
   "POST /setting-up-new-limited-company" should {
     val map = Map(
-      "csrfToken"-> Seq("xxx-ignored-xxx"),
+      "csrfToken" -> Seq("xxx-ignored-xxx"),
       "returningUser" -> Seq("true")
     )
 
 
     "redirect when starting a new registration to company registration eligibility frontend" in {
+      stubAudit
+
       val csrfToken = UUID.randomUUID().toString
       val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
 

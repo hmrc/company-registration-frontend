@@ -15,21 +15,18 @@
  */
 package www
 
+import java.time.LocalDate
 import java.util.UUID
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import fixtures.Fixtures
-import itutil.{FakeAppConfig, IntegrationSpecBase, LoginStub}
+import itutil.{IntegrationSpecBase, LoginStub}
 import org.jsoup.Jsoup
 import play.api.http.HeaderNames
 import play.api.libs.json.Json
-import play.api.test.FakeApplication
-import java.time.LocalDate
 
 
-class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with FakeAppConfig with Fixtures {
-
-  override implicit lazy val app = FakeApplication(additionalConfiguration = fakeConfig())
+class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fixtures {
   val userId = "/bar/foo"
 
   "GET Accounting Details" should {
@@ -37,13 +34,13 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fak
     "Return an unpopulated page if CR returns a NotFound response" in {
 
       stubAuthorisation()
-      stubSuccessfulLogin(userId=userId)
+      stubSuccessfulLogin(userId = userId)
 
       stubKeystore(SessionId, "5")
 
       stubGet("/company-registration/corporation-tax-registration/5/accounting-details", 404, "")
       val fResponse = buildClient(controllers.reg.routes.AccountingDatesController.show().url).
-        withHeaders(HeaderNames.COOKIE -> getSessionCookie(userId=userId)).
+        withHeaders(HeaderNames.COOKIE -> getSessionCookie(userId = userId)).
         get()
 
       stubGet("/company-registration/corporation-tax-registration/5/corporation-tax-registration", 200, statusResponseFromCR())
@@ -66,7 +63,7 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fak
     "Return an populated page if CR returns a response" in {
 
       stubAuthorisation()
-      stubSuccessfulLogin(userId=userId)
+      stubSuccessfulLogin(userId = userId)
 
       stubKeystore(SessionId, "5")
       stubGet("/company-registration/corporation-tax-registration/5/accounting-details", 404, "")
@@ -76,7 +73,7 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fak
       stubGet("/company-registration/corporation-tax-registration/5/accounting-details", 200, crResponse)
 
       val fResponse = buildClient(controllers.reg.routes.AccountingDatesController.show().url).
-        withHeaders(HeaderNames.COOKIE -> getSessionCookie(userId=userId)).
+        withHeaders(HeaderNames.COOKIE -> getSessionCookie(userId = userId)).
         get()
 
       val response = await(fResponse)
@@ -96,7 +93,7 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fak
     "Redirect to dashboard if status is NOT draft" in {
 
       stubAuthorisation()
-      stubSuccessfulLogin(userId=userId)
+      stubSuccessfulLogin(userId = userId)
 
       stubKeystore(SessionId, "5")
       stubGet("/company-registration/corporation-tax-registration/5/accounting-details", 404, "")
@@ -106,7 +103,7 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fak
       stubGet("/company-registration/corporation-tax-registration/5/accounting-details", 200, crResponse)
 
       val fResponse = buildClient(controllers.reg.routes.AccountingDatesController.show().url).
-        withHeaders(HeaderNames.COOKIE -> getSessionCookie(userId=userId)).
+        withHeaders(HeaderNames.COOKIE -> getSessionCookie(userId = userId)).
         get()
 
 
@@ -134,11 +131,11 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fak
       val fResponse = buildClient(controllers.reg.routes.AccountingDatesController.submit().url).
         withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").
         post(Map(
-          "csrfToken"->Seq("xxx-ignored-xxx"),
-          "businessStartDate"->Seq("futureDate"),
-          "businessStartDate-futureDate.year"->Seq(testYear.toString),
-          "businessStartDate-futureDate.month"->Seq("1"),
-          "businessStartDate-futureDate.day"->Seq("2")
+          "csrfToken" -> Seq("xxx-ignored-xxx"),
+          "businessStartDate" -> Seq("futureDate"),
+          "businessStartDate-futureDate.year" -> Seq(testYear.toString),
+          "businessStartDate-futureDate.month" -> Seq("1"),
+          "businessStartDate-futureDate.day" -> Seq("2")
         ))
 
       val response = await(fResponse)
@@ -161,18 +158,18 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fak
       val response = await(buildClient(controllers.reg.routes.AccountingDatesController.submit().url).
         withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").
         post(Map(
-          "csrfToken"->Seq("xxx-ignored-xxx"),
-          "businessStartDate"->Seq("futureDate"),
-          "businessStartDate-futureDate.year"->Seq("foo bar"),
-          "businessStartDate-futureDate.month"->Seq("wizz bang"),
-          "businessStartDate-futureDate.day"->Seq("buzz fuzzle")
+          "csrfToken" -> Seq("xxx-ignored-xxx"),
+          "businessStartDate" -> Seq("futureDate"),
+          "businessStartDate-futureDate.year" -> Seq("foo bar"),
+          "businessStartDate-futureDate.month" -> Seq("wizz bang"),
+          "businessStartDate-futureDate.day" -> Seq("buzz fuzzle")
         )))
 
-     response.status shouldBe 400
-     val doc = Jsoup.parse(response.body)
-     Option(doc.getElementById("invalidDay-error-summary")).isDefined shouldBe true
-     Option(doc.getElementById("invalidMonth-error-summary")).isDefined shouldBe true
-     Option(doc.getElementById("invalidYear-error-summary")).isDefined shouldBe true
+      response.status shouldBe 400
+      val doc = Jsoup.parse(response.body)
+      Option(doc.getElementById("invalidDay-error-summary")).isDefined shouldBe true
+      Option(doc.getElementById("invalidMonth-error-summary")).isDefined shouldBe true
+      Option(doc.getElementById("invalidYear-error-summary")).isDefined shouldBe true
     }
   }
 }

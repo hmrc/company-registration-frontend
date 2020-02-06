@@ -6,20 +6,18 @@ import java.util.UUID
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, stubFor, urlMatching}
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import config.FrontendAppConfig
-import itutil.{FakeAppConfig, IntegrationSpecBase, LoginStub}
+import itutil.{IntegrationSpecBase, LoginStub}
 import models.handoff._
 import play.api.http.HeaderNames
 import play.api.libs.json.{JsObject, Json}
-import play.api.test.FakeApplication
 import play.modules.reactivemongo.ReactiveMongoComponent
 import repositories.NavModelRepo
 import utils.JweCommon
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class BasicCompanyDetailsControllerISpec extends IntegrationSpecBase with LoginStub with FakeAppConfig {
+class BasicCompanyDetailsControllerISpec extends IntegrationSpecBase with LoginStub {
 
-  override implicit lazy val app = FakeApplication(additionalConfiguration = fakeConfig("microservice.services.JWE.key" -> testkey))
 
   val userId = "/bar/foo"
   val regId = "regId5"
@@ -33,7 +31,7 @@ class BasicCompanyDetailsControllerISpec extends IntegrationSpecBase with LoginS
     await(repo.repository.ensureIndexes)
   }
 
-  def returnEncryptedRequest(encrypted : String) = s"/return-to-about-you?request=$encrypted"
+  def returnEncryptedRequest(encrypted: String) = s"/return-to-about-you?request=$encrypted"
 
   val forwardPayloadString =
     s"""
@@ -162,9 +160,9 @@ class BasicCompanyDetailsControllerISpec extends IntegrationSpecBase with LoginS
 
       val csrfToken = UUID.randomUUID().toString
       val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
-      stubGet(s"/company-registration/corporation-tax-registration/$regId/retrieve-email",200, emailResponseFromCr)
+      stubGet(s"/company-registration/corporation-tax-registration/$regId/retrieve-email", 200, emailResponseFromCr)
       stubKeystore(SessionId, regId)
-      await(repo.repository.insertNavModel(regId,handOffNavModel))
+      await(repo.repository.insertNavModel(regId, handOffNavModel))
 
       stubGetUserDetails(userId)
 
@@ -173,8 +171,8 @@ class BasicCompanyDetailsControllerISpec extends IntegrationSpecBase with LoginS
         get()
 
       val response = await(fResponse)
-      val encryptedHandOffString  = response.header(HeaderNames.LOCATION).get.split("request=").takeRight(1)(0)
-      val decryptedHandoffJson  = app.injector.instanceOf[JweCommon].decrypt[JsObject](encryptedHandOffString).get
+      val encryptedHandOffString = response.header(HeaderNames.LOCATION).get.split("request=").takeRight(1)(0)
+      val decryptedHandoffJson = app.injector.instanceOf[JweCommon].decrypt[JsObject](encryptedHandOffString).get
 
       response.status shouldBe 303
       response.header(HeaderNames.LOCATION).get should include("/initial-coho-link")

@@ -2,14 +2,10 @@
 package www
 
 import fixtures.HandOffFixtures
-import itutil.{FakeAppConfig, IntegrationSpecBase, LoginStub}
-import play.api.Application
+import itutil.{IntegrationSpecBase, LoginStub}
 import play.api.http.HeaderNames
-import play.api.test.FakeApplication
 
-class HandOffsISpec extends IntegrationSpecBase with LoginStub with FakeAppConfig with HandOffFixtures {
-
-  override implicit lazy val app: Application = FakeApplication(additionalConfiguration = fakeConfig())
+class HandOffsISpec extends IntegrationSpecBase with LoginStub with HandOffFixtures {
 
   def followRequest(path: String) = ws.url(s"http://localhost:$port$path").withFollowRedirects(false)
 
@@ -62,6 +58,7 @@ class HandOffsISpec extends IntegrationSpecBase with LoginStub with FakeAppConfi
       stubSuccessfulLogin(userId = userId)
       stubUserDetails(userId, userDetails)
       stubFootprint(200, footprintResponse)
+      stubCorporationTaxRegistration(regId)
 
       And("Keystore has expired")
       stubKeystore(SessionId, regId, 404)
