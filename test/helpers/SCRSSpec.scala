@@ -20,15 +20,15 @@ import akka.actor.ActorSystem
 import akka.stream.{ActorMaterializer, Materializer}
 import mocks.SCRSMocks
 import org.mockito.Mockito._
-import org.scalatest.BeforeAndAfterEach
-import org.scalatest.mockito.MockitoSugar
+import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.util.Random
 
-trait SCRSSpec extends UnitSpec with MockitoSugar with SCRSMocks with BeforeAndAfterEach with JsonHelpers {
+trait SCRSSpec extends UnitSpec with MockitoSugar with SCRSMocks with BeforeAndAfterEach with BeforeAndAfterAll with JsonHelpers {
   implicit val hc = HeaderCarrier()
 
   def cTDoc(status: String, groupBlock: String) = Json.parse(
@@ -88,7 +88,7 @@ trait SCRSSpec extends UnitSpec with MockitoSugar with SCRSMocks with BeforeAndA
 
   private val alpha = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-  def randStr(n:Int) = (1 to n).map(x => alpha(Random.nextInt.abs % alpha.length)).mkString
+  def randStr(n: Int) = (1 to n).map(x => alpha(Random.nextInt.abs % alpha.length)).mkString
 }
 
 trait TestActorSystem {

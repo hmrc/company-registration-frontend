@@ -22,7 +22,7 @@ import play.api.i18n.Lang
 
 object CancelForm {
 
-  def form(implicit lang:Lang) = Form(
+  def form(implicit lang: Lang) = Form(
     mapping(
       "cancelService" -> boolean
     )(a => a)(a => Some(a))

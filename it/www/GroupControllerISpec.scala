@@ -10,6 +10,7 @@ import itutil._
 import models.handoff.{NavLinks, PSCHandOff}
 import models.{Groups, NewAddress}
 import org.jsoup.Jsoup
+import org.jsoup.select.Elements
 import play.api.http.HeaderNames
 import play.api.libs.json.{JsObject, Json}
 import play.modules.reactivemongo.ReactiveMongoComponent
@@ -538,7 +539,7 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
       val doc = Jsoup.parse(await(fResponse.body))
       doc.getElementById("groupAddress-alf").`val` shouldBe "ALF"
       val label = await(doc.getElementsByTag("label")
-        .filter(e => !e.attr("for", "groupAddress-alf").isEmpty)).first()
+        .filter {e: Elements => !e.attr("for", "groupAddress-alf").isEmpty}).first()
       label.text shouldBe "1 abc, 2 abc, 3 abc, 4 abc, ZZ1 1ZZ, country A"
     }
   }

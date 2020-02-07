@@ -19,7 +19,7 @@ package connectors
 import models.AccountingDatesModel
 import org.mockito.Matchers
 import org.mockito.Mockito._
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.Json
 import play.api.test.FakeApplication
 import play.api.test.Helpers._

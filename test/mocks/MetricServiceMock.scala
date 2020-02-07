@@ -17,7 +17,7 @@
 package mocks
 
 import com.codahale.metrics.{Counter, Timer}
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import services._
 
 object MetricServiceMock extends MetricsService with MockitoSugar {

@@ -17,20 +17,23 @@
 package controllers
 
 import javax.inject.Inject
-
 import play.api.i18n.{Lang, MessagesApi}
 import play.api.mvc.Call
 import play.api.{Application, Configuration}
-import uk.gov.hmrc.play.language.LanguageController
+import uk.gov.hmrc.play.language.{LanguageController, LanguageUtils}
 
 
-class CRLanguageController @Inject()(implicit override val messagesApi: MessagesApi, conf: Configuration, app: Application) extends LanguageController {
+class CRLanguageController @Inject()(implicit override val messagesApi: MessagesApi,
+                                     configuration: Configuration,
+                                     languageUtils: LanguageUtils,
+                                     app: Application)
+  extends LanguageController(configuration, languageUtils) {
 
   /** Converts a string to a URL, using the route to this controller. **/
   def langToCall(lang: String): Call = controllers.routes.CRLanguageController.switchToLanguage(lang)
 
   /** Provides a fallback URL if there is no referer in the request header. **/
-  override protected def fallbackURL: String = conf.getString(s"language.fallbackUrl").getOrElse("/")
+  override protected def fallbackURL: String = configuration.getString(s"language.fallbackUrl").getOrElse("/")
 
   /** Returns a mapping between strings and the corresponding Lang object. **/
   override def languageMap: Map[String, Lang] = Map(

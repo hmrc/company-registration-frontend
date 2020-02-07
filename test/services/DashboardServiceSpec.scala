@@ -79,7 +79,7 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
 
 
   class SetupWithDash(dash: IncorpAndCTDashboard) {
-      val service = new DashboardService {
+    val service = new DashboardService {
       override val companyRegistrationConnector = mockCompanyRegistrationConnector
       override val keystoreConnector = mockKeystoreConnector
       override val incorpInfoConnector = mockIncorpInfoConnector
@@ -99,10 +99,12 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
 
 
       override def buildIncorpCTDashComponent(regId: String, enrolments: Enrolments)(implicit hc: HeaderCarrier) = Future.successful(dash)
+
       override def getCompanyName(regId: String)(implicit hc: HeaderCarrier) = Future.successful("testCompanyName")
+
       override def getCurrentVatThreshold(implicit hc: HeaderCarrier) = ("85000")
 
-     }
+    }
   }
 
   override protected def afterEach(): Unit = {
@@ -115,75 +117,83 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
   val payRef = "payRef-12345"
   val ackRef = "ackRef-12345"
 
-    def ctRegJson(status: String): JsValue = Json.parse(
-        s"""
-      |{
-      |    "internalId" : "Int-xxx-xxx-xxx",
-      |    "registrationID" : "$regId",
-      |    "status" : "$status",
-      |    "formCreationTimestamp" : "2017-04-25T16:19:29+01:00",
-      |    "language" : "en",
-      |    "registrationProgress" : "HO5",
-      |    "accountingDetails" : {
-      |        "accountingDateStatus" : "WHEN_REGISTERED"
-      |    },
-      |    "accountsPreparation" : {
-      |        "businessEndDateChoice" : "HMRC_DEFINED"
-      |    },
-      |    "verifiedEmail" : {
-      |        "address" : "foo@bar.wibble",
-      |        "type" : "GG",
-      |        "link-sent" : true,
-      |        "verified" : true,
-      |        "return-link-email-sent" : true
-      |    },
-      |    "createdTime" : 1493133569538,
-      |    "lastSignedIn" : 1493133581149
-      |}
+  def ctRegJson(status: String): JsValue = Json.parse(
+    s"""
+       |{
+       |    "internalId" : "Int-xxx-xxx-xxx",
+       |    "registrationID" : "$regId",
+       |    "status" : "$status",
+       |    "formCreationTimestamp" : "2017-04-25T16:19:29+01:00",
+       |    "language" : "en",
+       |    "registrationProgress" : "HO5",
+       |    "accountingDetails" : {
+       |        "accountingDateStatus" : "WHEN_REGISTERED"
+       |    },
+       |    "accountsPreparation" : {
+       |        "businessEndDateChoice" : "HMRC_DEFINED"
+       |    },
+       |    "verifiedEmail" : {
+       |        "address" : "foo@bar.wibble",
+       |        "type" : "GG",
+       |        "link-sent" : true,
+       |        "verified" : true,
+       |        "return-link-email-sent" : true
+       |    },
+       |    "createdTime" : 1493133569538,
+       |    "lastSignedIn" : 1493133581149
+       |}
     """.stripMargin).as[JsObject] ++ addConfRefs(status) ++ addAckRefs(status)
 
-      def addConfRefs(status: String): JsValue = {
-        if(status != "draft"){
-            Json.parse(s"""
-        |{
-        |  "confirmationReferences" : {
-        |      "acknowledgement-reference":"$ackRef",
-        |      "transaction-id" : "$transId",
-        |      "payment-reference" : "$payRef",
-        |      "payment-amount" : "12"
-        |  }
-        |}
+  def addConfRefs(status: String): JsValue = {
+    if (status != "draft") {
+      Json.parse(
+        s"""
+           |{
+           |  "confirmationReferences" : {
+           |      "acknowledgement-reference":"$ackRef",
+           |      "transaction-id" : "$transId",
+           |      "payment-reference" : "$payRef",
+           |      "payment-amount" : "12"
+           |  }
+           |}
       """.stripMargin)
-          } else { Json.obj() }
-      }
+    } else {
+      Json.obj()
+    }
+  }
 
-      def addAckRefs(status: String): JsValue = {
-        if(status == "acknowledged") {
-            Json.parse("""
-        |{
-        |  "acknowledgementReferences" : {
-        |      "status" : "04",
-        |      "ctUtr" : "CTUTR"
-        |  }
-        |}
-      """.stripMargin)
-          } else { Json.obj() }
-      }
+  def addAckRefs(status: String): JsValue = {
+    if (status == "acknowledged") {
+      Json.parse(
+        """
+          |{
+          |  "acknowledgementReferences" : {
+          |      "status" : "04",
+          |      "ctUtr" : "CTUTR"
+          |  }
+          |}
+        """.stripMargin)
+    } else {
+      Json.obj()
+    }
+  }
 
   def mockPayeFeature(enable: Boolean) = when(mockfeatureFlag.paye).thenReturn(BooleanFeatureSwitch("paye", enabled = enable))
+
   def mockVatFeature(enable: Boolean) = when(mockfeatureFlag.vat).thenReturn(BooleanFeatureSwitch("vat", enabled = enable))
 
-  def ctEnrolment(id: String, active: Boolean) = Enrolments(Set(Enrolment("IR-CT", Seq(EnrolmentIdentifier("UTR", id)), if(active) "activated" else "other")))
+  def ctEnrolment(id: String, active: Boolean) = Enrolments(Set(Enrolment("IR-CT", Seq(EnrolmentIdentifier("UTR", id)), if (active) "activated" else "other")))
+
   val payeEnrolment = Enrolments(Set(Enrolment("IR-PAYE", Seq(EnrolmentIdentifier("test-paye-identifier", "test-paye-value")), "testState")))
   val vatEnrolment = Enrolments(Set(Enrolment("HMCE-VATDEC-ORG", Seq(EnrolmentIdentifier("test-paye-identifier", "test-paye-value")), "testState")))
   val vatVarEnrolment = Enrolments(Set(Enrolment("HMCE-VATVAR-ORG", Seq(EnrolmentIdentifier("test-paye-identifier", "test-paye-value")), "testState")))
   val noEnrolments = Enrolments(Set())
   val ctAndVatEnrolment = Enrolments(Set(Enrolment("IR-CT", Seq(EnrolmentIdentifier("UTR", "1234567890")), "activated"),
-                                         Enrolment("HMCE-VATDEC-ORG", Seq(EnrolmentIdentifier("test-paye-identifier", "test-paye-value")), "testState")))
+    Enrolment("HMCE-VATDEC-ORG", Seq(EnrolmentIdentifier("test-paye-identifier", "test-paye-value")), "testState")))
 
   val payeThresholds = Map("weekly" -> 118, "monthly" -> 512, "annually" -> 6136)
   val vatThresholds = Map("yearly" -> 85000)
-    "buildDashboard" should {
+  "buildDashboard" should {
 
     val draftDash = IncorpAndCTDashboard("draft", Some("10 October 2017"), Some(transId), Some(payRef), None, None, Some(ackRef), None, None)
     val rejectedDash = IncorpAndCTDashboard("rejected", Some("10 October 2017"), Some(transId), Some(payRef), None, None, Some(ackRef), None, None)
@@ -191,12 +201,12 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
 
     val payeDash = ServiceDashboard("", None, None, ServiceLinks(payeUrl, "OTRS url", None, Some("/register-your-company/cancel-paye")), Some(payeThresholds))
     val payeStatus = OtherRegStatus("", None, None, Some("foo"), None)
-    val vatDash =   ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
-    val vatDashOTRS =   ServiceDashboard("notEnabled",None,None,ServiceLinks("test/vat-uri","OTRS url",None,None), Some(vatThresholds))
+    val vatDash = ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
+    val vatDashOTRS = ServiceDashboard("notEnabled", None, None, ServiceLinks("test/vat-uri", "OTRS url", None, None), Some(vatThresholds))
 
 
     "return a CouldNotBuild DashboardStatus when the status of the registration is draft" in new SetupWithDash(draftDash) {
-      getStatusMock(SuccessfulResponse(payeStatus))
+      getStatusMock(regId)(SuccessfulResponse(payeStatus))
 
       mockPayeFeature(true)
       mockVatFeature(false)
@@ -205,7 +215,7 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
     }
 
     "return a RejectedIncorp DashboardStatus when the status of the registration is rejected" in new SetupWithDash(rejectedDash) {
-      getStatusMock(SuccessfulResponse(payeStatus))
+      getStatusMock(regId)(SuccessfulResponse(payeStatus))
 
       mockPayeFeature(true)
       mockVatFeature(false)
@@ -214,7 +224,7 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
     }
 
     "return a DashboardBuilt DashboardStatus when the status of the registration is any other status" in new SetupWithDash(heldDash) {
-      getStatusMock(SuccessfulResponse(payeStatus))
+      getStatusMock(regId)(SuccessfulResponse(payeStatus))
 
       mockPayeFeature(true)
       mockVatFeature(false)
@@ -290,7 +300,7 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
       val payeStatus = OtherRegStatus("held", None, None, Some("foo"), None)
       val payeDash = ServiceDashboard("held", None, None, ServiceLinks(payeUrl, testOtrsUrl, None, Some("/register-your-company/cancel-paye")), Some(payeThresholds))
       mockPayeFeature(true)
-      getStatusMock(SuccessfulResponse(payeStatus))
+      getStatusMock(regId)(SuccessfulResponse(payeStatus))
 
       val result = await(service.buildPAYEDashComponent(regId, payeEnrolment))
       result shouldBe payeDash
@@ -300,7 +310,7 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
       val payeStatus = OtherRegStatus("rejected", None, None, None, Some("bar"))
       val payeDash = ServiceDashboard("rejected", None, None, ServiceLinks(payeUrl, testOtrsUrl, Some("bar"), None), Some(payeThresholds))
       mockPayeFeature(true)
-      getStatusMock(SuccessfulResponse(payeStatus))
+      getStatusMock(regId)(SuccessfulResponse(payeStatus))
 
       val result = await(service.buildPAYEDashComponent(regId, payeEnrolment))
       result shouldBe payeDash
@@ -309,7 +319,7 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
     "return an ineligible Status when nothing is fetched from paye-registration and the user already has a PAYE enrolment" in new Setup {
       val payeDash = ServiceDashboard(Statuses.NOT_ELIGIBLE, None, None, payeLinks, Some(payeThresholds))
       mockPayeFeature(true)
-      getStatusMock(NotStarted)
+      getStatusMock(regId)(NotStarted)
 
       val result = await(service.buildPAYEDashComponent(regId, payeEnrolment))
       result shouldBe payeDash
@@ -318,7 +328,7 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
     "return a not started Status when nothing is fetched from paye-registration and the user does not have a PAYE enrolment" in new Setup {
       val payeDash = ServiceDashboard(Statuses.NOT_STARTED, None, None, payeLinks, Some(payeThresholds))
       mockPayeFeature(true)
-      getStatusMock(NotStarted)
+      getStatusMock(regId)(NotStarted)
 
       val result = await(service.buildPAYEDashComponent(regId, noEnrolments))
       result shouldBe payeDash
@@ -327,9 +337,9 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
     "return a not started Status when nothing is fetched from paye-registration and the user does not have a PAYE enrolment but has a IR-CT enrolement" in new Setup {
       val payeDash = ServiceDashboard(Statuses.NOT_STARTED, None, None, payeLinks, Some(payeThresholds))
       mockPayeFeature(true)
-      getStatusMock(NotStarted)
+      getStatusMock(regId)(NotStarted)
 
-      val result = await(service.buildPAYEDashComponent(regId, ctEnrolment("1234567890",true)))
+      val result = await(service.buildPAYEDashComponent(regId, ctEnrolment("1234567890", true)))
       result shouldBe payeDash
     }
 
@@ -357,7 +367,7 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
       }
 
       "there is an auth IR-CT enrolment is present when IR-PAYE is not allowsed" in new Setup {
-        val result = await(service.hasEnrolment(ctEnrolment("1234567890",true), List("IR-PAYE")))
+        val result = await(service.hasEnrolment(ctEnrolment("1234567890", true), List("IR-PAYE")))
         result shouldBe false
       }
       "there is an auth IR-CT and VAT enrolment and IR-PAYE is not allowsed" in new Setup {
@@ -386,9 +396,9 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
     "throw a ComfirmationRefsNotFoundException when confirmation refs cannot be retrieved" in new Setup {
       when(mockCompanyRegistrationConnector.fetchConfirmationReferences(eqTo(regId))(any()))
         .thenReturn(Future.successful(ConfirmationReferencesErrorResponse))
-          intercept[ConfirmationRefsNotFoundException](await(service.getCompanyName(regId)))
-          }
-      }
+      intercept[ConfirmationRefsNotFoundException](await(service.getCompanyName(regId)))
+    }
+  }
 
   "buildHeld" should {
     "return a IncorpAndCTDashboard where submission date is returned from cr" in new Setup {

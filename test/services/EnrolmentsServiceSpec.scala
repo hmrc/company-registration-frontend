@@ -18,7 +18,7 @@ package services
 
 import config.{FrontendAppConfig, WSHttp}
 import mocks.SCRSMocks
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.auth.core.{Enrolment, EnrolmentIdentifier, Enrolments}
 import uk.gov.hmrc.http.{CoreGet, HeaderCarrier}
 import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}

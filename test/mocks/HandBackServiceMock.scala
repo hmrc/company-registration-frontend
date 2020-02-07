@@ -16,7 +16,7 @@
 
 package mocks
 
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import services.HandBackService
 
 trait HandBackServiceMock {

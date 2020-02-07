@@ -25,7 +25,6 @@ import models._
 import models.handoff._
 import org.mockito.Matchers
 import org.mockito.Mockito._
-import org.scalatest.BeforeAndAfterEach
 import play.api.libs.json.{JsObject, Json}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.play.test.WithFakeApplication
@@ -34,17 +33,18 @@ import utils.{BooleanFeatureSwitch, JweCommon, JweEncryptor, SCRSFeatureSwitches
 import scala.concurrent.Future
 
 class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture with CorporationTaxFixture with AuthBuilder
-    with BeforeAndAfterEach
-    with UserDetailsFixture
-    with CompanyDetailsFixture
-    with KeystoreMock
-    with NavModelRepoMock
-    with WithFakeApplication {
+  with UserDetailsFixture
+  with CompanyDetailsFixture
+  with KeystoreMock
+  with NavModelRepoMock
+  with WithFakeApplication {
 
   val mockNavModelRepoObj = mockNavModelRepo
   val mockEncryptor = mock[JweEncryptor]
 
-  val testJwe = new JweCommon { val key = "Fak3-t0K3n-f0r-pUBLic-r3p0SiT0rY" }
+  val testJwe = new JweCommon {
+    val key = "Fak3-t0K3n-f0r-pUBLic-r3p0SiT0rY"
+  }
 
   trait Setup {
     val service = new HandOffService {
@@ -80,14 +80,14 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
           "1" -> NavLinks("returnFromCoho", "aboutYOu"),
           "3" -> NavLinks("summary", "regularPayments"),
           "5" -> NavLinks("confirmation", "summary"),
-          "5-2" -> NavLinks("confirmation",""))),
+          "5-2" -> NavLinks("confirmation", ""))),
         Receiver(Map(
           "0" -> NavLinks("firstHandOff", ""),
           "2" -> NavLinks("SIC codes", "firstHandoff")
         )))
 
       mockGetNavModel(None)
-      mockKeystoreFetchAndGet("registrationID",Some(registrationID))
+      mockKeystoreFetchAndGet("registrationID", Some(registrationID))
 
       when(mockNavModelRepoObj.getNavModel(registrationID))
         .thenReturn(Future.successful(Some(testNavModel)))
@@ -106,7 +106,7 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
         Some(address),
         None,
         Json.parse("""{}""").as[JsObject],
-        NavLinks("summary","regularPayments"))
+        NavLinks("summary", "regularPayments"))
 
       testJwe.decrypt[BusinessActivitiesModel](result.get._2).get shouldBe model
     }
@@ -122,17 +122,17 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
       Receiver(Map("0" -> NavLinks("companyNameUrl", ""))))
 
     "return a forward url and encrypted payload when there is no nav model in the repository" in new Setup {
-      mockInsertNavModel("testRegID",Some(initNavModel))
+      mockInsertNavModel("testRegID", Some(initNavModel))
       mockGetNavModel(None)
-      when(mockSCRSFeatureSwitches.legacyEnv).thenReturn(BooleanFeatureSwitch("foo",false))
-      when(mockSCRSFeatureSwitches.cohoFirstHandOff).thenReturn(BooleanFeatureSwitch("foo",false))
+      when(mockSCRSFeatureSwitches.legacyEnv).thenReturn(BooleanFeatureSwitch("foo", false))
+      when(mockSCRSFeatureSwitches.cohoFirstHandOff).thenReturn(BooleanFeatureSwitch("foo", false))
       val result = await(service.companyNamePayload("testRegID", "testemail", "testname", externalID))
       result.get._1 shouldBe "http://localhost:9986/incorporation-frontend-stubs/basic-company-details"
       val decrypted = testJwe.decrypt[BusinessActivitiesModel](result.get._2)
       decrypted.get shouldBe BusinessActivitiesModel(
         "testExternalID",
         "testRegID",
-        None,None,
+        None, None,
         Json.obj(),
         NavLinks(
           "http://localhost:9970/register-your-company/corporation-tax-details",
@@ -143,8 +143,8 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
 
   "buildPSCPayload" should {
     val groups = Groups(true,
-      nameOfCompany = Some(GroupCompanyName("foo","Other")),
-      addressAndType = Some(GroupsAddressAndType("ALF",NewAddress("1 abc", "2 abc",Some("3 abc"), Some("4 abc"),Some("ZZ1 1ZZ"),Some("country A")))),
+      nameOfCompany = Some(GroupCompanyName("foo", "Other")),
+      addressAndType = Some(GroupsAddressAndType("ALF", NewAddress("1 abc", "2 abc", Some("3 abc"), Some("4 abc"), Some("ZZ1 1ZZ"), Some("country A")))),
       groupUTR = Some(GroupUTR(Some("1234567890"))))
     val validNavModelForThisFunction = HandOffNavModel(
       Sender(Map(
@@ -160,7 +160,7 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
         .thenReturn(Future.successful(Some("12345")))
       mockGetNavModel(Some(validNavModelForThisFunction))
 
-      val result = await(service.buildPSCPayload("12345","12",None))
+      val result = await(service.buildPSCPayload("12345", "12", None))
       result.get._1 shouldBe "PSCStubPage"
       val decrypted = testJwe.decrypt[JsObject](result.get._2)
       decrypted.get shouldBe Json.parse(
@@ -175,7 +175,7 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
         .thenReturn(Future.successful(Some("12345")))
       mockGetNavModel(Some(validNavModelForThisFunction))
 
-      val result = await(service.buildPSCPayload("12345","12",Some(groups)))
+      val result = await(service.buildPSCPayload("12345", "12", Some(groups)))
       result.get._1 shouldBe "PSCStubPage"
       val decrypted = testJwe.decrypt[JsObject](result.get._2)
       decrypted.get shouldBe Json.parse(
@@ -187,7 +187,7 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
         .thenReturn(Future.successful(Some("12345")))
       mockGetNavModel(Some(validNavModelForThisFunction))
 
-      val result = await(service.buildPSCPayload("12345","12",Some(Groups(false,None,None,None))))
+      val result = await(service.buildPSCPayload("12345", "12", Some(Groups(false, None, None, None))))
       result.get._1 shouldBe "PSCStubPage"
       val decrypted = testJwe.decrypt[JsObject](result.get._2)
       decrypted.get shouldBe Json.parse(
@@ -197,7 +197,7 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
       when(mockKeystoreConnector.fetchAndGet[String](Matchers.eq("registrationID"))(Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(Some("12345")))
       mockGetNavModel(Some(validNavModelForThisFunction))
-      intercept[Exception](await(service.buildPSCPayload("12345","12",Some(Groups(true,None,None,Some(GroupUTR(None)))))))
+      intercept[Exception](await(service.buildPSCPayload("12345", "12", Some(Groups(true, None, None, Some(GroupUTR(None)))))))
     }
 
     "return exception when sender link does not exist in nav model" in new Setup {
@@ -212,7 +212,7 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
         .thenReturn(Future.successful(Some("12345")))
       mockGetNavModel(Some(invalidNavModel))
 
-      intercept[Exception](await(service.buildPSCPayload("12345","12",None)))
+      intercept[Exception](await(service.buildPSCPayload("12345", "12", None)))
     }
     "return exception when receiver link does not exist in nav model" in new Setup {
       val invalidNavModel = HandOffNavModel(
@@ -226,13 +226,13 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
         .thenReturn(Future.successful(Some("12345")))
       mockGetNavModel(Some(invalidNavModel))
 
-      intercept[Exception](await(service.buildPSCPayload("12345","12",None)))
+      intercept[Exception](await(service.buildPSCPayload("12345", "12", None)))
     }
     "return an exception when keystorefetchAndGet returns an exception" in new Setup {
       when(mockKeystoreConnector.fetchAndGet[String](Matchers.eq("registrationID"))(Matchers.any(), Matchers.any()))
         .thenReturn(Future.failed(new Exception("foo")))
 
-      intercept[Exception](await(service.buildPSCPayload("12345","12",None)))
+      intercept[Exception](await(service.buildPSCPayload("12345", "12", None)))
     }
   }
 
@@ -247,10 +247,10 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
 
   "BuildLinks" should {
     "parse the links JSObject twice and return both a nav links model and a jump links model" in new Setup {
-      val testNav = NavLinks("testForward","testBackward")
-      val testJump = JumpLinks("testCName","testCAddr","testCJuri")
+      val testNav = NavLinks("testForward", "testBackward")
+      val testJump = JumpLinks("testCName", "testCAddr", "testCJuri")
 
-      val testJsLinks = Json.obj(
+      val testJsLinks: JsObject = Json.obj(
         "forward" -> testNav.forward,
         "reverse" -> testNav.reverse,
         "company_name" -> testJump.company_name,
@@ -274,7 +274,7 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
   "ObjectBuilder" should {
     "build a JsObject with only nav links" in new Setup {
       val testNavObj = Json.obj("forward" -> "testForward", "reverse" -> "testReverse")
-      val testNav = NavLinks("testForward","testReverse")
+      val testNav = NavLinks("testForward", "testReverse")
 
       val result = service.buildLinksObject(testNav, None)
 
@@ -292,8 +292,8 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
           "company_address" -> "testCompanyAddress",
           "company_jurisdiction" -> "testCompanyJurisdiction")
 
-      val testNav = NavLinks("testForward","testReverse")
-      val testJump = JumpLinks("testCompanyName","testCompanyAddress","testCompanyJurisdiction")
+      val testNav = NavLinks("testForward", "testReverse")
+      val testJump = JumpLinks("testCompanyName", "testCompanyAddress", "testCompanyJurisdiction")
 
       val result = service.buildLinksObject(testNav, Some(testJump))
 
@@ -310,32 +310,32 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
 
   "buildHandOffUrl" should {
     "return a link that appends ?request=<PAYLOAD> if url doesn't contain ? OR &" in new Setup {
-      val url = service.buildHandOffUrl("testUrl","payload")
+      val url = service.buildHandOffUrl("testUrl", "payload")
       url shouldBe "testUrl?request=payload"
     }
 
     "return a link that appends &request=<PAYLOAD> if url has ? AND does not end with &" in new Setup {
-      val url = service.buildHandOffUrl("testUrl?query=parameter","payload")
+      val url = service.buildHandOffUrl("testUrl?query=parameter", "payload")
       url shouldBe "testUrl?query=parameter&request=payload"
     }
 
     "return a link that appends request=<PAYLOAD> if url contains ? AND ends with &" in new Setup {
-      val url = service.buildHandOffUrl("testUrl?query=parameter&","testPayload")
+      val url = service.buildHandOffUrl("testUrl?query=parameter&", "testPayload")
       url shouldBe "testUrl?query=parameter&request=testPayload"
     }
 
     "return a link appends request=<PAYLOAD> if the FINAL char is ?" in new Setup {
-      val url = service.buildHandOffUrl("testUrl?","payload")
+      val url = service.buildHandOffUrl("testUrl?", "payload")
       url shouldBe "testUrl?request=payload"
     }
 
     "return a link that appends only the payload if url ENDS with ?request=" in new Setup {
-      val url = service.buildHandOffUrl("testUrl?request=","payload")
+      val url = service.buildHandOffUrl("testUrl?request=", "payload")
       url shouldBe "testUrl?request=payload"
     }
 
     "return a link that appends only the payload if url has a param and ENDS with request=" in new Setup {
-      val url = service.buildHandOffUrl("testUrl?query=param&request=","payload")
+      val url = service.buildHandOffUrl("testUrl?query=param&request=", "payload")
       url shouldBe "testUrl?query=param&request=payload"
     }
   }
@@ -417,9 +417,9 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
         "testExternalID",
         "12345",
         None,
-        Some(Json.obj("testCHBagKey" ->"testValue")),
+        Some(Json.obj("testCHBagKey" -> "testValue")),
         Json.obj(),
-        NavLinks("testForwardLinkFromSender5","testReverseLinkFromSender5"))
+        NavLinks("testForwardLinkFromSender5", "testReverseLinkFromSender5"))
     }
   }
   "groupsCheckerForPSCHandOff" should {
@@ -447,7 +447,7 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
   }
   "buildTheStaticJumpLinksForGroupsBasedOnGroupsData" should {
     "return a list of jump links for Group block with true as loss relief" in new Setup {
-      val res = service.buildTheStaticJumpLinksForGroupsBasedOnGroupsData(Some(Groups(true,None,None,None)))
+      val res = service.buildTheStaticJumpLinksForGroupsBasedOnGroupsData(Some(Groups(true, None, None, None)))
       res.get shouldBe JumpLinksForGroups(
         "http://localhost:9970/register-your-company/group-relief",
         Some("http://localhost:9970/register-your-company/owning-companys-address"),
@@ -455,7 +455,7 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
         Some("http://localhost:9970/register-your-company/owning-companys-utr"))
     }
     "return a 1 jump links for Group block with false as loss relief" in new Setup {
-      val res = service.buildTheStaticJumpLinksForGroupsBasedOnGroupsData(Some(Groups(false,None,None,None)))
+      val res = service.buildTheStaticJumpLinksForGroupsBasedOnGroupsData(Some(Groups(false, None, None, None)))
       res.get shouldBe JumpLinksForGroups(
         "http://localhost:9970/register-your-company/group-relief",
         None,
@@ -469,7 +469,7 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
   }
   "buildParentCompanyNameOutOfGroups" should {
     "return None if group relief is false" in new Setup {
-      service.buildParentCompanyNameOutOfGroups(Some(Groups(false,None,None,None))) shouldBe None
+      service.buildParentCompanyNameOutOfGroups(Some(Groups(false, None, None, None))) shouldBe None
     }
     "return ParentCompany name populated with groups data" in new Setup {
       val goodGroups = Groups(true,
