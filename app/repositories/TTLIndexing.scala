@@ -18,9 +18,7 @@ package repositories
 
 import reactivemongo.api.indexes.{Index, IndexType}
 import reactivemongo.bson.{BSONDocument, BSONLong}
-import reactivemongo.core.commands.DeleteIndex
 import uk.gov.hmrc.mongo.ReactiveRepository
-
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -44,14 +42,14 @@ trait TTLIndexing[A, ID] {
             && index.options.getAs[BSONLong](EXPIRE_AFTER_SECONDS).getOrElse(BSONLong(expireAfterSeconds)).as[Long] != expireAfterSeconds
         )
 
-        if (indexToUpdate.isDefined) {
-          for {
-            deleted <- collection.db.command(DeleteIndex(collection.name, indexToUpdate.get.eventualName))
-            updated <- ensureCustomIndexes(additionalIndexes)
-          } yield updated
-        }
-        else {
-          ensureCustomIndexes(additionalIndexes)
+        indexToUpdate match {
+          case Some(index) =>
+            for {
+              deleted <- collection.indexesManager.drop(index.eventualName)
+              updated <- ensureCustomIndexes(additionalIndexes)
+            } yield updated
+          case None =>
+            ensureCustomIndexes(additionalIndexes)
         }
       }
     }
