@@ -16,19 +16,21 @@
 
 package models
 
-import play.api.libs.json._
 import play.api.libs.functional.syntax._
+import play.api.libs.json._
 
-case class TakeoverDetails(businessName: String,
+case class TakeoverDetails(replacingAnotherBusiness: Boolean = true,
+                           businessName: Option[String],
                            businessTakeoverAddress: Option[Address],
                            previousOwnersName: Option[String],
                            previousOwnersAddress: Option[Address])
 
 object TakeoverDetails {
   implicit val format: Format[TakeoverDetails] = (
-    (JsPath \ "businessName").format[String] and
+    (JsPath \ "replacingAnotherBusiness").format[Boolean] and
+      (JsPath \ "businessName").formatNullable[String] and
       (JsPath \ "businessTakeoverAddress").formatNullable[Address] and
       (JsPath \ "prevOwnersName").formatNullable[String] and
       (JsPath \ "prevOwnersAddress").formatNullable[Address]
-    )(TakeoverDetails.apply, unlift(TakeoverDetails.unapply))
+    ) (TakeoverDetails.apply, unlift(TakeoverDetails.unapply))
 }
