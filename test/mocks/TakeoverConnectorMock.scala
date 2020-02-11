@@ -16,20 +16,23 @@
 
 package mocks
 
+import connectors.TakeoverConnector
 import models.TakeoverDetails
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
-import services.TakeoverService
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
 
-trait TakeoverServiceMock extends MockitoSugar {
-  val mockTakeoverService: TakeoverService = mock[TakeoverService]
+trait TakeoverConnectorMock extends MockitoSugar {
+  val mockTakeoverConnector: TakeoverConnector = mock[TakeoverConnector]
 
   def mockGetTakeoverDetails(registrationId: String)(response: Future[Option[TakeoverDetails]]): Unit =
-    when(mockTakeoverService.getTakeoverDetails(Matchers.eq(registrationId))(Matchers.any[HeaderCarrier]))
+    when(mockTakeoverConnector.getTakeoverDetails(Matchers.eq(registrationId))(Matchers.any[HeaderCarrier]))
       .thenReturn(response)
 
+  def mockUpdateTakeoverDetails(registrationId: String, takeoverDetails: TakeoverDetails)(response: Future[TakeoverDetails]): Unit =
+    when(mockTakeoverConnector.updateTakeoverDetails(Matchers.eq(registrationId), Matchers.eq(takeoverDetails))(Matchers.any[HeaderCarrier]))
+      .thenReturn(response)
 }

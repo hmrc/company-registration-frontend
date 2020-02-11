@@ -19,11 +19,11 @@ package models
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 
-case class TakeoverDetails(replacingAnotherBusiness: Boolean = true,
-                           businessName: Option[String],
-                           businessTakeoverAddress: Option[Address],
-                           previousOwnersName: Option[String],
-                           previousOwnersAddress: Option[Address])
+case class TakeoverDetails(replacingAnotherBusiness: Boolean,
+                           businessName: Option[String] = None,
+                           businessTakeoverAddress: Option[Address] = None,
+                           previousOwnersName: Option[String] = None,
+                           previousOwnersAddress: Option[Address] = None)
 
 object TakeoverDetails {
   implicit val format: Format[TakeoverDetails] = (

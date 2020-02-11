@@ -21,12 +21,21 @@ import javax.inject.Inject
 import models.TakeoverDetails
 import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-class TakeoverService @Inject()(takeoverConnector: TakeoverConnector) {
+class TakeoverService @Inject()(takeoverConnector: TakeoverConnector)(implicit ec: ExecutionContext) {
   def getTakeoverDetails(registrationId: String)(implicit hc: HeaderCarrier): Future[Option[TakeoverDetails]] =
     takeoverConnector.getTakeoverDetails(registrationId)
 
-  def updateTakeoverDetails(registrationId: String, takeoverDetails: TakeoverDetails)(implicit hc: HeaderCarrier): Future[TakeoverDetails] =
-    takeoverConnector.updateTakeoverDetails(registrationId, takeoverDetails)
+  def updateReplacingAnotherBusiness(registrationId: String, replacingAnotherBusiness: Boolean)(implicit hc: HeaderCarrier): Future[TakeoverDetails] =
+    if(replacingAnotherBusiness) {
+      takeoverConnector.getTakeoverDetails(registrationId) flatMap {
+        case None =>
+          takeoverConnector.updateTakeoverDetails(registrationId, TakeoverDetails(replacingAnotherBusiness))
+        case Some(takeoverDetails) =>
+          Future.successful(takeoverDetails)
+      }
+    } else {
+      takeoverConnector.updateTakeoverDetails(registrationId, TakeoverDetails(replacingAnotherBusiness))
+    }
 }
