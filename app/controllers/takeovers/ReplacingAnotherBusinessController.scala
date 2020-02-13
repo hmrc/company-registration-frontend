@@ -20,21 +20,23 @@ import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthFunction
 import controllers.reg.ControllerErrorHandler
+import controllers.reg.routes.AccountingDatesController
+import controllers.takeovers.routes.OtherBusinessNameController
 import forms.takeovers.ReplacingAnotherBusinessForm
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.Action
+import play.api.mvc.{Action, AnyContent}
 import services.TakeoverService
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.http.NotFoundException
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.{SCRSFeatureSwitches, SessionRegistration}
 import views.html.takeovers.ReplacingAnotherBusiness
-import controllers.reg.routes.AccountingDatesController
 
 import scala.concurrent.Future
 
+@Singleton
 class ReplacingAnotherBusinessController @Inject()(val authConnector: PlayAuthConnector,
                                                    val takeoverService: TakeoverService,
                                                    val compRegConnector: CompanyRegistrationConnector,
@@ -44,10 +46,10 @@ class ReplacingAnotherBusinessController @Inject()(val authConnector: PlayAuthCo
                                                   )(implicit val appConfig: FrontendAppConfig
                                                   ) extends FrontendController with AuthFunction with ControllerErrorHandler with SessionRegistration with I18nSupport {
 
-  val show = Action.async { implicit request =>
+  val show: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
       checkStatus { regId =>
-        if(scrsFeatureSwitches.takeovers.enabled) {
+        if (scrsFeatureSwitches.takeovers.enabled) {
           for {
             optTakeoverInformation <- takeoverService.getTakeoverDetails(regId)
           } yield {
@@ -66,7 +68,7 @@ class ReplacingAnotherBusinessController @Inject()(val authConnector: PlayAuthCo
     }
   }
 
-  val submit = Action.async { implicit request =>
+  val submit: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
       registered { regId =>
         ReplacingAnotherBusinessForm.form.bindFromRequest.fold(
@@ -76,7 +78,7 @@ class ReplacingAnotherBusinessController @Inject()(val authConnector: PlayAuthCo
             takeoverService.updateReplacingAnotherBusiness(regId, replacingAnotherBusiness) map {
               _ =>
                 if (replacingAnotherBusiness) {
-                  Redirect(AccountingDatesController.show()) //TODO redirect to next page of takeovers when complete
+                  Redirect(OtherBusinessNameController.show())
                 } else {
                   Redirect(AccountingDatesController.show())
                 }

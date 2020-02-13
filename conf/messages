@@ -517,3 +517,11 @@ page.takeovers.replacingAnotherBusiness.dropdownTitle                  = What is
 page.takeovers.replacingAnotherBusiness.dropdownText1                  = A sole trader is someone who’s self-employed and is the only owner of their business.
 page.takeovers.replacingAnotherBusiness.dropdownText2                  = A business partnership is when two or more people agree to share the profits, costs and risks of running a business.
 error.replacingAnotherBusiness.required                                = Tell us if the new company is replacing another business
+
+page.takeovers.otherBusinessName.title                                 = What is the name of the other business?
+page.takeovers.otherBusinessName.heading                               = What is the name of the other business?
+page.takeovers.otherBusinessName.paragraph                             = Give the name that’s registered with HMRC for tax purposes.
+page.takeovers.otherBusinessName.field                                 = Enter the name
+error.otherBusinessName.required                                       = Tell us the name of the other business
+error.otherBusinessName.over100Characters                              = Enter the name using 100 characters or less
+error.otherBusinessName.invalidCharacters                              = Enter the name using only letters, numbers, spaces, hyphens and apostrophes
