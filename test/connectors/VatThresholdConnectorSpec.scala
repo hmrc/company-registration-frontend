@@ -23,7 +23,7 @@ import org.joda.time.LocalDate
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfter
-import org.scalatest.concurrent.Eventually
+import org.scalatest.concurrent.{Eventually, IntegrationPatience}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.Logger
 import play.api.http.Status._
@@ -33,7 +33,7 @@ import uk.gov.hmrc.play.test.{LogCapturing, UnitSpec, WithFakeApplication}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class VatThresholdConnectorSpec extends SCRSSpec with UnitSpec with WithFakeApplication with LogCapturing with MockitoSugar with Eventually with BeforeAndAfter {
+class VatThresholdConnectorSpec extends SCRSSpec with UnitSpec with WithFakeApplication with LogCapturing with MockitoSugar with Eventually with BeforeAndAfter with IntegrationPatience {
 
   val baseUrl: String = "test vatBaseURL"
   val baseUri: String = "test vatserviceUri"

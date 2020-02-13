@@ -31,6 +31,7 @@ class TakeoverConnectorISpec extends IntegrationSpecBase with TakeoverStub {
   val testRegistrationId = "12345"
   val testBusinessName = "Foo"
   val testTakeoverDetails = TakeoverDetails(
+    replacingAnotherBusiness = true,
     businessName = Some(testBusinessName),
     businessTakeoverAddress = None,
     previousOwnersName = None,

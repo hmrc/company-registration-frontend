@@ -29,7 +29,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.cache.client.{CacheMap, SessionCache}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.model.Audit
-import utils.{FeatureSwitchManager, JweCommon, SCRSFeatureSwitches}
+import utils.{BooleanFeatureSwitch, FeatureSwitch, FeatureSwitchManager, JweCommon, SCRSFeatureSwitches}
 
 import scala.concurrent.Future
 
