@@ -33,7 +33,7 @@
 
     <div id="paragraph-one" class="form-group">
         <p>@Messages("page.takeovers.replacingAnotherBusiness.p1")</p>
-        <ul>
+        <ul class="list-bullet">
             <li>@Messages("page.takeovers.replacingAnotherBusiness.bullet1")</li>
             <li>@Messages("page.takeovers.replacingAnotherBusiness.bullet2")</li>
         </ul>
@@ -56,7 +56,8 @@
             Seq("true" -> Messages("common.button.yes"), "false" -> Messages("common.button.no")),
             '_labelClass -> "block-label radio-label",
             '_legend -> Messages("page.takeovers.replacingAnotherBusiness.title"),
-            '_legendClass -> "visually-hidden"
+            '_legendClass -> "visually-hidden",
+            '_groupClass -> "inline"
         )
         </div>
 

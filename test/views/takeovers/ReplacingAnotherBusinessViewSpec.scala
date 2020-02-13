@@ -46,15 +46,23 @@ class ReplacingAnotherBusinessViewSpec extends UnitSpec with GuiceOneAppPerSuite
         paragraph1.selectFirst("p").text() shouldBe expectedP1
       }
 
-      lazy val bullets = paragraph1.select("ul li")
-      val expectedBullet1 = "buying another company"
-      s"have a bullet with '$expectedBullet1'" in {
-        bullets.get(0).text shouldBe expectedBullet1
-      }
+      lazy val bulletList = paragraph1.select("ul")
+      s"have a bullet point list which " should {
+        val expectedBulletPointClass = "list-bullet"
+        s"have a class of $expectedBulletPointClass" in {
+          bulletList.attr("class") shouldBe expectedBulletPointClass
+        }
 
-      val expectedBullet2 = "changing from a sole trader or business partnership to a limited company"
-      s"have a bullet with '$expectedBullet2'" in {
-        bullets.get(1).text shouldBe expectedBullet2
+        lazy val bulletPoints = bulletList.select("li")
+        val expectedBullet1 = "buying another company"
+        s"have a bullet with '$expectedBullet1'" in {
+          bulletPoints.get(0).text shouldBe expectedBullet1
+        }
+
+        val expectedBullet2 = "changing from a sole trader or business partnership to a limited company"
+        s"have a bullet with '$expectedBullet2'" in {
+          bulletPoints.get(1).text shouldBe expectedBullet2
+        }
       }
     }
 
@@ -77,6 +85,10 @@ class ReplacingAnotherBusinessViewSpec extends UnitSpec with GuiceOneAppPerSuite
     }
 
     lazy val radioForm = doc.select("fieldset")
+    val fieldsetInlineClass = "inline"
+    s"have a class of $fieldsetInlineClass" in {
+      radioForm.attr("class") shouldBe fieldsetInlineClass
+    }
     "have a radio button form which" should {
       val expectedYesOption = "Yes"
       s"have a '$expectedYesOption' option" in {
