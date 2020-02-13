@@ -1,0 +1,67 @@
+@*
+ * Copyright 2020 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import uk.gov.hmrc.play.views.html.helpers.form
+@import views.html.helpers.{errorSummary, inputRadioGroup}
+
+@(replacingAnotherBusiness: Form[Boolean])(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.FrontendAppConfig)
+
+@main_template(title = Messages("page.takeovers.replacingAnotherBusiness.title"), mainClass = None) {
+
+    <a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
+
+    @errorSummary(
+        Messages("common.errorSummary.label"),
+        replacingAnotherBusiness,
+        dataJourney = Some("TakeOvers")
+    )
+
+    <h1 id="main-heading" class="heading-large">@messages("page.takeovers.replacingAnotherBusiness.heading")</h1>
+
+    <div id="paragraph-one" class="form-group">
+        <p>@Messages("page.takeovers.replacingAnotherBusiness.p1")</p>
+        <ul>
+            <li>@Messages("page.takeovers.replacingAnotherBusiness.bullet1")</li>
+            <li>@Messages("page.takeovers.replacingAnotherBusiness.bullet2")</li>
+        </ul>
+    </div>
+
+    <div class="form-group">
+        <details>
+            <summary class="summary">@Messages("page.takeovers.replacingAnotherBusiness.dropdownTitle")</summary>
+            <div class="panel panel-border-narrow">
+                <p>@Messages("page.takeovers.replacingAnotherBusiness.dropdownText1")</p>
+                <p>@Messages("page.takeovers.replacingAnotherBusiness.dropdownText2")</p>
+            </div>
+        </details>
+    </div>
+
+    @form(action = controllers.takeovers.routes.ReplacingAnotherBusinessController.submit()) {
+        <div class="form-group">
+        @inputRadioGroup(
+            replacingAnotherBusiness("replacingAnotherBusiness"),
+            Seq("true" -> Messages("common.button.yes"), "false" -> Messages("common.button.no")),
+            '_labelClass -> "block-label radio-label",
+            '_legend -> Messages("page.takeovers.replacingAnotherBusiness.title"),
+            '_legendClass -> "visually-hidden"
+        )
+        </div>
+
+        <div class="form-group">
+            <input class="button" type="submit" id="next" value="@Messages("common.button.save")">
+        </div>
+    }
+}

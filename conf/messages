@@ -16,6 +16,8 @@ common.button.sign-in                                               = Sign in
 common.button.back                                                  = Back
 common.button.start                                                 = Start now
 common.button.startAgain                                            = Start again
+common.button.yes                                                   = Yes
+common.button.no                                                    = No
 common.errorSummary.label                                           = This page has errors
 common.err.postcode.required                                        = Please enter a valid postcode
 common.home                                                         = Home
@@ -505,3 +507,13 @@ error.groupUtr.yesButNoUtr                                             = Enter t
 error.groupUtr.utrMoreThan10Chars                                      = Enter a UTR using 10 digits or less
 error.groupUtr.utrHasSymbols                                           = Enter a UTR using only numbers
 
+#Takeovers
+page.takeovers.replacingAnotherBusiness.title                          = Is the new company replacing another business?
+page.takeovers.replacingAnotherBusiness.heading                        = Is the new company replacing another business?
+page.takeovers.replacingAnotherBusiness.p1                             = This includes if it’s:
+page.takeovers.replacingAnotherBusiness.bullet1                        = buying another company
+page.takeovers.replacingAnotherBusiness.bullet2                        = changing from a sole trader or business partnership to a limited company
+page.takeovers.replacingAnotherBusiness.dropdownTitle                  = What is a sole trader or business partnership?
+page.takeovers.replacingAnotherBusiness.dropdownText1                  = A sole trader is someone who’s self-employed and is the only owner of their business.
+page.takeovers.replacingAnotherBusiness.dropdownText2                  = A business partnership is when two or more people agree to share the profits, costs and risks of running a business.
+error.replacingAnotherBusiness.required                                = Tell us if the new company is replacing another business

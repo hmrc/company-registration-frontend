@@ -23,6 +23,7 @@ import play.api.{Application, Environment, Mode}
 import uk.gov.hmrc.play.test.UnitSpec
 import utils.{FeatureSwitch, FeatureSwitchManager, SCRSFeatureSwitches}
 import WiremockHelper._
+import play.api.libs.ws.WSResponse
 
 trait IntegrationSpecBase extends UnitSpec
   with GivenWhenThen with GuiceOneServerPerSuite with ScalaFutures with Matchers
@@ -74,7 +75,9 @@ trait IntegrationSpecBase extends UnitSpec
                     businessActivitiesHandOff: Boolean = false,
                     paye: Boolean = false,
                     vat: Boolean = false,
-                    signPosting: Boolean = false): FeatureSwitch = {
+                    signPosting: Boolean = false,
+                    takeovers: Boolean = false
+                   ): FeatureSwitch = {
     def enableFeature(fs: FeatureSwitch, enabled: Boolean): FeatureSwitch = {
       if (enabled) {
         app.injector.instanceOf[FeatureSwitchManager].enable(fs)
@@ -87,7 +90,7 @@ trait IntegrationSpecBase extends UnitSpec
     enableFeature(app.injector.instanceOf[SCRSFeatureSwitches].businessActivitiesHandOff, businessActivitiesHandOff)
     enableFeature(app.injector.instanceOf[SCRSFeatureSwitches].paye, paye)
     enableFeature(app.injector.instanceOf[SCRSFeatureSwitches].vat, vat)
-
+    enableFeature(app.injector.instanceOf[SCRSFeatureSwitches].takeovers, takeovers)
   }
 
   override def beforeEach(): Unit = {
@@ -104,4 +107,8 @@ trait IntegrationSpecBase extends UnitSpec
     stopWiremock()
     super.afterAll()
   }
+
+ implicit class ResponseUtils(wsResponse: WSResponse) {
+   lazy val redirectLocation: Option[String] = wsResponse.header("Location")
+ }
 }

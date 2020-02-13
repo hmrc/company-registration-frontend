@@ -157,6 +157,10 @@ GET        /owning-companys-address                 controllers.groups.GroupAddr
 POST       /owning-companys-address                 controllers.groups.GroupAddressController.submit
 GET        /save-alf-address-groups                  controllers.groups.GroupAddressController.handbackFromALF
 
+#Takeovers section
+GET        /replacing-another-business              controllers.takeovers.ReplacingAnotherBusinessController.show
+POST       /replacing-another-business              controllers.takeovers.ReplacingAnotherBusinessController.submit
+
 ## DEPRECATED
 
 GET        /welcome                                 controllers.reg.WelcomeController.show
