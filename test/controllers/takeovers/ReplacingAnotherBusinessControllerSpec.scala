@@ -125,7 +125,6 @@ class ReplacingAnotherBusinessControllerSpec extends SCRSSpec with WithFakeAppli
           status(res) shouldBe SEE_OTHER
           redirectLocation(res) should contain(controllers.reg.routes.AccountingDatesController.show().url)
         }
-        //TODO Update when the next page is ready
         "store the selected answer and redirect the user to the next Takeover Page" in new Setup {
           override implicit val request: Request[AnyContentAsFormUrlEncoded] =
             FakeRequest().withFormUrlEncodedBody(replacingAnotherBusinessKey -> true.toString)
@@ -140,7 +139,7 @@ class ReplacingAnotherBusinessControllerSpec extends SCRSSpec with WithFakeAppli
           val res: Result = await(TestReplacingAnotherBusinessController.submit()(request))
 
           status(res) shouldBe SEE_OTHER
-          redirectLocation(res) should contain(controllers.reg.routes.AccountingDatesController.show().url) //TODO Update this to next takeover page when ready
+          redirectLocation(res) should contain(controllers.takeovers.routes.OtherBusinessNameController.show().url)
         }
       }
     }

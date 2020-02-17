@@ -161,6 +161,9 @@ GET        /save-alf-address-groups                  controllers.groups.GroupAdd
 GET        /replacing-another-business              controllers.takeovers.ReplacingAnotherBusinessController.show
 POST       /replacing-another-business              controllers.takeovers.ReplacingAnotherBusinessController.submit
 
+GET        /other-business-name                     controllers.takeovers.OtherBusinessNameController.show
+POST       /other-business-name                     controllers.takeovers.OtherBusinessNameController.submit
+
 ## DEPRECATED
 
 GET        /welcome                                 controllers.reg.WelcomeController.show

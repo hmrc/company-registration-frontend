@@ -24,27 +24,29 @@ import services.TimeService
 import scala.util.{Failure, Success, Try}
 
 object SCRSValidators {
-  val desSessionRegex                 = "^([A-Za-z0-9-]{0,60})$"
-  val deskproRegex                    = """^[A-Za-z\-.,()'"\s]+$"""
-  val postCodeRegex                   = """^[A-Z]{1,2}[0-9][0-9A-Z]? [0-9][A-Z]{2}$""".r
-  private val phoneNumberRegex        = """^[0-9 ]{1,20}$""".r
+  val desSessionRegex = "^([A-Za-z0-9-]{0,60})$"
+  val deskproRegex = """^[A-Za-z\-.,()'"\s]+$"""
+  val postCodeRegex = """^[A-Z]{1,2}[0-9][0-9A-Z]? [0-9][A-Z]{2}$""".r
+  private val phoneNumberRegex = """^[0-9 ]{1,20}$""".r
   private val completionCapacityRegex = """^[A-Za-z0-9 '\-]{1,100}$""".r
-  private val utrRegex                = """^[0-9]{0,10}$"""
-  private val emailRegex              = """^(?!.{71,})([-0-9a-zA-Z.+_]+@[-0-9a-zA-Z.+_]+\.[a-zA-Z]{1,11})$"""
-  private val emailRegexDes           = """^[A-Za-z0-9\-_.@]{1,70}$"""
-  val datePatternRegex                = """([12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))"""
-  val shareholderNameRegex              = """[A-Z a-z 0-9\\'-]{1,20}$"""
+  private val utrRegex = """^[0-9]{0,10}$"""
+  private val emailRegex = """^(?!.{71,})([-0-9a-zA-Z.+_]+@[-0-9a-zA-Z.+_]+\.[a-zA-Z]{1,11})$"""
+  private val emailRegexDes = """^[A-Za-z0-9\-_.@]{1,70}$"""
+  val datePatternRegex = """([12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))"""
+  val shareholderNameRegex = """[A-Z a-z 0-9\\'-]{1,20}$"""
+  val otherBusinessNameRegex = """[A-Z a-z 0-9\\'-]{1,100}$"""
 
   def isValidPhoneNo(phone: String): Either[String, String] = {
     def isValidNumber(s: String) = s.replaceAll(" ", "").matches("[0-9]+")
+
     val digitCount = phone.trim.replaceAll(" ", "").length
 
     (isValidNumber(phone), phone.trim.matches(phoneNumberRegex.toString())) match {
-      case (true, _) if digitCount > 20      => Left("validation.contactNum.tooLong")
-      case (true, _) if digitCount < 10      => Left("validation.contactNum.tooShort")
-      case (true, true)                      => Right(phone.trim)
-      case (true, false)                     => Right(phone.replaceAll(" ", ""))
-      case _                                 => Left("validation.contactNum")
+      case (true, _) if digitCount > 20 => Left("validation.contactNum.tooLong")
+      case (true, _) if digitCount < 10 => Left("validation.contactNum.tooShort")
+      case (true, true) => Right(phone.trim)
+      case (true, false) => Right(phone.replaceAll(" ", ""))
+      case _ => Left("validation.contactNum")
     }
   }
 
@@ -65,6 +67,17 @@ object SCRSValidators {
         case t if t.length > 20 => Seq(ValidationError("page.groups.groupName.20CharsOrLess"))
         case t if !t.matches(shareholderNameRegex) => Seq(ValidationError("page.groups.groupName.invalidFormat"))
         case t if t.matches(shareholderNameRegex) => Nil
+      }
+      if (errors.isEmpty) Valid else Invalid(errors)
+  })
+
+  val otherBusinessNameValidation: Constraint[String] = Constraint("constraints.otherBusinessName")({
+    text =>
+      val errors = text.trim match {
+        case name if name.length == 0 => Seq(ValidationError("error.otherBusinessName.required"))
+        case name if name.length > 100 => Seq(ValidationError("error.otherBusinessName.over100Characters"))
+        case name if !name.matches(otherBusinessNameRegex) => Seq(ValidationError("error.otherBusinessName.invalidCharacters"))
+        case _ => Nil
       }
       if (errors.isEmpty) Valid else Invalid(errors)
   })
@@ -105,22 +118,22 @@ object SCRSValidators {
 }
 
 class SCRSValidators(val timeService: TimeService) extends SCRSValidatorsT {
-  val now : LocalDate = LocalDate.now()
+  val now: LocalDate = LocalDate.now()
 }
 
 trait SCRSValidatorsT {
 
   val timeService: TimeService
-  val now : LocalDate
+  val now: LocalDate
 
-  private val nameRegex               = """^[a-zA-Z-]+(?:\W+[a-zA-Z-]+)+$""".r
+  private val nameRegex = """^[a-zA-Z-]+(?:\W+[a-zA-Z-]+)+$""".r
 
-  private val addresslinelongRegex    = """^$|[a-zA-Z0-9,.\(\)/&'"\-]{1}[a-zA-Z0-9, .\(\)/&'"\-]{0,26}$""".r
-  private val addressline4Regex       = """^$|[a-zA-Z0-9,.\(\)/&'"\-]{1}[a-zA-Z0-9, .\(\)/&'"\-]{0,17}$""".r
-  private val nonEmptyRegex           = """^(?=\s*\S).*$""".r
+  private val addresslinelongRegex = """^$|[a-zA-Z0-9,.\(\)/&'"\-]{1}[a-zA-Z0-9, .\(\)/&'"\-]{0,26}$""".r
+  private val addressline4Regex = """^$|[a-zA-Z0-9,.\(\)/&'"\-]{1}[a-zA-Z0-9, .\(\)/&'"\-]{0,17}$""".r
+  private val nonEmptyRegex = """^(?=\s*\S).*$""".r
 
 
-  val desSessionRegex                 = "^([A-Za-z0-9-]{0,60})$"
+  val desSessionRegex = "^([A-Za-z0-9-]{0,60})$"
 
   implicit lazy val bHS = timeService.bHS
 
@@ -151,7 +164,7 @@ trait SCRSValidatorsT {
     Constraint("constraints.emptyDate")({
       model =>
         model.crnDate match {
-          case "futureDate"  if model.day.isEmpty && model.month.isEmpty && model.year.isEmpty =>
+          case "futureDate" if model.day.isEmpty && model.month.isEmpty && model.year.isEmpty =>
             Invalid(Seq(ValidationError("page.reg.accountingDates.date.notFound", "dateNotFoundDay")))
           case "futureDate" if Seq(model.day, model.month, model.year).flatten.length < 3 =>
             Invalid(dmyNotCompletedErrors(model))
@@ -160,7 +173,7 @@ trait SCRSValidatorsT {
     })
   }
 
-  private def dmyNotCompletedErrors(model: AccountingDatesModel) : Seq[ValidationError] = {
+  private def dmyNotCompletedErrors(model: AccountingDatesModel): Seq[ValidationError] = {
     val definedFields = Seq(
       model.day.map(_ => "day"),
       model.month.map(_ => "month"),
@@ -174,23 +187,25 @@ trait SCRSValidatorsT {
 
   def validateDate: Constraint[AccountingDatesModel] = {
     Constraint("constraints.validateDate")({
-      model => model.crnDate match {
-        case "futureDate" =>
-          val fieldErrors = validateDateFields(model.day.get, model.month.get, model.year.get)
-          if(fieldErrors.nonEmpty) Invalid(fieldErrors) else {
-            val date = s"${model.year.get}-${model.month.get}-${model.day.get}"
-            if(timeService.validate(date)) Valid else Invalid(Seq(ValidationError("page.reg.accountingDates.date.invalid-date", "invalidDate")))
-          }
-        case _ => Valid
-      }
+      model =>
+        model.crnDate match {
+          case "futureDate" =>
+            val fieldErrors = validateDateFields(model.day.get, model.month.get, model.year.get)
+            if (fieldErrors.nonEmpty) Invalid(fieldErrors) else {
+              val date = s"${model.year.get}-${model.month.get}-${model.day.get}"
+              if (timeService.validate(date)) Valid else Invalid(Seq(ValidationError("page.reg.accountingDates.date.invalid-date", "invalidDate")))
+            }
+          case _ => Valid
+        }
     })
   }
 
   private def validateDateFields(day: String, month: String, year: String): Seq[ValidationError] = {
     def validDateField(fieldName: String, maxVal: Int, field: String) = Try(field.toInt) match {
-      case Success(int) => if(0 < int && int <= maxVal) None else Some(ValidationError(s"page.reg.accountingDates.date.invalid-$fieldName", s"invalid${fieldName.capitalize}"))
-      case Failure(_)   => Some(ValidationError(s"page.reg.accountingDates.date.invalid-$fieldName", s"invalid${fieldName.capitalize}"))
+      case Success(int) => if (0 < int && int <= maxVal) None else Some(ValidationError(s"page.reg.accountingDates.date.invalid-$fieldName", s"invalid${fieldName.capitalize}"))
+      case Failure(_) => Some(ValidationError(s"page.reg.accountingDates.date.invalid-$fieldName", s"invalid${fieldName.capitalize}"))
     }
+
     val validatedYear = Try(year.toInt) match {
       case Success(_) => None
       case Failure(_) => Some(ValidationError("page.reg.accountingDates.date.invalid-year", "invalidYear"))

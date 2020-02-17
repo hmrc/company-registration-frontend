@@ -36,4 +36,8 @@ trait TakeoverServiceMock extends MockitoSugar {
     when(mockTakeoverService.updateReplacingAnotherBusiness(Matchers.eq(registrationId), Matchers.eq(replacingAnotherBusiness))(Matchers.any[HeaderCarrier]))
       .thenReturn(response)
 
+  def mockUpdateBusinessName(registrationId: String, businessName: String)(response: Future[TakeoverDetails]): Unit =
+    when(mockTakeoverService.updateBusinessName(Matchers.eq(registrationId), Matchers.eq(businessName))(Matchers.any[HeaderCarrier]))
+      .thenReturn(response)
+
 }
