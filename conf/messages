@@ -196,6 +196,10 @@ page.reg.summary.PPOBSameAsRO                                       = Registered
 page.reg.summary.pleaseReview                                       = Please review the information you have provided and then continue
 page.reg.summary.information.indent                                 = Your answers should reflect your current business activities. You''ll need to tell HMRC about any changes to your business in the future.
 
+page.reg.summary.takeovers.heading                                  = Company takeover
+page.reg.summary.takeovers.replacingBusiness                        = Is the company replacing another business
+page.reg.summary.takeovers.replacingBusiness.change                 = whether the company is replacing another business
+
 ## Limit reached
 page.reg.limit-reached.description                                  = We''ve reached our maximum number of users for today
 page.reg.limit-reached.para.one                                     = Sorry, we''ve already reached our limit for new users of the service today.
@@ -525,3 +529,4 @@ page.takeovers.otherBusinessName.field                                 = Enter t
 error.otherBusinessName.required                                       = Tell us the name of the other business
 error.otherBusinessName.over100Characters                              = Enter the name using 100 characters or less
 error.otherBusinessName.invalidCharacters                              = Enter the name using only letters, numbers, spaces, hyphens and apostrophes
+

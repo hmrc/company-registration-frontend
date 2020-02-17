@@ -26,7 +26,9 @@
   roAddress : CHROAddress,
   ctContactDets : CompanyContactDetailsApi,
   tradingDetails : TradingDetails,
-  applicant : AboutYouChoice)(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.FrontendAppConfig)
+  optTakeoverDetails: Option[TakeoverDetails],
+  applicant : AboutYouChoice
+)(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.FrontendAppConfig)
 
 @ppobMessage = {
     @Messages("page.reg.summary.PPOBSameAsRO")
@@ -43,6 +45,19 @@
         @Html("Yes")
     } else {
         @Html("No")
+    }
+}
+
+@takeoverDetailsSection = {
+    @optTakeoverDetails.map{ takeoverDetails =>
+        <h2 id="takeoversTitle" class="heading-medium">@Messages("page.reg.summary.takeovers.heading")</h2>
+        <dl class="govuk-check-your-answers cya-questions-long">
+            <div>
+                <dt id="replacingAnotherBusinessLabel" class="cya-question">@Messages("page.reg.summary.takeovers.replacingBusiness")</dt>
+                <dd id="replacingAnotherBusiness" class="cya-answer">@if(takeoverDetails.replacingAnotherBusiness){@messages("common.button.yes")} else {@messages("common.button.no")}</dd>
+                <dd class="cya-change"><a href='@controllers.takeovers.routes.ReplacingAnotherBusinessController.show' id="change-replacing-another-business">@Messages("change")<span class="visually-hidden">@Messages("page.reg.summary.takeovers.replacingBusiness.change")</span></a></dd>
+            </div>
+        </dl>
     }
 }
 
@@ -126,6 +141,8 @@
     </div>
   </dl>
 
+  @takeoverDetailsSection
+
   <h2 id="companyAccountingTitle" class="heading-medium">@Messages("page.reg.summary.heading.two")</h2>
   <dl class="govuk-check-your-answers cya-questions-long">
     <div>
@@ -144,7 +161,8 @@
       <dd class="cya-change"><a href="@controllers.reg.routes.TradingDetailsController.show" id="change-trading-details">@Messages("change")<span class="visually-hidden">@Messages("page.reg.summary.tradingDetails.change")</span></a></dd>
     </div>
   </dl>
-</br>
+
+  </br>
   <div class="form-group">
     <p>@Messages("page.reg.summary.pleaseReview")</p>
     <div class="panel panel-border-wide">

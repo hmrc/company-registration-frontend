@@ -29,17 +29,20 @@ import play.api.i18n.MessagesApi
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.WithFakeApplication
+import mocks.TakeoverServiceMock
 import utils.JweCommon
 
 import scala.concurrent.Future
 
 class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixture
-  with CorporationTaxFixture with NavModelRepoMock with WithFakeApplication with AuthBuilder {
+  with CorporationTaxFixture with NavModelRepoMock with WithFakeApplication with AuthBuilder with TakeoverServiceMock {
 
   implicit val hcWithExtraHeaders: HeaderCarrier = HeaderCarrier().withExtraHeaders("Accept" -> "application/vnd.hmrc.1.0+json")
 
   val applicantData = AboutYouChoice("Director")
   val mockNavModelRepoObj = mockNavModelRepo
+  val testTakeoverDetails = TakeoverDetails(replacingAnotherBusiness = true)
+  val testRegiId = "12345"
 
   class SetupPage {
     val controller = new SummaryController {
@@ -48,6 +51,7 @@ class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixtu
       val compRegConnector = mockCompanyRegistrationConnector
       val keystoreConnector = mockKeystoreConnector
       val metaDataService = mockMetaDataService
+      val takeoverService = mockTakeoverService
       val handOffService = mockHandOffService
       val navModelMongo = mockNavModelRepoObj
       override val appConfig = mockAppConfig
@@ -62,7 +66,7 @@ class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixtu
 
     "make sure that the Summary page has the correct elements" in new SetupPage {
 
-      mockKeystoreFetchAndGet("registrationID", Some("12345"))
+      mockKeystoreFetchAndGet("registrationID", Some(testRegiId))
 
       when(mockMetaDataService.getApplicantData(Matchers.any())(Matchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(applicantData))
@@ -71,6 +75,8 @@ class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixtu
       CTRegistrationConnectorMocks.retrieveTradingDetails(Some(TradingDetails("false")))
       CTRegistrationConnectorMocks.retrieveContactDetails(CompanyContactDetailsSuccessResponse(validCompanyContactDetailsResponse))
       CTRegistrationConnectorMocks.retrieveAccountingDetails(validAccountingResponse)
+
+      mockGetTakeoverDetails(testRegiId)(Future.successful(None))
 
       when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(corporationTaxModel))
@@ -100,7 +106,7 @@ class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixtu
 
     "make sure that the Summary page has the correct elements when the PPOB addess is not same as RO address" in new SetupPage {
 
-      mockKeystoreFetchAndGet("registrationID", Some("12345"))
+      mockKeystoreFetchAndGet("registrationID", Some(testRegiId))
 
       when(mockMetaDataService.getApplicantData(Matchers.any())(Matchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(applicantData))
@@ -109,6 +115,9 @@ class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixtu
       CTRegistrationConnectorMocks.retrieveContactDetails(CompanyContactDetailsSuccessResponse(validCompanyContactDetailsResponse))
       CTRegistrationConnectorMocks.retrieveCompanyDetails(Some(validCompanyDetailsResponseDifferentAddresses))
       CTRegistrationConnectorMocks.retrieveAccountingDetails(validAccountingResponse)
+
+      mockGetTakeoverDetails(testRegiId)(Future.successful(None))
+
       when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(corporationTaxModel))
 
@@ -127,6 +136,48 @@ class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixtu
             "companyContact" -> "0123456789 foo@bar.wibble 0123456789",
             "startDate" -> "10/06/2020",
             "tradingDetails" -> "Yes"
+          ) foreach { case (element, message) =>
+            document.getElementById(element).text() shouldBe message
+          }
+      }
+    }
+
+    "make sure that the Summary page has the correct elements when the user is taking over a business" in new SetupPage {
+      mockKeystoreFetchAndGet("registrationID", Some(testRegiId))
+
+      when(mockMetaDataService.getApplicantData(Matchers.any())(Matchers.any[HeaderCarrier]()))
+        .thenReturn(Future.successful(applicantData))
+
+      CTRegistrationConnectorMocks.retrieveCompanyDetails(Some(validCompanyDetailsResponse))
+      CTRegistrationConnectorMocks.retrieveTradingDetails(Some(TradingDetails("false")))
+      CTRegistrationConnectorMocks.retrieveContactDetails(CompanyContactDetailsSuccessResponse(validCompanyContactDetailsResponse))
+      CTRegistrationConnectorMocks.retrieveAccountingDetails(validAccountingResponse)
+
+      mockGetTakeoverDetails(testRegiId)(Future.successful(Some(testTakeoverDetails)))
+
+      when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(Matchers.any())(Matchers.any()))
+        .thenReturn(Future.successful(corporationTaxModel))
+
+      showWithAuthorisedUser(controller.show) {
+        result =>
+          val document = Jsoup.parse(contentAsString(result))
+
+          document.title() shouldBe "Check and confirm your answers"
+
+          Map (
+            "applicantTitle" -> "Applicant",
+            "applicant" -> "Director",
+            "companyNameTitle" -> "Company details",
+            "companyAccountingTitle" -> "Company accounting",
+            "companyName" -> "testCompanyName",
+            "ROAddress" -> "Premises Line1 Line2 Locality Region FX1 1ZZ Country",
+            "PPOBAddress" -> "Registered Office Address",
+            "companyContact" -> "0123456789 foo@bar.wibble 0123456789",
+            "startDate" -> "10/06/2020",
+            "tradingDetails" -> "No",
+            "takeoversTitle" -> "Company takeover",
+            "replacingAnotherBusiness" -> "Yes",
+            "replacingAnotherBusinessLabel" -> "Is the company replacing another business"
           ) foreach { case (element, message) =>
             document.getElementById(element).text() shouldBe message
           }
