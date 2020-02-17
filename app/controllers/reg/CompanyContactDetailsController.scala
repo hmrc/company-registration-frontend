@@ -17,7 +17,6 @@
 package controllers.reg
 
 import javax.inject.Inject
-
 import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector, S4LConnector}
 import controllers.auth.AuthFunction
@@ -28,7 +27,7 @@ import play.api.mvc.Action
 import services.{CompanyContactDetailsService, MetricsService}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
-import utils.SessionRegistration
+import utils.{SCRSFeatureSwitches, SessionRegistration}
 import views.html.reg.CompanyContactDetails
 
 import scala.concurrent.Future
@@ -40,6 +39,7 @@ class CompanyContactDetailsControllerImpl @Inject()(val authConnector: PlayAuthC
                                                     val keystoreConnector: KeystoreConnector,
                                                     val appConfig: FrontendAppConfig,
                                                     val companyContactDetailsService: CompanyContactDetailsService,
+                                                    val scrsFeatureSwitches: SCRSFeatureSwitches,
                                                     val messagesApi: MessagesApi) extends CompanyContactDetailsController
 
 trait CompanyContactDetailsController extends FrontendController with AuthFunction with ControllerErrorHandler with SessionRegistration with I18nSupport {
@@ -48,6 +48,8 @@ trait CompanyContactDetailsController extends FrontendController with AuthFuncti
   val companyContactDetailsService: CompanyContactDetailsService
   val compRegConnector: CompanyRegistrationConnector
   val metricsService: MetricsService
+  val scrsFeatureSwitches: SCRSFeatureSwitches
+
   implicit val appConfig: FrontendAppConfig
 
   val show = Action.async {
@@ -76,7 +78,12 @@ trait CompanyContactDetailsController extends FrontendController with AuthFuncti
                   context.stop()
                   companyContactDetailsService.checkIfAmendedDetails(email, cred, eID, details).flatMap { _ =>
                     companyContactDetailsService.updatePrePopContactDetails(regId, models.CompanyContactDetails.toApiModel(details)) map { _ =>
-                      Redirect(routes.AccountingDatesController.show())
+                      if(scrsFeatureSwitches.takeovers.enabled) {
+                        Redirect(controllers.takeovers.routes.ReplacingAnotherBusinessController.show())
+                      }
+                      else {
+                        Redirect(routes.AccountingDatesController.show())
+                      }
                     }
                   }
                 case CompanyContactDetailsNotFoundResponse => Future.successful(NotFound(defaultErrorPage))
