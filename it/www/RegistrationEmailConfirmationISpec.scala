@@ -18,7 +18,7 @@ package www
 
 import java.util.UUID
 
-import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, post, stubFor, urlMatching}
+import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import itutil.{IntegrationSpecBase, LoginStub, RequestsFinder}
 import play.api.http.HeaderNames
@@ -79,7 +79,8 @@ class RegistrationEmailConfirmationISpec extends IntegrationSpecBase with LoginS
   }
   val nameJson = Json.parse(
     """{ "name": {"name": "foo", "lastName": "bar"}}""".stripMargin).as[JsObject]
-  val nameAndCredId = Json.obj("externalId" -> "fooBarWizz1") ++ nameJson
+  val testExternalId = "testId"
+  val nameAndCredId = Json.obj("externalId" -> testExternalId) ++ nameJson
 
   s"${controllers.reg.routes.RegistrationEmailConfirmationController.submit().url}" should {
     "POST for submit should return 303 and redirect to Completion Capacity if YES is selected AND email is already verified" in {
@@ -125,8 +126,12 @@ class RegistrationEmailConfirmationISpec extends IntegrationSpecBase with LoginS
       val awaitedFuture = await(fResponse)
       awaitedFuture.status shouldBe 303
       awaitedFuture.header(HeaderNames.LOCATION) shouldBe Some("/register-your-company/relationship-to-company")
-      val audit = Json.parse(getRequestBody("post", "/write/audit")).as[JsObject] \ "detail"
-      audit.get shouldBe Json.parse("""{"externalUserId":"fooBarWizz1","authProviderId":"12345-credId","journeyId":"test","emailAddress":"foo","isVerifiedEmailAddress":true,"previouslyVerified":true}""")
+      val audit = (Json.parse(
+        findAll(
+          postRequestedFor(urlMatching("/write/audit")).withRequestBody(containing(testExternalId))
+        ).get(0).getBodyAsString
+      ).as[JsObject] \ "detail").toOption
+      audit shouldBe Some(Json.parse("""{"externalUserId":"testId","authProviderId":"12345-credId","journeyId":"test","emailAddress":"foo","isVerifiedEmailAddress":true,"previouslyVerified":true}"""))
     }
 
     "POST for submit should return 303 and redirect to Email verification if YES is selected AND email is NOT verified" in {
