@@ -41,9 +41,6 @@ class ReplacingAnotherBusinessControllerSpec extends SCRSSpec with WithFakeAppli
   with LoginFixture with AuthBuilder with TakeoverServiceMock with I18nSupport {
   implicit lazy val messagesApi: MessagesApi = fakeApplication.injector.instanceOf[MessagesApi]
 
-  def mockTakeoversFeatureSwitch(isEnabled: Boolean): Unit =
-    when(mockSCRSFeatureSwitches.takeovers).thenReturn(BooleanFeatureSwitch("takeoverFeatureSwitch", isEnabled))
-
   class Setup {
     val testRegistrationId = "testRegistrationId"
     implicit val request: Request[AnyContent] = FakeRequest()

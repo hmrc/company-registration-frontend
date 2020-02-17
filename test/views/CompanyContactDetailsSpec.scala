@@ -46,6 +46,7 @@ class CompanyContactDetailsSpec extends SCRSSpec with CompanyContactDetailsFixtu
       override val keystoreConnector= mockKeystoreConnector
       override val appConfig = mockAppConfig
       override val messagesApi = fakeApplication.injector.instanceOf[MessagesApi]
+      override val scrsFeatureSwitches = mockSCRSFeatureSwitches
     }
 
     val ctDocFirstTimeThrough =

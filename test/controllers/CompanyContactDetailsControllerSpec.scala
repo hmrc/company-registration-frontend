@@ -47,6 +47,7 @@ class CompanyContactDetailsControllerSpec extends SCRSSpec with UserDetailsFixtu
       override val keystoreConnector= mockKeystoreConnector
       implicit val appConfig: FrontendAppConfig = fakeApplication.injector.instanceOf[FrontendAppConfig]
       override val messagesApi = fakeApplication.injector.instanceOf[MessagesApi]
+      override val scrsFeatureSwitches = mockSCRSFeatureSwitches
     }
   }
 
@@ -101,7 +102,7 @@ class CompanyContactDetailsControllerSpec extends SCRSSpec with UserDetailsFixtu
 
   "submit" should {
 
-    "return a 303 with a valid form and redirect to the correct location" in new Setup {
+    "return a 303 with a valid form and redirect to the accounting dates controller when the takeover feature switch is disabled" in new Setup {
       when(mockKeystoreConnector.fetchAndGet[String](any())(any(), any()))
         .thenReturn(Future.successful(Some("test")))
       CompanyContactDetailsServiceMocks.updateContactDetails(CompanyContactDetailsSuccessResponse(validCompanyContactDetailsResponse))
@@ -109,6 +110,7 @@ class CompanyContactDetailsControllerSpec extends SCRSSpec with UserDetailsFixtu
         .thenReturn(Future.successful(false))
       when(mockCompanyContactDetailsService.updatePrePopContactDetails(any(), any())(any()))
         .thenReturn(Future.successful(true))
+      mockTakeoversFeatureSwitch(isEnabled = false)
 
       val request = FakeRequest().withFormUrlEncodedBody(validCompanyContactDetailsFormData: _*)
 
@@ -116,6 +118,25 @@ class CompanyContactDetailsControllerSpec extends SCRSSpec with UserDetailsFixtu
         result =>
           status(result) shouldBe SEE_OTHER
           redirectLocation(result) shouldBe Some("/register-your-company/when-start-business")
+      }
+    }
+
+    "return a 303 with a valid form and redirect to the accounting dates controller when the takeover feature switch is enabled" in new Setup {
+      when(mockKeystoreConnector.fetchAndGet[String](any())(any(), any()))
+        .thenReturn(Future.successful(Some("test")))
+      CompanyContactDetailsServiceMocks.updateContactDetails(CompanyContactDetailsSuccessResponse(validCompanyContactDetailsResponse))
+      when(mockCompanyContactDetailsService.checkIfAmendedDetails(any(), any(), any(), any())(any(), any()))
+        .thenReturn(Future.successful(false))
+      when(mockCompanyContactDetailsService.updatePrePopContactDetails(any(), any())(any()))
+        .thenReturn(Future.successful(true))
+      mockTakeoversFeatureSwitch(isEnabled = true)
+
+      val request = FakeRequest().withFormUrlEncodedBody(validCompanyContactDetailsFormData: _*)
+
+      submitWithAuthorisedUserRetrieval(controller.submit, request, authDetailsAmend) {
+        result =>
+          status(result) shouldBe SEE_OTHER
+          redirectLocation(result) shouldBe Some(controllers.takeovers.routes.ReplacingAnotherBusinessController.show().url)
       }
     }
 
