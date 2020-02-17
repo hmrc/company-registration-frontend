@@ -3,19 +3,23 @@ package www
 
 import java.util.UUID
 
+import itutil.servicestubs.TakeoverStub
 import itutil.{IntegrationSpecBase, LoginStub}
 import models._
 import org.jsoup.Jsoup
 import play.api.http.HeaderNames
 import play.api.libs.json.Json
 
-class SummaryControllerISpec extends IntegrationSpecBase with LoginStub {
+class SummaryControllerISpec extends IntegrationSpecBase with LoginStub with TakeoverStub {
   val userId = "/bar/foo"
   val csrfToken = UUID.randomUUID().toString
   val regId = "5"
   val sessionCookie = () => getSessionCookie(Map("csrfToken" -> csrfToken), userId)
+  val takeoverDetails = Some(TakeoverDetails(replacingAnotherBusiness = true))
+
   "Display summary correctly with full model" in {
     stubAuthorisation()
+    stubGetTakeoverDetails(regId, 200, takeoverDetails)
     stubSuccessfulLogin(userId = userId)
     stubKeystore(SessionId, regId)
     stubBusinessRegRetrieveMetaDataWithRegId(regId, 200, Json.toJson(BusinessRegistration(regId, "123", "en", Some("director"), Links(Some("foo"), Some("bar")))).toString())

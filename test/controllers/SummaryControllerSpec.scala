@@ -23,6 +23,7 @@ import config.FrontendAppConfig
 import controllers.reg.SummaryController
 import fixtures.{AccountingDetailsFixture, CorporationTaxFixture, SCRSFixtures, TradingDetailsFixtures}
 import helpers.SCRSSpec
+import mocks.TakeoverServiceMock
 import models._
 import models.handoff._
 import org.mockito.Matchers
@@ -39,7 +40,7 @@ import utils.JweCommon
 import scala.concurrent.Future
 
 class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with WithFakeApplication with AccountingDetailsFixture with TradingDetailsFixtures
-  with CorporationTaxFixture with AuthBuilder {
+  with CorporationTaxFixture with AuthBuilder with TakeoverServiceMock {
 
   val aboutYouData = AboutYouChoice("Director")
   val mockNavModelRepoObj = mockNavModelRepo
@@ -69,6 +70,7 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with WithFakeAppl
       override val compRegConnector = mockCompanyRegistrationConnector
       override val keystoreConnector = mockKeystoreConnector
       override val metaDataService = mockMetaDataService
+      override val takeoverService = mockTakeoverService
       override val handOffService = mockHandOffService
       implicit val appConfig: FrontendAppConfig = fakeApplication.injector.instanceOf[FrontendAppConfig]
       override val jwe: JweCommon = mockJweCommon
@@ -78,6 +80,7 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with WithFakeAppl
   lazy val regID = UUID.randomUUID.toString
 
   val corporationTaxModel = buildCorporationTaxModel()
+  val testRegId = "12345"
 
   "Sending a GET request to Summary Controller" should {
 
@@ -95,8 +98,8 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with WithFakeAppl
       when(mockMetaDataService.getApplicantData(Matchers.any())(Matchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(aboutYouData))
 
-      mockKeystoreFetchAndGet("registrationID", Some("12345"))
-
+      mockKeystoreFetchAndGet("registrationID", Some(testRegId))
+      mockGetTakeoverDetails(testRegId)(Future.successful(None))
       mockS4LFetchAndGet("CompanyContactDetails", Some(validCompanyContactDetailsModel))
       CTRegistrationConnectorMocks.retrieveCompanyDetails(Some(validCompanyDetailsResponse))
       CTRegistrationConnectorMocks.retrieveTradingDetails(Some(tradingDetailsTrue))
@@ -127,7 +130,7 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with WithFakeAppl
   "back" should {
     "redirect to post sign in if no navModel exists" in new Setup {
       when(mockKeystoreConnector.fetchAndGet[String](Matchers.eq("registrationID"))(Matchers.any(), Matchers.any()))
-        .thenReturn(Future.successful(Some("12354")))
+        .thenReturn(Future.successful(Some(testRegId)))
       when(mockHandOffService.fetchNavModel(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new NavModelNotFoundException))
       showWithAuthorisedUserRetrieval(controller.back, Some("extID")) {
         res =>
@@ -139,13 +142,13 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with WithFakeAppl
       val request = FakeRequest().withFormUrlEncodedBody()
 
       when(mockKeystoreConnector.fetchAndGet[String](Matchers.eq("registrationID"))(Matchers.any(), Matchers.any()))
-        .thenReturn(Future.successful(Some("12354")))
+        .thenReturn(Future.successful(Some(testRegId)))
       when(mockJweCommon.encrypt[BackHandoff](Matchers.any[BackHandoff]())(Matchers.any[Writes[BackHandoff]])).thenReturn(Some("foo"))
 
       when(mockHandOffService.fetchNavModel(Matchers.any())(Matchers.any())).thenReturn(Future.successful(handOffNavModel))
 
       when(mockHandOffService.buildBackHandOff(Matchers.any())(Matchers.any()))
-        .thenReturn(Future.successful(BackHandoff("EXT-123456", "12354", Json.obj(), Json.obj(), Json.obj())))
+        .thenReturn(Future.successful(BackHandoff("EXT-123456", testRegId, Json.obj(), Json.obj(), Json.obj())))
 
       submitWithAuthorisedUserRetrieval(controller.back, request, Some("extID")){
         result =>
@@ -167,7 +170,7 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with WithFakeAppl
         )
       )
       when(mockKeystoreConnector.fetchAndGet[String](Matchers.eq("registrationID"))(Matchers.any(), Matchers.any()))
-        .thenReturn(Future.successful(Some("12354")))
+        .thenReturn(Future.successful(Some(testRegId)))
       when(mockHandOffService.fetchNavModel(Matchers.any())(Matchers.any())).thenReturn(Future.successful(navModel))
       when(mockJweCommon.encrypt[JsObject](Matchers.any[JsObject]())(Matchers.any[Writes[JsObject]])).thenReturn(Some("foo"))
       showWithAuthorisedUserRetrieval(controller.summaryBackLink("testJumpKey"), Some("extID")) {
@@ -183,7 +186,7 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with WithFakeAppl
         Receiver(Map("0" -> NavLinks("testForwardLinkFromReceiver0", "testReverseLinkFromReceiver0")))
       )
       when(mockKeystoreConnector.fetchAndGet[String](Matchers.eq("registrationID"))(Matchers.any(), Matchers.any()))
-        .thenReturn(Future.successful(Some("12354")))
+        .thenReturn(Future.successful(Some(testRegId)))
       when(mockJweCommon.encrypt[JsObject](Matchers.any[JsObject]())(Matchers.any[Writes[JsObject]])).thenReturn(Some("foo"))
       when(mockHandOffService.fetchNavModel(Matchers.any())(Matchers.any())).thenReturn(Future.successful(handOffNavModel))
       showWithAuthorisedUserRetrieval(controller.summaryBackLink("foo"), Some("extID")) {

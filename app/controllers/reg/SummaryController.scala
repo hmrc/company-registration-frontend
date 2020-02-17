@@ -42,6 +42,7 @@ class SummaryControllerImpl @Inject()(val authConnector: PlayAuthConnector,
                                       val compRegConnector: CompanyRegistrationConnector,
                                       val keystoreConnector: KeystoreConnector,
                                       val metaDataService: MetaDataService,
+                                      val takeoverService: TakeoverService,
                                       val handOffService: HandOffService,
                                       val navModelRepo: NavModelRepo,
                                       val appConfig: FrontendAppConfig,
@@ -55,12 +56,13 @@ trait SummaryController extends FrontendController with AuthFunction with Common
 with SessionRegistration with I18nSupport {
   implicit val appConfig: FrontendAppConfig
 
-  val s4LConnector : S4LConnector
-  val compRegConnector : CompanyRegistrationConnector
+  val s4LConnector: S4LConnector
+  val compRegConnector: CompanyRegistrationConnector
   val jwe: JweCommon
 
-  val metaDataService : MetaDataService
-  val handOffService : HandOffService
+  val metaDataService: MetaDataService
+  val takeoverService: TakeoverService
+  val handOffService: HandOffService
 
   val show: Action[AnyContent] = Action.async {
     implicit request =>
@@ -71,6 +73,7 @@ with SessionRegistration with I18nSupport {
             accountingDates <- compRegConnector.retrieveAccountingDetails(regID)
             ctContactDets <- compRegConnector.retrieveContactDetails(regID)
             companyDetails <- compRegConnector.retrieveCompanyDetails(regID)
+            takeoverDetails <- takeoverService.getTakeoverDetails(regID)
             Some(tradingDetails) <- compRegConnector.retrieveTradingDetails(regID)
             cTRecord <- compRegConnector.retrieveCorporationTaxRegistration(regID)
           } yield {
@@ -83,7 +86,7 @@ with SessionRegistration with I18nSupport {
                   case AccountingDetailsSuccessResponse(response) => response
                   case _ => throw new Exception("could not find company accounting details")
                 }
-                Ok(Summary(details.companyName, details.jurisdiction, accountDates, ppobAddress, rOAddress, ctContactDetails, tradingDetails, cc))
+                Ok(Summary(details.companyName, details.jurisdiction, accountDates, ppobAddress, rOAddress, ctContactDetails, tradingDetails, takeoverDetails, cc))
               case _ =>
                 Logger.error(s"[SummaryController] [show] Could not find company details for reg ID : $regID - suspected direct routing to summary page")
                 InternalServerError(defaultErrorPage)
