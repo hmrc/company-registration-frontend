@@ -185,7 +185,7 @@ page.reg.summary.heading.one.b                                      = Company co
 page.reg.summary.companyContact                                     = Give us one or more ways to contact
 page.reg.summary.companyContact.change                              = the company''s contact for Corporation Tax
 
-page.reg.summary.companycontactMobileNumber.change                  = the mobile number of the company''s contact for Corporation Tax
+page.reg.summary.companyContactMobileNumber.change                  = the mobile number of the company''s contact for Corporation Tax
 
 page.reg.summary.tradingDetails                                     = In its first 3 months will the company pay interest on loans, pay royalties, or receive interest or dividend payments from overseas investments?
 page.reg.summary.tradingDetails.change                              = whether in its first 3 months the company will pay interest on loans, pay royalties, or receive interest or dividend payments from overseas investments
@@ -199,6 +199,8 @@ page.reg.summary.information.indent                                 = Your answe
 page.reg.summary.takeovers.heading                                  = Company takeover
 page.reg.summary.takeovers.replacingBusiness                        = Is the new company replacing another business?
 page.reg.summary.takeovers.replacingBusiness.change                 = whether the new company is replacing another business
+page.reg.summary.takeovers.otherBusinessName                        = What is the name of the other business?
+page.reg.summary.takeovers.otherBusinessName.change                 = the name of the other business
 
 ## Limit reached
 page.reg.limit-reached.description                                  = We''ve reached our maximum number of users for today

@@ -42,6 +42,7 @@ class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixtu
   val applicantData = AboutYouChoice("Director")
   val mockNavModelRepoObj = mockNavModelRepo
   val testTakeoverDetails = TakeoverDetails(replacingAnotherBusiness = true)
+  val testBusinessName = TakeoverDetails(replacingAnotherBusiness = true, businessName = Some("ABC Limited"))
   val testRegiId = "12345"
 
   class SetupPage {
@@ -178,6 +179,50 @@ class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixtu
             "takeoversTitle" -> "Company takeover",
             "replacingAnotherBusiness" -> "Yes",
             "replacingAnotherBusinessLabel" -> "Is the new company replacing another business?"
+          ) foreach { case (element, message) =>
+            document.getElementById(element).text() shouldBe message
+          }
+      }
+    }
+
+    "make sure that the Summary page has the correct elements when the user changes the name of the other business" in new SetupPage {
+      mockKeystoreFetchAndGet("registrationID", Some(testRegiId))
+
+      when(mockMetaDataService.getApplicantData(Matchers.any())(Matchers.any[HeaderCarrier]()))
+        .thenReturn(Future.successful(applicantData))
+
+      CTRegistrationConnectorMocks.retrieveCompanyDetails(Some(validCompanyDetailsResponse))
+      CTRegistrationConnectorMocks.retrieveTradingDetails(Some(TradingDetails("false")))
+      CTRegistrationConnectorMocks.retrieveContactDetails(CompanyContactDetailsSuccessResponse(validCompanyContactDetailsResponse))
+      CTRegistrationConnectorMocks.retrieveAccountingDetails(validAccountingResponse)
+
+      mockGetTakeoverDetails(testRegiId)(Future.successful(Some(testBusinessName)))
+
+      when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(Matchers.any())(Matchers.any()))
+        .thenReturn(Future.successful(corporationTaxModel))
+
+      showWithAuthorisedUser(controller.show) {
+        result =>
+          val document = Jsoup.parse(contentAsString(result))
+
+          document.title() shouldBe "Check and confirm your answers"
+
+          Map (
+            "applicantTitle" -> "Applicant",
+            "applicant" -> "Director",
+            "companyNameTitle" -> "Company details",
+            "companyAccountingTitle" -> "Company accounting",
+            "companyName" -> "testCompanyName",
+            "ROAddress" -> "Premises Line1 Line2 Locality Region FX1 1ZZ Country",
+            "PPOBAddress" -> "Registered Office Address",
+            "companyContact" -> "0123456789 foo@bar.wibble 0123456789",
+            "startDate" -> "10/06/2020",
+            "tradingDetails" -> "No",
+            "takeoversTitle" -> "Company takeover",
+            "replacingAnotherBusiness" -> "Yes",
+            "replacingAnotherBusinessLabel" -> "Is the new company replacing another business?",
+            "otherBusinessName" -> "ABC Limited",
+            "otherBusinessNameLabel" -> "What is the name of the other business?"
           ) foreach { case (element, message) =>
             document.getElementById(element).text() shouldBe message
           }
