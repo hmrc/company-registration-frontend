@@ -177,7 +177,7 @@ class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixtu
             "tradingDetails" -> "No",
             "takeoversTitle" -> "Company takeover",
             "replacingAnotherBusiness" -> "Yes",
-            "replacingAnotherBusinessLabel" -> "Is the company replacing another business"
+            "replacingAnotherBusinessLabel" -> "Is the new company replacing another business?"
           ) foreach { case (element, message) =>
             document.getElementById(element).text() shouldBe message
           }
