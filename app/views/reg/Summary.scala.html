@@ -49,7 +49,7 @@
 }
 
 @takeoverDetailsSection = {
-    @optTakeoverDetails.map{ takeoverDetails =>
+    @optTakeoverDetails.map { takeoverDetails =>
         <h2 id="takeoversTitle" class="heading-medium">@Messages("page.reg.summary.takeovers.heading")</h2>
         <dl class="govuk-check-your-answers cya-questions-long">
             <div>
@@ -57,6 +57,14 @@
                 <dd id="replacingAnotherBusiness" class="cya-answer">@if(takeoverDetails.replacingAnotherBusiness){@messages("common.button.yes")} else {@messages("common.button.no")}</dd>
                 <dd class="cya-change"><a href='@controllers.takeovers.routes.ReplacingAnotherBusinessController.show' id="change-replacing-another-business">@Messages("change")<span class="visually-hidden">@Messages("page.reg.summary.takeovers.replacingBusiness.change")</span></a></dd>
             </div>
+
+        @takeoverDetails.businessName.map { businessName =>
+            <div>
+                <dt id="otherBusinessNameLabel" class="cya-question">@Messages("page.reg.summary.takeovers.otherBusinessName")</dt>
+                <dd id="otherBusinessName" class="cya-answer">@businessName</dd>
+                <dd class="cya-change"><a href='@controllers.takeovers.routes.OtherBusinessNameController.show' id="change-other-business-name">@Messages("change")<span class="visually-hidden">@Messages("page.reg.summary.takeovers.otherBusinessName.change")</span></a></dd>
+            </div>
+        }
         </dl>
     }
 }
