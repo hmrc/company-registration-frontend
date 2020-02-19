@@ -49,12 +49,23 @@ class TakeoverServiceSpec extends UnitSpec  {
           await(TestTakeoverService.updateReplacingAnotherBusiness(testRegistrationId, replacingAnotherBusiness = true)) shouldBe expectedTakeoverDetails
         }
       }
-      "the user has previously entered takeover information" should {
+      "the user has previously entered identical takeover information" should {
         "do not update the existing data as it has not changed" in new Setup {
           val existingTakeoverDetails: TakeoverDetails = TakeoverDetails(replacingAnotherBusiness = true, Some(testBusinessName))
           mockGetTakeoverDetails(testRegistrationId)(Future.successful(Some(existingTakeoverDetails)))
 
           await(TestTakeoverService.updateReplacingAnotherBusiness(testRegistrationId, replacingAnotherBusiness = true)) shouldBe existingTakeoverDetails
+        }
+      }
+      "the user has previously entered different takeover information" should {
+        "update the existing data" in new Setup {
+          val existingTakeoverDetails: TakeoverDetails = TakeoverDetails(replacingAnotherBusiness = false, Some(testBusinessName))
+          mockGetTakeoverDetails(testRegistrationId)(Future.successful(Some(existingTakeoverDetails)))
+
+          val expectedTakeoverDetails: TakeoverDetails = TakeoverDetails(replacingAnotherBusiness = true, Some(testBusinessName))
+          mockUpdateTakeoverDetails(testRegistrationId, expectedTakeoverDetails)(Future.successful(expectedTakeoverDetails))
+
+          await(TestTakeoverService.updateReplacingAnotherBusiness(testRegistrationId, replacingAnotherBusiness = true)) shouldBe expectedTakeoverDetails
         }
       }
     }
