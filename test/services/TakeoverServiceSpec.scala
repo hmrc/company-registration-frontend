@@ -21,7 +21,7 @@ import java.util.UUID
 import mocks.TakeoverConnectorMock
 import models.TakeoverDetails
 import org.scalatestplus.mockito.MockitoSugar
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, InternalServerException}
 import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -64,6 +64,46 @@ class TakeoverServiceSpec extends UnitSpec  {
         mockUpdateTakeoverDetails(testRegistrationId, expectedTakeoverDetails)(Future.successful(expectedTakeoverDetails))
 
         await(TestTakeoverService.updateReplacingAnotherBusiness(testRegistrationId, replacingAnotherBusiness = false)) shouldBe expectedTakeoverDetails
+      }
+    }
+  }
+
+  "updateBusinessName" when {
+    "the database has takeoverDetails with replacingAnotherBusiness = true" should {
+      "update the details with a businessName" in new Setup {
+        val savedTakeoverDetails: TakeoverDetails = TakeoverDetails(replacingAnotherBusiness = true)
+        mockGetTakeoverDetails(testRegistrationId)(Future.successful(Some(savedTakeoverDetails)))
+        val expectedTakeoverDetails: TakeoverDetails = TakeoverDetails(replacingAnotherBusiness = true, businessName = Some(testBusinessName))
+        mockUpdateTakeoverDetails(testRegistrationId, expectedTakeoverDetails)(Future.successful(expectedTakeoverDetails))
+
+        await(TestTakeoverService.updateBusinessName(testRegistrationId, testBusinessName)) shouldBe expectedTakeoverDetails
+      }
+
+      "update the details with a new businessName if the form already had one" in new Setup {
+        val testOldBusinessName: String = testBusinessName + "old"
+        val savedTakeoverDetails: TakeoverDetails = TakeoverDetails(replacingAnotherBusiness = true, businessName = Some(testOldBusinessName))
+        mockGetTakeoverDetails(testRegistrationId)(Future.successful(Some(savedTakeoverDetails)))
+        val expectedTakeoverDetails: TakeoverDetails = TakeoverDetails(replacingAnotherBusiness = true, businessName = Some(testBusinessName))
+        mockUpdateTakeoverDetails(testRegistrationId, expectedTakeoverDetails)(Future.successful(expectedTakeoverDetails))
+
+        await(TestTakeoverService.updateBusinessName(testRegistrationId, testBusinessName)) shouldBe expectedTakeoverDetails
+      }
+    }
+
+    "the database has takeoverDetails with replacingAnotherBusiness = false" should {
+      "throw an internal server exception" in new Setup {
+        val savedTakeoverDetails: TakeoverDetails = TakeoverDetails(replacingAnotherBusiness = false)
+        mockGetTakeoverDetails(testRegistrationId)(Future.successful(Some(savedTakeoverDetails)))
+
+        intercept[InternalServerException](await(TestTakeoverService.updateBusinessName(testRegistrationId, testBusinessName)))
+      }
+    }
+
+    "the database has no takeoverDetails" should {
+      "throw an internal server exception" in new Setup {
+        mockGetTakeoverDetails(testRegistrationId)(Future.successful(None))
+
+        intercept[InternalServerException](await(TestTakeoverService.updateBusinessName(testRegistrationId, testBusinessName)))
       }
     }
   }
