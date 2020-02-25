@@ -28,12 +28,14 @@ class TakeoverService @Inject()(takeoverConnector: TakeoverConnector)(implicit e
     takeoverConnector.getTakeoverDetails(registrationId)
 
   def updateReplacingAnotherBusiness(registrationId: String, replacingAnotherBusiness: Boolean)(implicit hc: HeaderCarrier): Future[TakeoverDetails] =
-    if(replacingAnotherBusiness) {
+    if (replacingAnotherBusiness) {
       takeoverConnector.getTakeoverDetails(registrationId) flatMap {
         case None =>
           takeoverConnector.updateTakeoverDetails(registrationId, TakeoverDetails(replacingAnotherBusiness))
-        case Some(takeoverDetails) =>
+        case Some(takeoverDetails) if takeoverDetails.replacingAnotherBusiness == replacingAnotherBusiness =>
           Future.successful(takeoverDetails)
+        case Some(takeoverDetails) =>
+          takeoverConnector.updateTakeoverDetails(registrationId, takeoverDetails.copy(replacingAnotherBusiness = replacingAnotherBusiness))
       }
     } else {
       takeoverConnector.updateTakeoverDetails(registrationId, TakeoverDetails(replacingAnotherBusiness))
