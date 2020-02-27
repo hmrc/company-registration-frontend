@@ -11,7 +11,7 @@ object FrontendBuild extends Build with MicroService {
   override lazy val playSettings: Seq[Setting[_]] = Seq(
     dependencyOverrides += "org.scala-lang" % "scala-library" % "2.11.8",
     dependencyOverrides += "uk.gov.hmrc" %% "domain" % "5.6.0-play-25",
-    dependencyOverrides += "uk.gov.hmrc" %% "secure" % "7.10.0",
+    dependencyOverrides += "uk.gov.hmrc" %% "secure" % "7.11.0",
     dependencyOverrides += "io.netty" % "netty" % "3.9.8.Final",
     dependencyOverrides += "com.typesafe.play" % "twirl-api_2.11" % "1.1.1"
   )
@@ -25,7 +25,7 @@ private object AppDependencies {
   val compile = Seq(
     ws,
     "uk.gov.hmrc" %% "bootstrap-play-25" % "5.1.0",
-    "uk.gov.hmrc" %% "auth-client" % "2.32.2-play-25",
+    "uk.gov.hmrc" %% "auth-client" % "2.33.0-play-25",
     "uk.gov.hmrc" %% "play-partials" % "6.9.0-play-25",
     "uk.gov.hmrc" %% "url-builder" % "3.3.0-play-25",
     "uk.gov.hmrc" %% "http-caching-client" % "9.0.0-play-25",
@@ -36,7 +36,7 @@ private object AppDependencies {
     "commons-validator" % "commons-validator" % "1.6",
     "uk.gov.hmrc" %% "play-language" % "4.2.0-play-25",
     "uk.gov.hmrc" %% "simple-reactivemongo" % "7.23.0-play-25",
-    "uk.gov.hmrc" %% "govuk-template" % "5.48.0-play-25",
+    "uk.gov.hmrc" %% "govuk-template" % "5.52.0-play-25",
     "uk.gov.hmrc" %% "play-ui" % "8.8.0-play-25"
   )
 
