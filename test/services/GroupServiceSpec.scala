@@ -584,7 +584,7 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
       when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(any())).thenReturn(
         Future.successful(Right(listOfShareholder))
       )
-      when(mockCompanyRegistrationConnector.checkValidShareHolderAddressFromCoho(any(),any())(any()))
+      when(mockCompanyRegistrationConnector.validateRegisteredOfficeAddress(any(),any())(any()))
         .thenReturn(Future.successful(Some(address)))
       val res = await(service.returnAddressFromTXAPIValidateAndMatchWithCR(
         Groups(
@@ -604,7 +604,7 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
       when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(any())).thenReturn(
         Future.successful(Right(listOfShareholder))
       )
-      when(mockCompanyRegistrationConnector.checkValidShareHolderAddressFromCoho(any(),any())(any()))
+      when(mockCompanyRegistrationConnector.validateRegisteredOfficeAddress(any(),any())(any()))
         .thenReturn(Future.successful(Some(address)))
       val res = await(service.returnAddressFromTXAPIValidateAndMatchWithCR(
         Groups(
@@ -622,7 +622,7 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
       when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(any())).thenReturn(
         Future.successful(Right(listOfShareholder))
       )
-      when(mockCompanyRegistrationConnector.checkValidShareHolderAddressFromCoho(any(),any())(any()))
+      when(mockCompanyRegistrationConnector.validateRegisteredOfficeAddress(any(),any())(any()))
         .thenReturn(Future.successful(None))
       val res = await(service.returnAddressFromTXAPIValidateAndMatchWithCR(
         Groups(
@@ -696,7 +696,7 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
       when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(any())).thenReturn(
         Future.successful(Right(listOfShareholder))
       )
-      when(mockCompanyRegistrationConnector.checkValidShareHolderAddressFromCoho(any(),any())(any()))
+      when(mockCompanyRegistrationConnector.validateRegisteredOfficeAddress(any(),any())(any()))
         .thenReturn(Future.successful(Some(address)))
       when(mockCompanyRegistrationConnector.updateGroups(any(),any())(any()))
         .thenReturn(Future.successful(Groups(true,None,None,None)))
@@ -713,7 +713,7 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
       when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(any())).thenReturn(
         Future.successful(Right(listOfShareholder))
       )
-      when(mockCompanyRegistrationConnector.checkValidShareHolderAddressFromCoho(any(),any())(any()))
+      when(mockCompanyRegistrationConnector.validateRegisteredOfficeAddress(any(),any())(any()))
         .thenReturn(Future.successful(Some(address)))
 
       val res = await(service.returnMapOfAddressesMatchDropAndReturnUpdatedGroups(groupsWithSameAddress,"foo"))
@@ -741,7 +741,7 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
       when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(any())).thenReturn(
         Future.successful(Right(listOfShareholder))
       )
-      when(mockCompanyRegistrationConnector.checkValidShareHolderAddressFromCoho(any(),any())(any()))
+      when(mockCompanyRegistrationConnector.validateRegisteredOfficeAddress(any(),any())(any()))
         .thenReturn(Future.successful(Some(address)))
       when(mockCompanyRegistrationConnector.updateGroups(any(), any())(any())).thenReturn(Future.successful(Groups(false,None,None,None)))
 

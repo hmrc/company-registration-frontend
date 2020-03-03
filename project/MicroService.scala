@@ -55,7 +55,7 @@ trait MicroService {
     .settings(integrationTestSettings())
     .settings(majorVersion := 2)
     .settings(
-      Keys.fork in IntegrationTest := false,
+      Keys.fork in IntegrationTest := true,
       javaOptions in IntegrationTest += "-Dlogger.resource=logback-test.xml",
       parallelExecution in IntegrationTest := false
     )

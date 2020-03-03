@@ -21,14 +21,34 @@ import models.{Address, CHROAddress, NewAddress}
 trait AddressFixture {
 
 	lazy val validNewAddress = NewAddress(
-    "testLine1",
-    "testLine2",
-    None,
-    None,
-    Some("FX1 1ZZ"),
-    None,
-    None
-  )
+		"testLine1",
+		"testLine2",
+		None,
+		None,
+		Some("FX1 1ZZ"),
+		None,
+		None
+	)
+
+	lazy val validNewAddress2 = NewAddress(
+		"address2testLine1",
+		"address2testLine2",
+		None,
+		None,
+		Some("FX1 1ZZ"),
+		None,
+		None
+	)
+
+	lazy val validNewAddress3 = NewAddress(
+		"address3testLine1",
+		"address3testLine2",
+		None,
+		None,
+		Some("FX1 1ZZ"),
+		None,
+		None
+	)
 
 	lazy val validAddressWithHouseName = Address(
 		Some("testHouseNumber"),
