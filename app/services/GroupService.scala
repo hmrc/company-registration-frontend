@@ -73,7 +73,7 @@ trait GroupService extends CommonService with SCRSExceptions {
   }
 
   private def returnValidNewAddressFromCRUsingTXApiAddress(regID: String, cHROAddress: CHROAddress)(implicit hc:HeaderCarrier) : Future[Option[NewAddress]] =
-      compRegConnector.checkValidShareHolderAddressFromCoho(regID,cHROAddress)
+      compRegConnector.validateRegisteredOfficeAddress(regID,cHROAddress)
 
   def returnAddressFromTXAPIValidateAndMatchWithCR(groupsInCR: Groups, regId: String)(implicit hc:HeaderCarrier):Future[(Option[NewAddress], Option[Boolean])] =  {
         returnAddressFromTxAPIBasedOnShareholderName(groupsInCR, regId).flatMap {

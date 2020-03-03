@@ -95,5 +95,10 @@ trait CompanyRegistrationConnectorMock extends CorporationTaxFixture {
       when(mockCompanyRegistrationConnector.fetchConfirmationReferences(Matchers.contains(regID))(Matchers.any()))
         .thenReturn(Future.successful(returns))
     }
+
+    def validateRegisteredOfficeAddress(registrationID: String, ro: CHROAddress)(response: Future[Option[NewAddress]]): Unit = {
+      when(mockCompanyRegistrationConnector.validateRegisteredOfficeAddress(Matchers.eq(registrationID), Matchers.eq(ro))(Matchers.any[HeaderCarrier]))
+        .thenReturn(response)
+    }
   }
 }

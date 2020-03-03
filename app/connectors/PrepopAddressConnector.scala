@@ -18,7 +18,7 @@ package connectors
 
 import config.{FrontendAppConfig, WSHttp}
 import javax.inject.{Inject, Singleton}
-import models.Address
+import models.NewAddress
 import play.api.Logger
 import play.api.libs.json._
 import uk.gov.hmrc.http._
@@ -30,29 +30,27 @@ class PrepopAddressConnector @Inject()(appConfig: FrontendAppConfig,
                                        http: WSHttp
                                       )(implicit executionContext: ExecutionContext) {
 
-  def getPrepopAddresses(registrationId: String)(implicit hc: HeaderCarrier): Future[Option[PrepopAddresses]] =
+  def getPrepopAddresses(registrationId: String)(implicit hc: HeaderCarrier): Future[Seq[NewAddress]] =
     http.GET[HttpResponse](appConfig.prepopAddressUrl(registrationId)) map { response =>
-      response.json.validate[PrepopAddresses] match {
+      (response.json \ "addresses").validate[Seq[NewAddress]] match {
         case JsSuccess(addresses, _) =>
-          Some(addresses)
-        case JsError(errors) => {
+          addresses
+        case JsError(errors) =>
           Logger.error(s"[Get prepop addresses] Incoming JSON failed format validation with reason(s): $errors")
-          None
-        }
+          Nil
       }
     } recover {
       case _: NotFoundException =>
-        Some(PrepopAddresses(Seq()))
+        Nil
       case e: ForbiddenException =>
         Logger.error(s"[Get prepop address] Forbidden request (${e.responseCode}) ${e.message}")
-        None
-      case e: Exception => {
+        Nil
+      case e: Exception =>
         Logger.error(s"[Get prepop address] Unexpected error calling business registration (${e.getMessage})")
-        None
-      }
+        Nil
     }
 
-  def updatePrepopAddress(registrationId: String, address: Address)(implicit hc: HeaderCarrier): Future[Boolean] =
+  def updatePrepopAddress(registrationId: String, address: NewAddress)(implicit hc: HeaderCarrier): Future[Boolean] =
     http.POST[JsValue, HttpResponse](appConfig.prepopAddressUrl(registrationId), Json.toJson(address))
       .map (_ => true)
       .recover {
@@ -61,11 +59,6 @@ class PrepopAddressConnector @Inject()(appConfig: FrontendAppConfig,
           false
       }
 
-}
-case class PrepopAddresses(addresses: Seq[Address])
-
-object PrepopAddresses {
-  implicit val format: Format[PrepopAddresses] = Json.format[PrepopAddresses]
 }
 
 

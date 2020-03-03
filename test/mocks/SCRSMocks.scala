@@ -42,7 +42,8 @@ trait SCRSMocks
     with WSHTTPMock
     with HandOffServiceMock
     with HandBackServiceMock
-    with NavModelRepoMock {
+    with NavModelRepoMock
+    with PrepopAddressConnectorMock {
   this: MockitoSugar =>
 
   val mockAddressLookupConnector = mock[AddressLookupConnector]
@@ -72,7 +73,7 @@ trait SCRSMocks
   lazy val mockGroupService = mock[GroupService]
 
 
-  def mockFetchRegistrationID[T <: CommonService](response: String, mock : T) = {
+  def mockFetchRegistrationID[T <: CommonService](response: String, mock: T) = {
     when(mock.fetchRegistrationID(Matchers.any[HeaderCarrier]()))
       .thenReturn(Future.successful(response))
   }

@@ -85,35 +85,36 @@ trait GroupAddressController extends FrontendController with AuthFunction with C
     }
   }
 
-  protected def handBackFromALFFunc(regID:String)(groups:Groups)(implicit request:Request[_]): Future[Result] = {
+  protected def handBackFromALFFunc(regID: String)(groups: Groups)(implicit request: Request[_]): Future[Result] = {
     for {
       address <- addressLookupFrontendService.getAddress
       res <- groupService.updateGroupAddress(GroupsAddressAndType("ALF", address), groups, regID)
     } yield Redirect(controllers.groups.routes.GroupUtrController.show())
   }
 
-  protected def showFunc(regID:String)(groups: Groups)(implicit request:Request[_]): Future[Result] = {
+  protected def showFunc(regID: String)(groups: Groups)(implicit request: Request[_]): Future[Result] = {
     val form = (groupsBlock: Groups) => groupsBlock.addressAndType.fold(GroupAddressForm.form)(grps => GroupAddressForm.form.fill(GroupAddressChoice(grps.addressType)))
-    val futureSuccess = (grps: Groups, addresses: Map[String,String]) => Future.successful(Ok(GroupAddressView(form(grps), addresses, groups.nameOfCompany.get.name)))
+    val futureSuccess = (grps: Groups, addresses: Map[String, String]) => Future.successful(Ok(GroupAddressView(form(grps), addresses, groups.nameOfCompany.get.name)))
     val isOtherName = groups.nameOfCompany.get.nameType == "Other"
     val isAddressEmpty = groups.addressAndType.isEmpty
     (isOtherName, isAddressEmpty) match {
       case (true, true) => alfRedirect(regID)
       case (true, false) =>
         val potentialAddressInMap = Map("ALF" -> groups.addressAndType.get.address.mkString)
-        futureSuccess(groups,potentialAddressInMap)
+        futureSuccess(groups, potentialAddressInMap)
       case (false, _) => groupService.returnMapOfAddressesMatchDropAndReturnUpdatedGroups(groups, regID).flatMap { addressMapAndGroups =>
         val (mapOfAddresses, updatedGroups) = addressMapAndGroups
         if (mapOfAddresses.isEmpty) {
           alfRedirect(regID)
         } else {
-         futureSuccess(updatedGroups,mapOfAddresses)
+          futureSuccess(updatedGroups, mapOfAddresses)
         }
       }
 
     }
   }
-  protected def submitFunc(regID:String)(groups:Groups)(implicit r:Request[_]) = {
+
+  protected def submitFunc(regID: String)(groups: Groups)(implicit r: Request[_]) = {
     GroupAddressForm.form.bindFromRequest.fold(
       errors => {
         groupService.returnMapOfAddressesMatchDropAndReturnUpdatedGroups(groups, regID).flatMap { addressMapAndGroups =>
@@ -135,7 +136,7 @@ trait GroupAddressController extends FrontendController with AuthFunction with C
     )
   }
 
-  private def alfRedirect(regID: String)(implicit hc:HeaderCarrier) = {
+  private def alfRedirect(regID: String)(implicit hc: HeaderCarrier) = {
     addressLookupFrontendService.buildAddressLookupUrlGroups(
       regID, controllers.groups.routes.GroupAddressController.handbackFromALF(), "Groups").map(Redirect(_))
   }

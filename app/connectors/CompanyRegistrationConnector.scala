@@ -96,7 +96,7 @@ trait CompanyRegistrationConnector {
     }
   }
 
-  def checkValidShareHolderAddressFromCoho(registrationID: String, ro: CHROAddress)(implicit hc: HeaderCarrier): Future[Option[NewAddress]] = {
+  def validateRegisteredOfficeAddress(registrationID: String, ro: CHROAddress)(implicit hc: HeaderCarrier): Future[Option[NewAddress]] = {
     implicit val roWrites = CHROAddress.formats
     val json = Json.toJson(ro)
 

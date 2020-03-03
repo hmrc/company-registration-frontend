@@ -45,9 +45,9 @@ case class NewAddress(addressLine1: String,
 }
 
 object NewAddress {
-
   val readAddressType: Reads[String] = (__ \\ "addressType").read[String]
 
+  implicit val format: Format[NewAddress] = Json.format[NewAddress]
 
   val ppobFormats: Format[NewAddress] = {
     val ppobPath = __ \ "companyDetails" \ "pPOBAddress" \ "address"
