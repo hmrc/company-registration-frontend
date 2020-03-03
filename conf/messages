@@ -33,6 +33,7 @@ common.dateMessage                                                  = Enter the 
 common.dateExample                                                  = For example,
 common.button.ConfirmAndContinue                                    = Confirm and continue
 common.period                                                       = .
+common.differentAddress                                             = A different address
 feedback.thankyou.title                                             = Feedback submitted
 
 
