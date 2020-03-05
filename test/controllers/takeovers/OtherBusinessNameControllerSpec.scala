@@ -143,7 +143,7 @@ class OtherBusinessNameControllerSpec extends SCRSSpec with WithFakeApplication 
   }
 
   "submit" when {
-    "user is authorised with a valid reg ID and the feature switch is enabled" when {
+    "user is authorised with a valid reg ID" when {
       "the form contains valid data" should {
         "redirect to company address when the service does not fail" in new Setup {
           mockAuthorisedUser(Future.successful({}))
@@ -160,7 +160,7 @@ class OtherBusinessNameControllerSpec extends SCRSSpec with WithFakeApplication 
           val res: Result = await(TestOtherBusinessNameController.submit()(request))
 
           status(res) shouldBe SEE_OTHER
-          redirectLocation(res) should contain(controllers.reg.routes.AccountingDatesController.show().url) //TODO update when next page is ready
+          redirectLocation(res) should contain(controllers.takeovers.routes.OtherBusinessAddressController.show().url)
         }
       }
 

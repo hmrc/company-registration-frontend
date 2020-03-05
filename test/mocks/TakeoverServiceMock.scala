@@ -16,7 +16,7 @@
 
 package mocks
 
-import models.TakeoverDetails
+import models.{NewAddress, TakeoverDetails}
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
@@ -38,6 +38,10 @@ trait TakeoverServiceMock extends MockitoSugar {
 
   def mockUpdateBusinessName(registrationId: String, businessName: String)(response: Future[TakeoverDetails]): Unit =
     when(mockTakeoverService.updateBusinessName(Matchers.eq(registrationId), Matchers.eq(businessName))(Matchers.any[HeaderCarrier]))
+      .thenReturn(response)
+
+  def mockUpdateBusinessAddress(registrationId: String, businessAddress: NewAddress)(response: Future[TakeoverDetails]): Unit =
+    when(mockTakeoverService.updateBusinessAddress(Matchers.eq(registrationId), Matchers.eq(businessAddress))(Matchers.any[HeaderCarrier]))
       .thenReturn(response)
 
 }

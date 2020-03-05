@@ -21,7 +21,7 @@ import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthFunction
 import controllers.reg.ControllerErrorHandler
 import controllers.reg.routes.AccountingDatesController
-import controllers.takeovers.routes.{OtherBusinessNameController, ReplacingAnotherBusinessController}
+import controllers.takeovers.routes.{OtherBusinessNameController, ReplacingAnotherBusinessController, OtherBusinessAddressController}
 import forms.takeovers.OtherBusinessNameForm
 import javax.inject.{Inject, Singleton}
 import models.TakeoverDetails
@@ -81,8 +81,8 @@ class OtherBusinessNameController @Inject()(val authConnector: PlayAuthConnector
           errors =>
             Future.successful(BadRequest(OtherBusinessName(errors))),
           otherBusinessName => {
-            takeoverService.updateBusinessName(regId, otherBusinessName) map { _ =>
-              Redirect(AccountingDatesController.show()) //TODO route to next controller when it's done
+            takeoverService.updateBusinessName(regId, otherBusinessName) map {
+              _ => Redirect(routes.OtherBusinessAddressController.show())
             }
           }
         )

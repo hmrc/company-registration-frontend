@@ -18,7 +18,7 @@ package services
 
 import connectors.TakeoverConnector
 import javax.inject.Inject
-import models.TakeoverDetails
+import models.{NewAddress, TakeoverDetails}
 import uk.gov.hmrc.http.{HeaderCarrier, InternalServerException}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -49,5 +49,17 @@ class TakeoverService @Inject()(takeoverConnector: TakeoverConnector)(implicit e
         Future.failed(new InternalServerException("Could not retrieve takeover details when trying to update Business name"))
       case Some(takeoverDetails) =>
         takeoverConnector.updateTakeoverDetails(registrationId, takeoverDetails.copy(businessName = Some(businessName)))
+    }
+
+  def updateBusinessAddress(registrationId: String, address: NewAddress)(implicit hc: HeaderCarrier): Future[TakeoverDetails] =
+    takeoverConnector.getTakeoverDetails(registrationId) flatMap {
+      case Some(TakeoverDetails(false, _, _, _, _)) =>
+        Future.failed(new InternalServerException("Reached takeover business page in a no takeover flow"))
+      case None =>
+        Future.failed(new InternalServerException("Could not retrieve takeover details when trying to update Business Address"))
+      case Some(TakeoverDetails(true, None, _, _, _)) =>
+        Future.failed(new InternalServerException("Reached takeover Business Address without a business name"))
+      case Some(takeoverDetails) =>
+        takeoverConnector.updateTakeoverDetails(registrationId, takeoverDetails.copy(businessTakeoverAddress = Some(address)))
     }
 }

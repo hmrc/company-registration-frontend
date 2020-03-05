@@ -1,0 +1,285 @@
+/*
+ * Copyright 2020 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package controllers.takeovers
+
+import akka.actor.ActorSystem
+import akka.stream.ActorMaterializer
+import builders.AuthBuilder
+import controllers.takeovers.OtherBusinessAddressController._
+import fixtures.LoginFixture
+import forms.takeovers.OtherBusinessAddressForm
+import forms.takeovers.OtherBusinessAddressForm._
+import helpers.SCRSSpec
+import mocks.{AddressPrepopulationServiceMock, TakeoverServiceMock}
+import models.{NewAddress, TakeoverDetails}
+import org.jsoup.Jsoup
+import org.mockito.Matchers
+import org.mockito.Mockito._
+import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.libs.json.Json
+import play.api.mvc._
+import play.api.test.FakeRequest
+import play.api.test.Helpers._
+import uk.gov.hmrc.http.NotFoundException
+import uk.gov.hmrc.play.test.WithFakeApplication
+import views.html.takeovers.OtherBusinessAddress
+
+import scala.concurrent.Future
+
+class OtherBusinessAddressControllerSpec extends SCRSSpec
+  with WithFakeApplication
+  with LoginFixture
+  with AuthBuilder
+  with TakeoverServiceMock
+  with AddressPrepopulationServiceMock
+  with I18nSupport {
+
+  val testBusinessName: String = "testName"
+  val testRegistrationId: String = "testRegistrationId"
+  val testBusinessAddress: NewAddress = NewAddress("testLine1", "testLine2", None, None, Some("Z11 11Z"), Some("testCountry"))
+  implicit val request: Request[AnyContent] = FakeRequest()
+  implicit val actorSystem: ActorSystem = ActorSystem("MyTest")
+  implicit val actorMaterializer: ActorMaterializer = ActorMaterializer()
+  implicit lazy val messagesApi: MessagesApi = fakeApplication.injector.instanceOf[MessagesApi]
+
+  object TestOtherBusinessAddressController extends OtherBusinessAddressController(
+    mockAuthConnector,
+    mockTakeoverService,
+    mockAddressPrepopulationService,
+    mockAddressLookupService,
+    mockCompanyRegistrationConnector,
+    mockKeystoreConnector,
+    mockSCRSFeatureSwitches
+  )
+
+  "show" when {
+    "user is authorised with a valid reg ID and the feature switch is enabled" when {
+      "the user does not any associated TakeoverDetails" should {
+        "return 303 with a redirect to replacing another business controller" in {
+          mockAuthorisedUser(Future.successful({}))
+          mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
+          mockTakeoversFeatureSwitch(isEnabled = true)
+          CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
+
+          mockGetTakeoverDetails(testRegistrationId)(Future.successful(None))
+
+          val res: Result = TestOtherBusinessAddressController.show()(request)
+
+          status(res) shouldBe SEE_OTHER
+          redirectLocation(res) should contain(controllers.takeovers.routes.ReplacingAnotherBusinessController.show().url)
+        }
+      }
+
+      "the user indicated they are not doing a takeover" should {
+        "return 303 with a redirect to accounting dates controller" in {
+          mockAuthorisedUser(Future.successful({}))
+          mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
+          mockTakeoversFeatureSwitch(isEnabled = true)
+          CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
+
+          val testTakeoverDetails: TakeoverDetails = TakeoverDetails(replacingAnotherBusiness = false)
+          mockGetTakeoverDetails(testRegistrationId)(Future.successful(Some(testTakeoverDetails)))
+
+          val res: Result = TestOtherBusinessAddressController.show()(request)
+
+          status(res) shouldBe SEE_OTHER
+          redirectLocation(res) should contain(controllers.reg.routes.AccountingDatesController.show().url)
+        }
+      }
+
+      "the user has not submitted a business name before" should {
+        "return 303 with a redirect to other business name page" in {
+          mockAuthorisedUser(Future.successful({}))
+          mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
+          mockTakeoversFeatureSwitch(isEnabled = true)
+          CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
+
+          val testTakeoverDetails: TakeoverDetails = TakeoverDetails(replacingAnotherBusiness = true, None)
+          mockGetTakeoverDetails(testRegistrationId)(Future.successful(Some(testTakeoverDetails)))
+
+          val res: Result = TestOtherBusinessAddressController.show()(request)
+
+          status(res) shouldBe SEE_OTHER
+          redirectLocation(res) should contain(controllers.takeovers.routes.OtherBusinessNameController.show().url)
+        }
+      }
+
+      "the user has not submitted a business address before" should {
+        "return 200 with the other business address page" in {
+          mockAuthorisedUser(Future.successful({}))
+          mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
+          mockTakeoversFeatureSwitch(isEnabled = true)
+          CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
+
+          mockRetrieveAddresses(testRegistrationId)(Future.successful(Seq(testBusinessAddress)))
+
+          val testTakeoverDetails: TakeoverDetails = TakeoverDetails(
+            replacingAnotherBusiness = true,
+            Some(testBusinessName)
+          )
+          mockGetTakeoverDetails(testRegistrationId)(Future.successful(Some(testTakeoverDetails)))
+
+          val res: Result = TestOtherBusinessAddressController.show()(request)
+
+          status(res) shouldBe OK
+          bodyOf(res) shouldBe OtherBusinessAddress(OtherBusinessAddressForm.form, testBusinessName, Seq(testBusinessAddress)).body
+          session(res).get(businessNameKey) should contain(testBusinessName)
+          session(res).get(addressSeqKey) should contain(Json.toJson(Seq(testBusinessAddress)).toString())
+        }
+      }
+
+      "the user has previously submitted a business address" should {
+        "return 200 with the other business address page" in {
+          mockAuthorisedUser(Future.successful({}))
+          mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
+          mockTakeoversFeatureSwitch(isEnabled = true)
+          CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
+
+          val testOldBusinessAddress: NewAddress = testBusinessAddress.copy(addressLine3 = Some("testLine3"))
+          mockRetrieveAddresses(testRegistrationId)(Future.successful(Seq(testBusinessAddress, testOldBusinessAddress)))
+
+          val testTakeoverDetails: TakeoverDetails = TakeoverDetails(
+            replacingAnotherBusiness = true,
+            Some(testBusinessName),
+            Some(testOldBusinessAddress)
+          )
+          mockGetTakeoverDetails(testRegistrationId)(Future.successful(Some(testTakeoverDetails)))
+
+          val res: Result = TestOtherBusinessAddressController.show()(request)
+
+          status(res) shouldBe OK
+          bodyOf(res) shouldBe OtherBusinessAddress(
+            OtherBusinessAddressForm.form.fill("1"),
+            testBusinessName,
+            Seq(testBusinessAddress, testOldBusinessAddress)
+          ).body
+          session(res).get(businessNameKey) should contain(testBusinessName)
+          session(res).get(addressSeqKey) should contain(Json.toJson(Seq(testBusinessAddress, testOldBusinessAddress)).toString())
+        }
+      }
+    }
+    "the feature switch is disabled" should {
+      "throw a NotFoundException" in {
+        mockAuthorisedUser(Future.successful({}))
+        mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
+        CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
+        mockTakeoversFeatureSwitch(isEnabled = false)
+
+        intercept[NotFoundException](await(TestOtherBusinessAddressController.show()(request)))
+      }
+    }
+  }
+
+  "submit" when {
+    "user is authorised with a valid reg ID" when {
+      "the form contains valid data" should {
+        "redirect to who agreed takeover page when the service does not fail" in {
+          mockAuthorisedUser(Future.successful({}))
+          mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
+          CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
+          mockTakeoversFeatureSwitch(isEnabled = false)
+
+          implicit val request: Request[AnyContentAsFormUrlEncoded] =
+            FakeRequest().withFormUrlEncodedBody(otherBusinessAddressKey -> "0")
+              .withSession(businessNameKey -> testBusinessName)
+              .withSession(addressSeqKey -> Json.toJson(Seq(testBusinessAddress)).toString())
+
+          val testTakeoverDetails: TakeoverDetails = TakeoverDetails(
+            replacingAnotherBusiness = true,
+            Some(testBusinessName),
+            Some(testBusinessAddress)
+          )
+          mockUpdateBusinessAddress(testRegistrationId, testBusinessAddress)(testTakeoverDetails)
+
+          val res: Result = TestOtherBusinessAddressController.submit()(request)
+
+          status(res) shouldBe SEE_OTHER
+          redirectLocation(res) should contain(controllers.reg.routes.AccountingDatesController.show().url) //TODO route to next page when it's done
+          session(res).get(businessNameKey) shouldBe None
+          session(res).get(addressSeqKey) shouldBe None
+        }
+      }
+      "the form contains valid data" should {
+        "redirect to alf when the choice is Other" in {
+          mockAuthorisedUser(Future.successful({}))
+          mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
+          CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
+          mockTakeoversFeatureSwitch(isEnabled = false)
+
+          implicit val request: Request[AnyContentAsFormUrlEncoded] =
+            FakeRequest().withFormUrlEncodedBody(otherBusinessAddressKey -> "Other")
+              .withSession(businessNameKey -> testBusinessName)
+              .withSession(addressSeqKey -> Json.toJson(Seq(testBusinessAddress)).toString())
+
+          val res: Result = TestOtherBusinessAddressController.submit()(request)
+
+          status(res) shouldBe SEE_OTHER
+          redirectLocation(res) should contain(controllers.reg.routes.AccountingDatesController.show().url) //TODO route to ALF when it's done
+        }
+      }
+      "the form contains invalid data" should {
+        "return a bad request and update the page with errors" in {
+          mockAuthorisedUser(Future.successful({}))
+          mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
+          CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
+          mockTakeoversFeatureSwitch(isEnabled = false)
+
+          implicit val request: Request[AnyContentAsFormUrlEncoded] =
+            FakeRequest().withFormUrlEncodedBody(otherBusinessAddressKey -> "")
+              .withSession(businessNameKey -> testBusinessName)
+              .withSession(addressSeqKey -> Json.toJson(Seq(testBusinessAddress)).toString())
+
+          val res: Result = TestOtherBusinessAddressController.submit()(request)
+
+          status(res) shouldBe BAD_REQUEST
+          Jsoup.parse(bodyOf(res))
+            .getElementById("otherBusinessAddress-error-summary").text shouldBe "Tell us the address"
+        }
+      }
+    }
+  }
+
+  "handbackFromALF" when {
+    "user is authorised with a valid reg ID" when {
+      "the handback comes back with a valid address" should {
+        "redirect to who agreed takeover page when the service does not fail" in {
+          mockAuthorisedUser(Future.successful({}))
+          mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
+          CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
+          mockTakeoversFeatureSwitch(isEnabled = false)
+
+          implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+          when(mockAddressLookupService.getAddress(Matchers.any(), Matchers.any())).thenReturn(Future.successful(testBusinessAddress))
+
+          val testTakeoverDetails: TakeoverDetails = TakeoverDetails(
+            replacingAnotherBusiness = true,
+            Some(testBusinessName),
+            Some(testBusinessAddress)
+          )
+          mockUpdateBusinessAddress(testRegistrationId, testBusinessAddress)(testTakeoverDetails)
+
+          val res: Result = TestOtherBusinessAddressController.handbackFromALF()(request)
+
+          status(res) shouldBe SEE_OTHER
+          redirectLocation(res) should contain(controllers.reg.routes.AccountingDatesController.show().url) //TODO route to next page when it's done
+          session(res).get(businessNameKey) shouldBe None
+          session(res).get(addressSeqKey) shouldBe None
+        }
+      }
+    }
+  }
+}
