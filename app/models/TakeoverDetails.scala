@@ -21,16 +21,27 @@ import play.api.libs.json._
 
 case class TakeoverDetails(replacingAnotherBusiness: Boolean,
                            businessName: Option[String] = None,
-                           businessTakeoverAddress: Option[Address] = None,
+                           businessTakeoverAddress: Option[NewAddress] = None,
                            previousOwnersName: Option[String] = None,
-                           previousOwnersAddress: Option[Address] = None)
+                           previousOwnersAddress: Option[NewAddress] = None)
 
 object TakeoverDetails {
+
+  implicit val newAddressFormat: Format[NewAddress] = (
+    (JsPath \ "line1").format[String] and
+      (JsPath \ "line2").format[String] and
+      (JsPath \ "line3").formatNullable[String] and
+      (JsPath \ "line4").formatNullable[String] and
+      (JsPath \ "country").formatNullable[String] and
+      (JsPath \ "postcode").formatNullable[String]
+    ) ((l1, l2, l3, l4, coun, post) => NewAddress(l1, l2, l3, l4, post, coun, None),
+    nAddress => (nAddress.addressLine1, nAddress.addressLine2, nAddress.addressLine3, nAddress.addressLine4, nAddress.country, nAddress.postcode))
+
   implicit val format: Format[TakeoverDetails] = (
     (JsPath \ "replacingAnotherBusiness").format[Boolean] and
       (JsPath \ "businessName").formatNullable[String] and
-      (JsPath \ "businessTakeoverAddress").formatNullable[Address] and
+      (JsPath \ "businessTakeoverAddress").formatNullable[NewAddress] and
       (JsPath \ "prevOwnersName").formatNullable[String] and
-      (JsPath \ "prevOwnersAddress").formatNullable[Address]
+      (JsPath \ "prevOwnersAddress").formatNullable[NewAddress]
     ) (TakeoverDetails.apply, unlift(TakeoverDetails.unapply))
 }
