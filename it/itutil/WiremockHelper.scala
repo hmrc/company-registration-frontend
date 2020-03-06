@@ -21,6 +21,7 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
+import models.{CHROAddress, NewAddress}
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.libs.json.Json
 import play.api.libs.ws.WSClient
@@ -115,6 +116,10 @@ trait WiremockHelper {
 
   def stubRetrieveCRCompanyDetails(regID: String, responseStatus: Int, body: String = "{}") = {
     stubGet(url = s"/company-registration/corporation-tax-registration/$regID/company-details", responseStatus, body)
+  }
+
+  def stubValidateRegisteredOfficeAddress(ro: CHROAddress, responseStatus: Int, response: NewAddress): StubMapping = {
+    stubPost("/company-registration/corporation-tax-registration/check-return-business-address", responseStatus, Json.toJson(response).toString())
   }
 
   def stubUpdateCRCompanyDetails(regID: String, responseStatus: Int, body: String = "{}") = {

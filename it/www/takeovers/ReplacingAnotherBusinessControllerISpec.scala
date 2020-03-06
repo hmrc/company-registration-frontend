@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package www
+package www.takeovers
 
 import java.util.UUID
 

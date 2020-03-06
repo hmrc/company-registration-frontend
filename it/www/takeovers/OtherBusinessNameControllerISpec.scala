@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package www
+package www.takeovers
 
 import java.util.UUID
 
@@ -80,13 +80,13 @@ class OtherBusinessNameControllerISpec extends IntegrationSpecBase with LoginStu
       stubGetTakeoverDetails(testRegId, OK, Some(TakeoverDetails(replacingAnotherBusiness = true)))
       stubPutTakeoverDetails(testRegId, OK, TakeoverDetails(replacingAnotherBusiness = true, Some(testBusinessName)))
 
-      val res: WSResponse = await(buildClient(controllers.takeovers.routes.OtherBusinessNameController.show().url)
+      val res: WSResponse = await(buildClient(controllers.takeovers.routes.OtherBusinessNameController.submit().url)
         .withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
         .post(Map(otherBusinessNameKey -> Seq(testBusinessName)))
       )
 
       res.status shouldBe SEE_OTHER
-      res.redirectLocation should contain(controllers.reg.routes.AccountingDatesController.show().url) //TODO update when next page is done
+      res.redirectLocation should contain(controllers.takeovers.routes.OtherBusinessAddressController.show().url)
     }
   }
 }

@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,18 +12,21 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@import views.html.helpers.inputRadioGroup
+package forms.takeovers
 
-@(field: Field, addresses: Seq[NewAddress], legend: String)(implicit messages: Messages)
+import models.EmptyStringValidator
+import play.api.data.Form
+import play.api.data.Forms._
 
-@inputRadioGroup(
- field,
- addresses.zipWithIndex.map { case (address, count) =>
-  (count.toString, address.mkString)
- } ++ Seq(("Other", messages("common.differentAddress"))),
- '_labelClass -> "block-label radio-label",
- '_legend -> legend,
- '_legendClass -> "visually-hidden"
-)
+object OtherBusinessAddressForm extends EmptyStringValidator {
+
+  val otherBusinessAddressKey = "otherBusinessAddress"
+
+  val form: Form[String] = Form(
+    mapping(otherBusinessAddressKey -> customErrorTextValidation
+    )(identity)(a => Some(a))
+  )
+
+}

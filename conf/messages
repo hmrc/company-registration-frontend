@@ -533,3 +533,9 @@ error.otherBusinessName.required                                       = Tell us
 error.otherBusinessName.over100Characters                              = Enter the name using 100 characters or less
 error.otherBusinessName.invalidCharacters                              = Enter the name using only letters, numbers, spaces, hyphens and apostrophes
 
+page.takeovers.otherBusinessAddress.title                              = What is {0}’s address?
+page.takeovers.otherBusinessAddress.heading                            = What is {0}’s address?
+page.takeovers.otherBusinessAddress.line1                              = If {0} is:
+page.takeovers.otherBusinessAddress.bullet1                            = a company, use the address that’s on its Companies House record
+page.takeovers.otherBusinessAddress.bullet2                            = a sole trader or business partnership, use the address that it has registered for Income Tax
+error.otherBusinessAddress.required                                    = Tell us the address
