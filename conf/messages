@@ -200,8 +200,13 @@ page.reg.summary.information.indent                                 = Your answe
 page.reg.summary.takeovers.heading                                  = Company takeover
 page.reg.summary.takeovers.replacingBusiness                        = Is the new company replacing another business?
 page.reg.summary.takeovers.replacingBusiness.change                 = whether the new company is replacing another business
+page.reg.summary.takeovers.noTakeoverBusinessName                   = the other business
 page.reg.summary.takeovers.otherBusinessName                        = What is the name of the other business?
 page.reg.summary.takeovers.otherBusinessName.change                 = the name of the other business
+
+
+page.reg.summary.takeovers.businessTakeOverAddress                  = What is {0}''s address?
+page.reg.summary.takeovers.businessTakeOverAddress.change           = the business takeover address
 
 ## Limit reached
 page.reg.limit-reached.description                                  = We''ve reached our maximum number of users for today
