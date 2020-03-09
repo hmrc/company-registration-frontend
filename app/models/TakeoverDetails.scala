@@ -44,4 +44,4 @@ object TakeoverDetails {
       (JsPath \ "prevOwnersName").formatNullable[String] and
       (JsPath \ "prevOwnersAddress").formatNullable[NewAddress]
     ) (TakeoverDetails.apply, unlift(TakeoverDetails.unapply))
-}
+} 

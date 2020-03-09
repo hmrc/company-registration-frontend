@@ -48,6 +48,8 @@
     }
 }
 
+
+
 @takeoverDetailsSection = {
     @optTakeoverDetails.map { takeoverDetails =>
         <h2 id="takeoversTitle" class="heading-medium">@Messages("page.reg.summary.takeovers.heading")</h2>
@@ -64,7 +66,25 @@
                 <dd id="otherBusinessName" class="cya-answer">@businessName</dd>
                 <dd class="cya-change"><a href='@controllers.takeovers.routes.OtherBusinessNameController.show' id="change-other-business-name">@Messages("change")<span class="visually-hidden">@Messages("page.reg.summary.takeovers.otherBusinessName.change")</span></a></dd>
             </div>
-        }
+            }
+
+        @takeoverDetails.businessTakeoverAddress.map { businessTakeOverAddress =>
+            <div>
+                <dt id="businessTakeOverAddressLabel" class="cya-question">@messages("page.reg.summary.takeovers.businessTakeOverAddress",takeoverDetails.businessName.fold[String](Messages("page.reg.summary.takeovers.noTakeoverBusinessName"))(s => s))</dt>
+                <dd id="businessTakeOverAddress" class="cya-answer">@{Html(
+                    businessTakeOverAddress.addressLine1 + "<br>" +
+                    businessTakeOverAddress.addressLine2 + "<br>" +
+                    businessTakeOverAddress.addressLine3.fold[String]("")(s => s + "<br>") +
+                    businessTakeOverAddress.addressLine4.fold[String]("")(s => s + "<br>") +
+                    businessTakeOverAddress.postcode.fold[String]("")(s => s + "<br>") +
+                    businessTakeOverAddress.country.fold[String]("")(s => s ) )
+                    }</dd>
+                <dd class="cya-change"><a href='@controllers.takeovers.routes.OtherBusinessAddressController.show' id="change-business-takeover-address">@Messages("change")<span class="visually-hidden">@Messages("page.reg.summary.takeovers.businessTakeOverAddress.change")</span></a></dd>
+            </div>
+            }
+
+
+
         </dl>
     }
 }
