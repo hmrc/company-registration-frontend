@@ -18,7 +18,7 @@ package connectors
 
 import config.{FrontendAppConfig, WSHttp}
 import javax.inject.Inject
-import models.NewAddress
+import models.{AlfJourneyConfig, NewAddress}
 import play.api.Logger
 import play.api.libs.json.JsObject
 import uk.gov.hmrc.http._
@@ -36,8 +36,8 @@ class ALFLocationHeaderNotSet extends NoStackTrace
 
 trait AddressLookupConnector {
 
-  val addressLookupFrontendURL : String
-  val wSHttp : CoreGet with CorePost
+  val addressLookupFrontendURL: String
+  val wSHttp: CoreGet with CorePost
 
   def getOnRampURL(journeyConfig: JsObject)(implicit hc: HeaderCarrier): Future[String] = {
     val onRampUrl = s"$addressLookupFrontendURL/api/init"
@@ -45,6 +45,19 @@ trait AddressLookupConnector {
     wSHttp.POST[JsObject, HttpResponse](onRampUrl, journeyConfig) map {
       response =>
         response.header("Location").getOrElse {
+          Logger.error("[AddressLookupConnector] [getOnRampURL] Location header not set in Address Lookup response")
+          throw new ALFLocationHeaderNotSet
+        }
+    }
+  }
+
+  def getOnRampURL(alfJourneyConfig: AlfJourneyConfig)(implicit hc: HeaderCarrier): Future[String] = {
+    val onRampUrl = s"$addressLookupFrontendURL/api/init"
+    val locationKey = "Location"
+
+    wSHttp.POST[AlfJourneyConfig, HttpResponse](onRampUrl, alfJourneyConfig) map {
+      response =>
+        response.header(key = locationKey).getOrElse {
           Logger.error("[AddressLookupConnector] [getOnRampURL] Location header not set in Address Lookup response")
           throw new ALFLocationHeaderNotSet
         }
