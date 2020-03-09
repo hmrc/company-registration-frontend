@@ -237,7 +237,7 @@ class OtherBusinessAddressControllerSpec extends SCRSSpec
           val res: Result = TestOtherBusinessAddressController.submit()(request)
 
           status(res) shouldBe SEE_OTHER
-          redirectLocation(res) should contain(controllers.reg.routes.AccountingDatesController.show().url) //TODO route to next page when it's done
+          redirectLocation(res) should contain(controllers.takeovers.routes.WhoAgreedTakeoverController.show().url)
           session(res).get(addressSeqKey) shouldBe None
         }
       }
@@ -246,7 +246,7 @@ class OtherBusinessAddressControllerSpec extends SCRSSpec
           mockAuthorisedUser(Future.successful({}))
           mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
-          mockTakeoversFeatureSwitch(isEnabled = false)
+          mockTakeoversFeatureSwitch(isEnabled = true)
           mockInitialiseAlfJourney(
             handbackLocation = controllers.takeovers.routes.OtherBusinessAddressController.handbackFromALF(),
             specificJourneyKey = "takeovers",
@@ -292,7 +292,7 @@ class OtherBusinessAddressControllerSpec extends SCRSSpec
           mockAuthorisedUser(Future.successful({}))
           mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
-          mockTakeoversFeatureSwitch(isEnabled = false)
+          mockTakeoversFeatureSwitch(isEnabled = true)
           mockGetAddress(Future.successful(testBusinessAddress))
 
           implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
@@ -310,7 +310,7 @@ class OtherBusinessAddressControllerSpec extends SCRSSpec
           val res: Result = TestOtherBusinessAddressController.handbackFromALF()(request)
 
           status(res) shouldBe SEE_OTHER
-          redirectLocation(res) should contain(controllers.reg.routes.AccountingDatesController.show().url) //TODO route to next page when it's done
+          redirectLocation(res) should contain(controllers.takeovers.routes.WhoAgreedTakeoverController.show().url)
           session(res).get(addressSeqKey) shouldBe None
         }
       }

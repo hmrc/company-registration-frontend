@@ -114,7 +114,7 @@ class OtherBusinessAddressController @Inject()(val authConnector: PlayAuthConnec
                     case PreselectedAddress(index) =>
                       takeoverService.updateBusinessAddress(regId, addressSeq(index)).map {
                         _ =>
-                          Redirect(regRoutes.AccountingDatesController.show()) //TODO redirect to next page when it's done
+                          Redirect(routes.WhoAgreedTakeoverController.show())
                             .removingFromSession(addressSeqKey)
                       }
                   }
@@ -133,7 +133,7 @@ class OtherBusinessAddressController @Inject()(val authConnector: PlayAuthConnec
           address <- addressLookupFrontendService.getAddress
           _ <- takeoverService.updateBusinessAddress(regId, address)
           _ <- businessRegConnector.updatePrePopAddress(regId, address)
-        } yield Redirect(regRoutes.AccountingDatesController.show()) //TODO redirect to next page when it's done
+        } yield Redirect(routes.WhoAgreedTakeoverController.show())
           .removingFromSession(addressSeqKey)
       }
     }

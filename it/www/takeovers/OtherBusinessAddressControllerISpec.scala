@@ -102,7 +102,7 @@ class OtherBusinessAddressControllerISpec extends IntegrationSpecBase
       )
 
       res.status shouldBe SEE_OTHER
-      res.redirectLocation should contain(controllers.reg.routes.AccountingDatesController.show().url) //TODO route to next page when it's done
+      res.redirectLocation should contain(controllers.takeovers.routes.WhoAgreedTakeoverController.show().url)
     }
 
     "redirect to ALF" in {
@@ -233,7 +233,7 @@ class OtherBusinessAddressControllerISpec extends IntegrationSpecBase
       )
 
       res.status shouldBe SEE_OTHER
-      res.redirectLocation should contain(controllers.reg.routes.AccountingDatesController.show().url) //TODO route to next page when it's done
+      res.redirectLocation should contain(controllers.takeovers.routes.WhoAgreedTakeoverController.show().url)
     }
   }
 }

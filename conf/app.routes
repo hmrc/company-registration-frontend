@@ -168,6 +168,9 @@ GET        /other-business-address                  controllers.takeovers.OtherB
 POST       /other-business-address                  controllers.takeovers.OtherBusinessAddressController.submit
 GET        /save-alf-address-takeovers              controllers.takeovers.OtherBusinessAddressController.handbackFromALF
 
+GET        /who-agreed-takeover                     controllers.takeovers.WhoAgreedTakeoverController.show
+POST       /who-agreed-takeover                     controllers.takeovers.WhoAgreedTakeoverController.submit
+
 ## DEPRECATED
 
 GET        /welcome                                 controllers.reg.WelcomeController.show
