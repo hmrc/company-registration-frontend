@@ -57,11 +57,21 @@ class OtherBusinessAddressController @Inject()(val authConnector: PlayAuthConnec
               Future.successful(Redirect(regRoutes.AccountingDatesController.show()))
             case Some(TakeoverDetails(_, None, _, _, _)) =>
               Future.successful(Redirect(routes.OtherBusinessNameController.show()))
-            case Some(TakeoverDetails(_, Some(businessName), Some(prePopAddress), _, _)) =>
+            case Some(TakeoverDetails(_, Some(businessName), Some(preselectedTakeoverAddress), _, _)) =>
               addressPrepopulationService.retrieveAddresses(regId).map {
-                addressSeq =>
-                  Ok(OtherBusinessAddress(OtherBusinessAddressForm.form.fill(addressSeq.indexOf(prePopAddress).toString), businessName, addressSeq))
-                    .addingToSession(addressSeqKey -> Json.toJson(addressSeq).toString())
+                preselectedAddresses =>
+                  val prepopulatedForm = preselectedAddresses.zipWithIndex.collectFirst {
+                    case (preselectedAddress, index) if preselectedAddress.isEqualTo(preselectedTakeoverAddress) =>
+                      index
+                  } match {
+                    case Some(index) =>
+                      OtherBusinessAddressForm.form.fill(index.toString)
+                    case None =>
+                      OtherBusinessAddressForm.form
+                  }
+
+                  Ok(OtherBusinessAddress(prepopulatedForm, businessName, preselectedAddresses))
+                    .addingToSession(addressSeqKey -> Json.toJson(preselectedAddresses).toString())
                     .addingToSession(businessNameKey -> businessName)
               }
             case Some(TakeoverDetails(_, Some(businessName), _, _, _)) =>

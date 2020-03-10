@@ -143,19 +143,51 @@ class OtherBusinessAddressControllerSpec extends SCRSSpec
       }
 
       "the user has previously submitted a business address" should {
-        "return 200 with the other business address page" in {
+        "return 200 with the other business address page prepopulated with the previously selected address" in {
           mockAuthorisedUser(Future.successful({}))
           mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
           mockTakeoversFeatureSwitch(isEnabled = true)
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
-          val testOldBusinessAddress: NewAddress = testBusinessAddress.copy(addressLine3 = Some("testLine3"))
+          val testOldBusinessAddress: NewAddress = testBusinessAddress.copy(addressLine1 = "otherTestLine1")
           mockRetrieveAddresses(testRegistrationId)(Future.successful(Seq(testBusinessAddress, testOldBusinessAddress)))
 
           val testTakeoverDetails: TakeoverDetails = TakeoverDetails(
             replacingAnotherBusiness = true,
             Some(testBusinessName),
             Some(testOldBusinessAddress)
+          )
+          mockGetTakeoverDetails(testRegistrationId)(Future.successful(Some(testTakeoverDetails)))
+
+          val res: Result = TestOtherBusinessAddressController.show()(request)
+
+          status(res) shouldBe OK
+          bodyOf(res) shouldBe OtherBusinessAddress(
+            OtherBusinessAddressForm.form.fill("1"),
+            testBusinessName,
+            Seq(testBusinessAddress, testOldBusinessAddress)
+          ).body
+          session(res).get(businessNameKey) should contain(testBusinessName)
+          session(res).get(addressSeqKey) should contain(Json.toJson(Seq(testBusinessAddress, testOldBusinessAddress)).toString())
+        }
+      }
+      "the user has previously submitted a business address which is not in the same format as the stored address" should {
+        "return 200 with the other business address page prepopulated with the previously selected address" in {
+          mockAuthorisedUser(Future.successful({}))
+          mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
+          mockTakeoversFeatureSwitch(isEnabled = true)
+          CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
+
+          val testOldBusinessAddress: NewAddress = testBusinessAddress.copy(addressLine1 = "otherTestLine1")
+
+          mockRetrieveAddresses(testRegistrationId)(Future.successful(Seq(testBusinessAddress, testOldBusinessAddress)))
+
+          val testNonMatchingOldBusinessAddress: NewAddress = testOldBusinessAddress.copy(auditRef = Some("testAuditRef"))
+
+          val testTakeoverDetails: TakeoverDetails = TakeoverDetails(
+            replacingAnotherBusiness = true,
+            Some(testBusinessName),
+            Some(testNonMatchingOldBusinessAddress)
           )
           mockGetTakeoverDetails(testRegistrationId)(Future.successful(Some(testTakeoverDetails)))
 
