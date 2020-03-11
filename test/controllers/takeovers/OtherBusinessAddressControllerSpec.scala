@@ -24,11 +24,9 @@ import fixtures.LoginFixture
 import forms.takeovers.OtherBusinessAddressForm
 import forms.takeovers.OtherBusinessAddressForm._
 import helpers.SCRSSpec
-import mocks.{AddressPrepopulationServiceMock, TakeoverServiceMock}
+import mocks.{AddressLookupFrontendServiceMock, AddressPrepopulationServiceMock, BusinessRegConnectorMock, TakeoverServiceMock}
 import models.{NewAddress, TakeoverDetails}
 import org.jsoup.Jsoup
-import org.mockito.Matchers
-import org.mockito.Mockito._
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
 import play.api.mvc._
@@ -45,6 +43,8 @@ class OtherBusinessAddressControllerSpec extends SCRSSpec
   with LoginFixture
   with AuthBuilder
   with TakeoverServiceMock
+  with AddressLookupFrontendServiceMock
+  with BusinessRegConnectorMock
   with AddressPrepopulationServiceMock
   with I18nSupport {
 
@@ -60,8 +60,9 @@ class OtherBusinessAddressControllerSpec extends SCRSSpec
     mockAuthConnector,
     mockTakeoverService,
     mockAddressPrepopulationService,
-    mockAddressLookupService,
+    mockAddressLookupFrontendService,
     mockCompanyRegistrationConnector,
+    mockBusinessRegConnector,
     mockKeystoreConnector,
     mockSCRSFeatureSwitches
   )
@@ -137,7 +138,6 @@ class OtherBusinessAddressControllerSpec extends SCRSSpec
 
           status(res) shouldBe OK
           bodyOf(res) shouldBe OtherBusinessAddress(OtherBusinessAddressForm.form(testBusinessName, 1), testBusinessName, Seq(testBusinessAddress)).body
-          session(res).get(businessNameKey) should contain(testBusinessName)
           session(res).get(addressSeqKey) should contain(Json.toJson(Seq(testBusinessAddress)).toString())
         }
       }
@@ -167,7 +167,6 @@ class OtherBusinessAddressControllerSpec extends SCRSSpec
             testBusinessName,
             Seq(testBusinessAddress, testOldBusinessAddress)
           ).body
-          session(res).get(businessNameKey) should contain(testBusinessName)
           session(res).get(addressSeqKey) should contain(Json.toJson(Seq(testBusinessAddress, testOldBusinessAddress)).toString())
         }
       }
@@ -199,7 +198,6 @@ class OtherBusinessAddressControllerSpec extends SCRSSpec
             testBusinessName,
             Seq(testBusinessAddress, testOldBusinessAddress)
           ).body
-          session(res).get(businessNameKey) should contain(testBusinessName)
           session(res).get(addressSeqKey) should contain(Json.toJson(Seq(testBusinessAddress, testOldBusinessAddress)).toString())
         }
       }
@@ -227,7 +225,6 @@ class OtherBusinessAddressControllerSpec extends SCRSSpec
 
           implicit val request: Request[AnyContentAsFormUrlEncoded] =
             FakeRequest().withFormUrlEncodedBody(otherBusinessAddressKey -> "0")
-              .withSession(businessNameKey -> testBusinessName)
               .withSession(addressSeqKey -> Json.toJson(Seq(testBusinessAddress)).toString())
 
           val testTakeoverDetails: TakeoverDetails = TakeoverDetails(
@@ -241,7 +238,6 @@ class OtherBusinessAddressControllerSpec extends SCRSSpec
 
           status(res) shouldBe SEE_OTHER
           redirectLocation(res) should contain(controllers.reg.routes.AccountingDatesController.show().url) //TODO route to next page when it's done
-          session(res).get(businessNameKey) shouldBe None
           session(res).get(addressSeqKey) shouldBe None
         }
       }
@@ -250,17 +246,22 @@ class OtherBusinessAddressControllerSpec extends SCRSSpec
           mockAuthorisedUser(Future.successful({}))
           mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
-          mockTakeoversFeatureSwitch(isEnabled = true)
+          mockTakeoversFeatureSwitch(isEnabled = false)
+          mockInitialiseAlfJourney(
+            handbackLocation = controllers.takeovers.routes.OtherBusinessAddressController.handbackFromALF(),
+            specificJourneyKey = "takeovers",
+            lookupPageHeading = messagesApi("page.addressLookup.takeovers.otherBusinessAddress.lookup.heading", testBusinessName),
+            confirmPageHeading = messagesApi("page.addressLookup.takeovers.otherBusinessAddress.confirm.description", testBusinessName)
+          )(Future.successful("TEST/redirectUrl"))
 
           implicit val request: Request[AnyContentAsFormUrlEncoded] =
             FakeRequest().withFormUrlEncodedBody(otherBusinessAddressKey -> "Other")
-              .withSession(businessNameKey -> testBusinessName)
               .withSession(addressSeqKey -> Json.toJson(Seq(testBusinessAddress)).toString())
 
           val res: Result = TestOtherBusinessAddressController.submit()(request)
 
           status(res) shouldBe SEE_OTHER
-          redirectLocation(res) should contain(controllers.reg.routes.AccountingDatesController.show().url) //TODO route to ALF when it's done
+          redirectLocation(res) should contain("TEST/redirectUrl")
         }
       }
       "the form contains invalid data" should {
@@ -272,7 +273,6 @@ class OtherBusinessAddressControllerSpec extends SCRSSpec
 
           implicit val request: Request[AnyContentAsFormUrlEncoded] =
             FakeRequest().withFormUrlEncodedBody(otherBusinessAddressKey -> "")
-              .withSession(businessNameKey -> testBusinessName)
               .withSession(addressSeqKey -> Json.toJson(Seq(testBusinessAddress)).toString())
 
           val res: Result = TestOtherBusinessAddressController.submit()(request)
@@ -292,23 +292,25 @@ class OtherBusinessAddressControllerSpec extends SCRSSpec
           mockAuthorisedUser(Future.successful({}))
           mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
-          mockTakeoversFeatureSwitch(isEnabled = true)
+          mockTakeoversFeatureSwitch(isEnabled = false)
+          mockGetAddress(Future.successful(testBusinessAddress))
 
           implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-          when(mockAddressLookupService.getAddress(Matchers.any(), Matchers.any())).thenReturn(Future.successful(testBusinessAddress))
 
           val testTakeoverDetails: TakeoverDetails = TakeoverDetails(
             replacingAnotherBusiness = true,
             Some(testBusinessName),
             Some(testBusinessAddress)
           )
+
           mockUpdateBusinessAddress(testRegistrationId, testBusinessAddress)(testTakeoverDetails)
+
+          mockUpdatePrePopAddress(testRegistrationId, testBusinessAddress)(Future.successful(true))
 
           val res: Result = TestOtherBusinessAddressController.handbackFromALF()(request)
 
           status(res) shouldBe SEE_OTHER
           redirectLocation(res) should contain(controllers.reg.routes.AccountingDatesController.show().url) //TODO route to next page when it's done
-          session(res).get(businessNameKey) shouldBe None
           session(res).get(addressSeqKey) shouldBe None
         }
       }

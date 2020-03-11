@@ -33,8 +33,7 @@ import utils.{BooleanFeatureSwitch, FeatureSwitch, FeatureSwitchManager, JweComm
 
 import scala.concurrent.Future
 
-trait SCRSMocks
-  extends CompanyContactDetailsServiceMock
+trait SCRSMocks extends CompanyContactDetailsServiceMock
     with AccountingServiceMock
     with CompanyRegistrationConnectorMock
     with KeystoreMock
@@ -43,10 +42,10 @@ trait SCRSMocks
     with HandOffServiceMock
     with HandBackServiceMock
     with NavModelRepoMock
-    with PrepopAddressConnectorMock {
+    with PrepopAddressConnectorMock
+    with AddressLookupConnectorMock {
   this: MockitoSugar =>
 
-  val mockAddressLookupConnector = mock[AddressLookupConnector]
   val mockMetricsService = mock[MetricsService]
 
   lazy val mockSessionCache = mock[SessionCache]

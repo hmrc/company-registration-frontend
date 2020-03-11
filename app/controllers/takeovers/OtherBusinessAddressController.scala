@@ -17,7 +17,7 @@
 package controllers.takeovers
 
 import config.FrontendAppConfig
-import connectors.{CompanyRegistrationConnector, KeystoreConnector}
+import connectors.{BusinessRegistrationConnector, CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthFunction
 import controllers.reg.{ControllerErrorHandler, routes => regRoutes}
 import controllers.takeovers.OtherBusinessAddressController._
@@ -43,6 +43,7 @@ class OtherBusinessAddressController @Inject()(val authConnector: PlayAuthConnec
                                                val addressPrepopulationService: AddressPrepopulationService,
                                                val addressLookupFrontendService: AddressLookupFrontendService,
                                                val compRegConnector: CompanyRegistrationConnector,
+                                               val businessRegConnector: BusinessRegistrationConnector,
                                                val keystoreConnector: KeystoreConnector,
                                                val scrsFeatureSwitches: SCRSFeatureSwitches
                                               )(implicit val appConfig: FrontendAppConfig,
@@ -73,14 +74,12 @@ class OtherBusinessAddressController @Inject()(val authConnector: PlayAuthConnec
 
                   Ok(OtherBusinessAddress(prepopulatedForm, businessName, addressSeq))
                     .addingToSession(addressSeqKey -> Json.toJson(addressSeq).toString())
-                    .addingToSession(businessNameKey -> businessName)
               }
             case Some(TakeoverDetails(_, Some(businessName), _, _, _)) =>
               addressPrepopulationService.retrieveAddresses(regId).map {
                 addressSeq =>
                   Ok(OtherBusinessAddress(OtherBusinessAddressForm.form(businessName, addressSeq.length), businessName, addressSeq))
                     .addingToSession(addressSeqKey -> Json.toJson(addressSeq).toString())
-                    .addingToSession(businessNameKey -> businessName)
               }
             case None =>
               Future.successful(Redirect(routes.ReplacingAnotherBusinessController.show()))
@@ -95,27 +94,34 @@ class OtherBusinessAddressController @Inject()(val authConnector: PlayAuthConnec
 
   val submit: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
-      registered { regId =>
-        val optBusinessName: Option[String] = request.session.get(businessNameKey)
-        val optAddressSeq: Option[Seq[NewAddress]] = request.session.get(addressSeqKey).map(Json.parse(_).as[Seq[NewAddress]])
-        (optBusinessName, optAddressSeq) match {
-          case (Some(businessName), Some(addressSeq)) => OtherBusinessAddressForm.form(businessName, addressSeq.length).bindFromRequest.fold(
-            formWithErrors =>
-              Future.successful(BadRequest(OtherBusinessAddress(formWithErrors, businessName, addressSeq))),
-            {
-              case OtherAddress =>
-                Future.successful(Redirect(regRoutes.AccountingDatesController.show())) //TODO redirect to ALF
-              case PreselectedAddress(index) =>
-                takeoverService.updateBusinessAddress(regId, addressSeq(index)).map {
-                  _ =>
-                    Redirect(regRoutes.AccountingDatesController.show()) //TODO redirect to next page when it's done
-                      .removingFromSession(businessNameKey)
-                      .removingFromSession(addressSeqKey)
-                }
-            }
-          )
-          case _ => Future.successful(Redirect(routes.OtherBusinessAddressController.show()))
-        }
+      registered {
+        regId =>
+          takeoverService.getTakeoverDetails(regId).flatMap {
+            optTakeoverDetails =>
+              val optAddressSeq: Option[Seq[NewAddress]] = request.session.get(addressSeqKey).map(Json.parse(_).as[Seq[NewAddress]])
+              (optTakeoverDetails, optAddressSeq) match {
+                case (Some(TakeoverDetails(_, Some(businessName), _, _, _)), Some(addressSeq)) => OtherBusinessAddressForm.form(businessName, addressSeq.length).bindFromRequest.fold(
+                  formWithErrors =>
+                    Future.successful(BadRequest(OtherBusinessAddress(formWithErrors, businessName, addressSeq))),
+                  {
+                    case OtherAddress =>
+                      addressLookupFrontendService.initialiseAlfJourney(
+                        handbackLocation = controllers.takeovers.routes.OtherBusinessAddressController.handbackFromALF(),
+                        specificJourneyKey = takeoversKey,
+                        lookupPageHeading = messagesApi("page.addressLookup.takeovers.otherBusinessAddress.lookup.heading", businessName),
+                        confirmPageHeading = messagesApi("page.addressLookup.takeovers.otherBusinessAddress.confirm.description", businessName)
+                      ).map(Redirect(_))
+                    case PreselectedAddress(index) =>
+                      takeoverService.updateBusinessAddress(regId, addressSeq(index)).map {
+                        _ =>
+                          Redirect(regRoutes.AccountingDatesController.show()) //TODO redirect to next page when it's done
+                            .removingFromSession(addressSeqKey)
+                      }
+                  }
+                )
+                case _ => Future.successful(Redirect(routes.OtherBusinessAddressController.show()))
+              }
+          }
       }
     }
   }
@@ -126,8 +132,8 @@ class OtherBusinessAddressController @Inject()(val authConnector: PlayAuthConnec
         for {
           address <- addressLookupFrontendService.getAddress
           _ <- takeoverService.updateBusinessAddress(regId, address)
+          _ <- businessRegConnector.updatePrePopAddress(regId, address)
         } yield Redirect(regRoutes.AccountingDatesController.show()) //TODO redirect to next page when it's done
-          .removingFromSession(businessNameKey)
           .removingFromSession(addressSeqKey)
       }
     }
@@ -135,6 +141,6 @@ class OtherBusinessAddressController @Inject()(val authConnector: PlayAuthConnec
 }
 
 object OtherBusinessAddressController {
-  val businessNameKey: String = "businessName"
+  val takeoversKey: String = "takeovers"
   val addressSeqKey: String = "addressSeq"
 }

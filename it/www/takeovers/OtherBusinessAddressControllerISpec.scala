@@ -7,7 +7,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, stubFor,
 import controllers.takeovers.OtherBusinessAddressController._
 import fixtures.Fixtures
 import forms.takeovers.OtherBusinessAddressForm.otherBusinessAddressKey
-import itutil.servicestubs.{BusinessRegistrationStub, TakeoverStub}
+import itutil.servicestubs.{ALFStub, BusinessRegistrationStub, TakeoverStub}
 import itutil.{IntegrationSpecBase, LoginStub, RequestsFinder}
 import models._
 import org.jsoup.Jsoup
@@ -23,7 +23,8 @@ class OtherBusinessAddressControllerISpec extends IntegrationSpecBase
   with RequestsFinder
   with TakeoverStub
   with Fixtures
-  with BusinessRegistrationStub {
+  with BusinessRegistrationStub
+  with ALFStub {
 
   val userId: String = "testUserId"
   val testRegId: String = "testRegId"
@@ -90,7 +91,6 @@ class OtherBusinessAddressControllerISpec extends IntegrationSpecBase
 
       val sessionCookie: String = getSessionCookie(
         Map("csrfToken" -> csrfToken,
-          businessNameKey -> testBusinessName,
           addressSeqKey -> Json.toJson(Seq(testBusinessAddress)).toString()
         ), userId)
 
@@ -110,10 +110,13 @@ class OtherBusinessAddressControllerISpec extends IntegrationSpecBase
       stubKeystore(SessionId, testRegId)
       setupFeatures(takeovers = true)
       stubGet(s"/company-registration/corporation-tax-registration/$testRegId/corporation-tax-registration", 200, statusResponseFromCR())
+      stubGetTakeoverDetails(testRegId, OK, Some(testTakeoverDetails))
+      stubInitAlfJourney(redirectLocation = "/test")
+
+
 
       val sessionCookie: String = getSessionCookie(
         Map("csrfToken" -> csrfToken,
-          businessNameKey -> testBusinessName,
           addressSeqKey -> Json.toJson(Seq(testBusinessAddress)).toString()
         ), userId)
 
@@ -124,8 +127,63 @@ class OtherBusinessAddressControllerISpec extends IntegrationSpecBase
         ).post(Map(otherBusinessAddressKey -> Seq("Other")))
       )
 
+
       res.status shouldBe SEE_OTHER
-      res.redirectLocation should contain(controllers.reg.routes.AccountingDatesController.show().url) //TODO route to ALF page when it's done
+      res.redirectLocation should contain("/test")
+
+      val onRampConfig: AlfJourneyConfig = getPOSTRequestJsonBody("/api/init").as[AlfJourneyConfig]
+
+      val expectedConfig: AlfJourneyConfig = AlfJourneyConfig(
+        topLevelConfig = TopLevelConfig(
+          continueUrl = "http://localhost:9970/register-your-company/save-alf-address-takeovers",
+          homeNavHref = "http://www.hmrc.gov.uk/",
+          navTitle = "Set up a limited company and register for Corporation Tax",
+          showPhaseBanner = true,
+          alphaPhaseBanner = false,
+          phaseBannerHtml = "This is a new service. Help us improve it - send your <a href='https://www.tax.service.gov.uk/register-for-paye/feedback'>feedback</a>.",
+          includeHMRCBranding = false,
+          showBackButtons = true,
+          deskProServiceName = "SCRS"
+        ),
+        lookupPageConfig = LookupPageConfig(
+          title = "Find the address",
+          heading = s"Find $testBusinessName’s address",
+          filterLabel = "Property name or number",
+          submitLabel = "Find address",
+          manualAddressLinkText = "Enter address manually"
+        ),
+        selectPageConfig = SelectPageConfig(
+          title = "Choose an address",
+          heading = "Choose an address",
+          proposalListLimit = 30,
+          showSearchAgainLink = true,
+          searchAgainLinkText = "Search again",
+          editAddressLinkText = "The address is not on the list"
+        ),
+        editPageConfig = EditPageConfig(
+          title = "Enter an address",
+          heading = "Enter an address",
+          line1Label = "Address line 1",
+          line2Label = "Address line 2",
+          line3Label = "Address line 3",
+          showSearchAgainLink = true
+        ),
+        confirmPageConfig = ConfirmPageConfig(
+          title = "Confirm the address",
+          heading = s"Confirm $testBusinessName’s address",
+          showSubHeadingAndInfo = false,
+          submitLabel = "Confirm and continue",
+          showSearchAgainLink = false,
+          showChangeLink = true,
+          changeLinkText = "Change"
+        ),
+        timeoutConfig = TimeoutConfig(
+          timeoutAmount = 999999,
+          timeoutUrl = "http://localhost:9970/register-your-company/error/timeout"
+        )
+      )
+
+      onRampConfig shouldBe expectedConfig
     }
   }
 
@@ -137,6 +195,7 @@ class OtherBusinessAddressControllerISpec extends IntegrationSpecBase
       stubGet(s"/company-registration/corporation-tax-registration/$testRegId/corporation-tax-registration", 200, statusResponseFromCR())
       stubGetTakeoverDetails(testRegId, OK, Some(testTakeoverDetails))
       stubPutTakeoverDetails(testRegId, OK, testTakeoverDetails.copy(businessTakeoverAddress = Some(testBusinessAddress.copy(postcode = None))))
+      stubPost(url = s"/business-registration/$testRegId/addresses", 200, Json.toJson(testBusinessAddress).toString)
 
       val addressLookupResponse: String = Json.obj(
         "auditRef" -> "tstAuditRef",
@@ -163,7 +222,6 @@ class OtherBusinessAddressControllerISpec extends IntegrationSpecBase
 
       val sessionCookie: String = getSessionCookie(
         Map("csrfToken" -> csrfToken,
-          businessNameKey -> testBusinessName,
           addressSeqKey -> Json.toJson(Seq(testBusinessAddress)).toString()
         ), userId)
 
