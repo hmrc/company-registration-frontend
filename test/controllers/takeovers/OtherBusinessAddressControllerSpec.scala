@@ -136,7 +136,7 @@ class OtherBusinessAddressControllerSpec extends SCRSSpec
           val res: Result = TestOtherBusinessAddressController.show()(request)
 
           status(res) shouldBe OK
-          bodyOf(res) shouldBe OtherBusinessAddress(OtherBusinessAddressForm.form, testBusinessName, Seq(testBusinessAddress)).body
+          bodyOf(res) shouldBe OtherBusinessAddress(OtherBusinessAddressForm.form(testBusinessName, 1), testBusinessName, Seq(testBusinessAddress)).body
           session(res).get(businessNameKey) should contain(testBusinessName)
           session(res).get(addressSeqKey) should contain(Json.toJson(Seq(testBusinessAddress)).toString())
         }
@@ -163,7 +163,7 @@ class OtherBusinessAddressControllerSpec extends SCRSSpec
 
           status(res) shouldBe OK
           bodyOf(res) shouldBe OtherBusinessAddress(
-            OtherBusinessAddressForm.form.fill("1"),
+            OtherBusinessAddressForm.form(testBusinessName, 2).fill(PreselectedAddress(1)),
             testBusinessName,
             Seq(testBusinessAddress, testOldBusinessAddress)
           ).body
@@ -195,7 +195,7 @@ class OtherBusinessAddressControllerSpec extends SCRSSpec
 
           status(res) shouldBe OK
           bodyOf(res) shouldBe OtherBusinessAddress(
-            OtherBusinessAddressForm.form.fill("1"),
+            OtherBusinessAddressForm.form(testBusinessName, 2).fill(PreselectedAddress(1)),
             testBusinessName,
             Seq(testBusinessAddress, testOldBusinessAddress)
           ).body
@@ -223,7 +223,7 @@ class OtherBusinessAddressControllerSpec extends SCRSSpec
           mockAuthorisedUser(Future.successful({}))
           mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
-          mockTakeoversFeatureSwitch(isEnabled = false)
+          mockTakeoversFeatureSwitch(isEnabled = true)
 
           implicit val request: Request[AnyContentAsFormUrlEncoded] =
             FakeRequest().withFormUrlEncodedBody(otherBusinessAddressKey -> "0")
@@ -250,7 +250,7 @@ class OtherBusinessAddressControllerSpec extends SCRSSpec
           mockAuthorisedUser(Future.successful({}))
           mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
-          mockTakeoversFeatureSwitch(isEnabled = false)
+          mockTakeoversFeatureSwitch(isEnabled = true)
 
           implicit val request: Request[AnyContentAsFormUrlEncoded] =
             FakeRequest().withFormUrlEncodedBody(otherBusinessAddressKey -> "Other")
@@ -268,7 +268,7 @@ class OtherBusinessAddressControllerSpec extends SCRSSpec
           mockAuthorisedUser(Future.successful({}))
           mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
-          mockTakeoversFeatureSwitch(isEnabled = false)
+          mockTakeoversFeatureSwitch(isEnabled = true)
 
           implicit val request: Request[AnyContentAsFormUrlEncoded] =
             FakeRequest().withFormUrlEncodedBody(otherBusinessAddressKey -> "")
@@ -279,7 +279,7 @@ class OtherBusinessAddressControllerSpec extends SCRSSpec
 
           status(res) shouldBe BAD_REQUEST
           Jsoup.parse(bodyOf(res))
-            .getElementById("otherBusinessAddress-error-summary").text shouldBe "Tell us the address"
+            .getElementById("otherBusinessAddress-error-summary").text shouldBe s"Tell us $testBusinessName’s address"
         }
       }
     }
@@ -292,7 +292,7 @@ class OtherBusinessAddressControllerSpec extends SCRSSpec
           mockAuthorisedUser(Future.successful({}))
           mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
-          mockTakeoversFeatureSwitch(isEnabled = false)
+          mockTakeoversFeatureSwitch(isEnabled = true)
 
           implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
           when(mockAddressLookupService.getAddress(Matchers.any(), Matchers.any())).thenReturn(Future.successful(testBusinessAddress))

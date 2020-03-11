@@ -22,6 +22,7 @@ import controllers.auth.AuthFunction
 import controllers.reg.{ControllerErrorHandler, routes => regRoutes}
 import controllers.takeovers.OtherBusinessAddressController._
 import forms.takeovers.OtherBusinessAddressForm
+import forms.takeovers.OtherBusinessAddressForm.{OtherAddress, PreselectedAddress}
 import javax.inject.{Inject, Singleton}
 import models.{NewAddress, TakeoverDetails}
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -59,25 +60,25 @@ class OtherBusinessAddressController @Inject()(val authConnector: PlayAuthConnec
               Future.successful(Redirect(routes.OtherBusinessNameController.show()))
             case Some(TakeoverDetails(_, Some(businessName), Some(preselectedTakeoverAddress), _, _)) =>
               addressPrepopulationService.retrieveAddresses(regId).map {
-                preselectedAddresses =>
-                  val prepopulatedForm = preselectedAddresses.zipWithIndex.collectFirst {
+                addressSeq =>
+                  val prepopulatedForm = addressSeq.zipWithIndex.collectFirst {
                     case (preselectedAddress, index) if preselectedAddress.isEqualTo(preselectedTakeoverAddress) =>
                       index
                   } match {
                     case Some(index) =>
-                      OtherBusinessAddressForm.form.fill(index.toString)
+                      OtherBusinessAddressForm.form(businessName, addressSeq.length).fill(PreselectedAddress(index))
                     case None =>
-                      OtherBusinessAddressForm.form
+                      OtherBusinessAddressForm.form(businessName, addressSeq.length)
                   }
 
-                  Ok(OtherBusinessAddress(prepopulatedForm, businessName, preselectedAddresses))
-                    .addingToSession(addressSeqKey -> Json.toJson(preselectedAddresses).toString())
+                  Ok(OtherBusinessAddress(prepopulatedForm, businessName, addressSeq))
+                    .addingToSession(addressSeqKey -> Json.toJson(addressSeq).toString())
                     .addingToSession(businessNameKey -> businessName)
               }
             case Some(TakeoverDetails(_, Some(businessName), _, _, _)) =>
               addressPrepopulationService.retrieveAddresses(regId).map {
                 addressSeq =>
-                  Ok(OtherBusinessAddress(OtherBusinessAddressForm.form, businessName, addressSeq))
+                  Ok(OtherBusinessAddress(OtherBusinessAddressForm.form(businessName, addressSeq.length), businessName, addressSeq))
                     .addingToSession(addressSeqKey -> Json.toJson(addressSeq).toString())
                     .addingToSession(businessNameKey -> businessName)
               }
@@ -98,21 +99,19 @@ class OtherBusinessAddressController @Inject()(val authConnector: PlayAuthConnec
         val optBusinessName: Option[String] = request.session.get(businessNameKey)
         val optAddressSeq: Option[Seq[NewAddress]] = request.session.get(addressSeqKey).map(Json.parse(_).as[Seq[NewAddress]])
         (optBusinessName, optAddressSeq) match {
-          case (Some(businessName), Some(addressSeq)) => OtherBusinessAddressForm.form.bindFromRequest.fold(
+          case (Some(businessName), Some(addressSeq)) => OtherBusinessAddressForm.form(businessName, addressSeq.length).bindFromRequest.fold(
             formWithErrors =>
               Future.successful(BadRequest(OtherBusinessAddress(formWithErrors, businessName, addressSeq))),
-            addressChoice => {
-              if (addressChoice == "Other") {
+            {
+              case OtherAddress =>
                 Future.successful(Redirect(regRoutes.AccountingDatesController.show())) //TODO redirect to ALF
-              }
-              else {
-                takeoverService.updateBusinessAddress(regId, addressSeq(addressChoice.toInt)).map {
+              case PreselectedAddress(index) =>
+                takeoverService.updateBusinessAddress(regId, addressSeq(index)).map {
                   _ =>
                     Redirect(regRoutes.AccountingDatesController.show()) //TODO redirect to next page when it's done
                       .removingFromSession(businessNameKey)
                       .removingFromSession(addressSeqKey)
                 }
-              }
             }
           )
           case _ => Future.successful(Redirect(routes.OtherBusinessAddressController.show()))

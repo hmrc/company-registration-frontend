@@ -543,4 +543,4 @@ page.takeovers.otherBusinessAddress.heading                            = What is
 page.takeovers.otherBusinessAddress.line1                              = If {0} is:
 page.takeovers.otherBusinessAddress.bullet1                            = a company, use the address that’s on its Companies House record
 page.takeovers.otherBusinessAddress.bullet2                            = a sole trader or business partnership, use the address that it has registered for Income Tax
-error.otherBusinessAddress.required                                    = Tell us the address
+error.otherBusinessAddress.required                                    = Tell us {0}’s address

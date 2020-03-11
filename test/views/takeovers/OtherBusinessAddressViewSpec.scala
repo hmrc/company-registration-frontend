@@ -37,7 +37,7 @@ class OtherBusinessAddressViewSpec extends UnitSpec with GuiceOneAppPerSuite wit
   val testBusinessAddress: NewAddress = NewAddress("testLine1", "testLine2", None, None, Some("Z11 11Z"), Some("testCountry"))
 
   "OtherBusinessAddressView" should {
-    lazy val form = OtherBusinessAddressForm.form
+    lazy val form = OtherBusinessAddressForm.form(testBusinessName, 1)
     lazy val view = views.html.takeovers.OtherBusinessAddress(form, testBusinessName, Seq(testBusinessAddress))
     lazy val doc = Jsoup.parse(view.body)
 
