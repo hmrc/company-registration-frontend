@@ -82,6 +82,17 @@ object SCRSValidators {
       if (errors.isEmpty) Valid else Invalid(errors)
   })
 
+  val whoAgreedTakeoverValidation: Constraint[String] = Constraint("constraints.whoAgreedTakeover")({
+    text =>
+      val errors = text.trim match {
+        case name if name.length == 0 => Seq(ValidationError("error.whoAgreedTakeover.required"))
+        case name if name.length > 100 => Seq(ValidationError("error.whoAgreedTakeover.over100Characters"))
+        case name if !name.matches(otherBusinessNameRegex) => Seq(ValidationError("error.whoAgreedTakeover.invalidCharacters"))
+        case _ => Nil
+      }
+      if (errors.isEmpty) Valid else Invalid(errors)
+  })
+
   val UtrValidation: Constraint[String] = Constraint("constraints.utr")({
     text =>
       val errors = text match {

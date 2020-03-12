@@ -546,3 +546,13 @@ page.takeovers.otherBusinessAddress.line1                              = If {0} 
 page.takeovers.otherBusinessAddress.bullet1                            = a company, use the address that’s on its Companies House record
 page.takeovers.otherBusinessAddress.bullet2                            = a sole trader or business partnership, use the address that it has registered for Income Tax
 error.otherBusinessAddress.required                                    = Tell us {0}’s address
+
+page.takeovers.whoAgreedTakeover.title                                 = Who agreed the takeover on behalf of {0}?
+page.takeovers.whoAgreedTakeover.heading                               = Who agreed the takeover on behalf of {0}?
+page.takeovers.whoAgreedTakeover.line1                                 = If you’re changing:
+page.takeovers.whoAgreedTakeover.bullet1                               = your sole trader business into a limited company, give your own name
+page.takeovers.whoAgreedTakeover.bullet2                               = a business partnership into a limited company, give the nominated partner’s name
+page.takeovers.whoAgreedTakeover.field                                 = Enter name
+error.whoAgreedTakeover.required                                       = Tell us who agreed the takeover
+error.whoAgreedTakeover.over100Characters                              = Enter the name using 100 characters or less
+error.whoAgreedTakeover.invalidCharacters                              = Enter the name using only letters, numbers, spaces, hyphens and apostrophes
