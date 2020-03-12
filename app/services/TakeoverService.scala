@@ -17,12 +17,13 @@
 package services
 
 import connectors.TakeoverConnector
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 import models.{NewAddress, TakeoverDetails}
 import uk.gov.hmrc.http.{HeaderCarrier, InternalServerException}
 
 import scala.concurrent.{ExecutionContext, Future}
 
+@Singleton
 class TakeoverService @Inject()(takeoverConnector: TakeoverConnector)(implicit ec: ExecutionContext) {
   def getTakeoverDetails(registrationId: String)(implicit hc: HeaderCarrier): Future[Option[TakeoverDetails]] =
     takeoverConnector.getTakeoverDetails(registrationId)
@@ -43,37 +44,25 @@ class TakeoverService @Inject()(takeoverConnector: TakeoverConnector)(implicit e
 
   def updateBusinessName(registrationId: String, businessName: String)(implicit hc: HeaderCarrier): Future[TakeoverDetails] =
     takeoverConnector.getTakeoverDetails(registrationId).flatMap {
-      case Some(TakeoverDetails(false, _, _, _, _)) =>
-        Future.failed(new InternalServerException("Reached takeover business page in a no takeover flow"))
-      case None =>
-        Future.failed(new InternalServerException("Could not retrieve takeover details when trying to update Business name"))
-      case Some(takeoverDetails) =>
+      case Some(takeoverDetails@TakeoverDetails(true, _, _, _, _)) =>
         takeoverConnector.updateTakeoverDetails(registrationId, takeoverDetails.copy(businessName = Some(businessName)))
+      case _ =>
+        Future.failed(new InternalServerException("[TakeoverService] [updateBusinessName] Missing prerequisite takeover data"))
     }
 
   def updateBusinessAddress(registrationId: String, address: NewAddress)(implicit hc: HeaderCarrier): Future[TakeoverDetails] =
     takeoverConnector.getTakeoverDetails(registrationId).flatMap {
-      case Some(TakeoverDetails(false, _, _, _, _)) =>
-        Future.failed(new InternalServerException("Reached takeover business page in a no takeover flow"))
-      case None =>
-        Future.failed(new InternalServerException("Could not retrieve takeover details when trying to update Business Address"))
-      case Some(TakeoverDetails(true, None, _, _, _)) =>
-        Future.failed(new InternalServerException("Reached takeover Business Address without a business name"))
-      case Some(takeoverDetails) =>
+      case Some(takeoverDetails@TakeoverDetails(true, Some(_), _, _, _)) =>
         takeoverConnector.updateTakeoverDetails(registrationId, takeoverDetails.copy(businessTakeoverAddress = Some(address)))
+      case _ =>
+        Future.failed(new InternalServerException("[TakeoverService] [updateBusinessAddress] Missing prerequisite takeover data"))
     }
 
   def updatePreviousOwnersName(registrationId: String, name: String)(implicit hc: HeaderCarrier): Future[TakeoverDetails] =
     takeoverConnector.getTakeoverDetails(registrationId).flatMap {
-      case Some(TakeoverDetails(false, _, _, _, _)) =>
-        Future.failed(new InternalServerException("Reached takeover business page in a no takeover flow"))
-      case None =>
-        Future.failed(new InternalServerException("Could not retrieve takeover details when trying to update Previous Owners Name"))
-      case Some(TakeoverDetails(true, None, _, _, _)) =>
-        Future.failed(new InternalServerException("Reached Who Agreed Takeover without a business name"))
-      case Some(TakeoverDetails(true, _, None, _, _)) =>
-        Future.failed(new InternalServerException("Reached Who Agreed Takeover without a business address"))
-      case Some(takeoverDetails) =>
+      case Some(takeoverDetails@TakeoverDetails(true, Some(_), Some(_), _, _)) =>
         takeoverConnector.updateTakeoverDetails(registrationId, takeoverDetails.copy(previousOwnersName = Some(name)))
+      case _ =>
+        Future.failed(new InternalServerException("[TakeoverService] [updatePreviousOwnerName] Missing prerequisite takeover data"))
     }
 }
