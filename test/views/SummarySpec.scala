@@ -47,6 +47,11 @@ class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixtu
                                             Some(NewAddress("line 1","line 2",Some("line 3"),Some("line 4"),Some("ZZ1 1ZZ"),Some("UK"))))
   val testTakeOverAddressNoName = TakeoverDetails(replacingAnotherBusiness = true, businessName = None,
                                             Some(NewAddress("line 1","line 2",Some("line 3"),Some("line 4"),Some("ZZ1 1ZZ"),Some("UK"))))
+  //TODO Will eventually contain the full model.
+  val testTakeOverFullModel = TakeoverDetails(replacingAnotherBusiness = true, businessName = Some("ABC Limited"),
+    Some(NewAddress("line 1","line 2",Some("line 3"),Some("line 4"),Some("ZZ1 1ZZ"),Some("UK"))),
+    Some("Agreed Person"))
+
   val testRegiId = "12345"
 
   class SetupPage {
@@ -319,6 +324,67 @@ class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixtu
             "businessTakeOverAddress" -> "line 1 line 2 line 3 line 4 ZZ1 1ZZ UK"
           ) foreach { case (element, message) =>
             document.getElementById(element).text() shouldBe message
+          }
+      }
+    }
+
+    "make sure that the Summary page has the correct elements for a complete takeover model" in new SetupPage {
+      mockKeystoreFetchAndGet("registrationID", Some(testRegiId))
+
+      when(mockMetaDataService.getApplicantData(Matchers.any())(Matchers.any[HeaderCarrier]()))
+        .thenReturn(Future.successful(applicantData))
+
+      CTRegistrationConnectorMocks.retrieveCompanyDetails(Some(validCompanyDetailsResponse))
+      CTRegistrationConnectorMocks.retrieveTradingDetails(Some(TradingDetails("false")))
+      CTRegistrationConnectorMocks.retrieveContactDetails(CompanyContactDetailsSuccessResponse(validCompanyContactDetailsResponse))
+      CTRegistrationConnectorMocks.retrieveAccountingDetails(validAccountingResponse)
+
+      mockGetTakeoverDetails(testRegiId)(Future.successful(Some(testTakeOverFullModel)))
+
+      when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(Matchers.any())(Matchers.any()))
+        .thenReturn(Future.successful(corporationTaxModel))
+
+      showWithAuthorisedUser(controller.show) {
+        result =>
+          val document = Jsoup.parse(contentAsString(result))
+
+          document.title() shouldBe "Check and confirm your answers"
+
+          Map (
+            "applicantTitle" -> "Applicant",
+            "applicant" -> "Director",
+            "companyNameTitle" -> "Company details",
+            "companyAccountingTitle" -> "Company accounting",
+            "companyName" -> "testCompanyName",
+            "ROAddress" -> "Premises Line1 Line2 Locality Region FX1 1ZZ Country",
+            "PPOBAddress" -> "Registered Office Address",
+            "companyContact" -> "0123456789 foo@bar.wibble 0123456789",
+            "startDate" -> "10/06/2020",
+            "tradingDetails" -> "No",
+            "takeoversTitle" -> "Company takeover",
+            "replacingAnotherBusiness" -> "Yes",
+            "replacingAnotherBusinessLabel" -> "Is the new company replacing another business?",
+            "change-replacing-another-business" -> "changewhether the new company is replacing another business",
+            "otherBusinessName" -> "ABC Limited",
+            "otherBusinessNameLabel" -> "What is the name of the other business?",
+            "change-other-business-name" -> "changethe name of the other business",
+            "businessTakeOverAddressLabel" -> "What is ABC Limited's address?",
+            "businessTakeOverAddress" -> "line 1 line 2 line 3 line 4 ZZ1 1ZZ UK",
+            "change-business-takeover-address" -> "changethe business takeover address",
+            "personWhoAgreedTakeoverLabel" -> "Who agreed the takeover?",
+            "personWhoAgreedTakeover" -> "Agreed Person",
+            "change-who-agreed-takeover" -> "changethe name of the person who agreed the takeover"
+          ) foreach { case (element, message) =>
+            document.getElementById(element).text() shouldBe message
+          }
+
+          Map (
+            "change-replacing-another-business" -> "/register-your-company/replacing-another-business",
+            "change-other-business-name" -> "/register-your-company/other-business-name",
+            "change-business-takeover-address" -> "/register-your-company/other-business-address",
+            "change-who-agreed-takeover" -> "/register-your-company/who-agreed-takeover"
+          ) foreach { case (element, message) =>
+            document.getElementById(element).attr("href") shouldBe message
           }
       }
     }
