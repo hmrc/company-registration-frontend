@@ -83,7 +83,13 @@
             </div>
             }
 
-
+        @takeoverDetails.previousOwnersName.map { previousOwnersName =>
+            <div>
+                <dt id="personWhoAgreedTakeoverLabel" class="cya-question">@Messages("page.reg.summary.takeovers.personAgreed")</dt>
+                <dd id="personWhoAgreedTakeover" class="cya-answer">@previousOwnersName</dd>
+                <dd class="cya-change"><a href='@controllers.takeovers.routes.WhoAgreedTakeoverController.show' id="change-who-agreed-takeover">@Messages("change")<span class="visually-hidden">@Messages("page.reg.summary.takeovers.personAgreed.change")</span></a></dd>
+            </div>
+            }
 
         </dl>
     }
