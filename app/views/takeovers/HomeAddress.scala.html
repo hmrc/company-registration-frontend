@@ -15,39 +15,31 @@
  *@
 
 @import config.FrontendAppConfig
-@import models.takeovers.AddressChoice
 @import uk.gov.hmrc.play.views.html.helpers.form
 @import views.html.helpers.{errorSummary, inputRadioGroupAddresses}
+@import models.takeovers.AddressChoice
 
-@(otherBusinessAddressForm: Form[AddressChoice], previousOwnerName: String, addressSeq: Seq[NewAddress])(implicit request: Request[_], messages: Messages, appConfig: FrontendAppConfig)
+@(homeAddressForm: Form[AddressChoice], previousOwnerName: String, addressSeq: Seq[NewAddress])(implicit request: Request[_], messages: Messages, appConfig: FrontendAppConfig)
 
-@main_template(title = messages("page.takeovers.otherBusinessAddress.title", previousOwnerName)) {
+@main_template(title = messages("page.takeovers.homeAddress.title", previousOwnerName)) {
 
     <a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
 
     @errorSummary(
         Messages("common.errorSummary.label"),
-        otherBusinessAddressForm,
+        homeAddressForm,
         dataJourney = Some("TakeOvers")
     )
 
-    <h1 id="main-heading" class="heading-large">@messages("page.takeovers.otherBusinessAddress.heading", previousOwnerName)</h1>
-
-    <div id="paragraph-one" class="form-group">
-        <p id="line1">@messages("page.takeovers.otherBusinessAddress.line1", previousOwnerName)</p>
-        <ul class="list-bullet">
-            <li>@messages("page.takeovers.otherBusinessAddress.bullet1")</li>
-            <li>@messages("page.takeovers.otherBusinessAddress.bullet2")</li>
-        </ul>
-    </div>
+    <h1 id="main-heading" class="heading-large">@messages("page.takeovers.homeAddress.heading", previousOwnerName)</h1>
 
     @form(action = controllers.takeovers.routes.OtherBusinessAddressController.submit()) {
 
         <div class="form-group">
             @inputRadioGroupAddresses(
-                field = otherBusinessAddressForm("otherBusinessAddress"),
+                field = homeAddressForm("homeAddress"),
                 addresses = addressSeq,
-                legend = messages("page.takeovers.otherBusinessAddress.heading", previousOwnerName)
+                legend = messages("page.takeovers.homeAddress.heading", previousOwnerName)
             )
         </div>
 

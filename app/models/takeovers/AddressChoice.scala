@@ -14,20 +14,10 @@
  * limitations under the License.
  */
 
-package forms.takeovers
+package models.takeovers
 
-import models.EmptyStringValidator
-import models.takeovers.AddressChoice
-import formatters.AddressChoiceFormatter.addressChoiceFormatter
-import play.api.data.Form
-import play.api.data.Forms._
+sealed trait AddressChoice
 
-object OtherBusinessAddressForm extends EmptyStringValidator {
+case object OtherAddress extends AddressChoice
 
-  val otherBusinessAddressKey = "otherBusinessAddress"
-
-  def form(businessName: String, addressCount: Int): Form[AddressChoice] = Form(
-    single(otherBusinessAddressKey -> of[AddressChoice](addressChoiceFormatter(businessName, addressCount)))
-  )
-
-}
+case class PreselectedAddress(index: Int) extends AddressChoice

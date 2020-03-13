@@ -22,8 +22,8 @@ import controllers.auth.AuthFunction
 import controllers.reg.{ControllerErrorHandler, routes => regRoutes}
 import controllers.takeovers.OtherBusinessAddressController._
 import forms.takeovers.OtherBusinessAddressForm
-import forms.takeovers.OtherBusinessAddressForm.{OtherAddress, PreselectedAddress}
 import javax.inject.{Inject, Singleton}
+import models.takeovers.{OtherAddress, PreselectedAddress}
 import models.{NewAddress, TakeoverDetails}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.libs.json.Json
