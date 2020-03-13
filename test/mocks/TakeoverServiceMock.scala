@@ -47,5 +47,9 @@ trait TakeoverServiceMock extends MockitoSugar {
   def mockUpdatePreviousOwnersName(registrationId: String, previousOwnersName: String)(response: Future[TakeoverDetails]): Unit =
     when(mockTakeoverService.updatePreviousOwnersName(Matchers.eq(registrationId), Matchers.eq(previousOwnersName))(Matchers.any[HeaderCarrier]))
       .thenReturn(response)
+  
+  def mockUpdatePreviousOwnersAddress(registrationId: String, previousOwnersAddress: NewAddress)(response: Future[TakeoverDetails]): Unit =
+    when(mockTakeoverService.updatePreviousOwnersAddress(Matchers.eq(registrationId), Matchers.eq(previousOwnersAddress))(Matchers.any[HeaderCarrier]))
+      .thenReturn(response)
 
 }

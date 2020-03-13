@@ -125,7 +125,7 @@ class TakeoverServiceSpec extends UnitSpec {
 
   "updateBusinessAddress" when {
     "the database has takeoverDetails with replacingAnotherBusiness = true and a businessName" should {
-      "update the details with an addresss" in new Setup {
+      "update the details with an address" in new Setup {
         val savedTakeoverDetails: TakeoverDetails = TakeoverDetails(
           replacingAnotherBusiness = true,
           businessName = Some(testBusinessName)
@@ -142,7 +142,7 @@ class TakeoverServiceSpec extends UnitSpec {
         await(TestTakeoverService.updateBusinessAddress(testRegistrationId, testBusinessAddress)) shouldBe expectedTakeoverDetails
       }
 
-      "update the details with a new addresss if the form already had one" in new Setup {
+      "update the details with a new address if the form already had one" in new Setup {
         val testOldBusinessAddress: NewAddress = testBusinessAddress.copy(addressLine3 = Some("testLine3"))
         val savedTakeoverDetails: TakeoverDetails = TakeoverDetails(
           replacingAnotherBusiness = true,
@@ -278,4 +278,110 @@ class TakeoverServiceSpec extends UnitSpec {
       }
     }
   }
+
+
+  "updatePreviousOwnersAddress" when {
+    "the database has takeoverDetails with replacingAnotherBusiness = true, a businessName, a business address and a previous owner's name" should {
+      "update the details with a previous owner's address" in new Setup {
+        val savedTakeoverDetails: TakeoverDetails = TakeoverDetails(
+          replacingAnotherBusiness = true,
+          businessName = Some(testBusinessName),
+          businessTakeoverAddress = Some(testBusinessAddress),
+          previousOwnersName = Some(testPreviousOwnersName)
+        )
+        mockGetTakeoverDetails(testRegistrationId)(Future.successful(Some(savedTakeoverDetails)))
+
+        val expectedTakeoverDetails: TakeoverDetails = TakeoverDetails(
+          replacingAnotherBusiness = true,
+          businessName = Some(testBusinessName),
+          businessTakeoverAddress = Some(testBusinessAddress),
+          previousOwnersName = Some(testPreviousOwnersName),
+          previousOwnersAddress = Some(testBusinessAddress)
+        )
+        mockUpdateTakeoverDetails(testRegistrationId, expectedTakeoverDetails)(Future.successful(expectedTakeoverDetails))
+
+        await(TestTakeoverService.updatePreviousOwnersAddress(testRegistrationId, testBusinessAddress)) shouldBe expectedTakeoverDetails
+      }
+
+      "update the details with a new previous owner's address if the form already had one" in new Setup {
+        val testOldBusinessAddress: NewAddress = testBusinessAddress.copy(addressLine3 = Some("testLine3"))
+        val savedTakeoverDetails: TakeoverDetails = TakeoverDetails(
+          replacingAnotherBusiness = true,
+          businessName = Some(testBusinessName),
+          businessTakeoverAddress = Some(testBusinessAddress),
+          previousOwnersName = Some(testPreviousOwnersName),
+          previousOwnersAddress = Some(testOldBusinessAddress)
+        )
+        mockGetTakeoverDetails(testRegistrationId)(Future.successful(Some(savedTakeoverDetails)))
+
+        val expectedTakeoverDetails: TakeoverDetails = TakeoverDetails(
+          replacingAnotherBusiness = true,
+          businessName = Some(testBusinessName),
+          businessTakeoverAddress = Some(testBusinessAddress),
+          previousOwnersName = Some(testPreviousOwnersName),
+          previousOwnersAddress = Some(testBusinessAddress)
+        )
+        mockUpdateTakeoverDetails(testRegistrationId, expectedTakeoverDetails)(Future.successful(expectedTakeoverDetails))
+
+        await(TestTakeoverService.updatePreviousOwnersAddress(testRegistrationId, testBusinessAddress)) shouldBe expectedTakeoverDetails
+      }
+    }
+
+    "the database has takeoverDetails without business name" should {
+      "throw and internal server exception" in new Setup {
+        val savedTakeoverDetails: TakeoverDetails = TakeoverDetails(
+          replacingAnotherBusiness = true
+        )
+        mockGetTakeoverDetails(testRegistrationId)(Future.successful(Some(savedTakeoverDetails)))
+
+        intercept[InternalServerException](await(TestTakeoverService.updatePreviousOwnersAddress(testRegistrationId, testBusinessAddress)))
+      }
+    }
+
+    "the database has takeoverDetails with replacingAnotherBusiness = false" should {
+      "throw an internal server exception" in new Setup {
+        val savedTakeoverDetails: TakeoverDetails = TakeoverDetails(
+          replacingAnotherBusiness = false
+        )
+        mockGetTakeoverDetails(testRegistrationId)(Future.successful(Some(savedTakeoverDetails)))
+
+        intercept[InternalServerException](await(TestTakeoverService.updatePreviousOwnersAddress(testRegistrationId, testBusinessAddress)))
+      }
+    }
+
+
+    "the database has takeoverDetails with no business address" should {
+      "throw an internal server exception" in new Setup {
+        val savedTakeoverDetails: TakeoverDetails = TakeoverDetails(
+          replacingAnotherBusiness = true,
+          businessName = Some(testBusinessName),
+          businessTakeoverAddress = Some(testBusinessAddress)
+        )
+        mockGetTakeoverDetails(testRegistrationId)(Future.successful(Some(savedTakeoverDetails)))
+
+        intercept[InternalServerException](await(TestTakeoverService.updatePreviousOwnersAddress(testRegistrationId, testBusinessAddress)))
+      }
+    }
+
+    "the database has takeoverDetails with no previous owner name" should {
+      "throw an internal server exception" in new Setup {
+        val savedTakeoverDetails: TakeoverDetails = TakeoverDetails(
+          replacingAnotherBusiness = true,
+          businessName = Some(testBusinessName)
+        )
+        mockGetTakeoverDetails(testRegistrationId)(Future.successful(Some(savedTakeoverDetails)))
+
+        intercept[InternalServerException](await(TestTakeoverService.updatePreviousOwnersAddress(testRegistrationId, testBusinessAddress)))
+      }
+    }
+
+    "the database has no takeoverDetails" should {
+      "throw an internal server exception" in new Setup {
+        mockGetTakeoverDetails(testRegistrationId)(Future.successful(None))
+
+        intercept[InternalServerException](await(TestTakeoverService.updatePreviousOwnersAddress(testRegistrationId, testBusinessAddress)))
+      }
+    }
+  }
+
 }
