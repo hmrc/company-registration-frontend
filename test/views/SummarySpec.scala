@@ -321,7 +321,8 @@ class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixtu
             "replacingAnotherBusiness" -> "Yes",
             "replacingAnotherBusinessLabel" -> "Is the new company replacing another business?",
             "businessTakeOverAddressLabel" -> "What is the other business's address?",
-            "businessTakeOverAddress" -> "line 1 line 2 line 3 line 4 ZZ1 1ZZ UK"
+            "businessTakeOverAddress" -> "line 1 line 2 line 3 line 4 ZZ1 1ZZ UK",
+            "change-business-takeover-address" -> "changethe other business's address"
           ) foreach { case (element, message) =>
             document.getElementById(element).text() shouldBe message
           }
@@ -370,10 +371,10 @@ class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixtu
             "change-other-business-name" -> "changethe name of the other business",
             "businessTakeOverAddressLabel" -> "What is ABC Limited's address?",
             "businessTakeOverAddress" -> "line 1 line 2 line 3 line 4 ZZ1 1ZZ UK",
-            "change-business-takeover-address" -> "changethe business takeover address",
+            "change-business-takeover-address" -> "changeABC Limited's address",
             "personWhoAgreedTakeoverLabel" -> "Who agreed the takeover?",
             "personWhoAgreedTakeover" -> "Agreed Person",
-            "change-who-agreed-takeover" -> "changethe name of the person who agreed the takeover"
+            "change-who-agreed-takeover" -> "changethe name of who agreed the takeover"
           ) foreach { case (element, message) =>
             document.getElementById(element).text() shouldBe message
           }
