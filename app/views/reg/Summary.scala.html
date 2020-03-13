@@ -79,7 +79,7 @@
                     businessTakeOverAddress.postcode.fold[String]("")(s => s + "<br>") +
                     businessTakeOverAddress.country.fold[String]("")(s => s ) )
                     }</dd>
-                <dd class="cya-change"><a href='@controllers.takeovers.routes.OtherBusinessAddressController.show' id="change-business-takeover-address">@Messages("change")<span class="visually-hidden">@Messages("page.reg.summary.takeovers.businessTakeOverAddress.change")</span></a></dd>
+                <dd class="cya-change"><a href='@controllers.takeovers.routes.OtherBusinessAddressController.show' id="change-business-takeover-address">@Messages("change")<span class="visually-hidden">@Messages("page.reg.summary.takeovers.businessTakeOverAddress.change",takeoverDetails.businessName.fold[String](Messages("page.reg.summary.takeovers.noTakeoverBusinessName"))(s => s))</span></a></dd>
             </div>
             }
 

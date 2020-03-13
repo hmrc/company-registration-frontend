@@ -204,9 +204,9 @@ page.reg.summary.takeovers.noTakeoverBusinessName                   = the other 
 page.reg.summary.takeovers.otherBusinessName                        = What is the name of the other business?
 page.reg.summary.takeovers.otherBusinessName.change                 = the name of the other business
 page.reg.summary.takeovers.businessTakeOverAddress                  = What is {0}''s address?
-page.reg.summary.takeovers.businessTakeOverAddress.change           = the business takeover address
+page.reg.summary.takeovers.businessTakeOverAddress.change           = {0}''s address
 page.reg.summary.takeovers.personAgreed                             = Who agreed the takeover?
-page.reg.summary.takeovers.personAgreed.change                      = the name of the person who agreed the takeover
+page.reg.summary.takeovers.personAgreed.change                      = the name of who agreed the takeover
 
 
 
