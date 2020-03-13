@@ -65,4 +65,12 @@ class TakeoverService @Inject()(takeoverConnector: TakeoverConnector)(implicit e
       case _ =>
         Future.failed(new InternalServerException("[TakeoverService] [updatePreviousOwnerName] Missing prerequisite takeover data"))
     }
+
+  def updatePreviousOwnersAddress(registrationId: String, address: NewAddress)(implicit hc: HeaderCarrier): Future[TakeoverDetails] =
+    takeoverConnector.getTakeoverDetails(registrationId).flatMap {
+      case Some(takeoverDetails@TakeoverDetails(true, Some(_), Some(_), Some(_), _)) =>
+        takeoverConnector.updateTakeoverDetails(registrationId, takeoverDetails.copy(previousOwnersAddress = Some(address)))
+      case _ =>
+        Future.failed(new InternalServerException("[TakeoverService] [updatePreviousOwnersAddress] Missing prerequisite takeover data"))
+    }
 }
