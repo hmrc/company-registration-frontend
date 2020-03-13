@@ -17,7 +17,8 @@
 package views.takeovers
 
 import config.FrontendAppConfig
-import forms.takeovers.WhoAgreedTakeoverForm
+import forms.takeovers.{HomeAddressForm, OtherBusinessAddressForm}
+import models.NewAddress
 import org.jsoup.Jsoup
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -25,24 +26,24 @@ import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import uk.gov.hmrc.play.test.UnitSpec
 
-class WhoAgreedTakeoverViewSpec extends UnitSpec with GuiceOneAppPerSuite with I18nSupport {
+class HomeAddressViewSpec extends UnitSpec with GuiceOneAppPerSuite with I18nSupport {
 
   implicit lazy val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
   implicit lazy val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
   implicit lazy val frontendAppConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
-  lazy val testPreviousOwnerName: String = "testName"
 
-  "OtherBusinessNameView" should {
-    lazy val form = WhoAgreedTakeoverForm.form
-    lazy val view = views.html.takeovers.WhoAgreedTakeover(form, testPreviousOwnerName)
+  val testPreviousOwnerName: String = "testName"
+  val testBusinessAddress: NewAddress = NewAddress("testLine1", "testLine2", None, None, Some("Z11 11Z"), Some("testCountry"))
+
+  "OtherBusinessAddressView" should {
+    lazy val form = HomeAddressForm.form(testPreviousOwnerName, 1)
+    lazy val view = views.html.takeovers.HomeAddress(form, testPreviousOwnerName, Seq(testBusinessAddress))
     lazy val doc = Jsoup.parse(view.body)
 
-    lazy val title = s"Who agreed the takeover on behalf of $testPreviousOwnerName?"
-    lazy val heading = s"Who agreed the takeover on behalf of $testPreviousOwnerName?"
-    lazy val line1 = "If you’re changing:"
-    lazy val bullet1 = "your sole trader business into a limited company, give your own name"
-    lazy val bullet2 = "a business partnership into a limited company, give the nominated partner’s name"
-    lazy val field = "Enter name"
+    lazy val title = s"What is $testPreviousOwnerName’s home address?"
+    lazy val heading = s"What is $testPreviousOwnerName’s home address?"
+    lazy val address = testBusinessAddress.mkString
+    lazy val otherAddress = "A different address"
     lazy val saveAndContinue = "Save and continue"
 
     s"have an expected title: $title" in {
@@ -53,18 +54,10 @@ class WhoAgreedTakeoverViewSpec extends UnitSpec with GuiceOneAppPerSuite with I
       doc.selectFirst("h1").text shouldBe heading
     }
 
-    s"have an expected paragraph: $line1" in {
-      doc.getElementById("line1").text shouldBe line1
-    }
-
-    s"have an expected bullet list" in {
-      val list = doc.getElementById("paragraph-one").select("ul").select("li")
-      list.get(0).text shouldBe bullet1
-      list.get(1).text shouldBe bullet2
-    }
-
-    s"have an expected input form: $field" in {
-      doc.selectFirst("label").text shouldBe field
+    s"have expected radio labels: $address and $otherAddress" in {
+      val list = doc.select("label")
+      list.get(0).text shouldBe address
+      list.get(1).text shouldBe otherAddress
     }
 
     s"have a $saveAndContinue button" in {

@@ -25,6 +25,7 @@ import forms.takeovers.OtherBusinessAddressForm
 import forms.takeovers.OtherBusinessAddressForm._
 import helpers.SCRSSpec
 import mocks.{AddressLookupFrontendServiceMock, AddressPrepopulationServiceMock, BusinessRegConnectorMock, TakeoverServiceMock}
+import models.takeovers.PreselectedAddress
 import models.{NewAddress, TakeoverDetails}
 import org.jsoup.Jsoup
 import play.api.i18n.{I18nSupport, MessagesApi}

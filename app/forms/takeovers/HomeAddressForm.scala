@@ -16,18 +16,18 @@
 
 package forms.takeovers
 
+import forms.takeovers.formatters.AddressChoiceFormatter.addressChoiceFormatter
 import models.EmptyStringValidator
 import models.takeovers.AddressChoice
-import formatters.AddressChoiceFormatter.addressChoiceFormatter
 import play.api.data.Form
 import play.api.data.Forms._
 
-object OtherBusinessAddressForm extends EmptyStringValidator {
+object HomeAddressForm extends EmptyStringValidator {
 
-  val otherBusinessAddressKey = "otherBusinessAddress"
+  val otherPreviousOwnerAddressKey = "otherPreviousOwnerAddress"
 
-  def form(businessName: String, addressCount: Int): Form[AddressChoice] = Form(
-    single(otherBusinessAddressKey -> of[AddressChoice](addressChoiceFormatter(businessName, addressCount)))
+  def form(previousOwnerName: String, addressCount: Int): Form[AddressChoice] = Form(
+    single(otherPreviousOwnerAddressKey -> of[AddressChoice](addressChoiceFormatter(previousOwnerName, addressCount)))
   )
 
 }

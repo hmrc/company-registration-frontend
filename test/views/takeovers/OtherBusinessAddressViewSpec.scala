@@ -33,7 +33,6 @@ class OtherBusinessAddressViewSpec extends UnitSpec with GuiceOneAppPerSuite wit
   implicit lazy val frontendAppConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
 
   val testBusinessName: String = "testName"
-  val testRegistrationId: String = "testRegistrationId"
   val testBusinessAddress: NewAddress = NewAddress("testLine1", "testLine2", None, None, Some("Z11 11Z"), Some("testCountry"))
 
   "OtherBusinessAddressView" should {

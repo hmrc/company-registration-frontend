@@ -558,3 +558,7 @@ page.takeovers.whoAgreedTakeover.field                                 = Enter n
 error.whoAgreedTakeover.required                                       = Tell us who agreed the takeover
 error.whoAgreedTakeover.over100Characters                              = Enter the name using 100 characters or less
 error.whoAgreedTakeover.invalidCharacters                              = Enter the name using only letters, numbers, spaces, hyphens and apostrophes
+
+page.takeovers.homeAddress.title                                       = What is {0}’s home address?
+page.takeovers.homeAddress.heading                                     = What is {0}’s home address?
+error.homeAddress.required                                             = Tell us their home address
