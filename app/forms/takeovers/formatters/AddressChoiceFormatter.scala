@@ -25,23 +25,33 @@ object AddressChoiceFormatter {
 
   val OtherKey: String = "Other"
 
-  def addressChoiceFormatter(businessName: String, addressCount: Int): Formatter[AddressChoice] = new Formatter[AddressChoice] {
-    override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], AddressChoice] = {
-      val error = Left(Seq(FormError(key, "error.otherBusinessAddress.required", Seq(businessName))))
+  def addressChoiceFormatter(optName: Option[String],
+                             addressCount: Int,
+                             pageSpecificKey: String
+                            ): Formatter[AddressChoice] = new Formatter[AddressChoice] {
+
+    def errorMessage(key: String): Left[Seq[FormError], Nothing] =
+      optName match {
+        case Some(name) => Left(Seq(FormError(key, s"error.$pageSpecificKey.required", Seq(name))))
+        case _ => Left(Seq(FormError(key, s"error.$pageSpecificKey.required")))
+      }
+
+    override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], AddressChoice] =
       data.get(key) match {
         case Some(choice) if choice == OtherKey => Right(OtherAddress)
         case Some(choice) => choice.toIntOption match {
           case Some(index) if index < addressCount && index >= 0 => Right(PreselectedAddress(index))
-          case _ => error
+          case _ => errorMessage(key)
         }
-        case None => error
+        case None => errorMessage(key)
       }
-    }
 
-    override def unbind(key: String, value: AddressChoice): Map[String, String] = value match {
-      case PreselectedAddress(index) => Map(key -> index.toString)
-      case OtherAddress => Map(key -> OtherKey)
-    }
+    override def unbind(key: String, value: AddressChoice): Map[String, String] =
+      value match {
+        case PreselectedAddress(index) => Map(key -> index.toString)
+        case OtherAddress => Map(key -> OtherKey)
+      }
+
   }
 
 }

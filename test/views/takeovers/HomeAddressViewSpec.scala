@@ -36,7 +36,7 @@ class HomeAddressViewSpec extends UnitSpec with GuiceOneAppPerSuite with I18nSup
   val testBusinessAddress: NewAddress = NewAddress("testLine1", "testLine2", None, None, Some("Z11 11Z"), Some("testCountry"))
 
   "OtherBusinessAddressView" should {
-    lazy val form = HomeAddressForm.form(testPreviousOwnerName, 1)
+    lazy val form = HomeAddressForm.form(1)
     lazy val view = views.html.takeovers.HomeAddress(form, testPreviousOwnerName, Seq(testBusinessAddress))
     lazy val doc = Jsoup.parse(view.body)
 

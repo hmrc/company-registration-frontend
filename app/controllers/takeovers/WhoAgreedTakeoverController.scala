@@ -83,8 +83,7 @@ class WhoAgreedTakeoverController @Inject()(val authConnector: PlayAuthConnector
             },
           previousOwnersName => {
             takeoverService.updatePreviousOwnersName(regId, previousOwnersName).map {
-              _ =>
-                Redirect(regRoutes.AccountingDatesController.show()) //TODO redirect to next page when it's done
+              _ => Redirect(routes.PreviousOwnersAddressController.show())
             }
           }
         )
