@@ -70,15 +70,16 @@
 
         @takeoverDetails.businessTakeoverAddress.map { businessTakeOverAddress =>
             <div>
-                <dt id="businessTakeOverAddressLabel" class="cya-question">@messages("page.reg.summary.takeovers.businessTakeOverAddress",takeoverDetails.businessName.fold[String](Messages("page.reg.summary.takeovers.noTakeoverBusinessName"))(s => s))</dt>
+                <dt id="businessTakeOverAddressLabel" class="cya-question">@Messages("page.reg.summary.takeovers.businessTakeOverAddress",takeoverDetails.businessName.fold[String](Messages("page.reg.summary.takeovers.noTakeoverBusinessName"))(s => s))</dt>
                 <dd id="businessTakeOverAddress" class="cya-answer">@{Html(
                     businessTakeOverAddress.addressLine1 + "<br>" +
                     businessTakeOverAddress.addressLine2 + "<br>" +
                     businessTakeOverAddress.addressLine3.fold[String]("")(s => s + "<br>") +
                     businessTakeOverAddress.addressLine4.fold[String]("")(s => s + "<br>") +
                     businessTakeOverAddress.postcode.fold[String]("")(s => s + "<br>") +
-                    businessTakeOverAddress.country.fold[String]("")(s => s ) )
-                    }</dd>
+                    businessTakeOverAddress.country.fold[String]("")(s => s )
+                    )}
+                </dd>
                 <dd class="cya-change"><a href='@controllers.takeovers.routes.OtherBusinessAddressController.show' id="change-business-takeover-address">@Messages("change")<span class="visually-hidden">@Messages("page.reg.summary.takeovers.businessTakeOverAddress.change",takeoverDetails.businessName.fold[String](Messages("page.reg.summary.takeovers.noTakeoverBusinessName"))(s => s))</span></a></dd>
             </div>
             }
@@ -88,6 +89,22 @@
                 <dt id="personWhoAgreedTakeoverLabel" class="cya-question">@Messages("page.reg.summary.takeovers.personAgreed")</dt>
                 <dd id="personWhoAgreedTakeover" class="cya-answer">@previousOwnersName</dd>
                 <dd class="cya-change"><a href='@controllers.takeovers.routes.WhoAgreedTakeoverController.show' id="change-who-agreed-takeover">@Messages("change")<span class="visually-hidden">@Messages("page.reg.summary.takeovers.personAgreed.change")</span></a></dd>
+            </div>
+            }
+
+        @takeoverDetails.previousOwnersAddress.map { previousOwnersAddress =>
+            <div>
+                <dt id="previousOwnersAddressLabel" class="cya-question">@Messages("page.reg.summary.takeovers.previousOwnersAddress", takeoverDetails.previousOwnersName.get)</dt>
+                <dd id="previousOwnersAddress" class="cya-answer">@{Html(
+                    previousOwnersAddress.addressLine1 + "<br>" +
+                    previousOwnersAddress.addressLine2 + "<br>" +
+                    previousOwnersAddress.addressLine3.fold[String]("")(s => s + "<br>") +
+                    previousOwnersAddress.addressLine4.fold[String]("")(s => s + "<br>") +
+                    previousOwnersAddress.postcode.fold[String]("")(s => s + "<br>") +
+                    previousOwnersAddress.country.fold[String]("")(s => s)
+                    )}
+                </dd>
+                    <dd class ="cya-change"><a href='@controllers.takeovers.routes.PreviousOwnersAddressController.show' id="change-previous-owners-address">@Messages("change")<span class ="visually-hidden">@Messages("page.reg.summary.takeovers.previousOwnersAddress.change")</span></a></dd>
             </div>
             }
 
