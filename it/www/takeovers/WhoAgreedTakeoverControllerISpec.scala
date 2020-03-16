@@ -74,7 +74,7 @@ class WhoAgreedTakeoverControllerISpec extends IntegrationSpecBase with LoginStu
       )
 
       res.status shouldBe SEE_OTHER
-      res.redirectLocation should contain(controllers.reg.routes.AccountingDatesController.show().url) //TODO redirect to next page when it's done
+      res.redirectLocation should contain(controllers.takeovers.routes.PreviousOwnersAddressController.show().url)
     }
   }
 }

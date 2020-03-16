@@ -171,6 +171,10 @@ GET        /save-alf-address-takeovers              controllers.takeovers.OtherB
 GET        /who-agreed-takeover                     controllers.takeovers.WhoAgreedTakeoverController.show
 POST       /who-agreed-takeover                     controllers.takeovers.WhoAgreedTakeoverController.submit
 
+GET        /home-address                            controllers.takeovers.PreviousOwnersAddressController.show
+POST       /home-address                            controllers.takeovers.PreviousOwnersAddressController.submit
+GET        /save-alf-home-address-takeovers         controllers.takeovers.PreviousOwnersAddressController.handbackFromALF
+
 ## DEPRECATED
 
 GET        /welcome                                 controllers.reg.WelcomeController.show

@@ -25,9 +25,14 @@ import play.api.data.Forms._
 object OtherBusinessAddressForm extends EmptyStringValidator {
 
   val otherBusinessAddressKey = "otherBusinessAddress"
+  val otherBusinessAddressPageKey = "otherBusinessAddress"
 
   def form(businessName: String, addressCount: Int): Form[AddressChoice] = Form(
-    single(otherBusinessAddressKey -> of[AddressChoice](addressChoiceFormatter(businessName, addressCount)))
+    single(otherBusinessAddressKey -> of[AddressChoice](addressChoiceFormatter(
+      optName = Some(businessName),
+      addressCount = addressCount,
+      pageSpecificKey = otherBusinessAddressPageKey
+    )))
   )
 
 }

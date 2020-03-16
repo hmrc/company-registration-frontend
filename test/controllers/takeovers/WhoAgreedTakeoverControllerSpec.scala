@@ -220,7 +220,7 @@ class WhoAgreedTakeoverControllerSpec extends SCRSSpec
           val res: Result = TestWhoAgreedTakeoverController.submit()(request)
 
           status(res) shouldBe SEE_OTHER
-          redirectLocation(res) should contain(controllers.reg.routes.AccountingDatesController.show().url) //TODO redirect to next page when it's done
+          redirectLocation(res) should contain(controllers.takeovers.routes.PreviousOwnersAddressController.show().url)
         }
       }
 

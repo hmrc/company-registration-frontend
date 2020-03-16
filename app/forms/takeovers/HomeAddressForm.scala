@@ -24,10 +24,15 @@ import play.api.data.Forms._
 
 object HomeAddressForm extends EmptyStringValidator {
 
-  val otherPreviousOwnerAddressKey = "otherPreviousOwnerAddress"
+  val homeAddressKey = "homeAddress"
+  val homeAddressPageKey = "homeAddress"
 
-  def form(previousOwnerName: String, addressCount: Int): Form[AddressChoice] = Form(
-    single(otherPreviousOwnerAddressKey -> of[AddressChoice](addressChoiceFormatter(previousOwnerName, addressCount)))
+  def form(addressCount: Int): Form[AddressChoice] = Form(
+    single(homeAddressKey -> of[AddressChoice](addressChoiceFormatter(
+      optName = None,
+      addressCount = addressCount,
+      pageSpecificKey = homeAddressPageKey
+    )))
   )
 
 }
