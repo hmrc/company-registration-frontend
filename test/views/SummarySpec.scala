@@ -42,6 +42,7 @@ class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixtu
   val applicantData = AboutYouChoice("Director")
   val mockNavModelRepoObj = mockNavModelRepo
   val testTakeoverDetails = TakeoverDetails(replacingAnotherBusiness = true)
+  val testNoTakeoverDetails = TakeoverDetails(replacingAnotherBusiness = false)
   val testBusinessName = TakeoverDetails(replacingAnotherBusiness = true, businessName = Some("ABC Limited"))
   val testTakeOverAddress = TakeoverDetails(replacingAnotherBusiness = true, businessName = Some("ABC Limited"),
                                             Some(NewAddress("line 1","line 2",Some("line 3"),Some("line 4"),Some("ZZ1 1ZZ"),Some("UK"))))
@@ -50,7 +51,9 @@ class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixtu
   //TODO Will eventually contain the full model.
   val testTakeOverFullModel = TakeoverDetails(replacingAnotherBusiness = true, businessName = Some("ABC Limited"),
     Some(NewAddress("line 1","line 2",Some("line 3"),Some("line 4"),Some("ZZ1 1ZZ"),Some("UK"))),
-    Some("Agreed Person"))
+    Some("Agreed Person"),
+    Some(NewAddress("line 1","line 2",Some("line 3"),Some("line 4"),Some("ZZ1 1ZZ"),Some("UK")))
+  )
 
   val testRegiId = "12345"
 
@@ -114,7 +117,7 @@ class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixtu
       }
     }
 
-    "make sure that the Summary page has the correct elements when the PPOB addess is not same as RO address" in new SetupPage {
+    "make sure that the Summary page has the correct elements when the PPOB address is not same as RO address" in new SetupPage {
 
       mockKeystoreFetchAndGet("registrationID", Some(testRegiId))
 
@@ -152,7 +155,7 @@ class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixtu
       }
     }
 
-    "make sure that the Summary page has the correct elements when the user is taking over a business" in new SetupPage {
+    "make sure that the Summary page has the correct elements when the user is not taking over a business" in new SetupPage {
       mockKeystoreFetchAndGet("registrationID", Some(testRegiId))
 
       when(mockMetaDataService.getApplicantData(Matchers.any())(Matchers.any[HeaderCarrier]()))
@@ -163,7 +166,7 @@ class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixtu
       CTRegistrationConnectorMocks.retrieveContactDetails(CompanyContactDetailsSuccessResponse(validCompanyContactDetailsResponse))
       CTRegistrationConnectorMocks.retrieveAccountingDetails(validAccountingResponse)
 
-      mockGetTakeoverDetails(testRegiId)(Future.successful(Some(testTakeoverDetails)))
+      mockGetTakeoverDetails(testRegiId)(Future.successful(Some(testNoTakeoverDetails)))
 
       when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(corporationTaxModel))
@@ -186,98 +189,8 @@ class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixtu
             "startDate" -> "10/06/2020",
             "tradingDetails" -> "No",
             "takeoversTitle" -> "Company takeover",
-            "replacingAnotherBusiness" -> "Yes",
+            "replacingAnotherBusiness" -> "No",
             "replacingAnotherBusinessLabel" -> "Is the new company replacing another business?"
-          ) foreach { case (element, message) =>
-            document.getElementById(element).text() shouldBe message
-          }
-      }
-    }
-
-    "make sure that the Summary page has the correct elements when the user changes the name of the other business" in new SetupPage {
-      mockKeystoreFetchAndGet("registrationID", Some(testRegiId))
-
-      when(mockMetaDataService.getApplicantData(Matchers.any())(Matchers.any[HeaderCarrier]()))
-        .thenReturn(Future.successful(applicantData))
-
-      CTRegistrationConnectorMocks.retrieveCompanyDetails(Some(validCompanyDetailsResponse))
-      CTRegistrationConnectorMocks.retrieveTradingDetails(Some(TradingDetails("false")))
-      CTRegistrationConnectorMocks.retrieveContactDetails(CompanyContactDetailsSuccessResponse(validCompanyContactDetailsResponse))
-      CTRegistrationConnectorMocks.retrieveAccountingDetails(validAccountingResponse)
-
-      mockGetTakeoverDetails(testRegiId)(Future.successful(Some(testBusinessName)))
-
-      when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(Matchers.any())(Matchers.any()))
-        .thenReturn(Future.successful(corporationTaxModel))
-
-      showWithAuthorisedUser(controller.show) {
-        result =>
-          val document = Jsoup.parse(contentAsString(result))
-
-          document.title() shouldBe "Check and confirm your answers"
-
-          Map (
-            "applicantTitle" -> "Applicant",
-            "applicant" -> "Director",
-            "companyNameTitle" -> "Company details",
-            "companyAccountingTitle" -> "Company accounting",
-            "companyName" -> "testCompanyName",
-            "ROAddress" -> "Premises Line1 Line2 Locality Region FX1 1ZZ Country",
-            "PPOBAddress" -> "Registered Office Address",
-            "companyContact" -> "0123456789 foo@bar.wibble 0123456789",
-            "startDate" -> "10/06/2020",
-            "tradingDetails" -> "No",
-            "takeoversTitle" -> "Company takeover",
-            "replacingAnotherBusiness" -> "Yes",
-            "replacingAnotherBusinessLabel" -> "Is the new company replacing another business?",
-            "otherBusinessName" -> "ABC Limited",
-            "otherBusinessNameLabel" -> "What is the name of the other business?"
-          ) foreach { case (element, message) =>
-            document.getElementById(element).text() shouldBe message
-          }
-      }
-    }
-
-    "make sure that the Summary page has the correct elements for the business takeover address when the user changes the name of the other business" in new SetupPage {
-      mockKeystoreFetchAndGet("registrationID", Some(testRegiId))
-
-      when(mockMetaDataService.getApplicantData(Matchers.any())(Matchers.any[HeaderCarrier]()))
-        .thenReturn(Future.successful(applicantData))
-
-      CTRegistrationConnectorMocks.retrieveCompanyDetails(Some(validCompanyDetailsResponse))
-      CTRegistrationConnectorMocks.retrieveTradingDetails(Some(TradingDetails("false")))
-      CTRegistrationConnectorMocks.retrieveContactDetails(CompanyContactDetailsSuccessResponse(validCompanyContactDetailsResponse))
-      CTRegistrationConnectorMocks.retrieveAccountingDetails(validAccountingResponse)
-
-      mockGetTakeoverDetails(testRegiId)(Future.successful(Some(testTakeOverAddress)))
-
-      when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(Matchers.any())(Matchers.any()))
-        .thenReturn(Future.successful(corporationTaxModel))
-
-      showWithAuthorisedUser(controller.show) {
-        result =>
-          val document = Jsoup.parse(contentAsString(result))
-
-          document.title() shouldBe "Check and confirm your answers"
-
-          Map (
-            "applicantTitle" -> "Applicant",
-            "applicant" -> "Director",
-            "companyNameTitle" -> "Company details",
-            "companyAccountingTitle" -> "Company accounting",
-            "companyName" -> "testCompanyName",
-            "ROAddress" -> "Premises Line1 Line2 Locality Region FX1 1ZZ Country",
-            "PPOBAddress" -> "Registered Office Address",
-            "companyContact" -> "0123456789 foo@bar.wibble 0123456789",
-            "startDate" -> "10/06/2020",
-            "tradingDetails" -> "No",
-            "takeoversTitle" -> "Company takeover",
-            "replacingAnotherBusiness" -> "Yes",
-            "replacingAnotherBusinessLabel" -> "Is the new company replacing another business?",
-            "otherBusinessName" -> "ABC Limited",
-            "otherBusinessNameLabel" -> "What is the name of the other business?",
-            "businessTakeOverAddressLabel" -> "What is ABC Limited's address?",
-            "businessTakeOverAddress" -> "line 1 line 2 line 3 line 4 ZZ1 1ZZ UK"
           ) foreach { case (element, message) =>
             document.getElementById(element).text() shouldBe message
           }
@@ -374,7 +287,10 @@ class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixtu
             "change-business-takeover-address" -> "changeABC Limited's address",
             "personWhoAgreedTakeoverLabel" -> "Who agreed the takeover?",
             "personWhoAgreedTakeover" -> "Agreed Person",
-            "change-who-agreed-takeover" -> "changethe name of who agreed the takeover"
+            "change-who-agreed-takeover" -> "changethe name of who agreed the takeover",
+            "previousOwnersAddressLabel" -> "What is Agreed Person's home address?",
+            "previousOwnersAddress" -> "line 1 line 2 line 3 line 4 ZZ1 1ZZ UK",
+            "change-previous-owners-address" -> "changethe address given"
           ) foreach { case (element, message) =>
             document.getElementById(element).text() shouldBe message
           }
@@ -383,11 +299,14 @@ class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixtu
             "change-replacing-another-business" -> "/register-your-company/replacing-another-business",
             "change-other-business-name" -> "/register-your-company/other-business-name",
             "change-business-takeover-address" -> "/register-your-company/other-business-address",
-            "change-who-agreed-takeover" -> "/register-your-company/who-agreed-takeover"
+            "change-who-agreed-takeover" -> "/register-your-company/who-agreed-takeover",
+            "change-previous-owners-address" -> "/register-your-company/home-address"
           ) foreach { case (element, message) =>
             document.getElementById(element).attr("href") shouldBe message
           }
       }
     }
+
+
   }
 }
