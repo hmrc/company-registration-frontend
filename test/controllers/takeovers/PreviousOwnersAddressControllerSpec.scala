@@ -281,7 +281,7 @@ class PreviousOwnersAddressControllerSpec extends SCRSSpec
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
           mockTakeoversFeatureSwitch(isEnabled = true)
           mockInitialiseAlfJourney(
-            handbackLocation = controllers.takeovers.routes.PreviousOwnersAddressController.handbackFromALF(),
+            handbackLocation = controllers.takeovers.routes.PreviousOwnersAddressController.handbackFromALF(None),
             specificJourneyKey = "takeovers",
             lookupPageHeading = messagesApi("page.addressLookup.takeovers.homeAddress.lookup.heading", testPreviousOwnersName),
             confirmPageHeading = messagesApi("page.addressLookup.takeovers.homeAddress.confirm.description", testPreviousOwnersName)
@@ -322,11 +322,13 @@ class PreviousOwnersAddressControllerSpec extends SCRSSpec
     "user is authorised with a valid reg ID" when {
       "the handback comes back with a valid address" should {
         "redirect to accounting dates page when the service is successful" in {
+          val testAlfId = "testAlfId"
+
           mockAuthorisedUser(Future.successful({}))
           mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
           mockTakeoversFeatureSwitch(isEnabled = true)
-          mockGetAddress(Future.successful(testPreviousOwnersAddress))
+          mockGetAddress(id = testAlfId)(Future.successful(testPreviousOwnersAddress))
 
           implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
@@ -341,7 +343,7 @@ class PreviousOwnersAddressControllerSpec extends SCRSSpec
 
           mockUpdatePrePopAddress(testRegistrationId, testPreviousOwnersAddress)(Future.successful(true))
 
-          val res: Result = TestPreviousOwnersAddressController.handbackFromALF()(request)
+          val res: Result = TestPreviousOwnersAddressController.handbackFromALF(Some(testAlfId))(request)
 
           status(res) shouldBe SEE_OTHER
           redirectLocation(res) should contain(controllers.reg.routes.AccountingDatesController.show().url)

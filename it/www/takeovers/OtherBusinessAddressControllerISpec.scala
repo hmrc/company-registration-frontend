@@ -189,6 +189,8 @@ class OtherBusinessAddressControllerISpec extends IntegrationSpecBase
 
   "handbackFromALF" should {
     "redirect to who agreed takeover page" in {
+      val testAlfId = "testAlfId"
+
       stubAuthorisation()
       stubKeystore(SessionId, testRegId)
       setupFeatures(takeovers = true)
@@ -212,7 +214,7 @@ class OtherBusinessAddressControllerISpec extends IntegrationSpecBase
         )
       ).toString()
 
-      stubFor(get(urlEqualTo("/api/confirmed?id=1"))
+      stubFor(get(urlEqualTo(s"/api/confirmed?id=$testAlfId"))
         .willReturn(
           aResponse().
             withStatus(200).
@@ -225,7 +227,7 @@ class OtherBusinessAddressControllerISpec extends IntegrationSpecBase
           addressSeqKey -> Json.toJson(Seq(testBusinessAddress)).toString()
         ), userId)
 
-      val res: WSResponse = await(buildClient(controllers.takeovers.routes.OtherBusinessAddressController.handbackFromALF().url + "?id=1")
+      val res: WSResponse = await(buildClient(controllers.takeovers.routes.OtherBusinessAddressController.handbackFromALF(Some(testAlfId)).url)
         .withHeaders(
           HeaderNames.COOKIE -> sessionCookie,
           "Csrf-Token" -> "nocheck"

@@ -54,4 +54,11 @@ trait AddressLookupFrontendServiceMock extends MockitoSugar {
     ) thenReturn response
   }
 
+  def mockGetAddress(id: String)(response: Future[NewAddress]): OngoingStubbing[Future[NewAddress]] =
+    when(
+      mockAddressLookupFrontendService.getAddress(
+        Matchers.eq(id)
+      )(Matchers.any[HeaderCarrier])
+    ) thenReturn response
+
 }

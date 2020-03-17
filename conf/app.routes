@@ -166,14 +166,14 @@ POST       /other-business-name                     controllers.takeovers.OtherB
 
 GET        /other-business-address                  controllers.takeovers.OtherBusinessAddressController.show
 POST       /other-business-address                  controllers.takeovers.OtherBusinessAddressController.submit
-GET        /save-alf-address-takeovers              controllers.takeovers.OtherBusinessAddressController.handbackFromALF
+GET        /save-alf-address-takeovers              controllers.takeovers.OtherBusinessAddressController.handbackFromALF(id: Option[String])
 
 GET        /who-agreed-takeover                     controllers.takeovers.WhoAgreedTakeoverController.show
 POST       /who-agreed-takeover                     controllers.takeovers.WhoAgreedTakeoverController.submit
 
 GET        /home-address                            controllers.takeovers.PreviousOwnersAddressController.show
 POST       /home-address                            controllers.takeovers.PreviousOwnersAddressController.submit
-GET        /save-alf-home-address-takeovers         controllers.takeovers.PreviousOwnersAddressController.handbackFromALF
+GET        /save-alf-home-address-takeovers         controllers.takeovers.PreviousOwnersAddressController.handbackFromALF(id: Option[String])
 
 ## DEPRECATED
 

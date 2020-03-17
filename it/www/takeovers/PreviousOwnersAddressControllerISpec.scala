@@ -189,6 +189,8 @@ class PreviousOwnersAddressControllerISpec extends IntegrationSpecBase
 
   "handbackFromALF" should {
     "redirect to accounting dates page" in {
+      val testAlfId = "testAlfId"
+
       stubAuthorisation()
       stubKeystore(SessionId, testRegId)
       setupFeatures(takeovers = true)
@@ -212,7 +214,7 @@ class PreviousOwnersAddressControllerISpec extends IntegrationSpecBase
         )
       ).toString()
 
-      stubFor(get(urlEqualTo("/api/confirmed?id=1"))
+      stubFor(get(urlEqualTo(s"/api/confirmed?id=$testAlfId"))
         .willReturn(
           aResponse().
             withStatus(200).
@@ -225,7 +227,7 @@ class PreviousOwnersAddressControllerISpec extends IntegrationSpecBase
           addressSeqKey -> Json.toJson(Seq(testPreviousOwnersAddress)).toString()
         ), userId)
 
-      val res: WSResponse = await(buildClient(controllers.takeovers.routes.PreviousOwnersAddressController.handbackFromALF().url + "?id=1")
+      val res: WSResponse = await(buildClient(controllers.takeovers.routes.PreviousOwnersAddressController.handbackFromALF(Some(testAlfId)).url)
         .withHeaders(
           HeaderNames.COOKIE -> sessionCookie,
           "Csrf-Token" -> "nocheck"

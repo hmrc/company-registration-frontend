@@ -170,12 +170,14 @@ class AddressLookupFrontendService @Inject()(addressLookupFrontendConnector: Add
     addressLookupFrontendConnector.getOnRampURL(config)
   }
 
-  def getAddress(implicit hc: HeaderCarrier, request: Request[_]): Future[NewAddress] = {
+  def getAddress(implicit hc: HeaderCarrier, request: Request[_]): Future[NewAddress] =
     request.getQueryString("id") match {
       case Some(id) => addressLookupFrontendConnector.getAddress(id)
       case None => throw new QueryStringMissingException
     }
-  }
+
+  def getAddress(id: String)(implicit hc: HeaderCarrier): Future[NewAddress] = addressLookupFrontendConnector.getAddress(id)
+
 }
 
 case class JourneyConfig(topLevelConfig: JsObject,

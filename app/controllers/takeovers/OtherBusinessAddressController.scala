@@ -106,7 +106,7 @@ class OtherBusinessAddressController @Inject()(val authConnector: PlayAuthConnec
                   {
                     case OtherAddress =>
                       addressLookupFrontendService.initialiseAlfJourney(
-                        handbackLocation = controllers.takeovers.routes.OtherBusinessAddressController.handbackFromALF(),
+                        handbackLocation = controllers.takeovers.routes.OtherBusinessAddressController.handbackFromALF(None),
                         specificJourneyKey = takeoversKey,
                         lookupPageHeading = messagesApi("page.addressLookup.takeovers.otherBusinessAddress.lookup.heading", businessName),
                         confirmPageHeading = messagesApi("page.addressLookup.takeovers.otherBusinessAddress.confirm.description", businessName)
@@ -126,15 +126,20 @@ class OtherBusinessAddressController @Inject()(val authConnector: PlayAuthConnec
     }
   }
 
-  val handbackFromALF: Action[AnyContent] = Action.async { implicit request =>
+  def handbackFromALF(alfId: Option[String]): Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
-      checkStatus { regId =>
-        for {
-          address <- addressLookupFrontendService.getAddress
-          _ <- takeoverService.updateBusinessAddress(regId, address)
-          _ <- businessRegConnector.updatePrePopAddress(regId, address)
-        } yield Redirect(routes.WhoAgreedTakeoverController.show())
-          .removingFromSession(addressSeqKey)
+      checkStatus {
+        regId =>
+          alfId match {
+            case Some(id) =>
+              for {
+                address <- addressLookupFrontendService.getAddress(id)
+                _ <- takeoverService.updateBusinessAddress(regId, address)
+                _ <- businessRegConnector.updatePrePopAddress(regId, address)
+              } yield Redirect(routes.WhoAgreedTakeoverController.show()).removingFromSession(addressSeqKey)
+            case _ =>
+              throw new Exception("[Takeovers] [Other Business Address] 'id' query string missing from ALF handback")
+          }
       }
     }
   }

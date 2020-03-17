@@ -249,7 +249,7 @@ class OtherBusinessAddressControllerSpec extends SCRSSpec
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
           mockTakeoversFeatureSwitch(isEnabled = true)
           mockInitialiseAlfJourney(
-            handbackLocation = controllers.takeovers.routes.OtherBusinessAddressController.handbackFromALF(),
+            handbackLocation = controllers.takeovers.routes.OtherBusinessAddressController.handbackFromALF(None),
             specificJourneyKey = "takeovers",
             lookupPageHeading = messagesApi("page.addressLookup.takeovers.otherBusinessAddress.lookup.heading", testBusinessName),
             confirmPageHeading = messagesApi("page.addressLookup.takeovers.otherBusinessAddress.confirm.description", testBusinessName)
@@ -290,11 +290,13 @@ class OtherBusinessAddressControllerSpec extends SCRSSpec
     "user is authorised with a valid reg ID" when {
       "the handback comes back with a valid address" should {
         "redirect to who agreed takeover page when the service does not fail" in {
+          val testAlfId = "testAlfId"
+
           mockAuthorisedUser(Future.successful({}))
           mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
           mockTakeoversFeatureSwitch(isEnabled = true)
-          mockGetAddress(Future.successful(testBusinessAddress))
+          mockGetAddress(id = testAlfId)(Future.successful(testBusinessAddress))
 
           implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
@@ -308,7 +310,7 @@ class OtherBusinessAddressControllerSpec extends SCRSSpec
 
           mockUpdatePrePopAddress(testRegistrationId, testBusinessAddress)(Future.successful(true))
 
-          val res: Result = TestOtherBusinessAddressController.handbackFromALF()(request)
+          val res: Result = TestOtherBusinessAddressController.handbackFromALF(Some(testAlfId))(request)
 
           status(res) shouldBe SEE_OTHER
           redirectLocation(res) should contain(controllers.takeovers.routes.WhoAgreedTakeoverController.show().url)

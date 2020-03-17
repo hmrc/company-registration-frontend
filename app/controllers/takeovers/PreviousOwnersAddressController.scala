@@ -106,7 +106,7 @@ class PreviousOwnersAddressController @Inject()(val authConnector: PlayAuthConne
                     {
                       case OtherAddress =>
                         addressLookupFrontendService.initialiseAlfJourney(
-                          handbackLocation = controllers.takeovers.routes.PreviousOwnersAddressController.handbackFromALF(),
+                          handbackLocation = controllers.takeovers.routes.PreviousOwnersAddressController.handbackFromALF(None),
                           specificJourneyKey = takeoversKey,
                           lookupPageHeading = messagesApi("page.addressLookup.takeovers.homeAddress.lookup.heading", previousOwnersName),
                           confirmPageHeading = messagesApi("page.addressLookup.takeovers.homeAddress.confirm.description", previousOwnersName)
@@ -124,14 +124,20 @@ class PreviousOwnersAddressController @Inject()(val authConnector: PlayAuthConne
     }
   }
 
-  val handbackFromALF: Action[AnyContent] = Action.async { implicit request =>
+  def handbackFromALF(alfId: Option[String]): Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
-      checkStatus { regId =>
-        for {
-          address <- addressLookupFrontendService.getAddress
-          _ <- takeoverService.updatePreviousOwnersAddress(regId, address)
-          _ <- businessRegConnector.updatePrePopAddress(regId, address)
-        } yield Redirect(regRoutes.AccountingDatesController.show()).removingFromSession(addressSeqKey)
+      checkStatus {
+        regId =>
+          alfId match {
+            case Some(id) =>
+              for {
+                address <- addressLookupFrontendService.getAddress(id)
+                _ <- takeoverService.updatePreviousOwnersAddress(regId, address)
+                _ <- businessRegConnector.updatePrePopAddress(regId, address)
+              } yield Redirect(regRoutes.AccountingDatesController.show()).removingFromSession(addressSeqKey)
+            case _ =>
+              throw new Exception("[Takeovers] [Previous Owners Address] 'id' query string missing from ALF handback")
+          }
       }
     }
   }
