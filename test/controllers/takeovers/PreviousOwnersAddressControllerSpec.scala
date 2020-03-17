@@ -274,29 +274,29 @@ class PreviousOwnersAddressControllerSpec extends SCRSSpec
         }
       }
 
-//      "the form contains valid data" should {
-//        "redirect to alf when the choice is Other" in {
-//          mockAuthorisedUser(Future.successful({}))
-//          mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
-//          CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
-//          mockTakeoversFeatureSwitch(isEnabled = true)
-//          mockInitialiseAlfJourney(
-//            handbackLocation = controllers.takeovers.routes.OtherBusinessAddressController.handbackFromALF(),
-//            specificJourneyKey = "takeovers",
-//            lookupPageHeading = messagesApi("page.addressLookup.takeovers.otherBusinessAddress.lookup.heading", testBusinessName),
-//            confirmPageHeading = messagesApi("page.addressLookup.takeovers.otherBusinessAddress.confirm.description", testBusinessName)
-//          )(Future.successful("TEST/redirectUrl"))
-//
-//          implicit val request: Request[AnyContentAsFormUrlEncoded] =
-//            FakeRequest().withFormUrlEncodedBody(otherBusinessAddressKey -> "Other")
-//              .withSession(addressSeqKey -> Json.toJson(Seq(testBusinessAddress)).toString())
-//
-//          val res: Result = TestPreviousOwnersAddressController.submit()(request)
-//
-//          status(res) shouldBe SEE_OTHER
-//          redirectLocation(res) should contain("TEST/redirectUrl")
-//        }
-//      } TODO fix ALF tests when adding ALF journey
+      "the form contains valid data" should {
+        "redirect to alf when the choice is Other" in {
+          mockAuthorisedUser(Future.successful({}))
+          mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
+          CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
+          mockTakeoversFeatureSwitch(isEnabled = true)
+          mockInitialiseAlfJourney(
+            handbackLocation = controllers.takeovers.routes.PreviousOwnersAddressController.handbackFromALF(),
+            specificJourneyKey = "takeovers",
+            lookupPageHeading = messagesApi("page.addressLookup.takeovers.homeAddress.lookup.heading", testPreviousOwnersName),
+            confirmPageHeading = messagesApi("page.addressLookup.takeovers.homeAddress.confirm.description", testPreviousOwnersName)
+          )(Future.successful("TEST/redirectUrl"))
+
+          implicit val request: Request[AnyContentAsFormUrlEncoded] =
+            FakeRequest().withFormUrlEncodedBody(homeAddressKey -> "Other")
+              .withSession(addressSeqKey -> Json.toJson(Seq(testPreviousOwnersAddress)).toString())
+
+          val res: Result = TestPreviousOwnersAddressController.submit()(request)
+
+          status(res) shouldBe SEE_OTHER
+          redirectLocation(res) should contain("TEST/redirectUrl")
+        }
+      }
 
       "the form contains invalid data" should {
         "return a bad request and update the page with errors" in {
@@ -318,35 +318,36 @@ class PreviousOwnersAddressControllerSpec extends SCRSSpec
     }
   }
 
-//  "handbackFromALF" when {
-//    "user is authorised with a valid reg ID" when {
-//      "the handback comes back with a valid address" should {
-//        "redirect to who agreed takeover page when the service does not fail" in {
-//          mockAuthorisedUser(Future.successful({}))
-//          mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
-//          CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
-//          mockTakeoversFeatureSwitch(isEnabled = true)
-//          mockGetAddress(Future.successful(testBusinessAddress))
-//
-//          implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-//
-//          val testTakeoverDetails: TakeoverDetails = TakeoverDetails(
-//            replacingAnotherBusiness = true,
-//            Some(testBusinessName),
-//            Some(testBusinessAddress)
-//          )
-//
-//          mockUpdateBusinessAddress(testRegistrationId, testBusinessAddress)(testTakeoverDetails)
-//
-//          mockUpdatePrePopAddress(testRegistrationId, testBusinessAddress)(Future.successful(true))
-//
-//          val res: Result = TestPreviousOwnersAddressController.handbackFromALF()(request)
-//
-//          status(res) shouldBe SEE_OTHER
-//          redirectLocation(res) should contain(controllers.takeovers.routes.WhoAgreedTakeoverController.show().url)
-//          session(res).get(addressSeqKey) shouldBe None
-//        }
-//      }
-//    }
-//  } Todo Fix ALF tests when adding ALF journey
+  "handbackFromALF" when {
+    "user is authorised with a valid reg ID" when {
+      "the handback comes back with a valid address" should {
+        "redirect to accounting dates page when the service is successful" in {
+          mockAuthorisedUser(Future.successful({}))
+          mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
+          CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
+          mockTakeoversFeatureSwitch(isEnabled = true)
+          mockGetAddress(Future.successful(testPreviousOwnersAddress))
+
+          implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+
+          val testTakeoverDetails: TakeoverDetails = TakeoverDetails(
+            replacingAnotherBusiness = true,
+            Some(testBusinessName),
+            Some(testBusinessAddress),
+            Some(testPreviousOwnersName)
+          )
+
+          mockUpdatePreviousOwnersAddress(testRegistrationId, testPreviousOwnersAddress)(testTakeoverDetails)
+
+          mockUpdatePrePopAddress(testRegistrationId, testPreviousOwnersAddress)(Future.successful(true))
+
+          val res: Result = TestPreviousOwnersAddressController.handbackFromALF()(request)
+
+          status(res) shouldBe SEE_OTHER
+          redirectLocation(res) should contain(controllers.reg.routes.AccountingDatesController.show().url)
+          session(res).get(addressSeqKey) shouldBe None
+        }
+      }
+    }
+  }
 }
