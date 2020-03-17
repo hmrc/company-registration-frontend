@@ -429,6 +429,7 @@ errorPages.incorporationRejected.para4.1                            = GOV.UK pag
 page.addressLookup.Groups.lookup.heading                            = Find %%''s registered office address
 page.addressLookup.PPOB.lookup.heading                              = Find the address where the company will carry out most of its business activities
 page.addressLookup.takeovers.otherBusinessAddress.lookup.heading    = Find {0}’s address
+page.addressLookup.takeovers.homeAddress.lookup.heading             = Find {0}’s home address
 
 page.addressLookup.lookup.title                                     = Find the address
 page.addressLookup.lookup.filter                                    = Property name or number
@@ -451,6 +452,7 @@ page.addressLookup.confirm.title                                        = Confir
 page.addressLookup.PPOB.confirm.description                             = Confirm where the company will carry out most of its business activities
 page.addressLookup.Groups.confirm.description                           = Confirm %%''s registered office address
 page.addressLookup.takeovers.otherBusinessAddress.confirm.description   = Confirm {0}’s address
+page.addressLookup.takeovers.homeAddress.confirm.description            = Confirm {0}’s home address
 
 page.addressLookup.confirm.continue                                 = Confirm and continue
 page.addressLookup.confirm.change                                   = Change

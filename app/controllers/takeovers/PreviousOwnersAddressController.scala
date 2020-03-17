@@ -104,7 +104,13 @@ class PreviousOwnersAddressController @Inject()(val authConnector: PlayAuthConne
                     formWithErrors =>
                       Future.successful(BadRequest(HomeAddress(formWithErrors, previousOwnersName, addressSeq))),
                     {
-                      case OtherAddress => Future.successful(NotImplemented) //TODO Add ALF journey here
+                      case OtherAddress =>
+                        addressLookupFrontendService.initialiseAlfJourney(
+                          handbackLocation = controllers.takeovers.routes.PreviousOwnersAddressController.handbackFromALF(),
+                          specificJourneyKey = takeoversKey,
+                          lookupPageHeading = messagesApi("page.addressLookup.takeovers.homeAddress.lookup.heading", previousOwnersName),
+                          confirmPageHeading = messagesApi("page.addressLookup.takeovers.homeAddress.confirm.description", previousOwnersName)
+                        ).map(Redirect(_))
                       case PreselectedAddress(index) =>
                         takeoverService.updatePreviousOwnersAddress(regId, addressSeq(index)).map {
                           _ => Redirect(regRoutes.AccountingDatesController.show()).removingFromSession(addressSeqKey)
@@ -123,10 +129,9 @@ class PreviousOwnersAddressController @Inject()(val authConnector: PlayAuthConne
       checkStatus { regId =>
         for {
           address <- addressLookupFrontendService.getAddress
-          _ <- takeoverService.updateBusinessAddress(regId, address)
+          _ <- takeoverService.updatePreviousOwnersAddress(regId, address)
           _ <- businessRegConnector.updatePrePopAddress(regId, address)
-        } yield Redirect(regRoutes.AccountingDatesController.show())
-          .removingFromSession(addressSeqKey)
+        } yield Redirect(regRoutes.AccountingDatesController.show()).removingFromSession(addressSeqKey)
       }
     }
   }
