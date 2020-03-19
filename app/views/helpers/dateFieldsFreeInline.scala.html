@@ -35,7 +35,7 @@
                     }}
 
 <fieldset class="form-group form-date @fieldSetClasses" id="@fieldName-fieldset">
-<legend style="display:none">@Messages("common.dateMessage")</legend>
+<legend class="visually-hidden">@Messages("common.dateMessage")</legend>
     @if(formItem.hasErrors){
         @if(formItem(fieldName).hasErrors){
             <span class="error-notification">@Messages(formItem(fieldName).error.get.message)</span>
