@@ -76,6 +76,14 @@ String.prototype.format = function () {
 
         $.extend(settings, options)
 
+        var keyCodes = {
+            tab: 9,
+            enter: 13,
+            shift: 16,
+            esc: 27,
+            space: 32
+        }
+
         var TimeoutDialog = {
             init: function () {
                 this.setupDialogTimer()
@@ -90,8 +98,8 @@ String.prototype.format = function () {
             },
 
             setupDialog: function () {
-                var dialogOpen = true
                 var self = this
+                self.dialogOpen = true
                 self.startTime = Math.round(Date.now()/1000, 0)
                 self.currentMin = Math.ceil(settings.timeout / 60) //900 / 60 = 15 minutes
                 self.destroyDialog()
@@ -104,15 +112,15 @@ String.prototype.format = function () {
                     settings.time = ' minute'
                 }
                 $(
-                    '<div id="timeout-dialog" class="timeout-dialog" role="dialog" aria-labelledby="timeout-message" tabindex=-1 aria-live="polite">'
+                    '<div id="timeout-dialog" class="timeout-dialog" role="dialog" tabindex="-1" aria-live="polite">'
                     + '<p id="timeout-heading">' + settings.heading_text + '</p>'
-                    + '<p id="timeout-message" role="text">' + settings.message + '' +
-                    '    <span id="timeout-countdown" class="countdown">' + time.s + ' ' +  settings.time + '</span>' +
-                    '</p>' +
-                    '<button id="timeout-keep-signin-btn" class="button button--link">' + settings.keep_alive_button_text
-                    + '</button>' +
-                    '</div>' +
-                    '<div id="timeout-overlay" class="timeout-overlay"></div>')
+                    + '<p id="timeout-message" role="text">' + settings.message + ''
+                    + '    <span id="timeout-countdown" class="countdown">' + time.s + ' ' +  settings.time + '</span>'
+                    + '</p>'
+                    + '<button id="timeout-keep-signin-btn" class="button button--link">' + settings.keep_alive_button_text
+                    + '</button>'
+                    + '</div>'
+                    + '<div id="timeout-overlay" class="timeout-overlay"></div>')
                     .appendTo('body')
 
                 // AL: disable the non-dialog page to prevent confusion for VoiceOver users
@@ -120,19 +128,27 @@ String.prototype.format = function () {
 
                 var activeElement = document.activeElement
                 var modalFocus = document.getElementById("timeout-dialog")
-                modalFocus.focus()
+                var resumeButton = document.getElementById("timeout-keep-signin-btn")
+                resumeButton.focus()
                 self.addEvents()
                 self.startCountdown(settings.countdown)
-                self.escPress = function (event) {
-                    if (dialogOpen && event.keyCode === 27) {
-                        // close the dialog
-                        self.keepAlive()
-                        activeElement.focus()
+
+                self.handleKeyPress = function (event) {
+                    if (self.dialogOpen) {
+                        if (event.keyCode == keyCodes.tab) {
+                            event.preventDefault()
+                            resumeButton.focus()
+                        }
+
+                        if (event.keyCode == keyCodes.esc) {
+                            self.keepAlive()
+                            activeElement.focus()
+                        }
                     }
                 }
 
                 self.closeDialog = function () {
-                    if (dialogOpen) {
+                    if (self.dialogOpen) {
                         self.keepAlive()
                         activeElement.focus()
                     }
@@ -149,13 +165,16 @@ String.prototype.format = function () {
                 }
                 // AL: add touchmove handler
                 $(document).on('touchmove', self.handleTouch)
-                $(document).on('keydown', self.escPress)
+                $(document).on('keydown', self.handleKeyPress)
                 $('#timeout-keep-signin-btn').on('click', self.closeDialog)
+                $('#timeout-keep-signin-btn').on('keydown', function(ev) {
+                    if (ev.keyCode == keyCodes.enter || ev.keyCode == keyCodes.space) self.closeDialog()
+                })
             },
 
             destroyDialog: function () {
                 if ($('#timeout-dialog').length) {
-                    dialogOpen = false
+                    self.dialogOpen = false
                     $('.timeout-overlay').remove();
                     $('#timeout-dialog').remove()
                     if (settings.background_no_scroll) {
