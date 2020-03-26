@@ -34,7 +34,9 @@ object SCRSValidators {
   private val emailRegexDes = """^[A-Za-z0-9\-_.@]{1,70}$"""
   val datePatternRegex = """([12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))"""
   val shareholderNameRegex = """[A-Z a-z 0-9\\'-]{1,20}$"""
-  val otherBusinessNameRegex = """[A-Z a-z 0-9\\'-]{1,100}$"""
+  val whoAgreedTakeoverRegex = """[A-Z a-z 0-9\\'-]{1,100}$"""
+  val otherBusinessNameRegex = """^[A-Z a-z 0-9\\'@?><;:+\/=(),.!¥#_•€&%£$\[\]{}~*«»-]{1,100}$"""
+  val otherBusinessNameInverseRegex = """[^A-Z a-z 0-9\\'@?><;:+\/=(),.!¥#_•€&%£$\[\]{}~*«»-]"""
 
   def isValidPhoneNo(phone: String): Either[String, String] = {
     def isValidNumber(s: String) = s.replaceAll(" ", "").matches("[0-9]+")
@@ -76,7 +78,18 @@ object SCRSValidators {
       val errors = text.trim match {
         case name if name.length == 0 => Seq(ValidationError("error.otherBusinessName.required"))
         case name if name.length > 100 => Seq(ValidationError("error.otherBusinessName.over100Characters"))
-        case name if !name.matches(otherBusinessNameRegex) => Seq(ValidationError("error.otherBusinessName.invalidCharacters"))
+        case name if !name.matches(otherBusinessNameRegex) =>
+          val nonMatchingList = otherBusinessNameInverseRegex.r.findAllIn(name.toCharArray).toList.distinct
+          if (nonMatchingList.size == 1) {
+            Seq(ValidationError("error.otherBusinessName.invalidCharacter", nonMatchingList.head))
+          }
+          else {
+            Seq(ValidationError(
+              "error.otherBusinessName.invalidCharacters",
+              nonMatchingList.dropRight(1).toString().replace("List(", "").replace(")", ""),
+              nonMatchingList.last.toString
+            ))
+          }
         case _ => Nil
       }
       if (errors.isEmpty) Valid else Invalid(errors)
@@ -87,7 +100,7 @@ object SCRSValidators {
       val errors = text.trim match {
         case name if name.length == 0 => Seq(ValidationError("error.whoAgreedTakeover.required"))
         case name if name.length > 100 => Seq(ValidationError("error.whoAgreedTakeover.over100Characters"))
-        case name if !name.matches(otherBusinessNameRegex) => Seq(ValidationError("error.whoAgreedTakeover.invalidCharacters"))
+        case name if !name.matches(whoAgreedTakeoverRegex) => Seq(ValidationError("error.whoAgreedTakeover.invalidCharacters"))
         case _ => Nil
       }
       if (errors.isEmpty) Valid else Invalid(errors)
