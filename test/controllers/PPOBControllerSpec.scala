@@ -63,7 +63,7 @@ class PPOBControllerSpec extends SCRSSpec with PPOBFixture with WithFakeApplicat
       override val messagesApi = fakeApplication.injector.instanceOf[MessagesApi]
     }
 
-    def mockCheckStatus(ret:Option[String] = Some(regId)) = {
+    def mockCheckStatus(ret: Option[String] = Some(regId)) = {
       when(mockKeystoreConnector.fetchAndGet[String](eqTo("registrationID"))(any(), any()))
         .thenReturn(Future.successful(ret))
       when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(eqTo(regId))(any()))
@@ -95,7 +95,7 @@ class PPOBControllerSpec extends SCRSSpec with PPOBFixture with WithFakeApplicat
           "5" -> NavLinks("testConfirmation", "testSummary"))),
         Receiver(Map(
           "0" -> NavLinks("testFirstHandOff", ""),
-          "2" -> NavLinks("testForward","testReverse")
+          "2" -> NavLinks("testForward", "testReverse")
         ))
       )
       when(mockJweCommon.encrypt[BackHandoff](Matchers.any[BackHandoff])(Matchers.any[Writes[BackHandoff]])).thenReturn(None)
@@ -124,19 +124,20 @@ class PPOBControllerSpec extends SCRSSpec with PPOBFixture with WithFakeApplicat
       }
     }
 
-      "return a 303 and show the page when check status returns None" in new Setup {
-        mockCheckStatus(None)
+    "return a 303 and show the page when check status returns None" in new Setup {
+      mockCheckStatus(None)
 
-        showWithAuthorisedUser(controller.show) {
-          result =>
-            status(result) shouldBe SEE_OTHER
-        }
+      showWithAuthorisedUser(controller.show) {
+        result =>
+          status(result) shouldBe SEE_OTHER
       }
     }
+  }
 
   "submit" should {
 
     def submission(addr: String) = FakeRequest().withFormUrlEncodedBody("addressChoice" -> s"$addr")
+
     val validCompanyDetails = CompanyDetails("TestLTD", validCHROAddress, PPOB("RO", None), "UK")
 
     "handle a PPOB Address selection correctly" in new Setup {
@@ -162,13 +163,13 @@ class PPOBControllerSpec extends SCRSSpec with PPOBFixture with WithFakeApplicat
       submitWithAuthorisedUserRetrieval(controller.submit, submission("RO"), credID) {
         result =>
           status(result) shouldBe 303
-          redirectLocation(result).get  shouldBe controllers.reg.routes.CompanyContactDetailsController.show().url
+          redirectLocation(result).get shouldBe controllers.reg.routes.CompanyContactDetailsController.show().url
       }
     }
 
     "handle a none RO/PPOB Address selection correctly" in new Setup {
       mockCheckStatus()
-      when(mockAddressLookupFrontendService.buildAddressLookupUrl(Matchers.any(),Matchers.any())(Matchers.any[HeaderCarrier]()))
+      when(mockAddressLookupFrontendService.initialiseAlfJourney(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful("TEST/redirectUrl"))
 
       submitWithAuthorisedUserRetrieval(controller.submit, submission("Other"), credID) {
@@ -210,24 +211,33 @@ class PPOBControllerSpec extends SCRSSpec with PPOBFixture with WithFakeApplicat
 
     "return a PPOBChoice with a value of PPOB if the supplied ppob option is defined" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
+      val alfId = "123"
 
-      when(mockAddressLookupFrontendService.getAddress(Matchers.any[HeaderCarrier](), Matchers.any()))
+      when(mockAddressLookupFrontendService.getAddress(Matchers.eq(alfId))(Matchers.any[HeaderCarrier]))
         .thenReturn(validNewAddress)
 
       when(mockPPOBService.saveAddress(Matchers.anyString(), Matchers.anyString(), Matchers.any[Option[NewAddress]]())(Matchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(validCompanyDetails))
 
-      when(mockBusinessRegConnector.updatePrePopAddress(Matchers.any[String],Matchers.any[Address])(Matchers.any[HeaderCarrier]))
+      when(mockBusinessRegConnector.updatePrePopAddress(Matchers.any[String], Matchers.any[Address])(Matchers.any[HeaderCarrier]))
         .thenReturn(Future.successful(true))
 
       mockCheckStatus()
 
-      showWithAuthorisedUser(controller.saveALFAddress) {
+      showWithAuthorisedUser(controller.saveALFAddress(Some(alfId))) {
         result =>
           status(result) shouldBe SEE_OTHER
           redirectLocation(result) shouldBe Some(controllers.reg.routes.CompanyContactDetailsController.show().url)
       }
 
+    }
+
+    "return a an exception if the call does not have an id" in new Setup {
+      mockKeystoreFetchAndGet("registrationID", Some("12345"))
+      mockAuthorisedUser(Future.successful({}))
+      mockCheckStatus()
+
+      intercept[Exception](await(controller.saveALFAddress(None)(FakeRequest())))
     }
   }
 }
