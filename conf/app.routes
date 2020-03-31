@@ -41,7 +41,7 @@ POST       /contact-about-corporation-tax           controllers.reg.CompanyConta
 GET        /principal-place-of-business             controllers.reg.PPOBController.show
 POST       /principal-place-of-business             controllers.reg.PPOBController.submit
 GET        /principal-place-of-business-back        controllers.reg.PPOBController.back
-GET        /save-alf-address                        controllers.reg.PPOBController.saveALFAddress
+GET        /save-alf-address                        controllers.reg.PPOBController.saveALFAddress(id: Option[String])
 
 GET        /loan-payments-dividends                 controllers.reg.TradingDetailsController.show
 POST       /loan-payments-dividends                 controllers.reg.TradingDetailsController.submit

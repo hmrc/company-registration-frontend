@@ -45,7 +45,7 @@ object AlfJourneyConfig {
       val homeNavHref = (json \ "homeNavHref").as[String]
       val navTitle = (json \ "navTitle").as[String]
       val showPhaseBanner = (json \ "showPhaseBanner").as[Boolean]
-      val alphaPhaseBanner = (json \ "alphaPhaseBanner").as[Boolean]
+      val alphaPhase = (json \ "alphaPhase").as[Boolean]
       val phaseBannerHtml = (json \ "phaseBannerHtml").as[String]
       val includeHMRCBranding = (json \ "includeHMRCBranding").as[Boolean]
       val showBackButtons = (json \ "showBackButtons").as[Boolean]
@@ -56,7 +56,7 @@ object AlfJourneyConfig {
         homeNavHref,
         navTitle,
         showPhaseBanner,
-        alphaPhaseBanner,
+        alphaPhase,
         phaseBannerHtml,
         includeHMRCBranding,
         showBackButtons,
@@ -89,7 +89,7 @@ case class TopLevelConfig(continueUrl: String,
                           homeNavHref: String,
                           navTitle: String,
                           showPhaseBanner: Boolean,
-                          alphaPhaseBanner: Boolean,
+                          alphaPhase: Boolean,
                           phaseBannerHtml: String,
                           includeHMRCBranding: Boolean,
                           showBackButtons: Boolean,
