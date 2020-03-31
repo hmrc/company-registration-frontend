@@ -695,7 +695,7 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
             withBody(addressLookupJson.toString)
         )
       )
-      val fResponse = buildClient(controllers.groups.routes.GroupAddressController.handbackFromALF().url + """?id=1""").
+      val fResponse = buildClient(controllers.groups.routes.GroupAddressController.handbackFromALF(Some("1")).url).
         withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
         .get()
 
