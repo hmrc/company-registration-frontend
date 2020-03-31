@@ -35,15 +35,18 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.{AddressLookupFrontendService, GroupPageEnum, GroupService}
 import uk.gov.hmrc.auth.core.AuthConnector
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.WithFakeApplication
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class GroupAddressControllerspec extends SCRSSpec with WithFakeApplication with MockitoSugar with AuthBuilder {
+class GroupAddressControllerSpec extends SCRSSpec with WithFakeApplication with MockitoSugar with AuthBuilder {
 
   class Setup {
     implicit val r = FakeRequest()
+    val alfId = "2"
+
     val controller = new GroupAddressController {
       override val addressLookupFrontendService: AddressLookupFrontendService = mockAddressLookupService
       override val groupService: GroupService = mockGroupService
@@ -56,7 +59,7 @@ class GroupAddressControllerspec extends SCRSSpec with WithFakeApplication with 
 
       val showFunction = showFunc("1")(_: Groups)(_: Request[_])
       val submitFunction = submitFunc("1")(_: Groups)(_: Request[_])
-      val alfFunction = handBackFromALFFunc("1")(_: Groups)(_: Request[_])
+      val alfFunction = handBackFromALFFunc("1", alfId)(_: Groups)(_: Request[_])
     }
   }
 
@@ -95,7 +98,7 @@ class GroupAddressControllerspec extends SCRSSpec with WithFakeApplication with 
         CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
         when(mockCompanyRegistrationConnector.retrieveEmail(any())(any())).thenReturn(Future.successful(Some(Email("verified@email", "GG", true, true, true))))
         when(mockGroupService.retrieveGroups(any())(any())).thenReturn(Future.successful(Some(testGroups)))
-        when(mockAddressLookupService.buildAddressLookupUrlGroups(any(),any(),any())(any())).thenReturn(Future.successful("foo"))
+        when(mockAddressLookupService.initialiseAlfJourney(any(),any(),any(),any())(any[HeaderCarrier])).thenReturn(Future.successful("foo"))
         val res: Future[Result] = Future.successful(await(controller.showFunction(testGroups, r)))
         when(mockGroupService.groupsUserSkippedPage(any[Option[Groups]](), any[GroupPageEnum.Value]())(Matchers.argThat(funcMatcher(mockOfFunc)))).thenReturn(res)
         showWithAuthorisedUser(controller.show) {
@@ -115,7 +118,7 @@ class GroupAddressControllerspec extends SCRSSpec with WithFakeApplication with 
         when(mockCompanyRegistrationConnector.retrieveEmail(any())(any())).thenReturn(Future.successful(Some(Email("verified@email", "GG", true, true, true))))
         when(mockGroupService.retrieveGroups(any())(any())).thenReturn(Future.successful(Some(testGroups)))
         when(mockGroupService.returnMapOfAddressesMatchDropAndReturnUpdatedGroups(any(),any())(any())).thenReturn(Future.successful(Map.empty[String,String],testGroups))
-        when(mockAddressLookupService.buildAddressLookupUrlGroups(any(),any(),any())(any())).thenReturn(Future.successful("foo"))
+        when(mockAddressLookupService.initialiseAlfJourney(any(),any(),any(),any())(any[HeaderCarrier])).thenReturn(Future.successful("foo"))
         val res: Future[Result] = Future.successful(await(controller.showFunction(testGroups, r)))
         when(mockGroupService.groupsUserSkippedPage(any[Option[Groups]](), any[GroupPageEnum.Value]())(Matchers.argThat(funcMatcher(mockOfFunc)))).thenReturn(res)
         showWithAuthorisedUser(controller.show) {
@@ -215,7 +218,7 @@ class GroupAddressControllerspec extends SCRSSpec with WithFakeApplication with 
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
       when(mockCompanyRegistrationConnector.retrieveEmail(any())(any())).thenReturn(Future.successful(Some(Email("verified@email", "GG", true, true, true))))
       when(mockGroupService.retrieveGroups(any())(any())).thenReturn(Future.successful(Some(testGroups)))
-      when(mockAddressLookupService.buildAddressLookupUrlGroups(any(),any(),any())(any())).thenReturn(Future.successful("foo"))
+      when(mockAddressLookupService.initialiseAlfJourney(any(),any(),any(),any())(any[HeaderCarrier])).thenReturn(Future.successful("foo"))
       when(mockGroupService.returnMapOfAddressesMatchDropAndReturnUpdatedGroups(any(),any())(any())).thenReturn(Future.successful(Map("foo" -> "bar"),testGroups))
       when(mockGroupService.saveTxShareHolderAddress(any(),any())(any())).thenReturn(Future.successful(Left(new Exception(""))))
       val res: Future[Result] = Future.successful(await(controller.submitFunction(testGroups, FakeRequest().withFormUrlEncodedBody("groupAddress" -> "TxAPI"))))
@@ -248,7 +251,7 @@ class GroupAddressControllerspec extends SCRSSpec with WithFakeApplication with 
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
       when(mockCompanyRegistrationConnector.retrieveEmail(any())(any())).thenReturn(Future.successful(Some(Email("verified@email", "GG", true, true, true))))
       when(mockGroupService.retrieveGroups(any())(any())).thenReturn(Future.successful(Some(testGroups)))
-      when(mockAddressLookupService.buildAddressLookupUrlGroups(any(),any(),any())(any())).thenReturn(Future.successful("foo"))
+      when(mockAddressLookupService.initialiseAlfJourney(any(),any(),any(),any())(any[HeaderCarrier])).thenReturn(Future.successful("foo"))
       when(mockGroupService.returnMapOfAddressesMatchDropAndReturnUpdatedGroups(any(),any())(any())).thenReturn(Future.successful(Map("foo" -> "bar"),testGroups))
 
       val res: Future[Result] = Future.successful(await(controller.submitFunction(testGroups, FakeRequest().withFormUrlEncodedBody("groupAddress" -> "Other"))))
@@ -284,13 +287,25 @@ class GroupAddressControllerspec extends SCRSSpec with WithFakeApplication with 
       mockKeystoreFetchAndGet("registrationID", Some("1"))
       val mockOfFunc = (g: Groups) => Future.successful(Results.Ok(""))
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
-      when(mockCompanyRegistrationConnector.retrieveEmail(any())(any())).thenReturn(Future.successful(Some(Email("verified@email", "GG", true, true, true))))
-      when(mockGroupService.retrieveGroups(any())(any())).thenReturn(Future.successful(Some(testGroups)))
-      when(mockAddressLookupService.getAddress(any(),any())).thenReturn(Future.successful(NewAddress("l1", "l2", None, None, None, None, None)))
-      when(mockGroupService.updateGroupAddress(any(),any(),any())(any())).thenReturn(Future.successful(testGroups))
+
+      when(mockCompanyRegistrationConnector.retrieveEmail(Matchers.any())(Matchers.any[HeaderCarrier]))
+        .thenReturn(Future.successful(Some(Email("verified@email", "GG", true, true, true))))
+
+      when(mockGroupService.retrieveGroups(Matchers.any())(Matchers.any[HeaderCarrier]))
+        .thenReturn(Future.successful(Some(testGroups)))
+
+      when(mockAddressLookupService.getAddress(Matchers.eq(alfId))(Matchers.any[HeaderCarrier]))
+        .thenReturn(Future.successful(NewAddress("l1", "l2", None, None, None, None, None)))
+
+      when(mockGroupService.updateGroupAddress(Matchers.any(),Matchers.any(),Matchers.any())(Matchers.any[HeaderCarrier]))
+        .thenReturn(Future.successful(testGroups))
+
       val res: Future[Result] = Future.successful(await(controller.alfFunction(testGroups, r)))
-      when(mockGroupService.groupsUserSkippedPage(any[Option[Groups]](), any[GroupPageEnum.Value]())(Matchers.argThat(funcMatcher(mockOfFunc)))).thenReturn(res)
-      showWithAuthorisedUser(controller.handbackFromALF) {
+
+      when(mockGroupService.groupsUserSkippedPage(Matchers.any[Option[Groups]](), Matchers.any[GroupPageEnum.Value]())(Matchers.argThat(funcMatcher(mockOfFunc))))
+        .thenReturn(res)
+
+      showWithAuthorisedUser(controller.handbackFromALF(Some(alfId))) {
         result =>
           status(result) shouldBe 303
           redirectLocation(result).get shouldBe controllers.groups.routes.GroupUtrController.show().url

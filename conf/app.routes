@@ -155,7 +155,7 @@ POST       /owning-companys-utr                     controllers.groups.GroupUtrC
 
 GET        /owning-companys-address                 controllers.groups.GroupAddressController.show
 POST       /owning-companys-address                 controllers.groups.GroupAddressController.submit
-GET        /save-alf-address-groups                 controllers.groups.GroupAddressController.handbackFromALF
+GET        /save-alf-address-groups                 controllers.groups.GroupAddressController.handbackFromALF(id: Option[String])
 
 #Takeovers section
 GET        /replacing-another-business              controllers.takeovers.ReplacingAnotherBusinessController.show

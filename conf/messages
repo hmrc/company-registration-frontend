@@ -426,7 +426,7 @@ errorPages.incorporationRejected.para4.1                            = GOV.UK pag
 
 ## Address Lookup Generic and Specific Page Config
 ##      Lookup Page
-page.addressLookup.Groups.lookup.heading                            = Find %%''s registered office address
+page.addressLookup.Groups.lookup.heading                            = Find {0}''s registered office address
 page.addressLookup.PPOB.lookup.heading                              = Find the address where the company will carry out most of its business activities
 page.addressLookup.takeovers.otherBusinessAddress.lookup.heading    = Find {0}’s address
 page.addressLookup.takeovers.homeAddress.lookup.heading             = Find {0}’s home address
@@ -450,7 +450,7 @@ page.addressLookup.edit.line3                                       = Address li
 ##      Confirm Page
 page.addressLookup.confirm.title                                        = Confirm the address
 page.addressLookup.PPOB.confirm.description                             = Confirm where the company will carry out most of its business activities
-page.addressLookup.Groups.confirm.description                           = Confirm %%''s registered office address
+page.addressLookup.Groups.confirm.description                           = Confirm {0}''s registered office address
 page.addressLookup.takeovers.otherBusinessAddress.confirm.description   = Confirm {0}’s address
 page.addressLookup.takeovers.homeAddress.confirm.description            = Confirm {0}’s home address
 
