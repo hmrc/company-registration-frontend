@@ -42,7 +42,7 @@ class BasicCompanyDetailsControllerISpec extends IntegrationSpecBase with LoginS
        |  "name" : "name",
        |  "hmrc" : {},
        |  "session" : {
-       |    "timeout" : 999969,
+       |    "timeout" : 999939,
        |    "keepalive_url" : "http://localhost:9970/register-your-company${controllers.reg.routes.SignInOutController.renewSession().url}",
        |    "signedout_url" : "http://localhost:9970/register-your-company${controllers.reg.routes.SignInOutController.destroySession().url}"
        |  },
