@@ -437,25 +437,25 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
   }
 
   "getPayeThresholds" should {
-    "return the current tax years thresholds if the system date is 2019-04-05" in new Setup {
-      System.setProperty("feature.system-date", "2019-04-05")
-
-      val result = service.getCurrentPayeThresholds
-      result shouldBe Map("weekly" -> 116, "monthly" -> 503, "annually" -> 6032)
-    }
-
-    "return the new tax years thresholds if the system date is 2019-04-06" in new Setup {
-      System.setProperty("feature.system-date", "2019-04-06")
+    "return the current tax years thresholds if the system date is 2020-04-05" in new Setup {
+      System.setProperty("feature.system-date", "2020-04-05")
 
       val result = service.getCurrentPayeThresholds
       result shouldBe Map("weekly" -> 118, "monthly" -> 512, "annually" -> 6136)
     }
 
-    "return the new tax years thresholds if the system date is 2019-10-26" in new Setup {
-      System.setProperty("feature.system-date", "2019-10-26")
+    "return the new tax years thresholds if the system date is 2020-04-06" in new Setup {
+      System.setProperty("feature.system-date", "2020-04-06")
 
       val result = service.getCurrentPayeThresholds
-      result shouldBe Map("weekly" -> 118, "monthly" -> 512, "annually" -> 6136)
+      result shouldBe Map("weekly" -> 120, "monthly" -> 520, "annually" -> 6240)
+    }
+
+    "return the new tax years thresholds if the system date is 2020-10-26" in new Setup {
+      System.setProperty("feature.system-date", "2020-10-26")
+
+      val result = service.getCurrentPayeThresholds
+      result shouldBe Map("weekly" -> 120, "monthly" -> 520, "annually" -> 6240)
     }
   }
 
