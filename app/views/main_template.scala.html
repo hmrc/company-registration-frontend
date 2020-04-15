@@ -20,12 +20,13 @@
   bodyClasses: Option[String] = None,
   mainClass: Option[String] = None,
   pageScripts: Option[Html] = None,
-  timeout: Boolean = true
-)(mainContent: Html)(implicit request : Request[_], messages: Messages, appConfig: config.FrontendAppConfig)
+  timeout: Boolean = true)(mainContent: Html)(implicit request : Request[_], messages: Messages, appConfig: config.FrontendAppConfig)
 
 @import uk.gov.hmrc.play.views.html.layouts
 
-@serviceInfoContent = {}
+@serviceInfoContent = {
+
+}
 
 @sidebar = {
     @if(sidebarLinks.isDefined) {

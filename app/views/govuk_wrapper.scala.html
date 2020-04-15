@@ -31,7 +31,6 @@
 @import uk.gov.hmrc.play.views.html.{helpers => uiHelpers}
 @import views.html.helpers._
 @import utils.SCRSFeatureSwitches
-@import controllers.reg.routes.SignInOutController
 
 @head = {
     @uiLayouts.head(
@@ -102,22 +101,9 @@
     }
 }
 
-@timeoutScript = {
-    <script type="text/javascript" charset="utf-8">
-        window.GOVUK.timeoutDialog({
-            timeout: @appConfig.timeoutInSeconds,
-            countdown: @appConfig.timeoutDisplayLength,
-            keepAliveUrl: '@SignInOutController.renewSession.url',
-            signOutUrl: '@SignInOutController.destroySession.url'
-        });
-
-        var dialogOpen;
-    </script>
-}
-
 @scripts = {
     @loadScripts
-    @timeoutScript
+    @{if(timeout) timeout_script(appConfig)}
     @crossDomainTrackingJs
     @pageScripts
     @piwikTrackingJs
