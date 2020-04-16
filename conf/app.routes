@@ -41,7 +41,7 @@ POST       /contact-about-corporation-tax           controllers.reg.CompanyConta
 GET        /principal-place-of-business             controllers.reg.PPOBController.show
 POST       /principal-place-of-business             controllers.reg.PPOBController.submit
 GET        /principal-place-of-business-back        controllers.reg.PPOBController.back
-GET        /save-alf-address                        controllers.reg.PPOBController.saveALFAddress
+GET        /save-alf-address                        controllers.reg.PPOBController.saveALFAddress(id: Option[String])
 
 GET        /loan-payments-dividends                 controllers.reg.TradingDetailsController.show
 POST       /loan-payments-dividends                 controllers.reg.TradingDetailsController.submit
@@ -155,7 +155,7 @@ POST       /owning-companys-utr                     controllers.groups.GroupUtrC
 
 GET        /owning-companys-address                 controllers.groups.GroupAddressController.show
 POST       /owning-companys-address                 controllers.groups.GroupAddressController.submit
-GET        /save-alf-address-groups                 controllers.groups.GroupAddressController.handbackFromALF
+GET        /save-alf-address-groups                 controllers.groups.GroupAddressController.handbackFromALF(id: Option[String])
 
 #Takeovers section
 GET        /replacing-another-business              controllers.takeovers.ReplacingAnotherBusinessController.show

@@ -42,7 +42,7 @@ class AddressLookupConfigBuilderService @Inject()(appConfig: FrontendAppConfig) 
       homeNavHref = "http://www.hmrc.gov.uk/",
       navTitle = messagesApi("common.service.name"),
       showPhaseBanner = true,
-      alphaPhaseBanner = false,
+      alphaPhase = false,
       phaseBannerHtml = "This is a new service. Help us improve it - send your <a href='https://www.tax.service.gov.uk/register-for-paye/feedback'>feedback</a>.",
       includeHMRCBranding = false,
       showBackButtons = true,

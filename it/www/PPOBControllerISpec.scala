@@ -33,7 +33,7 @@ class PPOBControllerISpec extends IntegrationSpecBase with LoginStub with Fixtur
     await(fResponse).status shouldBe 303
     getPOSTRequestJsonBody("/api/init") shouldBe Json.parse(
       s"""
-         |{"continueUrl":"http://localhost:9970${controllers.reg.routes.PPOBController.saveALFAddress().url}",
+         |{"continueUrl":"http://localhost:9970${controllers.reg.routes.PPOBController.saveALFAddress(None).url}",
          |"homeNavHref":"http://www.hmrc.gov.uk/",
          |"navTitle":"Set up a limited company and register for Corporation Tax",
          |"showPhaseBanner":true,"alphaPhase":false,

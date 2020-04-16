@@ -19,6 +19,7 @@ package controllers.reg
 import _root_.connectors.{BusinessRegistrationConnector, CompanyRegistrationConnector, KeystoreConnector, S4LConnector}
 import config.FrontendAppConfig
 import controllers.auth.AuthFunction
+import controllers.reg.PPOBController._
 import forms.PPOBForm
 import javax.inject.Inject
 import models._
@@ -49,7 +50,7 @@ class PPOBControllerImpl @Inject()(val authConnector: PlayAuthConnector,
                                    val pPOBService: PPOBService,
                                    val scrsFeatureSwitches: SCRSFeatureSwitches,
                                    val messagesApi: MessagesApi) extends PPOBController {
-  lazy val navModelMongo =  navModelRepo.repository
+  lazy val navModelMongo = navModelRepo.repository
 }
 
 trait PPOBController extends FrontendController with AuthFunction
@@ -57,12 +58,12 @@ trait PPOBController extends FrontendController with AuthFunction
 
   implicit val appConfig: FrontendAppConfig
 
-  val s4LConnector : S4LConnector
-  val keystoreConnector : KeystoreConnector
-  val addressLookupFrontendService : AddressLookupFrontendService
+  val s4LConnector: S4LConnector
+  val keystoreConnector: KeystoreConnector
+  val addressLookupFrontendService: AddressLookupFrontendService
   val compRegConnector: CompanyRegistrationConnector
-  val pPOBService : PPOBService
-  val handOffService : HandOffService
+  val pPOBService: PPOBService
+  val handOffService: HandOffService
   val businessRegConnector: BusinessRegistrationConnector
   val jwe: JweCommon
 
@@ -83,17 +84,23 @@ trait PPOBController extends FrontendController with AuthFunction
       }
   }
 
-  val saveALFAddress: Action[AnyContent] = Action.async {
+  def saveALFAddress(alfId: Option[String]): Action[AnyContent] = Action.async {
     implicit request =>
       ctAuthorised {
-        checkStatus { regId =>
-          for {
-            address <- addressLookupFrontendService.getAddress
-            res <- pPOBService.saveAddress(regId, "PPOB", Some(address))
-            _ <- updatePrePopAddress(regId, address)
-          } yield res match {
-            case _ => Redirect(controllers.reg.routes.CompanyContactDetailsController.show())
-          }
+        checkStatus {
+          regId =>
+            alfId match {
+              case Some(id) => for {
+                address <- addressLookupFrontendService.getAddress(id)
+                _ <- pPOBService.saveAddress(regId, ppobKey, Some(address))
+                _ <- updatePrePopAddress(regId, address)
+              } yield {
+                Redirect(controllers.reg.routes.CompanyContactDetailsController.show())
+              }
+              case None =>
+                throw new Exception("[PPOBController] [ALF Handback] 'id' query string missing from ALF handback")
+            }
+
         }
       }
   }
@@ -125,9 +132,12 @@ trait PPOBController extends FrontendController with AuthFunction
                 case "PPOB" =>
                   Future.successful(Redirect(controllers.reg.routes.CompanyContactDetailsController.show()))
                 case "Other" =>
-                  addressLookupFrontendService.buildAddressLookupUrl(controllers.reg.routes.PPOBController.saveALFAddress(), "PPOB") map {
-                    redirectUrl => Redirect(redirectUrl)
-                  }
+                  addressLookupFrontendService.initialiseAlfJourney(
+                    handbackLocation = controllers.reg.routes.PPOBController.saveALFAddress(None),
+                    specificJourneyKey = ppobKey,
+                    lookupPageHeading = messagesApi("page.addressLookup.PPOB.lookup.heading"),
+                    confirmPageHeading = messagesApi("page.addressLookup.PPOB.confirm.description")
+                  ).map(Redirect(_))
                 case unexpected =>
                   Logger.warn(s"[PPOBController] [Submit] '$unexpected' address choice submitted for reg ID: $regId")
                   Future.successful(BadRequest(defaultErrorPage))
@@ -172,4 +182,8 @@ trait PPOBController extends FrontendController with AuthFunction
 
     businessRegConnector.updatePrePopAddress(regId, a)
   }
+}
+
+object PPOBController {
+  val ppobKey = "PPOB"
 }

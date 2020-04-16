@@ -21,7 +21,7 @@ import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.mockito.stubbing.OngoingStubbing
 import org.scalatestplus.mockito.MockitoSugar
-import play.api.mvc.{Call, Request}
+import play.api.mvc.Call
 import services.AddressLookupFrontendService
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -43,14 +43,6 @@ trait AddressLookupFrontendServiceMock extends MockitoSugar {
         Matchers.eq(lookupPageHeading),
         Matchers.eq(confirmPageHeading)
       )(Matchers.any[HeaderCarrier])
-    ) thenReturn response
-  }
-
-  def mockGetAddress(response: Future[NewAddress]): OngoingStubbing[Future[NewAddress]] = {
-    when(
-      mockAddressLookupFrontendService.getAddress(
-        Matchers.any[HeaderCarrier],
-        Matchers.any[Request[_]])
     ) thenReturn response
   }
 

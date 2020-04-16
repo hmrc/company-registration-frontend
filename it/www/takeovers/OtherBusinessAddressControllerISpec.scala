@@ -139,7 +139,7 @@ class OtherBusinessAddressControllerISpec extends IntegrationSpecBase
           homeNavHref = "http://www.hmrc.gov.uk/",
           navTitle = "Set up a limited company and register for Corporation Tax",
           showPhaseBanner = true,
-          alphaPhaseBanner = false,
+          alphaPhase = false,
           phaseBannerHtml = "This is a new service. Help us improve it - send your <a href='https://www.tax.service.gov.uk/register-for-paye/feedback'>feedback</a>.",
           includeHMRCBranding = false,
           showBackButtons = true,
