@@ -149,7 +149,7 @@ class OtherBusinessNameControllerSpec extends SCRSSpec with WithFakeApplication 
           mockAuthorisedUser(Future.successful({}))
           mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
-          mockTakeoversFeatureSwitch(isEnabled = false)
+          mockTakeoversFeatureSwitch(isEnabled = true)
 
           override implicit val request: Request[AnyContentAsFormUrlEncoded] =
             FakeRequest().withFormUrlEncodedBody(otherBusinessNameKey -> testBusinessName)
@@ -169,7 +169,7 @@ class OtherBusinessNameControllerSpec extends SCRSSpec with WithFakeApplication 
           mockAuthorisedUser(Future.successful({}))
           mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
-          mockTakeoversFeatureSwitch(isEnabled = false)
+          mockTakeoversFeatureSwitch(isEnabled = true)
 
           override val testBusinessName: String = ""
           override implicit val request: Request[AnyContentAsFormUrlEncoded] =
@@ -186,9 +186,9 @@ class OtherBusinessNameControllerSpec extends SCRSSpec with WithFakeApplication 
           mockAuthorisedUser(Future.successful({}))
           mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
-          mockTakeoversFeatureSwitch(isEnabled = false)
+          mockTakeoversFeatureSwitch(isEnabled = true)
 
-          override val testBusinessName: String = "%"
+          override val testBusinessName: String = "test©Æф"
           override implicit val request: Request[AnyContentAsFormUrlEncoded] =
             FakeRequest().withFormUrlEncodedBody(otherBusinessNameKey -> testBusinessName)
 
@@ -196,14 +196,14 @@ class OtherBusinessNameControllerSpec extends SCRSSpec with WithFakeApplication 
 
           status(res) shouldBe BAD_REQUEST
           Jsoup.parse(bodyOf(res))
-            .getElementsByClass("error-notification").text shouldBe "Enter the name using only letters, numbers, spaces, hyphens and apostrophes"
+            .getElementsByClass("error-notification").text shouldBe "Business name must not include ©, Æ and ф"
         }
 
         "return a bad request and update the page with errors if name is too long" in new Setup {
           mockAuthorisedUser(Future.successful({}))
           mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
-          mockTakeoversFeatureSwitch(isEnabled = false)
+          mockTakeoversFeatureSwitch(isEnabled = true)
 
           override val testBusinessName: String = "01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890"
           override implicit val request: Request[AnyContentAsFormUrlEncoded] =
