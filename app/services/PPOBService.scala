@@ -66,7 +66,7 @@ trait PPOBService extends SCRSExceptions {
 
   private[services] def addressChoice(ppob: Option[_], ctReg: JsValue) = {
     (ppob, ctReg) match {
-      case (ppob, ctReg) if ppob.isDefined => PPOBChoice("PPOB")
+      case (ppob, ctReg) if ctReg.as[String](NewAddress.readAddressType) == "PPOB"  => PPOBChoice("PPOB")
       case (ppob, ctReg) if ctReg.as[String](NewAddress.readAddressType) == "RO" => PPOBChoice("RO")
       case _ => PPOBChoice("")
     }

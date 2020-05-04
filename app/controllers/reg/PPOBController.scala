@@ -78,7 +78,7 @@ trait PPOBController extends FrontendController with AuthFunction
             choice = addresses._3
             form = PPOBForm.aLFForm.fill(choice)
           } yield {
-            Ok(views.html.reg.PrinciplePlaceOfBusiness(form, ro, ppob))
+            Ok(views.html.reg.PrinciplePlaceOfBusiness(form, ro, ppob, choice))
           }
         }
       }
@@ -115,8 +115,9 @@ trait PPOBController extends FrontendController with AuthFunction
                 addresses <- pPOBService.fetchAddressesAndChoice(regId)
                 ro = addresses._1
                 ppob = addresses._2
+                choice = addresses._3
               } yield {
-                BadRequest(views.html.reg.PrinciplePlaceOfBusiness(errors, ro, ppob))
+                BadRequest(views.html.reg.PrinciplePlaceOfBusiness(errors, ro, ppob, choice))
               }
             },
             success => {

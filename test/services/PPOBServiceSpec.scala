@@ -99,10 +99,17 @@ class PPOBServiceSpec extends SCRSSpec with CompanyDetailsFixture with SCRSExcep
     val ppobUndefined = None
 
     val ctRegWithRO = buildCorporationTaxModel()
+    val ctRegWithPPOB = buildCorporationTaxModel(addressType = "PPOB")
     val ctReg = buildCorporationTaxModel(addressType = "")
 
-    "return a PPOBChoice with a value of PPOB if the supplied ppob option is defined" in new Setup {
+    "return a PPOBChoice with a value of RO if the ctReg supplied ppob option is defined with RO" in new Setup {
       val result = service.addressChoice(ppobDefined, ctRegWithRO)
+
+      result shouldBe PPOBChoice("RO")
+    }
+
+    "return a PPOBChoice with a value of PPOB if the ctReg supplied ppob option is defined with PPOB" in new Setup {
+      val result = service.addressChoice(ppobDefined, ctRegWithPPOB)
 
       result shouldBe PPOBChoice("PPOB")
     }
@@ -121,9 +128,9 @@ class PPOBServiceSpec extends SCRSSpec with CompanyDetailsFixture with SCRSExcep
   }
 
   "fetchAddressesAndChoice" should {
-    "return an RO address, PPOB address and an AddressChoice when given a regId and the address can be normalised" in new Setup {
+    "return an RO address, PPOB address and an AddressChoice of RO when given a regId and the address can be normalised" in new Setup {
       when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(Matchers.any())(Matchers.any[HeaderCarrier]()))
-        .thenReturn(Future.successful(buildCorporationTaxModel()))
+        .thenReturn(Future.successful(buildCorporationTaxModel(addressType = "RO")))
 
       when(mockCompanyRegistrationConnector.checkROValidPPOB(Matchers.any(), Matchers.any())(Matchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(optNewAddress))
@@ -132,13 +139,13 @@ class PPOBServiceSpec extends SCRSSpec with CompanyDetailsFixture with SCRSExcep
 
       result shouldBe (Some(CHROAddress("14","test road",Some("test town"),"Foo","UK",None,Some("FX1 1ZZ"),None)),
         Some(NewAddress("10 Test Street","Testtown",None,None,Some("FX1 1ZZ"),Some("United Kingdom"),None)),
-        PPOBChoice("PPOB"))
+        PPOBChoice("RO"))
 
     }
 
-    "return an RO address, PPOB address and an AddressChoice when given a regId and the address cannot be normalised" in new Setup {
+    "return no RO address, PPOB address and an AddressChoice when given a regId and the address cannot be normalised" in new Setup {
       when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(Matchers.any())(Matchers.any[HeaderCarrier]()))
-        .thenReturn(Future.successful(buildCorporationTaxModel()))
+        .thenReturn(Future.successful(buildCorporationTaxModel(addressType = "PPOB")))
 
       when(mockCompanyRegistrationConnector.checkROValidPPOB(Matchers.any(), Matchers.any())(Matchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(None))
