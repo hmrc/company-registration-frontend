@@ -38,6 +38,8 @@ import scala.concurrent.Future
 class GroupUtrSpec extends SCRSSpec with UserDetailsFixture
   with WithFakeApplication with AuthBuilder {
 
+  val testRegId = "1"
+
   class Setup {
     implicit val r = FakeRequest()
     val controller = new GroupUtrController {
@@ -74,18 +76,18 @@ class GroupUtrSpec extends SCRSSpec with UserDetailsFixture
          |}""".stripMargin)
   }
 
-  "show" should{
+  "show" should {
     "display the Group UTR page with no UTR pre-popped if no UTR in CR (first time through)" in new Setup {
-    val testGroups = Groups(true,Some(GroupCompanyName("testGroupCompanyname1", "type")),
-                 Some(GroupsAddressAndType("type", NewAddress("l1", "l2", None, None, None, None, None))),
-                 None)
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
-      val mockOfFunc = (g:Groups) => Future.successful(Results.Ok(""))
+      val testGroups = Groups(true, Some(GroupCompanyName("testGroupCompanyname1", "type")),
+        Some(GroupsAddressAndType("type", NewAddress("l1", "l2", None, None, None, None, None))),
+        None)
+      mockKeystoreFetchAndGet("registrationID", Some(testRegId))
+      val mockOfFunc = (g: Groups) => Future.successful(Results.Ok(""))
       CTRegistrationConnectorMocks.retrieveCTRegistration(ctDocFirstTimeThrough)
-      when(mockCompanyRegistrationConnector.retrieveEmail(any())(any())).thenReturn(Future.successful(Some(Email("verified@email","GG",true,true,true))))
+      when(mockCompanyRegistrationConnector.retrieveEmail(any())(any())).thenReturn(Future.successful(Some(Email("verified@email", "GG", true, true, true))))
       when(mockGroupService.retrieveGroups(any())(any())).thenReturn(Future.successful(Some(testGroups)))
-      val res:Future[Result] = Future.successful(await(controller.theFunction(testGroups,r)))
-      when(mockGroupService.groupsUserSkippedPage(any[Option[Groups]](),any[GroupPageEnum.Value]())(Matchers.argThat(funcMatcher(mockOfFunc)))).thenReturn(res)
+      val res: Future[Result] = Future.successful(await(controller.theFunction(testGroups, r)))
+      when(mockGroupService.groupsUserSkippedPage(any[Option[Groups]](), any[GroupPageEnum.Value]())(Matchers.argThat(funcMatcher(mockOfFunc)))).thenReturn(res)
 
       showWithAuthorisedUser(controller.show) {
         result =>
@@ -94,20 +96,21 @@ class GroupUtrSpec extends SCRSSpec with UserDetailsFixture
           document.title() shouldBe "Do you know testGroupCompanyname1's Unique Taxpayer Reference (UTR)?"
           document.getElementById("main-heading").text() shouldBe "Do you know testGroupCompanyname1's Unique Taxpayer Reference (UTR)?"
           document.getElementById("utr").attr("value") shouldBe ""
+          document.getElementsByTag("legend").text() shouldBe "Do you know testGroupCompanyname1's Unique Taxpayer Reference (UTR)?"
       }
     }
 
     "display the Group UTR page with the UTR pre-popped if a UTR has already been saved in CR (second time through)" in new Setup {
-    val testGroups = Groups(true,Some(GroupCompanyName("testGroupCompanyname1", "type")),
-                 Some(GroupsAddressAndType("type", NewAddress("l1", "l2", None, None, None, None, None))),
-                 Some(GroupUTR(Some("1234567890"))))
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
-      val mockOfFunc = (g:Groups) => Future.successful(Results.Ok(""))
+      val testGroups = Groups(true, Some(GroupCompanyName("testGroupCompanyname1", "type")),
+        Some(GroupsAddressAndType("type", NewAddress("l1", "l2", None, None, None, None, None))),
+        Some(GroupUTR(Some("1234567890"))))
+      mockKeystoreFetchAndGet("registrationID", Some(testRegId))
+      val mockOfFunc = (g: Groups) => Future.successful(Results.Ok(""))
       CTRegistrationConnectorMocks.retrieveCTRegistration(ctDocFirstTimeThrough)
-      when(mockCompanyRegistrationConnector.retrieveEmail(any())(any())).thenReturn(Future.successful(Some(Email("verified@email","GG",true,true,true))))
+      when(mockCompanyRegistrationConnector.retrieveEmail(any())(any())).thenReturn(Future.successful(Some(Email("verified@email", "GG", true, true, true))))
       when(mockGroupService.retrieveGroups(any())(any())).thenReturn(Future.successful(Some(testGroups)))
-      val res:Future[Result] = Future.successful(await(controller.theFunction(testGroups,r)))
-      when(mockGroupService.groupsUserSkippedPage(any[Option[Groups]](),any[GroupPageEnum.Value]())(Matchers.argThat(funcMatcher(mockOfFunc)))).thenReturn(res)
+      val res: Future[Result] = Future.successful(await(controller.theFunction(testGroups, r)))
+      when(mockGroupService.groupsUserSkippedPage(any[Option[Groups]](), any[GroupPageEnum.Value]())(Matchers.argThat(funcMatcher(mockOfFunc)))).thenReturn(res)
 
       showWithAuthorisedUser(controller.show) {
         result =>
@@ -116,6 +119,7 @@ class GroupUtrSpec extends SCRSSpec with UserDetailsFixture
           document.title() shouldBe "Do you know testGroupCompanyname1's Unique Taxpayer Reference (UTR)?"
           document.getElementById("main-heading").text() shouldBe "Do you know testGroupCompanyname1's Unique Taxpayer Reference (UTR)?"
           document.getElementById("utr").attr("value") shouldBe "1234567890"
+          document.getElementsByTag("legend").text() shouldBe "Do you know testGroupCompanyname1's Unique Taxpayer Reference (UTR)?"
       }
     }
   }

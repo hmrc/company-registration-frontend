@@ -64,8 +64,8 @@ class GroupReliefSpec extends SCRSSpec with UserDetailsFixture
          |}""".stripMargin)
   }
 
-  "show" should{
-    "display the Group Releif page with the correct elements passed into it" in new Setup {
+  "show" should {
+    "display the Group Relief page with the correct elements passed into it" in new Setup {
 
       mockKeystoreFetchAndGet("registrationID", Some("1"))
       CTRegistrationConnectorMocks.retrieveCTRegistration(ctDocFirstTimeThrough)
