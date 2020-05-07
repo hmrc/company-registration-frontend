@@ -45,7 +45,7 @@ case class NewAddress(addressLine1: String,
 }
 
 object NewAddress {
-  val readAddressType: Reads[String] = (__ \\ "addressType").read[String]
+  val readAddressType: Reads[String] = (__ \\ "pPOBAddress" \ "addressType").read[String]
 
   implicit val format: Format[NewAddress] = Json.format[NewAddress]
 
