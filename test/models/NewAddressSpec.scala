@@ -337,4 +337,68 @@ class NewAddressSpec extends UnitSpec with CorporationTaxFixture with JsonValida
       }
     }
   }
+
+  "readAddressType" should {
+
+    "be able to successfully read the PPOB address type even if we have group addresses." when {
+      "all lines are provided" in {
+        val ctDOC = Json.parse(
+          """{
+            |  "auditRef":"tstAuditRef",
+            |  "companyDetails" : {
+            |        "companyName" : "Company Name Ltd",
+            |        "cHROAddress" : {
+            |            "premises" : "14",
+            |            "address_line_1" : "St Test Walk",
+            |            "address_line_2" : "Testley",
+            |            "country" : "UK",
+            |            "locality" : "Testford",
+            |            "postal_code" : "TE1 1ST",
+            |            "region" : "Testshire"
+            |        },
+            |        "pPOBAddress" : {
+            |            "addressType" : "RO",
+            |            "address" : {
+            |                "addressLine1" : "14 St Test Walk",
+            |                "addressLine2" : "Testley",
+            |                "addressLine3" : "Testford",
+            |                "addressLine4" : "Testshire",
+            |                "postCode" : "TE1 1ST",
+            |                "country" : "UK",
+            |                "txid" : "testtxid"
+            |            }
+            |        },
+            |        "jurisdiction" : "ENGLAND_AND_WALES"
+            |    },
+            |    "groups" : {
+            |        "groupRelief" : true,
+            |        "nameOfCompany" : {
+            |            "name" : "big company",
+            |            "nameType" : "CohoEntered"
+            |        },
+            |        "addressAndType" : {
+            |            "addressType" : "CohoEntered",
+            |            "address" : {
+            |                "line1" : "11 Add L1",
+            |                "line2" : "Add L2",
+            |                "line3" : "Test",
+            |                "postcode" : "ZZ1 1ZZ",
+            |                "country" : "United Kingdom"
+            |            }
+            |        },
+            |        "groupUTR" : {
+            |            "UTR" : "testUTR"
+            |        }
+            |    }
+            |}""".stripMargin)
+
+        val result = Json.fromJson(ctDOC)(NewAddress.readAddressType)
+
+        val expected = "RO"
+
+        result.get shouldBe expected
+      }
+
+    }
+    }
 }
