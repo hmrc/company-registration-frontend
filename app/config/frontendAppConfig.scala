@@ -16,8 +16,9 @@
 
 package config
 
-import javax.inject.Inject
+import java.net.URLEncoder
 
+import javax.inject.Inject
 import controllers.reg.routes
 import play.api.Mode.Mode
 import play.api.{Configuration, Environment}
@@ -71,6 +72,15 @@ trait FrontendAppConfig extends ServicesConfig {
   lazy val selfFullLegacy = getConfString("comp-reg-frontend.legacyfullurl", selfFull)
 
   lazy val incorporationInfoUrl = baseUrl("incorp-info")
+
+  private def encodeUrl(url: String): String = URLEncoder.encode(url, "UTF-8")
+
+  def accessibilityStatementUrl(pageUri: String) = controllers.routes.AccessibilityStatementController.show(pageUri).url
+
+  lazy val contactHost = loadConfig("contact-frontend.host")
+
+  def accessibilityReportUrl(userAction: String): String =
+      s"$contactHost/contact/accessibility-unauthenticated?service=company-registration-frontend&userAction=${encodeUrl(userAction)}"
 
   lazy val companyAuthHost = try {
     getString(s"microservice.services.auth.company-auth.url")
