@@ -22,15 +22,14 @@ import controllers.groups.GroupUtrController
 import fixtures.UserDetailsFixture
 import models.{NewAddress, _}
 import org.jsoup.Jsoup
-import org.mockito.{ArgumentMatcher, Matchers}
+import org.mockito.ArgumentMatcher
 import org.mockito.Matchers.any
 import org.mockito.Mockito.when
 import play.api.i18n.MessagesApi
-import play.api.libs.json.Json
-import play.api.mvc.{Request, RequestHeader, Result, Results}
+import play.api.libs.json.{JsValue, Json}
+import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services.GroupPageEnum
 import uk.gov.hmrc.play.test.WithFakeApplication
 
 import scala.concurrent.Future
@@ -41,53 +40,50 @@ class GroupUtrSpec extends SCRSSpec with UserDetailsFixture
   val testRegId = "1"
 
   class Setup {
-    implicit val r = FakeRequest()
-    val controller = new GroupUtrController {
-      override val authConnector = mockAuthConnector
-      override val groupService = mockGroupService
-      override val compRegConnector = mockCompanyRegistrationConnector
-      override val keystoreConnector= mockKeystoreConnector
-      override val appConfig = mockAppConfig
-      override val messagesApi = fakeApplication.injector.instanceOf[MessagesApi]
-      val theFunction = showFunc(_:Groups)(_:Request[_])
-    }
+    implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+    val controller = new GroupUtrController(
+      mockAuthConnector,
+      mockKeystoreConnector,
+      mockGroupService,
+      mockCompanyRegistrationConnector,
+      fakeApplication.injector.instanceOf[MessagesApi]
+    )
 
     case class funcMatcher(func: Groups => Future[Result]) extends ArgumentMatcher[Groups => Future[Result]] {
-      override def matches(oarg :scala.Any): Boolean = true
-      }
+      override def matches(oarg: scala.Any): Boolean = true
+    }
 
 
-    val ctDocFirstTimeThrough =
-    Json.parse(
-      s"""
-         |{
-         |    "OID" : "123456789",
-         |    "registrationID" : "1",
-         |    "status" : "draft",
-         |    "formCreationTimestamp" : "2016-10-25T12:20:45Z",
-         |    "language" : "en",
-         |    "verifiedEmail" : {
-         |        "address" : "user@test.com",
-         |        "type" : "GG",
-         |        "link-sent" : true,
-         |        "verified" : true,
-         |        "return-link-email-sent" : false
-         |    }
-         |}""".stripMargin)
+    val ctDocFirstTimeThrough: JsValue =
+      Json.parse(
+        s"""
+           |{
+           |    "OID" : "123456789",
+           |    "registrationID" : "1",
+           |    "status" : "draft",
+           |    "formCreationTimestamp" : "2016-10-25T12:20:45Z",
+           |    "language" : "en",
+           |    "verifiedEmail" : {
+           |        "address" : "user@test.com",
+           |        "type" : "GG",
+           |        "link-sent" : true,
+           |        "verified" : true,
+           |        "return-link-email-sent" : false
+           |    }
+           |}""".stripMargin)
   }
 
   "show" should {
     "display the Group UTR page with no UTR pre-popped if no UTR in CR (first time through)" in new Setup {
-      val testGroups = Groups(true, Some(GroupCompanyName("testGroupCompanyname1", "type")),
+      val testGroups = Groups(groupRelief = true, Some(GroupCompanyName("testGroupCompanyname1", "type")),
         Some(GroupsAddressAndType("type", NewAddress("l1", "l2", None, None, None, None, None))),
         None)
       mockKeystoreFetchAndGet("registrationID", Some(testRegId))
-      val mockOfFunc = (g: Groups) => Future.successful(Results.Ok(""))
       CTRegistrationConnectorMocks.retrieveCTRegistration(ctDocFirstTimeThrough)
-      when(mockCompanyRegistrationConnector.retrieveEmail(any())(any())).thenReturn(Future.successful(Some(Email("verified@email", "GG", true, true, true))))
-      when(mockGroupService.retrieveGroups(any())(any())).thenReturn(Future.successful(Some(testGroups)))
-      val res: Future[Result] = Future.successful(await(controller.theFunction(testGroups, r)))
-      when(mockGroupService.groupsUserSkippedPage(any[Option[Groups]](), any[GroupPageEnum.Value]())(Matchers.argThat(funcMatcher(mockOfFunc)))).thenReturn(res)
+      when(mockCompanyRegistrationConnector.retrieveEmail(any())(any()))
+        .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
+      when(mockGroupService.retrieveGroups(any())(any()))
+        .thenReturn(Future.successful(Some(testGroups)))
 
       showWithAuthorisedUser(controller.show) {
         result =>
@@ -101,16 +97,15 @@ class GroupUtrSpec extends SCRSSpec with UserDetailsFixture
     }
 
     "display the Group UTR page with the UTR pre-popped if a UTR has already been saved in CR (second time through)" in new Setup {
-      val testGroups = Groups(true, Some(GroupCompanyName("testGroupCompanyname1", "type")),
+      val testGroups = Groups(groupRelief = true, Some(GroupCompanyName("testGroupCompanyname1", "type")),
         Some(GroupsAddressAndType("type", NewAddress("l1", "l2", None, None, None, None, None))),
         Some(GroupUTR(Some("1234567890"))))
       mockKeystoreFetchAndGet("registrationID", Some(testRegId))
-      val mockOfFunc = (g: Groups) => Future.successful(Results.Ok(""))
       CTRegistrationConnectorMocks.retrieveCTRegistration(ctDocFirstTimeThrough)
-      when(mockCompanyRegistrationConnector.retrieveEmail(any())(any())).thenReturn(Future.successful(Some(Email("verified@email", "GG", true, true, true))))
-      when(mockGroupService.retrieveGroups(any())(any())).thenReturn(Future.successful(Some(testGroups)))
-      val res: Future[Result] = Future.successful(await(controller.theFunction(testGroups, r)))
-      when(mockGroupService.groupsUserSkippedPage(any[Option[Groups]](), any[GroupPageEnum.Value]())(Matchers.argThat(funcMatcher(mockOfFunc)))).thenReturn(res)
+      when(mockCompanyRegistrationConnector.retrieveEmail(any())(any()))
+        .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
+      when(mockGroupService.retrieveGroups(any())(any()))
+        .thenReturn(Future.successful(Some(testGroups)))
 
       showWithAuthorisedUser(controller.show) {
         result =>

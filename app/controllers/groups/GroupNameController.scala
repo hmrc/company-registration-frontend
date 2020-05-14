@@ -25,7 +25,7 @@ import javax.inject.Inject
 
 import models.Groups
 import play.api.i18n.{I18nSupport, MessagesApi}
-import services.{GroupPageEnum, GroupService}
+import services.{GroupPageEnum, GroupServiceDeprecated}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import play.api.mvc.{Action, Request}
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
@@ -35,7 +35,7 @@ import views.html.groups.GroupNameView
 import scala.concurrent.Future
 
 class GroupNameControllerImpl @Inject()(val authConnector: PlayAuthConnector,
-                                        val groupService: GroupService,
+                                        val groupService: GroupServiceDeprecated,
                                         val compRegConnector: CompanyRegistrationConnector,
                                         val keystoreConnector: KeystoreConnector,
                                         val appConfig: FrontendAppConfig,
@@ -43,7 +43,7 @@ class GroupNameControllerImpl @Inject()(val authConnector: PlayAuthConnector,
 
 trait GroupNameController extends FrontendController with AuthFunction with ControllerErrorHandler with SessionRegistration with I18nSupport {
   implicit val appConfig: FrontendAppConfig
-  val groupService: GroupService
+  val groupService: GroupServiceDeprecated
 
   protected def showFunc(groups: Groups, regID: String)(implicit request: Request[_]) = {
     groupService.checkGroupNameMatchAndPotentiallyDropOptionalBlocks(groups, regID).map { res =>

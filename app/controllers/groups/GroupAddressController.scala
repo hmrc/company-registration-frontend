@@ -26,7 +26,7 @@ import javax.inject.Inject
 import models._
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Request, Result}
-import services.{AddressLookupFrontendService, GroupPageEnum, GroupService}
+import services.{AddressLookupFrontendService, GroupPageEnum, GroupServiceDeprecated}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
@@ -36,7 +36,7 @@ import views.html.groups.GroupAddressView
 import scala.concurrent.Future
 
 class GroupAddressControllerImpl @Inject()(val authConnector: PlayAuthConnector,
-                                           val groupService: GroupService,
+                                           val groupService: GroupServiceDeprecated,
                                            val compRegConnector: CompanyRegistrationConnector,
                                            val keystoreConnector: KeystoreConnector,
                                            val appConfig: FrontendAppConfig,
@@ -47,7 +47,7 @@ trait GroupAddressController extends FrontendController with AuthFunction with C
   implicit val appConfig: FrontendAppConfig
   val addressLookupFrontendService: AddressLookupFrontendService
 
-  val groupService: GroupService
+  val groupService: GroupServiceDeprecated
 
   def handbackFromALF(alfId: Option[String]): Action[AnyContent] = Action.async {
     implicit request =>

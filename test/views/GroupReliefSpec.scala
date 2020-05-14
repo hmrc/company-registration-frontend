@@ -38,7 +38,7 @@ class GroupReliefSpec extends SCRSSpec with UserDetailsFixture
   class Setup {
     val controller = new GroupReliefController {
       override val authConnector = mockAuthConnector
-      override val groupService = mockGroupService
+      override val groupService = mockGroupServiceDeprecated
       override val compRegConnector = mockCompanyRegistrationConnector
       override val keystoreConnector= mockKeystoreConnector
       override val appConfig = mockAppConfig
@@ -71,7 +71,7 @@ class GroupReliefSpec extends SCRSSpec with UserDetailsFixture
       CTRegistrationConnectorMocks.retrieveCTRegistration(ctDocFirstTimeThrough)
       when(mockCompanyRegistrationConnector.fetchCompanyName(any())(any())).thenReturn(Future.successful("testCompanyname1"))
       when(mockCompanyRegistrationConnector.retrieveEmail(any())(any())).thenReturn(Future.successful(Some(Email("verified@email","GG",true,true,true))))
-      when(mockGroupService.retrieveGroups(any())(any())).thenReturn(Future.successful(Some(Groups(true,None,None,None))))
+      when(mockGroupServiceDeprecated.retrieveGroups(any())(any())).thenReturn(Future.successful(Some(Groups(true,None,None,None))))
 
       showWithAuthorisedUser(controller.show) {
         result =>

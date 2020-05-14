@@ -21,74 +21,65 @@ import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthFunction
 import controllers.reg.ControllerErrorHandler
 import forms.GroupUtrForm
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 import models._
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, Request}
-import services.{CommonService, GroupPageEnum, GroupService}
+import play.api.mvc.{Action, AnyContent}
+import services.{CommonService, GroupService}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
+import uk.gov.hmrc.http.InternalServerException
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.{SCRSExceptions, SessionRegistration}
 import views.html.groups.GroupUtrView
 
 import scala.concurrent.Future
 
-
-class GroupUtrControllerImpl @Inject()(val authConnector: PlayAuthConnector,
-                                       val keystoreConnector: KeystoreConnector,
-                                       val groupService: GroupService,
-                                       val appConfig: FrontendAppConfig,
-                                       val compRegConnector: CompanyRegistrationConnector,
-                                       val messagesApi: MessagesApi) extends GroupUtrController
-
-
-trait GroupUtrController extends FrontendController with AuthFunction with CommonService with ControllerErrorHandler with SCRSExceptions with I18nSupport with SessionRegistration {
-
-
-  implicit val appConfig: FrontendAppConfig
-  val keystoreConnector: KeystoreConnector
-  val groupService: GroupService
-
-  protected def showFunc(groups: Groups)(implicit request: Request[_]) = {
-    val groupParentCompanyName = groups.nameOfCompany.get
-    val formVal = groups.groupUTR.fold(GroupUtrForm.form)(utr => GroupUtrForm.form.fill(utr))
-    Future.successful(Ok(GroupUtrView(formVal, groupParentCompanyName.name)))
-  }
-
-  protected def submitFunc(regID: String)(groups: Groups)(implicit request: Request[_]) = {
-    GroupUtrForm.form.bindFromRequest.fold(
-      errors =>
-        Future.successful(BadRequest(GroupUtrView(errors, groups.nameOfCompany.get.name))),
-      relief => {
-        groupService.updateGroupUtr(relief, groups, regID).map { _ =>
-          Redirect(controllers.handoff.routes.GroupController.PSCGroupHandOff())
-        }
-      }
-    )
-  }
-
+@Singleton
+class GroupUtrController @Inject()(val authConnector: PlayAuthConnector,
+                                   val keystoreConnector: KeystoreConnector,
+                                   val groupService: GroupService,
+                                   val compRegConnector: CompanyRegistrationConnector,
+                                   val messagesApi: MessagesApi
+                                  )(implicit val appConfig: FrontendAppConfig)
+  extends FrontendController with AuthFunction with CommonService with ControllerErrorHandler
+    with SCRSExceptions with I18nSupport with SessionRegistration {
 
   val show: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
       checkStatus { regID =>
         groupService.retrieveGroups(regID).flatMap {
-          optGroups =>
-            groupService.groupsUserSkippedPage(optGroups, GroupPageEnum.utrPage) {
-              showFunc
-            }
+          case Some(Groups(true, Some(companyName), Some(_), Some(companyUtr))) =>
+            Future.successful(Ok(GroupUtrView(GroupUtrForm.form.fill(companyUtr), companyName.name)))
+          case Some(Groups(true, Some(companyName), Some(_), None)) =>
+            Future.successful(Ok(GroupUtrView(GroupUtrForm.form, companyName.name)))
+          case Some(Groups(true, Some(_), None, _)) =>
+            Future.successful(Redirect(controllers.groups.routes.GroupAddressController.show().url))
+          case Some(Groups(true, None, _, _)) =>
+            Future.successful(Redirect(controllers.groups.routes.GroupNameController.show().url))
+          case _ =>
+            Future.successful(Redirect(controllers.reg.routes.SignInOutController.postSignIn()))
         }
       }
     }
   }
 
 
-  val submit = Action.async { implicit request =>
+  val submit: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
       registered { regID =>
-        groupService.retrieveGroups(regID).flatMap { optGroups =>
-          groupService.groupsUserSkippedPage(optGroups, GroupPageEnum.utrPage) {
-            submitFunc(regID)
-          }
+        groupService.retrieveGroups(regID).flatMap {
+          case Some(groups@Groups(true, Some(companyName), Some(_), _)) =>
+            GroupUtrForm.form.bindFromRequest.fold(
+              errors =>
+                Future.successful(BadRequest(GroupUtrView(errors, companyName.name))),
+              groupUtr => {
+                groupService.updateGroupUtr(groupUtr, groups, regID).map { _ =>
+                  Redirect(controllers.handoff.routes.GroupController.PSCGroupHandOff())
+                }
+              }
+            )
+          case _ =>
+            Future.failed(new InternalServerException("[GroupUtrController] [submit] Missing prerequisite group data"))
         }
       }
     }
