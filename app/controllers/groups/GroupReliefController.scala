@@ -25,14 +25,14 @@ import javax.inject.Inject
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.Action
-import services.{GroupService, MetricsService}
+import services.{GroupServiceDeprecated, MetricsService}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.SessionRegistration
 import views.html.groups.GroupReliefView
 
 class GroupReliefControllerImpl @Inject()(val authConnector: PlayAuthConnector,
-                                          val groupService: GroupService,
+                                          val groupService: GroupServiceDeprecated,
                                           val compRegConnector: CompanyRegistrationConnector,
                                           val keystoreConnector: KeystoreConnector,
                                           val appConfig: FrontendAppConfig,
@@ -41,7 +41,7 @@ class GroupReliefControllerImpl @Inject()(val authConnector: PlayAuthConnector,
 trait GroupReliefController extends FrontendController with AuthFunction with ControllerErrorHandler with SessionRegistration with I18nSupport {
   implicit val appConfig: FrontendAppConfig
 
-  val groupService: GroupService
+  val groupService: GroupServiceDeprecated
 
   val show = Action.async { implicit request =>
     ctAuthorised {

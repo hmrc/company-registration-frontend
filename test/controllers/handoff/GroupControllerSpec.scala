@@ -30,7 +30,7 @@ import play.api.i18n.MessagesApi
 import play.api.libs.json.{JsObject, Json, Writes}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{defaultAwaitTimeout, redirectLocation}
-import services.{GroupService, HandBackService, HandOffService, NavModelNotFoundException}
+import services.{GroupServiceDeprecated, HandBackService, HandOffService, NavModelNotFoundException}
 import uk.gov.hmrc.play.test.WithFakeApplication
 import utils.{BooleanFeatureSwitch, JweCommon, SCRSFeatureSwitches}
 
@@ -50,7 +50,7 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with WithFakeApplic
       val compRegConnector: CompanyRegistrationConnector = mockCompanyRegistrationConnector
       override val messagesApi = fakeApplication.injector.instanceOf[MessagesApi]
       override val scrsFeatureSwitches: SCRSFeatureSwitches = mockSCRSFeatureSwitches
-      override val groupService: GroupService = mockGroupService
+      override val groupService: GroupServiceDeprecated = mockGroupServiceDeprecated
       override val jwe: JweCommon = fakeApplication.injector.instanceOf[JweCommon]
     }
   }
@@ -104,7 +104,7 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with WithFakeApplic
   }
   "return a redirect to handoff 3.2 when shareholder list empty sharholder flag true AND feature switch true" in new Setup {
     when(mockSCRSFeatureSwitches.pscHandOff).thenReturn(BooleanFeatureSwitch("pscHandOff",true))
-    when(mockGroupService.potentiallyDropGroupsBasedOnReturnFromTXApiAndReturnList(any())(any()))
+    when(mockGroupServiceDeprecated.potentiallyDropGroupsBasedOnReturnFromTXApiAndReturnList(any())(any()))
         .thenReturn(Future.successful(List.empty))
     mockKeystoreFetchAndGet("registrationID", Some("1"))
     when(mockHandBackService.processGroupsHandBack(any[String]())(any())).
@@ -125,9 +125,9 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with WithFakeApplic
   }
   "return first groups page when shareholder list not empty sharholder flag true AND feature switch true" in new Setup {
     when(mockSCRSFeatureSwitches.pscHandOff).thenReturn(BooleanFeatureSwitch("pscHandOff",true))
-    when(mockGroupService.potentiallyDropGroupsBasedOnReturnFromTXApiAndReturnList(any())(any()))
+    when(mockGroupServiceDeprecated.potentiallyDropGroupsBasedOnReturnFromTXApiAndReturnList(any())(any()))
       .thenReturn(Future.successful(List(Shareholder("foo",None,None,None,CHROAddress("","",None,"","",None,None,None)))))
-    when(mockGroupService.hasDataChangedIfSoDropGroups(any(),any())(any()))
+    when(mockGroupServiceDeprecated.hasDataChangedIfSoDropGroups(any(),any())(any()))
       .thenReturn(Future.successful(List(Shareholder("foo",None,None,None,CHROAddress("","",None,"","",None,None,None)))))
     mockKeystoreFetchAndGet("registrationID", Some("1"))
     when(mockHandBackService.processGroupsHandBack(any[String]())(any())).
@@ -195,7 +195,7 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with WithFakeApplic
     "return a 400 when buildPSCPayload returns a None" in new Setup {
       when(mockSCRSFeatureSwitches.pscHandOff).thenReturn(BooleanFeatureSwitch("pscHandOff",true))
       mockKeystoreFetchAndGet("registrationID", Some("1"))
-      when(mockGroupService.retrieveGroups(any())(any())).thenReturn(Future.successful(None))
+      when(mockGroupServiceDeprecated.retrieveGroups(any())(any())).thenReturn(Future.successful(None))
       when(mockHandOffService.buildPSCPayload(any(),any(),any())(any())) thenReturn Future.successful(None)
       showWithAuthorisedUserRetrieval(TestController.PSCGroupHandOff(), Some("extID")) {
         result => status(result) shouldBe 400
@@ -205,7 +205,7 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with WithFakeApplic
     "return a redirect to the 3.2 hand off if buildPSCPayload returns Some" in new Setup {
       when(mockSCRSFeatureSwitches.pscHandOff).thenReturn(BooleanFeatureSwitch("pscHandOff",true))
       mockKeystoreFetchAndGet("registrationID", Some("1"))
-      when(mockGroupService.retrieveGroups(any())(any())).thenReturn(Future.successful(None))
+      when(mockGroupServiceDeprecated.retrieveGroups(any())(any())).thenReturn(Future.successful(None))
       when(mockHandOffService.buildPSCPayload(any(),any(),any())(any())) thenReturn Future.successful(Some("foo", "bar"))
       when(mockHandOffService.buildHandOffUrl(any(),any())).thenReturn("foo/bar/wizz/3-2")
       showWithAuthorisedUserRetrieval(TestController.PSCGroupHandOff(), Some("extID")) {
@@ -218,7 +218,7 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with WithFakeApplic
       val groups = Groups(false,None,None,None)
       when(mockSCRSFeatureSwitches.pscHandOff).thenReturn(BooleanFeatureSwitch("pscHandOff",true))
       mockKeystoreFetchAndGet("registrationID", Some("1"))
-      when(mockGroupService.retrieveGroups(any())(any())).thenReturn(Future.successful(Some(groups)))
+      when(mockGroupServiceDeprecated.retrieveGroups(any())(any())).thenReturn(Future.successful(Some(groups)))
       when(mockHandOffService.buildPSCPayload(any(),any(),eqTo(Some(groups)))(any())) thenReturn Future.successful(Some("foo", "bar"))
       when(mockHandOffService.buildHandOffUrl(any(),any())).thenReturn("foo/bar/wizz/3-2")
       showWithAuthorisedUserRetrieval(TestController.PSCGroupHandOff(), Some("extID")) {
@@ -230,7 +230,7 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with WithFakeApplic
     "return a redirect to the 3.2 hand off if buildPSCPayload returns Some and groups is Some BUT feature switch is false" in new Setup {
       when(mockSCRSFeatureSwitches.pscHandOff).thenReturn(BooleanFeatureSwitch("pscHandOff",false))
       mockKeystoreFetchAndGet("registrationID", Some("1"))
-      when(mockGroupService.retrieveGroups(any())(any())).thenReturn(Future.successful(Some(Groups(false,None,None,None))))
+      when(mockGroupServiceDeprecated.retrieveGroups(any())(any())).thenReturn(Future.successful(Some(Groups(false,None,None,None))))
       when(mockHandOffService.buildPSCPayload(any(),any(),eqTo(Option.empty[Groups]))(any())) thenReturn Future.successful(Some("foo", "bar"))
       when(mockHandOffService.buildHandOffUrl(any(),any())).thenReturn("foo/bar/wizz/3-2")
       showWithAuthorisedUserRetrieval(TestController.PSCGroupHandOff(), Some("extID")) {
@@ -244,7 +244,7 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with WithFakeApplic
     "redirect to post sign in if nav model is not found NavModelNotFoundException" in new Setup {
       when(mockSCRSFeatureSwitches.pscHandOff).thenReturn(BooleanFeatureSwitch("pscHandOff",true))
       mockKeystoreFetchAndGet("registrationID", Some("1"))
-      when(mockGroupService.retrieveGroups(any())(any())).thenReturn(Future.successful(None))
+      when(mockGroupServiceDeprecated.retrieveGroups(any())(any())).thenReturn(Future.successful(None))
       when(mockHandOffService.buildPSCPayload(any(),any(),any())(any())) thenReturn Future.failed(new NavModelNotFoundException)
       when(mockHandOffService.buildHandOffUrl(any(),any())).thenReturn("foo/bar/wizz/3-2")
       showWithAuthorisedUserRetrieval(TestController.PSCGroupHandOff(), Some("extID")) {

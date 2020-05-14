@@ -25,7 +25,7 @@ import models.Groups
 import models.handoff.{BackHandoff, GroupHandBackModel}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Result}
-import services.{GroupService, HandBackService, HandOffService, NavModelNotFoundException}
+import services.{GroupServiceDeprecated, HandBackService, HandOffService, NavModelNotFoundException}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.auth.core.retrieve.Retrievals
 import uk.gov.hmrc.http.HeaderCarrier
@@ -44,7 +44,7 @@ class GroupControllerImpl @Inject()(val authConnector: PlayAuthConnector,
                                     val handBackService: HandBackService,
                                     val messagesApi: MessagesApi,
                                     val scrsFeatureSwitches: SCRSFeatureSwitches,
-                                    val groupService: GroupService,
+                                    val groupService: GroupServiceDeprecated,
                                     val jwe: JweCommon) extends GroupController
 
 trait GroupController extends FrontendController with AuthFunction with I18nSupport with SessionRegistration with ControllerErrorHandler {
@@ -53,7 +53,7 @@ trait GroupController extends FrontendController with AuthFunction with I18nSupp
   val handOffService: HandOffService
   implicit val appConfig: FrontendAppConfig
   val scrsFeatureSwitches: SCRSFeatureSwitches
-  val groupService: GroupService
+  val groupService: GroupServiceDeprecated
   val jwe: JweCommon
   def pscEnabled = scrsFeatureSwitches.pscHandOff.enabled
 

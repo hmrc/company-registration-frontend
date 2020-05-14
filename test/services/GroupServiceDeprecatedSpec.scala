@@ -30,13 +30,13 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
 
-class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
+class GroupServiceDeprecatedSpec extends UnitSpec with MockitoSugar with SCRSMocks {
 
   implicit val hc = HeaderCarrier()
 
   class Setup {
 
-    val service = new GroupService {
+    val service = new GroupServiceDeprecated {
       override val compRegConnector: CompanyRegistrationConnector = mockCompanyRegistrationConnector
       override val keystoreConnector: KeystoreConnector = mockKeystoreConnector
       override val incorpInfoConnector: IncorpInfoConnector = mockIncorpInfoConnector
