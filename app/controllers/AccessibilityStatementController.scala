@@ -32,7 +32,7 @@ class AccessibilityStatementController @Inject()(val messagesApi: MessagesApi
 
   def show(pageUri: String): Action[AnyContent] = Action.async {
     implicit request => {
-      Future.successful(Ok(accessibility_statement(appConfig.accessibilityReportUrl(pageUri), appConfig.self + controllers.reg.routes.WelcomeController.show().url)))
+      Future.successful(Ok(accessibility_statement(appConfig.accessibilityReportUrl(pageUri), appConfig.selfFull + controllers.reg.routes.WelcomeController.show().url)))
     }
   }
 
