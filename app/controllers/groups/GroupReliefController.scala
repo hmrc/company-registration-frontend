@@ -21,29 +21,26 @@ import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthFunction
 import controllers.reg.ControllerErrorHandler
 import forms.GroupReliefForm
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.Action
-import services.{GroupServiceDeprecated, MetricsService}
+import play.api.mvc.{Action, AnyContent}
+import services.GroupService
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.SessionRegistration
 import views.html.groups.GroupReliefView
 
-class GroupReliefControllerImpl @Inject()(val authConnector: PlayAuthConnector,
-                                          val groupService: GroupServiceDeprecated,
-                                          val compRegConnector: CompanyRegistrationConnector,
-                                          val keystoreConnector: KeystoreConnector,
-                                          val appConfig: FrontendAppConfig,
-                                          val messagesApi: MessagesApi) extends GroupReliefController
+@Singleton
+class GroupReliefController @Inject()(val authConnector: PlayAuthConnector,
+                                      val groupService: GroupService,
+                                      val compRegConnector: CompanyRegistrationConnector,
+                                      val keystoreConnector: KeystoreConnector,
+                                      val messagesApi: MessagesApi
+                                     )(implicit val appConfig: FrontendAppConfig)
+  extends FrontendController with AuthFunction with ControllerErrorHandler with SessionRegistration with I18nSupport {
 
-trait GroupReliefController extends FrontendController with AuthFunction with ControllerErrorHandler with SessionRegistration with I18nSupport {
-  implicit val appConfig: FrontendAppConfig
-
-  val groupService: GroupServiceDeprecated
-
-  val show = Action.async { implicit request =>
+  val show: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
       checkStatus { regID =>
         for {
@@ -57,23 +54,24 @@ trait GroupReliefController extends FrontendController with AuthFunction with Co
     }
   }
 
-  val submit = Action.async { implicit request =>
+  val submit: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
       registered { regID =>
-        groupService.retrieveGroups(regID).flatMap { optGroups =>
-          GroupReliefForm.form.bindFromRequest.fold(
-            errors =>
-              compRegConnector.fetchCompanyName(regID)
-                .map(cName => BadRequest(GroupReliefView(errors, cName))),
-            relief => {
-              groupService.updateGroupRelief(relief, optGroups, regID).map { _ =>
-                if(relief) {
-                  Redirect(routes.GroupNameController.show())
-                } else { Redirect(controllers.handoff.routes.GroupController.PSCGroupHandOff()) }
-                }
+        GroupReliefForm.form.bindFromRequest.fold(
+          errors =>
+            compRegConnector.fetchCompanyName(regID).map { cName =>
+              BadRequest(GroupReliefView(errors, cName))
+            },
+          relief => {
+            groupService.updateGroupRelief(relief, regID).map { _ =>
+              if (relief) {
+                Redirect(routes.GroupNameController.show())
+              } else {
+                Redirect(controllers.handoff.routes.GroupController.PSCGroupHandOff())
               }
-          )
-        }
+            }
+          }
+        )
       }
     }
   }

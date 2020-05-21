@@ -25,9 +25,8 @@ import org.jsoup.Jsoup
 import org.mockito.Matchers.any
 import org.mockito.Mockito.when
 import play.api.i18n.MessagesApi
-import play.api.libs.json.Json
+import play.api.libs.json.{JsValue, Json}
 import play.api.test.Helpers._
-import services.MetricsService
 import uk.gov.hmrc.play.test.WithFakeApplication
 
 import scala.concurrent.Future
@@ -36,32 +35,31 @@ class GroupReliefSpec extends SCRSSpec with UserDetailsFixture
   with WithFakeApplication with AuthBuilder {
 
   class Setup {
-    val controller = new GroupReliefController {
-      override val authConnector = mockAuthConnector
-      override val groupService = mockGroupServiceDeprecated
-      override val compRegConnector = mockCompanyRegistrationConnector
-      override val keystoreConnector= mockKeystoreConnector
-      override val appConfig = mockAppConfig
-      override val messagesApi = fakeApplication.injector.instanceOf[MessagesApi]
-    }
+    val controller = new GroupReliefController(
+      mockAuthConnector,
+      mockGroupService,
+      mockCompanyRegistrationConnector,
+      mockKeystoreConnector,
+      fakeApplication.injector.instanceOf[MessagesApi]
+    )
 
-    val ctDocFirstTimeThrough =
-    Json.parse(
-      s"""
-         |{
-         |    "OID" : "123456789",
-         |    "registrationID" : "1",
-         |    "status" : "draft",
-         |    "formCreationTimestamp" : "2016-10-25T12:20:45Z",
-         |    "language" : "en",
-         |    "verifiedEmail" : {
-         |        "address" : "user@test.com",
-         |        "type" : "GG",
-         |        "link-sent" : true,
-         |        "verified" : true,
-         |        "return-link-email-sent" : false
-         |    }
-         |}""".stripMargin)
+    val ctDocFirstTimeThrough: JsValue =
+      Json.parse(
+        s"""
+           |{
+           |    "OID" : "123456789",
+           |    "registrationID" : "1",
+           |    "status" : "draft",
+           |    "formCreationTimestamp" : "2016-10-25T12:20:45Z",
+           |    "language" : "en",
+           |    "verifiedEmail" : {
+           |        "address" : "user@test.com",
+           |        "type" : "GG",
+           |        "link-sent" : true,
+           |        "verified" : true,
+           |        "return-link-email-sent" : false
+           |    }
+           |}""".stripMargin)
   }
 
   "show" should {
@@ -69,9 +67,12 @@ class GroupReliefSpec extends SCRSSpec with UserDetailsFixture
 
       mockKeystoreFetchAndGet("registrationID", Some("1"))
       CTRegistrationConnectorMocks.retrieveCTRegistration(ctDocFirstTimeThrough)
-      when(mockCompanyRegistrationConnector.fetchCompanyName(any())(any())).thenReturn(Future.successful("testCompanyname1"))
-      when(mockCompanyRegistrationConnector.retrieveEmail(any())(any())).thenReturn(Future.successful(Some(Email("verified@email","GG",true,true,true))))
-      when(mockGroupServiceDeprecated.retrieveGroups(any())(any())).thenReturn(Future.successful(Some(Groups(true,None,None,None))))
+      when(mockCompanyRegistrationConnector.fetchCompanyName(any())(any()))
+        .thenReturn(Future.successful("testCompanyname1"))
+      when(mockCompanyRegistrationConnector.retrieveEmail(any())(any()))
+        .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
+      when(mockGroupService.retrieveGroups(any())(any()))
+        .thenReturn(Future.successful(Some(Groups(groupRelief = true, None, None, None))))
 
       showWithAuthorisedUser(controller.show) {
         result =>

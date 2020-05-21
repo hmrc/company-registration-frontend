@@ -25,7 +25,7 @@ import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.i18n.MessagesApi
-import play.api.libs.json.Json
+import play.api.libs.json.{JsValue, Json}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.HeaderCarrier
@@ -35,25 +35,24 @@ import scala.concurrent.Future
 
 class GroupReliefControllerSpec extends SCRSSpec with WithFakeApplication with MockitoSugar with AuthBuilder {
 
+  implicit val appConfig: FrontendAppConfig = fakeApplication.injector.instanceOf[FrontendAppConfig]
 
   class Setup {
     reset(mockCompanyRegistrationConnector)
-    val controller = new GroupReliefController {
-      val groupService = mockGroupServiceDeprecated
-      val authConnector = mockAuthConnector
-      val keystoreConnector = mockKeystoreConnector
-      val metaDataService = mockMetaDataService
-      override val compRegConnector = mockCompanyRegistrationConnector
-      implicit val appConfig: FrontendAppConfig = fakeApplication.injector.instanceOf[FrontendAppConfig]
-      override val messagesApi = fakeApplication.injector.instanceOf[MessagesApi]
-    }
+    val controller = new GroupReliefController(
+      mockAuthConnector,
+      mockGroupService,
+      mockCompanyRegistrationConnector,
+      mockKeystoreConnector,
+      fakeApplication.injector.instanceOf[MessagesApi]
+    )
 
-    def cTDoc(status: String, groupBlock: String) = Json.parse(
+    def cTDoc(status: String, groupBlock: String): JsValue = Json.parse(
       s"""
          | {
          |    "internalId" : "Int-f9bf61e1-9f5e-42b6-8676-0949fb1253e7",
          |    "registrationID" : "2971",
-         |    "status" : "${status}",
+         |    "status" : "$status",
          |    "formCreationTimestamp" : "2019-04-09T09:06:55+01:00",
          |    "language" : "en",
          |    "confirmationReferences" : {
@@ -92,7 +91,7 @@ class GroupReliefControllerSpec extends SCRSSpec with WithFakeApplication with M
          |        "verified" : true,
          |        "return-link-email-sent" : false
          |    }
-         |    ${groupBlock}
+         |    $groupBlock
          |}""".stripMargin)
   }
 
@@ -110,24 +109,15 @@ class GroupReliefControllerSpec extends SCRSSpec with WithFakeApplication with M
       val regID = "12345"
 
       mockKeystoreFetchAndGet("registrationID", None)
-      when(
-        mockCompanyRegistrationConnector.
-          fetchCompanyName(any[String]())(any[HeaderCarrier
-            ]()))
-        .thenReturn(Future.
-          successful(
-            "Company Name"))
-
-      when(mockGroupServiceDeprecated.retrieveGroups(any())(any()))
-        .thenReturn(Future.successful(None
-        ))
+      when(mockCompanyRegistrationConnector.fetchCompanyName(any[String]())(any[HeaderCarrier]()))
+        .thenReturn(Future.successful("Company Name"))
+      when(mockGroupService.retrieveGroups(any())(any()))
+        .thenReturn(Future.successful(None))
 
       showWithAuthorisedUser(controller.show()) {
         result => {
-          val response = await(
-            result)
-          status(
-            response) shouldBe SEE_OTHER
+          val response = await(result)
+          status(response) shouldBe SEE_OTHER
           response.header.headers("Location") shouldBe "/register-your-company/post-sign-in"
         }
       }
@@ -137,7 +127,7 @@ class GroupReliefControllerSpec extends SCRSSpec with WithFakeApplication with M
       mockKeystoreFetchAndGet("registrationID", Some("reg123"))
 
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("held", ""))
-      when(mockGroupServiceDeprecated.retrieveGroups(any[String])(any[HeaderCarrier]))
+      when(mockGroupService.retrieveGroups(any[String])(any[HeaderCarrier]))
         .thenReturn(Future.successful(None))
       when(mockCompanyRegistrationConnector.fetchCompanyName(any[String]())(any[HeaderCarrier]()))
         .thenReturn(Future.successful("Company Name"))
@@ -153,11 +143,11 @@ class GroupReliefControllerSpec extends SCRSSpec with WithFakeApplication with M
     }
 
     "display the page whilst the user is authorised and already has a group block saved" in new Setup {
-      val groupBlock =""" ,"groups" : {"groupRelief" : true} """
+      val groupBlock = """ ,"groups" : {"groupRelief" : true} """
       mockKeystoreFetchAndGet("registrationID", Some("reg123"))
 
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", groupBlock))
-      when(mockGroupServiceDeprecated.retrieveGroups(any[String])(any[HeaderCarrier]))
+      when(mockGroupService.retrieveGroups(any[String])(any[HeaderCarrier]))
         .thenReturn(Future.successful(None))
       when(mockCompanyRegistrationConnector.fetchCompanyName(any[String]())(any[HeaderCarrier]()))
         .thenReturn(Future.successful("Company Name"))
@@ -175,7 +165,7 @@ class GroupReliefControllerSpec extends SCRSSpec with WithFakeApplication with M
       mockKeystoreFetchAndGet("registrationID", Some("reg123"))
 
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
-      when(mockGroupServiceDeprecated.retrieveGroups(any[String])(any[HeaderCarrier]))
+      when(mockGroupService.retrieveGroups(any[String])(any[HeaderCarrier]))
         .thenReturn(Future.successful(None))
       when(mockCompanyRegistrationConnector.fetchCompanyName(any[String]())(any[HeaderCarrier]()))
         .thenReturn(Future.successful("Company Name"))
@@ -193,12 +183,12 @@ class GroupReliefControllerSpec extends SCRSSpec with WithFakeApplication with M
       mockKeystoreFetchAndGet("registrationID", Some("reg123"))
 
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
-      when(mockGroupServiceDeprecated.retrieveGroups(any[String])(any[HeaderCarrier]))
+      when(mockGroupService.retrieveGroups(any[String])(any[HeaderCarrier]))
         .thenReturn(Future.successful(None))
       when(mockCompanyRegistrationConnector.fetchCompanyName(any[String]())(any[HeaderCarrier]()))
         .thenReturn(Future.successful("Company Name"))
-      when(mockGroupServiceDeprecated.updateGroupRelief(any[Boolean], any[Option[Groups]], any[String])(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Groups(true, None, None, None)))
+      when(mockGroupService.updateGroupRelief(any[Boolean], any[String])(any[HeaderCarrier]))
+        .thenReturn(Future.successful(Groups(groupRelief = true, None, None, None)))
 
       submitWithAuthorisedUser(controller.submit(), FakeRequest().withFormUrlEncodedBody("groupRelief" -> "true")) {
         result =>
@@ -211,12 +201,12 @@ class GroupReliefControllerSpec extends SCRSSpec with WithFakeApplication with M
       mockKeystoreFetchAndGet("registrationID", Some("reg123"))
 
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
-      when(mockGroupServiceDeprecated.retrieveGroups(any[String])(any[HeaderCarrier]))
+      when(mockGroupService.retrieveGroups(any[String])(any[HeaderCarrier]))
         .thenReturn(Future.successful(None))
       when(mockCompanyRegistrationConnector.fetchCompanyName(any[String]())(any[HeaderCarrier]()))
         .thenReturn(Future.successful("Company Name"))
-      when(mockGroupServiceDeprecated.updateGroupRelief(any[Boolean], any[Option[Groups]], any[String])(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Groups(true, None, None, None)))
+      when(mockGroupService.updateGroupRelief(any[Boolean], any[String])(any[HeaderCarrier]))
+        .thenReturn(Future.successful(Groups(groupRelief = true, None, None, None)))
 
       submitWithAuthorisedUser(controller.submit(), FakeRequest().withFormUrlEncodedBody("groupRelief" -> "false")) {
         result =>
@@ -229,12 +219,12 @@ class GroupReliefControllerSpec extends SCRSSpec with WithFakeApplication with M
       mockKeystoreFetchAndGet("registrationID", Some("reg123"))
 
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
-      when(mockGroupServiceDeprecated.retrieveGroups(any[String])(any[HeaderCarrier]))
+      when(mockGroupService.retrieveGroups(any[String])(any[HeaderCarrier]))
         .thenReturn(Future.successful(None))
       when(mockCompanyRegistrationConnector.fetchCompanyName(any[String]())(any[HeaderCarrier]()))
         .thenReturn(Future.successful("d"))
-      when(mockGroupServiceDeprecated.updateGroupRelief(any[Boolean], any[Option[Groups]], any[String])(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Groups(true, None, None, None)))
+      when(mockGroupService.updateGroupRelief(any[Boolean], any[String])(any[HeaderCarrier]))
+        .thenReturn(Future.successful(Groups(groupRelief = true, None, None, None)))
 
       submitWithAuthorisedUser(controller.submit(), FakeRequest().withFormUrlEncodedBody("groupRelief" -> "maybe")) {
         result =>
