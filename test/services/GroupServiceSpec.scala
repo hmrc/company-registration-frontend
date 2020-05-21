@@ -52,6 +52,60 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
     }
   }
 
+  "updateGroupRelief" should {
+    val defaultGroups = Groups(groupRelief = false, None, None, None)
+    val groups = Groups(
+      groupRelief = true,
+      Some(GroupCompanyName("foo", "Other")),
+      Some(GroupsAddressAndType("ALF", NewAddress("1 abc", "2 abc", Some("3 abc"), Some("4 abc"), Some("ZZ1 1ZZ"), Some("country A")))),
+      Some(GroupUTR(Some("1234567890")))
+    )
+
+    "return empty groups with relief = false when choosing false with prepop data" in new Setup {
+      when(mockCompanyRegistrationConnector.getGroups(any())(any()))
+        .thenReturn(Some(groups))
+      when(mockCompanyRegistrationConnector.updateGroups(any(), any())(any()))
+        .thenReturn(Future.successful(defaultGroups))
+
+      val res: Groups = await(service.updateGroupRelief(groupRelief = false, "foo"))
+      res shouldBe defaultGroups
+      verify(mockCompanyRegistrationConnector, times(1)).updateGroups(any(), any())(any())
+    }
+
+    "return empty groups with relief = false when choosing false with no prepop data" in new Setup {
+      when(mockCompanyRegistrationConnector.getGroups(any())(any()))
+        .thenReturn(None)
+      when(mockCompanyRegistrationConnector.updateGroups(any(), any())(any()))
+        .thenReturn(Future.successful(defaultGroups))
+
+      val res: Groups = await(service.updateGroupRelief(groupRelief = false, "foo"))
+      res shouldBe defaultGroups
+      verify(mockCompanyRegistrationConnector, times(1)).updateGroups(any(), any())(any())
+    }
+
+    "return empty groups with relief = truew when choosing true with no prepop data" in new Setup {
+      when(mockCompanyRegistrationConnector.getGroups(any())(any()))
+        .thenReturn(None)
+      when(mockCompanyRegistrationConnector.updateGroups(any(), any())(any()))
+        .thenReturn(Future.successful(defaultGroups.copy(groupRelief = true)))
+
+      val res: Groups = await(service.updateGroupRelief(groupRelief = true, "foo"))
+      res shouldBe defaultGroups.copy(groupRelief = true)
+      verify(mockCompanyRegistrationConnector, times(1)).updateGroups(any(), any())(any())
+    }
+
+    "return groups with relief = true when choosing true with prepop data" in new Setup {
+      when(mockCompanyRegistrationConnector.getGroups(any())(any()))
+        .thenReturn(Some(groups))
+      when(mockCompanyRegistrationConnector.updateGroups(any(), any())(any()))
+        .thenReturn(Future.successful(groups))
+
+      val res: Groups = await(service.updateGroupRelief(groupRelief = true, "foo"))
+      res shouldBe groups
+      verify(mockCompanyRegistrationConnector, times(1)).updateGroups(any(), any())(any())
+    }
+  }
+
   "updateGroupAddress" should {
     val groups = Groups(
       groupRelief = true,

@@ -33,6 +33,15 @@ class GroupService @Inject()(val keystoreConnector: KeystoreConnector,
 
   val votingRightsThreshold: Int = 75
 
+  def updateGroupRelief(groupRelief: Boolean, registrationId: String)(implicit hc: HeaderCarrier): Future[Groups] = {
+    compRegConnector.getGroups(registrationId).flatMap {
+      case Some(groups) if groupRelief =>
+        compRegConnector.updateGroups(registrationId, groups.copy(groupRelief = groupRelief))
+      case _ =>
+        compRegConnector.updateGroups(registrationId, Groups(groupRelief, None, None, None))
+    }
+  }
+
   def updateGroupUtr(groupUtr: GroupUTR, groups: Groups, registrationId: String)(implicit hc: HeaderCarrier): Future[Groups] = {
     compRegConnector.updateGroups(registrationId, groups.copy(groupUTR = Some(groupUtr)))
   }
@@ -88,7 +97,7 @@ class GroupService @Inject()(val keystoreConnector: KeystoreConnector,
   }
 
   def updateGroupAddress(address: GroupsAddressAndType, registrationId: String)(implicit hc: HeaderCarrier): Future[Groups] = {
-    retrieveGroups(registrationId).flatMap {
+    compRegConnector.getGroups(registrationId).flatMap {
       case Some(groups) =>
         val updatedGroupsBlock =
           if (groups.addressAndType.contains(address)) {
