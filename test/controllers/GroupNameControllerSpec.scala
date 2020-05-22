@@ -21,16 +21,15 @@ import config.FrontendAppConfig
 import controllers.groups.GroupNameController
 import helpers.SCRSSpec
 import models.{Email, NewAddress, _}
+import org.mockito.Matchers
 import org.mockito.Matchers.any
 import org.mockito.Mockito._
-import org.mockito.{ArgumentMatcher, Matchers}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.i18n.MessagesApi
-import play.api.libs.json.Json
-import play.api.mvc.{Request, Result, Results}
+import play.api.libs.json.{JsValue, Json}
+import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services.GroupPageEnum
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.test.WithFakeApplication
 
@@ -38,30 +37,24 @@ import scala.concurrent.Future
 
 class GroupNameControllerSpec extends SCRSSpec with WithFakeApplication with MockitoSugar with AuthBuilder {
 
+  implicit val appConfig: FrontendAppConfig = fakeApplication.injector.instanceOf[FrontendAppConfig]
+
   class Setup {
-    implicit val r = FakeRequest()
-    val controller = new GroupNameController {
-      val groupService = mockGroupServiceDeprecated
-      val authConnector = mockAuthConnector
-      val keystoreConnector = mockKeystoreConnector
-      val metaDataService = mockMetaDataService
-      override val compRegConnector = mockCompanyRegistrationConnector
-      implicit val appConfig: FrontendAppConfig = fakeApplication.injector.instanceOf[FrontendAppConfig]
-      override val messagesApi = fakeApplication.injector.instanceOf[MessagesApi]
-      val theFunction = showFunc(_: Groups, _: String)(_: Request[_])
-      val submitFunction = submitFunc("1")(_: Groups)(_: Request[_])
-    }
+    implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+    val controller = new GroupNameController(
+      mockAuthConnector,
+      mockGroupService,
+      mockCompanyRegistrationConnector,
+      mockKeystoreConnector,
+      fakeApplication.injector.instanceOf[MessagesApi]
+    )
 
-    case class funcMatcher(func: Groups => Future[Result]) extends ArgumentMatcher[Groups => Future[Result]] {
-      override def matches(oarg: scala.Any): Boolean = true
-    }
-
-    def cTDoc(status: String, groupBlock: String) = Json.parse(
+    def cTDoc(status: String, groupBlock: String): JsValue = Json.parse(
       s"""
          | {
          |    "internalId" : "Int-f9bf61e1-9f5e-42b6-8676-0949fb1253e7",
          |    "registrationID" : "2971",
-         |    "status" : "${status}",
+         |    "status" : "$status",
          |    "formCreationTimestamp" : "2019-04-09T09:06:55+01:00",
          |    "language" : "en",
          |    "confirmationReferences" : {
@@ -100,7 +93,7 @@ class GroupNameControllerSpec extends SCRSSpec with WithFakeApplication with Moc
          |        "verified" : true,
          |        "return-link-email-sent" : false
          |    }
-         |    ${groupBlock}
+         |    $groupBlock
          |}""".stripMargin)
 
   }
@@ -133,7 +126,7 @@ class GroupNameControllerSpec extends SCRSSpec with WithFakeApplication with Moc
     mockKeystoreFetchAndGet("registrationID", Some("reg123"))
     CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("held", ""))
 
-    when(mockGroupServiceDeprecated.retrieveGroups(Matchers.any[String])(Matchers.any[HeaderCarrier]))
+    when(mockGroupService.retrieveGroups(Matchers.any[String])(Matchers.any[HeaderCarrier]))
       .thenReturn(Future.successful(None))
 
     showWithAuthorisedUser(controller.show()) {
@@ -147,18 +140,20 @@ class GroupNameControllerSpec extends SCRSSpec with WithFakeApplication with Moc
   }
 
   "display the page whilst the user is authorised" in new Setup {
-    val testGroups = Groups(true, Some(GroupCompanyName("testGroupCompanyname1", "type")),
+    val testGroups = Groups(
+      groupRelief = true,
+      Some(GroupCompanyName("testGroupCompanyname1", "type")),
       Some(GroupsAddressAndType("type", NewAddress("l1", "l2", None, None, None, None, None))),
-      None)
+      None
+    )
     mockKeystoreFetchAndGet("registrationID", Some("1"))
-    val mockOfFunc = (g: Groups) => Future.successful(Results.Ok(""))
     CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
-    when(mockCompanyRegistrationConnector.retrieveEmail(any())(any())).thenReturn(Future.successful(Some(Email("verified@email", "GG", true, true, true))))
-    when(mockGroupServiceDeprecated.retrieveGroups(any())(any())).thenReturn(Future.successful(Some(testGroups)))
-    when(mockGroupServiceDeprecated.checkGroupNameMatchAndPotentiallyDropOptionalBlocks(any(), any())(any()))
+    when(mockCompanyRegistrationConnector.retrieveEmail(any())(any()))
+      .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
+    when(mockGroupService.retrieveGroups(any())(any()))
+      .thenReturn(Future.successful(Some(testGroups)))
+    when(mockGroupService.returnValidShareholdersAndUpdateGroups(any(), any())(any()))
       .thenReturn(Future.successful(List("1"), testGroups))
-    val res: Future[Result] = Future.successful(await(controller.theFunction(testGroups, "1", r)))
-    when(mockGroupServiceDeprecated.groupsUserSkippedPage(any[Option[Groups]](), any[GroupPageEnum.Value]())(Matchers.argThat(funcMatcher(mockOfFunc)))).thenReturn(res)
 
     showWithAuthorisedUser(controller.show) {
       result =>
@@ -167,17 +162,20 @@ class GroupNameControllerSpec extends SCRSSpec with WithFakeApplication with Moc
   }
 
   "display and empty page whilst the user is authorised and no name stored in CR" in new Setup {
-    val testGroups = Groups(true, None, None,None)
-
+    val testGroups = Groups(
+      groupRelief = true,
+      None,
+      None,
+      None
+    )
     mockKeystoreFetchAndGet("registrationID", Some("1"))
-    val mockOfFunc = (g: Groups) => Future.successful(Results.Ok(""))
     CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
-    when(mockCompanyRegistrationConnector.retrieveEmail(any())(any())).thenReturn(Future.successful(Some(Email("verified@email", "GG", true, true, true))))
-    when(mockGroupServiceDeprecated.retrieveGroups(any())(any())).thenReturn(Future.successful(Some(testGroups)))
-    when(mockGroupServiceDeprecated.checkGroupNameMatchAndPotentiallyDropOptionalBlocks(any(), any())(any()))
+    when(mockCompanyRegistrationConnector.retrieveEmail(any())(any()))
+      .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
+    when(mockGroupService.retrieveGroups(any())(any()))
+      .thenReturn(Future.successful(Some(testGroups)))
+    when(mockGroupService.returnValidShareholdersAndUpdateGroups(any(), any())(any()))
       .thenReturn(Future.successful(List("1"), testGroups))
-    val res: Future[Result] = Future.successful(await(controller.theFunction(testGroups, "1", r)))
-    when(mockGroupServiceDeprecated.groupsUserSkippedPage(any[Option[Groups]](), any[GroupPageEnum.Value]())(Matchers.argThat(funcMatcher(mockOfFunc)))).thenReturn(res)
 
     showWithAuthorisedUser(controller.show) {
       result =>
@@ -186,19 +184,22 @@ class GroupNameControllerSpec extends SCRSSpec with WithFakeApplication with Moc
   }
 
   "return a bad request if the form submitted is incorrect" in new Setup {
-    val testGroups = Groups(true, Some(GroupCompanyName("testGroupCompanyname1", "type")),
+    val testGroups = Groups(
+      groupRelief = true,
+      Some(GroupCompanyName("testGroupCompanyname1", "type")),
       Some(GroupsAddressAndType("type", NewAddress("l1", "l2", None, None, None, None, None))),
-      None)
+      None
+    )
     mockKeystoreFetchAndGet("registrationID", Some("1"))
-    val mockOfFunc = (g: Groups) => Future.successful(Results.Ok(""))
     CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
-    when(mockCompanyRegistrationConnector.retrieveEmail(any())(any())).thenReturn(Future.successful(Some(Email("verified@email", "GG", true, true, true))))
-    when(mockGroupServiceDeprecated.retrieveGroups(any())(any())).thenReturn(Future.successful(Some(testGroups)))
-    when(mockGroupServiceDeprecated.checkGroupNameMatchAndPotentiallyDropOptionalBlocks(any(), any())(any()))
+    when(mockCompanyRegistrationConnector.retrieveEmail(any())(any()))
+      .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
+    when(mockGroupService.retrieveGroups(any())(any()))
+      .thenReturn(Future.successful(Some(testGroups)))
+    when(mockGroupService.returnValidShareholdersAndUpdateGroups(any(), any())(any()))
       .thenReturn(Future.successful(List("1"), testGroups))
-    when(mockGroupServiceDeprecated.updateGroupName(any(), any(), any())(any())).thenReturn(Future.successful(testGroups))
-    val res: Future[Result] = Future.successful(await(controller.submitFunction(testGroups, FakeRequest().withFormUrlEncodedBody("group-Name" -> "otherName", "other-Name" -> "bob co"))))
-    when(mockGroupServiceDeprecated.groupsUserSkippedPage(any[Option[Groups]](), any[GroupPageEnum.Value]())(Matchers.argThat(funcMatcher(mockOfFunc)))).thenReturn(res)
+    when(mockGroupService.updateGroupName(any(), any(), any())(any()))
+      .thenReturn(Future.successful(testGroups))
 
     submitWithAuthorisedUser(controller.submit(), FakeRequest().withFormUrlEncodedBody(
       "group-Name" -> "otherName",
@@ -211,19 +212,22 @@ class GroupNameControllerSpec extends SCRSSpec with WithFakeApplication with Moc
 
 
   "return a 303 if the user has entered OTHER name" in new Setup {
-    val testGroups = Groups(true, Some(GroupCompanyName("testGroupCompanyname1", "type")),
+    val testGroups = Groups(
+      groupRelief = true,
+      Some(GroupCompanyName("testGroupCompanyname1", "type")),
       Some(GroupsAddressAndType("type", NewAddress("l1", "l2", None, None, None, None, None))),
-      None)
+      None
+    )
     mockKeystoreFetchAndGet("registrationID", Some("1"))
-    val mockOfFunc = (g: Groups) => Future.successful(Results.Ok(""))
     CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
-    when(mockCompanyRegistrationConnector.retrieveEmail(any())(any())).thenReturn(Future.successful(Some(Email("verified@email", "GG", true, true, true))))
-    when(mockGroupServiceDeprecated.retrieveGroups(any())(any())).thenReturn(Future.successful(Some(testGroups)))
-    when(mockGroupServiceDeprecated.checkGroupNameMatchAndPotentiallyDropOptionalBlocks(any(), any())(any()))
+    when(mockCompanyRegistrationConnector.retrieveEmail(any())(any()))
+      .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
+    when(mockGroupService.retrieveGroups(any())(any()))
+      .thenReturn(Future.successful(Some(testGroups)))
+    when(mockGroupService.returnValidShareholdersAndUpdateGroups(any(), any())(any()))
       .thenReturn(Future.successful(List("1"), testGroups))
-    when(mockGroupServiceDeprecated.updateGroupName(any(), any(), any())(any())).thenReturn(Future.successful(testGroups))
-    val res: Future[Result] = Future.successful(await(controller.submitFunction(testGroups, FakeRequest().withFormUrlEncodedBody("groupName" -> "otherName", "otherName" -> "bob co"))))
-    when(mockGroupServiceDeprecated.groupsUserSkippedPage(any[Option[Groups]](), any[GroupPageEnum.Value]())(Matchers.argThat(funcMatcher(mockOfFunc)))).thenReturn(res)
+    when(mockGroupService.updateGroupName(any(), any(), any())(any()))
+      .thenReturn(Future.successful(testGroups))
 
     submitWithAuthorisedUser(controller.submit(), FakeRequest().withFormUrlEncodedBody(
       "groupName" -> "otherName",
@@ -237,19 +241,22 @@ class GroupNameControllerSpec extends SCRSSpec with WithFakeApplication with Moc
 
 
   "return a 303 if the user has selected the pre-popped name radio button" in new Setup {
-    val testGroups = Groups(true, Some(GroupCompanyName("testGroupCompanyname1", "type")),
+    val testGroups = Groups(
+      groupRelief = true,
+      Some(GroupCompanyName("testGroupCompanyname1", "type")),
       Some(GroupsAddressAndType("type", NewAddress("l1", "l2", None, None, None, None, None))),
-      None)
+      None
+    )
     mockKeystoreFetchAndGet("registrationID", Some("1"))
-    val mockOfFunc = (g: Groups) => Future.successful(Results.Ok(""))
     CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
-    when(mockCompanyRegistrationConnector.retrieveEmail(any())(any())).thenReturn(Future.successful(Some(Email("verified@email", "GG", true, true, true))))
-    when(mockGroupServiceDeprecated.retrieveGroups(any())(any())).thenReturn(Future.successful(Some(testGroups)))
-    when(mockGroupServiceDeprecated.checkGroupNameMatchAndPotentiallyDropOptionalBlocks(any(), any())(any()))
+    when(mockCompanyRegistrationConnector.retrieveEmail(any())(any()))
+      .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
+    when(mockGroupService.retrieveGroups(any())(any()))
+      .thenReturn(Future.successful(Some(testGroups)))
+    when(mockGroupService.returnValidShareholdersAndUpdateGroups(any(), any())(any()))
       .thenReturn(Future.successful(List("1"), testGroups))
-    when(mockGroupServiceDeprecated.updateGroupName(any(), any(), any())(any())).thenReturn(Future.successful(testGroups))
-    val res: Future[Result] = Future.successful(await(controller.submitFunction(testGroups, FakeRequest().withFormUrlEncodedBody("groupName" -> "Bob Group", "otherName" -> ""))))
-    when(mockGroupServiceDeprecated.groupsUserSkippedPage(any[Option[Groups]](), any[GroupPageEnum.Value]())(Matchers.argThat(funcMatcher(mockOfFunc)))).thenReturn(res)
+    when(mockGroupService.updateGroupName(any(), any(), any())(any()))
+      .thenReturn(Future.successful(testGroups))
 
     submitWithAuthorisedUser(controller.submit(), FakeRequest().withFormUrlEncodedBody(
       "groupName" -> "Bob Group",
