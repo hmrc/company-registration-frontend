@@ -25,7 +25,7 @@ trait ALFStub extends WiremockHelper {
 
   def stubInitAlfJourney(redirectLocation: String): StubMapping =
     stubPost(
-      url = "/api/init",
+      url = "/api/v2/init",
       status = 200,
       responseBody = "{}",
       responseHeader = ("Location", redirectLocation)

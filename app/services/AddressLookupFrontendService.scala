@@ -54,21 +54,3 @@ class AddressLookupFrontendService @Inject()(addressLookupFrontendConnector: Add
   def getAddress(id: String)(implicit hc: HeaderCarrier): Future[NewAddress] = addressLookupFrontendConnector.getAddress(id)
 
 }
-
-case class JourneyConfig(topLevelConfig: JsObject,
-                         timeoutConfig: JsObject,
-                         lookupPageConfig: JsObject,
-                         selectPageConfig: JsObject,
-                         editPageConfig: JsObject,
-                         confirmPageConfig: JsObject
-                        ) {
-
-  def deepMerge: JsObject = {
-    topLevelConfig
-      .deepMerge(timeoutConfig)
-      .deepMerge(lookupPageConfig)
-      .deepMerge(selectPageConfig)
-      .deepMerge(editPageConfig)
-      .deepMerge(confirmPageConfig)
-  }
-}

@@ -131,58 +131,69 @@ class OtherBusinessAddressControllerISpec extends IntegrationSpecBase
       res.status shouldBe SEE_OTHER
       res.redirectLocation should contain("/test")
 
-      val onRampConfig: AlfJourneyConfig = getPOSTRequestJsonBody("/api/init").as[AlfJourneyConfig]
+      val onRampConfig: AlfJourneyConfig = getPOSTRequestJsonBody("/api/v2/init").as[AlfJourneyConfig]
 
       val expectedConfig: AlfJourneyConfig = AlfJourneyConfig(
-        topLevelConfig = TopLevelConfig(
+        version = AlfJourneyConfig.defaultConfigVersion,
+        options = JourneyOptions(
           continueUrl = "http://localhost:9970/register-your-company/save-alf-address-takeovers",
           homeNavHref = "http://www.hmrc.gov.uk/",
-          navTitle = "Set up a limited company and register for Corporation Tax",
+          deskProServiceName = "SCRS",
           showPhaseBanner = true,
           alphaPhase = false,
-          phaseBannerHtml = "This is a new service. Help us improve it - send your <a href='https://www.tax.service.gov.uk/register-for-paye/feedback'>feedback</a>.",
-          includeHMRCBranding = false,
           showBackButtons = true,
-          deskProServiceName = "SCRS"
+          includeHMRCBranding = false,
+
+          selectPageConfig = SelectPageConfig(
+            proposalListLimit = 30,
+            showSearchAgainLink = true
+          ),
+
+          confirmPageConfig = ConfirmPageConfig(
+            showSearchAgainLink = false,
+            showSubHeadingAndInfo = false,
+            showChangeLink = true
+          ),
+
+          timeoutConfig = TimeoutConfig(
+            timeoutAmount = 999999,
+            timeoutUrl = "http://localhost:9970/register-your-company/error/timeout"
+          )
         ),
-        lookupPageConfig = LookupPageConfig(
-          title = "Find the address",
-          heading = s"Find $testBusinessName’s address",
-          filterLabel = "Property name or number",
-          submitLabel = "Find address",
-          manualAddressLinkText = "Enter address manually"
-        ),
-        selectPageConfig = SelectPageConfig(
-          title = "Choose an address",
-          heading = "Choose an address",
-          proposalListLimit = 30,
-          showSearchAgainLink = true,
-          searchAgainLinkText = "Search again",
-          editAddressLinkText = "The address is not on the list"
-        ),
-        editPageConfig = EditPageConfig(
-          title = "Enter an address",
-          heading = "Enter an address",
-          line1Label = "Address line 1",
-          line2Label = "Address line 2",
-          line3Label = "Address line 3",
-          showSearchAgainLink = true
-        ),
-        confirmPageConfig = ConfirmPageConfig(
-          title = "Confirm the address",
-          heading = s"Confirm $testBusinessName’s address",
-          showSubHeadingAndInfo = false,
-          submitLabel = "Confirm and continue",
-          showSearchAgainLink = false,
-          showChangeLink = true,
-          changeLinkText = "Change"
-        ),
-        timeoutConfig = TimeoutConfig(
-          timeoutAmount = 999999,
-          timeoutUrl = "http://localhost:9970/register-your-company/error/timeout"
+        labels = JourneyLabels(en = LanguageLabels(
+          appLevelLabels = AppLevelLabels(
+            navTitle = "Set up a limited company and register for Corporation Tax",
+            phaseBannerHtml = "This is a new service. Help us improve it - send your <a href='https://www.tax.service.gov.uk/register-for-paye/feedback'>feedback</a>."
+          ),
+          SelectPageLabels(
+            title = "Choose an address",
+            heading = s"Choose an address",
+            searchAgainLinkText = "Search again",
+            editAddressLinkText = "The address is not on the list"
+          ),
+          LookupPageLabels(
+            title = "Find the address",
+            heading = s"Find $testBusinessName’s address",
+            filterLabel = "Property name or number",
+            submitLabel = "Find address",
+            manualAddressLinkText = "Enter address manually"
+          ),
+          EditPageLabels(
+            title = "Enter an address",
+            heading = "Enter an address",
+            line1Label = "Address line 1",
+            line2Label = "Address line 2",
+            line3Label = "Address line 3"
+          ),
+          ConfirmPageLabels(
+            title = "Confirm the address",
+            heading = s"Confirm $testBusinessName’s address",
+            submitLabel = "Confirm and continue",
+            changeLinkText = "Change"
+          )
         )
       )
-
+      )
       onRampConfig shouldBe expectedConfig
     }
   }

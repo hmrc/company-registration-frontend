@@ -29,11 +29,11 @@ trait AddressLookupConfigBuilderServiceMock extends MockitoSugar {
 
   val mockAddressLookupConfigBuilderService: AddressLookupConfigBuilderService = mock[AddressLookupConfigBuilderService]
 
-  def mockBuildConfig(handbackLocation: Call,
-                      specificJourneyKey: String,
-                      lookupPageHeading: String,
-                      confirmPageHeading: String
-                     )(response: AlfJourneyConfig): OngoingStubbing[AlfJourneyConfig] =
+  def mockBuildLegacyConfig(handbackLocation: Call,
+                            specificJourneyKey: String,
+                            lookupPageHeading: String,
+                            confirmPageHeading: String
+                           )(response: AlfJourneyConfig): OngoingStubbing[AlfJourneyConfig] =
     when(
       mockAddressLookupConfigBuilderService.buildConfig(
         Matchers.eq(handbackLocation),

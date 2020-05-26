@@ -75,56 +75,71 @@ class AddressLookupFrontendServiceSpec extends UnitSpec
       val testHandbackLocation: Call = Call("", "/testUrl")
 
       val config: AlfJourneyConfig = AlfJourneyConfig(
-        topLevelConfig = TopLevelConfig(
-          continueUrl = "testCompanyRegUrl/testUrl",
+        version = AlfJourneyConfig.defaultConfigVersion,
+        options = JourneyOptions(
+          continueUrl = "testCompanyRegUrl/foo",
           homeNavHref = "http://www.hmrc.gov.uk/",
-          navTitle = "Set up a limited company and register for Corporation Tax",
+          deskProServiceName = "SCRS",
           showPhaseBanner = true,
           alphaPhase = false,
-          phaseBannerHtml = "This is a new TestService. Help us improve it - send your <a href='https://www.tax.TestService.gov.uk/register-for-paye/feedback'>feedback</a>.",
-          includeHMRCBranding = false,
           showBackButtons = true,
-          deskProServiceName = "SCRS"
+          includeHMRCBranding = false,
+
+          selectPageConfig = SelectPageConfig(
+            proposalListLimit = 1,
+            showSearchAgainLink = true
+          ),
+
+          confirmPageConfig = ConfirmPageConfig(
+            showSearchAgainLink = true,
+            showSubHeadingAndInfo = false,
+            showChangeLink = true
+          ),
+
+          timeoutConfig = TimeoutConfig(
+            timeoutAmount = 22666,
+            timeoutUrl = "testCompanyRegUrl/register-your-company/error/timeout"
+          )
         ),
-        lookupPageConfig = LookupPageConfig(
-          title = "Find the address",
-          heading = "Find testBusinessName’s address",
-          filterLabel = "Property name or number",
-          submitLabel = "Find address",
-          manualAddressLinkText = "Enter address manually"
-        ),
-        selectPageConfig = SelectPageConfig(
-          title = "Choose an address",
-          heading = "Choose an address",
-          proposalListLimit = 30,
-          showSearchAgainLink = true,
-          searchAgainLinkText = "Search again",
-          editAddressLinkText = "The address is not on the list"
-        ),
-        editPageConfig = EditPageConfig(
-          title = "Enter an address",
-          heading = "Enter an address",
-          line1Label = "Address line 1",
-          line2Label = "Address line 2",
-          line3Label = "Address line 3",
-          showSearchAgainLink = true
-        ),
-        confirmPageConfig = ConfirmPageConfig(
-          title = "Confirm the address",
-          heading = "Confirm testBusinessName’s address",
-          showSubHeadingAndInfo = false,
-          submitLabel = "Confirm and continue",
-          showSearchAgainLink = false,
-          showChangeLink = true,
-          changeLinkText = "Change"
-        ),
-        timeoutConfig = TimeoutConfig(
-          timeoutAmount = 22666,
-          timeoutUrl = "testCompanyRegUrl/register-your-company/error/timeout"
+        labels = JourneyLabels(en = LanguageLabels(
+          appLevelLabels = AppLevelLabels(
+            navTitle = "Set up a limited company and register for Corporation Tax",
+            phaseBannerHtml = "\"This is a new service. Help us improve it - send your <a href='https://www.tax.service.gov.uk/register-for-paye/feedback'>feedback</a>.\""
+          ),
+
+          SelectPageLabels(
+            title = "Choose an address",
+            heading = "Choose an address",
+            searchAgainLinkText = "Search again",
+            editAddressLinkText = "The address is not on the list"
+          ),
+
+          LookupPageLabels(
+            title = "Choose an address",
+            heading = "Choose an address",
+            filterLabel = "Filter address",
+            submitLabel = "Confirm and continue",
+            manualAddressLinkText = "Enter an address"
+          ),
+          EditPageLabels(
+            title = "Enter an address",
+            heading = "Enter an address",
+            line1Label = "Address line 1",
+            line2Label = "Address line 2",
+            line3Label = "Address line 3"
+          ),
+          ConfirmPageLabels(
+            title = "Confirm the address",
+            heading = "Confirm where the company will carry out most of its business activities",
+            submitLabel = "Confirm and continue",
+            changeLinkText = "Change"
+          )
         )
+        )
+
       )
 
-      mockBuildConfig(
+      mockBuildLegacyConfig(
         handbackLocation = testHandbackLocation,
         specificJourneyKey = "takeovers",
         lookupPageHeading = messagesApi("page.addressLookup.takeovers.otherBusinessAddress.lookup.heading", "testBusinessName"),
