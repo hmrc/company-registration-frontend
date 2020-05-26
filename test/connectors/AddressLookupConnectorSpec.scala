@@ -70,21 +70,4 @@ class AddressLookupConnectorSpec extends SCRSSpec with WithFakeApplication {
     }
   }
 
-  "getOnRampURL" should {
-
-    val redirectUrl = "test/return/Url"
-    val call = Call("Redirect", redirectUrl)
-    def alfResponse(withHeader: Boolean = true) = HttpResponse(200, None, responseHeaders = if(withHeader) Map("Location" -> List(redirectUrl)) else Map())
-
-    "return url" in new Setup {
-      mockHttpPOST[JsObject, HttpResponse]("testUrl", alfResponse())
-
-      await(await(connector.getOnRampURL(Json.obj()))) shouldBe redirectUrl
-    }
-    "return an ALFLocationHeaderNotSet" in new Setup {
-      mockHttpPOST[JsObject, HttpResponse]("testUrl", alfResponse(false))
-
-      intercept[ALFLocationHeaderNotSet](await(connector.getOnRampURL(Json.obj())))
-    }
-  }
 }

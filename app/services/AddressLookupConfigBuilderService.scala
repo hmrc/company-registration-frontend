@@ -30,23 +30,15 @@ class AddressLookupConfigBuilderService @Inject()(appConfig: FrontendAppConfig) 
 
   def buildConfig(handbackLocation: Call, specificJourneyKey: String, lookupPageHeading: String, confirmPageHeading: String)(implicit messagesApi: MessagesApi): AlfJourneyConfig = {
 
-    val messageKeyWithSpecKey: String => String = (key: String) => {
-      val journeySpecificAlfMessageKey = s"page.addressLookup.$specificJourneyKey.$key"
-      val addressLookupMessageKey = s"page.addressLookup.$key"
+    val selectPageConfig = SelectPageConfig(
+      proposalListLimit = 30,
+      showSearchAgainLink = true
+    )
 
-      if (messagesApi.isDefinedAt(addressLookupMessageKey)) addressLookupMessageKey else journeySpecificAlfMessageKey
-    }
-
-    val topLevelConfig = TopLevelConfig(
-      continueUrl = s"$companyRegistrationFrontendURL${handbackLocation.url}",
-      homeNavHref = "http://www.hmrc.gov.uk/",
-      navTitle = messagesApi("common.service.name"),
-      showPhaseBanner = true,
-      alphaPhase = false,
-      phaseBannerHtml = "This is a new service. Help us improve it - send your <a href='https://www.tax.service.gov.uk/register-for-paye/feedback'>feedback</a>.",
-      includeHMRCBranding = false,
-      showBackButtons = true,
-      deskProServiceName = "SCRS"
+    val confirmPageConfig = ConfirmPageConfig(
+      showSubHeadingAndInfo = false,
+      showSearchAgainLink = false,
+      showChangeLink = true
     )
 
     val timeoutConfig = TimeoutConfig(
@@ -54,51 +46,70 @@ class AddressLookupConfigBuilderService @Inject()(appConfig: FrontendAppConfig) 
       timeoutUrl = s"$companyRegistrationFrontendURL${controllers.reg.routes.SignInOutController.timeoutShow().url}"
     )
 
-    val lookupPageConfig = LookupPageConfig(
-      title = messagesApi(messageKeyWithSpecKey("lookup.title")),
+    val journeyOptions = JourneyOptions(
+      continueUrl = s"$companyRegistrationFrontendURL${handbackLocation.url}",
+      homeNavHref = "http://www.hmrc.gov.uk/",
+      showPhaseBanner = true,
+      alphaPhase = false,
+      includeHMRCBranding = false,
+      showBackButtons = true,
+      deskProServiceName = "SCRS",
+      selectPageConfig = selectPageConfig,
+      confirmPageConfig = confirmPageConfig,
+      timeoutConfig = timeoutConfig
+    )
+
+    val appLevelLabels = AppLevelLabels(
+      navTitle = messagesApi("common.service.name"),
+      phaseBannerHtml = "This is a new service. Help us improve it - send your <a href='https://www.tax.service.gov.uk/register-for-paye/feedback'>feedback</a>."
+    )
+
+
+    val lookupPageLabels = LookupPageLabels(
+      title = messagesApi("page.addressLookup.lookup.title"),
       heading = lookupPageHeading,
-      filterLabel = messagesApi(messageKeyWithSpecKey("lookup.filter")),
-      submitLabel = messagesApi(messageKeyWithSpecKey("lookup.submit")),
-      manualAddressLinkText = messagesApi(messageKeyWithSpecKey("lookup.manual"))
+      filterLabel = messagesApi("page.addressLookup.lookup.filter"),
+      submitLabel = messagesApi("page.addressLookup.lookup.submit"),
+      manualAddressLinkText = messagesApi("page.addressLookup.lookup.manual")
     )
 
-    val selectPageConfig = SelectPageConfig(
-      title = messagesApi(messageKeyWithSpecKey("select.description")),
-      heading = messagesApi(messageKeyWithSpecKey("select.description")),
-      proposalListLimit = 30,
-      showSearchAgainLink = true,
-      searchAgainLinkText = messagesApi(messageKeyWithSpecKey("select.searchAgain")),
-      editAddressLinkText = messagesApi(messageKeyWithSpecKey("select.editAddress"))
+    val selectPageLabels = SelectPageLabels(
+      title = messagesApi("page.addressLookup.select.description"),
+      heading = messagesApi("page.addressLookup.select.description"),
+      searchAgainLinkText = messagesApi("page.addressLookup.select.searchAgain"),
+      editAddressLinkText = messagesApi("page.addressLookup.select.editAddress")
     )
 
-    val editPageConfig = EditPageConfig(
-      title = messagesApi(messageKeyWithSpecKey("edit.description")),
-      heading = messagesApi(messageKeyWithSpecKey("edit.description")),
-      line1Label = messagesApi(messageKeyWithSpecKey("edit.line1")),
-      line2Label = messagesApi(messageKeyWithSpecKey("edit.line2")),
-      line3Label = messagesApi(messageKeyWithSpecKey("edit.line3")),
-      showSearchAgainLink = true
+    val editPageLabels = EditPageLabels(
+      title = messagesApi("page.addressLookup.edit.description"),
+      heading = messagesApi("page.addressLookup.edit.description"),
+      line1Label = messagesApi("page.addressLookup.edit.line1"),
+      line2Label = messagesApi("page.addressLookup.edit.line2"),
+      line3Label = messagesApi("page.addressLookup.edit.line3")
     )
 
-    val confirmPageConfig = ConfirmPageConfig(
-      title = messagesApi(messageKeyWithSpecKey("confirm.title")),
+    val confirmPageLabels = ConfirmPageLabels(
+      title = messagesApi("page.addressLookup.confirm.title"),
       heading = confirmPageHeading,
-      showSubHeadingAndInfo = false,
-      submitLabel = messagesApi(messageKeyWithSpecKey("confirm.continue")),
-      showSearchAgainLink = false,
-      showChangeLink = true,
-      changeLinkText = messagesApi(messageKeyWithSpecKey("confirm.change"))
+      submitLabel = messagesApi("page.addressLookup.confirm.continue"),
+      changeLinkText = messagesApi("page.addressLookup.confirm.change")
+    )
+
+    val journeyLabels = JourneyLabels(
+      en = LanguageLabels(
+        appLevelLabels,
+        selectPageLabels,
+        lookupPageLabels,
+        editPageLabels,
+        confirmPageLabels
+      )
     )
 
     AlfJourneyConfig(
-      topLevelConfig = topLevelConfig,
-      timeoutConfig = timeoutConfig,
-      lookupPageConfig = lookupPageConfig,
-      selectPageConfig = selectPageConfig,
-      editPageConfig = editPageConfig,
-      confirmPageConfig = confirmPageConfig
+      version = AlfJourneyConfig.defaultConfigVersion,
+      options = journeyOptions,
+      labels = journeyLabels
     )
 
   }
-
 }

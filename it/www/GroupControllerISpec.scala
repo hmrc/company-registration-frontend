@@ -631,7 +631,7 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
 
 
       stubGet(s"/incorporation-information/shareholders/$txid", 400, listOfShareHoldersFromII)
-      stubPost("/api/init", 200, "{}", responseHeader = ("Location", "foo"))
+      stubPost("/api/v2/init", 200, "{}", responseHeader = ("Location", "foo"))
       val fResponse = buildClient(controllers.groups.routes.GroupAddressController.submit.url)
         .withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
         .post(Map("Csrf-Token" -> Seq("nocheck"), "groupAddress" -> Seq("TxAPI")))
