@@ -42,6 +42,21 @@ class GroupService @Inject()(val keystoreConnector: KeystoreConnector,
     }
   }
 
+  def updateGroupName(groupCompanyName: GroupCompanyName, groups: Groups, registrationID: String)(implicit hc: HeaderCarrier): Future[Groups] = {
+    if (groups.nameOfCompany.contains(groupCompanyName)) {
+      compRegConnector.updateGroups(
+        registrationID,
+        groups.copy(nameOfCompany = Some(groupCompanyName))
+      )
+    }
+    else {
+      compRegConnector.updateGroups(
+        registrationID,
+        groups.copy(nameOfCompany = Some(groupCompanyName), addressAndType = None, groupUTR = None)
+      )
+    }
+  }
+
   def updateGroupUtr(groupUtr: GroupUTR, groups: Groups, registrationId: String)(implicit hc: HeaderCarrier): Future[Groups] = {
     compRegConnector.updateGroups(registrationId, groups.copy(groupUTR = Some(groupUtr)))
   }
@@ -122,7 +137,7 @@ class GroupService @Inject()(val keystoreConnector: KeystoreConnector,
     }
   }
 
-  def returnListOfShareholders(txId: String)(implicit hc: HeaderCarrier): Future[Either[Exception, List[Shareholder]]] =
+  def returnListOfShareholders(txId: String)(implicit hc: HeaderCarrier): Future[Either[Exception, List[Shareholder]]] = {
     incorpInfoConnector.returnListOfShareholdersFromTxApi(txId).map { list =>
       list.fold[Either[Exception, List[Shareholder]]](
         e => Left(e),
@@ -131,6 +146,7 @@ class GroupService @Inject()(val keystoreConnector: KeystoreConnector,
         })
       )
     }
+  }
 
   private[services] def fetchTxID(registrationId: String)(implicit hc: HeaderCarrier): Future[String] = {
     compRegConnector.fetchConfirmationReferences(registrationId).map {
@@ -147,6 +163,28 @@ class GroupService @Inject()(val keystoreConnector: KeystoreConnector,
             .map(shareholder => (shareholder.corporate_name, shareholder.address))
             .find(companyName => companyName._1 == groupCompanyName.name).map(address => address._2)
           )
+        )
+      }
+    }
+  }
+
+  def returnValidShareholdersAndUpdateGroups(groups: Groups, registrationId: String)(implicit hc: HeaderCarrier): Future[(List[String], Groups)] = {
+    fetchTxID(registrationId).flatMap { txId =>
+      returnListOfShareholders(txId).flatMap { eitherShareholders =>
+        eitherShareholders.fold(
+          error => Future.successful((List.empty, groups)),
+          iiShareholders => {
+            compRegConnector.shareholderListValidationEndpoint(iiShareholders.map(_.corporate_name)).flatMap { validShareholders =>
+              groups.nameOfCompany match {
+                case Some(nameAndType) if nameAndType.nameType.equals("Other") || validShareholders.contains(nameAndType.name) =>
+                  Future.successful(validShareholders.distinct.filterNot(shName => shName == nameAndType.name && !nameAndType.nameType.equals("Other")), groups)
+                case _ =>
+                  compRegConnector
+                    .updateGroups(registrationId, Groups(groups.groupRelief, None, None, None))
+                    .map(updatedGroups => (validShareholders.distinct, updatedGroups))
+              }
+            }
+          }
         )
       }
     }

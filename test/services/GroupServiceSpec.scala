@@ -508,4 +508,166 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
       res.right.get shouldBe Groups(groupRelief = false, None, None, None)
     }
   }
+
+  "returnValidShareholdersAndUpdateGroups" should {
+    val shareholders = List(
+      Shareholder("foo", Some(75.0), Some(73.0), Some(7.0), CHROAddress("11", "Add L1", Some("Add L2"), "London", "United Kingdom", None, Some("ZZ1 1ZZ"), None)),
+      Shareholder("bar", Some(75.01), Some(0), Some(7.0), CHROAddress("11", "Add L1", Some("Add L2"), "London", "United Kingdom", None, Some("ZZ1 1ZZ"), None))
+    )
+
+    "return Future list of string and groups for OTHER name, no drop occurs in cr even though name matches" in new Setup {
+      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any()))
+        .thenReturn(Future.successful(ConfirmationReferencesSuccessResponse(ConfirmationReferences("footxID", None, None, "foo"))))
+      when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(any()))
+        .thenReturn(Future.successful(Right(shareholders)))
+      when(mockCompanyRegistrationConnector.shareholderListValidationEndpoint(any())(any()))
+        .thenReturn(Future.successful(List("foo", "bar", "wiZZ 123")))
+
+      val res: (List[String], Groups) = await(service.returnValidShareholdersAndUpdateGroups(
+        Groups(groupRelief = true, Some(GroupCompanyName("wiZZ 123", "Other")), None, None),
+        "123"
+      ))
+
+      res._1 shouldBe List("foo", "bar", "wiZZ 123")
+      res._2 shouldBe Groups(groupRelief = true, Some(GroupCompanyName("wiZZ 123", "Other")), None, None)
+      verify(mockCompanyRegistrationConnector, times(0)).updateGroups(any(), any())(any())
+    }
+
+    "return a future list removing duplicates if name not in list and IS other" in new Setup {
+      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any()))
+        .thenReturn(Future.successful(ConfirmationReferencesSuccessResponse(ConfirmationReferences("footxID", None, None, "foo"))))
+      when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(any()))
+        .thenReturn(Future.successful(Right(shareholders)))
+      when(mockCompanyRegistrationConnector.shareholderListValidationEndpoint(any())(any()))
+        .thenReturn(Future.successful(List("foo","foo","foo","bar","bar", "bar", "wiZZ 123")))
+
+      val res: (List[String], Groups) = await(service.returnValidShareholdersAndUpdateGroups(
+        Groups(groupRelief = true, Some(GroupCompanyName("foozbawl", "Other")), None, None),
+        "123"
+      ))
+
+      res._1 shouldBe List("foo", "bar", "wiZZ 123")
+      res._2 shouldBe Groups(groupRelief = true, Some(GroupCompanyName("foozbawl", "Other")), None, None)
+    }
+
+    "return a future list removing duplicates if name IS in list and IS NOT other" in new Setup {
+      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any()))
+        .thenReturn(Future.successful(ConfirmationReferencesSuccessResponse(ConfirmationReferences("footxID", None, None, "foo"))))
+      when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(any()))
+        .thenReturn(Future.successful(Right(shareholders)))
+      when(mockCompanyRegistrationConnector.shareholderListValidationEndpoint(any())(any()))
+        .thenReturn(Future.successful(List("foo","foo","foo","bar","bar", "bar", "wiZZ 123")))
+
+      val res: (List[String], Groups) = await(service.returnValidShareholdersAndUpdateGroups(
+        Groups(groupRelief = true, Some(GroupCompanyName("foo", "BarType")), None, None),
+        "123"
+      ))
+
+      res._1 shouldBe List("bar", "wiZZ 123")
+      res._2 shouldBe Groups(groupRelief = true, Some(GroupCompanyName("foo", "BarType")), None, None)
+    }
+
+    "return a future list removing duplicates if groups name is empty" in new Setup {
+      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any()))
+        .thenReturn(Future.successful(ConfirmationReferencesSuccessResponse(ConfirmationReferences("footxID", None, None, "foo"))))
+      when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(any()))
+        .thenReturn(Future.successful(Right(shareholders)))
+      when(mockCompanyRegistrationConnector.shareholderListValidationEndpoint(eqTo(List("foo", "bar")))(any()))
+        .thenReturn(Future.successful(List("foo","foo","foo","bar","bar", "bar", "wiZZ 123")))
+      when(mockCompanyRegistrationConnector.updateGroups(any(), any())(any()))
+        .thenReturn(Future.successful(Groups(groupRelief = false, None, None, None)))
+
+      val res: (List[String], Groups) = await(service.returnValidShareholdersAndUpdateGroups(
+        Groups(groupRelief = true, None, None, None),
+        "123"
+      ))
+
+      res._1 shouldBe List("foo", "bar", "wiZZ 123")
+      res._2 shouldBe Groups(groupRelief = false, None, None, None)
+    }
+
+    "return future list of string and group where name does not exist - a drop takes place of all other fields" in new Setup {
+      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any()))
+        .thenReturn(Future.successful(ConfirmationReferencesSuccessResponse(ConfirmationReferences("footxID", None, None, "foo"))))
+      when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(any()))
+        .thenReturn(Future.successful(Right(shareholders)))
+      when(mockCompanyRegistrationConnector.shareholderListValidationEndpoint(eqTo(List("foo", "bar")))(any()))
+        .thenReturn(Future.successful(List("foo", "bar", "wiZZ 123")))
+      when(mockCompanyRegistrationConnector.updateGroups(any(), any())(any()))
+        .thenReturn(Future.successful(Groups(groupRelief = false, None, None, None)))
+
+      val res: (List[String], Groups) = await(service.returnValidShareholdersAndUpdateGroups(
+        Groups(groupRelief = true, None, None, None),
+        "123"
+      ))
+
+      res._1 shouldBe List("foo", "bar", "wiZZ 123")
+      res._2 shouldBe Groups(groupRelief = false, None, None, None)
+      verify(mockCompanyRegistrationConnector, times(1)).updateGroups(any(), any())(any())
+    }
+
+    "return future  filtered list of string and group where name is in list and is not Other" in new Setup {
+      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any()))
+        .thenReturn(Future.successful(ConfirmationReferencesSuccessResponse(ConfirmationReferences("footxID", None, None, "foo"))))
+      when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(any()))
+        .thenReturn(Future.successful(Right(shareholders)))
+      when(mockCompanyRegistrationConnector.shareholderListValidationEndpoint(any())(any()))
+        .thenReturn(Future.successful(List("foo", "bar", "wiZZ 123")))
+
+      val res: (List[String], Groups) = await(service.returnValidShareholdersAndUpdateGroups(
+        Groups(groupRelief = true, Some(GroupCompanyName("wiZZ 123", "CohoEntered")), None, None),
+        "123"
+      ))
+
+      res._1 shouldBe List("foo", "bar")
+      res._2 shouldBe Groups(groupRelief = true, Some(GroupCompanyName("wiZZ 123", "CohoEntered")), None, None)
+      verify(mockCompanyRegistrationConnector, times(0)).updateGroups(any(), any())(any())
+    }
+
+    "return future NON filtered list of string and group where name is NOT in the list and is NOT Other" in new Setup {
+      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any()))
+        .thenReturn(Future.successful(ConfirmationReferencesSuccessResponse(ConfirmationReferences("footxID", None, None, "foo"))))
+      when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(any()))
+        .thenReturn(Future.successful(Right(shareholders)))
+      when(mockCompanyRegistrationConnector.shareholderListValidationEndpoint(eqTo(List("foo", "bar")))(any()))
+        .thenReturn(Future.successful(List("foo", "bar", "wiZZ 123")))
+      when(mockCompanyRegistrationConnector.updateGroups(any(), any())(any()))
+        .thenReturn(Future.successful(Groups(groupRelief = true, None, None, None)))
+
+      val res: (List[String], Groups) = await(service.returnValidShareholdersAndUpdateGroups(
+        Groups(groupRelief = true, Some(GroupCompanyName("wiZZ 123 1", "CohoEntered")), None, None),
+        "123"
+      ))
+
+      res._1 shouldBe List("foo", "bar", "wiZZ 123")
+      res._2 shouldBe Groups(groupRelief = true, None, None, None)
+      verify(mockCompanyRegistrationConnector, times(1)).updateGroups(any(), any())(any())
+    }
+
+    "return empty list and  groups passed in if Left returned from returnListOfShareholdersFromTxApi and nothing updated because coho had a wobble" in new Setup {
+      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any()))
+        .thenReturn(Future.successful(ConfirmationReferencesSuccessResponse(ConfirmationReferences("footxID", None, None, "foo"))))
+      when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(any()))
+        .thenReturn(Future.successful(Left(new Exception("foo uh oh"))))
+
+      val res: (List[String], Groups) = await(service.returnValidShareholdersAndUpdateGroups(
+        Groups(groupRelief = true, Some(GroupCompanyName("wiZZ 123 1", "CohoEntered")), None, None),
+        "123"
+      ))
+
+      res._1 shouldBe List.empty
+      res._2 shouldBe Groups(groupRelief = true, Some(GroupCompanyName("wiZZ 123 1", "CohoEntered")), None, None)
+      verify(mockCompanyRegistrationConnector, times(0)).updateGroups(any(), any())(any())
+    }
+
+    "return exception if confirmation references is not a success" in new Setup {
+      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any()))
+        .thenReturn(Future.successful(ConfirmationReferencesErrorResponse))
+
+      intercept[Exception](await(service.returnValidShareholdersAndUpdateGroups(
+        Groups(groupRelief = true, Some(GroupCompanyName("wiZZ 123 1", "CohoEntered")), None, None),
+        "123"
+      )))
+    }
+  }
 }

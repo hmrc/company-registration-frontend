@@ -126,7 +126,6 @@ class Module extends AbstractModule {
     bind(classOf[TradingDetailsController]).to(classOf[TradingDetailsControllerImpl]).asEagerSingleton()
     bind(classOf[WelcomeController]).to(classOf[WelcomeControllerImpl]).asEagerSingleton()
     bind(classOf[EmailVerificationController]).to(classOf[EmailVerificationControllerImpl]).asEagerSingleton()
-    bind(classOf[GroupNameController]).to(classOf[GroupNameControllerImpl]).asEagerSingleton()
 
     //test controllers
     bind(classOf[CTMongoTestController]).to(classOf[CTMongoTestControllerImpl]).asEagerSingleton()
