@@ -25,7 +25,7 @@ import javax.inject.{Inject, Singleton}
 import models.Groups
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent}
-import services.{GroupPageEnum, GroupService}
+import services.GroupService
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.http.InternalServerException
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController

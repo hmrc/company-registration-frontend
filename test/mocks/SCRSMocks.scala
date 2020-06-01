@@ -69,7 +69,6 @@ trait SCRSMocks extends CompanyContactDetailsServiceMock
   lazy val mockJweCommon = mock[JweCommon]
   lazy val mockConfiguration = mock[Configuration]
   lazy val mockTimeService = mock[TimeService]
-  lazy val mockGroupServiceDeprecated = mock[GroupServiceDeprecated]
   lazy val mockGroupService = mock[GroupService]
 
 
@@ -112,7 +111,7 @@ trait SCRSMocks extends CompanyContactDetailsServiceMock
     reset(mockAddressLookupService)
     reset(mockConfiguration)
     reset(mockTimeService)
-    reset(mockGroupServiceDeprecated)
     reset(mockMetricsService)
+    reset(mockGroupService)
   }
 }
