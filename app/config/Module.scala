@@ -91,7 +91,6 @@ class Module extends AbstractModule {
     bind(classOf[EnrolmentsService]).to(classOf[EnrolmentsServiceImpl]).asEagerSingleton()
     bind(classOf[TradingDetailsService]).to(classOf[TradingDetailsServiceImpl]).asEagerSingleton()
     bind(classOf[TestIncorporationService]).to(classOf[TestIncorporationServiceImpl]).asEagerSingleton()
-    bind(classOf[GroupServiceDeprecated]).to(classOf[GroupServiceDeprecatedImpl]).asEagerSingleton()
 
     //controllers
     bind(classOf[CancelRegistrationController]).to(classOf[CancelRegistrationControllerImpl]).asEagerSingleton()
@@ -99,7 +98,6 @@ class Module extends AbstractModule {
     bind(classOf[BasicCompanyDetailsController]).to(classOf[BasicCompanyDetailsControllerImpl])
     bind(classOf[BusinessActivitiesController]).to(classOf[BusinessActivitiesControllerImpl]).asEagerSingleton()
     bind(classOf[CorporationTaxDetailsController]).to(classOf[CorporationTaxDetailsControllerImpl]).asEagerSingleton()
-    bind(classOf[GroupController]).to(classOf[GroupControllerImpl]).asEagerSingleton()
     bind(classOf[IncorporationSummaryController]).to(classOf[IncorporationSummaryControllerImpl]).asEagerSingleton()
     bind(classOf[RegistrationConfirmationController]).to(classOf[RegistrationConfirmationControllerImpl]).asEagerSingleton()
     bind(classOf[CorporationTaxSummaryController]).to(classOf[CorporationTaxSummaryControllerImpl]).asEagerSingleton()

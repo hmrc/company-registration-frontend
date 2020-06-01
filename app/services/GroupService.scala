@@ -73,7 +73,8 @@ class GroupService @Inject()(val keystoreConnector: KeystoreConnector,
     groups.nameOfCompany match {
       case Some(groupCompanyName) =>
         returnAddressFromTxAPI(groupCompanyName, registrationId).flatMap { eitherAddress =>
-          eitherAddress.fold(_ => Future.successful(Option.empty[NewAddress]),
+          eitherAddress.fold(
+            error => Future.successful(Option.empty[NewAddress]),
             chAddress => {
               val validAddrFromCRValidation = chAddress.fold(Future.successful(Option.empty[NewAddress]))(chroAddress =>
                 compRegConnector.validateRegisteredOfficeAddress(registrationId, chroAddress))
@@ -81,7 +82,8 @@ class GroupService @Inject()(val keystoreConnector: KeystoreConnector,
               validAddrFromCRValidation.map { newAddress =>
                 newAddress
               }
-            })
+            }
+          )
         }
       case None =>
         throw new InternalServerException("[GroupService] [retreiveTxApiAddress] attempted to find txApi address without prerequesite data")
@@ -148,7 +150,28 @@ class GroupService @Inject()(val keystoreConnector: KeystoreConnector,
     }
   }
 
-  private[services] def fetchTxID(registrationId: String)(implicit hc: HeaderCarrier): Future[String] = {
+  def dropOldGroups(eitherShareholders: Either[Exception, List[Shareholder]], regId: String)(implicit hc: HeaderCarrier): Future[List[Shareholder]] = {
+    eitherShareholders.fold(
+      error => Future.successful(List.empty),
+      listShareholders => {
+        if (listShareholders.isEmpty) {
+          dropGroups(regId).map(_ => listShareholders)
+        }
+        else {
+          compRegConnector.shareholderListValidationEndpoint(listShareholders.map(_.corporate_name)).flatMap { validShareholders =>
+            retrieveGroups(regId).flatMap {
+              case Some(groups) if groups.nameOfCompany.exists(nameAndType => !validShareholders.contains(nameAndType.name) && nameAndType.nameType != "Other") =>
+                dropGroups(regId).map(_ => listShareholders)
+              case _ =>
+                Future.successful(listShareholders)
+            }
+          }
+        }
+      }
+    )
+  }
+
+  def fetchTxID(registrationId: String)(implicit hc: HeaderCarrier): Future[String] = {
     compRegConnector.fetchConfirmationReferences(registrationId).map {
       case ConfirmationReferencesSuccessResponse(refs) => refs.transactionId
       case _ => throw new InternalServerException(s"[GroupService] no txId returned for $registrationId")
@@ -158,7 +181,9 @@ class GroupService @Inject()(val keystoreConnector: KeystoreConnector,
   def returnAddressFromTxAPI(groupCompanyName: GroupCompanyName, registrationId: String)(implicit hc: HeaderCarrier): Future[Either[Exception, Option[CHROAddress]]] = {
     fetchTxID(registrationId).flatMap { txId =>
       returnListOfShareholders(txId).map { eitherShareholders =>
-        eitherShareholders.fold(e => Left(e), iiShareholders =>
+        eitherShareholders.fold(
+          error => Left(error),
+          iiShareholders =>
           Right(iiShareholders
             .map(shareholder => (shareholder.corporate_name, shareholder.address))
             .find(companyName => companyName._1 == groupCompanyName.name).map(address => address._2)

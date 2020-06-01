@@ -16,16 +16,16 @@
 
 package controllers.handoff
 
-import javax.inject.Inject
 import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthFunction
 import controllers.reg.ControllerErrorHandler
+import javax.inject.{Inject, Singleton}
 import models.Groups
 import models.handoff.{BackHandoff, GroupHandBackModel}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, Result}
-import services.{GroupServiceDeprecated, HandBackService, HandOffService, NavModelNotFoundException}
+import services.{GroupService, HandBackService, HandOffService, NavModelNotFoundException}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.auth.core.retrieve.Retrievals
 import uk.gov.hmrc.http.HeaderCarrier
@@ -36,26 +36,20 @@ import views.html.error_template_restart
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
-class GroupControllerImpl @Inject()(val authConnector: PlayAuthConnector,
-                                    val keystoreConnector: KeystoreConnector,
-                                    val handOffService: HandOffService,
-                                    val appConfig: FrontendAppConfig,
-                                    val compRegConnector: CompanyRegistrationConnector,
-                                    val handBackService: HandBackService,
-                                    val messagesApi: MessagesApi,
-                                    val scrsFeatureSwitches: SCRSFeatureSwitches,
-                                    val groupService: GroupServiceDeprecated,
-                                    val jwe: JweCommon) extends GroupController
+@Singleton
+class GroupController @Inject()(val authConnector: PlayAuthConnector,
+                                val keystoreConnector: KeystoreConnector,
+                                val handOffService: HandOffService,
+                                val compRegConnector: CompanyRegistrationConnector,
+                                val handBackService: HandBackService,
+                                val messagesApi: MessagesApi,
+                                val scrsFeatureSwitches: SCRSFeatureSwitches,
+                                val groupService: GroupService,
+                                val jwe: JweCommon
+                               )(implicit val appConfig: FrontendAppConfig)
+  extends FrontendController with AuthFunction with I18nSupport with SessionRegistration with ControllerErrorHandler {
 
-trait GroupController extends FrontendController with AuthFunction with I18nSupport with SessionRegistration with ControllerErrorHandler {
-
-  val handBackService: HandBackService
-  val handOffService: HandOffService
-  implicit val appConfig: FrontendAppConfig
-  val scrsFeatureSwitches: SCRSFeatureSwitches
-  val groupService: GroupServiceDeprecated
-  val jwe: JweCommon
-  def pscEnabled = scrsFeatureSwitches.pscHandOff.enabled
+  def pscEnabled: Boolean = scrsFeatureSwitches.pscHandOff.enabled
 
   // 3.1 handback
   def groupHandBack(requestData: String): Action[AnyContent] = Action.async {
@@ -63,17 +57,17 @@ trait GroupController extends FrontendController with AuthFunction with I18nSupp
       ctAuthorisedHandoff("HO3-1", requestData) {
         registeredHandOff("HO3-1", requestData) { regID =>
           handBackService.processGroupsHandBack(requestData).flatMap {
-              case Success(GroupHandBackModel(_, _, _, _, _, Some(true))) if !pscEnabled =>
-                Future.successful(Redirect(controllers.handoff.routes.GroupController.PSCGroupHandOff()))
-              case Success(GroupHandBackModel(_, _, _, _, _, Some(true))) if pscEnabled =>
-                pscHandOffToGroupsIfDataInTxApi(regID)
-              case Success(GroupHandBackModel(_, _, _, _, _, Some(false))) =>
-                groupService.dropGroups(regID).map { _ =>
-                  Redirect(controllers.handoff.routes.GroupController.PSCGroupHandOff)
-                }
-              case _ => Future.successful(BadRequest(error_template_restart("3-1", "PayloadError")))
-            }
+            case Success(GroupHandBackModel(_, _, _, _, _, Some(true))) if !pscEnabled =>
+              Future.successful(Redirect(controllers.handoff.routes.GroupController.PSCGroupHandOff()))
+            case Success(GroupHandBackModel(_, _, _, _, _, Some(true))) if pscEnabled =>
+              pscHandOffToGroupsIfDataInTxApi(regID)
+            case Success(GroupHandBackModel(_, _, _, _, _, Some(false))) =>
+              groupService.dropGroups(regID).map { _ =>
+                Redirect(controllers.handoff.routes.GroupController.PSCGroupHandOff())
+              }
+            case _ => Future.successful(BadRequest(error_template_restart("3-1", "PayloadError")))
           }
+        }
       }
   }
 
@@ -81,7 +75,7 @@ trait GroupController extends FrontendController with AuthFunction with I18nSupp
     implicit request =>
       ctAuthorisedOptStr(Retrievals.externalId) { externalID =>
         (for {
-          navModel    <- handOffService.fetchNavModel()
+          navModel <- handOffService.fetchNavModel()
           backPayload <- handOffService.buildBackHandOff(externalID)
         } yield {
           val payload = jwe.encrypt[BackHandoff](backPayload).getOrElse("")
@@ -92,54 +86,56 @@ trait GroupController extends FrontendController with AuthFunction with I18nSupp
       }
   }
 
-  private[controllers] def pscHandOffToGroupsIfDataInTxApi(regID: String)(implicit hc:HeaderCarrier): Future[Result] = {
-    groupService.potentiallyDropGroupsBasedOnReturnFromTXApiAndReturnList(regID).flatMap {
-      case Nil => Future.successful(Redirect(controllers.handoff.routes.GroupController.PSCGroupHandOff()))
-      case list => groupService.hasDataChangedIfSoDropGroups(list, regID).map { _ =>
-        Redirect(controllers.groups.routes.GroupReliefController.show())
+  private[controllers] def pscHandOffToGroupsIfDataInTxApi(regID: String)(implicit hc: HeaderCarrier): Future[Result] = {
+    groupService.fetchTxID(regID).flatMap { txId =>
+      groupService.returnListOfShareholders(txId).flatMap { eitherShareholders =>
+        groupService.dropOldGroups(eitherShareholders, regID)
       }
+    }.flatMap {
+      case Nil => Future.successful(Redirect(controllers.handoff.routes.GroupController.PSCGroupHandOff()))
+      case _ => Future.successful(Redirect(controllers.groups.routes.GroupReliefController.show()))
     }
   }
 
-  // 3.2 hand off
-  val PSCGroupHandOff: Action[AnyContent] = Action.async {
-    implicit request =>
-      ctAuthorisedOptStr(Retrievals.externalId) { externalID =>
-        registered { regId =>
-          groupService.retrieveGroups(regId).flatMap { optGroups =>
-            val featureSwitchDrivenGroups = optGroups.flatMap{ grps => if(pscEnabled) Some(grps) else None}
-            handOffService.buildPSCPayload(regId, externalID, featureSwitchDrivenGroups) map {
-              case Some((url, payload)) => Redirect(handOffService.buildHandOffUrl(url, payload))
-              case None => BadRequest(error_template_restart("3-2", "EncryptionError"))
-            } recover {
-              case ex: NavModelNotFoundException => Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))
+    // 3.2 hand off
+    val PSCGroupHandOff: Action[AnyContent] = Action.async {
+      implicit request =>
+        ctAuthorisedOptStr(Retrievals.externalId) { externalID =>
+          registered { regId =>
+            groupService.retrieveGroups(regId).flatMap { optGroups =>
+              val featureSwitchDrivenGroups = optGroups.flatMap { grps => if (pscEnabled) Some(grps) else None }
+              handOffService.buildPSCPayload(regId, externalID, featureSwitchDrivenGroups) map {
+                case Some((url, payload)) => Redirect(handOffService.buildHandOffUrl(url, payload))
+                case None => BadRequest(error_template_restart("3-2", "EncryptionError"))
+              } recover {
+                case ex: NavModelNotFoundException => Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))
+              }
             }
           }
         }
-      }
-  }
+    }
 
-  // 3b-1 hand back, back link from Coho
+    // 3b-1 hand back, back link from Coho
     def pSCGroupHandBack(request: String): Action[AnyContent] = Action.async {
-    implicit _request =>
-      val groupsRedirect = (optGroups: Option[Groups]) => {
-        optGroups.fold(Redirect(controllers.reg.routes.SignInOutController.postSignIn())){groupsExist =>
-          if(!groupsExist.groupRelief) {
-            Redirect(controllers.groups.routes.GroupReliefController.show())
-          } else {
-            Redirect(controllers.groups.routes.GroupUtrController.show())
+      implicit _request =>
+        val groupsRedirect = (optGroups: Option[Groups]) => {
+          optGroups.fold(Redirect(controllers.reg.routes.SignInOutController.postSignIn())) { groupsExist =>
+            if (!groupsExist.groupRelief) {
+              Redirect(controllers.groups.routes.GroupReliefController.show())
+            } else {
+              Redirect(controllers.groups.routes.GroupUtrController.show())
+            }
           }
         }
-      }
-      ctAuthorisedHandoff("HO3b-1", request) {
-        registeredHandOff("HO3b-1", request) { regID =>
-          handBackService.processGroupsHandBck(request).flatMap {
-            case Success(_) => groupService.retrieveGroups(regID).map(groupsRedirect)
-            case Failure(PayloadError) => Future.successful(BadRequest(error_template_restart("3b-1", "PayloadError")))
-            case Failure(DecryptionError) => Future.successful(BadRequest(error_template_restart("3b-1", "DecryptionError")))
-            case _ => Future.successful(InternalServerError(defaultErrorPage))
+        ctAuthorisedHandoff("HO3b-1", request) {
+          registeredHandOff("HO3b-1", request) { regID =>
+            handBackService.processGroupsHandBck(request).flatMap {
+              case Success(_) => groupService.retrieveGroups(regID).map(groupsRedirect)
+              case Failure(PayloadError) => Future.successful(BadRequest(error_template_restart("3b-1", "PayloadError")))
+              case Failure(DecryptionError) => Future.successful(BadRequest(error_template_restart("3b-1", "DecryptionError")))
+              case _ => Future.successful(InternalServerError(defaultErrorPage))
+            }
           }
         }
-      }
+    }
   }
-}
