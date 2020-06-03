@@ -28,7 +28,7 @@ To run the application execute
 (values for the keys can be found in the service manager config repository):
 
 ```
-sbt 'run 9970 -Dapplication.router=testOnlyDoNotUseInAppConf.Routes -Dmicroservice.services.JWE.key=<decryption_Key> -Dmicroservice.services.coho-api.token=<api_key> -Dfeature.pscHandOff=true' 
+sbt 'run 9970 -Dapplication.router=testOnlyDoNotUseInAppConf.Routes -Dfeature.pscHandOff=true' 
 ```
 
 and the supporting [API](https://github.com/HMRC/company-registration)
