@@ -32,7 +32,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.{defaultAwaitTimeout, redirectLocation}
 import services.NavModelNotFoundException
 import uk.gov.hmrc.play.test.WithFakeApplication
-import utils.{BooleanFeatureSwitch, JweCommon}
+import utils.JweCommon
 
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
@@ -51,7 +51,6 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with WithFakeApplic
       mockCompanyRegistrationConnector,
       mockHandBackService,
       fakeApplication.injector.instanceOf[MessagesApi],
-      mockSCRSFeatureSwitches,
       mockGroupService,
       fakeApplication.injector.instanceOf[JweCommon]
     )
@@ -60,9 +59,6 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with WithFakeApplic
 
   "groupHandBack" should {
     "return 303 when missing bearer token" in new Setup {
-      when(mockSCRSFeatureSwitches.pscHandOff)
-        .thenReturn(BooleanFeatureSwitch("pscHandOff", enabled = false))
-
       showWithUnauthorisedUser(TestController.groupHandBack("foo")) {
         result =>
           status(result) shouldBe 303
@@ -71,8 +67,6 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with WithFakeApplic
     }
 
     "return a 303 and redirect to post sign due to keystore returning nothing" in new Setup {
-      when(mockSCRSFeatureSwitches.pscHandOff)
-        .thenReturn(BooleanFeatureSwitch("pscHandOff", enabled = false))
       mockKeystoreFetchAndGet("registrationID", None)
 
       showWithAuthorisedUser(TestController.groupHandBack("")) {
@@ -83,8 +77,6 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with WithFakeApplic
     }
 
     "return a bad request when processGroupsHandBack returns a failure" in new Setup {
-      when(mockSCRSFeatureSwitches.pscHandOff)
-        .thenReturn(BooleanFeatureSwitch("pscHandOff", enabled = false))
       mockKeystoreFetchAndGet("registrationID", Some("1"))
       when(mockHandBackService.processGroupsHandBack(any[String]())(any()))
         .thenReturn(Future.successful(Failure(new Exception("foo"))))
@@ -96,31 +88,7 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with WithFakeApplic
     }
   }
 
-  "return a redirect to handoff 3.2 when payload contains corporate shareholders data of true but feature switch false" in new Setup {
-    when(mockSCRSFeatureSwitches.pscHandOff)
-      .thenReturn(BooleanFeatureSwitch("pscHandOff", enabled = false))
-    mockKeystoreFetchAndGet("registrationID", Some("1"))
-    when(mockHandBackService.processGroupsHandBack(any[String]())(any()))
-      .thenReturn(Future.successful(Success(
-        GroupHandBackModel(
-          "aaa",
-          "aaa",
-          Json.obj("key" -> "value"),
-          Json.obj("key" -> "value"),
-          NavLinks("t", "b"),
-          Some(true))))
-      )
-
-    showWithAuthorisedUser(TestController.groupHandBack("fooBar")) {
-      result =>
-        status(result) shouldBe 303
-        redirectLocation(result).get shouldBe controllers.handoff.routes.GroupController.PSCGroupHandOff().url
-    }
-  }
-
-  "return a redirect to handoff 3.2 when shareholder list empty sharholder flag true AND feature switch true" in new Setup {
-    when(mockSCRSFeatureSwitches.pscHandOff)
-      .thenReturn(BooleanFeatureSwitch("pscHandOff", enabled = true))
+  "return a redirect to handoff 3.2 when shareholder list empty sharholder flag true" in new Setup {
     when(mockGroupService.fetchTxID(any())(any()))
       .thenReturn("123")
     when(mockGroupService.returnListOfShareholders(any())(any()))
@@ -146,10 +114,8 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with WithFakeApplic
     }
   }
 
-  "return first groups page when shareholder list not empty sharholder flag true AND feature switch true" in new Setup {
+  "return first groups page when shareholder list not empty sharholder flag true" in new Setup {
     val shareholders = List(Shareholder("foo", None, None, None, CHROAddress("", "", None, "", "", None, None, None)))
-    when(mockSCRSFeatureSwitches.pscHandOff)
-      .thenReturn(BooleanFeatureSwitch("pscHandOff", enabled = true))
     when(mockGroupService.fetchTxID(any())(any()))
       .thenReturn("123")
     when(mockGroupService.returnListOfShareholders(any())(any()))
@@ -223,8 +189,6 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with WithFakeApplic
     }
 
     "return a 400 when buildPSCPayload returns a None" in new Setup {
-      when(mockSCRSFeatureSwitches.pscHandOff)
-        .thenReturn(BooleanFeatureSwitch("pscHandOff", enabled = true))
       mockKeystoreFetchAndGet("registrationID", Some("1"))
       when(mockGroupService.retrieveGroups(any())(any()))
         .thenReturn(Future.successful(None))
@@ -237,8 +201,6 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with WithFakeApplic
     }
 
     "return a redirect to the 3.2 hand off if buildPSCPayload returns Some" in new Setup {
-      when(mockSCRSFeatureSwitches.pscHandOff)
-        .thenReturn(BooleanFeatureSwitch("pscHandOff", enabled = true))
       mockKeystoreFetchAndGet("registrationID", Some("1"))
       when(mockGroupService.retrieveGroups(any())(any()))
         .thenReturn(Future.successful(None))
@@ -256,8 +218,6 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with WithFakeApplic
 
     "return a redirect to the 3.2 hand off if buildPSCPayload returns Some and groups is Some and feature switch on" in new Setup {
       val groups = Groups(groupRelief = false, None, None, None)
-      when(mockSCRSFeatureSwitches.pscHandOff)
-        .thenReturn(BooleanFeatureSwitch("pscHandOff", enabled = true))
       mockKeystoreFetchAndGet("registrationID", Some("1"))
       when(mockGroupService.retrieveGroups(any())(any()))
         .thenReturn(Future.successful(Some(groups)))
@@ -273,27 +233,7 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with WithFakeApplic
       }
     }
 
-    "return a redirect to the 3.2 hand off if buildPSCPayload returns Some and groups is Some BUT feature switch is false" in new Setup {
-      when(mockSCRSFeatureSwitches.pscHandOff)
-        .thenReturn(BooleanFeatureSwitch("pscHandOff", enabled = false))
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
-      when(mockGroupService.retrieveGroups(any())(any()))
-        .thenReturn(Future.successful(Some(Groups(groupRelief = false, None, None, None))))
-      when(mockHandOffService.buildPSCPayload(any(), any(), eqTo(Option.empty[Groups]))(any()))
-        .thenReturn(Future.successful(Some("foo", "bar")))
-      when(mockHandOffService.buildHandOffUrl(any(), any()))
-        .thenReturn("foo/bar/wizz/3-2")
-
-      showWithAuthorisedUserRetrieval(TestController.PSCGroupHandOff(), Some("extID")) {
-        result =>
-          status(result) shouldBe 303
-          redirectLocation(result).get shouldBe "foo/bar/wizz/3-2"
-      }
-    }
-
     "redirect to post sign in if nav model is not found NavModelNotFoundException" in new Setup {
-      when(mockSCRSFeatureSwitches.pscHandOff)
-        .thenReturn(BooleanFeatureSwitch("pscHandOff", enabled = true))
       mockKeystoreFetchAndGet("registrationID", Some("1"))
       when(mockGroupService.retrieveGroups(any())(any()))
         .thenReturn(Future.successful(None))
@@ -309,8 +249,6 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with WithFakeApplic
     }
 
     "throw an exception if buildPSCPayload returns an exception" in new Setup {
-      when(mockSCRSFeatureSwitches.pscHandOff)
-        .thenReturn(BooleanFeatureSwitch("pscHandOff", enabled = true))
       mockKeystoreFetchAndGet("registrationID", Some("1"))
       when(mockHandOffService.buildPSCPayload(any(), any(), any())(any()))
         .thenReturn(Future.failed(new Exception()))

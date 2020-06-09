@@ -43,13 +43,10 @@ class GroupController @Inject()(val authConnector: PlayAuthConnector,
                                 val compRegConnector: CompanyRegistrationConnector,
                                 val handBackService: HandBackService,
                                 val messagesApi: MessagesApi,
-                                val scrsFeatureSwitches: SCRSFeatureSwitches,
                                 val groupService: GroupService,
                                 val jwe: JweCommon
                                )(implicit val appConfig: FrontendAppConfig)
   extends FrontendController with AuthFunction with I18nSupport with SessionRegistration with ControllerErrorHandler {
-
-  def pscEnabled: Boolean = scrsFeatureSwitches.pscHandOff.enabled
 
   // 3.1 handback
   def groupHandBack(requestData: String): Action[AnyContent] = Action.async {
@@ -57,9 +54,7 @@ class GroupController @Inject()(val authConnector: PlayAuthConnector,
       ctAuthorisedHandoff("HO3-1", requestData) {
         registeredHandOff("HO3-1", requestData) { regID =>
           handBackService.processGroupsHandBack(requestData).flatMap {
-            case Success(GroupHandBackModel(_, _, _, _, _, Some(true))) if !pscEnabled =>
-              Future.successful(Redirect(controllers.handoff.routes.GroupController.PSCGroupHandOff()))
-            case Success(GroupHandBackModel(_, _, _, _, _, Some(true))) if pscEnabled =>
+            case Success(GroupHandBackModel(_, _, _, _, _, Some(true))) =>
               pscHandOffToGroupsIfDataInTxApi(regID)
             case Success(GroupHandBackModel(_, _, _, _, _, Some(false))) =>
               groupService.dropGroups(regID).map { _ =>
@@ -103,8 +98,7 @@ class GroupController @Inject()(val authConnector: PlayAuthConnector,
         ctAuthorisedOptStr(Retrievals.externalId) { externalID =>
           registered { regId =>
             groupService.retrieveGroups(regId).flatMap { optGroups =>
-              val featureSwitchDrivenGroups = optGroups.flatMap { grps => if (pscEnabled) Some(grps) else None }
-              handOffService.buildPSCPayload(regId, externalID, featureSwitchDrivenGroups) map {
+              handOffService.buildPSCPayload(regId, externalID, optGroups) map {
                 case Some((url, payload)) => Redirect(handOffService.buildHandOffUrl(url, payload))
                 case None => BadRequest(error_template_restart("3-2", "EncryptionError"))
               } recover {
