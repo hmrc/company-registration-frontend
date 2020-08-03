@@ -138,11 +138,13 @@ class PreviousOwnersAddressControllerISpec extends IntegrationSpecBase
         options = JourneyOptions(
           continueUrl = "http://localhost:9970/register-your-company/save-alf-home-address-takeovers",
           homeNavHref = "http://www.hmrc.gov.uk/",
+          accessibilityFooterUrl = "http://localhost:9970/register-your-company/accessibility-statement?pageUri=%2F",
           deskProServiceName = "SCRS",
           showPhaseBanner = true,
           alphaPhase = false,
           showBackButtons = true,
           includeHMRCBranding = false,
+          disableTranslations = true,
 
           selectPageConfig = SelectPageConfig(
             proposalListLimit = 30,

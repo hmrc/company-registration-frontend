@@ -5,11 +5,8 @@ import java.util.UUID
 
 import fixtures.Fixtures
 import itutil.{IntegrationSpecBase, LoginStub, RequestsFinder}
-import models.{AlfJourneyConfig, AppLevelLabels, ConfirmPageConfig, ConfirmPageLabels, EditPageLabels, JourneyLabels, JourneyOptions, LanguageLabels, LookupPageLabels, SelectPageConfig, SelectPageLabels, TimeoutConfig}
+import models._
 import play.api.http.HeaderNames
-import play.api.libs.json.Json
-import play.api.mvc.Call
-import views.html.helper.options
 
 class PPOBControllerISpec extends IntegrationSpecBase with LoginStub with Fixtures with RequestsFinder {
   val userId = "test-user-id"
@@ -34,17 +31,19 @@ class PPOBControllerISpec extends IntegrationSpecBase with LoginStub with Fixtur
       .post(Map("Csrf-Token" -> Seq("nocheck"), "addressChoice" -> Seq("Other")))
 
     await(fResponse).status shouldBe 303
-    val result =  getPOSTRequestJsonBody("/api/v2/init").as[AlfJourneyConfig]
+    val result = getPOSTRequestJsonBody("/api/v2/init").as[AlfJourneyConfig]
     val expected = AlfJourneyConfig(
       version = AlfJourneyConfig.defaultConfigVersion,
       options = JourneyOptions(
         continueUrl = s"http://localhost:9970${controllers.reg.routes.PPOBController.saveALFAddress(None).url}",
         homeNavHref = "http://www.hmrc.gov.uk/",
+        accessibilityFooterUrl = "http://localhost:9970/register-your-company/accessibility-statement?pageUri=%2F",
         deskProServiceName = "SCRS",
         showPhaseBanner = true,
         alphaPhase = false,
         showBackButtons = true,
         includeHMRCBranding = false,
+        disableTranslations = true,
 
         selectPageConfig = SelectPageConfig(
           proposalListLimit = 30,
@@ -61,7 +60,7 @@ class PPOBControllerISpec extends IntegrationSpecBase with LoginStub with Fixtur
           timeoutAmount = 999999,
           timeoutUrl = "http://localhost:9970/register-your-company/error/timeout"
         )
-        ),
+      ),
       labels = JourneyLabels(en = LanguageLabels(
         appLevelLabels = AppLevelLabels(
           navTitle = "Set up a limited company and register for Corporation Tax",

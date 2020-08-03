@@ -77,6 +77,8 @@ trait FrontendAppConfig extends ServicesConfig {
 
   def accessibilityStatementUrl(pageUri: String) = controllers.routes.AccessibilityStatementController.show(pageUri).url
 
+  lazy val accessibilityStatementUrl = selfFull + "/register-your-company" + "/accessibility-statement" + "?pageUri=%2F"
+
   lazy val contactHost = loadConfig("contact-frontend.host")
 
   def accessibilityReportUrl(userAction: String): String =
