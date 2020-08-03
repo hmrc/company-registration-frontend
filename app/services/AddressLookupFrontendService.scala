@@ -22,7 +22,7 @@ import javax.inject.{Inject, Singleton}
 import models._
 import play.api.i18n.MessagesApi
 import play.api.libs.json._
-import play.api.mvc.Call
+import play.api.mvc.{Call, Request}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future

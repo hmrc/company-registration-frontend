@@ -79,11 +79,13 @@ class AddressLookupFrontendServiceSpec extends UnitSpec
         options = JourneyOptions(
           continueUrl = "testCompanyRegUrl/foo",
           homeNavHref = "http://www.hmrc.gov.uk/",
+          accessibilityFooterUrl = "testCompanyRegUrl/register-your-company/accessibility-statement?pageUri=%2F?service=address-lookup&userAction=lookup",
           deskProServiceName = "SCRS",
           showPhaseBanner = true,
           alphaPhase = false,
           showBackButtons = true,
           includeHMRCBranding = false,
+          disableTranslations = true,
 
           selectPageConfig = SelectPageConfig(
             proposalListLimit = 1,

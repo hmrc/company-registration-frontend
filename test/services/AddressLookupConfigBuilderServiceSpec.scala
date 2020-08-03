@@ -29,6 +29,7 @@ class AddressLookupConfigBuilderServiceSpec extends UnitSpec with WithFakeApplic
   object TestService extends AddressLookupConfigBuilderService(mockAppConfig) {
     override lazy val companyRegistrationFrontendURL = "testCompanyRegUrl"
     override lazy val timeoutLength = 22666
+    override lazy val accessibilityFooterUrl = "testCompanyRegUrl/register-your-company/accessibility-statement?pageUri=%2F?service=address-lookup&userAction=lookup"
   }
 
   "buildConfig" should {
@@ -47,11 +48,13 @@ class AddressLookupConfigBuilderServiceSpec extends UnitSpec with WithFakeApplic
         options = JourneyOptions(
           continueUrl = "testCompanyRegUrl/foo",
           homeNavHref = "http://www.hmrc.gov.uk/",
+          accessibilityFooterUrl = "testCompanyRegUrl/register-your-company/accessibility-statement?pageUri=%2F?service=address-lookup&userAction=lookup",
           deskProServiceName = "SCRS",
           showPhaseBanner = true,
           alphaPhase = false,
           showBackButtons = true,
           includeHMRCBranding = false,
+          disableTranslations = true,
 
           selectPageConfig = SelectPageConfig(
             proposalListLimit = 30,

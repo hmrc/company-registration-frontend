@@ -20,13 +20,14 @@ import config.FrontendAppConfig
 import javax.inject.{Inject, Singleton}
 import models._
 import play.api.i18n.MessagesApi
-import play.api.mvc.Call
+import play.api.mvc.{Call, Request}
 
 @Singleton
 class AddressLookupConfigBuilderService @Inject()(appConfig: FrontendAppConfig) {
 
   lazy val companyRegistrationFrontendURL: String = appConfig.self
   lazy val timeoutLength: Int = appConfig.timeoutInSeconds.toInt
+  lazy val accessibilityFooterUrl: String = appConfig.accessibilityStatementUrl
 
   def buildConfig(handbackLocation: Call, specificJourneyKey: String, lookupPageHeading: String, confirmPageHeading: String)(implicit messagesApi: MessagesApi): AlfJourneyConfig = {
 
@@ -49,6 +50,7 @@ class AddressLookupConfigBuilderService @Inject()(appConfig: FrontendAppConfig) 
     val journeyOptions = JourneyOptions(
       continueUrl = s"$companyRegistrationFrontendURL${handbackLocation.url}",
       homeNavHref = "http://www.hmrc.gov.uk/",
+      accessibilityFooterUrl = accessibilityFooterUrl,
       showPhaseBanner = true,
       alphaPhase = false,
       includeHMRCBranding = false,
@@ -56,7 +58,8 @@ class AddressLookupConfigBuilderService @Inject()(appConfig: FrontendAppConfig) 
       deskProServiceName = "SCRS",
       selectPageConfig = selectPageConfig,
       confirmPageConfig = confirmPageConfig,
-      timeoutConfig = timeoutConfig
+      timeoutConfig = timeoutConfig,
+      disableTranslations = true
     )
 
     val appLevelLabels = AppLevelLabels(
