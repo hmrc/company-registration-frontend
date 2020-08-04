@@ -69,7 +69,7 @@ class AddressLookupConfigBuilderService @Inject()(appConfig: FrontendAppConfig) 
 
 
     val lookupPageLabels = LookupPageLabels(
-      title = messagesApi("page.addressLookup.lookup.title"),
+      title = lookupPageHeading,
       heading = lookupPageHeading,
       filterLabel = messagesApi("page.addressLookup.lookup.filter"),
       submitLabel = messagesApi("page.addressLookup.lookup.submit"),
@@ -92,7 +92,7 @@ class AddressLookupConfigBuilderService @Inject()(appConfig: FrontendAppConfig) 
     )
 
     val confirmPageLabels = ConfirmPageLabels(
-      title = messagesApi("page.addressLookup.confirm.title"),
+      title = confirmPageHeading,
       heading = confirmPageHeading,
       submitLabel = messagesApi("page.addressLookup.confirm.continue"),
       changeLinkText = messagesApi("page.addressLookup.confirm.change")

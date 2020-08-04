@@ -174,7 +174,7 @@ class OtherBusinessAddressControllerISpec extends IntegrationSpecBase
             editAddressLinkText = "The address is not on the list"
           ),
           LookupPageLabels(
-            title = "Find the address",
+            title = s"Find $testBusinessName’s address",
             heading = s"Find $testBusinessName’s address",
             filterLabel = "Property name or number",
             submitLabel = "Find address",
@@ -188,7 +188,7 @@ class OtherBusinessAddressControllerISpec extends IntegrationSpecBase
             line3Label = "Address line 3"
           ),
           ConfirmPageLabels(
-            title = "Confirm the address",
+            title = s"Confirm $testBusinessName’s address",
             heading = s"Confirm $testBusinessName’s address",
             submitLabel = "Confirm and continue",
             changeLinkText = "Change"

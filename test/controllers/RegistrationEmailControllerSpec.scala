@@ -86,7 +86,7 @@ class RegistrationEmailControllerSpec extends SCRSSpec with WithFakeApplication 
         result => {
           status(result) shouldBe 200
           val document: Document = Jsoup.parse(contentAsString(result))
-          document.title shouldBe "Registration email"
+          document.title shouldBe "Which email address do you want to use for this application?"
           document.getElementById("registrationEmail-currentemail").attr("checked") shouldBe "checked"
         }
       )
