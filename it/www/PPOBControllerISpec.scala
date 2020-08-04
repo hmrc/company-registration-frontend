@@ -75,7 +75,7 @@ class PPOBControllerISpec extends IntegrationSpecBase with LoginStub with Fixtur
         ),
 
         LookupPageLabels(
-          title = "Find the address",
+          title = "Find the address where the company will carry out most of its business activities",
           heading = "Find the address where the company will carry out most of its business activities",
           filterLabel = "Property name or number",
           submitLabel = "Find address",
@@ -89,7 +89,7 @@ class PPOBControllerISpec extends IntegrationSpecBase with LoginStub with Fixtur
           line3Label = "Address line 3"
         ),
         ConfirmPageLabels(
-          title = "Confirm the address",
+          title = "Confirm where the company will carry out most of its business activities",
           heading = "Confirm where the company will carry out most of its business activities",
           submitLabel = "Confirm and continue",
           changeLinkText = "Change"

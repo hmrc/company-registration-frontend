@@ -174,7 +174,7 @@ class PreviousOwnersAddressControllerISpec extends IntegrationSpecBase
             editAddressLinkText = "The address is not on the list"
           ),
           LookupPageLabels(
-            title = "Find the address",
+            title = s"Find $testPreviousOwnersName’s home address",
             heading = s"Find $testPreviousOwnersName’s home address",
             filterLabel = "Property name or number",
             submitLabel = "Find address",
@@ -188,7 +188,7 @@ class PreviousOwnersAddressControllerISpec extends IntegrationSpecBase
             line3Label = "Address line 3"
           ),
           ConfirmPageLabels(
-            title = "Confirm the address",
+            title = s"Confirm $testPreviousOwnersName’s home address",
             heading = s"Confirm $testPreviousOwnersName’s home address",
             submitLabel = "Confirm and continue",
             changeLinkText = "Change"

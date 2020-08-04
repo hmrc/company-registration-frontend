@@ -34,7 +34,7 @@ common.dateExample                                                  = For exampl
 common.button.ConfirmAndContinue                                    = Confirm and continue
 common.period                                                       = .
 common.differentAddress                                             = A different address
-feedback.thankyou.title                                             = Feedback submitted
+feedback.thankyou.title                                             = Your feedback
 
 
 ## Timeout page
@@ -43,7 +43,7 @@ page.timeout.p2                                                     = Sign back 
 page.timeout.url                                                    = set up a limited company and register for Corporation Tax
 
 ## Registration Email Page
-page.reg.registrationEmail.title                                    = Registration email
+page.reg.registrationEmail.title                                    = Which email address do you want to use for this application?
 page.reg.registrationEmail.heading                                  = Which email address do you want to use for this application?
 page.reg.registrationEmail.description                              = We will use this email address to create an account for you with Companies House so you can use the services they provide. We will also send you updates and confirmation emails about your registration.
 page.reg.registrationEmail.radio1                                   = {0}
@@ -53,7 +53,7 @@ error.registrationEmail.required                                    = Tell us wh
 error.DifferentEmail.required                                       = Enter a valid email
 
 ## Confirm Registration Email
-page.reg.confirmRegistrationEmail.title                             = Registration email
+page.reg.confirmRegistrationEmail.title                             = Are you sure you want to use {0} for this application?
 page.reg.confirmRegistrationEmail.heading                           = Are you sure you want to use {0} for this application?
 page.reg.confirmRegistrationEmail.p1                                = You must be able to access {0} to continue the application.
 page.reg.confirmRegistrationEmail.radio1                            = Yes
@@ -62,7 +62,7 @@ page.reg.confirmRegistrationEmail.error                             = Tell us if
 
 ## Returning User
 page.reg.returningUser.description                                  = Are you starting a new application?
-page.reg.returningUser.title                                        = Are you setting up a new limited company?
+page.reg.returningUser.title                                        = Are you starting a new application?
 page.reg.returningUser.radioYesLabel                                = Yes
 page.reg.returningUser.radioYesHintText                             = We will sign you out so you can create a new Government Gateway user ID for this company.
 page.reg.returningUser.radioNoLabel                                 = No - I already started one
@@ -150,7 +150,7 @@ page.reg.ppob.useOfficeAddress                                      = Use the co
 error.addressChoice.required                                        = Tell us where the company will carry out most of its business activities
 
 ## TradingDetails
-page.reg.ct61.title                                                 = In its first 3 months, will the company pay interest on loans, pay royalties, or receive interest or dividend payments from overseas investments?
+page.reg.ct61.title                                                 = In its first 3 months will the company do any of the following?
 page.reg.ct61.description                                           = In its first 3 months will the company do any of the following?
 page.reg.ct61.situationText                                         = In some situations, a company may need to account for Income Tax. The most common situations are listed below.
 page.reg.ct61.lede                                                  = Tell us if the company will:
@@ -218,13 +218,13 @@ page.reg.limit-reached.para.two                                     = Please try
 page.reg.limit-reached.link                                         = Register your company on the Companies House website
 
 ## Create GGW Account
-page.verification.create-ggw-account.title                          = Create Government Gateway Account
+page.verification.create-ggw-account.title                          = You''ve signed in with the wrong type of account
 page.verification.create-ggw-account.main-title                     = You''ve signed in with the wrong type of account
 page.verification.create-ggw-account.para.one                       = This service only works with Government Gateway accounts that have been set up for organisations.
 page.verification.create-ggw-account.para.two                       = To use this service you''ll need to sign out and log back in as an organisation. If you don''t have an organisation account, you can create one on Government Gateway.
 
 ## Create New GGW Account
-page.verification.create-new-ggw-account.title                      = Create Government Gateway Account
+page.verification.create-new-ggw-account.title                      = You need to create a new Government Gateway account
 page.verification.create-new-ggw-account.main-title                 = You need to create a new Government Gateway account
 page.verification.create-new-ggw-account.para.one                   = The Government Gateway account you signed in with has already been used to register for other services.
 page.verification.create-new-ggw-account.para.two                   = If you use this account to register a new limited company it will cancel any existing enrolments you have.
@@ -371,7 +371,7 @@ page.reg.Dashboard.status.incomplete                                = Incomplete
 page.reg.Dashboard.hiddenOpenNewTab                                 = (link opens in a new tab)
 
 ## Registration unsuccessful
-page.reg.registrationUnsuccessful.title                             = Company registration unsuccessful
+page.reg.registrationUnsuccessful.title                             = Your company registration was unsuccessful
 page.reg.registrationUnsuccessful.header                            = Your company registration was unsuccessful
 page.reg.registrationUnsuccessful.emailConfirmation                 = We''ll send you an email confirming this. We''ve cancelled any other tax registrations you started and deleted any details you entered.
 page.reg.registrationUnsuccessful.payments                          = Any payments you made will be refunded within 24 hours. This can take up to 4 days to show on your bank statement.
@@ -413,7 +413,7 @@ errorPages.deskproSubmitted.p1                                      = Your submi
 errorPages.deskproSubmitted.p2                                      = We''ll be in touch as soon as we can to help you complete your application.
 
 ## Incorporation Rejected
-errorPages.incorporationRejected.title                              = Can''t set up limited company
+errorPages.incorporationRejected.title                              = Sorry, you can''t continue
 errorPages.incorporationRejected.header                             = Sorry, you can''t continue
 errorPages.incorporationRejected.para1                              = We''ve just found out from Companies House that they haven''t been able to set up the company. This means you can''t continue with this service.
 errorPages.incorporationRejected.header2                            = What happens next?
@@ -431,7 +431,7 @@ page.addressLookup.PPOB.lookup.heading                              = Find the a
 page.addressLookup.takeovers.otherBusinessAddress.lookup.heading    = Find {0}’s address
 page.addressLookup.takeovers.homeAddress.lookup.heading             = Find {0}’s home address
 
-page.addressLookup.lookup.title                                     = Find the address
+page.addressLookup.lookup.title                                     = Find the address where the company will carry out most of its business activities
 page.addressLookup.lookup.filter                                    = Property name or number
 page.addressLookup.lookup.submit                                    = Find address
 page.addressLookup.lookup.manual                                    = Enter address manually
@@ -448,7 +448,7 @@ page.addressLookup.edit.line2                                       = Address li
 page.addressLookup.edit.line3                                       = Address line 3
 
 ##      Confirm Page
-page.addressLookup.confirm.title                                        = Confirm the address
+page.addressLookup.confirm.title                                        = Confirm where the company will carry out most of its business activities
 page.addressLookup.PPOB.confirm.description                             = Confirm where the company will carry out most of its business activities
 page.addressLookup.Groups.confirm.description                           = Confirm {0}''s registered office address
 page.addressLookup.takeovers.otherBusinessAddress.confirm.description   = Confirm {0}’s address
@@ -458,7 +458,7 @@ page.addressLookup.confirm.continue                                 = Confirm an
 page.addressLookup.confirm.change                                   = Change
 
 ## Cookies, Policy, Terms and Conditions
-page.policy.title                                                   = Policies
+page.policy.title                                                   = Cookies, privacy and terms
 page.policy.heading                                                 = Cookies, privacy and terms
 page.policy.p1                                                      = This is a joint service from Companies House and HM Revenue & Customs (HMRC). The departments have their own cookie policies, privacy policies and terms and conditions. They also share data collected through the service.
 page.shared.h2                                                      = Data shared between departments
@@ -489,7 +489,7 @@ footer.phone.call_support                                           = Call our s
 page.healthcheck.header                                             = Service healthy
 
 #Groups
-page.groups.groupRelief.title                                          = Group relief
+page.groups.groupRelief.title                                          = For Corporation Tax, will {0} be in the same group for group relief purposes as the company that owns it?
 page.groups.groupRelief.heading                                        = For Corporation Tax, will {0} be in the same group for group relief purposes as the company that owns it?
 page.groups.groupRelief.p1                                             = This can be the parent company if it is in the same group as {0}.
 page.groups.groupRelief.dropdownTitle                                  = What is group relief?

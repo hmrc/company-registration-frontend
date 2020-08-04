@@ -23,7 +23,7 @@
 
 @(groupRelief : Form[Boolean], companyName: String)(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.FrontendAppConfig)
 
-@main_template(title = Messages("page.groups.groupRelief.title"), mainClass = None){
+@main_template(title = Messages("page.groups.groupRelief.title", companyName), mainClass = None){
 
 <a id="back" class="link-back" href="@controllers.handoff.routes.GroupController.back()">@messages("common.button.back")</a>
 
