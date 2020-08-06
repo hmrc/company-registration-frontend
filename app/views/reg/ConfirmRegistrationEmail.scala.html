@@ -17,11 +17,12 @@
 @import uk.gov.hmrc.play.views.html.helpers.form
 @import uk.gov.hmrc.play.views.html.{helpers => govHelpers}
 @import views.html.helpers.{inputRadioGroup, errorSummary}
+@import views.helpers.TitleHelper.title
 
 @(confirmRegistrationEmail : Form[ConfirmRegistrationEmailModel], differentEmail: String)(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.FrontendAppConfig)
 
 
-@main_template(title = Messages("page.reg.confirmRegistrationEmail.title", differentEmail), mainClass = None) {
+@main_template(title = title(Messages("page.reg.confirmRegistrationEmail.title", differentEmail),confirmRegistrationEmail)  , mainClass = None) {
 
     <a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
 @errorSummary(

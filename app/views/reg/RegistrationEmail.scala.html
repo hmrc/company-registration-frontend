@@ -17,6 +17,7 @@
 @import uk.gov.hmrc.play.views.html.helpers.form
 @import uk.gov.hmrc.play.views.html.{helpers => govHelpers}
 @import views.html.helpers.{inputRadioGroupHidden, errorSummary}
+@import views.helpers.TitleHelper.title
 
 @(registrationEmail : Form[RegistrationEmailModel], email: String)(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.FrontendAppConfig)
 
@@ -29,7 +30,7 @@
     )
     }
 
-@main_template(title = Messages("page.reg.registrationEmail.title"), mainClass = None) {
+@main_template(title = title(Messages("page.reg.registrationEmail.title"),registrationEmail), mainClass = None) {
 
     <a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
 

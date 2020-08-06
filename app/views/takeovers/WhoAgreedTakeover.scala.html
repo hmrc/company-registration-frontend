@@ -17,10 +17,11 @@
 @import uk.gov.hmrc.play.views.html.helpers.form
 @import helpers.{errorSummary, input}
 @import models.TakeoverDetails
+@import views.helpers.TitleHelper.title
 
 @(whoAgreedTakeover: Form[String], businessName: String)(implicit request: Request[_], messages: Messages, appConfig: config.FrontendAppConfig)
 
-@main_template(title = messages("page.takeovers.whoAgreedTakeover.title", businessName)) {
+@main_template(title = title(messages("page.takeovers.whoAgreedTakeover.title", businessName),whoAgreedTakeover)) {
 
     <a id="back" class="link-back" href="javascript:history.back()">@messages("common.button.back")</a>
 
