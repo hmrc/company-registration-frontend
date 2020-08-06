@@ -20,6 +20,7 @@
 @import views.html.helpers.{inputRadioGroupHidden, errorSummary}
 @import controllers.CRLanguageController
 @import play.api.Application
+@import views.helpers.TitleHelper.title
 
 @(aboutYou : Form[AboutYouChoiceForm])(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.FrontendAppConfig)
 
@@ -32,7 +33,7 @@
     )
 }
 
-@main_template(title = Messages("page.reg.AboutYou.description")) {
+@main_template(title = title(Messages("page.reg.AboutYou.description"),aboutYou)) {
 
     <a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
 

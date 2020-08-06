@@ -18,10 +18,11 @@
 @import uk.gov.hmrc.play.views.html.helpers.form
 @import views.html.helpers.{errorSummary, inputRadioGroupAddresses}
 @import models.takeovers.AddressChoice
+@import views.helpers.TitleHelper.title
 
 @(homeAddressForm: Form[AddressChoice], previousOwnerName: String, addressSeq: Seq[NewAddress])(implicit request: Request[_], messages: Messages, appConfig: FrontendAppConfig)
 
-@main_template(title = messages("page.takeovers.homeAddress.title", previousOwnerName)) {
+@main_template(title = title(messages("page.takeovers.homeAddress.title", previousOwnerName),homeAddressForm)) {
 
     <a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
 

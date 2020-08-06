@@ -35,6 +35,7 @@ common.button.ConfirmAndContinue                                    = Confirm an
 common.period                                                       = .
 common.differentAddress                                             = A different address
 feedback.thankyou.title                                             = Your feedback
+app.common.titleError                                               = Error:
 
 
 ## Timeout page

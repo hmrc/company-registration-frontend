@@ -18,6 +18,7 @@
 @import helpers.{oneOfManyErrorWrapper, inputRadioGroupHidden}
 @import models.Groups
 @import uk.gov.hmrc.play.views.html.{helpers => govHelpers}
+@import views.helpers.TitleHelper.title
 
 @(shareholdersForm: Form[GroupCompanyName], optionCompanyName: Option[GroupCompanyName], shareholderNames: List[String])(implicit request: Request[_], messages: Messages, appConfig: config.FrontendAppConfig)
 
@@ -30,7 +31,7 @@ shareholdersForm("otherName"),
 )
 }
 
-@main_template(title = messages(s"page.groups.groupName.title")) {
+@main_template(title = title(messages(s"page.groups.groupName.title"),shareholdersForm)) {
 
 <a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
 

@@ -18,6 +18,7 @@
 @import controllers.CRLanguageController
 @import play.api.Application
 @import views.html.helpers.{inputRadioGroupHidden, dateFieldsFreeInline, errorSummary, inputRadioGroup}
+@import views.helpers.TitleHelper.title
 
 @(returningUser : Form[models.ReturningUser],isUserLoggedin: Boolean)(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.FrontendAppConfig)
 
@@ -27,7 +28,7 @@
 </div>
 }
 
-@main_template(title = Messages("page.reg.returningUser.title"), mainClass = None){
+@main_template(title = title(Messages("page.reg.returningUser.title"),returningUser), mainClass = None){
 
 
     <a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>

@@ -19,12 +19,13 @@
 @import views.html.helpers.{errorSummary, input}
 @import controllers.CRLanguageController
 @import play.api.Application
+@import views.helpers.TitleHelper.title
 
 @(contactDetails: Form[CompanyContactDetailsApi], companyName: String)(implicit request: Request[_], messages: Messages, lang: Lang, appConfig: config.FrontendAppConfig)
 
 @fieldSetClasses =  @{if(contactDetails.hasErrors && (contactDetails.errors.exists(_.args.nonEmpty))) "form-group-error" else "" }
 
-@main_template(title = Messages("page.reg.company-contact-details.description", companyName), bodyClasses=None) {
+@main_template(title = title(Messages("page.reg.company-contact-details.description", companyName),contactDetails), bodyClasses=None) {
 
     <a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
 

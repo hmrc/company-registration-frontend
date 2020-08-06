@@ -18,8 +18,9 @@
 
 @import uk.gov.hmrc.play.views.html.helpers.{form, input}
 @import views.html.helpers.{inputRadioGroup, errorSummary}
+@import views.helpers.TitleHelper.title
 
-@main_template(title = Messages("page.reg.ppob.description")) {
+@main_template(title = title(Messages("page.reg.ppob.description"),ppobForm)) {
 
     <a id="back" class="link-back" href="@controllers.reg.routes.PPOBController.back()">@Messages("common.button.back")</a>
 
