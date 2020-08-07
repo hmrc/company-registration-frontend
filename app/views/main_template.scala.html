@@ -34,7 +34,7 @@
 }
 
 @govuk_wrapper(appConfig = appConfig,
-               title = title,
+               title = s"$title - ${messages("common.service.name")} - ${messages("common.govuk.label")}",
                mainClass = mainClass,
                bodyClasses = bodyClasses,
                sidebar = sidebar,

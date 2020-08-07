@@ -40,7 +40,7 @@ class PolicySpec extends UnitSpec with WithFakeApplication with SCRSMocks with M
 			val result = controller.policyLinks()(FakeRequest())
 			val document = Jsoup.parse(contentAsString(result))
 
-			document.title() shouldBe "Cookies, privacy and terms"
+			document.title should include("Cookies, privacy and terms")
 
 			document.getElementById("main-heading").text() shouldBe "Cookies, privacy and terms"
 			document.getElementById("ch-cookies").attr("href") shouldBe "http://resources.companieshouse.gov.uk/legal/cookies.shtml"

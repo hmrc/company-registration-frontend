@@ -69,7 +69,7 @@ class VerifyYourEmailISpec extends IntegrationSpecBase with LoginStub {
       response.status shouldBe 200
 
       val document = Jsoup.parse(response.body)
-      document.title() shouldBe "Confirm your email address"
+      document.title should include("Confirm your email address")
       document.getElementById("description").text should include(email)
     }
 

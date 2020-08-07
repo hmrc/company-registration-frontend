@@ -98,7 +98,7 @@ class AccessibilityStatementSpec extends SCRSSpec with GuiceOneAppPerSuite {
     }
 
     "have a title" in {
-      parsePage.title shouldBe Messages.title
+      parsePage.title should include(Messages.title)
     }
 
     "have multiple h2" in {

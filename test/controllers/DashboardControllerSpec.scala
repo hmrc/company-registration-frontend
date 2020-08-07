@@ -21,6 +21,8 @@ import config.FrontendAppConfig
 import controllers.dashboard.DashboardController
 import helpers.SCRSSpec
 import models.{Dashboard, IncorpAndCTDashboard, ServiceDashboard, ServiceLinks}
+import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
 import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito._
 import play.api.i18n.MessagesApi
@@ -90,7 +92,9 @@ class DashboardControllerSpec extends SCRSSpec with WithFakeApplication with Aut
           fRes =>
             val res = await(fRes)
             status(res) shouldBe 200
-            contentAsString(res) should include("<title>Company registration overview</title>")
+
+            val document: Document = Jsoup.parse(contentAsString(res))
+            document.title should include("Company registration overview")
         }
 
         verify(mockDashboardService, times(1)).checkForEmailMismatch(any(), any())(any(), any())
@@ -109,7 +113,9 @@ class DashboardControllerSpec extends SCRSSpec with WithFakeApplication with Aut
           fRes =>
             val res = await(fRes)
             status(res) shouldBe 200
-            contentAsString(res) should include("<title>Your company registration was unsuccessful</title>")
+
+            val document: Document = Jsoup.parse(contentAsString(res))
+            document.title should include("Your company registration was unsuccessful")
         }
 
         verify(mockDashboardService, times(1)).checkForEmailMismatch(any(), any())(any(), any())

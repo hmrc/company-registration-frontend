@@ -36,7 +36,7 @@ class ReplacingAnotherBusinessViewSpec extends UnitSpec with GuiceOneAppPerSuite
 
     val expectedTitle = "Is the new company replacing another business?"
     s"have a title of '$expectedTitle'" in {
-      doc.title() shouldBe expectedTitle
+      doc.title should include(expectedTitle)
     }
 
     lazy val paragraph1 = doc.getElementById("paragraph-one")

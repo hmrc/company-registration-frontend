@@ -47,7 +47,7 @@ class HomeAddressViewSpec extends UnitSpec with GuiceOneAppPerSuite with I18nSup
     lazy val saveAndContinue = "Save and continue"
 
     s"have an expected title: $title" in {
-      doc.title() shouldBe title
+      doc.title should include(title)
     }
 
     s"have an expected heading: $heading" in {

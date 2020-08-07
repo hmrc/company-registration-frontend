@@ -98,7 +98,7 @@ class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixtu
         result =>
           val document = Jsoup.parse(contentAsString(result))
 
-          document.title() shouldBe "Check and confirm your answers"
+          document.title should include("Check and confirm your answers")
 
           Map (
             "applicantTitle" -> "Applicant",
@@ -175,7 +175,7 @@ class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixtu
         result =>
           val document = Jsoup.parse(contentAsString(result))
 
-          document.title() shouldBe "Check and confirm your answers"
+          document.title should include("Check and confirm your answers")
 
           Map (
             "applicantTitle" -> "Applicant",
@@ -217,7 +217,7 @@ class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixtu
         result =>
           val document = Jsoup.parse(contentAsString(result))
 
-          document.title() shouldBe "Check and confirm your answers"
+          document.title should include("Check and confirm your answers")
 
           Map (
             "applicantTitle" -> "Applicant",
@@ -262,7 +262,7 @@ class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixtu
         result =>
           val document = Jsoup.parse(contentAsString(result))
 
-          document.title() shouldBe "Check and confirm your answers"
+          document.title should include("Check and confirm your answers")
 
           Map (
             "applicantTitle" -> "Applicant",
