@@ -54,7 +54,7 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fix
       mdtpCookieData("userId") shouldBe userId
 
       val document = Jsoup.parse(response.body)
-      document.title() shouldBe "When will the company start trading?"
+      document.title should include("When will the company start trading?")
       document.getElementById("businessStartDate-whenregistered").attr("checked") shouldBe ""
       document.getElementById("businessStartDate-futuredate").attr("checked") shouldBe ""
       document.getElementById("businessStartDate-notplanningtoyet").attr("checked") shouldBe ""
@@ -81,7 +81,7 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fix
       response.status shouldBe 200
 
       val document = Jsoup.parse(response.body)
-      document.title() shouldBe "When will the company start trading?"
+      document.title should include("When will the company start trading?")
       document.getElementById("businessStartDate-whenregistered").attr("checked") shouldBe ""
       document.getElementById("businessStartDate-futuredate").attr("checked") shouldBe "checked"
       document.getElementById("businessStartDate-notplanningtoyet").attr("checked") shouldBe ""

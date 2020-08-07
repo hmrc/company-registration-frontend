@@ -82,7 +82,7 @@ class EmailVerificationControllerSpec extends CompanyRegistrationConnectorMock w
         result => {
           status(result) shouldBe 200
           val document = Jsoup.parse(contentAsString(result))
-          document.title shouldBe "Confirm your email address"
+          document.title should include("Confirm your email address")
           document.getElementById("description").text should include(email)
         }
       )
@@ -123,7 +123,7 @@ class EmailVerificationControllerSpec extends CompanyRegistrationConnectorMock w
       val result = await(controller.createShow(FakeRequest()))
       status(result) shouldBe 200
       val document = Jsoup.parse(contentAsString(result))
-      document.title shouldBe "You need to create a new Government Gateway account"
+      document.title should include("You need to create a new Government Gateway account")
       document.getElementById("description-one").text should include("doesn't have an email address linked")
    }
   }
@@ -132,7 +132,7 @@ class EmailVerificationControllerSpec extends CompanyRegistrationConnectorMock w
     "go to incorrect-account-type page" in new Setup {
       val result = await(controller.createGGWAccountAffinityShow(FakeRequest()))
       val document = Jsoup.parse(contentAsString(result))
-      document.title shouldBe "You've signed in with the wrong type of account"
+      document.title should include("You've signed in with the wrong type of account")
       document.getElementById("main-heading").text shouldBe "You've signed in with the wrong type of account"
       document.getElementById("para-one").text should include("This service only works with Government Gateway accounts that have been set up for organisations.")
     }
@@ -143,7 +143,7 @@ class EmailVerificationControllerSpec extends CompanyRegistrationConnectorMock w
       val result = await(controller.createNewGGWAccountShow(FakeRequest()))
       bodyOf(result) contains "Create a new Government Gateway account"
       val document = Jsoup.parse(contentAsString(result))
-      document.title shouldBe "You need to create a new Government Gateway account"
+      document.title should include("You need to create a new Government Gateway account")
       document.getElementById("main-heading").text shouldBe "You need to create a new Government Gateway account"
       document.getElementById("para-one").text should include("already been used")
     }

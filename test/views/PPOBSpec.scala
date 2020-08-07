@@ -68,7 +68,7 @@ class PPOBSpec extends SCRSSpec with PPOBFixture with NavModelRepoMock with With
         result =>
           val document = Jsoup.parse(contentAsString(result))
 
-          document.title() shouldBe "What is the company's 'principal place of business'?"
+          document.title should include("What is the company's 'principal place of business'?")
           document.getElementById("main-heading").text shouldBe "What is the company's 'principal place of business'?"
           document.getElementById("next").attr("value") shouldBe "Save and continue"
 
@@ -90,7 +90,7 @@ class PPOBSpec extends SCRSSpec with PPOBFixture with NavModelRepoMock with With
         result =>
           val document = Jsoup.parse(contentAsString(result))
 
-          document.title() shouldBe "What is the company's 'principal place of business'?"
+          document.title should include("What is the company's 'principal place of business'?")
           document.getElementById("main-heading").text shouldBe "What is the company's 'principal place of business'?"
           document.getElementById("next").attr("value") shouldBe "Save and continue"
 
@@ -113,7 +113,7 @@ class PPOBSpec extends SCRSSpec with PPOBFixture with NavModelRepoMock with With
         result =>
           val document = Jsoup.parse(contentAsString(result))
 
-          document.title() shouldBe "What is the company's 'principal place of business'?"
+          document.title should include("What is the company's 'principal place of business'?")
           document.getElementById("main-heading").text shouldBe "What is the company's 'principal place of business'?"
           document.getElementById("next").attr("value") shouldBe "Save and continue"
 
@@ -133,7 +133,7 @@ class PPOBSpec extends SCRSSpec with PPOBFixture with NavModelRepoMock with With
       showWithAuthorisedUser(controller.show) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
-          document.title() shouldBe "What is the company's 'principal place of business'?"
+          document.title should include("What is the company's 'principal place of business'?")
           document.getElementById("main-heading").text shouldBe "What is the company's 'principal place of business'?"
           document.getElementById("next").attr("value") shouldBe "Save and continue"
       }

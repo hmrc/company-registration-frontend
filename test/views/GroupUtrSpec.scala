@@ -89,7 +89,7 @@ class GroupUtrSpec extends SCRSSpec with UserDetailsFixture
         result =>
           val document = Jsoup.parse(contentAsString(result))
 
-          document.title() shouldBe "Do you know testGroupCompanyname1's Unique Taxpayer Reference (UTR)?"
+          document.title should include("Do you know testGroupCompanyname1's Unique Taxpayer Reference (UTR)?")
           document.getElementById("main-heading").text() shouldBe "Do you know testGroupCompanyname1's Unique Taxpayer Reference (UTR)?"
           document.getElementById("utr").attr("value") shouldBe ""
           document.getElementsByTag("legend").text() shouldBe "Do you know testGroupCompanyname1's Unique Taxpayer Reference (UTR)?"
@@ -111,7 +111,7 @@ class GroupUtrSpec extends SCRSSpec with UserDetailsFixture
         result =>
           val document = Jsoup.parse(contentAsString(result))
 
-          document.title() shouldBe "Do you know testGroupCompanyname1's Unique Taxpayer Reference (UTR)?"
+          document.title should include("Do you know testGroupCompanyname1's Unique Taxpayer Reference (UTR)?")
           document.getElementById("main-heading").text() shouldBe "Do you know testGroupCompanyname1's Unique Taxpayer Reference (UTR)?"
           document.getElementById("utr").attr("value") shouldBe "1234567890"
           document.getElementsByTag("legend").text() shouldBe "Do you know testGroupCompanyname1's Unique Taxpayer Reference (UTR)?"

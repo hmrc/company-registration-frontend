@@ -63,7 +63,7 @@ class ConfirmationSpec extends SCRSSpec with CompanyDetailsFixture with WithFake
         result =>
           val document = Jsoup.parse(contentAsString(result))
 
-          document.title() shouldBe "Application submitted"
+          document.title should include("Application submitted")
 
           Map(
             "heading-application-submitted" -> "Application submitted",

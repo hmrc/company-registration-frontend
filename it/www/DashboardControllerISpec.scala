@@ -203,7 +203,7 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
       mdtpCookieData("userId") shouldBe userId
 
       val doc = Jsoup.parse(response.body)
-      doc.title shouldBe "Company registration overview"
+      doc.title should include("Company registration overview")
       doc.getElementById("payeRej").attr("href") shouldBe payeRestartURL
       doc.getElementById("payeRej").text shouldBe "Register again"
     }
@@ -242,7 +242,7 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
       mdtpCookieData("userId") shouldBe userId
 
       val doc = Jsoup.parse(response.body)
-      doc.title shouldBe "Company registration overview"
+      doc.title should include("Company registration overview")
     }
 
     "not display the VAT block when the vat feature switch is OFF" in {

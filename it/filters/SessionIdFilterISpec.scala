@@ -35,7 +35,7 @@ class SessionIdFilterISpec extends IntegrationSpecBase
       response.status shouldBe 200
 
       val document = Jsoup.parse(response.body)
-      document.title() shouldBe messages("page.reg.returningUser.title")
+      document.title should include(messages("page.reg.returningUser.title"))
     }
   }
 }

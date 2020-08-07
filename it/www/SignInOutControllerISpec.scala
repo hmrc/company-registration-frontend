@@ -461,7 +461,7 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with R
 
       response.status shouldBe 400
       val document = Jsoup.parse(response.body)
-      document.title() shouldBe "Bad request - 400"
+      document.title should include("Bad request - 400")
       document.select("h1").text should include("Bad request")
     }
   }
