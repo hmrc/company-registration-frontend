@@ -15,7 +15,7 @@
  *@
 
 @import uk.gov.hmrc.play.views.html.helpers.form
-@import helpers.{oneOfManyErrorWrapper, inputRadioGroupHidden}
+@import helpers.{oneOfManyErrorWrapper, inputRadioGroupHidden,errorSummary}
 @import models.Groups
 @import uk.gov.hmrc.play.views.html.{helpers => govHelpers}
 @import views.helpers.TitleHelper.title
@@ -34,6 +34,11 @@ shareholdersForm("otherName"),
 @main_template(title = title(messages(s"page.groups.groupName.title"),shareholdersForm)) {
 
 <a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
+
+@errorSummary(
+Messages("common.errorSummary.label"),
+shareholdersForm, dataJourney = Some("GroupCompanyName")
+)
 
 <h1 class="form-title heading-large" id="pageHeading">@messages("page.groups.groupName.heading")</h1>
 @form(action = controllers.groups.routes.GroupNameController.submit()){
