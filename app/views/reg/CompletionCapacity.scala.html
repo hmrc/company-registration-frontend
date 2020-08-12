@@ -22,7 +22,7 @@
 @import play.api.Application
 @import views.helpers.TitleHelper.title
 
-@(aboutYou : Form[AboutYouChoiceForm])(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.FrontendAppConfig)
+@(aboutYou: Form[AboutYouChoiceForm])(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.FrontendAppConfig)
 
 @otherHidden = {
     @govHelpers.input(
@@ -42,10 +42,6 @@
         aboutYou, dataJourney = Some("CompletionCapacity")
     )
 
-
-        <h1 class="form-title heading-large" id="main-heading">@Messages("page.reg.AboutYou.description")</h1>
-
-
     @form(action = controllers.reg.routes.CompletionCapacityController.submit()) {
         <div class="form-group">
             @inputRadioGroupHidden(
@@ -55,11 +51,11 @@
                     "agent"             -> Messages("page.reg.AboutYou.radio3"),
                     "other"             -> Messages("page.reg.AboutYou.radio4")),
                 Seq("other" -> otherHidden),
+                isHeading = true,
                 '_idHidden -> "other",
                 '_classHidden -> "panel panel-indent",
                 '_labelClass -> "block-label radio-label",
-                '_legend -> Messages("page.reg.AboutYou.description"),
-                '_legendClass -> "visually-hidden"
+                '_legend -> Messages("page.reg.AboutYou.description")
             )
         </div>
 

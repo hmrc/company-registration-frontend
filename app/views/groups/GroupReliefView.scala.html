@@ -22,15 +22,15 @@
 
 
 
-@(groupRelief : Form[Boolean], companyName: String)(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.FrontendAppConfig)
+@(groupRelief: Form[Boolean], companyName: String)(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.FrontendAppConfig)
 
-@main_template(title = title(Messages("page.groups.groupRelief.title", companyName),groupRelief), mainClass = None){
+@main_template(title = title(Messages("page.groups.groupRelief.title", companyName), groupRelief), mainClass = None) {
 
-<a id="back" class="link-back" href="@controllers.handoff.routes.GroupController.back()">@messages("common.button.back")</a>
+    <a id="back" class="link-back" href="@controllers.handoff.routes.GroupController.back()">@messages("common.button.back")</a>
 
     @errorSummary(
-    Messages("common.errorSummary.label"),
-    groupRelief, dataJourney = Some("GroupRelief")
+        Messages("common.errorSummary.label"),
+        groupRelief, dataJourney = Some("GroupRelief")
     )
 
 
@@ -40,22 +40,23 @@
     <p>@Messages("page.groups.groupRelief.p1", companyName)</p>
 </div>
 
-<div class="form-group">
-    <details>
-        <summary class="summary">@Messages("page.groups.groupRelief.dropdownTitle")</summary>
-        <div class="panel panel-border-narrow">
-            <p>@Messages("page.groups.groupRelief.dropdownText")</p>
-        </div>
-    </details>
-</div>
+    <div class="form-group">
+        <details>
+            <summary class="summary">@Messages("page.groups.groupRelief.dropdownTitle")</summary>
+            <div class="panel panel-border-narrow">
+                <p>@Messages("page.groups.groupRelief.dropdownText")</p>
+            </div>
+        </details>
+    </div>
 
     @form(action = controllers.groups.routes.GroupReliefController.submit()) {
         <div class="form-group">
-            @inputRadioGroup(
+        @inputRadioGroup(
             groupRelief("groupRelief"),
                 Seq("true" -> Messages("page.groups.groupRelief.yesLabel"),"false" -> Messages("page.groups.groupRelief.noLabel")),
+                isHeading = false,
                 '_labelClass -> "block-label radio-label",
-                '_legend -> Messages("page.groups.groupRelief.title"),
+                '_legend -> Messages("page.groups.groupRelief.heading", companyName),
                 '_legendClass -> "visually-hidden"
             )
         </div>

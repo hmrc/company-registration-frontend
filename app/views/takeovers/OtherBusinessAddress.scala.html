@@ -31,7 +31,6 @@
         otherBusinessAddressForm,
         dataJourney = Some("TakeOvers")
     )
-
     <h1 id="main-heading" class="heading-large">@messages("page.takeovers.otherBusinessAddress.heading", previousOwnerName)</h1>
 
     <div id="paragraph-one" class="form-group">
@@ -48,7 +47,9 @@
             @inputRadioGroupAddresses(
                 field = otherBusinessAddressForm("otherBusinessAddress"),
                 addresses = addressSeq,
-                legend = messages("page.takeovers.otherBusinessAddress.heading", previousOwnerName)
+                legend = messages("page.takeovers.otherBusinessAddress.heading", previousOwnerName),
+                isHeading = false,
+                isHidden = true
             )
         </div>
 

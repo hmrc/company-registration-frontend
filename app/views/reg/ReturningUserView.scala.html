@@ -20,56 +20,52 @@
 @import views.html.helpers.{inputRadioGroupHidden, dateFieldsFreeInline, errorSummary, inputRadioGroup}
 @import views.helpers.TitleHelper.title
 
-@(returningUser : Form[models.ReturningUser],isUserLoggedin: Boolean)(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.FrontendAppConfig)
+@(returningUser: Form[models.ReturningUser], isUserLoggedin: Boolean)(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.FrontendAppConfig)
 
 @yesHiddenContent = {
-<div class="notice">
-    @Messages("page.reg.returningUser.radioYesHintText")
-</div>
+    <div class="notice">
+        @Messages("page.reg.returningUser.radioYesHintText")
+    </div>
 }
 
-@main_template(title = title(Messages("page.reg.returningUser.title"),returningUser), mainClass = None){
+@main_template(title = title(Messages("page.reg.returningUser.title"), returningUser), mainClass = None) {
 
 
     <a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
 
     @errorSummary(
-    Messages("common.errorSummary.label"),
-    returningUser, dataJourney = Some("ReturningUser")
+        Messages("common.errorSummary.label"),
+        returningUser, dataJourney = Some("ReturningUser")
     )
-
-
-        <h1 id="main-heading" class="heading-large">@Messages("page.reg.returningUser.description")</h1>
 
     @form(action = controllers.reg.routes.ReturningUserController.submit()) {
 
-    @if(isUserLoggedin) {
-    @inputRadioGroupHidden(
-        returningUser("returningUser"),
-        Seq(("true",Messages("page.reg.returningUser.radioYesLabel")),("false",Messages("page.reg.returningUser.radioNoLabel"))),
-        Seq("true" -> yesHiddenContent),
-        '_fieldsetId -> "returning-user",
-        '_idHidden -> "returning-user",
-        '_groupClass -> "form-group",
-        '_classHidden -> "panel panel-indent",
-        '_labelClass -> "block-label radio-label",
-        '_legend -> Messages("page.reg.returningUser.description"),
-        '_legendClass -> "visually-hidden"
-
-    )
-    } else {
-        @inputRadioGroup(
-        returningUser("returningUser"),
-        Seq(("true",Messages("page.reg.returningUser.radioYesLabel")),("false",Messages("page.reg.returningUser.radioNoLabel"))),
-        '_fieldsetId -> "returning-user",
-        '_groupClass -> "form-group",
-        '_labelClass -> "block-label radio-label",
-        '_legend -> Messages("page.reg.returningUser.description"),
-        '_legendClass -> "visually-hidden"
-    )
-    }
-    <div class="form-group">
-        <input class="button" type="submit" id="next" value="@Messages("common.button.continue")">
-    </div>
+        @if(isUserLoggedin) {
+            @inputRadioGroupHidden(
+                returningUser("returningUser"),
+                Seq(("true", Messages("page.reg.returningUser.radioYesLabel")), ("false", Messages("page.reg.returningUser.radioNoLabel"))),
+                Seq("true" -> yesHiddenContent),
+                isHeading = true,
+                '_fieldsetId -> "returning-user",
+                '_idHidden -> "returning-user",
+                '_groupClass -> "form-group",
+                '_classHidden -> "panel panel-indent",
+                '_labelClass -> "block-label radio-label",
+                '_legend -> Messages("page.reg.returningUser.description")
+            )
+        } else {
+            @inputRadioGroup(
+                returningUser("returningUser"),
+                Seq(("true", Messages("page.reg.returningUser.radioYesLabel")), ("false", Messages("page.reg.returningUser.radioNoLabel"))),
+                isHeading = true,
+                '_fieldsetId -> "returning-user",
+                '_groupClass -> "form-group",
+                '_labelClass -> "block-label radio-label",
+                '_legend -> Messages("page.reg.returningUser.description")
+            )
+        }
+        <div class="form-group">
+            <input class="button" type="submit" id="next" value="@Messages("common.button.continue")">
+        </div>
     }
 }

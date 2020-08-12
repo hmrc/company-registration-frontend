@@ -23,9 +23,9 @@
 
 @main_template(title = "Feature switch", mainClass = Some("full-width")) {
 
-<div class="grid-row">
+    <div class="grid-row">
 
-            <h1 class="form-title heading-large" id="main-heading">Feature switch</h1>
+        <h1 class="form-title heading-large" id="main-heading">Feature switch</h1>
 
 
         @form(action = controllers.test.routes.TestEndpointController.updateFeatureSwitch()) {
@@ -34,22 +34,25 @@
             @inputRadioGroup(
                 featureSwitchForm("firstHandOff"),
                 Seq("true" -> "CoHo", "false" -> "Stub"),
+                isHeading = false,
                 '_labelClass -> "block-label radio-label",
                 '_groupClass -> "form-group inline"
             )
 
             <h2>Legacy Env</h2>
             @inputRadioGroup(
-            featureSwitchForm("legacyEnv"),
-            Seq("true" -> "DCD (Legacy)", "false" -> "AWS"),
-            '_labelClass -> "block-label radio-label",
-            '_groupClass -> "form-group inline"
+                featureSwitchForm("legacyEnv"),
+                Seq("true" -> "DCD (Legacy)", "false" -> "AWS"),
+                isHeading = false,
+                '_labelClass -> "block-label radio-label",
+                '_groupClass -> "form-group inline"
             )
 
             <h2>Takeovers section</h2>
             @inputRadioGroup(
                 featureSwitchForm("takeovers"),
                 Seq("true" -> "Enabled", "false" -> "Disabled"),
+                isHeading = false,
                 '_labelClass -> "block-label radio-label",
                 '_groupClass -> "form-group inline"
             )
@@ -59,5 +62,5 @@
             </div>
         }
 
-</div>
+    </div>
 }

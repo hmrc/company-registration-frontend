@@ -22,31 +22,32 @@
 
 
 
-@(groupAddress: Form[GroupAddressChoice], mapOfAddresses: Map[String,String], companyName: String)(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.FrontendAppConfig)
+@(groupAddress: Form[GroupAddressChoice], mapOfAddresses: Map[String, String], companyName: String)(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.FrontendAppConfig)
 
-@main_template(title = title(Messages("page.groups.groupAddress.title",companyName),groupAddress), mainClass = None){
+@main_template(title = title(Messages("page.groups.groupAddress.title", companyName), groupAddress), mainClass = None) {
 
     <a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
 
     @errorSummary(
-    Messages("common.errorSummary.label"),
-    groupAddress, dataJourney = Some("GroupAddress")
+        Messages("common.errorSummary.label"),
+        groupAddress, dataJourney = Some("GroupAddress")
     )
 
 
         <h1 id="main-heading" class="heading-large">@Messages("page.groups.groupAddress.heading", companyName)</h1>
 
-<div id="paragraph-one" class="form-group">
-    <p>@Messages("page.groups.groupAddress.helpText")</p>
-</div>
+        <div id="paragraph-one" class="form-group">
+            <p>@Messages("page.groups.groupAddress.helpText")</p>
+        </div>
 
     @form(action = controllers.groups.routes.GroupAddressController.submit()) {
         <div class="form-group">
-            @inputRadioGroup(
+        @inputRadioGroup(
             groupAddress("groupAddress"),
             mapOfAddresses.toSeq ++ Seq(("Other", messages("page.groups.groupAddress.differentAddress"))),
+            isHeading = false,
             '_labelClass -> "block-label radio-label",
-            '_legend -> Messages("page.groups.groupAddress.helpText"),
+            '_legend -> Messages("page.groups.groupAddress.heading", companyName),
             '_legendClass -> "visually-hidden"
             )
         </div>

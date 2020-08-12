@@ -69,7 +69,7 @@ class PPOBSpec extends SCRSSpec with PPOBFixture with NavModelRepoMock with With
           val document = Jsoup.parse(contentAsString(result))
 
           document.title should include("What is the company's 'principal place of business'?")
-          document.getElementById("main-heading").text shouldBe "What is the company's 'principal place of business'?"
+          document.getElementsByTag("h1").first().text shouldBe "What is the company's 'principal place of business'?"
           document.getElementById("next").attr("value") shouldBe "Save and continue"
 
           document.getElementById("addressChoice").getElementsByAttributeValue("for","addressChoice-ro").text() shouldBe "38 line 1, line 2, Telford ZZ1 1ZZ, UK"
@@ -91,7 +91,7 @@ class PPOBSpec extends SCRSSpec with PPOBFixture with NavModelRepoMock with With
           val document = Jsoup.parse(contentAsString(result))
 
           document.title should include("What is the company's 'principal place of business'?")
-          document.getElementById("main-heading").text shouldBe "What is the company's 'principal place of business'?"
+          document.getElementsByTag("h1").first().text shouldBe "What is the company's 'principal place of business'?"
           document.getElementById("next").attr("value") shouldBe "Save and continue"
 
           document.getElementById("addressChoice").getElementsByAttributeValue("for","addressChoice-ro").text() shouldBe "38 line 1, line 2, Telford ZZ1 1ZZ, UK"
@@ -114,7 +114,7 @@ class PPOBSpec extends SCRSSpec with PPOBFixture with NavModelRepoMock with With
           val document = Jsoup.parse(contentAsString(result))
 
           document.title should include("What is the company's 'principal place of business'?")
-          document.getElementById("main-heading").text shouldBe "What is the company's 'principal place of business'?"
+          document.getElementsByTag("h1").first().text shouldBe "What is the company's 'principal place of business'?"
           document.getElementById("next").attr("value") shouldBe "Save and continue"
 
           document.getElementById("addressChoice").getElementsByAttributeValue("for","addressChoice-ro").text() shouldBe "14 St Test Walk, Testley, Testford, Testshire, TE1 1ST, UK"
@@ -134,7 +134,7 @@ class PPOBSpec extends SCRSSpec with PPOBFixture with NavModelRepoMock with With
         result =>
           val document = Jsoup.parse(contentAsString(result))
           document.title should include("What is the company's 'principal place of business'?")
-          document.getElementById("main-heading").text shouldBe "What is the company's 'principal place of business'?"
+          document.getElementsByTag("h1").first.text shouldBe "What is the company's 'principal place of business'?"
           document.getElementById("next").attr("value") shouldBe "Save and continue"
       }
     }

@@ -19,32 +19,35 @@
 @import views.html.helpers.{inputRadioGroup, errorSummary}
 @import views.helpers.TitleHelper.title
 
-@(confirmRegistrationEmail : Form[ConfirmRegistrationEmailModel], differentEmail: String)(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.FrontendAppConfig)
+@(confirmRegistrationEmail: Form[ConfirmRegistrationEmailModel], differentEmail: String)(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.FrontendAppConfig)
 
 
-@main_template(title = title(Messages("page.reg.confirmRegistrationEmail.title", differentEmail),confirmRegistrationEmail)  , mainClass = None) {
+@main_template(title = title(Messages("page.reg.confirmRegistrationEmail.title", differentEmail), confirmRegistrationEmail), mainClass = None) {
 
     <a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
-@errorSummary(
-Messages("common.errorSummary.label"),
-confirmRegistrationEmail, dataJourney = Some("ConfirmRegistrationEmailModel")
-)
+
+    @errorSummary(
+        Messages("common.errorSummary.label"),
+        confirmRegistrationEmail, dataJourney = Some("ConfirmRegistrationEmailModel")
+    )
+
     <div class="form-group">
         <h1 id="main-heading">@Messages("page.reg.confirmRegistrationEmail.heading", differentEmail)</h1>
 
         <div class="form-group">
-            <p id="para-one">@Messages("page.reg.confirmRegistrationEmail.p1", differentEmail)</p>
+            <p>@Messages("page.reg.confirmRegistrationEmail.p1", differentEmail)</p>
         </div>
 
         @form(action = controllers.reg.routes.RegistrationEmailConfirmationController.submit()) {
 
         <div class="form-group">
             @inputRadioGroup(
-            confirmRegistrationEmail("confirmRegistrationEmail"),
-            Seq("true" -> Messages("page.reg.confirmRegistrationEmail.radio1"),"false" -> Messages("page.reg.confirmRegistrationEmail.radio2")),
-            '_labelClass -> "block-label radio-label",
-            '_legend -> Messages("page.reg.confirmRegistrationEmail.heading"),
-            '_legendClass -> "visually-hidden"
+                confirmRegistrationEmail("confirmRegistrationEmail"),
+                Seq("true" -> Messages("page.reg.confirmRegistrationEmail.radio1"), "false" -> Messages("page.reg.confirmRegistrationEmail.radio2")),
+                isHeading = false,
+                '_labelClass -> "block-label radio-label",
+                '_legend -> Messages("page.reg.confirmRegistrationEmail.heading", differentEmail),
+                '_legendClass -> "visually-hidden"
             )
         </div>
 
@@ -52,6 +55,7 @@ confirmRegistrationEmail, dataJourney = Some("ConfirmRegistrationEmailModel")
             <input class="button" type="submit" id="next" value="@Messages("common.button.continue")">
         </div>
 
+            }
     </div>
-    }
+
 }

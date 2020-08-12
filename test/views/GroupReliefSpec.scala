@@ -79,7 +79,7 @@ class GroupReliefSpec extends SCRSSpec with UserDetailsFixture
           val document = Jsoup.parse(contentAsString(result))
 
           document.title should include("For Corporation Tax, will testCompanyname1 be in the same group for group relief purposes as the company that owns it?")
-          document.getElementById("main-heading").text() shouldBe "For Corporation Tax, will testCompanyname1 be in the same group for group relief purposes as the company that owns it?"
+          document.getElementsByTag("h1").first.text() shouldBe "For Corporation Tax, will testCompanyname1 be in the same group for group relief purposes as the company that owns it?"
           document.getElementById("paragraph-one").text() shouldBe "This can be the parent company if it is in the same group as testCompanyname1."
 
       }

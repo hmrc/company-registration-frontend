@@ -19,53 +19,54 @@
 @import views.html.helpers.{inputRadioGroupHidden, errorSummary}
 @import views.helpers.TitleHelper.title
 
-@(groupUTR : Form[GroupUTR], parentCompanyName : String)(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.FrontendAppConfig)
+@(groupUTR: Form[GroupUTR], parentCompanyName: String)(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.FrontendAppConfig)
 
-    @differentHidden = {
-@govHelpers.input(
-    groupUTR("utr"),
-    '_inputClass -> "form-control-1-2",
-    '_labelClass -> "form-label cascading",
-    '_label -> Messages("page.groups.groupUtr.utrLabel"),
-    '_inputHint -> Messages("page.groups.groupUtr.helpText")
+@differentHidden = {
+    @govHelpers.input(
+        groupUTR("utr"),
+        '_inputClass -> "form-control-1-2",
+        '_labelClass -> "form-label cascading",
+        '_label -> Messages("page.groups.groupUtr.utrLabel"),
+        '_inputHint -> Messages("page.groups.groupUtr.helpText")
     )
-    }
+}
 
-@main_template(title = title(Messages("page.groups.groupUtr.title", parentCompanyName),groupUTR), mainClass = None) {
+@main_template(title = title(Messages("page.groups.groupUtr.title", parentCompanyName), groupUTR), mainClass = None) {
 
     <a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
 
-@errorSummary(
-Messages("common.errorSummary.label"),
-groupUTR, dataJourney = Some("GroupUTR")
-)
+    @errorSummary(
+        Messages("common.errorSummary.label"),
+        groupUTR, dataJourney = Some("GroupUTR")
+    )
 
     <div class="form-group">
         <h1 id="main-heading">@Messages("page.groups.groupUtr.heading", parentCompanyName)</h1>
 
         <div class="form-group">
-                <p id="para-one">@Messages("page.groups.groupUtr.p1")</p>
+            <p id="para-one">@Messages("page.groups.groupUtr.p1")</p>
         </div>
 
         @form(action = controllers.groups.routes.GroupUtrController.submit()) {
 
-        <div class="form-group">
+            <div class="form-group">
             @inputRadioGroupHidden(
-            groupUTR("groupUtr"),
-            Seq("utr" -> Messages("page.groups.groupUtr.yesLabel"),"noutr" -> Messages("page.groups.groupUtr.noLabel")),
-            Seq("utr" -> differentHidden),
-            '_fieldsetId -> "group-utr",
-            '_classHidden -> "panel panel-indent",
-            '_labelClass -> "block-label radio-label",
-            '_legend -> Messages("page.groups.groupUtr.heading", parentCompanyName),
-            '_legendClass -> "visually-hidden"
+                groupUTR("groupUtr"),
+                Seq("utr" -> Messages("page.groups.groupUtr.yesLabel"), "noutr" -> Messages("page.groups.groupUtr.noLabel")),
+                Seq("utr" -> differentHidden),
+                isHeading = false,
+                '_fieldsetId -> "group-utr",
+                '_classHidden -> "panel panel-indent",
+                '_labelClass -> "block-label radio-label",
+                '_legend -> Messages("page.groups.groupUtr.heading", parentCompanyName),
+                '_legendClass -> "visually-hidden"
             )
-        </div>
+            </div>
 
-        <div class="form-group">
-            <input class="button" type="submit" id="next" value="@Messages("common.button.snc")">
-        </div>
+            <div class="form-group">
+                <input class="button" type="submit" id="next" value="@Messages("common.button.snc")">
+            </div>
+        }
+     </div>
 
-    </div>
-    }
 }
