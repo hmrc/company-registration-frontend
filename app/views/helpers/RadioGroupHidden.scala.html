@@ -17,7 +17,9 @@
 @(field: Field,
   radioOptions: Seq[(String, String)],
   hiddenOption: (String, Html),
-  args: (Symbol, Any)*)(implicit request: Request[_], lang: play.api.i18n.Lang, messages: Messages)
+  isHeading: Boolean,
+  args: (Symbol, Any)*
+)(implicit request: Request[_], lang: play.api.i18n.Lang, messages: Messages)
 
 @import play.api.i18n._
 @import views.html.helper._
@@ -32,7 +34,11 @@
 
     @if(elements.args.get('_legend).isDefined) {
         <legend @if(elements.args.get('_legendClass).isDefined) {class="@elements.args.get('_legendClass)"}>
-            @elements.args.get('_legend)
+            @if(isHeading) {
+                <h1 class="heading-large">@elements.args.get('_legend)</h1>
+            } else {
+                @elements.args.get('_legend)
+            }
         </legend>
     }
 

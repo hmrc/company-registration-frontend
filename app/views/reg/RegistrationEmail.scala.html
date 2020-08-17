@@ -19,52 +19,53 @@
 @import views.html.helpers.{inputRadioGroupHidden, errorSummary}
 @import views.helpers.TitleHelper.title
 
-@(registrationEmail : Form[RegistrationEmailModel], email: String)(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.FrontendAppConfig)
+@(registrationEmail: Form[RegistrationEmailModel], email: String)(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.FrontendAppConfig)
 
 @differentHidden = {
     @govHelpers.input(
-    registrationEmail("DifferentEmail"),
-    '_inputClass -> "form-control-1-2",
-    '_labelClass -> "form-label cascading",
-    '_label -> Messages("page.reg.registrationEmail.enterEmail")
+        registrationEmail("DifferentEmail"),
+        '_inputClass -> "form-control-1-2",
+        '_labelClass -> "form-label cascading",
+        '_label -> Messages("page.reg.registrationEmail.enterEmail")
     )
-    }
+}
 
-@main_template(title = title(Messages("page.reg.registrationEmail.title"),registrationEmail), mainClass = None) {
+@main_template(title = title(Messages("page.reg.registrationEmail.title"), registrationEmail), mainClass = None) {
 
     <a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
 
-@errorSummary(
-Messages("common.errorSummary.label"),
-registrationEmail, dataJourney = Some("RegistrationEmailModel")
-)
+    @errorSummary(
+        Messages("common.errorSummary.label"),
+        registrationEmail, dataJourney = Some("RegistrationEmailModel")
+    )
 
     <div class="form-group">
         <h1 id="main-heading">@Messages("page.reg.registrationEmail.heading")</h1>
 
         <div class="form-group">
-                <p id="para-one">@Messages("page.reg.registrationEmail.description")</p>
+            <p id="para-one">@Messages("page.reg.registrationEmail.description")</p>
         </div>
 
         @form(action = controllers.reg.routes.RegistrationEmailController.submit()) {
 
-        <div class="form-group">
+            <div class="form-group">
             @inputRadioGroupHidden(
-            registrationEmail("registrationEmail"),
-            Seq("currentEmail" -> Messages("page.reg.registrationEmail.radio1", email),"differentEmail" -> Messages("page.reg.registrationEmail.radio2")),
-            Seq("differentEmail" -> differentHidden),
-            '_fieldsetId -> "registration-email",
-            '_classHidden -> "panel panel-indent",
-            '_labelClass -> "block-label radio-label",
-            '_legend -> Messages("page.reg.registrationEmail.heading"),
-            '_legendClass -> "visually-hidden"
-            )
-        </div>
+                registrationEmail("registrationEmail"),
+                Seq("currentEmail" -> Messages("page.reg.registrationEmail.radio1", email), "differentEmail" -> Messages("page.reg.registrationEmail.radio2")),
+                Seq("differentEmail" -> differentHidden),
+                isHeading = false,
+                '_fieldsetId -> "registration-email",
+                '_classHidden -> "panel panel-indent",
+                '_labelClass -> "block-label radio-label",
+                '_legend -> Messages("page.reg.registrationEmail.heading"),
+                '_legendClass -> "visually-hidden"
+                )
+            </div>
 
-        <div class="form-group">
-            <input class="button" type="submit" id="next" value="@Messages("common.button.continue")">
-        </div>
-
+            <div class="form-group">
+                <input class="button" type="submit" id="next" value="@Messages("common.button.continue")">
+            </div>
+        }
     </div>
-    }
+
 }

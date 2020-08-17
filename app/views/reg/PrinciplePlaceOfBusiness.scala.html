@@ -59,6 +59,7 @@
             ++ (if(choice != PPOBChoice("PPOB")) Seq.empty[(String, String)] else
               (PPOBAddress.fold(Seq.empty[(String, String)])(PPOBAddr => Seq("PPOB" -> PPOBAddr.mkString))))
             ++ Seq("Other" -> messages("page.reg.ppob.differentAddress")),
+                isHeading = false,
                 '_labelClass -> "block-label radio-label",
                 '_legend -> Messages("page.reg.ppob.description"),
                 '_legendClass -> "visually-hidden"

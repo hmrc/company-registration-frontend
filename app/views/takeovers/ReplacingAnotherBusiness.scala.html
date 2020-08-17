@@ -55,9 +55,10 @@
         @inputRadioGroup(
             replacingAnotherBusiness("replacingAnotherBusiness"),
             Seq("true" -> Messages("common.button.yes"), "false" -> Messages("common.button.no")),
+            isHeading = false,
             '_labelClass -> "block-label radio-label",
-            '_legend -> Messages("page.takeovers.replacingAnotherBusiness.title"),
             '_legendClass -> "visually-hidden",
+            '_legend -> Messages("page.takeovers.replacingAnotherBusiness.title"),
             '_groupClass -> "inline"
         )
         </div>

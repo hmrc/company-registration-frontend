@@ -22,7 +22,7 @@
 
 @(homeAddressForm: Form[AddressChoice], previousOwnerName: String, addressSeq: Seq[NewAddress])(implicit request: Request[_], messages: Messages, appConfig: FrontendAppConfig)
 
-@main_template(title = title(messages("page.takeovers.homeAddress.title", previousOwnerName),homeAddressForm)) {
+@main_template(title = title(messages("page.takeovers.homeAddress.title", previousOwnerName), homeAddressForm)) {
 
     <a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
 
@@ -32,15 +32,15 @@
         dataJourney = Some("TakeOvers")
     )
 
-    <h1 id="main-heading" class="heading-large">@messages("page.takeovers.homeAddress.heading", previousOwnerName)</h1>
-
     @form(action = controllers.takeovers.routes.PreviousOwnersAddressController.submit()) {
 
         <div class="form-group">
             @inputRadioGroupAddresses(
                 field = homeAddressForm("homeAddress"),
                 addresses = addressSeq,
-                legend = messages("page.takeovers.homeAddress.heading", previousOwnerName)
+                legend = messages("page.takeovers.homeAddress.heading", previousOwnerName),
+                isHeading = true,
+                isHidden = false
             )
         </div>
 

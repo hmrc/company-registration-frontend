@@ -16,14 +16,15 @@
 
 @import views.html.helpers.inputRadioGroup
 
-@(field: Field, addresses: Seq[NewAddress], legend: String)(implicit messages: Messages)
+@(field: Field, addresses: Seq[NewAddress], legend: String, isHeading: Boolean, isHidden: Boolean)(implicit messages: Messages)
 
 @inputRadioGroup(
  field,
  addresses.zipWithIndex.map { case (address, count) =>
   (count.toString, address.mkString)
  } ++ Seq(("Other", messages("common.differentAddress"))),
+ isHeading,
  '_labelClass -> "block-label radio-label",
  '_legend -> legend,
- '_legendClass -> "visually-hidden"
+ '_legendClass -> {if(isHidden) {"visually-hidden"} else {""}}
 )

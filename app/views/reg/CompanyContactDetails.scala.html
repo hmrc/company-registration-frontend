@@ -43,7 +43,7 @@
             <br>
 
         <fieldset id="chooseOne" class="form-group @fieldSetClasses">
-            <legend class="visually-hidden">@Messages("page.reg.company-contact-details.helpMessage1")</legend>
+            <legend class="visually-hidden">@Messages("page.reg.company-contact-details.description", companyName)</legend>
 
             @{if(contactDetails.errors.exists(_.args.nonEmpty)){
                 errorInline("chooseOne", Messages("page.reg.company-contact-details.validation.chooseOne"))

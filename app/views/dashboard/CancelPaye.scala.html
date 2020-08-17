@@ -23,8 +23,6 @@
 
 <a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
 
-        <h1 id="main-heading" class="heading-large">@Messages("page.reg.cancelpaye.description")</h1>
-
           <br>
           <p>@Messages("page.reg.cancelpaye.p1")</p>
           <br>
@@ -34,11 +32,11 @@
             @inputRadioGroup(
                 cancelSelection("cancelService"),
                 Seq(("true", Messages("page.reg.cancelservice.radioYesLabel")),("false", Messages("page.reg.cancelservice.radioNoLabel"))),
+                isHeading = true,
                 '_fieldsetId -> "cancel-paye",
                 '_groupClass -> "inline",
                 '_labelClass -> "block-label radio-label",
-                '_legend -> Messages("page.reg.cancelpaye.description"),
-                '_legendClass -> "visually-hidden"
+                '_legend -> Messages("page.reg.cancelpaye.description")
             )
         </div>
         <div class="form-group">
