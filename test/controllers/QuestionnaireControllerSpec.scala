@@ -22,28 +22,31 @@ import mocks.{MetricServiceMock, SCRSMocks}
 import org.mockito.Matchers
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import play.api.Mode.Mode
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.Configuration
 import play.api.i18n.MessagesApi
-import play.api.mvc.{AnyContent, Request}
+import play.api.mvc.{AnyContent, MessagesControllerComponents, Request}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.api.{Configuration, Mode}
 import services.{MetricsService, QuestionnaireService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import uk.gov.hmrc.play.bootstrap.config.RunMode
+import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
 
-class QuestionnaireControllerSpec extends UnitSpec with WithFakeApplication with MockitoSugar with SCRSMocks {
+class QuestionnaireControllerSpec extends UnitSpec with GuiceOneAppPerSuite with MockitoSugar with SCRSMocks {
 
   val mockQuestionnaireService = mock[QuestionnaireService]
+  val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
+
   class Setup {
-    val controller = new QuestionnaireController {
-      override val messagesApi = fakeApplication.injector.instanceOf[MessagesApi]
-        override val metricsService: MetricsService = MetricServiceMock
-        override val qService =  mockQuestionnaireService
-        override val appConfig: FrontendAppConfig = new FrontendAppConfig {
+    val controller = new QuestionnaireController(mockMcc) {
+      override val messagesApi = app.injector.instanceOf[MessagesApi]
+      override val metricsService: MetricsService = MetricServiceMock
+      override val qService = mockQuestionnaireService
+      override val appConfig: FrontendAppConfig = new FrontendAppConfig(mockConfiguration: Configuration, mock[RunMode]: RunMode) {
         override lazy val assetsPrefix = ""
         override lazy val reportAProblemNonJSUrl = ""
         override lazy val contactFrontendPartialBaseUrl = ""
@@ -57,11 +60,7 @@ class QuestionnaireControllerSpec extends UnitSpec with WithFakeApplication with
         override lazy val timeoutInSeconds = ""
         override lazy val timeoutDisplayLength = ""
         override lazy val govHostUrl: String = "govukurl"
-
-          override protected def mode: Mode = Mode.Test
-
-          override protected def runModeConfiguration: Configuration = mockConfiguration
-        }
+      }
     }
 
     when(mockAppConfig.piwikURL).thenReturn(None)
@@ -78,7 +77,7 @@ class QuestionnaireControllerSpec extends UnitSpec with WithFakeApplication with
 
     "redirect to post sign in on successful form submission with all fields populated" in new Setup {
       when(
-        mockQuestionnaireService.sendAuditEventOnSuccessfulSubmission(Matchers.any())(Matchers.any[HeaderCarrier],Matchers.any[Request[AnyContent]])).
+        mockQuestionnaireService.sendAuditEventOnSuccessfulSubmission(Matchers.any())(Matchers.any[HeaderCarrier], Matchers.any[Request[AnyContent]])).
         thenReturn(Future.successful(AuditResult.Success))
 
       val form = Map(
@@ -100,7 +99,7 @@ class QuestionnaireControllerSpec extends UnitSpec with WithFakeApplication with
 
     "return a bad request on an unsuccessful form submission" in new Setup {
       when(
-        mockQuestionnaireService.sendAuditEventOnSuccessfulSubmission(Matchers.any())(Matchers.any[HeaderCarrier],Matchers.any[Request[AnyContent]])).
+        mockQuestionnaireService.sendAuditEventOnSuccessfulSubmission(Matchers.any())(Matchers.any[HeaderCarrier], Matchers.any[Request[AnyContent]])).
         thenReturn(Future.successful(AuditResult.Success))
 
       val form = Map(
@@ -122,7 +121,7 @@ class QuestionnaireControllerSpec extends UnitSpec with WithFakeApplication with
     "not be affected by a failed audit event" in new Setup {
 
       when(
-        mockQuestionnaireService.sendAuditEventOnSuccessfulSubmission(Matchers.any())(Matchers.any[HeaderCarrier],Matchers.any[Request[AnyContent]])).
+        mockQuestionnaireService.sendAuditEventOnSuccessfulSubmission(Matchers.any())(Matchers.any[HeaderCarrier], Matchers.any[Request[AnyContent]])).
         thenReturn(Future.successful(AuditResult.Failure("")))
 
       val form = Map(

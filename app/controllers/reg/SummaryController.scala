@@ -16,26 +16,24 @@
 
 package controllers.reg
 
-import javax.inject.Inject
-
 import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector, S4LConnector}
-import controllers.auth.AuthFunction
+import controllers.auth.AuthenticatedController
+import javax.inject.Inject
 import models._
 import models.handoff.BackHandoff
 import play.api.Logger
-import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.i18n.I18nSupport
 import play.api.libs.json.{JsObject, Json}
-import play.api.mvc.{Action, AnyContent}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.NavModelRepo
 import services._
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.auth.core.retrieve.Retrievals
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils._
 import views.html.reg.Summary
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class SummaryControllerImpl @Inject()(val authConnector: PlayAuthConnector,
                                       val s4LConnector: S4LConnector,
@@ -48,12 +46,13 @@ class SummaryControllerImpl @Inject()(val authConnector: PlayAuthConnector,
                                       val appConfig: FrontendAppConfig,
                                       val scrsFeatureSwitches: SCRSFeatureSwitches,
                                       val jwe: JweCommon,
-                                      val messagesApi: MessagesApi) extends SummaryController {
+                                      val controllerComponents: MessagesControllerComponents)
+                                     (implicit val ec: ExecutionContext) extends SummaryController {
   lazy val navModelMongo = navModelRepo.repository
 }
 
-trait SummaryController extends FrontendController with AuthFunction with CommonService with SCRSExceptions with ControllerErrorHandler
-with SessionRegistration with I18nSupport {
+trait SummaryController extends AuthenticatedController with CommonService with SCRSExceptions with ControllerErrorHandler
+  with SessionRegistration with I18nSupport {
   implicit val appConfig: FrontendAppConfig
 
   val s4LConnector: S4LConnector
@@ -112,8 +111,8 @@ with SessionRegistration with I18nSupport {
     implicit request =>
       ctAuthorisedOptStr(Retrievals.externalId) { externalID =>
         (for {
-          _           <- fetchRegistrationID
-          navModel    <- handOffService.fetchNavModel()
+          _ <- fetchRegistrationID
+          navModel <- handOffService.fetchNavModel()
           backPayload <- handOffService.buildBackHandOff(externalID)
         } yield {
           val payload = jwe.encrypt[BackHandoff](backPayload).getOrElse("")
@@ -151,12 +150,12 @@ with SessionRegistration with I18nSupport {
     PPOBModel(pPOBAddress, addressChoice = "")
   }
 
-  def extractContactDetails (companyContactDetailsResponse: CompanyContactDetailsResponse): CompanyContactDetailsApi = {
+  def extractContactDetails(companyContactDetailsResponse: CompanyContactDetailsResponse): CompanyContactDetailsApi = {
     companyContactDetailsResponse match {
       case CompanyContactDetailsSuccessResponse(response) => CompanyContactDetails.toApiModel(response)
       case _ =>
         Logger.error(s"[SummaryController] [extractContactDetails] Could not find company details - suspected direct routing to summary page")
-        throw new Exception ("could not find company contact details - suspected direct routing to summary page")
+        throw new Exception("could not find company contact details - suspected direct routing to summary page")
     }
   }
 }

@@ -20,12 +20,11 @@ import forms.templates.PhoneNoForm
 import models.CompanyContactDetailsApi
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.i18n.Lang
 import utils.SCRSValidators.{companyContactDetailsValidation, emailValidation}
 
 
 object CompanyContactForm extends PhoneNoForm {
-  def form(implicit lang:Lang) = Form(
+  def form() = Form(
     mapping(
       "contactEmail" -> optional(text.verifying(emailValidation)),
       "contactDaytimeTelephoneNumber" -> phoneNoField,

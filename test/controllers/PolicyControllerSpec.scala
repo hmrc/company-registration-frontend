@@ -18,17 +18,20 @@ package controllers
 
 import config.FrontendAppConfig
 import helpers.SCRSSpec
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.MessagesApi
+import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.play.test.WithFakeApplication
 
-class PolicyControllerSpec extends SCRSSpec with WithFakeApplication {
+class PolicyControllerSpec extends SCRSSpec with GuiceOneAppPerSuite {
+
+  val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
 
   class Setup {
-    val controller = new PolicyController {
-      implicit val appConfig: FrontendAppConfig = fakeApplication.injector.instanceOf[FrontendAppConfig]
-      override val messagesApi = fakeApplication.injector.instanceOf[MessagesApi]
+    val controller = new PolicyController(mockMcc) {
+      implicit val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+      override val messagesApi = app.injector.instanceOf[MessagesApi]
     }
   }
 

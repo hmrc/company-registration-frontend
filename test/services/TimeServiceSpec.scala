@@ -18,10 +18,10 @@ package services
 
 import org.joda.time.{DateTime, LocalDate}
 import org.scalatestplus.mockito.MockitoSugar
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.time.workingdays.{BankHoliday, BankHolidaySet}
 
-class TimeServiceSpec extends UnitSpec with WithFakeApplication with MockitoSugar {
+class TimeServiceSpec extends UnitSpec with MockitoSugar {
 
   implicit val bHSTest: BankHolidaySet = BankHolidays.bankHolidaySet
   val bhRandomDate = new BankHoliday(title="testBH", date=new LocalDate(2000, 10, 10))

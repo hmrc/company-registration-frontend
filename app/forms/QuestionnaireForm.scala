@@ -19,21 +19,20 @@ package forms
 import models.QuestionnaireModel
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.i18n.Lang
 
 object QuestionnaireForm {
 
-  def form(implicit lang:Lang) = Form(
+  def form() = Form(
     mapping(
       "ableToAchieve" -> nonEmptyText,
       "whyNotAchieve" -> optional(text),
       "tryingToDo" -> nonEmptyText,
       "satisfaction" -> nonEmptyText,
-      "meetNeeds" -> number(min=1),
+      "meetNeeds" -> number(min = 1),
       "recommendation" -> nonEmptyText,
       "improvements" -> optional(text)
     )(QuestionnaireModel.apply)(QuestionnaireModel.unapply)
   )
 
-  def formFilled =  form.fill(models.QuestionnaireModel("",None,"","",0,"",None))
+  def formFilled = form.fill(models.QuestionnaireModel("", None, "", "", 0, "", None))
 }

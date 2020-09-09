@@ -133,8 +133,8 @@ trait HandOffNavigator extends CommonService with SCRSExceptions {
 
   private[services] def firstHandoffURL: String = {
     scrsFeatureSwitches.cohoFirstHandOff.enabled match {
-      case false => appConfig.getConfString("coho-service.basic-company-details-stub", throw new Exception("could not find first handoff incorp stub"))
-      case true => appConfig.getConfString("coho-service.basic-company-details", throw new Exception("could not find first handoff coho-service.url"))
+      case false => appConfig.servicesConfig.getConfString("coho-service.basic-company-details-stub", throw new Exception("could not find first handoff incorp stub"))
+      case true => appConfig.servicesConfig.getConfString("coho-service.basic-company-details", throw new Exception("could not find first handoff coho-service.url"))
     }
   }
 }

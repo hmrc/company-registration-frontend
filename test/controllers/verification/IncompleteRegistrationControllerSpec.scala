@@ -20,18 +20,24 @@ import controllers.reg.IncompleteRegistrationController
 import mocks.SCRSMocks
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.MessagesApi
+import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import uk.gov.hmrc.play.test.UnitSpec
 
-class IncompleteRegistrationControllerSpec extends UnitSpec with WithFakeApplication with SCRSMocks with MockitoSugar {
+class IncompleteRegistrationControllerSpec extends UnitSpec with GuiceOneAppPerSuite with SCRSMocks with MockitoSugar {
+
+  val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
 
   class Setup {
-    object TestController extends IncompleteRegistrationController {
+
+    object TestController extends IncompleteRegistrationController(mockMcc) {
       override val appConfig = mockAppConfig
-      override val messagesApi = fakeApplication.injector.instanceOf[MessagesApi]
+      override val messagesApi = app.injector.instanceOf[MessagesApi]
     }
+
     when(mockAppConfig.piwikURL).thenReturn(None)
   }
 

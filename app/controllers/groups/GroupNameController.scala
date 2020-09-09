@@ -18,30 +18,31 @@ package controllers.groups
 
 import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
-import controllers.auth.AuthFunction
+import controllers.auth.AuthenticatedController
 import controllers.reg.ControllerErrorHandler
 import forms.GroupNameForm
 import javax.inject.{Inject, Singleton}
 import models.Groups
-import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent}
+import play.api.i18n.I18nSupport
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.GroupService
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.http.InternalServerException
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.SessionRegistration
 import views.html.groups.GroupNameView
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class GroupNameController @Inject()(val authConnector: PlayAuthConnector,
                                     val groupService: GroupService,
                                     val compRegConnector: CompanyRegistrationConnector,
                                     val keystoreConnector: KeystoreConnector,
-                                    val messagesApi: MessagesApi
+                                    val controllerComponents: MessagesControllerComponents
                                    )(implicit val appConfig: FrontendAppConfig)
-  extends FrontendController with AuthFunction with ControllerErrorHandler with SessionRegistration with I18nSupport {
+  extends AuthenticatedController with ControllerErrorHandler with SessionRegistration with I18nSupport {
+
+  implicit val ec: ExecutionContext = controllerComponents.executionContext
 
   val show: Action[AnyContent] = Action.async {
     implicit request =>
@@ -50,13 +51,13 @@ class GroupNameController @Inject()(val authConnector: PlayAuthConnector,
           groupService.retrieveGroups(regID).flatMap {
             case Some(groups@Groups(true, _, _, _)) =>
               groupService.returnValidShareholdersAndUpdateGroups(groups, regID).map { res =>
-              val (listOfShareholders, updatedGroups) = res
-              Ok(GroupNameView(
-                groups.nameOfCompany.fold(GroupNameForm.form)(gName => GroupNameForm.form.fill(gName)),
-                updatedGroups.nameOfCompany,
-                listOfShareholders
-              ))
-            }
+                val (listOfShareholders, updatedGroups) = res
+                Ok(GroupNameView(
+                  groups.nameOfCompany.fold(GroupNameForm.form)(gName => GroupNameForm.form.fill(gName)),
+                  updatedGroups.nameOfCompany,
+                  listOfShareholders
+                ))
+              }
             case _ => Future.successful(Redirect(controllers.reg.routes.SignInOutController.postSignIn()))
           }
         }
@@ -68,18 +69,18 @@ class GroupNameController @Inject()(val authConnector: PlayAuthConnector,
       checkStatus { regID =>
         groupService.retrieveGroups(regID).flatMap {
           case Some(groups@Groups(true, _, _, _)) =>
-              groupService.returnValidShareholdersAndUpdateGroups(groups, regID).flatMap { res =>
-                val (listOfShareholders, updatedGroups) = res
-                GroupNameForm.form.bindFromRequest.fold(
-                  errors => {
-                    Future.successful(BadRequest(GroupNameView(errors, updatedGroups.nameOfCompany, listOfShareholders)))
-                  },
-                  name => {
-                    groupService.updateGroupName(name, updatedGroups, regID).map { _ =>
-                      Redirect(controllers.groups.routes.GroupAddressController.show())
-                    }
+            groupService.returnValidShareholdersAndUpdateGroups(groups, regID).flatMap { res =>
+              val (listOfShareholders, updatedGroups) = res
+              GroupNameForm.form.bindFromRequest.fold(
+                errors => {
+                  Future.successful(BadRequest(GroupNameView(errors, updatedGroups.nameOfCompany, listOfShareholders)))
+                },
+                name => {
+                  groupService.updateGroupName(name, updatedGroups, regID).map { _ =>
+                    Redirect(controllers.groups.routes.GroupAddressController.show())
                   }
-                )
+                }
+              )
             }
           case _ =>
             Future.failed(new InternalServerException("[GroupNameController] [submit] Missing prerequisite group data"))

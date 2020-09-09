@@ -31,7 +31,7 @@ import scala.util.control.NoStackTrace
 private[connectors] class TemplateEmailErrorResponse(s: String) extends NoStackTrace
 
 class SendTemplatedEmailConnectorImpl @Inject()(appConfig: FrontendAppConfig, val wSHttp: WSHttp) extends SendTemplatedEmailConnector {
-  lazy val sendTemplatedEmailURL = appConfig.getConfString("email.sendAnEmailURL", throw new Exception("email.sendAnEmailURL not found"))
+  lazy val sendTemplatedEmailURL = appConfig.servicesConfig.getConfString("email.sendAnEmailURL", throw new Exception("email.sendAnEmailURL not found"))
 }
 
 trait SendTemplatedEmailConnector extends HttpErrorFunctions {

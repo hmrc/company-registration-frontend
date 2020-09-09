@@ -18,24 +18,23 @@ package controllers.reg
 
 import _root_.connectors.{BusinessRegistrationConnector, CompanyRegistrationConnector, KeystoreConnector, S4LConnector}
 import config.FrontendAppConfig
-import controllers.auth.AuthFunction
+import controllers.auth.AuthenticatedController
 import controllers.reg.PPOBController._
 import forms.PPOBForm
 import javax.inject.Inject
 import models._
 import models.handoff.BackHandoff
 import play.api.Logger
-import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.i18n.Messages
 import play.api.mvc._
 import repositories.NavModelRepo
 import services._
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.auth.core.retrieve.Retrievals
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils._
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class PPOBControllerImpl @Inject()(val authConnector: PlayAuthConnector,
                                    val s4LConnector: S4LConnector,
@@ -49,14 +48,15 @@ class PPOBControllerImpl @Inject()(val authConnector: PlayAuthConnector,
                                    val addressLookupFrontendService: AddressLookupFrontendService,
                                    val pPOBService: PPOBService,
                                    val scrsFeatureSwitches: SCRSFeatureSwitches,
-                                   val messagesApi: MessagesApi) extends PPOBController {
+                                   val controllerComponents: MessagesControllerComponents)() extends PPOBController {
   lazy val navModelMongo = navModelRepo.repository
 }
 
-trait PPOBController extends FrontendController with AuthFunction
-  with SessionRegistration with ControllerErrorHandler with I18nSupport {
+trait PPOBController extends AuthenticatedController
+  with SessionRegistration with ControllerErrorHandler {
 
   implicit val appConfig: FrontendAppConfig
+  implicit val ec: ExecutionContext = controllerComponents.executionContext
 
   val s4LConnector: S4LConnector
   val keystoreConnector: KeystoreConnector
@@ -136,8 +136,8 @@ trait PPOBController extends FrontendController with AuthFunction
                   addressLookupFrontendService.initialiseAlfJourney(
                     handbackLocation = controllers.reg.routes.PPOBController.saveALFAddress(None),
                     specificJourneyKey = ppobKey,
-                    lookupPageHeading = messagesApi("page.addressLookup.PPOB.lookup.heading"),
-                    confirmPageHeading = messagesApi("page.addressLookup.PPOB.confirm.description")
+                    lookupPageHeading = Messages("page.addressLookup.PPOB.lookup.heading"),
+                    confirmPageHeading = Messages("page.addressLookup.PPOB.confirm.description")
                   ).map(Redirect(_))
                 case unexpected =>
                   Logger.warn(s"[PPOBController] [Submit] '$unexpected' address choice submitted for reg ID: $regId")

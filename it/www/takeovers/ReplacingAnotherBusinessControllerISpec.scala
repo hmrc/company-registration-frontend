@@ -25,6 +25,7 @@ import itutil.{IntegrationSpecBase, LoginStub, RequestsFinder}
 import models.TakeoverDetails
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.HeaderNames
+import play.api.libs.crypto.DefaultCookieSigner
 import play.api.libs.ws.WSResponse
 import play.api.test.Helpers._
 
@@ -37,6 +38,8 @@ class ReplacingAnotherBusinessControllerISpec extends IntegrationSpecBase with L
 
     lazy val sessionCookie: String = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
   }
+
+  lazy val defaultCookieSigner: DefaultCookieSigner = app.injector.instanceOf[DefaultCookieSigner]
 
   "show" should {
     "retrieve the existing data from the backend and serve the page" in new Setup {

@@ -16,33 +16,32 @@
 
 package controllers.dashboard
 
-import javax.inject.Inject
-
 import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
-import controllers.auth.AuthFunction
+import controllers.auth.AuthenticatedController
 import controllers.reg.ControllerErrorHandler
+import javax.inject.Inject
 import play.api.Logger
-import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent}
+import play.api.i18n.I18nSupport
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services._
 import uk.gov.hmrc.auth.core.PlayAuthConnector
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.{SCRSExceptions, SessionRegistration}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class DashboardControllerImpl @Inject()(val authConnector: PlayAuthConnector,
                                         val keystoreConnector: KeystoreConnector,
                                         val compRegConnector: CompanyRegistrationConnector,
                                         val appConfig: FrontendAppConfig,
                                         val dashboardService: DashboardService,
-                                        val messagesApi: MessagesApi) extends DashboardController {
-  lazy val companiesHouseURL = appConfig.getConfString("coho-service.sign-in", throw new Exception("Could not find config for coho-sign-in url"))
+                                        val ec: ExecutionContext,
+                                        val controllerComponents: MessagesControllerComponents) extends DashboardController {
+  lazy val companiesHouseURL = appConfig.servicesConfig.getConfString("coho-service.sign-in", throw new Exception("Could not find config for coho-sign-in url"))
 }
 
-trait DashboardController extends FrontendController with AuthFunction with CommonService with SCRSExceptions
-with ControllerErrorHandler with SessionRegistration with I18nSupport {
+abstract class DashboardController extends AuthenticatedController with CommonService with SCRSExceptions
+  with ControllerErrorHandler with SessionRegistration with I18nSupport {
   implicit val appConfig: FrontendAppConfig
 
   val companiesHouseURL: String

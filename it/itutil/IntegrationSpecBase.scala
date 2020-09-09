@@ -23,6 +23,7 @@ import play.api.{Application, Environment, Mode}
 import uk.gov.hmrc.play.test.UnitSpec
 import utils.{FeatureSwitch, FeatureSwitchManager, SCRSFeatureSwitches}
 import WiremockHelper._
+import play.api.libs.crypto.DefaultCookieSigner
 import play.api.libs.ws.WSResponse
 
 trait IntegrationSpecBase extends UnitSpec

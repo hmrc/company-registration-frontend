@@ -19,17 +19,23 @@ package controllers
 import config.FrontendAppConfig
 import controllers.reg.WelcomeController
 import helpers.SCRSSpec
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.MessagesApi
+import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.play.test.WithFakeApplication
 
-class WelcomeControllerSpec extends SCRSSpec with WithFakeApplication {
+class WelcomeControllerSpec extends SCRSSpec with GuiceOneAppPerSuite {
+
+  val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
+
   class Setup {
-    object TestController extends WelcomeController {
-      implicit val appConfig: FrontendAppConfig = fakeApplication.injector.instanceOf[FrontendAppConfig]
-      override val messagesApi = fakeApplication.injector.instanceOf[MessagesApi]
+
+    object TestController extends WelcomeController(mockMcc) {
+      implicit val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+      override val messagesApi = app.injector.instanceOf[MessagesApi]
     }
+
   }
 
   "Sending a GET request to WelcomeController" should {
@@ -41,7 +47,7 @@ class WelcomeControllerSpec extends SCRSSpec with WithFakeApplication {
         await(result).header.headers.get(LOCATION) shouldBe Some("/register-your-company/setting-up-new-limited-company")
       }
     }
-    }
+  }
 
   "Sending a POST request to WelcomeController" should {
     "return a 303 and send user to set up new limited company page when not signed in." in new Setup {

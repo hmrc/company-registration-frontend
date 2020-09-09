@@ -18,22 +18,21 @@ package controllers.groups
 
 import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
-import controllers.auth.AuthFunction
+import controllers.auth.AuthenticatedController
 import controllers.groups.GroupAddressController._
 import controllers.reg.ControllerErrorHandler
 import forms.GroupAddressForm
 import javax.inject.{Inject, Singleton}
 import models._
-import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, Result}
+import play.api.i18n.{Messages, MessagesProvider}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import services.{AddressLookupFrontendService, GroupService}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.http.{HeaderCarrier, InternalServerException}
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.SessionRegistration
 import views.html.groups.GroupAddressView
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class GroupAddressController @Inject()(val authConnector: PlayAuthConnector,
@@ -41,9 +40,11 @@ class GroupAddressController @Inject()(val authConnector: PlayAuthConnector,
                                        val compRegConnector: CompanyRegistrationConnector,
                                        val keystoreConnector: KeystoreConnector,
                                        val addressLookupFrontendService: AddressLookupFrontendService,
-                                       val messagesApi: MessagesApi
+                                       val controllerComponents: MessagesControllerComponents
                                       )(implicit val appConfig: FrontendAppConfig)
-  extends FrontendController with AuthFunction with ControllerErrorHandler with SessionRegistration with I18nSupport {
+  extends AuthenticatedController with ControllerErrorHandler with SessionRegistration {
+
+  implicit val ec: ExecutionContext = controllerComponents.executionContext
 
   val show: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
@@ -132,14 +133,14 @@ class GroupAddressController @Inject()(val authConnector: PlayAuthConnector,
       }
   }
 
-  private def alfRedirect(regID: String, groups: Groups)(implicit hc: HeaderCarrier): Future[Result] = {
+  private def alfRedirect(regID: String, groups: Groups)(implicit hc: HeaderCarrier, messagesProvider: MessagesProvider): Future[Result] = {
     groups.nameOfCompany match {
       case Some(groupCompanyName) =>
         addressLookupFrontendService.initialiseAlfJourney(
           handbackLocation = controllers.groups.routes.GroupAddressController.handbackFromALF(None),
           specificJourneyKey = groupsKey,
-          lookupPageHeading = messagesApi("page.addressLookup.Groups.lookup.heading", groupCompanyName.name),
-          confirmPageHeading = messagesApi("page.addressLookup.Groups.confirm.description", groupCompanyName.name)
+          lookupPageHeading = Messages("page.addressLookup.Groups.lookup.heading", groupCompanyName.name),
+          confirmPageHeading = Messages("page.addressLookup.Groups.confirm.description", groupCompanyName.name)
         ).map(Redirect(_))
       case None =>
         throw new Exception("[GroupsAddressController] [alfRedirect] user attempted to skip to ALF without saving a group name")

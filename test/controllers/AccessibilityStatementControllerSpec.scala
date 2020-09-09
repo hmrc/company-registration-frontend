@@ -17,18 +17,16 @@
 package controllers
 
 import helpers.SCRSSpec
-import org.scalatestplus.play.guice.GuiceFakeApplicationFactory
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.http.Status
-import play.api.i18n.MessagesApi
-import play.api.mvc.AnyContentAsEmpty
+import play.api.mvc.{AnyContentAsEmpty, MessagesControllerComponents}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.play.test.WithFakeApplication
 
-class AccessibilityStatementControllerSpec extends SCRSSpec with WithFakeApplication {
+class AccessibilityStatementControllerSpec extends SCRSSpec with GuiceOneAppPerSuite {
 
   object TestAccessibilityStatementController extends AccessibilityStatementController(
-    fakeApplication.injector.instanceOf[MessagesApi]
+    app.injector.instanceOf[MessagesControllerComponents]
   )
 
   val testGetRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/accessibility-statement")

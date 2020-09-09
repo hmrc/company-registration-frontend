@@ -16,21 +16,19 @@
 
 package controllers.reg
 
-import javax.inject.Inject
-
 import config.FrontendAppConfig
 import connectors.{BusinessRegistrationConnector, BusinessRegistrationSuccessResponse, CompanyRegistrationConnector, KeystoreConnector}
-import controllers.auth.AuthFunction
+import controllers.auth.AuthenticatedController
 import forms.AboutYouForm
-import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent}
+import javax.inject.Inject
+import play.api.i18n.I18nSupport
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.{MetaDataService, MetricsService}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.SessionRegistration
 import views.html.reg.CompletionCapacity
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class CompletionCapacityControllerImpl @Inject()(
                                                   val authConnector: PlayAuthConnector,
@@ -40,17 +38,17 @@ class CompletionCapacityControllerImpl @Inject()(
                                                   val appConfig: FrontendAppConfig,
                                                   val metaDataService: MetaDataService,
                                                   val compRegConnector: CompanyRegistrationConnector,
-                                                  val messagesApi: MessagesApi
-                                                ) extends CompletionCapacityController
+                                                  val controllerComponents: MessagesControllerComponents
+                                                )(implicit val ec: ExecutionContext) extends CompletionCapacityController
 
-trait CompletionCapacityController extends FrontendController with AuthFunction with SessionRegistration with I18nSupport {
+trait CompletionCapacityController extends AuthenticatedController with SessionRegistration with I18nSupport {
 
   val businessRegConnector: BusinessRegistrationConnector
   val metaDataService: MetaDataService
   val metricsService: MetricsService
   implicit val appConfig: FrontendAppConfig
 
-  def show() : Action[AnyContent] = Action.async { implicit request =>
+  def show(): Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
       checkStatus { regId =>
         businessRegConnector.retrieveMetadata map {
@@ -61,7 +59,7 @@ trait CompletionCapacityController extends FrontendController with AuthFunction 
     }
   }
 
-  def submit() : Action[AnyContent] = Action.async { implicit request =>
+  def submit(): Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
       registered { a =>
         AboutYouForm.form.bindFromRequest.fold(

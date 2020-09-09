@@ -23,30 +23,35 @@ import fixtures.{AccountingDatesFixture, AccountingDetailsFixture, LoginFixture}
 import helpers.SCRSSpec
 import mocks.MetricServiceMock
 import models.{AccountingDetailsBadRequestResponse, AccountingDetailsNotFoundResponse}
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.MessagesApi
 import play.api.libs.json.Json
+import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.{AccountingService, MetricsService, TimeService}
 import uk.gov.hmrc.http.cache.client.CacheMap
-import uk.gov.hmrc.play.test.WithFakeApplication
 
-class AccountingDatesControllerSpec extends SCRSSpec with WithFakeApplication with AccountingDatesFixture with AccountingDetailsFixture
+import scala.concurrent.ExecutionContext
+import scala.concurrent.ExecutionContext.Implicits.global
+
+class AccountingDatesControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with AccountingDatesFixture with AccountingDetailsFixture
   with LoginFixture with AuthBuilder {
 
   val cacheMap: CacheMap = CacheMap("", Map("" -> Json.toJson(validAccountingDatesModelCRN)))
 
-
   class Setup {
     val controller = new AccountingDatesController {
+      override lazy val controllerComponents = app.injector.instanceOf[MessagesControllerComponents]
       override val accountingService = mockAccountingService
       override val authConnector = mockAuthConnector
       override val metricsService: MetricsService = MetricServiceMock
-      override val timeService: TimeService = fakeApplication.injector.instanceOf[TimeService]
+      override val timeService: TimeService = app.injector.instanceOf[TimeService]
       override val compRegConnector = mockCompanyRegistrationConnector
       override val keystoreConnector = mockKeystoreConnector
-      implicit val appConfig: FrontendAppConfig = fakeApplication.injector.instanceOf[FrontendAppConfig]
-      override val messagesApi = fakeApplication.injector.instanceOf[MessagesApi]
+      implicit lazy val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+      override lazy val messagesApi = app.injector.instanceOf[MessagesApi]
+      implicit val ec: ExecutionContext = global
     }
   }
 

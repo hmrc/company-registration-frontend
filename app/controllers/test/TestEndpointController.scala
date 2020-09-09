@@ -16,31 +16,29 @@
 
 package controllers.test
 
-import javax.inject.Inject
-
 import config.FrontendAppConfig
 import connectors._
-import controllers.auth.AuthFunction
+import controllers.auth.AuthenticatedController
 import forms._
 import forms.test.{CompanyContactTestEndpointForm, FeatureSwitchForm}
+import javax.inject.Inject
 import models._
 import models.connectors.ConfirmationReferences
 import models.handoff._
 import models.test.FeatureSwitch
 import play.api.Logger
-import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.i18n.I18nSupport
 import play.api.libs.json.Json
-import play.api.mvc.{Action, AnyContent}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.NavModelRepo
 import services._
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.auth.core.retrieve.Retrievals
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads}
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils._
 import views.html.reg.TestEndpoint
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 
 class TestEndpointControllerImpl @Inject()(
@@ -55,24 +53,24 @@ class TestEndpointControllerImpl @Inject()(
                                             val navModelRepo: NavModelRepo,
                                             val dashboardService: DashboardService,
                                             val appConfig: FrontendAppConfig,
-                                            val messagesApi: MessagesApi,
                                             val timeService: TimeService,
                                             val handOffService: HandOffService,
-                                            val featureSwitchManager: FeatureSwitchManager
-                                          ) extends TestEndpointController {
+                                            val featureSwitchManager: FeatureSwitchManager,
+                                            val controllerComponents: MessagesControllerComponents
+                                          )(implicit val ec: ExecutionContext) extends TestEndpointController {
   lazy val navModelMongo = navModelRepo.repository
 
-  lazy val coHoURL = appConfig.getConfString("coho-service.sign-in", throw new Exception("Could not find config for coho-sign-in url"))
+  lazy val coHoURL = appConfig.servicesConfig.getConfString("coho-service.sign-in", throw new Exception("Could not find config for coho-sign-in url"))
 }
 
-trait TestEndpointController extends FrontendController with AuthFunction with CommonService
+trait TestEndpointController extends AuthenticatedController with CommonService
   with SCRSExceptions with SessionRegistration with I18nSupport {
 
   val s4LConnector: S4LConnector
   val keystoreConnector: KeystoreConnector
   val compRegConnector: CompanyRegistrationConnector
   val scrsFeatureSwitches: SCRSFeatureSwitches
-  val metaDataService : MetaDataService
+  val metaDataService: MetaDataService
   val dynStubConnector: DynamicStubConnector
   val brConnector: BusinessRegistrationConnector
   val dashboardService: DashboardService
@@ -80,12 +78,11 @@ trait TestEndpointController extends FrontendController with AuthFunction with C
   val timeService: TimeService
   val handOffService: HandOffService
   val featureSwitchManager: FeatureSwitchManager
-  val coHoURL:String
+  val coHoURL: String
   lazy val accDForm: AccountingDatesFormT = new AccountingDatesForm(timeService)
 
 
-
-  private def convertToForm(data: CompanyNameHandOffIncoming) : CompanyNameHandOffFormModel = {
+  private def convertToForm(data: CompanyNameHandOffIncoming): CompanyNameHandOffFormModel = {
     CompanyNameHandOffFormModel(
       registration_id = data.journey_id,
       openidconnectid = data.user_id,
@@ -130,7 +127,7 @@ trait TestEndpointController extends FrontendController with AuthFunction with C
           })
           val companyContactForm = CompanyContactTestEndpointForm.form.fill(contactDetails match {
             case CompanyContactDetailsSuccessResponse(x) => CompanyContactDetails.toApiModel(x)
-            case _ => CompanyContactDetailsApi(None,None,None)
+            case _ => CompanyContactDetailsApi(None, None, None)
           })
           val tradingDetailsForm = TradingDetailsForm.form.fill(tradingDetails.getOrElse(TradingDetails()))
           Ok(TestEndpoint(accountingDatesForm, handBackForm, companyContactForm, companyDetailsForm, tradingDetailsForm, applicantForm))
@@ -317,21 +314,21 @@ trait TestEndpointController extends FrontendController with AuthFunction with C
       }
   }
 
-  private[controllers] def links(cancelUrl:Boolean,restartUrl:Boolean) ={
+  private[controllers] def links(cancelUrl: Boolean, restartUrl: Boolean) = {
     ServiceLinks(
       "regURL",
       "otrsURL",
-      if(restartUrl) Some("restartUrl") else None,
-      if(cancelUrl) Some("cancelUrl") else None)
+      if (restartUrl) Some("restartUrl") else None,
+      if (cancelUrl) Some("cancelUrl") else None)
   }
 
-  def dashboardStubbed(payeStatus:String="draft",
-                       incorpCTStatus:String  ="held",
-                       payeCancelUrl:String = "true",
-                       payeRestartUrl:String = "true",
-                       vatStatus:String= "draft",
-                       vatCancelUrl:String   = "true",
-                       ackRefStatus:String="ackrefStatuses",
+  def dashboardStubbed(payeStatus: String = "draft",
+                       incorpCTStatus: String = "held",
+                       payeCancelUrl: String = "true",
+                       payeRestartUrl: String = "true",
+                       vatStatus: String = "draft",
+                       vatCancelUrl: String = "true",
+                       ackRefStatus: String = "ackrefStatuses",
                        ctutr: Option[String] = None) = Action {
     implicit request =>
       val incorpAndCTDash = IncorpAndCTDashboard(
@@ -346,10 +343,10 @@ trait TestEndpointController extends FrontendController with AuthFunction with C
         Some("CTUTR")
       )
       payeCancelUrl.toBoolean
-      val payeLinks = links(payeCancelUrl.toBoolean,payeRestartUrl.toBoolean)
-      val payeDash  =  ServiceDashboard(payeStatus, Some("lastUpdateDate"), Some("ackrefPaye"),payeLinks, Some(dashboardService.getCurrentPayeThresholds))
-      val vatLinks  = links(vatCancelUrl.toBoolean,false)
-      val vatDash   = ServiceDashboard(vatStatus,Some("lastUpdateDate"),Some("ack"),vatLinks, Some(Map("yearly" -> 85000)))
+      val payeLinks = links(payeCancelUrl.toBoolean, payeRestartUrl.toBoolean)
+      val payeDash = ServiceDashboard(payeStatus, Some("lastUpdateDate"), Some("ackrefPaye"), payeLinks, Some(dashboardService.getCurrentPayeThresholds))
+      val vatLinks = links(vatCancelUrl.toBoolean, false)
+      val vatDash = ServiceDashboard(vatStatus, Some("lastUpdateDate"), Some("ack"), vatLinks, Some(Map("yearly" -> 85000)))
 
       val dash = Dashboard("companyNameStubbed", incorpAndCTDash, payeDash, vatDash, hasVATCred = true)
       Ok(views.html.dashboard.Dashboard(dash, coHoURL))
@@ -368,7 +365,7 @@ trait TestEndpointController extends FrontendController with AuthFunction with C
       }
   }
 
-  def generateTxId(transactionId: Option[String], rID: String) : String= {
+  def generateTxId(transactionId: Option[String], rID: String): String = {
     transactionId match {
       case Some(txid) => txid
       case _ => s"TRANS-ID-${rID}"

@@ -22,7 +22,7 @@
 @import play.api.Application
 @import views.helpers.TitleHelper.title
 
-@(aboutYou: Form[AboutYouChoiceForm])(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.FrontendAppConfig)
+@(aboutYou: Form[AboutYouChoiceForm])(implicit request: Request[_], messages: Messages, appConfig: config.FrontendAppConfig)
 
 @otherHidden = {
     @govHelpers.input(

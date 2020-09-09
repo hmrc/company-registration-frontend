@@ -31,8 +31,8 @@ import scala.util.control.NoStackTrace
 private[connectors] class EmailErrorResponse(s: String) extends NoStackTrace
 
 class EmailVerificationConnectorImpl @Inject()(val wSHttp: WSHttp, val appConfig: FrontendAppConfig) extends EmailVerificationConnector {
-  lazy val sendVerificationEmailURL = appConfig.getConfString("email-vs.sendVerificationEmailURL", throw new Exception("email.sendVerificationEmailURL not found"))
-  lazy val checkVerifiedEmailURL = appConfig.getConfString("email-vs.checkVerifiedEmailURL", throw new Exception("email.checkVerifiedEmailURL not found"))
+  lazy val sendVerificationEmailURL = appConfig.servicesConfig.getConfString("email-vs.sendVerificationEmailURL", throw new Exception("email.sendVerificationEmailURL not found"))
+  lazy val checkVerifiedEmailURL = appConfig.servicesConfig.getConfString("email-vs.checkVerifiedEmailURL", throw new Exception("email.checkVerifiedEmailURL not found"))
 }
 
 trait EmailVerificationConnector extends HttpErrorFunctions {

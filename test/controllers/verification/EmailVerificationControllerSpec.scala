@@ -27,33 +27,40 @@ import org.jsoup.Jsoup
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.MessagesApi
+import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name, ~}
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import uk.gov.hmrc.play.test.UnitSpec
 
+import scala.concurrent.ExecutionContext
+import scala.concurrent.ExecutionContext.Implicits.global
 
 
 class EmailVerificationControllerSpec extends CompanyRegistrationConnectorMock with UnitSpec with MockitoSugar with SCRSMocks with SCRSSpec
-  with WithFakeApplication with KeystoreMock with AuthBuilder {
+  with GuiceOneAppPerSuite with KeystoreMock with AuthBuilder {
 
   implicit val system = ActorSystem("test")
+
   def testVerifiedEmail = Email("verified", "GG", linkSent = true, verified = true, returnLinkEmailSent = true)
+
   def testUnVerifiedEmail = Email("unverified", "GG", linkSent = true, verified = false, returnLinkEmailSent = true)
 
   implicit def mat: Materializer = ActorMaterializer()
 
-
   class Setup {
     val controller = new EmailVerificationController {
+      override lazy val controllerComponents = app.injector.instanceOf[MessagesControllerComponents]
       val authConnector = mockAuthConnector
       val keystoreConnector = mockKeystoreConnector
       override val compRegConnector = mockCompanyRegistrationConnector
       override val emailVerificationService = mockEmailService
-      override val messagesApi = fakeApplication.injector.instanceOf[MessagesApi]
-      implicit val appConfig: FrontendAppConfig = fakeApplication.injector.instanceOf[FrontendAppConfig]
+      override lazy val messagesApi = app.injector.instanceOf[MessagesApi]
+      implicit lazy val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+      val ec: ExecutionContext = global
 
       val createGGWAccountUrl = "testURL"
       val callbackUrl = "testCallBack"
@@ -66,7 +73,9 @@ class EmailVerificationControllerSpec extends CompanyRegistrationConnectorMock w
       showWithUnauthorisedUser(controller.verifyShow) {
         result =>
           status(result) shouldBe 303
-          redirectLocation(result) map { _ should include("/gg/sign-in") }
+          redirectLocation(result) map {
+            _ should include("/gg/sign-in")
+          }
       }
     }
 
@@ -93,7 +102,7 @@ class EmailVerificationControllerSpec extends CompanyRegistrationConnectorMock w
     val authResult = new ~(
       new ~(
         new ~(
-          Name(None,None),
+          Name(None, None),
           Some("fakeEmail")
         ), Credentials("provId", "provType")
       ), Some("extID")
@@ -105,7 +114,7 @@ class EmailVerificationControllerSpec extends CompanyRegistrationConnectorMock w
       when(mockEmailService.fetchEmailBlock(Matchers.eq("regid"))(Matchers.any[HeaderCarrier]())).
         thenReturn(Some(testUnVerifiedEmail))
 
-      when(mockEmailService.sendVerificationLink(Matchers.eq(email),Matchers.eq("regid"),Matchers.any(),Matchers.any())(Matchers.any[HeaderCarrier](),Matchers.any())).
+      when(mockEmailService.sendVerificationLink(Matchers.eq(email), Matchers.eq("regid"), Matchers.any(), Matchers.any())(Matchers.any[HeaderCarrier](), Matchers.any())).
         thenReturn(Some(false))
 
       showWithAuthorisedUserRetrieval(controller.resendVerificationLink, authResult) {
@@ -125,7 +134,7 @@ class EmailVerificationControllerSpec extends CompanyRegistrationConnectorMock w
       val document = Jsoup.parse(contentAsString(result))
       document.title should include("You need to create a new Government Gateway account")
       document.getElementById("description-one").text should include("doesn't have an email address linked")
-   }
+    }
   }
 
   "createGGWAccountAffinityShow" should {

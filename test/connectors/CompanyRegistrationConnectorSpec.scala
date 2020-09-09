@@ -27,12 +27,11 @@ import org.mockito.Matchers.any
 import org.mockito.Mockito._
 import play.api.libs.json.{JsObject, JsValue, Json}
 import uk.gov.hmrc.http._
-import uk.gov.hmrc.play.test.WithFakeApplication
 
 import scala.concurrent.Future
 
 class CompanyRegistrationConnectorSpec extends SCRSSpec with CTDataFixture with CompanyContactDetailsFixture with CompanyDetailsFixture
-  with AccountingDetailsFixture with TradingDetailsFixtures with CorporationTaxFixture with WithFakeApplication {
+  with AccountingDetailsFixture with TradingDetailsFixtures with CorporationTaxFixture {
 
   trait Setup {
     val connector = new CompanyRegistrationConnector {

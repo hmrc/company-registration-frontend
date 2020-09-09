@@ -26,45 +26,51 @@ import org.jsoup.nodes.Document
 import org.mockito.Mockito._
 import org.mockito.{ArgumentMatcher, Matchers}
 import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.MessagesApi
-import play.api.mvc.{AnyContent, Request, Result, Results}
+import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, _}
 import services.EmailVerificationService
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name, ~}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.cache.client.CacheMap
-import uk.gov.hmrc.play.test.WithFakeApplication
-import utils.BooleanFeatureSwitch
 
-import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{ExecutionContext, Future}
 
 
-class RegistrationEmailControllerSpec extends SCRSSpec with WithFakeApplication with MockitoSugar with AuthBuilder {
+class RegistrationEmailControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with MockitoSugar with AuthBuilder {
 
   class Setup {
     val controller = new RegistrationEmailController {
+      override lazy val controllerComponents = app.injector.instanceOf[MessagesControllerComponents]
       val authConnector = mockAuthConnector
       val keystoreConnector = mockKeystoreConnector
-      implicit val appConfig: FrontendAppConfig = fakeApplication.injector.instanceOf[FrontendAppConfig]
+      implicit lazy val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
       override val compRegConnector = mockCompanyRegistrationConnector
       override val emailVerification: EmailVerificationService = mockEmailService
-      override val messagesApi = fakeApplication.injector.instanceOf[MessagesApi]
+      override lazy val messagesApi = app.injector.instanceOf[MessagesApi]
+      implicit val ec: ExecutionContext = global
+
       def showLogicFun(email: String = "fakeEmail") = showLogic(email)(HeaderCarrier(), FakeRequest())
+
       def submitLogicFun(
                           regID: String = "regid",
                           email: String = "fakeEmail",
-                          authProvId:String ="provId",
+                          authProvId: String = "provId",
                           extId: String = "extID",
-                          r: Request[AnyContent]) = submitLogic(email, regID,authProvId,extId)(HeaderCarrier(), r)
+                          r: Request[AnyContent]) = submitLogic(email, regID, authProvId, extId)(HeaderCarrier(), r)
     }
+
     case class funcMatcher(func: () => Future[Result]) extends ArgumentMatcher[() => Future[Result]] {
       override def matches(oarg: scala.Any): Boolean = oarg match {
-        case a:(() => Future[Result]) => true
+        case a: (() => Future[Result]) => true
         case _ => false
       }
     }
-    val mockOfFunction  = () => Future.successful(Results.Ok(""))
+
+    val mockOfFunction = () => Future.successful(Results.Ok(""))
   }
 
   "show" should {
@@ -77,11 +83,11 @@ class RegistrationEmailControllerSpec extends SCRSSpec with WithFakeApplication 
     "return 200, with data in keystore" in new Setup {
 
       val email = "foo@bar.wibble"
-      when(mockEmailService.emailVerifiedStatusInSCRS(Matchers.any(),Matchers.argThat(funcMatcher(mockOfFunction)))(Matchers.any())).thenReturn(Future.successful(awaitedFun))
+      when(mockEmailService.emailVerifiedStatusInSCRS(Matchers.any(), Matchers.argThat(funcMatcher(mockOfFunction)))(Matchers.any())).thenReturn(Future.successful(awaitedFun))
       mockKeystoreFetchAndGet[RegistrationEmailModel]("RegEmail", Some(RegistrationEmailModel("currentEmail", Some("differentEmail"))))
       mockKeystoreFetchAndGet[String]("registrationID", Some("regid"))
       val awaitedFun = await(controller.showLogicFun())
-      when(mockEmailService.emailVerifiedStatusInSCRS(Matchers.any(),Matchers.argThat(funcMatcher(mockOfFunction)))(Matchers.any())).thenReturn(Future.successful(awaitedFun))
+      when(mockEmailService.emailVerifiedStatusInSCRS(Matchers.any(), Matchers.argThat(funcMatcher(mockOfFunction)))(Matchers.any())).thenReturn(Future.successful(awaitedFun))
       showWithAuthorisedUserRetrieval(controller.show, authResult)(
         result => {
           status(result) shouldBe 200
@@ -93,10 +99,10 @@ class RegistrationEmailControllerSpec extends SCRSSpec with WithFakeApplication 
     }
     "return 200, with no data in keystore" in new Setup {
       mockKeystoreFetchAndGet[String]("registrationID", Some("regid"))
-      when(mockEmailService.emailVerifiedStatusInSCRS(Matchers.any(),Matchers.argThat(funcMatcher(mockOfFunction)))(Matchers.any())).thenReturn(Future.successful(awaitedFun))
+      when(mockEmailService.emailVerifiedStatusInSCRS(Matchers.any(), Matchers.argThat(funcMatcher(mockOfFunction)))(Matchers.any())).thenReturn(Future.successful(awaitedFun))
       mockKeystoreFetchAndGet[RegistrationEmailModel]("RegEmail", None)
       val awaitedFun = await(controller.showLogicFun())
-      when(mockEmailService.emailVerifiedStatusInSCRS(Matchers.any(),Matchers.argThat(funcMatcher(mockOfFunction)))(Matchers.any())).thenReturn(Future.successful(awaitedFun))
+      when(mockEmailService.emailVerifiedStatusInSCRS(Matchers.any(), Matchers.argThat(funcMatcher(mockOfFunction)))(Matchers.any())).thenReturn(Future.successful(awaitedFun))
       showWithAuthorisedUserRetrieval(controller.show, authResult)(
         result => {
           status(result) shouldBe 200
@@ -109,7 +115,7 @@ class RegistrationEmailControllerSpec extends SCRSSpec with WithFakeApplication 
       mockKeystoreFetchAndGet[String]("registrationID", Some("regid"))
       mockKeystoreFetchAndGetFailed[RegistrationEmailModel]("RegEmail", new Exception(""))
       val awaitedFun = intercept[Exception](await(controller.showLogicFun()))
-      when(mockEmailService.emailVerifiedStatusInSCRS(Matchers.any(),Matchers.argThat(funcMatcher(mockOfFunction)))(Matchers.any())).thenReturn(Future.failed(awaitedFun))
+      when(mockEmailService.emailVerifiedStatusInSCRS(Matchers.any(), Matchers.argThat(funcMatcher(mockOfFunction)))(Matchers.any())).thenReturn(Future.failed(awaitedFun))
       intercept[Exception](showWithAuthorisedUserRetrieval(controller.show, authResult)(
         result => {
           await(result)
@@ -120,14 +126,14 @@ class RegistrationEmailControllerSpec extends SCRSSpec with WithFakeApplication 
   }
 
   "submit" should {
-    val validEmail = Email("foo@bar.com","SCP",false,true,false)
+    val validEmail = Email("foo@bar.com", "SCP", false, true, false)
 
     "return 400 when invalid data used " in new Setup {
 
       val authResult = new ~(
         new ~(
           new ~(
-            Name(None,None),
+            Name(None, None),
             Some("fakeEmail")
           ), Credentials("provId", "provType")
         ), Some("extID")
@@ -154,7 +160,7 @@ class RegistrationEmailControllerSpec extends SCRSSpec with WithFakeApplication 
       val authResult = new ~(
         new ~(
           new ~(
-            Name(None,None),
+            Name(None, None),
             Some("fakeEmail")
           ), Credentials("provId", "provType")
         ), Some("extID")
@@ -165,7 +171,7 @@ class RegistrationEmailControllerSpec extends SCRSSpec with WithFakeApplication 
       val req = FakeRequest().withFormUrlEncodedBody("registrationEmail" -> "currentEmail")
 
       mockKeystoreFetchAndGet[String]("registrationID", Some("regid"))
-      when(mockEmailService.sendVerificationLink(Matchers.any(), Matchers.any(),Matchers.any(),Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(Some(true)))
+      when(mockEmailService.sendVerificationLink(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(Some(true)))
 
       mockKeystoreFetchAndGet[RegistrationEmailModel]("RegEmail", Some(RegistrationEmailModel("currentEmail", Some("differentEmail"))))
       val awaitedFun = await(controller.submitLogicFun("regid", r = req))
@@ -183,7 +189,7 @@ class RegistrationEmailControllerSpec extends SCRSSpec with WithFakeApplication 
       val authResult = new ~(
         new ~(
           new ~(
-            Name(None,None),
+            Name(None, None),
             Some("fakeEmail")
           ), Credentials("provId", "provType")
         ), Some("extID")
@@ -191,9 +197,9 @@ class RegistrationEmailControllerSpec extends SCRSSpec with WithFakeApplication 
 
       mockAuthorisedUser(Future.successful(Some(true)))
       val req = FakeRequest().withFormUrlEncodedBody("registrationEmail" -> "currentEmail")
-      when(mockEmailService.saveEmailBlock(Matchers.any(), Matchers.any(),Matchers.any(),Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(Some(validEmail)))
+      when(mockEmailService.saveEmailBlock(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(Some(validEmail)))
       mockKeystoreFetchAndGet[String]("registrationID", Some("regid"))
-      when(mockEmailService.sendVerificationLink(Matchers.any(), Matchers.any(),Matchers.any(),Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(Some(true)))
+      when(mockEmailService.sendVerificationLink(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(Some(true)))
 
       mockKeystoreFetchAndGet[RegistrationEmailModel]("RegEmail", Some(RegistrationEmailModel("currentEmail", Some("differentEmail"))))
       val awaitedFun = await(controller.submitLogicFun("regid", r = req))
@@ -211,7 +217,7 @@ class RegistrationEmailControllerSpec extends SCRSSpec with WithFakeApplication 
       val authResult = new ~(
         new ~(
           new ~(
-            Name(None,None),
+            Name(None, None),
             Some("fakeEmail")
           ), Credentials("provId", "provType")
         ), Some("extID")
@@ -221,7 +227,7 @@ class RegistrationEmailControllerSpec extends SCRSSpec with WithFakeApplication 
       val req = FakeRequest().withFormUrlEncodedBody("registrationEmail" -> "currentEmail")
 
       mockKeystoreFetchAndGet[String]("registrationID", Some("regid"))
-      when(mockEmailService.sendVerificationLink(Matchers.any(), Matchers.any(),Matchers.any(),Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(Some(false)))
+      when(mockEmailService.sendVerificationLink(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(Some(false)))
       mockKeystoreFetchAndGet[RegistrationEmailModel]("RegEmail", Some(RegistrationEmailModel("currentEmail", Some("differentEmail"))))
       val awaitedFun = await(controller.submitLogicFun("regid", r = req))
       when(mockEmailService.emailVerifiedStatusInSCRS(Matchers.any(), Matchers.argThat(funcMatcher(mockOfFunction)))(Matchers.any())).thenReturn(Future.successful(awaitedFun))
@@ -238,7 +244,7 @@ class RegistrationEmailControllerSpec extends SCRSSpec with WithFakeApplication 
       val authResult = new ~(
         new ~(
           new ~(
-            Name(None,None),
+            Name(None, None),
             Some("fakeEmail")
           ), Credentials("provId", "provType")
         ), Some("extID")
@@ -246,9 +252,9 @@ class RegistrationEmailControllerSpec extends SCRSSpec with WithFakeApplication 
 
       mockAuthorisedUser(Future.successful(Some(true)))
       val req = FakeRequest().withFormUrlEncodedBody("registrationEmail" -> "currentEmail")
-      when(mockEmailService.saveEmailBlock(Matchers.any(), Matchers.any(),Matchers.any(),Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(Some(validEmail)))
+      when(mockEmailService.saveEmailBlock(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(Some(validEmail)))
       mockKeystoreFetchAndGet[String]("registrationID", Some("regid"))
-      when(mockEmailService.sendVerificationLink(Matchers.any(), Matchers.any(),Matchers.any(),Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(Some(false)))
+      when(mockEmailService.sendVerificationLink(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(Some(false)))
       mockKeystoreFetchAndGet[RegistrationEmailModel]("RegEmail", Some(RegistrationEmailModel("currentEmail", Some("differentEmail"))))
       val awaitedFun = await(controller.submitLogicFun("regid", r = req))
       when(mockEmailService.emailVerifiedStatusInSCRS(Matchers.any(), Matchers.argThat(funcMatcher(mockOfFunction)))(Matchers.any())).thenReturn(Future.successful(awaitedFun))
@@ -266,7 +272,7 @@ class RegistrationEmailControllerSpec extends SCRSSpec with WithFakeApplication 
       val authResult = new ~(
         new ~(
           new ~(
-            Name(None,None),
+            Name(None, None),
             Some("fakeEmail")
           ), Credentials("provId", "provType")
         ), Some("extID")
@@ -274,9 +280,9 @@ class RegistrationEmailControllerSpec extends SCRSSpec with WithFakeApplication 
 
       mockAuthorisedUser(Future.successful(Some(true)))
       val req = FakeRequest().withFormUrlEncodedBody("registrationEmail" -> "currentEmail")
-      when(mockEmailService.saveEmailBlock(Matchers.any(), Matchers.any(),Matchers.any(),Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(Some(validEmail)))
+      when(mockEmailService.saveEmailBlock(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(Some(validEmail)))
       mockKeystoreFetchAndGet[String]("registrationID", Some("regid"))
-      when(mockEmailService.sendVerificationLink(Matchers.any(), Matchers.any(),Matchers.any(),Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(None))
+      when(mockEmailService.sendVerificationLink(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())).thenReturn(Future.successful(None))
 
       mockKeystoreFetchAndGet[RegistrationEmailModel]("RegEmail", Some(RegistrationEmailModel("currentEmail", Some("differentEmail"))))
       val awaitedFun = await(controller.submitLogicFun("regid", r = req))
@@ -293,7 +299,7 @@ class RegistrationEmailControllerSpec extends SCRSSpec with WithFakeApplication 
       val authResult = new ~(
         new ~(
           new ~(
-            Name(None,None),
+            Name(None, None),
             Some("fakeEmail")
           ), Credentials("provId", "provType")
         ), Some("extID")

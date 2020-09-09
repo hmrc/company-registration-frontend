@@ -25,26 +25,29 @@ import models.connectors.ConfirmationReferences
 import org.jsoup.Jsoup
 import org.mockito.Matchers
 import org.mockito.Mockito._
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.MessagesApi
+import play.api.mvc.MessagesControllerComponents
 import play.api.test.Helpers._
 import services.DeskproService
-import uk.gov.hmrc.play.test.WithFakeApplication
 
 import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 
-class ConfirmationSpec extends SCRSSpec with CompanyDetailsFixture with WithFakeApplication with AuthBuilder {
+class ConfirmationSpec extends SCRSSpec with CompanyDetailsFixture with GuiceOneAppPerSuite with AuthBuilder {
 
   val mockDeskproService = mock[DeskproService]
 
-
   class SetupPage {
     val controller = new ConfirmationController {
+      override lazy val controllerComponents = app.injector.instanceOf[MessagesControllerComponents]
       override val authConnector = mockAuthConnector
       override val compRegConnector = mockCompanyRegistrationConnector
       override val keystoreConnector = mockKeystoreConnector
       override val deskproService = mockDeskproService
-      implicit val messagesApi: MessagesApi = fakeApplication.injector.instanceOf[MessagesApi]
+      override implicit lazy val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
       override val appConfig = mockAppConfig
+      override val ec = global
     }
   }
 

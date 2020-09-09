@@ -30,16 +30,16 @@ class PAYEConnectorImpl @Inject()(val appConfig: FrontendAppConfig, val wSHttp: 
 
 trait PAYEConnector extends ServiceConnector {
   val appConfig: FrontendAppConfig
-  lazy val serviceBaseUrl = appConfig.baseUrl("paye-registration")
-  lazy val serviceUri = appConfig.getConfString("paye-registration.uri", "/paye-registration")
+  lazy val serviceBaseUrl = appConfig.servicesConfig.baseUrl("paye-registration")
+  lazy val serviceUri = appConfig.servicesConfig.getConfString("paye-registration.uri", "/paye-registration")
 }
 
 class VATConnectorImpl @Inject()(val appConfig: FrontendAppConfig, val wSHttp: WSHttp) extends VATConnector
 
 trait VATConnector extends ServiceConnector {
   val appConfig: FrontendAppConfig
-  lazy val serviceBaseUrl = appConfig.baseUrl("vat-registration")
-  lazy val serviceUri = appConfig.getConfString("vat-registration.uri", "/vatreg")
+  lazy val serviceBaseUrl = appConfig.servicesConfig.baseUrl("vat-registration")
+  lazy val serviceUri = appConfig.servicesConfig.getConfString("vat-registration.uri", "/vatreg")
 }
 
 trait ServiceConnector {

@@ -47,7 +47,7 @@ object GAEvents {
 }
 
 class PlatformAnalyticsConnectorImpl @Inject()(val wSHttp: WSHttp, appConfig: FrontendAppConfig) extends PlatformAnalyticsConnector {
-  lazy val serviceUrl = appConfig.baseUrl("platform-analytics")
+  lazy val serviceUrl = appConfig.servicesConfig.baseUrl("platform-analytics")
   lazy val gaClientId = s"GA1.1.${Math.abs(Random.nextInt())}.${Math.abs(Random.nextInt())}"
 }
 

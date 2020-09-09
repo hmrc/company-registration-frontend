@@ -19,6 +19,7 @@ import java.util.UUID
 
 import itutil.{IntegrationSpecBase, LoginStub}
 import play.api.http.HeaderNames
+import play.api.libs.crypto.DefaultCookieSigner
 import play.api.libs.ws.WSResponse
 
 import scala.concurrent.Future
@@ -26,6 +27,7 @@ import scala.concurrent.Future
 class ReturningUserControllerISpec extends IntegrationSpecBase with LoginStub {
 
   val userId = "/wibble"
+  lazy val defaultCookieSigner: DefaultCookieSigner = app.injector.instanceOf[DefaultCookieSigner]
 
   "POST /setting-up-new-limited-company" should {
     val map = Map(

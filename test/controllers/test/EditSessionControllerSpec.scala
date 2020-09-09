@@ -25,7 +25,7 @@ import uk.gov.hmrc.play.test.UnitSpec
 
 class EditSessionControllerSpec extends UnitSpec with MockitoSugar with OneAppPerSuite {
 
-  val sessionId    = "session-id"
+  val sessionId = "session-id"
   val newSessionId = "new-session-id"
 
   class Setup {

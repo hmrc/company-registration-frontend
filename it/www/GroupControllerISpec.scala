@@ -12,6 +12,7 @@ import models.{Groups, NewAddress}
 import org.jsoup.Jsoup
 import org.jsoup.select.Elements
 import play.api.http.HeaderNames
+import play.api.libs.crypto.DefaultCookieSigner
 import play.api.libs.json.{JsObject, Json}
 import play.modules.reactivemongo.ReactiveMongoComponent
 import repositories.NavModelRepo
@@ -24,6 +25,7 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
   val userId = "test-user-id"
   val regId = "12345"
   val txid = "txid-1"
+  lazy val defaultCookieSigner: DefaultCookieSigner = app.injector.instanceOf[DefaultCookieSigner]
 
   class Setup {
     val csrfToken = () => UUID.randomUUID().toString
@@ -539,7 +541,7 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
       val doc = Jsoup.parse(await(fResponse.body))
       doc.getElementById("groupAddress-alf").`val` shouldBe "ALF"
       val label = await(doc.getElementsByTag("label")
-        .filter {e: Elements => !e.attr("for", "groupAddress-alf").isEmpty}).first()
+        .filter { e: Elements => !e.attr("for", "groupAddress-alf").isEmpty }).first()
       label.text shouldBe "1 abc, 2 abc, 3 abc, 4 abc, ZZ1 1ZZ, country A"
     }
   }

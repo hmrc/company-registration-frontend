@@ -47,7 +47,7 @@ class EmailVerificationServiceImpl @Inject()(val emailConnector: EmailVerificati
                                              val appConfig: FrontendAppConfig,
                                              val templatedEmailConnector: SendTemplatedEmailConnector) extends EmailVerificationService {
   lazy val returnUrl = appConfig.self
-  lazy val sendTemplatedEmailURL = appConfig.getConfString("email.returnToSCRSURL", throw new Exception("email.returnToSCRSURL not found"))
+  lazy val sendTemplatedEmailURL = appConfig.servicesConfig.getConfString("email.returnToSCRSURL", throw new Exception("email.returnToSCRSURL not found"))
 }
 
 trait EmailVerificationService {

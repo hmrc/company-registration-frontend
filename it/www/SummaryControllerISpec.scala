@@ -8,6 +8,7 @@ import itutil.{IntegrationSpecBase, LoginStub}
 import models._
 import org.jsoup.Jsoup
 import play.api.http.HeaderNames
+import play.api.libs.crypto.DefaultCookieSigner
 import play.api.libs.json.Json
 
 class SummaryControllerISpec extends IntegrationSpecBase with LoginStub with TakeoverStub {
@@ -16,6 +17,7 @@ class SummaryControllerISpec extends IntegrationSpecBase with LoginStub with Tak
   val regId = "5"
   val sessionCookie = () => getSessionCookie(Map("csrfToken" -> csrfToken), userId)
   val takeoverDetails = Some(TakeoverDetails(replacingAnotherBusiness = true))
+  lazy val defaultCookieSigner: DefaultCookieSigner = app.injector.instanceOf[DefaultCookieSigner]
 
   "Display summary correctly with full model" in {
     stubAuthorisation()
@@ -23,7 +25,7 @@ class SummaryControllerISpec extends IntegrationSpecBase with LoginStub with Tak
     stubSuccessfulLogin(userId = userId)
     stubKeystore(SessionId, regId)
     stubBusinessRegRetrieveMetaDataWithRegId(regId, 200, Json.toJson(BusinessRegistration(regId, "123", "en", Some("director"), Links(Some("foo"), Some("bar")))).toString())
-    stubGet(s"/company-registration/corporation-tax-registration/$regId/accounting-details", 200, """{"accountingDateStatus":"FUTURE_DATE", "startDateOfBusiness":"2019-01-02", "links": []}""")
+    stubGet(s"/company-registration/corporation-tax-registration/$regId/accounting-details", 200, """{"accountingDateStatus":"FUTURE_DATE", "startDateOfBusiness":"2019-01-02", "links": {}}""")
 
     stubGet(s"/company-registration/corporation-tax-registration/$regId/contact-details", 200, Json.parse(
       """|{
@@ -61,7 +63,7 @@ class SummaryControllerISpec extends IntegrationSpecBase with LoginStub with Tak
          |}""".stripMargin)
 
     val fResponse = await(buildClient(controllers.reg.routes.SummaryController.show().url)
-      .withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
+      .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
       .get())
     val doc = Jsoup.parse(fResponse.body)
     fResponse.status shouldBe 200

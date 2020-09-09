@@ -26,7 +26,6 @@ class AccountingServiceSpec extends SCRSSpec with AccountingDetailsFixture {
     val service = new AccountingService {
       val companyRegistrationConnector = mockCompanyRegistrationConnector
       val keystoreConnector = mockKeystoreConnector
-
     }
   }
 

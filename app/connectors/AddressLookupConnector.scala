@@ -20,7 +20,6 @@ import config.{FrontendAppConfig, WSHttp}
 import javax.inject.Inject
 import models.{AlfJourneyConfig, NewAddress}
 import play.api.Logger
-import play.api.libs.json.JsObject
 import uk.gov.hmrc.http._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -29,7 +28,7 @@ import scala.util.control.NoStackTrace
 
 class AddressLookupConnectorImpl @Inject()(val wSHttp: WSHttp,
                                            frontendAppConfig: FrontendAppConfig) extends AddressLookupConnector {
-  lazy val addressLookupFrontendURL: String = frontendAppConfig.baseUrl("address-lookup-frontend")
+  lazy val addressLookupFrontendURL: String = frontendAppConfig.servicesConfig.baseUrl("address-lookup-frontend")
 }
 
 class ALFLocationHeaderNotSet extends NoStackTrace

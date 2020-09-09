@@ -25,17 +25,16 @@ import org.jsoup.Jsoup
 import org.mockito.ArgumentMatcher
 import org.mockito.Matchers.any
 import org.mockito.Mockito.when
-import play.api.i18n.MessagesApi
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.{AnyContentAsEmpty, Result}
+import play.api.mvc.{AnyContentAsEmpty, MessagesControllerComponents, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.play.test.WithFakeApplication
 
 import scala.concurrent.Future
 
 class GroupUtrSpec extends SCRSSpec with UserDetailsFixture
-  with WithFakeApplication with AuthBuilder {
+  with GuiceOneAppPerSuite with AuthBuilder {
 
   val testRegId = "1"
 
@@ -46,7 +45,7 @@ class GroupUtrSpec extends SCRSSpec with UserDetailsFixture
       mockKeystoreConnector,
       mockGroupService,
       mockCompanyRegistrationConnector,
-      fakeApplication.injector.instanceOf[MessagesApi]
+      app.injector.instanceOf[MessagesControllerComponents]
     )
 
     case class funcMatcher(func: Groups => Future[Result]) extends ArgumentMatcher[Groups => Future[Result]] {

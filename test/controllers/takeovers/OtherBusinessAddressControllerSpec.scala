@@ -28,19 +28,19 @@ import mocks.{AddressLookupFrontendServiceMock, AddressPrepopulationServiceMock,
 import models.takeovers.PreselectedAddress
 import models.{NewAddress, TakeoverDetails}
 import org.jsoup.Jsoup
-import play.api.i18n.{I18nSupport, MessagesApi}
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.i18n._
 import play.api.libs.json.Json
 import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.NotFoundException
-import uk.gov.hmrc.play.test.WithFakeApplication
 import views.html.takeovers.OtherBusinessAddress
 
 import scala.concurrent.Future
 
-class OtherBusinessAddressControllerSpec extends SCRSSpec
-  with WithFakeApplication
+class OtherBusinessAddressControllerSpec(implicit lang: Lang) extends SCRSSpec
+  with GuiceOneAppPerSuite
   with LoginFixture
   with AuthBuilder
   with TakeoverServiceMock
@@ -55,7 +55,10 @@ class OtherBusinessAddressControllerSpec extends SCRSSpec
   implicit val request: Request[AnyContent] = FakeRequest()
   implicit val actorSystem: ActorSystem = ActorSystem("MyTest")
   implicit val actorMaterializer: ActorMaterializer = ActorMaterializer()
-  implicit lazy val messagesApi: MessagesApi = fakeApplication.injector.instanceOf[MessagesApi]
+  implicit lazy val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
+  implicit val messages: Messages = app.injector.instanceOf[Messages]
+  implicit val langs = app.injector.instanceOf[Langs]
+  val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
 
   object TestOtherBusinessAddressController extends OtherBusinessAddressController(
     mockAuthConnector,
@@ -65,7 +68,8 @@ class OtherBusinessAddressControllerSpec extends SCRSSpec
     mockCompanyRegistrationConnector,
     mockBusinessRegConnector,
     mockKeystoreConnector,
-    mockSCRSFeatureSwitches
+    mockSCRSFeatureSwitches,
+    mockMcc
   )
 
   "show" when {
@@ -251,8 +255,8 @@ class OtherBusinessAddressControllerSpec extends SCRSSpec
           mockInitialiseAlfJourney(
             handbackLocation = controllers.takeovers.routes.OtherBusinessAddressController.handbackFromALF(None),
             specificJourneyKey = "takeovers",
-            lookupPageHeading = messagesApi("page.addressLookup.takeovers.otherBusinessAddress.lookup.heading", testBusinessName),
-            confirmPageHeading = messagesApi("page.addressLookup.takeovers.otherBusinessAddress.confirm.description", testBusinessName)
+            lookupPageHeading = messages("page.addressLookup.takeovers.otherBusinessAddress.lookup.heading", testBusinessName),
+            confirmPageHeading = messages("page.addressLookup.takeovers.otherBusinessAddress.confirm.description", testBusinessName)
           )(Future.successful("TEST/redirectUrl"))
 
           implicit val request: Request[AnyContentAsFormUrlEncoded] =

@@ -25,29 +25,33 @@ import mocks.MetricServiceMock
 import models.CompanyContactDetailsSuccessResponse
 import org.mockito.Matchers.any
 import org.mockito.Mockito._
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.MessagesApi
+import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.MetricsService
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name, ~}
-import uk.gov.hmrc.play.test.WithFakeApplication
 
-import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{ExecutionContext, Future}
 
 class CompanyContactDetailsControllerSpec extends SCRSSpec with UserDetailsFixture with CompanyContactDetailsFixture
-  with WithFakeApplication with AuthBuilder {
+  with GuiceOneAppPerSuite with AuthBuilder {
 
   class Setup {
     val controller = new CompanyContactDetailsController {
+      override lazy val controllerComponents = app.injector.instanceOf[MessagesControllerComponents]
       override val authConnector = mockAuthConnector
       override val s4LConnector = mockS4LConnector
       override val companyContactDetailsService = mockCompanyContactDetailsService
       override val metricsService: MetricsService = MetricServiceMock
       override val compRegConnector = mockCompanyRegistrationConnector
-      override val keystoreConnector= mockKeystoreConnector
-      implicit val appConfig: FrontendAppConfig = fakeApplication.injector.instanceOf[FrontendAppConfig]
-      override val messagesApi = fakeApplication.injector.instanceOf[MessagesApi]
+      override val keystoreConnector = mockKeystoreConnector
+      implicit lazy val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+      override lazy val messagesApi = app.injector.instanceOf[MessagesApi]
       override val scrsFeatureSwitches = mockSCRSFeatureSwitches
+      implicit val ec: ExecutionContext = global
     }
   }
 
@@ -68,7 +72,7 @@ class CompanyContactDetailsControllerSpec extends SCRSSpec with UserDetailsFixtu
     "return a 200 when fetchContactDetails returns a model from S4L" in new Setup {
       CTRegistrationConnectorMocks.retrieveCTRegistration()
       when(mockCompanyRegistrationConnector.fetchCompanyName(any())(any())).thenReturn(Future.successful("foo"))
-      mockKeystoreFetchAndGet("registrationID",Some("1"))
+      mockKeystoreFetchAndGet("registrationID", Some("1"))
       CompanyContactDetailsServiceMocks.fetchContactDetails(validCompanyContactDetailsModel)
 
       showWithAuthorisedUser(controller.show) {
@@ -80,7 +84,7 @@ class CompanyContactDetailsControllerSpec extends SCRSSpec with UserDetailsFixtu
     "return a 200 when fetchContactDetails returns nothing from S4L but returns a model from UserDetailsService" in new Setup {
       CTRegistrationConnectorMocks.retrieveCTRegistration()
       when(mockCompanyRegistrationConnector.fetchCompanyName(any())(any())).thenReturn(Future.successful("foo"))
-      mockKeystoreFetchAndGet("registrationID",Some("1"))
+      mockKeystoreFetchAndGet("registrationID", Some("1"))
       CompanyContactDetailsServiceMocks.fetchContactDetails(validCompanyContactDetailsModel)
 
       showWithAuthorisedUser(controller.show) {
@@ -90,7 +94,7 @@ class CompanyContactDetailsControllerSpec extends SCRSSpec with UserDetailsFixtu
     }
     "return exception if name is missing even though it is not used on the page anymore" in new Setup {
       val AuthDetailsNoName = new ~(
-        Name(None,None),
+        Name(None, None),
         Some("fakeEmail")
       )
       intercept[Exception](showWithAuthorisedUserRetrieval(controller.show, AuthDetailsNoName) {
@@ -159,7 +163,7 @@ class CompanyContactDetailsControllerSpec extends SCRSSpec with UserDetailsFixtu
       val authDetailsAmendNoName = new ~(
         new ~(
           new ~(
-            Name(None,None),
+            Name(None, None),
             Some("fakeEmail")
           ), Credentials("credID", "provID")
         ), Some("extID")

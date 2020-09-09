@@ -30,7 +30,7 @@ import scala.concurrent.Future
 
 class CompanyRegistrationConnectorImpl @Inject()(val appConfig: FrontendAppConfig,
                                                  val wsHttp: WSHttp) extends CompanyRegistrationConnector {
-  lazy val companyRegUrl = appConfig.baseUrl("company-registration")
+  lazy val companyRegUrl = appConfig.servicesConfig.baseUrl("company-registration")
 }
 
 sealed trait FootprintResponse

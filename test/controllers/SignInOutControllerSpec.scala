@@ -28,8 +28,9 @@ import mocks.MetricServiceMock
 import models.{Email, ThrottleResponse}
 import org.mockito.Matchers
 import org.mockito.Mockito._
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.Json
-import play.api.mvc.Results
+import play.api.mvc.{MessagesControllerComponents, Results}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentType, _}
 import services.{EnrolmentsService, VerifiedEmail}
@@ -38,20 +39,20 @@ import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolments}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.binders.ContinueUrl
-import uk.gov.hmrc.play.test.WithFakeApplication
 
-import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{ExecutionContext, Future}
 
 class SignInOutControllerSpec extends SCRSSpec
-  with UserDetailsFixture with PayloadFixture with PPOBFixture with BusinessRegistrationFixture with CompanyDetailsFixture with WithFakeApplication
+  with UserDetailsFixture with PayloadFixture with PPOBFixture with BusinessRegistrationFixture with CompanyDetailsFixture with GuiceOneAppPerSuite
   with AuthBuilder {
 
   val mockEnrolmentsService = mock[EnrolmentsService]
 
-
   class Setup(val corsHost: Option[String] = None) {
 
     val controller = new SignInOutController {
+      override val controllerComponents = app.injector.instanceOf[MessagesControllerComponents]
       override val authConnector = mockAuthConnector
       override val compRegConnector = mockCompanyRegistrationConnector
       override val handOffService = mockHandOffService
@@ -61,7 +62,8 @@ class SignInOutControllerSpec extends SCRSSpec
       override val metrics = MetricServiceMock
       override val corsRenewHost = corsHost
       val cRFEBaseUrl = "test-base-url"
-      implicit val appConfig: FrontendAppConfig = fakeApplication.injector.instanceOf[FrontendAppConfig]
+      implicit val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+      implicit val ec: ExecutionContext = global
     }
   }
 
@@ -88,7 +90,7 @@ class SignInOutControllerSpec extends SCRSSpec
     }
 
     "return a 303 if accessing with authorisation for a new journey" in new Setup {
-      val expected = ThrottleResponse("12345", true, false, false, Some(Email("email","GG",false,false,false)))
+      val expected = ThrottleResponse("12345", true, false, false, Some(Email("email", "GG", false, false, false)))
 
       when(mockEnrolmentsService.hasBannedRegimes(Matchers.any()))
         .thenReturn(Future.successful(false))
@@ -144,12 +146,12 @@ class SignInOutControllerSpec extends SCRSSpec
 
       showWithAuthorisedUserRetrieval(controller.postSignIn(None), authDetailsNoEmailAndNoOrgType) {
         result =>
-         status(result) shouldBe 500
+          status(result) shouldBe 500
       }
     }
 
     "return a 303 if accessing with authorisation for an existing journey" in new Setup {
-      val expected = ThrottleResponse("12345", false, false, false, Some(Email("email","GG",false,false,false)))
+      val expected = ThrottleResponse("12345", false, false, false, Some(Email("email", "GG", false, false, false)))
 
       when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(Matchers.any()))
         .thenReturn(Future.successful(FootprintFound(expected)))
@@ -197,7 +199,9 @@ class SignInOutControllerSpec extends SCRSSpec
     }
 
     "return a 303 if accessing with authorisation for an existing journey that has locked status and redirect to HO1" in new Setup {
+
       import constants.RegistrationProgressValues.HO5
+
       val expected = ThrottleResponse("12345", false, true, false, registrationProgress = Some(HO5))
 
       when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(Matchers.any()))
@@ -217,7 +221,9 @@ class SignInOutControllerSpec extends SCRSSpec
     }
 
     "return a 303 if accessing with authorisation for an existing journey that has been as far as HO5.1 and redirect to HO1" in new Setup {
+
       import constants.RegistrationProgressValues.HO5
+
       val expected = ThrottleResponse("12345", false, true, false, registrationProgress = Some(HO5))
 
       when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(Matchers.any()))
@@ -462,7 +468,7 @@ class SignInOutControllerSpec extends SCRSSpec
 
   "destroySession" should {
     "return redirect to timeout show and get rid of headers" in new Setup {
-      val fr = FakeRequest().withHeaders(("playFoo","no more"))
+      val fr = FakeRequest().withHeaders(("playFoo", "no more"))
       val res = await(controller.destroySession()(fr))
       status(res) shouldBe 303
       headers(res).contains("playFoo") shouldBe false

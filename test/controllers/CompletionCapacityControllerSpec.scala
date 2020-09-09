@@ -27,33 +27,37 @@ import models.{AboutYouChoiceForm, BusinessRegistration}
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.MessagesApi
+import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.MetricsService
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads}
-import uk.gov.hmrc.play.test.WithFakeApplication
 
-import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{ExecutionContext, Future}
 
-class CompletionCapacityControllerSpec extends SCRSSpec with WithFakeApplication with MockitoSugar with BusinessRegistrationFixture with AuthBuilder {
+class CompletionCapacityControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with MockitoSugar with BusinessRegistrationFixture with AuthBuilder {
 
   val mockBusinessRegConnector = mock[BusinessRegistrationConnector]
 
-
   class Setup {
     val controller = new CompletionCapacityController {
+      override val controllerComponents = app.injector.instanceOf[MessagesControllerComponents]
       val authConnector = mockAuthConnector
       val keystoreConnector = mockKeystoreConnector
       val businessRegConnector = mockBusinessRegConnector
       val metaDataService = mockMetaDataService
       override val compRegConnector = mockCompanyRegistrationConnector
       override val metricsService: MetricsService = MetricServiceMock
-      implicit val appConfig: FrontendAppConfig = fakeApplication.injector.instanceOf[FrontendAppConfig]
-      override val messagesApi = fakeApplication.injector.instanceOf[MessagesApi]
+      implicit val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+      override val messagesApi = app.injector.instanceOf[MessagesApi]
+      implicit val ec: ExecutionContext = global
     }
 
   }
+
   "The CompletionCapacityController" should {
     "redirect whilst the user is un authorised when sending a GET" in new Setup {
       showWithUnauthorisedUser(controller.show()) {
@@ -92,7 +96,7 @@ class CompletionCapacityControllerSpec extends SCRSSpec with WithFakeApplication
 
     "return a 303 if the user has entered valid data" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("foo"))
-      when(mockMetaDataService.updateCompletionCapacity(Matchers.eq(AboutYouChoiceForm("director","")))(Matchers.any[HeaderCarrier]()))
+      when(mockMetaDataService.updateCompletionCapacity(Matchers.eq(AboutYouChoiceForm("director", "")))(Matchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(validBusinessRegistrationResponse))
 
       submitWithAuthorisedUser(controller.submit(), FakeRequest().withFormUrlEncodedBody(
@@ -107,7 +111,7 @@ class CompletionCapacityControllerSpec extends SCRSSpec with WithFakeApplication
 
     "return a 303 if the user has no entry in keystore but has valid data" in new Setup {
       mockKeystoreFetchAndGet("registrationID", None)
-      when(mockMetaDataService.updateCompletionCapacity(Matchers.eq(AboutYouChoiceForm("director","")))(Matchers.any[HeaderCarrier]()))
+      when(mockMetaDataService.updateCompletionCapacity(Matchers.eq(AboutYouChoiceForm("director", "")))(Matchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(validBusinessRegistrationResponse))
 
       submitWithAuthorisedUser(controller.submit(), FakeRequest().withFormUrlEncodedBody(

@@ -24,18 +24,18 @@ import models.Groups
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
-import play.api.i18n.MessagesApi
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.{JsValue, Json}
+import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.test.WithFakeApplication
 
 import scala.concurrent.Future
 
-class GroupReliefControllerSpec extends SCRSSpec with WithFakeApplication with MockitoSugar with AuthBuilder {
+class GroupReliefControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with MockitoSugar with AuthBuilder {
 
-  implicit val appConfig: FrontendAppConfig = fakeApplication.injector.instanceOf[FrontendAppConfig]
+  implicit val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
 
   class Setup {
     reset(mockCompanyRegistrationConnector)
@@ -44,7 +44,7 @@ class GroupReliefControllerSpec extends SCRSSpec with WithFakeApplication with M
       mockGroupService,
       mockCompanyRegistrationConnector,
       mockKeystoreConnector,
-      fakeApplication.injector.instanceOf[MessagesApi]
+      app.injector.instanceOf[MessagesControllerComponents]
     )
 
     def cTDoc(status: String, groupBlock: String): JsValue = Json.parse(

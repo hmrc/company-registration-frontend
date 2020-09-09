@@ -19,7 +19,9 @@ package controllers.test
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.{JsValue, Json}
+import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpGet}
@@ -28,14 +30,15 @@ import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class ModifyThrottledUsersControllerSpec extends UnitSpec with MockitoSugar {
+class ModifyThrottledUsersControllerSpec extends UnitSpec with MockitoSugar with GuiceOneAppPerSuite {
 
   val mockHttp = mock[HttpGet with WSGet]
+  lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
 
   implicit val hc = HeaderCarrier()
 
   class Setup {
-    val controller = new ModifyThrottledUsersController {
+    val controller = new ModifyThrottledUsersController(mockMcc) {
       val crUrl: String = "test.url"
       val wSHttp: HttpGet = mockHttp
     }

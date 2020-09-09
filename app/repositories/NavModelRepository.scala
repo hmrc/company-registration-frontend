@@ -39,7 +39,7 @@ trait NavModelRepo {
   val mongo: ReactiveMongoComponent
   val appConfig: FrontendAppConfig
 
-  lazy val expireAfterSeconds: Long = appConfig.getConfInt("navModel-time-to-live.ttl", throw new Exception("could not find config key navModel-time-to-live.ttl"))
+  lazy val expireAfterSeconds: Long = appConfig.servicesConfig.getConfInt("navModel-time-to-live.ttl", throw new Exception("could not find config key navModel-time-to-live.ttl"))
   lazy val repository: NavModelRepoMongo = new NavModelRepoMongo(mongo.mongoConnector.db, expireAfterSeconds)
 }
 trait NavModelRepository {

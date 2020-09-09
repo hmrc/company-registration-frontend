@@ -7,6 +7,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.{findAll, postRequestedFo
 import itutil.{IntegrationSpecBase, LoginStub, RequestsFinder}
 import org.jsoup.Jsoup
 import play.api.http.HeaderNames
+import play.api.libs.crypto.DefaultCookieSigner
 import play.api.libs.json.{JsObject, Json}
 
 class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with LoginStub with RequestsFinder {
@@ -15,7 +16,9 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
   val csrfToken = UUID.randomUUID().toString
   val regId = "5"
   val sessionCookie = () => getSessionCookie(Map("csrfToken" -> csrfToken), userId)
-  def statusResponseFromCR(status:String = "draft", rID:String = "5") =
+  lazy val defaultCookieSigner: DefaultCookieSigner = app.injector.instanceOf[DefaultCookieSigner]
+
+  def statusResponseFromCR(status: String = "draft", rID: String = "5") =
     s"""
        |{
        |    "registrationID" : "${rID}",
@@ -115,16 +118,16 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
       val response = await(buildClient(controllers.reg.routes.CompanyContactDetailsController.submit().url)
         .withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck").post(
         Map(
-          "csrfToken"->Seq("xxx-ignored-xxx"),
-          "contactDaytimeTelephoneNumber"-> Seq("12345678910"),
+          "csrfToken" -> Seq("xxx-ignored-xxx"),
+          "contactDaytimeTelephoneNumber" -> Seq("12345678910"),
           "contactMobileNumber" -> Seq("1234567891011"),
           "contactEmail" -> Seq("foo@foo.com")))
       )
       response.status shouldBe 303
       response.header(HeaderNames.LOCATION).get shouldBe controllers.reg.routes.AccountingDatesController.show().url
-      val audit = Json.parse(getRequestBody("post","/write/audit")).as[JsObject] \ "detail" \ "businessContactDetails"
-      audit.get shouldBe Json.obj("originalEmail" -> "test@test.com","submittedEmail" -> "foo@foo.com")
-      val prePop = Json.parse(getRequestBody("post",s"/business-registration/$regId/contact-details")).as[JsObject]
+      val audit = Json.parse(getRequestBody("post", "/write/audit")).as[JsObject] \ "detail" \ "businessContactDetails"
+      audit.get shouldBe Json.obj("originalEmail" -> "test@test.com", "submittedEmail" -> "foo@foo.com")
+      val prePop = Json.parse(getRequestBody("post", s"/business-registration/$regId/contact-details")).as[JsObject]
       prePop shouldBe Json.obj("telephoneNumber" -> "12345678910", "mobileNumber" -> "1234567891011", "email" -> "foo@foo.com")
     }
     "return 400 data is invalid" in {
@@ -135,8 +138,8 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
       val response = await(buildClient(controllers.reg.routes.CompanyContactDetailsController.submit().url).
         withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck").post(
         Map(
-          "csrfToken"->Seq("xxx-ignored-xxx"),
-          "contactDaytimeTelephoneNumber"-> Seq("1"),
+          "csrfToken" -> Seq("xxx-ignored-xxx"),
+          "contactDaytimeTelephoneNumber" -> Seq("1"),
           "contactMobileNumber" -> Seq("12"),
           "contactEmail" -> Seq("foo@foo.com")))
       )
@@ -163,15 +166,15 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
       val response = await(buildClient(controllers.reg.routes.CompanyContactDetailsController.submit().url).
         withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck").post(
         Map(
-          "csrfToken"->Seq("xxx-ignored-xxx"),
-          "contactDaytimeTelephoneNumber"-> Seq("12345678910"),
+          "csrfToken" -> Seq("xxx-ignored-xxx"),
+          "contactDaytimeTelephoneNumber" -> Seq("12345678910"),
           "contactMobileNumber" -> Seq(""),
           "contactEmail" -> Seq("")))
       )
 
       response.status shouldBe 303
       response.header(HeaderNames.LOCATION).get shouldBe controllers.reg.routes.AccountingDatesController.show().url
-      val audit = Json.parse(getRequestBody("post","/write/audit")).as[JsObject] \ "detail" \ "businessContactDetails"
+      val audit = Json.parse(getRequestBody("post", "/write/audit")).as[JsObject] \ "detail" \ "businessContactDetails"
       audit.get shouldBe Json.obj("originalEmail" -> "test@test.com")
     }
     "return 303, when name is submitted and email is the same as auth email, no audit event should be sent" in {
@@ -194,16 +197,16 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
       val response = await(buildClient(controllers.reg.routes.CompanyContactDetailsController.submit().url).
         withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck").post(
         Map(
-          "csrfToken"->Seq("xxx-ignored-xxx"),
-          "contactName"->Seq("foo bar"),
-          "contactDaytimeTelephoneNumber"-> Seq("12345678910"),
+          "csrfToken" -> Seq("xxx-ignored-xxx"),
+          "contactName" -> Seq("foo bar"),
+          "contactDaytimeTelephoneNumber" -> Seq("12345678910"),
           "contactMobileNumber" -> Seq(""),
           "contactEmail" -> Seq("test@test.com")))
       )
 
       response.status shouldBe 303
       response.header(HeaderNames.LOCATION).get shouldBe controllers.reg.routes.AccountingDatesController.show().url
-      intercept[Exception]((Json.parse(getRequestBody("post","/write/audit")).as[JsObject] \ "detail" \ "businessContactDetails").get)
+      intercept[Exception]((Json.parse(getRequestBody("post", "/write/audit")).as[JsObject] \ "detail" \ "businessContactDetails").get)
 
       findAll(postRequestedFor(urlMatching("/write/audit"))).size() shouldBe 1
     }

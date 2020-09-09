@@ -20,26 +20,30 @@ import builders.AuthBuilder
 import config.FrontendAppConfig
 import fixtures.{LoginFixture, PayloadFixture}
 import helpers.SCRSSpec
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.http.HeaderNames
-import play.api.mvc.{Action, Results}
+import play.api.mvc.{Action, MessagesControllerComponents, Results}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name, Retrievals, ~}
 import uk.gov.hmrc.auth.core.{AffinityGroup, AuthConnector, AuthorisationException, Enrolments}
 import uk.gov.hmrc.http.InternalServerException
-import uk.gov.hmrc.play.test.WithFakeApplication
 
-import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 
-class AuthFunctionSpec extends SCRSSpec with PayloadFixture with WithFakeApplication with AuthBuilder with LoginFixture{
+class AuthFunctionSpec extends SCRSSpec with PayloadFixture with GuiceOneAppPerSuite with AuthBuilder with LoginFixture {
 
   class Setup {
     implicit val fr = FakeRequest()
-    val authFunc = new AuthFunction {
-      override val appConfig: FrontendAppConfig = fakeApplication.injector.instanceOf[FrontendAppConfig]
+    val authFunc = new AuthenticatedController {
+      override val controllerComponents = app.injector.instanceOf[MessagesControllerComponents]
+      override val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
 
       override def authConnector: AuthConnector = mockAuthConnector
+
+      implicit val ec: ExecutionContext = global
     }
 
     def fudgeControllerActionctAuthorisedBasicCompanyDetails = Action.async {
@@ -48,18 +52,21 @@ class AuthFunctionSpec extends SCRSSpec with PayloadFixture with WithFakeApplica
           Future.successful(Results.Ok("foo"))
         }
     }
+
     def fudgeControllerActionctAuthorisedCompanyContact = Action.async {
       implicit request =>
         authFunc.ctAuthorisedCompanyContact { _ =>
           Future.successful(Results.Ok("foo"))
         }
     }
+
     def fudgeControllerActionctAuthorisedCompanyContactAmend = Action.async {
       implicit request =>
         authFunc.ctAuthorisedEmailCredsExtId { (a, b, c) =>
           Future.successful(Results.Ok("foo"))
         }
     }
+
     def fudgeControllerActionctAuthorisedPostSignIn = Action.async {
       implicit request =>
         authFunc.ctAuthorisedPostSignIn { _ =>
@@ -70,7 +77,7 @@ class AuthFunctionSpec extends SCRSSpec with PayloadFixture with WithFakeApplica
 
 
   "ctAuthorisedBasicCompanyDetails" must {
-    val authDetails = new ~(new ~(Name(Some("myFirstName"), Some("myLastName")),Some("fakeEmail")), Some("extID"))
+    val authDetails = new ~(new ~(Name(Some("myFirstName"), Some("myLastName")), Some("fakeEmail")), Some("extID"))
     "redirect to future passed in if auth returns correct deets" in new Setup {
       showWithAuthorisedUserRetrieval(fudgeControllerActionctAuthorisedBasicCompanyDetails, authDetails) {
         res =>
@@ -80,7 +87,7 @@ class AuthFunctionSpec extends SCRSSpec with PayloadFixture with WithFakeApplica
       }
     }
     "redirect to no email page if no email is returned from auth" in new Setup {
-      val authDetailsNoEmail = new ~(new ~(Name(Some("myFirstName"), Some("myLastName")),None), Some("extID"))
+      val authDetailsNoEmail = new ~(new ~(Name(Some("myFirstName"), Some("myLastName")), None), Some("extID"))
       showWithAuthorisedUserRetrieval(fudgeControllerActionctAuthorisedBasicCompanyDetails, authDetailsNoEmail) { res =>
         val awaitedRes = await(res)
         awaitedRes.header.status shouldBe 303
@@ -88,7 +95,7 @@ class AuthFunctionSpec extends SCRSSpec with PayloadFixture with WithFakeApplica
       }
     }
     "return 500 if auth returns incorrect deets" in new Setup {
-      val authDetailsInvalid = new ~(new ~(Name(Some("myFirstName"), Some("myLastName")),None), None)
+      val authDetailsInvalid = new ~(new ~(Name(Some("myFirstName"), Some("myLastName")), None), None)
       showWithAuthorisedUserRetrieval(fudgeControllerActionctAuthorisedBasicCompanyDetails, authDetailsInvalid) { res =>
         val awaitedRes = await(res)
         awaitedRes.header.status shouldBe 500
@@ -96,7 +103,7 @@ class AuthFunctionSpec extends SCRSSpec with PayloadFixture with WithFakeApplica
     }
   }
   "ctAuthorisedCompanyContact" must {
-    val authDetails = new ~(Name(Some("myFirstName"), Some("myLastName")),Some("fakeEmail"))
+    val authDetails = new ~(Name(Some("myFirstName"), Some("myLastName")), Some("fakeEmail"))
     "redirect to future passed in if auth returns correct deets" in new Setup {
       showWithAuthorisedUserRetrieval(fudgeControllerActionctAuthorisedCompanyContact, authDetails) {
         res =>
@@ -106,7 +113,7 @@ class AuthFunctionSpec extends SCRSSpec with PayloadFixture with WithFakeApplica
       }
     }
     "redirect to no email page if no email is returned from auth" in new Setup {
-      val authDetailsNoEmail = new ~(Name(Some("myFirstName"), Some("myLastName")),None)
+      val authDetailsNoEmail = new ~(Name(Some("myFirstName"), Some("myLastName")), None)
       showWithAuthorisedUserRetrieval(fudgeControllerActionctAuthorisedCompanyContact, authDetailsNoEmail) { res =>
         val awaitedRes = await(res)
         awaitedRes.header.status shouldBe 303
@@ -114,7 +121,7 @@ class AuthFunctionSpec extends SCRSSpec with PayloadFixture with WithFakeApplica
       }
     }
     "return 303 to no email page if auth returns incorrect deets" in new Setup {
-      val authDetailsInvalid = new ~(Name(None, None),None)
+      val authDetailsInvalid = new ~(Name(None, None), None)
       showWithAuthorisedUserRetrieval(fudgeControllerActionctAuthorisedCompanyContact, authDetailsInvalid) { res =>
         val awaitedRes = await(res)
         awaitedRes.header.status shouldBe 303
@@ -224,7 +231,7 @@ class AuthFunctionSpec extends SCRSSpec with PayloadFixture with WithFakeApplica
       }
     }
   }
-    "scpVerifiedEmail" should {
+  "scpVerifiedEmail" should {
 
     "Return a true if the email has been verified e" in new Setup {
 

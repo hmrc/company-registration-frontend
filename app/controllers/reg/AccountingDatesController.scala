@@ -18,19 +18,18 @@ package controllers.reg
 
 import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
-import controllers.auth.AuthFunction
+import controllers.auth.AuthenticatedController
 import forms.AccountingDatesForm
 import javax.inject.Inject
 import models.{AccountingDatesModel, AccountingDetailsNotFoundResponse, AccountingDetailsSuccessResponse}
-import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.Action
+import play.api.i18n.I18nSupport
+import play.api.mvc.MessagesControllerComponents
 import services.{AccountingService, MetricsService, TimeService}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.{SessionRegistration, SystemDate}
 import views.html.reg.AccountingDates
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class AccountingDatesControllerImpl @Inject()(val authConnector: PlayAuthConnector,
                                               val compRegConnector: CompanyRegistrationConnector,
@@ -39,9 +38,10 @@ class AccountingDatesControllerImpl @Inject()(val authConnector: PlayAuthConnect
                                               val accountingService: AccountingService,
                                               val metricsService: MetricsService,
                                               val timeService: TimeService,
-                                              val messagesApi: MessagesApi) extends AccountingDatesController
+                                              val ec: ExecutionContext,
+                                              val controllerComponents: MessagesControllerComponents) extends AccountingDatesController
 
-trait AccountingDatesController extends FrontendController with AuthFunction with ControllerErrorHandler with SessionRegistration with I18nSupport {
+abstract class AccountingDatesController extends AuthenticatedController with ControllerErrorHandler with SessionRegistration with I18nSupport {
 
   val accountingService: AccountingService
   val metricsService: MetricsService

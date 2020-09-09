@@ -21,23 +21,25 @@ import mocks.SCRSMocks
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
-import play.api.Mode.Mode
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.Configuration
 import play.api.http.Status
 import play.api.i18n.MessagesApi
-import play.api.mvc.{AnyContent, Request, RequestHeader}
+import play.api.mvc.{AnyContent, MessagesControllerComponents, Request, RequestHeader}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.api.{Configuration, Mode}
 import play.twirl.api.Html
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.http.{HttpGet, HttpPost, HttpResponse}
+import uk.gov.hmrc.play.bootstrap.config.RunMode
 import uk.gov.hmrc.play.http.ws.WSPost
 import uk.gov.hmrc.play.partials.{CachedStaticHtmlPartialRetriever, FormPartialRetriever, HtmlPartial}
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import uk.gov.hmrc.play.test.UnitSpec
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
 
-class FeedbackControllerSpec extends UnitSpec with MockitoSugar with WithFakeApplication with SCRSMocks {
+class FeedbackControllerSpec extends UnitSpec with MockitoSugar with GuiceOneAppPerSuite with SCRSMocks {
   val fakeRequest = FakeRequest("GET", "/")
 
   val mockHttp = mock[HttpPost with WSPost]
@@ -69,7 +71,7 @@ class FeedbackControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
 
       override def contactFormReferer(implicit request: Request[AnyContent]): String = request.headers.get(REFERER).getOrElse("")
 
-      override val appConfig: FrontendAppConfig = new FrontendAppConfig {
+      override val appConfig: FrontendAppConfig = new FrontendAppConfig(mockConfiguration: Configuration, mock[RunMode]: RunMode) {
         override lazy val assetsPrefix = ""
         override lazy val reportAProblemNonJSUrl = ""
         override lazy val contactFrontendPartialBaseUrl = ""
@@ -83,13 +85,12 @@ class FeedbackControllerSpec extends UnitSpec with MockitoSugar with WithFakeApp
         override lazy val timeoutInSeconds = ""
         override lazy val timeoutDisplayLength = ""
         override lazy val govHostUrl: String = ""
-
-        override protected def mode: Mode = Mode.Test
-
-        override protected def runModeConfiguration: Configuration = mockConfiguration
       }
 
-      override def messagesApi: MessagesApi = fakeApplication.injector.instanceOf[MessagesApi]
+      override def messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
+
+      override val controllerComponents = app.injector.instanceOf[MessagesControllerComponents]
+      implicit val ec: ExecutionContext = global
     }
   }
 

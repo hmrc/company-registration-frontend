@@ -30,7 +30,7 @@ import scala.concurrent.Future
 
 class IncorpInfoConnectorImpl @Inject()(appConfig: FrontendAppConfig, val wSHttp: WSHttp, val metricsService: MetricsService) extends IncorpInfoConnector {
 
- lazy val incorpInfoUrl = s"${appConfig.baseUrl("incorp-info")}/incorporation-information"
+ lazy val incorpInfoUrl = s"${appConfig.servicesConfig.baseUrl("incorp-info")}/incorporation-information"
 }
 
 trait IncorpInfoConnector {

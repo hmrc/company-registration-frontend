@@ -15,11 +15,14 @@
  */
 package www
 
+import java.util.UUID
+
 import com.github.tomakehurst.wiremock.client.WireMock._
 import itutil.{IntegrationSpecBase, LoginStub}
 import org.joda.time.LocalDate
 import org.jsoup.Jsoup
 import play.api.http.HeaderNames
+import play.api.libs.crypto.DefaultCookieSigner
 
 class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
 
@@ -28,6 +31,8 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
   val userId = "/bar/foo"
   val enrolmentsURI = "/test/enrolments"
   val timestamp = "2017-05-16T16:01:55Z"
+
+  lazy val defaultCookieSigner: DefaultCookieSigner = app.injector.instanceOf[DefaultCookieSigner]
 
   val jsonOtherRegStatusDraft =
     s"""{
@@ -176,6 +181,8 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
            |}
        """.stripMargin
 
+      val csrfToken = UUID.randomUUID().toString
+
       setupFeatures(paye = true, vat = false)
 
       stubSuccessfulLogin(userId = userId)
@@ -192,7 +199,7 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
       stubGet(s"$enrolmentsURI", 200, "[]")
 
       val fResponse = buildClient("/company-registration-overview").
-        withHeaders(HeaderNames.COOKIE -> getSessionCookie(userId = userId)).
+        withHttpHeaders(HeaderNames.COOKIE -> getSessionCookie(Map("csrfToken" -> csrfToken), userId = userId), "Csrf-Token" -> "nocheck").
         get()
 
       val response = await(fResponse)
@@ -218,6 +225,7 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
            |}
        """.stripMargin
 
+      val csrfToken = UUID.randomUUID().toString
       setupFeatures(paye = true)
 
       stubSuccessfulLogin(userId = userId)
@@ -231,7 +239,7 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
       stubGet(s"$enrolmentsURI", 200, "[]")
 
       val fResponse = buildClient("/company-registration-overview").
-        withHeaders(HeaderNames.COOKIE -> getSessionCookie(userId = userId)).
+        withHttpHeaders(HeaderNames.COOKIE -> getSessionCookie(Map("csrfToken" -> csrfToken), userId = userId), "Csrf-Token" -> "nocheck").
         get()
 
       val response = await(fResponse)
@@ -261,7 +269,7 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
       stubGet(s"$enrolmentsURI", 200, """[]""")
 
       val fResponse = buildClient("/company-registration-overview").
-        withHeaders(HeaderNames.COOKIE -> getSessionCookie(userId = userId)).
+        withHttpHeaders(HeaderNames.COOKIE -> getSessionCookie(userId = userId)).
         get()
 
       val response = await(fResponse)
@@ -292,7 +300,7 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
       stubGet(s"$enrolmentsURI", 200, """[]""")
 
       val fResponse = buildClient("/company-registration-overview").
-        withHeaders(HeaderNames.COOKIE -> getSessionCookie(userId = userId)).
+        withHttpHeaders(HeaderNames.COOKIE -> getSessionCookie(userId = userId)).
         get()
 
       val response = await(fResponse)
@@ -319,7 +327,7 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
         stubGet(s"$enrolmentsURI", 200, "[]")
 
         val fResponse = buildClient("/company-registration-overview").
-          withHeaders(HeaderNames.COOKIE -> getSessionCookie(userId = userId)).
+          withHttpHeaders(HeaderNames.COOKIE -> getSessionCookie(userId = userId)).
           get()
 
         val response = await(fResponse)
@@ -346,7 +354,7 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
         stubGet(s"$enrolmentsURI", 200, "[]")
 
         val fResponse = buildClient("/company-registration-overview").
-          withHeaders(HeaderNames.COOKIE -> getSessionCookie(userId = userId)).
+          withHttpHeaders(HeaderNames.COOKIE -> getSessionCookie(userId = userId)).
           get()
 
         val response = await(fResponse)
@@ -373,7 +381,7 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
         stubGet(s"$enrolmentsURI", 200, "[]")
 
         val fResponse = buildClient("/company-registration-overview").
-          withHeaders(HeaderNames.COOKIE -> getSessionCookie(userId = userId)).
+          withHttpHeaders(HeaderNames.COOKIE -> getSessionCookie(userId = userId)).
           get()
 
         val response = await(fResponse)
@@ -400,7 +408,7 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
         stubGet(s"$enrolmentsURI", 200, "[]")
 
         val fResponse = buildClient("/company-registration-overview").
-          withHeaders(HeaderNames.COOKIE -> getSessionCookie(userId = userId)).
+          withHttpHeaders(HeaderNames.COOKIE -> getSessionCookie(userId = userId)).
           get()
 
         val response = await(fResponse)
@@ -428,7 +436,7 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
         stubGet(s"$enrolmentsURI", 200, "[]")
 
         val fResponse = buildClient("/company-registration-overview").
-          withHeaders(HeaderNames.COOKIE -> getSessionCookie(userId = userId)).
+          withHttpHeaders(HeaderNames.COOKIE -> getSessionCookie(userId = userId)).
           get()
 
         val response = await(fResponse)

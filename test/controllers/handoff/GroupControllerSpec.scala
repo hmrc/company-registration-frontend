@@ -25,22 +25,21 @@ import models.{CHROAddress, Groups, Shareholder}
 import org.mockito.Matchers
 import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito._
-import play.api.i18n.MessagesApi
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.{JsObject, Json}
-import play.api.mvc.AnyContentAsFormUrlEncoded
+import play.api.mvc.{AnyContentAsFormUrlEncoded, MessagesControllerComponents}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{defaultAwaitTimeout, redirectLocation}
 import services.NavModelNotFoundException
-import uk.gov.hmrc.play.test.WithFakeApplication
 import utils.JweCommon
 
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
 
-class GroupControllerSpec extends SCRSSpec with LoginFixture with WithFakeApplication with AuthBuilder {
+class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPerSuite with AuthBuilder {
 
-  implicit val appConfig: FrontendAppConfig = fakeApplication.injector.instanceOf[FrontendAppConfig]
+  implicit val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
 
   class Setup {
 
@@ -50,9 +49,9 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with WithFakeApplic
       mockHandOffService,
       mockCompanyRegistrationConnector,
       mockHandBackService,
-      fakeApplication.injector.instanceOf[MessagesApi],
       mockGroupService,
-      fakeApplication.injector.instanceOf[JweCommon]
+      app.injector.instanceOf[JweCommon],
+      app.injector.instanceOf[MessagesControllerComponents]
     )
 
   }

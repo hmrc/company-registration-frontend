@@ -1,6 +1,6 @@
 GET        /assets/*file                            controllers.Assets.at(path="/public", file)
 
-GET        /language/:lang                          @controllers.CRLanguageController.switchToLanguage(lang: String)
+GET        /language/:lang                          controllers.CRLanguageController.switchToLanguage(lang: String)
 
 GET        /                                        controllers.reg.IndexController.index
 

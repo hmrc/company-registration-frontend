@@ -9,6 +9,7 @@ import config.FrontendAppConfig
 import itutil.{IntegrationSpecBase, LoginStub}
 import models.handoff._
 import play.api.http.HeaderNames
+import play.api.libs.crypto.DefaultCookieSigner
 import play.api.libs.json.{JsObject, Json}
 import play.modules.reactivemongo.ReactiveMongoComponent
 import repositories.NavModelRepo
@@ -18,6 +19,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class BasicCompanyDetailsControllerISpec extends IntegrationSpecBase with LoginStub {
 
+  lazy val defaultCookieSigner: DefaultCookieSigner = app.injector.instanceOf[DefaultCookieSigner]
 
   val userId = "/bar/foo"
   val regId = "regId5"

@@ -31,7 +31,7 @@ import scala.util.{Failure, Success, Try}
 
 class Jwe @Inject()(appConfig: FrontendAppConfig) extends JweCommon {
   // $COVERAGE-OFF$
-  lazy val key = appConfig.getConfString("JWE.key", throw new Exception("could not find JWE.key"))
+  lazy val key = appConfig.servicesConfig.getConfString("JWE.key", throw new Exception("could not find JWE.key"))
   // $COVERAGE-ON$
 }
 

@@ -18,31 +18,31 @@ package controllers.reg
 
 import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
-import controllers.auth.AuthFunction
+import controllers.auth.AuthenticatedController
 import forms.RegistrationEmailForm
 import javax.inject.Inject
 import models.Email._
 import models.{Email, RegistrationEmailModel}
 import play.api.data.Form
-import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, Request, Result}
+import play.api.i18n.I18nSupport
+import play.api.mvc._
 import services.{CommonService, EmailVerificationService}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.{SCRSExceptions, SessionRegistration}
 import views.html.reg.RegistrationEmail
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class RegistrationEmailControllerImpl @Inject()(val authConnector: PlayAuthConnector,
                                                 val keystoreConnector: KeystoreConnector,
                                                 val appConfig: FrontendAppConfig,
                                                 val emailVerification: EmailVerificationService,
                                                 val compRegConnector: CompanyRegistrationConnector,
-                                                val messagesApi: MessagesApi) extends RegistrationEmailController
+                                                val controllerComponents: MessagesControllerComponents)
+                                               (implicit val ec: ExecutionContext) extends RegistrationEmailController
 
-trait RegistrationEmailController extends FrontendController with AuthFunction with CommonService with SCRSExceptions with I18nSupport with SessionRegistration {
+abstract class RegistrationEmailController extends AuthenticatedController with CommonService with SCRSExceptions with I18nSupport with SessionRegistration {
 
 
   implicit val appConfig: FrontendAppConfig
@@ -58,7 +58,7 @@ trait RegistrationEmailController extends FrontendController with AuthFunction w
     }
   }
 
-  protected def showLogic(emailFromAuth:String)(implicit hc: HeaderCarrier, request: Request[AnyContent]): Future[Result] = {
+  protected def showLogic(emailFromAuth: String)(implicit hc: HeaderCarrier, request: Request[AnyContent]): Future[Result] = {
     keystoreConnector.fetchAndGet[RegistrationEmailModel]("RegEmail").map { regModelOpt =>
       val populatedForm: Form[RegistrationEmailModel] = RegistrationEmailForm.form.fill(regModelOpt.getOrElse(RegistrationEmailModel("", None)))
 
@@ -68,14 +68,14 @@ trait RegistrationEmailController extends FrontendController with AuthFunction w
 
   val submit: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorisedEmailCredsExtId {
-      (emailFromAuth,creds,extId) =>
+      (emailFromAuth, creds, extId) =>
         registered { regID =>
           emailVerification.emailVerifiedStatusInSCRS(regID, () => submitLogic(regID, emailFromAuth, creds.providerId, extId))
-      }
+        }
     }
   }
 
-  protected def submitLogic(regID:String, emailFromAuth:String,providerIdFromAuth: String, externalIdFromAuth:String)(implicit hc: HeaderCarrier, request: Request[AnyContent]): Future[Result] = {
+  protected def submitLogic(regID: String, emailFromAuth: String, providerIdFromAuth: String, externalIdFromAuth: String)(implicit hc: HeaderCarrier, request: Request[AnyContent]): Future[Result] = {
     RegistrationEmailForm.form.bindFromRequest().fold(
       hasErrors =>
         Future.successful(BadRequest(RegistrationEmail(hasErrors, emailFromAuth))),
@@ -83,10 +83,11 @@ trait RegistrationEmailController extends FrontendController with AuthFunction w
         if (success.currentEmail == "currentEmail") {
           scpVerifiedEmail.flatMap {
             case true =>
-              updateEmailBlockForSCPUsers(regID,emailFromAuth,providerIdFromAuth, externalIdFromAuth).map { res =>
-                Redirect(routes.CompletionCapacityController.show())}
+              updateEmailBlockForSCPUsers(regID, emailFromAuth, providerIdFromAuth, externalIdFromAuth).map { res =>
+                Redirect(routes.CompletionCapacityController.show())
+              }
             case false =>
-              emailVerification.sendVerificationLink(emailFromAuth, regID,providerIdFromAuth,externalIdFromAuth).map { emailVerifiedSuccess =>
+              emailVerification.sendVerificationLink(emailFromAuth, regID, providerIdFromAuth, externalIdFromAuth).map { emailVerifiedSuccess =>
 
                 if (emailVerifiedSuccess.getOrElse(false)) {
                   Redirect(routes.CompletionCapacityController.show())
@@ -103,7 +104,8 @@ trait RegistrationEmailController extends FrontendController with AuthFunction w
         }
     )
   }
-      protected def updateEmailBlockForSCPUsers(regId: String, authEmail: String, authProviderId: String, externalId:String )(implicit hc: HeaderCarrier, request: Request[AnyContent]):Future[Option[Email]] = {
-        emailVerification.saveEmailBlock(regId, Email(authEmail, SCP, false, true, false), authProviderId, externalId)
-        }
+
+  protected def updateEmailBlockForSCPUsers(regId: String, authEmail: String, authProviderId: String, externalId: String)(implicit hc: HeaderCarrier, request: Request[AnyContent]): Future[Option[Email]] = {
+    emailVerification.saveEmailBlock(regId, Email(authEmail, SCP, false, true, false), authProviderId, externalId)
+  }
 }

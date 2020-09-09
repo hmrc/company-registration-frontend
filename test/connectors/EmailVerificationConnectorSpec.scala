@@ -25,11 +25,11 @@ import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.Status._
 import play.api.libs.json.{JsObject, JsValue}
 import uk.gov.hmrc.http._
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class EmailVerificationConnectorSpec extends SCRSSpec with UnitSpec with WithFakeApplication with MockitoSugar with BeforeAndAfter {
+class EmailVerificationConnectorSpec extends SCRSSpec with UnitSpec with MockitoSugar with BeforeAndAfter {
 
 
   trait Setup {

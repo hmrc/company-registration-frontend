@@ -16,22 +16,21 @@
 
 package controllers.handoff
 
-import javax.inject.Inject
-
 import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
-import controllers.auth.AuthFunction
+import controllers.auth.AuthenticatedController
 import controllers.reg.ControllerErrorHandler
+import javax.inject.Inject
 import play.api.Logger
-import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent}
+import play.api.i18n.I18nSupport
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.{HandBackService, HandOffService, NavModelNotFoundException}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
-import uk.gov.hmrc.auth.core.retrieve.Retrievals
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import utils.{DecryptionError, PayloadError, SessionRegistration}
 import views.html.error_template_restart
 
+import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success}
 
 class IncorporationSummaryControllerImpl @Inject()(val authConnector: PlayAuthConnector,
@@ -40,12 +39,13 @@ class IncorporationSummaryControllerImpl @Inject()(val authConnector: PlayAuthCo
                                                    val appConfig: FrontendAppConfig,
                                                    val compRegConnector: CompanyRegistrationConnector,
                                                    val handBackService: HandBackService,
-                                                   val messagesApi: MessagesApi) extends IncorporationSummaryController
+                                                   val ec: ExecutionContext,
+                                                   val controllerComponents: MessagesControllerComponents) extends IncorporationSummaryController
 
-trait IncorporationSummaryController extends FrontendController with AuthFunction with SessionRegistration with ControllerErrorHandler with I18nSupport {
-  val handOffService : HandOffService
+abstract class IncorporationSummaryController extends AuthenticatedController with SessionRegistration with ControllerErrorHandler with I18nSupport {
+  val handOffService: HandOffService
 
-  val handBackService : HandBackService
+  val handBackService: HandBackService
   implicit val appConfig: FrontendAppConfig
 
   //HO5

@@ -16,37 +16,35 @@
 
 package controllers.reg
 
-import javax.inject.Inject
-
 import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
-import controllers.auth.AuthFunction
+import controllers.auth.AuthenticatedController
 import forms.errors.DeskproForm
+import javax.inject.Inject
 import models.ConfirmationReferencesSuccessResponse
 import play.api.Logger
-import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent}
+import play.api.i18n.I18nSupport
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.{CommonService, DeskproService}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.auth.core.retrieve.Retrievals
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.{SCRSExceptions, SessionRegistration}
 import views.html.reg.Confirmation
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class ConfirmationControllerImpl @Inject()(val authConnector: PlayAuthConnector,
                                            val compRegConnector: CompanyRegistrationConnector,
                                            val keystoreConnector: KeystoreConnector,
                                            val deskproService: DeskproService,
                                            val appConfig: FrontendAppConfig,
-                                           val messagesApi: MessagesApi) extends ConfirmationController
+                                           val controllerComponents: MessagesControllerComponents)(implicit val ec: ExecutionContext) extends ConfirmationController
 
-trait ConfirmationController extends FrontendController with AuthFunction with SessionRegistration with CommonService
+abstract class ConfirmationController extends AuthenticatedController with SessionRegistration with CommonService
   with SCRSExceptions with ControllerErrorHandler with I18nSupport {
 
   val compRegConnector: CompanyRegistrationConnector
-  val deskproService : DeskproService
+  val deskproService: DeskproService
   implicit val appConfig: FrontendAppConfig
 
   val show: Action[AnyContent] = Action.async { implicit request =>

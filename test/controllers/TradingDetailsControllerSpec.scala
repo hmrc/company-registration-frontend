@@ -28,35 +28,40 @@ import mocks.MetricServiceMock
 import models.TradingDetails
 import org.mockito.Matchers
 import org.mockito.Mockito._
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.MessagesApi
 import play.api.libs.json.Format
+import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.{MetricsService, TradingDetailsService}
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.test.WithFakeApplication
 
-import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{ExecutionContext, Future}
 
-class TradingDetailsControllerSpec extends SCRSSpec with WithFakeApplication with AuthBuilder with TradingDetailsFixtures {
+class TradingDetailsControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder with TradingDetailsFixtures {
 
   val mockTradingDetailsService = mock[TradingDetailsService]
   val mockKeyStoreConnector = mock[KeystoreConnector]
   val mockCompRegConnector = mock[CompanyRegistrationConnector]
 
-
   val regID = UUID.randomUUID.toString
 
   class Setup {
+
     object TestController extends TradingDetailsController {
+      override lazy val controllerComponents = app.injector.instanceOf[MessagesControllerComponents]
       val authConnector = mockAuthConnector
       val tradingDetailsService = mockTradingDetailsService
       override val compRegConnector = mockCompanyRegistrationConnector
-      override val keystoreConnector= mockKeystoreConnector
+      override val keystoreConnector = mockKeystoreConnector
       override val metricsService: MetricsService = MetricServiceMock
-      implicit val appConfig: FrontendAppConfig = fakeApplication.injector.instanceOf[FrontendAppConfig]
-      override val messagesApi = fakeApplication.injector.instanceOf[MessagesApi]
+      implicit lazy val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+      override lazy val messagesApi = app.injector.instanceOf[MessagesApi]
+      implicit val ec: ExecutionContext = global
     }
+
   }
 
   "Sending a GET request to the TradingDetailsController" should {

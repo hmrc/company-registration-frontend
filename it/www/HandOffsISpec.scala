@@ -4,6 +4,7 @@ package www
 import fixtures.HandOffFixtures
 import itutil.{IntegrationSpecBase, LoginStub}
 import play.api.http.HeaderNames
+import play.api.libs.crypto.DefaultCookieSigner
 
 class HandOffsISpec extends IntegrationSpecBase with LoginStub with HandOffFixtures {
 
@@ -11,6 +12,8 @@ class HandOffsISpec extends IntegrationSpecBase with LoginStub with HandOffFixtu
 
   val userId = "test-user-id"
   val regId = "12345"
+
+  lazy val defaultCookieSigner: DefaultCookieSigner = app.injector.instanceOf[DefaultCookieSigner]
 
   val userDetails =
     s"""

@@ -21,6 +21,8 @@ import akka.stream.{ActorMaterializer, Materializer}
 import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
 import services.internal.TestIncorporationService
 import uk.gov.hmrc.http.HeaderCarrier
@@ -28,16 +30,17 @@ import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
 
-class TestIncorporateControllerSpec extends UnitSpec with MockitoSugar {
+class TestIncorporateControllerSpec extends UnitSpec with MockitoSugar with GuiceOneAppPerSuite {
 
   implicit val system = ActorSystem("test")
 
   implicit def mat: Materializer = ActorMaterializer()
 
   val mockCheckIncorporationService = mock[TestIncorporationService]
+  lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
 
   class Setup {
-    val controller = new TestIncorporateController {
+    val controller = new TestIncorporateController(mockMcc) {
       val checkIncorpService = mockCheckIncorporationService
     }
   }

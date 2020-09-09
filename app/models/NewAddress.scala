@@ -16,7 +16,6 @@
 
 package models
 
-import play.api.data.validation.ValidationError
 import play.api.libs.functional.syntax._
 import play.api.libs.json.Reads._
 import play.api.libs.json._
@@ -124,8 +123,8 @@ object NewAddress {
       val auditRef = (json \ "auditRef").asOpt[String]
 
       (validatedPostcode, countryName, addressLines) match {
-        case (None, None, _) => JsError(ValidationError(s"no country or valid postcode"))
-        case (_, _, lines) if lines.length < 2 => JsError(ValidationError(s"only ${lines.length} lines provided from address-lookup-frontend"))
+        case (None, None, _) => JsError(JsonValidationError(s"no country or valid postcode"))
+        case (_, _, lines) if lines.length < 2 => JsError(JsonValidationError(s"only ${lines.length} lines provided from address-lookup-frontend"))
         case (None, c@Some(_), lines) => JsSuccess(makeAddress(None, c, lines, auditRef))
         case (p@Some(pc), _, lines) => JsSuccess(makeAddress(p, None, lines, auditRef))
       }

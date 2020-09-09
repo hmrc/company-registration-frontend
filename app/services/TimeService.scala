@@ -45,7 +45,7 @@ object TimeHelper {
 }
 
 class TimeServiceImpl @Inject()(val appConfig: FrontendAppConfig) extends TimeService {
-  override lazy val dayEndHour      = appConfig.getConfInt("time-service.day-end-hour", throw new Exception("could not find config key time-service.day-end-hour"))
+  override lazy val dayEndHour      = appConfig.servicesConfig.getConfInt("time-service.day-end-hour", throw new Exception("could not find config key time-service.day-end-hour"))
   override def currentDateTime      = DateTime.now
   override def currentLocalDate     = SystemDate.getSystemDate
   override lazy val bHS: BankHolidaySet       = BankHolidays.bankHolidaySet

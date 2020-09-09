@@ -24,12 +24,14 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import itutil._
 import org.jsoup.Jsoup
 import play.api.http.HeaderNames
+import play.api.libs.crypto.DefaultCookieSigner
 
 class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with RequestsFinder {
 
   val userId = "/bar/foo"
   val testKeystoreKey = "testKey"
   val regId = "regId5"
+  lazy val defaultCookieSigner: DefaultCookieSigner = app.injector.instanceOf[DefaultCookieSigner]
 
   val heldAndNoPaymeentRefsThrottle =
     s"""
@@ -52,19 +54,19 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with R
      """.stripMargin
 
   val throttleWithAnSCRSValidatedEmail =
-      s"""
-         |{
-         |  "registration-id" : "$regId",
-         |  "created" : true,
-         |  "confirmation-reference" : true,
-         |  "payment-reference" : true,
-         |  "email" : {
-         |      "address": "foo@bar.wibble",
-         |      "type": "GG",
-         |      "link-sent": true,
-         |      "verified": true
-         |  }
-         |}
+    s"""
+       |{
+       |  "registration-id" : "$regId",
+       |  "created" : true,
+       |  "confirmation-reference" : true,
+       |  "payment-reference" : true,
+       |  "email" : {
+       |      "address": "foo@bar.wibble",
+       |      "type": "GG",
+       |      "link-sent": true,
+       |      "verified": true
+       |  }
+       |}
        """.stripMargin
 
   val throttleWithOutAnSCRSValidatedEmail =
@@ -117,17 +119,17 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with R
 
   val userDetails =
     s"""
-      |{
-      |  "name":"name",
-      |  "email":"test@me.com",
-      |  "affinityGroup" : "Organisation",
-      |  "description" : "description",
-      |  "lastName":"test",
-      |  "dateOfBirth":"1980-06-30",
-      |  "postCode":"NW94HD",
-      |  "authProviderId": "12345-PID",
-      |  "authProviderType": "Verify"
-      |}
+       |{
+       |  "name":"name",
+       |  "email":"test@me.com",
+       |  "affinityGroup" : "Organisation",
+       |  "description" : "description",
+       |  "lastName":"test",
+       |  "dateOfBirth":"1980-06-30",
+       |  "postCode":"NW94HD",
+       |  "authProviderId": "12345-PID",
+       |  "authProviderType": "Verify"
+       |}
      """.stripMargin
 
   def encodeURL(url: String) = java.net.URLEncoder.encode(url, "UTF-8")
@@ -196,15 +198,16 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with R
       .willReturn(
         aResponse().
           withStatus(vStatus).
-          withBody(s"""{
-                       |"email": "$vEmail"
-                       |}""".stripMargin
+          withBody(
+            s"""{
+               |"email": "$vEmail"
+               |}""".stripMargin
+          )
       )
-    )
     )
   }
 
-  "Sign In" should  {
+  "Sign In" should {
 
     "redirect to ho1 if status is held and no payment reference is present" in {
 
@@ -218,7 +221,7 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with R
       stubKeystoreGet(SessionId, regId)
 
       stubGetRegistrationStatus(regId, "held")
-      stubGet("/company-registration/throttle/check-user-access",200, heldAndNoPaymeentRefsThrottle)
+      stubGet("/company-registration/throttle/check-user-access", 200, heldAndNoPaymeentRefsThrottle)
 
       stubGetUserDetails(userId)
 
@@ -243,7 +246,7 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with R
       stubKeystoreGet(SessionId, regId)
 
       stubGetRegistrationStatus(regId, "locked")
-      stubGet("/company-registration/throttle/check-user-access",200, lockedThrottle)
+      stubGet("/company-registration/throttle/check-user-access", 200, lockedThrottle)
 
       stubGetUserDetails(userId)
 
@@ -267,7 +270,7 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with R
       stubKeystoreGet(SessionId, regId)
 
       stubGetRegistrationStatus(regId, "draft")
-      stubGet("/company-registration/throttle/check-user-access",200, throttleWithAnSCRSValidatedEmail)
+      stubGet("/company-registration/throttle/check-user-access", 200, throttleWithAnSCRSValidatedEmail)
 
       stubGetUserDetails(userId)
 
@@ -292,7 +295,7 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with R
       stubKeystoreGet(SessionId, regId)
 
       stubGetRegistrationStatus(regId, "draft")
-      stubGet("/company-registration/throttle/check-user-access",200, throttleWithOutAnSCRSValidatedEmail)
+      stubGet("/company-registration/throttle/check-user-access", 200, throttleWithOutAnSCRSValidatedEmail)
 
       stubGetUserDetails(userId)
 
@@ -317,19 +320,20 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with R
       stubKeystoreGet(SessionId, regId)
 
       stubGetRegistrationStatus(regId, "draft")
-      stubGet("/company-registration/throttle/check-user-access",200, throttleWithOutAnSCRSValidatedEmailButLinkSent)
+      stubGet("/company-registration/throttle/check-user-access", 200, throttleWithOutAnSCRSValidatedEmailButLinkSent)
 
-      stubPut("/company-registration/corporation-tax-registration/regId5/update-email",200, """ {
-                                                                                              |  "address": "foo@bar.wibble",
-                                                                                              |  "type": "GG",
-                                                                                              |  "link-sent": true,
-                                                                                              |  "verified": false
-                                                                                              | }
+      stubPut("/company-registration/corporation-tax-registration/regId5/update-email", 200,
+        """ {
+          |  "address": "foo@bar.wibble",
+          |  "type": "GG",
+          |  "link-sent": true,
+          |  "verified": false
+          | }
                                                                                             """.stripMargin)
 
       stubGetUserDetails(userId)
 
-      stubVerifyEmail("foo@bar.wibble",404)
+      stubVerifyEmail("foo@bar.wibble", 404)
 
       val fResponse = buildClient("/post-sign-in").
         withHeaders(HeaderNames.COOKIE -> sessionCookie).
@@ -352,19 +356,20 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with R
       stubKeystoreGet(SessionId, regId)
 
       stubGetRegistrationStatus(regId, "draft")
-      stubGet("/company-registration/throttle/check-user-access",200, throttleWithOutAnSCRSValidatedEmailButLinkSent)
+      stubGet("/company-registration/throttle/check-user-access", 200, throttleWithOutAnSCRSValidatedEmailButLinkSent)
 
-      stubPut("/company-registration/corporation-tax-registration/regId5/update-email",200, """ {
-                                                                                              |  "address": "foo@bar.wibble",
-                                                                                              |  "type": "GG",
-                                                                                              |  "link-sent": true,
-                                                                                              |  "verified": false
-                                                                                              | }
+      stubPut("/company-registration/corporation-tax-registration/regId5/update-email", 200,
+        """ {
+          |  "address": "foo@bar.wibble",
+          |  "type": "GG",
+          |  "link-sent": true,
+          |  "verified": false
+          | }
                                                                                             """.stripMargin)
 
       stubGetUserDetails(userId)
 
-      stubVerifyEmail("foo@bar.wibble",200)
+      stubVerifyEmail("foo@bar.wibble", 200)
 
       val fResponse = buildClient("/post-sign-in").
         withHeaders(HeaderNames.COOKIE -> sessionCookie).
@@ -387,7 +392,7 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with R
       stubKeystoreGet(SessionId, regId)
 
       stubGetRegistrationStatus(regId, "draft")
-      stubGet("/company-registration/throttle/check-user-access",200, throttleWithNoEmailAddressInEmailBlock)
+      stubGet("/company-registration/throttle/check-user-access", 200, throttleWithNoEmailAddressInEmailBlock)
 
       stubGetUserDetails(userId)
 
@@ -399,8 +404,6 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with R
       response.status shouldBe 303
       response.header(HeaderNames.LOCATION).get should include("/register-your-company/enter-your-details")
     }
-
-
 
 
   }
@@ -474,12 +477,12 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with R
       stubKeystoreCache(SessionId, "lastActionTimestamp")
 
       val response = await(buildClient("/renew-session")
-        .withHeaders(HeaderNames.COOKIE -> sessionCookie)
+        .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie)
         .get())
 
       response.status shouldBe 200
       response.header("Content-Type") shouldBe Some("image/jpeg")
-      response.header("Content-Disposition") shouldBe Some("""inline; filename="renewSession.jpg"; filename*=utf-8''renewSession.jpg""")
+      response.header("Content-Disposition") shouldBe Some("""inline; filename="renewSession.jpg"""")
 
       val request = getPUTRequestJsonBody(s"/keystore/company-registration-frontend/$SessionId/data/lastActionTimestamp")
       request.as[String] shouldBe LocalDate.now.toString
@@ -489,7 +492,7 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with R
       val csrfToken = UUID.randomUUID().toString
       val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
       stubAuthorisation()
-      stubKeystoreCache(SessionId, "lastActionTimestamp",status = 500)
+      stubKeystoreCache(SessionId, "lastActionTimestamp", status = 500)
       val response = await(buildClient("/renew-session")
         .withHeaders(HeaderNames.COOKIE -> sessionCookie)
         .get())

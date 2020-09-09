@@ -25,20 +25,21 @@ import uk.gov.hmrc.auth.core.retrieve.Retrievals._
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.emailVerified
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Retrieval, ~}
 import uk.gov.hmrc.auth.core.{AuthorisedFunctions, _}
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-trait AuthFunction extends FrontendController with AuthorisedFunctions {
+trait AuthenticatedController extends FrontendBaseController with AuthorisedFunctions {
   val appConfig: FrontendAppConfig
   val baseFunction: AuthorisedFunction = authorised(AuthProviders(GovernmentGateway) and ConfidenceLevel.L50)
+  implicit val ec: ExecutionContext
 
   def ctAuthorised(body: => Future[Result])(implicit request: Request[AnyContent]): Future[Result] = {
-    baseFunction (body) recover authErrorHandling()
+    baseFunction(body) recover authErrorHandling()
   }
 
-  def ctAuthorisedHandoff(hoID : String, payload : String)(body: => Future[Result])(implicit request: Request[AnyContent]): Future[Result] = {
-    baseFunction (body) recover authErrorHandling(Some(hoID), Some(payload))
+  def ctAuthorisedHandoff(hoID: String, payload: String)(body: => Future[Result])(implicit request: Request[AnyContent]): Future[Result] = {
+    baseFunction(body) recover authErrorHandling(Some(hoID), Some(payload))
   }
 
   def ctAuthorisedOptStr(retrieval: Retrieval[Option[String]])(body: => (String) => Future[Result])
@@ -104,40 +105,41 @@ trait AuthFunction extends FrontendController with AuthorisedFunctions {
   }
 
 
-  lazy val origin: String = appConfig.getString("appName")
-  def loginParams(hoID : Option[String], payload : Option[String]) = Map(
+  lazy val origin: String = appConfig.servicesConfig.getString("appName")
+
+  def loginParams(hoID: Option[String], payload: Option[String]) = Map(
     "continue" -> Seq(appConfig.continueURL(hoID, payload)),
     "origin" -> Seq(origin)
   )
 
 
-  def authErrorHandlingIncomplete(implicit request: Request[AnyContent]) : PartialFunction[Throwable, Result] = {
-    case _: NoActiveSession         => Redirect(controllers.reg.routes.IncompleteRegistrationController.show())
-    case InternalError(e)           =>
+  def authErrorHandlingIncomplete(implicit request: Request[AnyContent]): PartialFunction[Throwable, Result] = {
+    case _: NoActiveSession => Redirect(controllers.reg.routes.IncompleteRegistrationController.show())
+    case InternalError(e) =>
       Logger.warn(s"Something went wrong with a call to Auth with exception: ${e}")
       InternalServerError
-    case e: AuthorisationException  =>
+    case e: AuthorisationException =>
       Logger.error(s"auth returned $e and redirected user to 'incorrect-account-type' page")
       Redirect(controllers.verification.routes.EmailVerificationController.createGGWAccountAffinityShow())
   }
 
-  def authErrorHandling(hoID : Option[String] = None, payload : Option[String] = None)
-                              (implicit request: Request[AnyContent]) : PartialFunction[Throwable, Result] = {
+  def authErrorHandling(hoID: Option[String] = None, payload: Option[String] = None)
+                       (implicit request: Request[AnyContent]): PartialFunction[Throwable, Result] = {
     case e: NoActiveSession => Redirect(appConfig.loginURL, loginParams(hoID, payload))
-    case InternalError(e)           =>
+    case InternalError(e) =>
       Logger.warn(s"Something went wrong with a call to Auth with exception: ${e}")
       InternalServerError
-    case e: AuthorisationException  =>
+    case e: AuthorisationException =>
       Logger.info(s"auth returned $e and redirected user to 'incorrect-account-type' page")
       Redirect(controllers.verification.routes.EmailVerificationController.createGGWAccountAffinityShow())
   }
 
-    def scpVerifiedEmail(implicit request: Request[AnyContent]): Future[Boolean] = {
-      baseFunction.retrieve(emailVerified) {
-        case Some(em) => Future.successful(em)
-        case _ => Future.successful(false)
-      } recover {
-        case _ => false
-      }
+  def scpVerifiedEmail(implicit request: Request[AnyContent]): Future[Boolean] = {
+    baseFunction.retrieve(emailVerified) {
+      case Some(em) => Future.successful(em)
+      case _ => Future.successful(false)
+    } recover {
+      case _ => false
     }
+  }
 }

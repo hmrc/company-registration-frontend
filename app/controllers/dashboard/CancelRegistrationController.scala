@@ -18,18 +18,17 @@ package controllers.dashboard
 
 import config.FrontendAppConfig
 import connectors._
-import controllers.auth.AuthFunction
+import controllers.auth.AuthenticatedController
 import forms.CancelForm
 import javax.inject.Inject
 import play.api.data.Form
-import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, Request, Result}
+import play.api.i18n.I18nSupport
+import play.api.mvc._
 import play.twirl.api.Html
 import uk.gov.hmrc.auth.core.PlayAuthConnector
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.SessionRegistration
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class CancelRegistrationControllerImpl @Inject()(val payeConnector: PAYEConnector,
                                                  val vatConnector: VATConnector,
@@ -37,9 +36,10 @@ class CancelRegistrationControllerImpl @Inject()(val payeConnector: PAYEConnecto
                                                  val authConnector: PlayAuthConnector,
                                                  val compRegConnector: CompanyRegistrationConnector,
                                                  val appConfig: FrontendAppConfig,
-                                                 val messagesApi: MessagesApi) extends CancelRegistrationController
+                                                 val ec: ExecutionContext,
+                                                 val controllerComponents: MessagesControllerComponents) extends CancelRegistrationController
 
-trait CancelRegistrationController extends FrontendController with AuthFunction with SessionRegistration with I18nSupport {
+trait CancelRegistrationController extends AuthenticatedController with SessionRegistration with I18nSupport {
 
   val payeConnector: PAYEConnector
   val vatConnector: VATConnector

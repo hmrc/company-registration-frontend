@@ -18,14 +18,15 @@ package controllers
 
 import controllers.reg.ApplicationInProgressController
 import helpers.SCRSSpec
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.play.test.WithFakeApplication
 
-class ApplicationInProgressControllerSpec extends SCRSSpec with WithFakeApplication {
+class ApplicationInProgressControllerSpec extends SCRSSpec with GuiceOneAppPerSuite {
 
   class Setup {
-    val controller = new ApplicationInProgressController{ }
+    val controller = new ApplicationInProgressController(app.injector.instanceOf[MessagesControllerComponents]) {}
   }
 
   "Sending a REDIRECT request to ApplicationInProgressController" should {

@@ -27,7 +27,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class BusinessRegistrationConnectorImpl @Inject()(val wsHttp: WSHttp, val appConfig: FrontendAppConfig) extends BusinessRegistrationConnector {
-  lazy val businessRegUrl = appConfig.baseUrl("business-registration")
+  lazy val businessRegUrl = appConfig.servicesConfig.baseUrl("business-registration")
 }
 
 sealed trait BusinessRegistrationResponse

@@ -16,6 +16,8 @@
 
 package controllers
 
+import java.util.Locale
+
 import builders.AuthBuilder
 import config.FrontendAppConfig
 import connectors.BusinessRegistrationConnector
@@ -27,29 +29,32 @@ import models.handoff._
 import org.mockito.Matchers
 import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito._
-import play.api.i18n.MessagesApi
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.i18n._
 import play.api.libs.json.{Json, Writes}
+import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.{AddressLookupFrontendService, NavModelNotFoundException}
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
-import uk.gov.hmrc.play.test.WithFakeApplication
 import utils.JweCommon
 
 import scala.concurrent.Future
 
-class PPOBControllerSpec extends SCRSSpec with PPOBFixture with WithFakeApplication with AuthBuilder {
+class PPOBControllerSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixture with GuiceOneAppPerSuite with AuthBuilder {
 
   val mockNavModelRepoObj = mockNavModelRepo
   val mockBusinessRegConnector = mock[BusinessRegistrationConnector]
   val mockAddressLookupFrontendService = mock[AddressLookupFrontendService]
+  implicit val langs = app.injector.instanceOf[Langs]
 
   val regId = "reg-12345"
 
   trait Setup {
     val controller = new PPOBController {
+      override val controllerComponents = app.injector.instanceOf[MessagesControllerComponents]
       override val authConnector = mockAuthConnector
       override val s4LConnector = mockS4LConnector
       override val keystoreConnector = mockKeystoreConnector
@@ -58,9 +63,9 @@ class PPOBControllerSpec extends SCRSSpec with PPOBFixture with WithFakeApplicat
       override val handOffService = mockHandOffService
       override val businessRegConnector = mockBusinessRegConnector
       override val addressLookupFrontendService = mockAddressLookupFrontendService
-      implicit val appConfig: FrontendAppConfig = fakeApplication.injector.instanceOf[FrontendAppConfig]
+      implicit val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
       override val jwe: JweCommon = mockJweCommon
-      override val messagesApi = fakeApplication.injector.instanceOf[MessagesApi]
+      implicit val messages: Messages = app.injector.instanceOf[MessagesApi].preferred(Seq(Lang(Locale.ENGLISH)))
     }
 
     def mockCheckStatus(ret: Option[String] = Some(regId)) = {
@@ -169,7 +174,7 @@ class PPOBControllerSpec extends SCRSSpec with PPOBFixture with WithFakeApplicat
 
     "handle a none RO/PPOB Address selection correctly" in new Setup {
       mockCheckStatus()
-      when(mockAddressLookupFrontendService.initialiseAlfJourney(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any[HeaderCarrier]()))
+      when(mockAddressLookupFrontendService.initialiseAlfJourney(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any[HeaderCarrier](), Matchers.any[MessagesProvider]))
         .thenReturn(Future.successful("TEST/redirectUrl"))
 
       submitWithAuthorisedUserRetrieval(controller.submit, submission("Other"), credID) {

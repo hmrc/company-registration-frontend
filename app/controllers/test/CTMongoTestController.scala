@@ -16,27 +16,28 @@
 
 package controllers.test
 
-import javax.inject.Inject
-
 import config.{FrontendAppConfig, WSHttp}
+import javax.inject.Inject
 import play.api.libs.json.JsValue
-import play.api.mvc.Action
+import play.api.mvc.MessagesControllerComponents
 import uk.gov.hmrc.http.{HeaderCarrier, HttpGet}
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 
 class CTMongoTestControllerImpl @Inject()(val wSHttp: WSHttp,
-                                          val appConfig: FrontendAppConfig) extends CTMongoTestController {
+                                          val appConfig: FrontendAppConfig,
+                                          mcc: MessagesControllerComponents) extends CTMongoTestController(mcc) {
 
-  lazy val ctUrl = appConfig.baseUrl("company-registration")
+  lazy val ctUrl = appConfig.servicesConfig.baseUrl("company-registration")
 }
 
-trait CTMongoTestController extends FrontendController {
+abstract class CTMongoTestController(mcc: MessagesControllerComponents) extends FrontendController(mcc) {
 
   val wSHttp: HttpGet
   val ctUrl: String
+  implicit val ec: ExecutionContext = mcc.executionContext
 
   def dropCollection = Action.async {
     implicit request =>

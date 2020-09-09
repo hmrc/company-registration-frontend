@@ -13,6 +13,7 @@ import models._
 import org.jsoup.Jsoup
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.HeaderNames
+import play.api.libs.crypto.DefaultCookieSigner
 import play.api.libs.json.Json
 import play.api.libs.ws.WSResponse
 import play.api.test.Helpers._
@@ -40,6 +41,7 @@ class OtherBusinessAddressControllerISpec extends IntegrationSpecBase
 
   lazy val csrfToken: String = UUID.randomUUID().toString
   lazy val sessionCookie: String = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
+  lazy val defaultCookieSigner: DefaultCookieSigner = app.injector.instanceOf[DefaultCookieSigner]
 
   "show" should {
     "display the page" in {

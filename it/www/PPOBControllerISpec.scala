@@ -7,6 +7,7 @@ import fixtures.Fixtures
 import itutil.{IntegrationSpecBase, LoginStub, RequestsFinder}
 import models._
 import play.api.http.HeaderNames
+import play.api.libs.crypto.DefaultCookieSigner
 
 class PPOBControllerISpec extends IntegrationSpecBase with LoginStub with Fixtures with RequestsFinder {
   val userId = "test-user-id"
@@ -17,6 +18,8 @@ class PPOBControllerISpec extends IntegrationSpecBase with LoginStub with Fixtur
     val csrfToken = () => UUID.randomUUID().toString
     val sessionCookie = () => getSessionCookie(Map("csrfToken" -> csrfToken()), userId)
   }
+
+  lazy val defaultCookieSigner: DefaultCookieSigner = app.injector.instanceOf[DefaultCookieSigner]
 
   "submit should hand off to ALF with the correct Json" in new Setup {
 

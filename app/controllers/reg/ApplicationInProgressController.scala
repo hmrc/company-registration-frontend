@@ -17,15 +17,14 @@
 package controllers.reg
 
 import javax.inject.Inject
-
-import play.api.mvc.Action
+import play.api.mvc.MessagesControllerComponents
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
 import scala.concurrent.Future
 
-class ApplicationInProgressControllerImpl @Inject()() extends ApplicationInProgressController
+class ApplicationInProgressControllerImpl @Inject()(mcc: MessagesControllerComponents) extends ApplicationInProgressController(mcc)
 
-trait ApplicationInProgressController extends FrontendController {
+abstract class ApplicationInProgressController(mcc: MessagesControllerComponents) extends FrontendController(mcc) {
 
   val redirect = Action.async { implicit request =>
     Future.successful(Redirect(routes.IncompleteRegistrationController.show()))

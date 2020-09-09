@@ -18,13 +18,14 @@ package services
 
 import mocks.AppConfigMock
 import models._
-import play.api.i18n.MessagesApi
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.i18n.{Messages, MessagesApi, MessagesProvider}
 import play.api.mvc.Call
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import uk.gov.hmrc.play.test.UnitSpec
 
-class AddressLookupConfigBuilderServiceSpec extends UnitSpec with WithFakeApplication with AppConfigMock {
+class AddressLookupConfigBuilderServiceSpec()(implicit messagesProvider: MessagesProvider) extends UnitSpec with GuiceOneAppPerSuite with AppConfigMock {
 
-  implicit val messages: MessagesApi = fakeApplication.injector.instanceOf[MessagesApi]
+  implicit val messages: MessagesApi = app.injector.instanceOf[MessagesApi]
 
   object TestService extends AddressLookupConfigBuilderService(mockAppConfig) {
     override lazy val companyRegistrationFrontendURL = "testCompanyRegUrl"
@@ -38,8 +39,8 @@ class AddressLookupConfigBuilderServiceSpec extends UnitSpec with WithFakeApplic
       val result: AlfJourneyConfig = TestService.buildConfig(
         handbackLocation = Call("GET", "/foo"),
         specificJourneyKey = "PPOB",
-        lookupPageHeading = messages("page.addressLookup.PPOB.lookup.heading"),
-        confirmPageHeading = messages("page.addressLookup.PPOB.confirm.description")
+        lookupPageHeading = Messages("page.addressLookup.PPOB.lookup.heading"),
+        confirmPageHeading = Messages("page.addressLookup.PPOB.confirm.description")
       )
 
       val expectedConfig: AlfJourneyConfig = AlfJourneyConfig(

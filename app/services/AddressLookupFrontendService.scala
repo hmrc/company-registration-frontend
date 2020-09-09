@@ -20,9 +20,8 @@ import config.FrontendAppConfig
 import connectors.AddressLookupConnector
 import javax.inject.{Inject, Singleton}
 import models._
-import play.api.i18n.MessagesApi
-import play.api.libs.json._
-import play.api.mvc.{Call, Request}
+import play.api.i18n.{Lang, Messages, MessagesApi, MessagesProvider}
+import play.api.mvc.Call
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
@@ -36,17 +35,17 @@ class AddressLookupFrontendService @Inject()(addressLookupFrontendConnector: Add
                                              addressLookupConfigBuilderService: AddressLookupConfigBuilderService,
                                              messagesApi: MessagesApi) {
 
-  lazy val addressLookupFrontendURL: String = frontendAppConfig.baseUrl("address-lookup-frontend")
+  lazy val addressLookupFrontendURL: String = frontendAppConfig.servicesConfig.baseUrl("address-lookup-frontend")
   lazy val companyRegistrationFrontendURL: String = frontendAppConfig.self
   lazy val timeoutInSeconds: Int = frontendAppConfig.timeoutInSeconds.toInt
 
-  def initialiseAlfJourney(handbackLocation: Call, specificJourneyKey: String, lookupPageHeading: String, confirmPageHeading: String)(implicit hc: HeaderCarrier): Future[String] = {
+  def initialiseAlfJourney(handbackLocation: Call, specificJourneyKey: String, lookupPageHeading: String, confirmPageHeading: String)(implicit hc: HeaderCarrier, messagesProvider: MessagesProvider): Future[String] = {
     val config = addressLookupConfigBuilderService.buildConfig(
       handbackLocation = handbackLocation,
       specificJourneyKey = specificJourneyKey,
       lookupPageHeading = lookupPageHeading,
       confirmPageHeading = confirmPageHeading
-    )(messagesApi)
+    )(messagesApi, messagesProvider)
 
     addressLookupFrontendConnector.getOnRampURL(config)
   }

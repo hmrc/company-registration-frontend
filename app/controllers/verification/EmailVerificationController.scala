@@ -16,49 +16,48 @@
 
 package controllers.verification
 
-import javax.inject.Inject
-
 import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
-import controllers.auth.AuthFunction
-import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, Result}
+import controllers.auth.AuthenticatedController
+import javax.inject.Inject
+import play.api.i18n.I18nSupport
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import services.EmailVerificationService
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.play.binders.ContinueUrl
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.SessionRegistration
 import views.html.verification.{CreateGGWAccount, CreateNewGGWAccount, createNewAccount, verifyYourEmail}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class EmailVerificationControllerImpl @Inject()(val authConnector: PlayAuthConnector,
                                                 val keystoreConnector: KeystoreConnector,
                                                 val emailVerificationService: EmailVerificationService,
                                                 val compRegConnector: CompanyRegistrationConnector,
                                                 val appConfig: FrontendAppConfig,
-                                                val messagesApi: MessagesApi) extends EmailVerificationController {
-  lazy val createGGWAccountUrl = appConfig.getConfString("gg-reg-fe.url", throw new Exception("Could not find config for gg-reg-fe url"))
-  lazy val callbackUrl = appConfig.getConfString("auth.login-callback.url", throw new Exception("Could not find config for callback url"))
-  lazy val frontEndUrl= appConfig.self
+                                                val ec: ExecutionContext,
+                                                val controllerComponents: MessagesControllerComponents) extends EmailVerificationController {
+  lazy val createGGWAccountUrl = appConfig.servicesConfig.getConfString("gg-reg-fe.url", throw new Exception("Could not find config for gg-reg-fe url"))
+  lazy val callbackUrl = appConfig.servicesConfig.getConfString("auth.login-callback.url", throw new Exception("Could not find config for callback url"))
+  lazy val frontEndUrl = appConfig.self
 
 }
 
-trait EmailVerificationController extends FrontendController with AuthFunction with SessionRegistration with I18nSupport {
+abstract class EmailVerificationController extends AuthenticatedController with SessionRegistration with I18nSupport {
 
   implicit val appConfig: FrontendAppConfig
-  val keystoreConnector : KeystoreConnector
+  val keystoreConnector: KeystoreConnector
   val createGGWAccountUrl: String
   val callbackUrl: String
-  val frontEndUrl : String
+  val frontEndUrl: String
   val emailVerificationService: EmailVerificationService
 
   val verifyShow: Action[AnyContent] = Action.async {
     implicit request =>
       ctAuthorised {
-        keystoreConnector.fetchAndGet[String]("registrationID").flatMap{
+        keystoreConnector.fetchAndGet[String]("registrationID").flatMap {
           _.fold(
-            Future.successful(Redirect(controllers.reg.routes.SignInOutController.postSignIn(None)))){rId =>
+            Future.successful(Redirect(controllers.reg.routes.SignInOutController.postSignIn(None)))) { rId =>
             val emailBlock = emailVerificationService.fetchEmailBlock(rId)
 
             emailBlock.map(_.fold(
@@ -86,9 +85,9 @@ trait EmailVerificationController extends FrontendController with AuthFunction w
 
             emailBlock.flatMap(
               emailBlockv => emailBlockv.fold[Future[Result]](
-              Future.successful(Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))))
-            (email =>
-              emailVerificationService.sendVerificationLink(email.address, rId,creds.providerId,extId).map {_  => Redirect(controllers.verification.routes.EmailVerificationController.verifyShow())}))
+                Future.successful(Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))))
+                (email =>
+                  emailVerificationService.sendVerificationLink(email.address, rId, creds.providerId, extId).map { _ => Redirect(controllers.verification.routes.EmailVerificationController.verifyShow()) }))
           }
         }
       }

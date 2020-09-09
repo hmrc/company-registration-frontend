@@ -22,6 +22,7 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import itutil.{IntegrationSpecBase, LoginStub, RequestsFinder}
 import play.api.http.HeaderNames
+import play.api.libs.crypto.DefaultCookieSigner
 import play.api.libs.json.{JsObject, Json}
 
 
@@ -30,6 +31,7 @@ class RegistrationEmailConfirmationISpec extends IntegrationSpecBase with LoginS
   val userId = "/bar/foo"
   val csrfToken = () => UUID.randomUUID().toString
   val sessionCookie = () => getSessionCookie(Map("csrfToken" -> csrfToken()), userId)
+  lazy val defaultCookieSigner: DefaultCookieSigner = app.injector.instanceOf[DefaultCookieSigner]
 
   def stubVerifyEmail(vStatus: Int): StubMapping = {
     val postUserUrl = s"/sendVerificationEmailURL"

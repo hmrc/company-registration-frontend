@@ -8,6 +8,7 @@ import fixtures.HandOffFixtures
 import itutil.{IntegrationSpecBase, LoginStub}
 import models.{CHROAddress, CompanyDetails, PPOB}
 import play.api.http.HeaderNames
+import play.api.libs.crypto.DefaultCookieSigner
 import play.api.libs.json.Json
 import play.modules.reactivemongo.ReactiveMongoComponent
 import repositories.NavModelRepo
@@ -19,6 +20,8 @@ class CorporationTaxDetailsControllerISpec extends IntegrationSpecBase with Logi
 
   val userId = "test-user-id"
   val regId = "12345"
+
+  lazy val defaultCookieSigner: DefaultCookieSigner = app.injector.instanceOf[DefaultCookieSigner]
 
   val footprintResponse =
     s"""

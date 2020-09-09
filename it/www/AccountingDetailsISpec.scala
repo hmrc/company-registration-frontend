@@ -23,11 +23,13 @@ import fixtures.Fixtures
 import itutil.{IntegrationSpecBase, LoginStub}
 import org.jsoup.Jsoup
 import play.api.http.HeaderNames
+import play.api.libs.crypto.DefaultCookieSigner
 import play.api.libs.json.Json
 
 
 class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fixtures {
   val userId = "/bar/foo"
+  lazy val defaultCookieSigner: DefaultCookieSigner = app.injector.instanceOf[DefaultCookieSigner]
 
   "GET Accounting Details" should {
 
@@ -40,7 +42,7 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fix
 
       stubGet("/company-registration/corporation-tax-registration/5/accounting-details", 404, "")
       val fResponse = buildClient(controllers.reg.routes.AccountingDatesController.show().url).
-        withHeaders(HeaderNames.COOKIE -> getSessionCookie(userId = userId)).
+        withHttpHeaders(HeaderNames.COOKIE -> getSessionCookie(userId = userId)).
         get()
 
       stubGet("/company-registration/corporation-tax-registration/5/corporation-tax-registration", 200, statusResponseFromCR())
@@ -68,12 +70,12 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fix
       stubKeystore(SessionId, "5")
       stubGet("/company-registration/corporation-tax-registration/5/accounting-details", 404, "")
       stubGet("/company-registration/corporation-tax-registration/5/corporation-tax-registration", 200, statusResponseFromCR())
-      val crResponse = """{"accountingDateStatus":"FUTURE_DATE", "startDateOfBusiness":"2018-01-02", "links": []}"""
+      val crResponse = """{"accountingDateStatus":"FUTURE_DATE", "startDateOfBusiness":"2018-01-02", "links": {}}"""
 
       stubGet("/company-registration/corporation-tax-registration/5/accounting-details", 200, crResponse)
 
       val fResponse = buildClient(controllers.reg.routes.AccountingDatesController.show().url).
-        withHeaders(HeaderNames.COOKIE -> getSessionCookie(userId = userId)).
+        withHttpHeaders(HeaderNames.COOKIE -> getSessionCookie(userId = userId)).
         get()
 
       val response = await(fResponse)
@@ -98,12 +100,12 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fix
       stubKeystore(SessionId, "5")
       stubGet("/company-registration/corporation-tax-registration/5/accounting-details", 404, "")
       stubGet("/company-registration/corporation-tax-registration/5/corporation-tax-registration", 200, statusResponseFromCR(status = "NOTDRAFT"))
-      val crResponse = """{"accountingDateStatus":"FUTURE_DATE", "startDateOfBusiness":"2019-01-02", "links": []}"""
+      val crResponse = """{"accountingDateStatus":"FUTURE_DATE", "startDateOfBusiness":"2019-01-02", "links": {}}"""
 
       stubGet("/company-registration/corporation-tax-registration/5/accounting-details", 200, crResponse)
 
       val fResponse = buildClient(controllers.reg.routes.AccountingDatesController.show().url).
-        withHeaders(HeaderNames.COOKIE -> getSessionCookie(userId = userId)).
+        withHttpHeaders(HeaderNames.COOKIE -> getSessionCookie(userId = userId)).
         get()
 
 
@@ -123,13 +125,13 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fix
 
       stubKeystore(SessionId, "5")
 
-      val crResponse = """{"accountingDateStatus":"WHEN_REGISTERED", "links": []}"""
+      val crResponse = """{"accountingDateStatus":"WHEN_REGISTERED", "links": {}}"""
       stubPut("/company-registration/corporation-tax-registration/5/accounting-details", 200, crResponse)
 
       val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
 
       val fResponse = buildClient(controllers.reg.routes.AccountingDatesController.submit().url).
-        withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").
+        withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").
         post(Map(
           "csrfToken" -> Seq("xxx-ignored-xxx"),
           "businessStartDate" -> Seq("futureDate"),
@@ -156,7 +158,7 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fix
       val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
 
       val response = await(buildClient(controllers.reg.routes.AccountingDatesController.submit().url).
-        withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").
+        withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").
         post(Map(
           "csrfToken" -> Seq("xxx-ignored-xxx"),
           "businessStartDate" -> Seq("futureDate"),

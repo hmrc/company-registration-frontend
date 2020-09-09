@@ -25,9 +25,9 @@ import models._
 import models.handoff._
 import org.mockito.Matchers
 import org.mockito.Mockito._
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.{JsObject, Json}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import uk.gov.hmrc.play.test.WithFakeApplication
 import utils.{BooleanFeatureSwitch, JweCommon, JweEncryptor, SCRSFeatureSwitches}
 
 import scala.concurrent.Future
@@ -37,7 +37,7 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
   with CompanyDetailsFixture
   with KeystoreMock
   with NavModelRepoMock
-  with WithFakeApplication {
+  with GuiceOneAppPerSuite {
 
   val mockNavModelRepoObj = mockNavModelRepo
   val mockEncryptor = mock[JweEncryptor]
@@ -58,7 +58,7 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
       lazy val timeout = 100
       lazy val timeoutDisplayLength = 30
       override val scrsFeatureSwitches: SCRSFeatureSwitches = mockSCRSFeatureSwitches
-      override val appConfig: FrontendAppConfig = fakeApplication.injector.instanceOf[FrontendAppConfig]
+      override val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
     }
   }
 

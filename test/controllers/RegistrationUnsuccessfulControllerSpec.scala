@@ -22,27 +22,29 @@ import controllers.reg.RegistrationUnsuccessfulController
 import helpers.SCRSSpec
 import org.mockito.Matchers
 import org.mockito.Mockito._
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.MessagesApi
+import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import uk.gov.hmrc.play.test.WithFakeApplication
 
-import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{ExecutionContext, Future}
 
-
-class RegistrationUnsuccessfulControllerSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
-
+class RegistrationUnsuccessfulControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
 
   class Setup {
     val controller = new RegistrationUnsuccessfulController {
+      override val controllerComponents = app.injector.instanceOf[MessagesControllerComponents]
       override val keystoreConnector = mockKeystoreConnector
       override val authConnector = mockAuthConnector
       override val deleteSubService = mockDeleteSubmissionService
       override val compRegConnector = mockCompanyRegistrationConnector
-      implicit val appConfig: FrontendAppConfig = fakeApplication.injector.instanceOf[FrontendAppConfig]
+      implicit val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
       override val registerCompanyGOVUKLink: String = "foobar"
-      override val messagesApi = fakeApplication.injector.instanceOf[MessagesApi]
+      override val messagesApi = app.injector.instanceOf[MessagesApi]
+      implicit val ec: ExecutionContext = global
     }
   }
 

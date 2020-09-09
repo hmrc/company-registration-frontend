@@ -11,6 +11,7 @@ import itutil.{IntegrationSpecBase, LoginStub, RequestsFinder}
 import org.jsoup.Jsoup
 import org.scalatest.mockito.MockitoSugar
 import play.api.http.HeaderNames
+import play.api.libs.crypto.DefaultCookieSigner
 import play.api.libs.json.{JsObject, Json}
 
 class RegistrationEmailControllerISpec extends IntegrationSpecBase with LoginStub with MockitoSugar with RequestsFinder {
@@ -54,11 +55,13 @@ class RegistrationEmailControllerISpec extends IntegrationSpecBase with LoginStu
     }
   }
 
+  lazy val defaultCookieSigner: DefaultCookieSigner = app.injector.instanceOf[DefaultCookieSigner]
+
   s"${controllers.reg.routes.RegistrationEmailController.show().url}" should {
     "return 200 when user is logged in and has a keystore entry for regId, email from auth should be populated on the page. user has not been to page before" in new Setup {
 
       stubAuthorisation()
-      stubSuccessfulLogin(userId = userId, otherParamsForAuth = Some(Json.obj("name" -> "foobar")))
+      stubSuccessfulLogin(userId = userId, otherParamsForAuth = Some(Json.obj("name" -> Json.obj("name" -> "testName"))))
       stubKeystore(SessionId, regId)
       val emailResponseFromCr =
         """ {
@@ -83,7 +86,7 @@ class RegistrationEmailControllerISpec extends IntegrationSpecBase with LoginStu
       stubGet("/company-registration/corporation-tax-registration/test/retrieve-email", 200, emailResponseFromCr)
       stubKeystoreGetWithJson(SessionId, regId, 200, data)
       val res = await(buildClient(controllers.reg.routes.RegistrationEmailController.show().url)
-        .withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
+        .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
         .get())
 
       res.status shouldBe 200
@@ -96,7 +99,7 @@ class RegistrationEmailControllerISpec extends IntegrationSpecBase with LoginStu
     "return 200 when user is logged in and has a keystore entry for regId, email from auth should be populated on the page user has also been to page before" in new Setup {
 
       stubAuthorisation()
-      stubSuccessfulLogin(userId = userId, otherParamsForAuth = Some(Json.obj("name" -> "foobar")))
+      stubSuccessfulLogin(userId = userId, otherParamsForAuth = Some(Json.obj("name" -> Json.obj("name" -> "testName"))))
       stubKeystore(SessionId, regId)
       val emailResponseFromCr =
         """ {
@@ -129,7 +132,7 @@ class RegistrationEmailControllerISpec extends IntegrationSpecBase with LoginStu
     }
     "redirect to post sign in if verified flag is already true" in new Setup {
       stubAuthorisation()
-      stubSuccessfulLogin(userId = userId, otherParamsForAuth = Some(Json.obj("name" -> "foobar")))
+      stubSuccessfulLogin(userId = userId, otherParamsForAuth = Some(Json.obj("name" -> Json.obj("name" -> "testName"))))
       val emailResponseFromCr =
         """ {
           |  "address": "foo@bar.wibble",

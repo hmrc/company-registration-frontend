@@ -24,29 +24,32 @@ import models.{Dashboard, IncorpAndCTDashboard, ServiceDashboard, ServiceLinks}
 import org.jsoup.Jsoup
 import org.mockito.Matchers
 import org.mockito.Mockito._
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.MessagesApi
+import play.api.mvc.MessagesControllerComponents
 import play.api.test.Helpers._
 import services.{DashboardBuilt, DashboardService}
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, ~}
 import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolment, EnrolmentIdentifier, Enrolments}
-import uk.gov.hmrc.play.test.WithFakeApplication
 
 import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 
-class DashboardSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
+class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
 
   val mockDashboardService = mock[DashboardService]
 
-
   class Setup {
     val controller = new DashboardController {
+      override lazy val controllerComponents = app.injector.instanceOf[MessagesControllerComponents]
       override val authConnector = mockAuthConnector
       override val keystoreConnector = mockKeystoreConnector
       override val dashboardService = mockDashboardService
       override val compRegConnector = mockCompanyRegistrationConnector
       override val companiesHouseURL = "testUrl"
       override val appConfig = mockAppConfig
-      override val messagesApi = fakeApplication.injector.instanceOf[MessagesApi]
+      override lazy val messagesApi = app.injector.instanceOf[MessagesApi]
+      override val ec = global
     }
   }
 

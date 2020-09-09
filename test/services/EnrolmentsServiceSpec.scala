@@ -19,15 +19,16 @@ package services
 import config.{FrontendAppConfig, WSHttp}
 import mocks.SCRSMocks
 import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import uk.gov.hmrc.auth.core.{Enrolment, EnrolmentIdentifier, Enrolments}
 import uk.gov.hmrc.http.{CoreGet, HeaderCarrier}
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import uk.gov.hmrc.play.test.UnitSpec
 
-class EnrolmentsServiceSpec extends UnitSpec with WithFakeApplication with MockitoSugar with SCRSMocks {
+class EnrolmentsServiceSpec extends UnitSpec with GuiceOneAppPerSuite with MockitoSugar with SCRSMocks {
   class Setup {
     object TestService extends EnrolmentsService {
       val http = mock[WSHttp with CoreGet]
-      override val frontendAppConfig: FrontendAppConfig = fakeApplication.injector.instanceOf[FrontendAppConfig]
+      override val frontendAppConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
     }
   }
 

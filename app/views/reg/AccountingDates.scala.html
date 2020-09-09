@@ -22,7 +22,7 @@
 @import play.api.Application
 @import views.helpers.TitleHelper.title
 
-@(accountingDatesForm : Form[AccountingDatesModel], date: String)(implicit request: Request[_], messages: Messages, lang: Lang, appConfig: config.FrontendAppConfig)
+@(accountingDatesForm : Form[AccountingDatesModel], date: String)(implicit request: Request[_], messages: Messages, appConfig: config.FrontendAppConfig)
 
 @hiddenContent = {
     <span class="form-label">@Messages("page.reg.accountingDates.help")</span>

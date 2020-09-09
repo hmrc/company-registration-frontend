@@ -56,11 +56,10 @@ object SCRSValidators {
     text =>
       val errors = text.trim match {
         case completionCapacityRegex() => Nil
-        case _ => Seq(ValidationError(Messages("validation.invalid")))
+        case _ => Seq(ValidationError("validation.invalid"))
       }
       if (errors.isEmpty) Valid else Invalid(errors)
   })
-
   val shareholderNameValidation: Constraint[String] = Constraint("constraints.shareholderName")({
     text =>
       val textTrimmed = text.trim
@@ -122,8 +121,8 @@ object SCRSValidators {
     text =>
       val errors = text match {
         case t if t.matches(emailRegex) && t.matches(emailRegexDes) => Nil
-        case t if t.length > 70 => Seq(ValidationError(Messages("validation.emailtoolong")))
-        case _ => Seq(ValidationError(Messages("validation.email")))
+        case t if t.length > 70 => Seq(ValidationError("validation.emailtoolong"))
+        case _ => Seq(ValidationError("validation.email"))
       }
       if (errors.isEmpty) Valid else Invalid(errors)
   })
@@ -135,7 +134,7 @@ object SCRSValidators {
           case (Some(_), _, _) => Valid
           case (_, Some(_), _) => Valid
           case (_, _, Some(_)) => Valid
-          case _ => Invalid(Seq(ValidationError(Messages("page.reg.company-contact-details.validation.chooseOne"), "chooseOne")))
+          case _ => Invalid(Seq(ValidationError("page.reg.company-contact-details.validation.chooseOne")))
         }
     })
   }

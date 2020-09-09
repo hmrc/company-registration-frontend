@@ -24,15 +24,14 @@ import models.{Email, Groups}
 import org.jsoup.Jsoup
 import org.mockito.Matchers.any
 import org.mockito.Mockito.when
-import play.api.i18n.MessagesApi
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.{JsValue, Json}
+import play.api.mvc.MessagesControllerComponents
 import play.api.test.Helpers._
-import uk.gov.hmrc.play.test.WithFakeApplication
 
 import scala.concurrent.Future
 
-class GroupReliefSpec extends SCRSSpec with UserDetailsFixture
-  with WithFakeApplication with AuthBuilder {
+class GroupReliefSpec extends SCRSSpec with UserDetailsFixture with AuthBuilder with GuiceOneAppPerSuite {
 
   class Setup {
     val controller = new GroupReliefController(
@@ -40,7 +39,7 @@ class GroupReliefSpec extends SCRSSpec with UserDetailsFixture
       mockGroupService,
       mockCompanyRegistrationConnector,
       mockKeystoreConnector,
-      fakeApplication.injector.instanceOf[MessagesApi]
+      app.injector.instanceOf[MessagesControllerComponents]
     )
 
     val ctDocFirstTimeThrough: JsValue =
