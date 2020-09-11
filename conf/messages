@@ -569,6 +569,13 @@ page.takeovers.homeAddress.title                                       = What is
 page.takeovers.homeAddress.heading                                     = What is {0}’s home address?
 error.homeAddress.required                                             = Tell us their home address
 
+## Footer
+footer.links.cookies.text                   = Cookies
+footer.links.privacy_policy.text            = Privacy policy
+footer.links.terms_and_conditions.text      = Terms and conditions
+footer.links.help_page.text                 = Help using GOV.UK
+footer.links.accessibility.text             = Accessibility
+
 #Accessibility Statement
 accessibility.pageTitle = Accessibility statement for setting up a limited company and registering for corporation tax
 accessibility.pageHeading = Accessibility statement for setting up a limited company and registering for corporation tax
