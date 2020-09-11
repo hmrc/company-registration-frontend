@@ -134,7 +134,13 @@
 
 @footerTop = {}
 @footerLinks = {
-    @uiLayouts.footer_links(accessibilityFooterUrl = Some(appConfig.accessibilityStatementUrl(request.uri)))
+<ul class="platform-help-links">
+    <li><a href=@appConfig.commonFooterUrl target="_blank" data-sso="false" data-journey-click="footer:Click:Cookies" id="cookies">@Messages("footer.links.cookies.text")</a></li>
+    <li><a href=@appConfig.accessibilityStatementUrl(request.uri)) target="_blank" data-sso="false" data-journey-click="footer:Click:Accessibility" id="accessibility">@Messages("footer.links.accessibility.text")</a></li>
+    <li><a href=@appConfig.commonFooterUrl target="_blank" data-sso="false" data-journey-click="footer:Click:Privacy policy" id="policy">@Messages("footer.links.privacy_policy.text")</a></li>
+    <li><a href=@appConfig.commonFooterUrl target="_blank" data-sso="false" data-journey-click="footer:Click:Terms and conditions" id="terms">@Messages("footer.links.terms_and_conditions.text")</a></li>
+    <li><a href=@appConfig.helpFooterUrl target="_blank" data-sso="false" data-journey-click="footer:Click:Help">@Messages("footer.links.help_page.text")</a></li>
+</ul>
 }
 
 @serviceInfo = {

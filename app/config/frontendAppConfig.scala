@@ -56,6 +56,9 @@ trait FrontendAppConfig extends ServicesConfig {
   lazy val timeoutInSeconds: String = loadConfig("microservice.timeoutInSeconds")
   lazy val timeoutDisplayLength: String = loadConfig("microservice.timeoutDisplayLength")
 
+  lazy val commonFooterUrl = "https://www.tax.service.gov.uk/register-your-company/cookies-privacy-terms"
+  lazy val helpFooterUrl = "https://www.gov.uk/help"
+
   val IR_CT = "IR-CT"
   val IR_PAYE = "IR-PAYE"
   val HMCE_VATDEC_ORG = "HMCE-VATDEC-ORG"
