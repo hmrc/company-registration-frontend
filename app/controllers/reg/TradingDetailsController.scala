@@ -16,22 +16,20 @@
 
 package controllers.reg
 
-import javax.inject.Inject
-
 import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
-import controllers.auth.AuthFunction
+import controllers.auth.AuthenticatedController
 import forms.TradingDetailsForm
+import javax.inject.Inject
 import models.{TradingDetailsErrorResponse, TradingDetailsForbiddenResponse, TradingDetailsNotFoundResponse, TradingDetailsSuccessResponse}
-import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.Action
+import play.api.i18n.I18nSupport
+import play.api.mvc.MessagesControllerComponents
 import services.{MetricsService, TradingDetailsService}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.SessionRegistration
 import views.html.reg.TradingDetailsView
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class TradingDetailsControllerImpl @Inject()(val authConnector: PlayAuthConnector,
                                              val tradingDetailsService: TradingDetailsService,
@@ -39,12 +37,13 @@ class TradingDetailsControllerImpl @Inject()(val authConnector: PlayAuthConnecto
                                              val compRegConnector: CompanyRegistrationConnector,
                                              val keystoreConnector: KeystoreConnector,
                                              val appConfig: FrontendAppConfig,
-                                             val messagesApi: MessagesApi) extends TradingDetailsController
+                                             val ec: ExecutionContext,
+                                             val controllerComponents: MessagesControllerComponents) extends TradingDetailsController
 
-trait TradingDetailsController extends FrontendController with AuthFunction with ControllerErrorHandler with SessionRegistration with I18nSupport {
+abstract class TradingDetailsController extends AuthenticatedController with ControllerErrorHandler with SessionRegistration with I18nSupport {
   implicit val appConfig: FrontendAppConfig
 
-  val tradingDetailsService : TradingDetailsService
+  val tradingDetailsService: TradingDetailsService
   val metricsService: MetricsService
 
   val show = Action.async { implicit request =>

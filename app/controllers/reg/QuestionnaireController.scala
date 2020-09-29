@@ -16,27 +16,26 @@
 
 package controllers.reg
 
-import javax.inject.Inject
-
 import config.FrontendAppConfig
 import forms.QuestionnaireForm
-import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.Action
+import javax.inject.Inject
+import play.api.i18n.I18nSupport
+import play.api.mvc.MessagesControllerComponents
 import services.{MetricsService, QuestionnaireService}
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import views.html.reg.Questionnaire
 
 import scala.concurrent.Future
 
- class QuestionnaireControllerImpl @Inject()(val metricsService: MetricsService,
-                                             val qService:QuestionnaireService,
-                                             val appConfig: FrontendAppConfig,
-                                             val messagesApi: MessagesApi) extends QuestionnaireController
+class QuestionnaireControllerImpl @Inject()(val metricsService: MetricsService,
+                                            val qService: QuestionnaireService,
+                                            val appConfig: FrontendAppConfig,
+                                            mcc: MessagesControllerComponents) extends QuestionnaireController(mcc)
 
-trait QuestionnaireController extends FrontendController with I18nSupport {
+abstract class QuestionnaireController(mcc: MessagesControllerComponents) extends FrontendController(mcc) with I18nSupport {
   implicit val appConfig: FrontendAppConfig
   lazy val gHost = appConfig.govHostUrl
-  val  metricsService : MetricsService
+  val metricsService: MetricsService
   val qService: QuestionnaireService
   val show = Action.async {
     implicit request =>

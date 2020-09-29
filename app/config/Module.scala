@@ -37,7 +37,6 @@ import utils._
 
 class Module extends AbstractModule {
   override def configure(): Unit = {
-    bind(classOf[FrontendAppConfig]).to(classOf[FrontendAppConfigImpl]).asEagerSingleton()
     bind(classOf[CryptoInitialiser]).to(classOf[CryptoInitialiserImpl]).asEagerSingleton()
     bind(classOf[FrontendErrorHandlerSCRS]).to(classOf[SCRSErrorHandler]).asEagerSingleton()
 

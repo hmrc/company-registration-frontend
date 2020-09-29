@@ -17,9 +17,9 @@
 package forms
 
 import fixtures.PPOBFixture
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import uk.gov.hmrc.play.test.UnitSpec
 
-class ReturningUserFormSpec extends UnitSpec with WithFakeApplication with PPOBFixture {
+class ReturningUserFormSpec extends UnitSpec with PPOBFixture {
 
   val form = ReturningUserForm.form
 

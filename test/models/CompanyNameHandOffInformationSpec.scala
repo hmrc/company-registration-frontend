@@ -19,13 +19,13 @@ package models
 import models.handoff.CompanyNameHandOffInformation
 import org.joda.time.{DateTime, DateTimeZone}
 import play.api.libs.json.{JsObject, Json}
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import uk.gov.hmrc.play.test.UnitSpec
 
-class CompanyNameHandOffInformationSpec extends UnitSpec with WithFakeApplication{
+class CompanyNameHandOffInformationSpec extends UnitSpec {
 
   class Setup {
     val testModel = CompanyNameHandOffInformation("foo", new DateTime(0, DateTimeZone.UTC), JsObject(Seq("foo" -> Json.toJson("bar"))))
-    val json = """{"handoffType":"foo","handoffTime":"1970-01-01T00:00:00.000+0000","data":{"foo":"bar"}}"""
+    val json = """{"handoffType":"foo","handoffTime":"1970-01-01T00:00:00.000Z","data":{"foo":"bar"}}"""
   }
 
   "CompanyNameHandoffInformation" should {

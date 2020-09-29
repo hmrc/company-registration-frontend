@@ -18,31 +18,30 @@ package controllers.takeovers
 
 import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
-import controllers.auth.AuthFunction
+import controllers.auth.AuthenticatedController
 import controllers.reg.{ControllerErrorHandler, routes => regRoutes}
 import forms.takeovers.WhoAgreedTakeoverForm
 import javax.inject.{Inject, Singleton}
 import models.TakeoverDetails
-import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent}
+import play.api.i18n.I18nSupport
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.TakeoverService
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.http.NotFoundException
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.{SCRSFeatureSwitches, SessionRegistration}
 import views.html.takeovers.WhoAgreedTakeover
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class WhoAgreedTakeoverController @Inject()(val authConnector: PlayAuthConnector,
                                             val takeoverService: TakeoverService,
                                             val compRegConnector: CompanyRegistrationConnector,
                                             val keystoreConnector: KeystoreConnector,
-                                            val scrsFeatureSwitches: SCRSFeatureSwitches
-                                           )(implicit val appConfig: FrontendAppConfig,
-                                             val messagesApi: MessagesApi
-                                           ) extends FrontendController with AuthFunction with ControllerErrorHandler with SessionRegistration with I18nSupport {
+                                            val scrsFeatureSwitches: SCRSFeatureSwitches,
+                                            val controllerComponents: MessagesControllerComponents
+                                           )(implicit val appConfig: FrontendAppConfig, val ec: ExecutionContext
+                                           ) extends AuthenticatedController with ControllerErrorHandler with SessionRegistration with I18nSupport {
 
   val show: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {

@@ -23,11 +23,10 @@ import org.mockito.Matchers
 import org.mockito.Mockito._
 import play.api.libs.json.JsValue
 import uk.gov.hmrc.http._
-import uk.gov.hmrc.play.test.WithFakeApplication
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class BusinessRegistrationConnectorSpec extends SCRSSpec with BusinessRegistrationFixture with WithFakeApplication {
+class BusinessRegistrationConnectorSpec extends SCRSSpec with BusinessRegistrationFixture {
 
   val mockBusRegConnector = mock[BusinessRegistrationConnector]
 

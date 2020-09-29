@@ -18,23 +18,22 @@ package controllers.takeovers
 
 import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
-import controllers.auth.AuthFunction
+import controllers.auth.AuthenticatedController
 import controllers.reg.ControllerErrorHandler
 import controllers.reg.routes.AccountingDatesController
 import controllers.takeovers.routes.OtherBusinessNameController
 import forms.takeovers.ReplacingAnotherBusinessForm
 import javax.inject.{Inject, Singleton}
 import play.api.data.Form
-import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent}
+import play.api.i18n.I18nSupport
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.TakeoverService
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.http.NotFoundException
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.{SCRSFeatureSwitches, SessionRegistration}
 import views.html.takeovers.ReplacingAnotherBusiness
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class ReplacingAnotherBusinessController @Inject()(val authConnector: PlayAuthConnector,
@@ -42,9 +41,9 @@ class ReplacingAnotherBusinessController @Inject()(val authConnector: PlayAuthCo
                                                    val compRegConnector: CompanyRegistrationConnector,
                                                    val keystoreConnector: KeystoreConnector,
                                                    val scrsFeatureSwitches: SCRSFeatureSwitches,
-                                                   val messagesApi: MessagesApi
-                                                  )(implicit val appConfig: FrontendAppConfig
-                                                  ) extends FrontendController with AuthFunction with ControllerErrorHandler with SessionRegistration with I18nSupport {
+                                                   val controllerComponents: MessagesControllerComponents
+                                                  )(implicit val appConfig: FrontendAppConfig, val ec: ExecutionContext
+                                                  ) extends AuthenticatedController with ControllerErrorHandler with SessionRegistration with I18nSupport {
 
   val show: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {

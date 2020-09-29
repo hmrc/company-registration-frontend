@@ -16,30 +16,28 @@
 
 package controllers.reg
 
-import javax.inject.Inject
-
 import config.FrontendAppConfig
 import connectors.KeystoreConnector
-import controllers.auth.AuthFunction
-import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent}
+import controllers.auth.AuthenticatedController
+import javax.inject.Inject
+import play.api.i18n.I18nSupport
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.CommonService
 import uk.gov.hmrc.auth.core.PlayAuthConnector
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.SCRSExceptions
 import views.html.reg.LimitReached
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class LimitReachedControllerImpl @Inject()(val authConnector: PlayAuthConnector,
                                            val keystoreConnector: KeystoreConnector,
                                            val appConfig: FrontendAppConfig,
-                                           val messagesApi: MessagesApi) extends LimitReachedController {
+                                           val controllerComponents: MessagesControllerComponents)(implicit val ec: ExecutionContext) extends LimitReachedController {
 
- lazy val cohoUrl = appConfig.getConfString("coho-service.web-incs", throw new Exception("Couldn't find Coho url"))
+  lazy val cohoUrl = appConfig.servicesConfig.getConfString("coho-service.web-incs", throw new Exception("Couldn't find Coho url"))
 }
 
-trait LimitReachedController extends FrontendController with AuthFunction with CommonService with SCRSExceptions with I18nSupport {
+abstract class LimitReachedController extends AuthenticatedController with CommonService with SCRSExceptions with I18nSupport {
   val cohoUrl: String
 
   implicit val appConfig: FrontendAppConfig

@@ -28,18 +28,20 @@ import models._
 import models.handoff._
 import org.mockito.Matchers
 import org.mockito.Mockito._
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.MessagesApi
 import play.api.libs.json.{JsObject, Json, Writes}
+import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.NavModelNotFoundException
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.test.WithFakeApplication
 import utils.JweCommon
 
-import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{ExecutionContext, Future}
 
-class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with WithFakeApplication with AccountingDetailsFixture with TradingDetailsFixtures
+class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with GuiceOneAppPerSuite with AccountingDetailsFixture with TradingDetailsFixtures
   with CorporationTaxFixture with AuthBuilder with TakeoverServiceMock {
 
   val aboutYouData = AboutYouChoice("Director")
@@ -65,6 +67,7 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with WithFakeAppl
 
   class Setup {
     val controller = new SummaryController {
+      override lazy val controllerComponents = app.injector.instanceOf[MessagesControllerComponents]
       override val s4LConnector = mockS4LConnector
       override val authConnector = mockAuthConnector
       override val compRegConnector = mockCompanyRegistrationConnector
@@ -72,11 +75,13 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with WithFakeAppl
       override val metaDataService = mockMetaDataService
       override val takeoverService = mockTakeoverService
       override val handOffService = mockHandOffService
-      implicit val appConfig: FrontendAppConfig = fakeApplication.injector.instanceOf[FrontendAppConfig]
+      implicit lazy val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
       override val jwe: JweCommon = mockJweCommon
-      override val messagesApi = fakeApplication.injector.instanceOf[MessagesApi]
+      override lazy val messagesApi = app.injector.instanceOf[MessagesApi]
+      implicit val ec: ExecutionContext = global
     }
   }
+
   lazy val regID = UUID.randomUUID.toString
 
   val corporationTaxModel = buildCorporationTaxModel()
@@ -119,7 +124,7 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with WithFakeAppl
   "Post to the Summary Controller" should {
     "return a 303 whilst authorised " in new Setup {
       val request = FakeRequest().withFormUrlEncodedBody()
-      submitWithAuthorisedUser(controller.submit, request){
+      submitWithAuthorisedUser(controller.submit, request) {
         result =>
           status(result) shouldBe SEE_OTHER
           redirectLocation(result) shouldBe Some("/register-your-company/incorporation-summary")
@@ -150,7 +155,7 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with WithFakeAppl
       when(mockHandOffService.buildBackHandOff(Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(BackHandoff("EXT-123456", testRegId, Json.obj(), Json.obj(), Json.obj())))
 
-      submitWithAuthorisedUserRetrieval(controller.back, request, Some("extID")){
+      submitWithAuthorisedUserRetrieval(controller.back, request, Some("extID")) {
         result =>
           status(result) shouldBe SEE_OTHER
       }

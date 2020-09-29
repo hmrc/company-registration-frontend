@@ -24,20 +24,22 @@ import models.Email
 import org.jsoup.Jsoup
 import org.mockito.Matchers.any
 import org.mockito.Mockito.when
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.MessagesApi
 import play.api.libs.json.Json
+import play.api.mvc.MessagesControllerComponents
 import play.api.test.Helpers._
 import services.MetricsService
-import uk.gov.hmrc.auth.core.retrieve.{Name, ~}
-import uk.gov.hmrc.play.test.WithFakeApplication
 
 import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 
-class CompanyContactDetailsSpec extends SCRSSpec with CompanyContactDetailsFixture with UserDetailsFixture
-  with WithFakeApplication with AuthBuilder {
+class CompanyContactDetailsSpec extends SCRSSpec with CompanyContactDetailsFixture with UserDetailsFixture with GuiceOneAppPerSuite
+  with AuthBuilder {
 
   class Setup {
     val controller = new CompanyContactDetailsController {
+      override lazy val controllerComponents = app.injector.instanceOf[MessagesControllerComponents]
       override val authConnector = mockAuthConnector
       override val s4LConnector = mockS4LConnector
       override val companyContactDetailsService = mockCompanyContactDetailsService
@@ -45,8 +47,9 @@ class CompanyContactDetailsSpec extends SCRSSpec with CompanyContactDetailsFixtu
       override val compRegConnector = mockCompanyRegistrationConnector
       override val keystoreConnector= mockKeystoreConnector
       override val appConfig = mockAppConfig
-      override val messagesApi = fakeApplication.injector.instanceOf[MessagesApi]
+      override lazy val messagesApi = app.injector.instanceOf[MessagesApi]
       override val scrsFeatureSwitches = mockSCRSFeatureSwitches
+      override val ec = global
     }
 
     val ctDocFirstTimeThrough =

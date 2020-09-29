@@ -19,7 +19,7 @@ package models
 import fixtures.CorporationTaxFixture
 import helpers.JsonValidation
 import play.api.data.validation.ValidationError
-import play.api.libs.json.{JsPath, Json}
+import play.api.libs.json.{JsPath, Json, JsonValidationError}
 import uk.gov.hmrc.play.test.UnitSpec
 
 class NewAddressSpec extends UnitSpec with CorporationTaxFixture with JsonValidation {
@@ -302,7 +302,7 @@ class NewAddressSpec extends UnitSpec with CorporationTaxFixture with JsonValida
 
         val result = Json.fromJson(json)(NewAddress.addressLookupReads)
 
-        shouldHaveErrors(result, JsPath(), Seq(ValidationError("no country or valid postcode")))
+        shouldHaveErrors(result, JsPath(), Seq(JsonValidationError("no country or valid postcode")))
       }
 
       "only one address line is provided" in {
@@ -317,7 +317,7 @@ class NewAddressSpec extends UnitSpec with CorporationTaxFixture with JsonValida
             |}""".stripMargin)
 
         val result = Json.fromJson(json)(NewAddress.addressLookupReads)
-        shouldHaveErrors(result, JsPath(), Seq(ValidationError("only 1 lines provided from address-lookup-frontend")))
+        shouldHaveErrors(result, JsPath(), Seq(JsonValidationError("only 1 lines provided from address-lookup-frontend")))
       }
 
       "postcode is invalid and country is not provided" in {
@@ -333,7 +333,7 @@ class NewAddressSpec extends UnitSpec with CorporationTaxFixture with JsonValida
             |}""".stripMargin)
 
         val result = Json.fromJson(json)(NewAddress.addressLookupReads)
-        shouldHaveErrors(result, JsPath(), Seq(ValidationError("no country or valid postcode")))
+        shouldHaveErrors(result, JsPath(), Seq(JsonValidationError("no country or valid postcode")))
       }
     }
   }

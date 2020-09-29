@@ -29,11 +29,11 @@ import play.api.Logger
 import play.api.http.Status._
 import play.api.libs.json.{JsNull, Json}
 import uk.gov.hmrc.http._
-import uk.gov.hmrc.play.test.{LogCapturing, UnitSpec, WithFakeApplication}
+import uk.gov.hmrc.play.test.{LogCapturing, UnitSpec}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class VatThresholdConnectorSpec extends SCRSSpec with UnitSpec with WithFakeApplication with LogCapturing with MockitoSugar with Eventually with BeforeAndAfter with IntegrationPatience {
+class VatThresholdConnectorSpec extends SCRSSpec with UnitSpec with LogCapturing with MockitoSugar with Eventually with BeforeAndAfter with IntegrationPatience {
 
   val baseUrl: String = "test vatBaseURL"
   val baseUri: String = "test vatserviceUri"

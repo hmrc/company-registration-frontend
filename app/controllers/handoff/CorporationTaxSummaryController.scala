@@ -16,20 +16,19 @@
 
 package controllers.handoff
 
-import javax.inject.Inject
-
 import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
-import controllers.auth.AuthFunction
+import controllers.auth.AuthenticatedController
+import javax.inject.Inject
 import play.api.Logger
-import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent}
+import play.api.i18n.I18nSupport
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.{HandBackService, HandOffService, NavModelNotFoundException}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.{DecryptionError, PayloadError, SessionRegistration}
 import views.html.error_template_restart
 
+import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success}
 
 class CorporationTaxSummaryControllerImpl @Inject()(val authConnector: PlayAuthConnector,
@@ -38,15 +37,16 @@ class CorporationTaxSummaryControllerImpl @Inject()(val authConnector: PlayAuthC
                                                     val appConfig: FrontendAppConfig,
                                                     val compRegConnector: CompanyRegistrationConnector,
                                                     val handBackService: HandBackService,
-                                                    val messagesApi: MessagesApi) extends CorporationTaxSummaryController
+                                                    val ec: ExecutionContext,
+                                                    val controllerComponents: MessagesControllerComponents) extends CorporationTaxSummaryController
 
-trait CorporationTaxSummaryController extends FrontendController with AuthFunction with I18nSupport with SessionRegistration {
-  val handBackService : HandBackService
+trait CorporationTaxSummaryController extends AuthenticatedController with I18nSupport with SessionRegistration {
+  val handBackService: HandBackService
 
   implicit val appConfig: FrontendAppConfig
 
   //HO4
-  def corporationTaxSummary(requestData : String) : Action[AnyContent] = Action.async {
+  def corporationTaxSummary(requestData: String): Action[AnyContent] = Action.async {
     implicit _request =>
       ctAuthorisedHandoff("HO4", requestData) {
         registeredHandOff("HO4", requestData) { _ =>

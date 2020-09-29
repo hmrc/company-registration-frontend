@@ -31,6 +31,7 @@ import uk.gov.hmrc.auth.core.Enrolments
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import utils._
+import play.api.libs.json.JodaReads._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -49,14 +50,14 @@ class DashboardServiceImpl @Inject()(val keystoreConnector: KeystoreConnector,
                                     ) extends DashboardService {
 
 
-  lazy val otrsUrl         = appConfig.getConfString("otrs.url", throw new Exception("Could not find config for key: otrs.url"))
-  lazy val payeBaseUrl     = appConfig.getConfString("paye-registration-www.url-prefix", throw new Exception("Could not find config for key: paye-registration-www.url-prefix"))
-  lazy val payeUri         = appConfig.getConfString("paye-registration-www.start-url", throw new Exception("Could not find config for key: paye-registration-www.start-url"))
-  lazy val vatBaseUrl      = appConfig.getConfString("vat-registration-www.url-prefix", throw new Exception("Could not find config for key: vat-registration-www.url-prefix"))
-  lazy val vatUri          = appConfig.getConfString("vat-registration-www.start-url", throw new Exception("Could not find config for key: vat-registration-www.start-url"))
+  lazy val otrsUrl         = appConfig.servicesConfig.getConfString("otrs.url", throw new Exception("Could not find config for key: otrs.url"))
+  lazy val payeBaseUrl     = appConfig.servicesConfig.getConfString("paye-registration-www.url-prefix", throw new Exception("Could not find config for key: paye-registration-www.url-prefix"))
+  lazy val payeUri         = appConfig.servicesConfig.getConfString("paye-registration-www.start-url", throw new Exception("Could not find config for key: paye-registration-www.start-url"))
+  lazy val vatBaseUrl      = appConfig.servicesConfig.getConfString("vat-registration-www.url-prefix", throw new Exception("Could not find config for key: vat-registration-www.url-prefix"))
+  lazy val vatUri          = appConfig.servicesConfig.getConfString("vat-registration-www.start-url", throw new Exception("Could not find config for key: vat-registration-www.start-url"))
 
-  lazy val loggingDays     = appConfig.getConfString("alert-config.logging-day", throw new Exception("Could not find config key: LoggingDay"))
-  lazy val loggingTimes    = appConfig.getConfString("alert-config.logging-time", throw new Exception("Could not find config key: LoggingTime"))
+  lazy val loggingDays     = appConfig.servicesConfig.getConfString("alert-config.logging-day", throw new Exception("Could not find config key: LoggingDay"))
+  lazy val loggingTimes    = appConfig.servicesConfig.getConfString("alert-config.logging-time", throw new Exception("Could not find config key: LoggingTime"))
 }
 
 sealed trait DashboardStatus

@@ -128,7 +128,7 @@ class CompanyNameHOIncomingSpec extends UnitSpec with JsonFormatValidation {
 
         val result = Json.parse(json).validate[CHROAddress]
 
-        shouldHaveErrors(result, JsPath() \ "address_line_1", ValidationError("error.minLength", 1))
+        shouldHaveErrors(result, JsPath() \ "address_line_1", JsonValidationError("error.minLength", 1))
       }
 
       "fail to be read from JSON if line1 is longer than 50 characters" in {
@@ -136,7 +136,7 @@ class CompanyNameHOIncomingSpec extends UnitSpec with JsonFormatValidation {
 
         val result = Json.parse(json).validate[CHROAddress]
 
-        shouldHaveErrors(result, JsPath() \ "address_line_1", ValidationError("error.maxLength", 50))
+        shouldHaveErrors(result, JsPath() \ "address_line_1", JsonValidationError("error.maxLength", 50))
       }
 
       "fail to be read from JSON if line2 is empty string" in {
@@ -144,7 +144,7 @@ class CompanyNameHOIncomingSpec extends UnitSpec with JsonFormatValidation {
 
         val result = Json.parse(json).validate[CHROAddress]
 
-        shouldHaveErrors(result, JsPath() \ "address_line_2", ValidationError("error.minLength", 1))
+        shouldHaveErrors(result, JsPath() \ "address_line_2", JsonValidationError("error.minLength", 1))
       }
 
       "fail to be read from JSON if line2 is longer than 50 characters" in {
@@ -152,7 +152,7 @@ class CompanyNameHOIncomingSpec extends UnitSpec with JsonFormatValidation {
 
         val result = Json.parse(json).validate[CHROAddress]
 
-        shouldHaveErrors(result, JsPath() \ "address_line_2", ValidationError("error.maxLength", 50))
+        shouldHaveErrors(result, JsPath() \ "address_line_2", JsonValidationError("error.maxLength", 50))
       }
     }
   }

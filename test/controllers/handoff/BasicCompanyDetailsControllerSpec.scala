@@ -24,30 +24,36 @@ import models.Email
 import models.handoff.CompanyNameHandOffIncoming
 import org.mockito.Matchers
 import org.mockito.Mockito._
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.MessagesApi
 import play.api.libs.json.{JsValue, Json}
+import play.api.mvc.MessagesControllerComponents
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.retrieve.{Name, ~}
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.test.WithFakeApplication
 import utils.{DecryptionError, JweCommon, PayloadError}
 
-import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
-class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture with WithFakeApplication with AuthBuilder {
+class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture with GuiceOneAppPerSuite with AuthBuilder {
 
   class Setup {
+
     object TestController extends BasicCompanyDetailsController {
+      override lazy val controllerComponents = app.injector.instanceOf[MessagesControllerComponents]
       val authConnector = mockAuthConnector
       val keystoreConnector = mockKeystoreConnector
       val handOffService = mockHandOffService
       val handBackService = mockHandBackService
       override val compRegConnector = mockCompanyRegistrationConnector
-      implicit val appConfig: FrontendAppConfig = fakeApplication.injector.instanceOf[FrontendAppConfig]
-      override val messagesApi = fakeApplication.injector.instanceOf[MessagesApi]
+      implicit lazy val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+      override lazy val messagesApi = app.injector.instanceOf[MessagesApi]
+      implicit val ec: ExecutionContext = global
     }
-    val jweInstance = () => fakeApplication.injector.instanceOf[JweCommon]
+
+    val jweInstance = () => app.injector.instanceOf[JweCommon]
   }
 
   val authDetails = new ~(
@@ -63,7 +69,7 @@ class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture wit
 
         mockKeystoreFetchAndGet("registrationID", Some("1"))
 
-        when(mockCompanyRegistrationConnector.retrieveEmail(Matchers.any())(Matchers.any())).thenReturn(Future.successful(Some(Email("foo","bar",true,true,true))))
+        when(mockCompanyRegistrationConnector.retrieveEmail(Matchers.any())(Matchers.any())).thenReturn(Future.successful(Some(Email("foo", "bar", true, true, true))))
 
         when(mockHandOffService.companyNamePayload(Matchers.eq("1"), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any[HeaderCarrier]()))
           .thenReturn(Future.successful(Some(("testUrl/basic-company-details", "testEncryptedPayload"))))
@@ -85,7 +91,7 @@ class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture wit
       val encryptedPayload = jweInstance().encrypt[CompanyNameHandOffIncoming](validCompanyNameHandBack).get
 
       mockKeystoreFetchAndGet("registrationID", Some("1"))
-      when(mockCompanyRegistrationConnector.retrieveEmail(Matchers.any())(Matchers.any())).thenReturn(Future.successful(Some(Email("foo","bar",true,true,true))))
+      when(mockCompanyRegistrationConnector.retrieveEmail(Matchers.any())(Matchers.any())).thenReturn(Future.successful(Some(Email("foo", "bar", true, true, true))))
       when(mockHandOffService.companyNamePayload(Matchers.eq("1"), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(Some(("testUrl/basic-company-details", encryptedPayload))))
 
@@ -104,7 +110,7 @@ class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture wit
     "return a 400 and display an error page when nothing is retrieved from user details" in new Setup {
 
       mockKeystoreFetchAndGet("registrationID", Some("1"))
-      when(mockCompanyRegistrationConnector.retrieveEmail(Matchers.any())(Matchers.any())).thenReturn(Future.successful(Some(Email("foo","bar",true,true,true))))
+      when(mockCompanyRegistrationConnector.retrieveEmail(Matchers.any())(Matchers.any())).thenReturn(Future.successful(Some(Email("foo", "bar", true, true, true))))
       when(mockHandOffService.companyNamePayload(Matchers.eq("1"), Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(None))
 

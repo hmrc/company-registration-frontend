@@ -19,10 +19,9 @@ package forms
 import models._
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.i18n.Lang
 
 object CompanyDetailsForm {
-  def form(implicit lang:Lang) = Form(
+  def form() = Form(
     mapping(
       "companyName" -> text,
       "chROAddress" -> mapping(

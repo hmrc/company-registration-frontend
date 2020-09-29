@@ -28,19 +28,19 @@ import mocks.{AddressLookupFrontendServiceMock, AddressPrepopulationServiceMock,
 import models.takeovers.PreselectedAddress
 import models.{NewAddress, TakeoverDetails}
 import org.jsoup.Jsoup
-import play.api.i18n.{I18nSupport, MessagesApi}
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.i18n._
 import play.api.libs.json.Json
 import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.NotFoundException
-import uk.gov.hmrc.play.test.WithFakeApplication
 import views.html.takeovers.HomeAddress
 
 import scala.concurrent.Future
 
-class PreviousOwnersAddressControllerSpec extends SCRSSpec
-  with WithFakeApplication
+class PreviousOwnersAddressControllerSpec()(implicit val lang: Lang) extends SCRSSpec
+  with GuiceOneAppPerSuite
   with LoginFixture
   with AuthBuilder
   with TakeoverServiceMock
@@ -57,7 +57,10 @@ class PreviousOwnersAddressControllerSpec extends SCRSSpec
   implicit val request: Request[AnyContent] = FakeRequest()
   implicit val actorSystem: ActorSystem = ActorSystem("MyTest")
   implicit val actorMaterializer: ActorMaterializer = ActorMaterializer()
-  implicit lazy val messagesApi: MessagesApi = fakeApplication.injector.instanceOf[MessagesApi]
+  implicit lazy val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
+  implicit val messages: Messages = app.injector.instanceOf[Messages]
+  implicit val langs = app.injector.instanceOf[Langs]
+  val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
 
   object TestPreviousOwnersAddressController extends PreviousOwnersAddressController(
     mockAuthConnector,
@@ -67,7 +70,8 @@ class PreviousOwnersAddressControllerSpec extends SCRSSpec
     mockCompanyRegistrationConnector,
     mockBusinessRegConnector,
     mockKeystoreConnector,
-    mockSCRSFeatureSwitches
+    mockSCRSFeatureSwitches,
+    mockMcc
   )
 
   "show" when {
@@ -283,8 +287,8 @@ class PreviousOwnersAddressControllerSpec extends SCRSSpec
           mockInitialiseAlfJourney(
             handbackLocation = controllers.takeovers.routes.PreviousOwnersAddressController.handbackFromALF(None),
             specificJourneyKey = "takeovers",
-            lookupPageHeading = messagesApi("page.addressLookup.takeovers.homeAddress.lookup.heading", testPreviousOwnersName),
-            confirmPageHeading = messagesApi("page.addressLookup.takeovers.homeAddress.confirm.description", testPreviousOwnersName)
+            lookupPageHeading = messages("page.addressLookup.takeovers.homeAddress.lookup.heading", testPreviousOwnersName),
+            confirmPageHeading = messages("page.addressLookup.takeovers.homeAddress.confirm.description", testPreviousOwnersName)
           )(Future.successful("TEST/redirectUrl"))
 
           implicit val request: Request[AnyContentAsFormUrlEncoded] =

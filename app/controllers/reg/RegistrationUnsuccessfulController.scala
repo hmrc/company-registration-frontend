@@ -16,31 +16,30 @@
 
 package controllers.reg
 
-import javax.inject.Inject
-
 import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
-import controllers.auth.AuthFunction
-import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent}
+import controllers.auth.AuthenticatedController
+import javax.inject.Inject
+import play.api.i18n.I18nSupport
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.DeleteSubmissionService
 import uk.gov.hmrc.auth.core.PlayAuthConnector
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.SessionRegistration
 import views.html.reg.RegistrationUnsuccessful
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class RegistrationUnsuccessfulControllerImpl @Inject()(val authConnector: PlayAuthConnector,
                                                        val keystoreConnector: KeystoreConnector,
                                                        val compRegConnector: CompanyRegistrationConnector,
                                                        val appConfig: FrontendAppConfig,
                                                        val deleteSubService: DeleteSubmissionService,
-                                                       val messagesApi: MessagesApi) extends RegistrationUnsuccessfulController {
-  lazy val registerCompanyGOVUKLink  = appConfig.getConfString("gov-uk.register-your-company", throw new Exception("Could not find config for key: gov-uk.register-your-company"))
+                                                       val controllerComponents: MessagesControllerComponents)
+                                                      (implicit val ec: ExecutionContext) extends RegistrationUnsuccessfulController {
+  lazy val registerCompanyGOVUKLink = appConfig.servicesConfig.getConfString("gov-uk.register-your-company", throw new Exception("Could not find config for key: gov-uk.register-your-company"))
 }
 
-trait RegistrationUnsuccessfulController extends FrontendController with AuthFunction with SessionRegistration with I18nSupport {
+abstract class RegistrationUnsuccessfulController extends AuthenticatedController with SessionRegistration with I18nSupport {
 
   implicit val appConfig: FrontendAppConfig
 
@@ -78,7 +77,7 @@ trait RegistrationUnsuccessfulController extends FrontendController with AuthFun
       ctAuthorised {
         registered { regId =>
           deleteSubService.deleteSubmission(regId) flatMap {
-            if(_) {
+            if (_) {
               keystoreConnector.remove() map {
                 _ => Redirect(registerCompanyGOVUKLink)
               }

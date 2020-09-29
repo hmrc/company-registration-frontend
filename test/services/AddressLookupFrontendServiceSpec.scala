@@ -22,24 +22,25 @@ import models._
 import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import play.api.i18n.MessagesApi
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.i18n.{Messages, MessagesApi, MessagesProvider}
 import play.api.mvc.Call
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
 
-class AddressLookupFrontendServiceSpec extends UnitSpec
+class AddressLookupFrontendServiceSpec()(implicit messagesProvider: MessagesProvider) extends UnitSpec
   with MockitoSugar
   with AddressFixture
-  with WithFakeApplication
+  with GuiceOneAppPerSuite
   with SCRSMocks
   with TakeoverServiceMock
   with AddressLookupConfigBuilderServiceMock {
 
 
   class Setup {
-    val messagesApi: MessagesApi = fakeApplication.injector.instanceOf[MessagesApi]
+    val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
 
     object TestService extends AddressLookupFrontendService(
       mockAddressLookupConnector,
@@ -144,8 +145,8 @@ class AddressLookupFrontendServiceSpec extends UnitSpec
       mockBuildLegacyConfig(
         handbackLocation = testHandbackLocation,
         specificJourneyKey = "takeovers",
-        lookupPageHeading = messagesApi("page.addressLookup.takeovers.otherBusinessAddress.lookup.heading", "testBusinessName"),
-        confirmPageHeading = messagesApi("page.addressLookup.takeovers.otherBusinessAddress.confirm.description", "testBusinessName")
+        lookupPageHeading = Messages("page.addressLookup.takeovers.otherBusinessAddress.lookup.heading", "testBusinessName"),
+        confirmPageHeading = Messages("page.addressLookup.takeovers.otherBusinessAddress.confirm.description", "testBusinessName")
       )(response = config)
 
       mockGetOnRampUrl(config)(Future.successful(url))
@@ -153,8 +154,8 @@ class AddressLookupFrontendServiceSpec extends UnitSpec
       val res: String = await(TestService.initialiseAlfJourney(
         handbackLocation = testHandbackLocation,
         specificJourneyKey = "takeovers",
-        lookupPageHeading = messagesApi("page.addressLookup.takeovers.otherBusinessAddress.lookup.heading", "testBusinessName"),
-        confirmPageHeading = messagesApi("page.addressLookup.takeovers.otherBusinessAddress.confirm.description", "testBusinessName")
+        lookupPageHeading = Messages("page.addressLookup.takeovers.otherBusinessAddress.lookup.heading", "testBusinessName"),
+        confirmPageHeading = Messages("page.addressLookup.takeovers.otherBusinessAddress.confirm.description", "testBusinessName")
       ))
 
       res shouldBe url

@@ -18,12 +18,12 @@ package mocks
 
 import models.AlfJourneyConfig
 import org.mockito.Matchers
-import org.scalatestplus.mockito.MockitoSugar
-import services.AddressLookupConfigBuilderService
 import org.mockito.Mockito._
 import org.mockito.stubbing.OngoingStubbing
-import play.api.i18n.MessagesApi
+import org.scalatestplus.mockito.MockitoSugar
+import play.api.i18n.{MessagesApi, MessagesProvider}
 import play.api.mvc.Call
+import services.AddressLookupConfigBuilderService
 
 trait AddressLookupConfigBuilderServiceMock extends MockitoSugar {
 
@@ -40,7 +40,7 @@ trait AddressLookupConfigBuilderServiceMock extends MockitoSugar {
         Matchers.eq(specificJourneyKey),
         Matchers.eq(lookupPageHeading),
         Matchers.eq(confirmPageHeading)
-      )(Matchers.any[MessagesApi])
+      )(Matchers.any[MessagesApi], Matchers.any[MessagesProvider])
     ) thenReturn response
 
 }

@@ -20,23 +20,31 @@ import builders.AuthBuilder
 import config.FrontendAppConfig
 import controllers.reg.ReturningUserController
 import helpers.SCRSSpec
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.MessagesApi
+import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.play.test.WithFakeApplication
 
-class ReturningUserSpec extends SCRSSpec with AuthBuilder with WithFakeApplication {
+import scala.concurrent.ExecutionContext
+import scala.concurrent.ExecutionContext.Implicits.global
+
+class ReturningUserSpec extends SCRSSpec with AuthBuilder with GuiceOneAppPerSuite {
 
   class Setup {
-    object TestController extends ReturningUserController{
+
+    object TestController extends ReturningUserController {
+      override lazy val controllerComponents = app.injector.instanceOf[MessagesControllerComponents]
       val createGGWAccountUrl = "CreateGGWAccountURL"
-      val eligUri             = "/eligibility-for-setting-up-company"
-      val eligBaseUrl         = "EligURL"
-      val compRegFeUrl        = "CompRegFEURL"
-      val authConnector       = mockAuthConnector
-      implicit val appConfig: FrontendAppConfig = fakeApplication.injector.instanceOf[FrontendAppConfig]
-      override val messagesApi = fakeApplication.injector.instanceOf[MessagesApi]
+      val eligUri = "/eligibility-for-setting-up-company"
+      val eligBaseUrl = "EligURL"
+      val compRegFeUrl = "CompRegFEURL"
+      val authConnector = mockAuthConnector
+      implicit lazy val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+      override lazy val messagesApi = app.injector.instanceOf[MessagesApi]
+      implicit val ec: ExecutionContext = global
     }
+
   }
 
   "Sending a GET request to ReturningUserController" should {
@@ -44,7 +52,7 @@ class ReturningUserSpec extends SCRSSpec with AuthBuilder with WithFakeApplicati
       showWithAuthorisedUser(TestController.show) {
         result =>
           status(result) shouldBe OK
-       }
+      }
     }
 
     "return a 200 and show the page if you are not logged in" in new Setup {

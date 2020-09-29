@@ -21,17 +21,21 @@ import mocks.SCRSMocks
 import org.jsoup.Jsoup
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.MessagesApi
+import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import uk.gov.hmrc.play.test.UnitSpec
 
-class PolicySpec extends UnitSpec with WithFakeApplication with SCRSMocks with MockitoSugar {
+class PolicySpec extends UnitSpec with GuiceOneAppPerSuite with SCRSMocks with MockitoSugar {
+
+	val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
 
 	class SetupPage {
-		val controller = new PolicyController{
+		val controller = new PolicyController(mockMcc){
 			override val appConfig = mockAppConfig
-			override val messagesApi = fakeApplication.injector.instanceOf[MessagesApi]
+			override val messagesApi = app.injector.instanceOf[MessagesApi]
 		}
     when(mockAppConfig.piwikURL).thenReturn(None)
 	}

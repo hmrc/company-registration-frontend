@@ -16,21 +16,19 @@
 
 package controllers.handoff
 
-import javax.inject.Inject
-
 import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
-import controllers.auth.AuthFunction
+import controllers.auth.AuthenticatedController
 import controllers.reg.ControllerErrorHandler
-import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent}
+import javax.inject.Inject
+import play.api.i18n.I18nSupport
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.{HandBackService, HandOffService, NavModelNotFoundException}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.{DecryptionError, PayloadError, SessionRegistration}
 import views.html.{error_template, error_template_restart}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
 class BasicCompanyDetailsControllerImpl @Inject()(val authConnector: PlayAuthConnector,
@@ -39,12 +37,13 @@ class BasicCompanyDetailsControllerImpl @Inject()(val authConnector: PlayAuthCon
                                                   val appConfig: FrontendAppConfig,
                                                   val compRegConnector: CompanyRegistrationConnector,
                                                   val handBackService: HandBackService,
-                                                  val messagesApi: MessagesApi) extends BasicCompanyDetailsController
+                                                  val ec: ExecutionContext,
+                                                  val controllerComponents: MessagesControllerComponents) extends BasicCompanyDetailsController
 
-trait BasicCompanyDetailsController extends FrontendController with AuthFunction with SessionRegistration with ControllerErrorHandler with I18nSupport {
+trait BasicCompanyDetailsController extends AuthenticatedController with SessionRegistration with ControllerErrorHandler with I18nSupport {
 
-  val handOffService : HandOffService
-  val handBackService : HandBackService
+  val handOffService: HandOffService
+  val handBackService: HandBackService
   val compRegConnector: CompanyRegistrationConnector
 
   implicit val appConfig: FrontendAppConfig

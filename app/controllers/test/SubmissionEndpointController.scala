@@ -16,26 +16,27 @@
 
 package controllers.test
 
-import javax.inject.Inject
-
 import config.FrontendAppConfig
 import connectors.S4LConnector
-import controllers.auth.AuthFunction
+import controllers.auth.AuthenticatedController
 import forms.SubmissionForm
+import javax.inject.Inject
 import models.SubmissionModel
-import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent}
+import play.api.i18n.I18nSupport
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.auth.core.retrieve.Retrievals
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import views.html.reg.SubmissionEndpoint
+
+import scala.concurrent.ExecutionContext
 
 class SubmissionEndpointControllerImpl @Inject()(val authConnector: PlayAuthConnector,
                                                  val s4LConnector: S4LConnector,
                                                  val appConfig: FrontendAppConfig,
-                                                 val messagesApi: MessagesApi) extends SubmissionEndpointController
+                                                 val controllerComponents: MessagesControllerComponents)
+                                                (implicit val ec: ExecutionContext) extends SubmissionEndpointController
 
-trait SubmissionEndpointController extends FrontendController with AuthFunction with I18nSupport {
+trait SubmissionEndpointController extends AuthenticatedController with I18nSupport {
   val s4LConnector: S4LConnector
 
   implicit val appConfig: FrontendAppConfig

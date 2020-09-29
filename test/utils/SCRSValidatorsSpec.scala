@@ -19,10 +19,10 @@ package utils
 import forms.AccountingDatesFormT
 import org.joda.time.{DateTime, LocalDate}
 import services.{BankHolidays, TimeService}
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.time.workingdays.BankHolidaySet
 
-class SCRSValidatorsSpec extends UnitSpec with WithFakeApplication {
+class SCRSValidatorsSpec extends UnitSpec {
 
   class Setup(newnow : LocalDate = LocalDate.now(), dateTime : DateTime = DateTime.now()) {
     val testAccDatesForm = new AccountingDatesFormT {

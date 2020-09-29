@@ -30,7 +30,7 @@ import scala.concurrent.Future
 
 class DeskproConnectorImpl @Inject()(val appConfig: FrontendAppConfig,
                                      val wSHttp: WSHttp, val metricsService: MetricsService) extends DeskproConnector {
-  override lazy val deskProUrl: String = appConfig.baseUrl("hmrc-deskpro")
+  override lazy val deskProUrl: String = appConfig.servicesConfig.baseUrl("hmrc-deskpro")
 }
 
 trait DeskproConnector {

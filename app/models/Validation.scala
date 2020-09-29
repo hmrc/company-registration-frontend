@@ -17,7 +17,6 @@
 package models
 
 import play.api.data.format.Formatter
-import play.api.data.validation.ValidationError
 import play.api.data.{FormError, Forms, Mapping}
 import play.api.libs.functional.syntax._
 import play.api.libs.json.Reads.{maxLength, minLength, pattern}
@@ -36,7 +35,7 @@ object Validation {
 
   def yyyymmddValidatorFmt = readToFmt(yyyymmddValidator)
 
-  def withFilter[A](fmt: Format[A], error: ValidationError)(f: (A) => Boolean): Format[A] = {
+  def withFilter[A](fmt: Format[A], error: JsonValidationError)(f: (A) => Boolean): Format[A] = {
     Format(fmt.filter(error)(f), fmt)
   }
 }

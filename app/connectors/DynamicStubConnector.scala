@@ -29,7 +29,7 @@ import scala.concurrent.Future
 
 class DynamicStubConnectorImpl @Inject()(val wSHttp: WSHttp, appConfig: FrontendAppConfig) extends DynamicStubConnector {
 
- lazy val busRegDyUrl = s"${appConfig.baseUrl("business-registration-dynamic-stub")}/business-registration"
+ lazy val busRegDyUrl = s"${appConfig.servicesConfig.baseUrl("business-registration-dynamic-stub")}/business-registration"
 }
 
 trait DynamicStubConnector {

@@ -16,10 +16,18 @@
 
 package itutil
 
+import java.util.Locale
+
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Application
-import play.api.i18n.Messages.Implicits._
+import play.api.i18n.{Lang, MessagesApi}
 
 trait MessagesHelper {
 
-    def messages(key: String)(implicit app: Application) = play.api.i18n.Messages(key)
+    self: IntegrationSpecBase =>
+
+    val mockMessagesApi = app.injector.instanceOf[MessagesApi]
+    val mockMessages = mockMessagesApi.preferred(Seq(Lang(Locale.ENGLISH)))
+
+    def messages(key: String)(implicit app: Application) = mockMessages(key)
 }

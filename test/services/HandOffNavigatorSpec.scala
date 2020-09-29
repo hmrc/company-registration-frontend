@@ -24,15 +24,15 @@ import models.handoff.{HandOffNavModel, NavLinks, Receiver, Sender}
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.{JsObject, Json}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.cache.client.CacheMap
-import uk.gov.hmrc.play.test.WithFakeApplication
 import utils.{BooleanFeatureSwitch, SCRSFeatureSwitches}
 
 import scala.concurrent.Future
 
-class HandOffNavigatorSpec extends SCRSSpec with MockitoSugar with WithFakeApplication with NavModelRepoMock {
+class HandOffNavigatorSpec extends SCRSSpec with MockitoSugar with GuiceOneAppPerSuite with NavModelRepoMock {
 
   val mockNavModelRepoObj = mockNavModelRepo
   val mockKeyStoreConnector = mock[KeystoreConnector]
@@ -46,7 +46,7 @@ class HandOffNavigatorSpec extends SCRSSpec with MockitoSugar with WithFakeAppli
 
       override def fetchRegistrationID(implicit hc: HeaderCarrier) = Future.successful("foo")
 
-      override val appConfig: FrontendAppConfig = fakeApplication.injector.instanceOf[FrontendAppConfig]
+      override val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
 
       override val scrsFeatureSwitches: SCRSFeatureSwitches = mockSCRSFeatureSwitches
 
@@ -60,7 +60,7 @@ class HandOffNavigatorSpec extends SCRSSpec with MockitoSugar with WithFakeAppli
 
       override def fetchRegistrationID(implicit hc: HeaderCarrier) = Future.successful("foo")
 
-      override val appConfig: FrontendAppConfig = fakeApplication.injector.instanceOf[FrontendAppConfig]
+      override val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
       override val scrsFeatureSwitches: SCRSFeatureSwitches = mockSCRSFeatureSwitches
     }
   }

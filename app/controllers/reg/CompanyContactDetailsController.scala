@@ -16,21 +16,20 @@
 
 package controllers.reg
 
-import javax.inject.Inject
 import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector, S4LConnector}
-import controllers.auth.AuthFunction
+import controllers.auth.AuthenticatedController
 import forms.CompanyContactForm
+import javax.inject.Inject
 import models.{CompanyContactDetailsBadRequestResponse, CompanyContactDetailsForbiddenResponse, CompanyContactDetailsNotFoundResponse, CompanyContactDetailsSuccessResponse}
-import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.Action
+import play.api.i18n.I18nSupport
+import play.api.mvc.MessagesControllerComponents
 import services.{CompanyContactDetailsService, MetricsService}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.{SCRSFeatureSwitches, SessionRegistration}
 import views.html.reg.CompanyContactDetails
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class CompanyContactDetailsControllerImpl @Inject()(val authConnector: PlayAuthConnector,
                                                     val s4LConnector: S4LConnector,
@@ -40,9 +39,10 @@ class CompanyContactDetailsControllerImpl @Inject()(val authConnector: PlayAuthC
                                                     val appConfig: FrontendAppConfig,
                                                     val companyContactDetailsService: CompanyContactDetailsService,
                                                     val scrsFeatureSwitches: SCRSFeatureSwitches,
-                                                    val messagesApi: MessagesApi) extends CompanyContactDetailsController
+                                                    val controllerComponents: MessagesControllerComponents)
+                                                   (implicit val ec: ExecutionContext) extends CompanyContactDetailsController
 
-trait CompanyContactDetailsController extends FrontendController with AuthFunction with ControllerErrorHandler with SessionRegistration with I18nSupport {
+abstract class CompanyContactDetailsController extends AuthenticatedController with ControllerErrorHandler with SessionRegistration with I18nSupport {
 
   val s4LConnector: S4LConnector
   val companyContactDetailsService: CompanyContactDetailsService
@@ -58,7 +58,7 @@ trait CompanyContactDetailsController extends FrontendController with AuthFuncti
         checkStatus { regId =>
           for {
             contactDetails <- companyContactDetailsService.fetchContactDetails
-            companyName    <- compRegConnector.fetchCompanyName(regId)
+            companyName <- compRegConnector.fetchCompanyName(regId)
           } yield Ok(CompanyContactDetails(CompanyContactForm.form.fill(contactDetails), companyName))
         }
       }
@@ -78,7 +78,7 @@ trait CompanyContactDetailsController extends FrontendController with AuthFuncti
                   context.stop()
                   companyContactDetailsService.checkIfAmendedDetails(email, cred, eID, details).flatMap { _ =>
                     companyContactDetailsService.updatePrePopContactDetails(regId, models.CompanyContactDetails.toApiModel(details)) map { _ =>
-                      if(scrsFeatureSwitches.takeovers.enabled) {
+                      if (scrsFeatureSwitches.takeovers.enabled) {
                         Redirect(controllers.takeovers.routes.ReplacingAnotherBusinessController.show())
                       }
                       else {

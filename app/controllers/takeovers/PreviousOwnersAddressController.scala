@@ -18,24 +18,23 @@ package controllers.takeovers
 
 import config.FrontendAppConfig
 import connectors.{BusinessRegistrationConnector, CompanyRegistrationConnector, KeystoreConnector}
-import controllers.auth.AuthFunction
+import controllers.auth.AuthenticatedController
 import controllers.reg.{ControllerErrorHandler, routes => regRoutes}
 import controllers.takeovers.PreviousOwnersAddressController._
 import forms.takeovers.HomeAddressForm
 import javax.inject.{Inject, Singleton}
 import models.takeovers.{OtherAddress, PreselectedAddress}
 import models.{NewAddress, TakeoverDetails}
-import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.i18n.Messages
 import play.api.libs.json.Json
-import play.api.mvc.{Action, AnyContent}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.{AddressLookupFrontendService, AddressPrepopulationService, TakeoverService}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.http.NotFoundException
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.{SCRSFeatureSwitches, SessionRegistration}
 import views.html.takeovers.HomeAddress
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class PreviousOwnersAddressController @Inject()(val authConnector: PlayAuthConnector,
@@ -45,10 +44,12 @@ class PreviousOwnersAddressController @Inject()(val authConnector: PlayAuthConne
                                                 val compRegConnector: CompanyRegistrationConnector,
                                                 val businessRegConnector: BusinessRegistrationConnector,
                                                 val keystoreConnector: KeystoreConnector,
-                                                val scrsFeatureSwitches: SCRSFeatureSwitches
-                                               )(implicit val appConfig: FrontendAppConfig,
-                                                 val messagesApi: MessagesApi
-                                               ) extends FrontendController with AuthFunction with ControllerErrorHandler with SessionRegistration with I18nSupport {
+                                                val scrsFeatureSwitches: SCRSFeatureSwitches,
+                                                val controllerComponents: MessagesControllerComponents
+                                               )(implicit val appConfig: FrontendAppConfig
+                                               ) extends AuthenticatedController with ControllerErrorHandler with SessionRegistration {
+
+  implicit val ec: ExecutionContext = controllerComponents.executionContext
 
   val show: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
@@ -108,8 +109,8 @@ class PreviousOwnersAddressController @Inject()(val authConnector: PlayAuthConne
                         addressLookupFrontendService.initialiseAlfJourney(
                           handbackLocation = controllers.takeovers.routes.PreviousOwnersAddressController.handbackFromALF(None),
                           specificJourneyKey = takeoversKey,
-                          lookupPageHeading = messagesApi("page.addressLookup.takeovers.homeAddress.lookup.heading", previousOwnersName),
-                          confirmPageHeading = messagesApi("page.addressLookup.takeovers.homeAddress.confirm.description", previousOwnersName)
+                          lookupPageHeading = Messages("page.addressLookup.takeovers.homeAddress.lookup.heading", previousOwnersName),
+                          confirmPageHeading = Messages("page.addressLookup.takeovers.homeAddress.confirm.description", previousOwnersName)
                         ).map(Redirect(_))
                       case PreselectedAddress(index) =>
                         takeoverService.updatePreviousOwnersAddress(regId, addressSeq(index)).map {

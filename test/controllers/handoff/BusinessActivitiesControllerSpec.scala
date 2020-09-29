@@ -23,30 +23,35 @@ import helpers.SCRSSpec
 import org.mockito.Matchers
 import org.mockito.Matchers.{eq => eqTo}
 import org.mockito.Mockito._
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.MessagesApi
 import play.api.libs.json.Json
+import play.api.mvc.MessagesControllerComponents
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.test.WithFakeApplication
 import utils.{DecryptionError, JweCommon, PayloadError}
 
-import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
-class BusinessActivitiesControllerSpec extends SCRSSpec with PayloadFixture with LoginFixture with WithFakeApplication with AuthBuilder {
+class BusinessActivitiesControllerSpec extends SCRSSpec with PayloadFixture with LoginFixture with GuiceOneAppPerSuite with AuthBuilder {
 
   class Setup {
     val controller = new BusinessActivitiesController {
+      override lazy val controllerComponents = app.injector.instanceOf[MessagesControllerComponents]
       val authConnector = mockAuthConnector
       val keystoreConnector = mockKeystoreConnector
       val handOffService = mockHandOffService
       val handBackService = mockHandBackService
       override val compRegConnector = mockCompanyRegistrationConnector
-      implicit val appConfig: FrontendAppConfig = fakeApplication.injector.instanceOf[FrontendAppConfig]
-      override val messagesApi = fakeApplication.injector.instanceOf[MessagesApi]
+      implicit lazy val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+      override lazy val messagesApi = app.injector.instanceOf[MessagesApi]
+      implicit val ec: ExecutionContext = global
     }
   }
-  val jweInstance = () => fakeApplication.injector.instanceOf[JweCommon]
+
+  val jweInstance = () => app.injector.instanceOf[JweCommon]
   val externalID = Some("extID")
 
   "BusinessActivitiesHandOff" should {
@@ -57,16 +62,16 @@ class BusinessActivitiesControllerSpec extends SCRSSpec with PayloadFixture with
       }
     }
     "return a 303 when keystore returns none but has authorisation" in new Setup {
-        mockKeystoreFetchAndGet("registrationID", None)
+      mockKeystoreFetchAndGet("registrationID", None)
 
-        when(mockHandOffService.buildBusinessActivitiesPayload(Matchers.any(), Matchers.any())(Matchers.any()))
-          .thenReturn(Future.successful(Some("testUrl" -> validEncryptedBusinessActivities(jweInstance()))))
+      when(mockHandOffService.buildBusinessActivitiesPayload(Matchers.any(), Matchers.any())(Matchers.any()))
+        .thenReturn(Future.successful(Some("testUrl" -> validEncryptedBusinessActivities(jweInstance()))))
 
-        showWithAuthorisedUserRetrieval(controller.businessActivities, externalID) {
-          result =>
-            status(result) shouldBe SEE_OTHER
-        }
+      showWithAuthorisedUserRetrieval(controller.businessActivities, externalID) {
+        result =>
+          status(result) shouldBe SEE_OTHER
       }
+    }
 
     "return a 303 if accessing with authorisation" in new Setup {
 
@@ -156,6 +161,6 @@ class BusinessActivitiesControllerSpec extends SCRSSpec with PayloadFixture with
           status(result) shouldBe SEE_OTHER
           redirectLocation(result) shouldBe Some(s"/register-your-company/post-sign-in?handOffID=HO3b&payload=${payload}")
       }
-     }
+    }
   }
 }

@@ -3,11 +3,16 @@ package filters
 
 import itutil._
 import org.jsoup.Jsoup
+import play.api.{Application, Environment, Mode}
 import play.api.http.HeaderNames
+import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.libs.crypto.DefaultCookieSigner
 
 class SessionIdFilterISpec extends IntegrationSpecBase
   with LoginStub
   with MessagesHelper {
+
+  lazy val defaultCookieSigner: DefaultCookieSigner = app.injector.instanceOf[DefaultCookieSigner]
 
   override def beforeEach(): Unit = {}
 

@@ -26,18 +26,18 @@ import helpers.SCRSSpec
 import mocks.TakeoverServiceMock
 import models.{NewAddress, TakeoverDetails}
 import org.jsoup.Jsoup
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{AnyContent, AnyContentAsFormUrlEncoded, Request, Result}
+import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{redirectLocation, _}
 import uk.gov.hmrc.http.NotFoundException
-import uk.gov.hmrc.play.test.WithFakeApplication
 import views.html.takeovers.WhoAgreedTakeover
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class WhoAgreedTakeoverControllerSpec extends SCRSSpec
-  with WithFakeApplication
+  with GuiceOneAppPerSuite
   with LoginFixture
   with AuthBuilder
   with TakeoverServiceMock
@@ -50,14 +50,17 @@ class WhoAgreedTakeoverControllerSpec extends SCRSSpec
   implicit val request: Request[AnyContent] = FakeRequest()
   implicit val actorSystem: ActorSystem = ActorSystem("MyTest")
   implicit val actorMaterializer: ActorMaterializer = ActorMaterializer()
-  implicit lazy val messagesApi: MessagesApi = fakeApplication.injector.instanceOf[MessagesApi]
+  implicit lazy val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
+  val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
+  implicit val ec: ExecutionContext = mockMcc.executionContext
 
   object TestWhoAgreedTakeoverController extends WhoAgreedTakeoverController(
     mockAuthConnector,
     mockTakeoverService,
     mockCompanyRegistrationConnector,
     mockKeystoreConnector,
-    mockSCRSFeatureSwitches
+    mockSCRSFeatureSwitches,
+    mockMcc
   )
 
   "show" when {

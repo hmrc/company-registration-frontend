@@ -20,22 +20,25 @@ import models.AccountingDatesModel
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
-import play.api.test.FakeApplication
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.cache.client.{CacheMap, ShortLivedCache}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
 
-class S4LConnectorSpec  extends UnitSpec with MockitoSugar with WithFakeApplication {
+class S4LConnectorSpec extends UnitSpec with MockitoSugar with GuiceOneAppPerSuite {
 
-  override lazy val fakeApplication = FakeApplication(additionalConfiguration = Map(
-    "Test.microservices.services.cachable.short-lived.cache.host" -> "test-only",
-    "Test.microservices.services.cachable.short-lived.cache.port" -> 99999,
-    "Test.microservices.services.cachable.short-lived.cache.domain" -> "save4later"
-  ))
+  override lazy val fakeApplication = new GuiceApplicationBuilder()
+    .configure(
+      "Test.microservices.services.cachable.short-lived.cache.host" -> "test-only",
+      "Test.microservices.services.cachable.short-lived.cache.port" -> 99999,
+      "Test.microservices.services.cachable.short-lived.cache.domain" -> "save4later"
+    )
+    .build()
 
   val mockShortLivedCache = mock[ShortLivedCache]
 
@@ -45,12 +48,12 @@ class S4LConnectorSpec  extends UnitSpec with MockitoSugar with WithFakeApplicat
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
 
-  val dateModel = AccountingDatesModel("",Some("1"), Some("1"), Some("2019"))
+  val dateModel = AccountingDatesModel("", Some("1"), Some("1"), Some("2019"))
   val cacheMap = CacheMap("", Map("" -> Json.toJson(dateModel)))
 
   "Fetching from save4later" should {
     "return the correct model" in {
-      val model = AccountingDatesModel("",Some("1"), Some("1"), Some("2019"))
+      val model = AccountingDatesModel("", Some("1"), Some("1"), Some("2019"))
 
       when(mockShortLivedCache.fetchAndGetEntry[AccountingDatesModel](Matchers.anyString(), Matchers.anyString())(Matchers.any(), Matchers.any(), Matchers.any()))
         .thenReturn(Future.successful(Option(model)))
@@ -62,7 +65,7 @@ class S4LConnectorSpec  extends UnitSpec with MockitoSugar with WithFakeApplicat
 
   "Saving a model into save4later" should {
     "save the model" in {
-      val model = AccountingDatesModel("",Some("1"), Some("1"), Some("2019"))
+      val model = AccountingDatesModel("", Some("1"), Some("1"), Some("2019"))
       val returnCacheMap = CacheMap("", Map("" -> Json.toJson(model)))
 
       when(mockShortLivedCache.cache[AccountingDatesModel](Matchers.anyString(), Matchers.anyString(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any()))

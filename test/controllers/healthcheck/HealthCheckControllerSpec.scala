@@ -18,17 +18,19 @@ package controllers.healthcheck
 
 import config.FrontendAppConfig
 import helpers.SCRSSpec
-import play.api.i18n.MessagesApi
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
-import uk.gov.hmrc.play.test.WithFakeApplication
 
-class HealthCheckControllerSpec extends SCRSSpec with WithFakeApplication {
+class HealthCheckControllerSpec extends SCRSSpec with GuiceOneAppPerSuite {
+
+  val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
 
   class Setup(featureEnabled: Boolean = false) {
-    val controller = new HealthCheckController {
+    val controller = new HealthCheckController(mockMcc) {
       override def healthCheckFeature: Boolean = featureEnabled
-      implicit val messagesApi: MessagesApi = fakeApplication.injector.instanceOf[MessagesApi]
-      implicit val appConfig: FrontendAppConfig = fakeApplication.injector.instanceOf[FrontendAppConfig]
+
+      implicit val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
     }
   }
 

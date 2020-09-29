@@ -23,30 +23,34 @@ import helpers.SCRSSpec
 import models.SummaryHandOff
 import org.mockito.Matchers
 import org.mockito.Mockito._
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.MessagesApi
 import play.api.libs.json.{JsValue, Json}
+import play.api.mvc.MessagesControllerComponents
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.test.WithFakeApplication
 import utils.{DecryptionError, JweCommon, PayloadError}
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
-class IncorporationSummaryControllerSpec extends SCRSSpec with PayloadFixture with WithFakeApplication with AuthBuilder {
+class IncorporationSummaryControllerSpec extends SCRSSpec with PayloadFixture with GuiceOneAppPerSuite with AuthBuilder {
 
   class Setup {
 
-    val TestController  = new IncorporationSummaryController {
+    val TestController = new IncorporationSummaryController {
+      override val controllerComponents = app.injector.instanceOf[MessagesControllerComponents]
       val authConnector = mockAuthConnector
       val keystoreConnector = mockKeystoreConnector
       val handOffService = mockHandOffService
       val handBackService = mockHandBackService
       override val compRegConnector = mockCompanyRegistrationConnector
-      implicit val appConfig: FrontendAppConfig = fakeApplication.injector.instanceOf[FrontendAppConfig]
-      override val messagesApi = fakeApplication.injector.instanceOf[MessagesApi]
+      implicit val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+      override val messagesApi = app.injector.instanceOf[MessagesApi]
+      implicit val ec = global
     }
-    val jweInstance = () => fakeApplication.injector.instanceOf[JweCommon]
+    val jweInstance = () => app.injector.instanceOf[JweCommon]
   }
 
   val extID = Some("extID")
@@ -60,7 +64,7 @@ class IncorporationSummaryControllerSpec extends SCRSSpec with PayloadFixture wi
       val payload = summaryEncryptedPayload(jweInstance())
       mockKeystoreFetchAndGet("registrationID", Some("1"))
       when(mockHandOffService.summaryHandOff(Matchers.any())(Matchers.any()))
-        .thenReturn(Future.successful(Some(("testLink",payload))))
+        .thenReturn(Future.successful(Some(("testLink", payload))))
 
       when(mockHandOffService.buildHandOffUrl(Matchers.eq("testLink"), Matchers.eq(payload)))
         .thenReturn(s"testLink?request=$payload")

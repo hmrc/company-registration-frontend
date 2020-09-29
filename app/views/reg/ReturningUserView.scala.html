@@ -20,7 +20,7 @@
 @import views.html.helpers.{inputRadioGroupHidden, dateFieldsFreeInline, errorSummary, inputRadioGroup}
 @import views.helpers.TitleHelper.title
 
-@(returningUser: Form[models.ReturningUser], isUserLoggedin: Boolean)(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.FrontendAppConfig)
+@(returningUser: Form[models.ReturningUser], isUserLoggedin: Boolean)(implicit request: Request[_], messages: Messages, appConfig: config.FrontendAppConfig)
 
 @yesHiddenContent = {
     <div class="notice">

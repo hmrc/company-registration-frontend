@@ -18,24 +18,23 @@ package controllers.takeovers
 
 import config.FrontendAppConfig
 import connectors.{BusinessRegistrationConnector, CompanyRegistrationConnector, KeystoreConnector}
-import controllers.auth.AuthFunction
+import controllers.auth.AuthenticatedController
 import controllers.reg.{ControllerErrorHandler, routes => regRoutes}
 import controllers.takeovers.OtherBusinessAddressController._
 import forms.takeovers.OtherBusinessAddressForm
 import javax.inject.{Inject, Singleton}
 import models.takeovers.{OtherAddress, PreselectedAddress}
 import models.{NewAddress, TakeoverDetails}
-import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.i18n.Messages
 import play.api.libs.json.Json
-import play.api.mvc.{Action, AnyContent}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.{AddressLookupFrontendService, AddressPrepopulationService, TakeoverService}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.http.NotFoundException
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.{SCRSFeatureSwitches, SessionRegistration}
 import views.html.takeovers.OtherBusinessAddress
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class OtherBusinessAddressController @Inject()(val authConnector: PlayAuthConnector,
@@ -45,10 +44,12 @@ class OtherBusinessAddressController @Inject()(val authConnector: PlayAuthConnec
                                                val compRegConnector: CompanyRegistrationConnector,
                                                val businessRegConnector: BusinessRegistrationConnector,
                                                val keystoreConnector: KeystoreConnector,
-                                               val scrsFeatureSwitches: SCRSFeatureSwitches
-                                              )(implicit val appConfig: FrontendAppConfig,
-                                                val messagesApi: MessagesApi
-                                              ) extends FrontendController with AuthFunction with ControllerErrorHandler with SessionRegistration with I18nSupport {
+                                               val scrsFeatureSwitches: SCRSFeatureSwitches,
+                                               val controllerComponents: MessagesControllerComponents
+                                              )(implicit val appConfig: FrontendAppConfig
+                                              ) extends AuthenticatedController with ControllerErrorHandler with SessionRegistration {
+
+  implicit val ec: ExecutionContext = controllerComponents.executionContext
 
   val show: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
@@ -108,8 +109,8 @@ class OtherBusinessAddressController @Inject()(val authConnector: PlayAuthConnec
                       addressLookupFrontendService.initialiseAlfJourney(
                         handbackLocation = controllers.takeovers.routes.OtherBusinessAddressController.handbackFromALF(None),
                         specificJourneyKey = takeoversKey,
-                        lookupPageHeading = messagesApi("page.addressLookup.takeovers.otherBusinessAddress.lookup.heading", businessName),
-                        confirmPageHeading = messagesApi("page.addressLookup.takeovers.otherBusinessAddress.confirm.description", businessName)
+                        lookupPageHeading = Messages("page.addressLookup.takeovers.otherBusinessAddress.lookup.heading", businessName),
+                        confirmPageHeading = Messages("page.addressLookup.takeovers.otherBusinessAddress.confirm.description", businessName)
                       ).map(Redirect(_))
                     case PreselectedAddress(index) =>
                       takeoverService.updateBusinessAddress(regId, addressSeq(index)).map {

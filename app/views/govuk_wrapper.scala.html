@@ -14,15 +14,16 @@
  * limitations under the License.
  *@
 
+@import uk.gov.hmrc.http.SessionKeys
 @(appConfig: config.FrontendAppConfig,
   title: String,
   mainClass: Option[String] = None,
   mainDataAttributes: Option[Html] = None,
   bodyClasses: Option[String] = None,
-  sidebar: Html = HtmlFormat.empty,
+  sidebar: Html = Html(""),
   contentHeader: Option[Html] = None,
-  mainContent: Html = HtmlFormat.empty,
-  serviceInfoContent: Html = HtmlFormat.empty,
+  mainContent: Html = Html(""),
+  serviceInfoContent: Html = Html(""),
   pageScripts: Option[Html] = None,
   timeout: Boolean = false)(implicit request: Request[_], messages: Messages)
 
@@ -46,7 +47,7 @@
 
 @headerNavLinks = {
     <li>
-        @if(request.cookies.get("mdtp").fold(false)(cookie => cookie.value.contains("authToken=Bearer+"))){
+        @if(request.session.get(SessionKeys.authToken).isDefined){
             <a id="signOut" href="@controllers.reg.routes.SignInOutController.signOut(None).url" data-journey-click="primary-navigation:Click:Sign out">Sign out</a>
         } else {
             <a id="signIn" href="@controllers.reg.routes.SignInOutController.postSignIn(None).url" data-journey-click="primary-navigation:Click:Sign in">Sign in</a>

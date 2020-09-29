@@ -24,29 +24,35 @@ import models.CHROAddress
 import models.handoff.CompanyNameHandOffIncoming
 import org.mockito.Matchers
 import org.mockito.Mockito._
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.MessagesApi
 import play.api.libs.json.{JsObject, Json}
+import play.api.mvc.MessagesControllerComponents
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.test.WithFakeApplication
 import utils.{DecryptionError, JweCommon, PayloadError}
 
-import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
-class CorporationTaxDetailsControllerSpec extends SCRSSpec with PayloadFixture with LoginFixture with WithFakeApplication with AuthBuilder {
+class CorporationTaxDetailsControllerSpec extends SCRSSpec with PayloadFixture with LoginFixture with GuiceOneAppPerSuite with AuthBuilder {
 
   class Setup {
+
     object TestController extends CorporationTaxDetailsController {
+      override val controllerComponents = app.injector.instanceOf[MessagesControllerComponents]
       val authConnector = mockAuthConnector
       val keystoreConnector = mockKeystoreConnector
       val handOffService = mockHandOffService
       val handBackService = mockHandBackService
       override val compRegConnector = mockCompanyRegistrationConnector
-      implicit val appConfig: FrontendAppConfig = fakeApplication.injector.instanceOf[FrontendAppConfig]
-      override val messagesApi = fakeApplication.injector.instanceOf[MessagesApi]
+      implicit val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+      override val messagesApi = app.injector.instanceOf[MessagesApi]
+      implicit val ec: ExecutionContext = global
     }
-    val jweInstance = () => fakeApplication.injector.instanceOf[JweCommon]
+
+    val jweInstance = () => app.injector.instanceOf[JweCommon]
   }
 
   "Sending a GET to the HandBackController companyNameHandBack" should {
@@ -55,7 +61,7 @@ class CorporationTaxDetailsControllerSpec extends SCRSSpec with PayloadFixture w
       Some("RegID"),
       "FAKE_OPEN_CONNECT",
       "TestCompanyName",
-      CHROAddress("","",Some(""),"","",Some(""),Some(""),Some("")),
+      CHROAddress("", "", Some(""), "", "", Some(""), Some(""), Some("")),
       "testJuri",
       "txid",
       Json.parse("""{"ch" : 1}""").as[JsObject],

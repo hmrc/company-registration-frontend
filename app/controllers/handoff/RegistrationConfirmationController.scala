@@ -16,23 +16,21 @@
 
 package controllers.handoff
 
-import javax.inject.Inject
-
 import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
-import controllers.auth.AuthFunction
+import controllers.auth.AuthenticatedController
+import javax.inject.Inject
 import models.{ConfirmationReferencesSuccessResponse, DESFailureRetriable}
 import play.api.Logger
-import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, Request, Result}
+import play.api.i18n.I18nSupport
+import play.api.mvc._
 import services.{HandBackService, HandOffService, NavModelNotFoundException}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils._
 import views.html.{error_template, error_template_restart}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
 class RegistrationConfirmationControllerImpl @Inject()(val authConnector: PlayAuthConnector,
@@ -41,9 +39,10 @@ class RegistrationConfirmationControllerImpl @Inject()(val authConnector: PlayAu
                                                        val appConfig: FrontendAppConfig,
                                                        val compRegConnector: CompanyRegistrationConnector,
                                                        val handBackService: HandBackService,
-                                                       val messagesApi: MessagesApi) extends RegistrationConfirmationController
+                                                       val ec: ExecutionContext,
+                                                       val controllerComponents: MessagesControllerComponents) extends RegistrationConfirmationController
 
-trait RegistrationConfirmationController extends FrontendController with AuthFunction with I18nSupport with SessionRegistration {
+trait RegistrationConfirmationController extends AuthenticatedController with I18nSupport with SessionRegistration {
   val handBackService: HandBackService
 
   val handOffService: HandOffService

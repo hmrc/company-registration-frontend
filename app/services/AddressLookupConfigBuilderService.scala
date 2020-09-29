@@ -19,7 +19,7 @@ package services
 import config.FrontendAppConfig
 import javax.inject.{Inject, Singleton}
 import models._
-import play.api.i18n.MessagesApi
+import play.api.i18n.{Lang, Messages, MessagesApi, MessagesProvider}
 import play.api.mvc.{Call, Request}
 
 @Singleton
@@ -29,7 +29,7 @@ class AddressLookupConfigBuilderService @Inject()(appConfig: FrontendAppConfig) 
   lazy val timeoutLength: Int = appConfig.timeoutInSeconds.toInt
   lazy val accessibilityFooterUrl: String = appConfig.accessibilityStatementUrl
 
-  def buildConfig(handbackLocation: Call, specificJourneyKey: String, lookupPageHeading: String, confirmPageHeading: String)(implicit messagesApi: MessagesApi): AlfJourneyConfig = {
+  def buildConfig(handbackLocation: Call, specificJourneyKey: String, lookupPageHeading: String, confirmPageHeading: String)(implicit messagesApi: MessagesApi, messagesProvider: MessagesProvider): AlfJourneyConfig = {
 
     val selectPageConfig = SelectPageConfig(
       proposalListLimit = 30,
@@ -63,7 +63,7 @@ class AddressLookupConfigBuilderService @Inject()(appConfig: FrontendAppConfig) 
     )
 
     val appLevelLabels = AppLevelLabels(
-      navTitle = messagesApi("common.service.name"),
+      navTitle = Messages("common.service.name"),
       phaseBannerHtml = "This is a new service. Help us improve it - send your <a href='https://www.tax.service.gov.uk/register-for-paye/feedback'>feedback</a>."
     )
 
@@ -71,31 +71,31 @@ class AddressLookupConfigBuilderService @Inject()(appConfig: FrontendAppConfig) 
     val lookupPageLabels = LookupPageLabels(
       title = lookupPageHeading,
       heading = lookupPageHeading,
-      filterLabel = messagesApi("page.addressLookup.lookup.filter"),
-      submitLabel = messagesApi("page.addressLookup.lookup.submit"),
-      manualAddressLinkText = messagesApi("page.addressLookup.lookup.manual")
+      filterLabel = Messages("page.addressLookup.lookup.filter"),
+      submitLabel = Messages("page.addressLookup.lookup.submit"),
+      manualAddressLinkText = Messages("page.addressLookup.lookup.manual")
     )
 
     val selectPageLabels = SelectPageLabels(
-      title = messagesApi("page.addressLookup.select.description"),
-      heading = messagesApi("page.addressLookup.select.description"),
-      searchAgainLinkText = messagesApi("page.addressLookup.select.searchAgain"),
-      editAddressLinkText = messagesApi("page.addressLookup.select.editAddress")
+      title = Messages("page.addressLookup.select.description"),
+      heading = Messages("page.addressLookup.select.description"),
+      searchAgainLinkText = Messages("page.addressLookup.select.searchAgain"),
+      editAddressLinkText = Messages("page.addressLookup.select.editAddress")
     )
 
     val editPageLabels = EditPageLabels(
-      title = messagesApi("page.addressLookup.edit.description"),
-      heading = messagesApi("page.addressLookup.edit.description"),
-      line1Label = messagesApi("page.addressLookup.edit.line1"),
-      line2Label = messagesApi("page.addressLookup.edit.line2"),
-      line3Label = messagesApi("page.addressLookup.edit.line3")
+      title = Messages("page.addressLookup.edit.description"),
+      heading = Messages("page.addressLookup.edit.description"),
+      line1Label = Messages("page.addressLookup.edit.line1"),
+      line2Label = Messages("page.addressLookup.edit.line2"),
+      line3Label = Messages("page.addressLookup.edit.line3")
     )
 
     val confirmPageLabels = ConfirmPageLabels(
       title = confirmPageHeading,
       heading = confirmPageHeading,
-      submitLabel = messagesApi("page.addressLookup.confirm.continue"),
-      changeLinkText = messagesApi("page.addressLookup.confirm.change")
+      submitLabel = Messages("page.addressLookup.confirm.continue"),
+      changeLinkText = Messages("page.addressLookup.confirm.change")
     )
 
     val journeyLabels = JourneyLabels(

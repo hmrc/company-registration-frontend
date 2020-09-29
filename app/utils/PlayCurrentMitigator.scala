@@ -16,11 +16,11 @@
 
 package utils
 
+import play.api.i18n.MessagesProvider
+
 
 // reduce & isolate the deprecation warnings
 object Messages {
   import play.api.i18n.{Messages => RealMessages}
-  import RealMessages.Implicits._
-  import play.api.Play.current
-  def apply(key: String) = RealMessages(key)
+  def apply(key: String)(implicit provider: MessagesProvider) = RealMessages(key)
 }

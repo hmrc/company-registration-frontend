@@ -18,11 +18,11 @@ package forms
 
 import models.RegistrationEmailModel
 import play.api.data.Form
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import uk.gov.hmrc.play.test.UnitSpec
 
-class RegistrationEmailFormSpec extends UnitSpec with WithFakeApplication {
+class RegistrationEmailFormSpec extends UnitSpec {
 
-  def fillForm(radioButtonValue: String, deValue : Option[String]) : Form[RegistrationEmailModel] = {
+  def fillForm(radioButtonValue: String, deValue: Option[String]): Form[RegistrationEmailModel] = {
     RegistrationEmailForm.form.bind(Map("registrationEmail" -> radioButtonValue, "DifferentEmail" -> deValue.getOrElse("")))
   }
 
@@ -50,7 +50,7 @@ class RegistrationEmailFormSpec extends UnitSpec with WithFakeApplication {
       result.data("registrationEmail") shouldBe "differentEmail"
       result.data("DifferentEmail") shouldBe "abc^@def.co.uk"
       result.errors.head.key shouldBe "DifferentEmail"
-      result.errors.head.message shouldBe "Enter an email address using only letters, numbers and - . @ _ +"
+      result.errors.head.message shouldBe "validation.email"
     }
     "return form error with DifferentEmail length over 70 characters " in {
       val result = fillForm("differentEmail", Option("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.co.uk"))
@@ -58,7 +58,7 @@ class RegistrationEmailFormSpec extends UnitSpec with WithFakeApplication {
       result.data("registrationEmail") shouldBe "differentEmail"
       result.data("DifferentEmail") shouldBe "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.co.uk"
       result.errors.head.key shouldBe "DifferentEmail"
-      result.errors.head.message shouldBe "Enter an email address using 70 characters or less"
+      result.errors.head.message shouldBe "validation.emailtoolong"
     }
     "return form error with no radio button selected " in {
       val result = fillForm("", Option(""))

@@ -18,16 +18,17 @@ package repositories
 
 import fixtures.HandOffFixtures
 import org.scalatest.concurrent.{Eventually, ScalaFutures}
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.modules.reactivemongo.ReactiveMongoComponent
 import reactivemongo.api.indexes.{Index, IndexType}
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class NavModelRepositorySpec extends UnitSpec with WithFakeApplication with ScalaFutures with Eventually with HandOffFixtures {
+class NavModelRepositorySpec extends UnitSpec with GuiceOneAppPerSuite with ScalaFutures with Eventually with HandOffFixtures {
 
   class Setup {
-    val rc = fakeApplication.injector.instanceOf[ReactiveMongoComponent]
+    val rc = app.injector.instanceOf[ReactiveMongoComponent]
     val repo = new NavModelRepoMongo(rc.mongoConnector.db,100)
 
     await(repo.drop)
@@ -37,7 +38,7 @@ class NavModelRepositorySpec extends UnitSpec with WithFakeApplication with Scal
   }
 
   class SetupWithIndexes(indexList: List[Index]) {
-    val rc = fakeApplication.injector.instanceOf[ReactiveMongoComponent]
+    val rc = app.injector.instanceOf[ReactiveMongoComponent]
     val repo = new NavModelRepoMongo(rc.mongoConnector.db,100){
       override def additionalIndexes: List[Index] = indexList
     }

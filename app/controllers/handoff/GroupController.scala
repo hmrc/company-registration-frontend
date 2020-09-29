@@ -18,22 +18,21 @@ package controllers.handoff
 
 import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
-import controllers.auth.AuthFunction
+import controllers.auth.AuthenticatedController
 import controllers.reg.ControllerErrorHandler
 import javax.inject.{Inject, Singleton}
 import models.Groups
 import models.handoff.{BackHandoff, GroupHandBackModel}
-import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, Result}
+import play.api.i18n.I18nSupport
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import services.{GroupService, HandBackService, HandOffService, NavModelNotFoundException}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
-import uk.gov.hmrc.auth.core.retrieve.Retrievals
+import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils._
 import views.html.error_template_restart
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
 @Singleton
@@ -42,11 +41,13 @@ class GroupController @Inject()(val authConnector: PlayAuthConnector,
                                 val handOffService: HandOffService,
                                 val compRegConnector: CompanyRegistrationConnector,
                                 val handBackService: HandBackService,
-                                val messagesApi: MessagesApi,
                                 val groupService: GroupService,
-                                val jwe: JweCommon
+                                val jwe: JweCommon,
+                                val controllerComponents: MessagesControllerComponents
                                )(implicit val appConfig: FrontendAppConfig)
-  extends FrontendController with AuthFunction with I18nSupport with SessionRegistration with ControllerErrorHandler {
+  extends AuthenticatedController with I18nSupport with SessionRegistration with ControllerErrorHandler {
+
+  implicit val ec: ExecutionContext = controllerComponents.executionContext
 
   // 3.1 handback
   def groupHandBack(requestData: String): Action[AnyContent] = Action.async {
@@ -92,44 +93,44 @@ class GroupController @Inject()(val authConnector: PlayAuthConnector,
     }
   }
 
-    // 3.2 hand off
-    val PSCGroupHandOff: Action[AnyContent] = Action.async {
-      implicit request =>
-        ctAuthorisedOptStr(Retrievals.externalId) { externalID =>
-          registered { regId =>
-            groupService.retrieveGroups(regId).flatMap { optGroups =>
-              handOffService.buildPSCPayload(regId, externalID, optGroups) map {
-                case Some((url, payload)) => Redirect(handOffService.buildHandOffUrl(url, payload))
-                case None => BadRequest(error_template_restart("3-2", "EncryptionError"))
-              } recover {
-                case ex: NavModelNotFoundException => Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))
-              }
+  // 3.2 hand off
+  val PSCGroupHandOff: Action[AnyContent] = Action.async {
+    implicit request =>
+      ctAuthorisedOptStr(Retrievals.externalId) { externalID =>
+        registered { regId =>
+          groupService.retrieveGroups(regId).flatMap { optGroups =>
+            handOffService.buildPSCPayload(regId, externalID, optGroups) map {
+              case Some((url, payload)) => Redirect(handOffService.buildHandOffUrl(url, payload))
+              case None => BadRequest(error_template_restart("3-2", "EncryptionError"))
+            } recover {
+              case ex: NavModelNotFoundException => Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))
             }
           }
         }
-    }
-
-    // 3b-1 hand back, back link from Coho
-    def pSCGroupHandBack(request: String): Action[AnyContent] = Action.async {
-      implicit _request =>
-        val groupsRedirect = (optGroups: Option[Groups]) => {
-          optGroups.fold(Redirect(controllers.reg.routes.SignInOutController.postSignIn())) { groupsExist =>
-            if (!groupsExist.groupRelief) {
-              Redirect(controllers.groups.routes.GroupReliefController.show())
-            } else {
-              Redirect(controllers.groups.routes.GroupUtrController.show())
-            }
-          }
-        }
-        ctAuthorisedHandoff("HO3b-1", request) {
-          registeredHandOff("HO3b-1", request) { regID =>
-            handBackService.processGroupsHandBck(request).flatMap {
-              case Success(_) => groupService.retrieveGroups(regID).map(groupsRedirect)
-              case Failure(PayloadError) => Future.successful(BadRequest(error_template_restart("3b-1", "PayloadError")))
-              case Failure(DecryptionError) => Future.successful(BadRequest(error_template_restart("3b-1", "DecryptionError")))
-              case _ => Future.successful(InternalServerError(defaultErrorPage))
-            }
-          }
-        }
-    }
+      }
   }
+
+  // 3b-1 hand back, back link from Coho
+  def pSCGroupHandBack(request: String): Action[AnyContent] = Action.async {
+    implicit _request =>
+      val groupsRedirect = (optGroups: Option[Groups]) => {
+        optGroups.fold(Redirect(controllers.reg.routes.SignInOutController.postSignIn())) { groupsExist =>
+          if (!groupsExist.groupRelief) {
+            Redirect(controllers.groups.routes.GroupReliefController.show())
+          } else {
+            Redirect(controllers.groups.routes.GroupUtrController.show())
+          }
+        }
+      }
+      ctAuthorisedHandoff("HO3b-1", request) {
+        registeredHandOff("HO3b-1", request) { regID =>
+          handBackService.processGroupsHandBck(request).flatMap {
+            case Success(_) => groupService.retrieveGroups(regID).map(groupsRedirect)
+            case Failure(PayloadError) => Future.successful(BadRequest(error_template_restart("3b-1", "PayloadError")))
+            case Failure(DecryptionError) => Future.successful(BadRequest(error_template_restart("3b-1", "DecryptionError")))
+            case _ => Future.successful(InternalServerError(defaultErrorPage))
+          }
+        }
+      }
+  }
+}

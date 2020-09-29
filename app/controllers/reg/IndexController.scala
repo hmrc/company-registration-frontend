@@ -17,15 +17,14 @@
 package controllers.reg
 
 import javax.inject.Inject
-
 import play.api.mvc._
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
 import scala.concurrent.Future
 
-class IndexControllerImpl @Inject()() extends IndexController
+class IndexControllerImpl @Inject()(mcc: MessagesControllerComponents) extends IndexController(mcc)
 
-trait IndexController extends FrontendController {
+abstract class IndexController(mcc: MessagesControllerComponents) extends FrontendController(mcc) {
   val index = Action.async { implicit request =>
     Future.successful(Redirect(routes.WelcomeController.show()))
   }

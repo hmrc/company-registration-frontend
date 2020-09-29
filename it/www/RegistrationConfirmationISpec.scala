@@ -25,6 +25,7 @@ import itutil.{IntegrationSpecBase, LoginStub}
 import models.RegistrationConfirmationPayload
 import models.handoff.{HandOffNavModel, NavLinks, Receiver, Sender}
 import play.api.http.HeaderNames
+import play.api.libs.crypto.DefaultCookieSigner
 import play.api.libs.json.{JsObject, Json}
 import play.modules.reactivemongo.ReactiveMongoComponent
 import repositories.NavModelRepo
@@ -38,6 +39,7 @@ class RegistrationConfirmationISpec extends IntegrationSpecBase with LoginStub {
 
   val userId = "/bar/foo"
   val regId = "regId5"
+  lazy val defaultCookieSigner: DefaultCookieSigner = app.injector.instanceOf[DefaultCookieSigner]
 
   class Setup {
     val rc = app.injector.instanceOf[ReactiveMongoComponent]

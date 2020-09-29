@@ -18,21 +18,19 @@ package config
 
 import java.net.URLEncoder
 
-import javax.inject.Inject
 import controllers.reg.routes
-import play.api.Mode.Mode
-import play.api.{Configuration, Environment}
-import uk.gov.hmrc.play.config.ServicesConfig
+import javax.inject.Inject
+import play.api.Configuration
+import uk.gov.hmrc.play.bootstrap.config.{RunMode, ServicesConfig}
 
-class FrontendAppConfigImpl @Inject()(val environment: Environment, val runModeConfiguration: Configuration) extends FrontendAppConfig {
-  override protected def mode: Mode = environment.mode
-}
+class FrontendAppConfig @Inject()(configuration: Configuration, runMode: RunMode) {
 
-trait FrontendAppConfig extends ServicesConfig {
-  private def loadConfig(key: String) = getString(key)
+  val servicesConfig = new ServicesConfig(configuration, runMode)
+
+  private def loadConfig(key: String) = servicesConfig.getString(key)
 
   private def loadOptionalConfig(key: String) = try {
-    Option(getString(key))
+    Option(servicesConfig.getString(key))
   } catch {
     case _: Throwable => None
   }
@@ -48,7 +46,7 @@ trait FrontendAppConfig extends ServicesConfig {
   lazy val reportAProblemNonJSUrl = s"/contact/problem_reports_nonjs?service=$contactFormServiceIdentifier"
   lazy val govHostUrl = loadConfig(s"microservice.services.gov-uk.gov-host-domain")
 
-  lazy val contactFrontendPartialBaseUrl = baseUrl("contact-frontend")
+  lazy val contactFrontendPartialBaseUrl = servicesConfig.baseUrl("contact-frontend")
   lazy val serviceId = contactFormServiceIdentifier
 
   lazy val corsRenewHost = loadOptionalConfig("cors-host.renew-session")
@@ -70,11 +68,11 @@ trait FrontendAppConfig extends ServicesConfig {
   lazy val SAEnrolments = List(IR_SA_PART_ORG, IR_SA_TRUST_ORG, IR_SA)
   lazy val restrictedEnrolments = List(IR_CT, IR_PAYE, HMCE_VATDEC_ORG, HMCE_VATVAR_ORG) ++ SAEnrolments
 
-  lazy val self = getConfString("comp-reg-frontend.url", throw new Exception("Could not find config for comp-reg-frontend url"))
-  lazy val selfFull = getConfString("comp-reg-frontend.fullurl", self)
-  lazy val selfFullLegacy = getConfString("comp-reg-frontend.legacyfullurl", selfFull)
+  lazy val self = servicesConfig.getConfString("comp-reg-frontend.url", throw new Exception("Could not find config for comp-reg-frontend url"))
+  lazy val selfFull = servicesConfig.getConfString("comp-reg-frontend.fullurl", self)
+  lazy val selfFullLegacy = servicesConfig.getConfString("comp-reg-frontend.legacyfullurl", selfFull)
 
-  lazy val incorporationInfoUrl = baseUrl("incorp-info")
+  lazy val incorporationInfoUrl = servicesConfig.baseUrl("incorp-info")
 
   private def encodeUrl(url: String): String = URLEncoder.encode(url, "UTF-8")
 
@@ -85,26 +83,26 @@ trait FrontendAppConfig extends ServicesConfig {
   lazy val contactHost = loadConfig("contact-frontend.host")
 
   def accessibilityReportUrl(userAction: String): String =
-      s"$contactHost/contact/accessibility-unauthenticated?service=company-registration-frontend&userAction=${encodeUrl(userAction)}"
+    s"$contactHost/contact/accessibility-unauthenticated?service=company-registration-frontend&userAction=${encodeUrl(userAction)}"
 
   lazy val companyAuthHost = try {
-    getString(s"microservice.services.auth.company-auth.url")
+    servicesConfig.getString(s"microservice.services.auth.company-auth.url")
   } catch {
     case _: Throwable => ""
   }
   lazy val loginCallback = try {
-    getString(s"microservice.services.auth.login-callback.url")
+    servicesConfig.getString(s"microservice.services.auth.login-callback.url")
   }
   catch {
     case _: Throwable => ""
   }
   lazy val loginPath = try {
-    getString(s"microservice.services.auth.login_path")
+    servicesConfig.getString(s"microservice.services.auth.login_path")
   } catch {
     case _: Throwable => ""
   }
   lazy val logoutPath = try {
-    getString(s"microservice.services.auth.logout_path")
+    servicesConfig.getString(s"microservice.services.auth.logout_path")
   } catch {
     case _: Throwable => ""
   }
@@ -113,9 +111,9 @@ trait FrontendAppConfig extends ServicesConfig {
   lazy val logoutURL = s"$companyAuthHost$logoutPath"
 
   def prepopAddressUrl(registrationId: String): String =
-    s"${baseUrl("business-registration")}/business-registration/$registrationId/addresses"
+    s"${servicesConfig.baseUrl("business-registration")}/business-registration/$registrationId/addresses"
 
   def continueURL(handOffID: Option[String], payload: Option[String]) = s"$loginCallback${routes.SignInOutController.postSignIn(None, handOffID, payload).url}"
 
-  lazy val companyRegistrationUrl: String = baseUrl("company-registration")
+  lazy val companyRegistrationUrl: String = servicesConfig.baseUrl("company-registration")
 }

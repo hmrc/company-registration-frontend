@@ -36,11 +36,11 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.audit.http.connector.AuditResult.Success
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class EmailVerificationServiceSpec extends UnitSpec with SCRSSpec with WithFakeApplication with UserDetailsFixture {
+class EmailVerificationServiceSpec extends UnitSpec with SCRSSpec with UserDetailsFixture {
 
   implicit val req = FakeRequest("GET", "/test-path")
 

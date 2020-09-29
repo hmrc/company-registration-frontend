@@ -25,17 +25,19 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.mockito.Matchers.{any, eq => eqTo}
 import org.mockito.Mockito._
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.MessagesApi
+import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.{CouldNotBuild, DashboardBuilt, DashboardService, RejectedIncorp}
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, ~}
 import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolments}
-import uk.gov.hmrc.play.test.WithFakeApplication
 
-import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{ExecutionContext, Future}
 
-class DashboardControllerSpec extends SCRSSpec with WithFakeApplication with AuthBuilder {
+class DashboardControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
 
   val mockDashboardService = mock[DashboardService]
 
@@ -44,13 +46,15 @@ class DashboardControllerSpec extends SCRSSpec with WithFakeApplication with Aut
     reset(mockDashboardService)
 
     val controller = new DashboardController {
+      override lazy val controllerComponents = app.injector.instanceOf[MessagesControllerComponents]
       override val dashboardService = mockDashboardService
       override val keystoreConnector = mockKeystoreConnector
       override val authConnector = mockAuthConnector
       override val compRegConnector = mockCompanyRegistrationConnector
       override val companiesHouseURL = "testUrl"
-      implicit val appConfig: FrontendAppConfig = fakeApplication.injector.instanceOf[FrontendAppConfig]
-      override val messagesApi = fakeApplication.injector.instanceOf[MessagesApi]
+      implicit lazy val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+      override lazy val messagesApi = app.injector.instanceOf[MessagesApi]
+      implicit val ec: ExecutionContext = global
     }
   }
 
@@ -76,7 +80,7 @@ class DashboardControllerSpec extends SCRSSpec with WithFakeApplication with Aut
       IncorpAndCTDashboard(
         "held", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), None, None, Some("ack-12345"), None, None
       ),
-      ServiceDashboard("draft", None, None,ServiceLinks("", "", None, Some("")), Some(payeThresholds)),
+      ServiceDashboard("draft", None, None, ServiceLinks("", "", None, Some("")), Some(payeThresholds)),
       ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
     )
 

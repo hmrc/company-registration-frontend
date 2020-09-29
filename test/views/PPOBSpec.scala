@@ -26,21 +26,25 @@ import models.{CHROAddress, NewAddress, PPOBChoice}
 import org.jsoup.Jsoup
 import org.mockito.Matchers
 import org.mockito.Mockito.when
-import play.api.i18n.MessagesApi
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.i18n.{Lang, Langs, Messages}
+import play.api.mvc.MessagesControllerComponents
 import play.api.test.Helpers._
 import services.AddressLookupFrontendService
-import uk.gov.hmrc.play.test.WithFakeApplication
 import utils.JweCommon
 
 import scala.concurrent.Future
 
-class PPOBSpec extends SCRSSpec with PPOBFixture with NavModelRepoMock with WithFakeApplication with AuthBuilder {
+class PPOBSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixture with NavModelRepoMock with GuiceOneAppPerSuite with AuthBuilder {
   val mockNavModelRepoObj = mockNavModelRepo
   val mockBusinessRegConnector = mock[BusinessRegistrationConnector]
   val mockAddressLookupFrontendService = mock[AddressLookupFrontendService]
+  val mockMessages = app.injector.instanceOf[Messages]
+  implicit val langs = app.injector.instanceOf[Langs]
 
   class SetupPage {
     val controller = new PPOBController {
+      override val controllerComponents = app.injector.instanceOf[MessagesControllerComponents]
       override val authConnector = mockAuthConnector
       override val s4LConnector = mockS4LConnector
       override val keystoreConnector = mockKeystoreConnector
@@ -49,9 +53,9 @@ class PPOBSpec extends SCRSSpec with PPOBFixture with NavModelRepoMock with With
       override val handOffService = mockHandOffService
       override val businessRegConnector = mockBusinessRegConnector
       override val addressLookupFrontendService = mockAddressLookupFrontendService
-      implicit val messagesApi: MessagesApi = fakeApplication.injector.instanceOf[MessagesApi]
       override val appConfig = mockAppConfig
       override val jwe: JweCommon = mockJweCommon
+      implicit val messages = mockMessages
     }
   }
 

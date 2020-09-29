@@ -22,24 +22,29 @@ import controllers.test.SubmissionEndpointController
 import fixtures.SCRSFixtures
 import helpers.SCRSSpec
 import models._
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.MessagesApi
 import play.api.libs.json.Json
+import play.api.mvc.MessagesControllerComponents
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.cache.client.CacheMap
-import uk.gov.hmrc.play.test.WithFakeApplication
 
-class SubmissionEndpointControllerSpec extends SCRSSpec with SCRSFixtures with WithFakeApplication with AuthBuilder {
+import scala.concurrent.ExecutionContext
+import scala.concurrent.ExecutionContext.Implicits.global
+
+class SubmissionEndpointControllerSpec extends SCRSSpec with SCRSFixtures with GuiceOneAppPerSuite with AuthBuilder {
 
   val cacheMap = CacheMap("", Map("" -> Json.toJson("")))
 
-
   class Setup {
     val controller = new SubmissionEndpointController {
+      override lazy val controllerComponents = app.injector.instanceOf[MessagesControllerComponents]
       val authConnector = mockAuthConnector
       val s4LConnector = mockS4LConnector
-      implicit val appConfig: FrontendAppConfig = fakeApplication.injector.instanceOf[FrontendAppConfig]
-      override val messagesApi = fakeApplication.injector.instanceOf[MessagesApi]
+      implicit lazy val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+      override lazy val messagesApi = app.injector.instanceOf[MessagesApi]
+      implicit val ec: ExecutionContext = global
     }
     implicit val hc = HeaderCarrier()
   }

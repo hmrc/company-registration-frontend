@@ -26,28 +26,31 @@ import mocks.ServiceConnectorMock
 import models.external.OtherRegStatus
 import org.joda.time.DateTime
 import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.http.Status._
 import play.api.i18n.{Lang, Messages, MessagesApi}
-import play.api.mvc.{AnyContent, Request}
+import play.api.mvc.{AnyContent, MessagesControllerComponents, Request}
 import play.api.test.FakeRequest
 import uk.gov.hmrc.play.http.ws.WSHttp
-import uk.gov.hmrc.play.test.WithFakeApplication
 
-import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.{ExecutionContext, Future}
 
-class CancelRegistrationControllerSpec extends SCRSSpec with MockitoSugar with WithFakeApplication with ServiceConnectorMock with AuthBuilder {
+class CancelRegistrationControllerSpec extends SCRSSpec with MockitoSugar with GuiceOneAppPerSuite with ServiceConnectorMock with AuthBuilder {
 
   val mockHttp = mock[WSHttp]
 
   class Setup(r: Request[AnyContent]) {
     val controller = new CancelRegistrationController {
+      override lazy val controllerComponents = app.injector.instanceOf[MessagesControllerComponents]
       override val authConnector = mockAuthConnector
       override val compRegConnector = mockCompanyRegistrationConnector
       override val keystoreConnector = mockKeystoreConnector
       override val payeConnector = mockPAYEConnector
       override val vatConnector = mockVATConnector
-      implicit val appConfig: FrontendAppConfig = fakeApplication.injector.instanceOf[FrontendAppConfig]
-      override val messagesApi = fakeApplication.injector.instanceOf[MessagesApi]
+      implicit lazy val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+      override lazy val messagesApi = app.injector.instanceOf[MessagesApi]
+      implicit val ec: ExecutionContext = global
     }
     implicit val request = r
     implicit val messagesApi: Messages = controller.messagesApi.preferred(Seq(Lang("en")))

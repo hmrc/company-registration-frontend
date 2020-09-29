@@ -20,21 +20,25 @@ import builders.AuthBuilder
 import config.FrontendAppConfig
 import controllers.reg.LimitReachedController
 import helpers.SCRSSpec
-import play.api.i18n.MessagesApi
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import uk.gov.hmrc.play.test.UnitSpec
 
-class LimitReachedControllerSpec extends UnitSpec with WithFakeApplication with SCRSSpec with AuthBuilder {
+import scala.concurrent.ExecutionContext
+import scala.concurrent.ExecutionContext.Implicits.global
 
+class LimitReachedControllerSpec extends UnitSpec with SCRSSpec with AuthBuilder with GuiceOneAppPerSuite {
 
   class Setup {
-    val controller = new LimitReachedController {
+    val controller = new LimitReachedController() {
+      override lazy val controllerComponents = app.injector.instanceOf[MessagesControllerComponents]
       val cohoUrl: String = "testGGUrl"
       val authConnector = mockAuthConnector
       val keystoreConnector = mockKeystoreConnector
-      implicit val appConfig: FrontendAppConfig = fakeApplication.injector.instanceOf[FrontendAppConfig]
-      override val messagesApi = fakeApplication.injector.instanceOf[MessagesApi]
+      implicit lazy val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+      implicit lazy val ec: ExecutionContext = global
     }
   }
 

@@ -18,18 +18,18 @@ package views
 
 import _root_.helpers.SCRSSpec
 import org.jsoup.Jsoup
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.MessagesApi
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.Html
-import uk.gov.hmrc.play.test.WithFakeApplication
 
-class MainTemplateSpec extends SCRSSpec with WithFakeApplication {
+class MainTemplateSpec extends SCRSSpec with GuiceOneAppPerSuite {
 
   val fakeTitle = "Fake Title"
 
   implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-  implicit val messages = fakeApplication.injector.instanceOf[MessagesApi].preferred(request)
+  implicit val messages = app.injector.instanceOf[MessagesApi].preferred(request)
 
 
   "main template" should {

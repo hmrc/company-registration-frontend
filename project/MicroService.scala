@@ -1,6 +1,6 @@
 
-import play.routes.compiler.InjectedRoutesGenerator
-import play.sbt.routes.RoutesKeys.{routesGenerator, routesImport}
+import play.sbt.PlayImport.PlayKeys
+import play.sbt.routes.RoutesKeys.routesImport
 import sbt.Keys._
 import sbt._
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin
@@ -12,6 +12,7 @@ trait MicroService {
   import DefaultBuildSettings._
   import uk.gov.hmrc.versioning.SbtGitVersioning
   import uk.gov.hmrc.versioning.SbtGitVersioning.autoImport.majorVersion
+  import play.sbt.routes.RoutesCompiler.autoImport._
 
   val appName: String
 
@@ -46,10 +47,12 @@ trait MicroService {
       libraryDependencies ++= appDependencies,
       fork in Test := true,
       retrieveManaged := true,
-      routesGenerator := InjectedRoutesGenerator,
       routesImport ++= Seq("uk.gov.hmrc.play.binders._"),
       scalaVersion := "2.11.11",
       resolvers += Resolver.jcenterRepo
+    )
+    .settings(PlayKeys.devSettings := Seq(
+      "akka.http.parsing.max-uri-length" -> "16k")
     )
     .configs(IntegrationTest)
     .settings(integrationTestSettings())

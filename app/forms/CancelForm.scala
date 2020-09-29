@@ -18,11 +18,10 @@ package forms
 
 import play.api.data.Form
 import play.api.data.Forms._
-import play.api.i18n.Lang
 
 object CancelForm {
 
-  def form(implicit lang: Lang) = Form(
+  def form() = Form(
     mapping(
       "cancelService" -> boolean
     )(a => a)(a => Some(a))

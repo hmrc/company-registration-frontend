@@ -16,39 +16,39 @@
 
 package controllers.test
 
-import javax.inject.Inject
-
 import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, DynamicStubConnector, KeystoreConnector}
 import forms.test.ETMPPost
+import javax.inject.Inject
 import models.test.{ETMPAcknowledgment, ETMPCTRecordUpdates, ETMPNotification}
-import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent}
+import play.api.i18n.I18nSupport
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.CommonService
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.SCRSExceptions
 import views.html.test.{CTUpdatesDisplay, EMTPPostView}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class ETMPNotificationTestControllerImpl @Inject()(val brdsConnector: DynamicStubConnector,
                                                    val crConnector: CompanyRegistrationConnector,
                                                    val keystoreConnector: KeystoreConnector,
                                                    val appConfig: FrontendAppConfig,
-                                                   val messagesApi: MessagesApi) extends ETMPNotificationTestController
+                                                   mcc: MessagesControllerComponents,
+                                                   ec: ExecutionContext) extends ETMPNotificationTestController(mcc)(ec)
 
-trait ETMPNotificationTestController extends FrontendController with CommonService with SCRSExceptions with I18nSupport {
-  val brdsConnector : DynamicStubConnector
+abstract class ETMPNotificationTestController(mcc: MessagesControllerComponents)(implicit ec: ExecutionContext) extends FrontendController(mcc) with CommonService with SCRSExceptions with I18nSupport {
+  val brdsConnector: DynamicStubConnector
 
-  val crConnector : CompanyRegistrationConnector
+  val crConnector: CompanyRegistrationConnector
   implicit val appConfig: FrontendAppConfig
 
-  def show : Action[AnyContent] = Action.async {
+  def show: Action[AnyContent] = Action.async {
     implicit request =>
-      Future.successful(Ok(EMTPPostView(ETMPPost.form.fill(ETMPNotification("","","",Some(""),"")))))
+      Future.successful(Ok(EMTPPostView(ETMPPost.form.fill(ETMPNotification("", "", "", Some(""), "")))))
   }
 
-  def submit : Action[AnyContent] = Action.async {
+  def submit: Action[AnyContent] = Action.async {
     implicit request =>
       ETMPPost.form.bindFromRequest.fold(
         errors => Future.successful(BadRequest(EMTPPostView(errors))),
@@ -59,7 +59,7 @@ trait ETMPNotificationTestController extends FrontendController with CommonServi
       )
   }
 
-  def showCTRecordUpdates : Action[AnyContent] = Action.async {
+  def showCTRecordUpdates: Action[AnyContent] = Action.async {
     implicit request =>
       for {
         regId <- fetchRegistrationID

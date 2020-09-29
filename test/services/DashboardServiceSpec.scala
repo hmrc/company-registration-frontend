@@ -39,6 +39,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.audit.http.connector.AuditResult.Success
 import utils.{BooleanFeatureSwitch, SCRSFeatureSwitches}
+import play.api.libs.json.JodaWrites._
 
 import scala.concurrent.{ExecutionContext, Future}
 

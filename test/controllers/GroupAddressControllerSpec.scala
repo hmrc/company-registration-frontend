@@ -27,19 +27,23 @@ import org.mockito.Matchers
 import org.mockito.Matchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import play.api.i18n.MessagesApi
-import play.api.mvc.AnyContentAsEmpty
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.i18n.{Lang, Langs, Messages, MessagesProvider}
+import play.api.mvc.{AnyContentAsEmpty, MessagesControllerComponents}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.test.WithFakeApplication
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-class GroupAddressControllerSpec extends SCRSSpec with WithFakeApplication with MockitoSugar with AuthBuilder {
+class GroupAddressControllerSpec()(implicit lang: Lang) extends SCRSSpec with GuiceOneAppPerSuite with MockitoSugar with AuthBuilder {
 
-  implicit val appConfig: FrontendAppConfig = fakeApplication.injector.instanceOf[FrontendAppConfig]
+  implicit val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+  implicit val messages = app.injector.instanceOf[Messages]
+  implicit val langs = app.injector.instanceOf[Langs]
+  val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
+  implicit val ec: ExecutionContext = global
 
   class Setup {
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
@@ -51,7 +55,7 @@ class GroupAddressControllerSpec extends SCRSSpec with WithFakeApplication with 
       mockCompanyRegistrationConnector,
       mockKeystoreConnector,
       mockAddressLookupService,
-      fakeApplication.injector.instanceOf[MessagesApi]
+      mockMcc
     )
   }
 
@@ -104,7 +108,7 @@ class GroupAddressControllerSpec extends SCRSSpec with WithFakeApplication with 
         .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
       when(mockGroupService.retrieveGroups(any())(any()))
         .thenReturn(Future.successful(Some(testGroups)))
-      when(mockAddressLookupService.initialiseAlfJourney(any(), any(), any(), any())(any[HeaderCarrier]))
+      when(mockAddressLookupService.initialiseAlfJourney(any(), any(), any(), any())(any[HeaderCarrier], any[MessagesProvider]))
         .thenReturn(Future.successful("foo"))
       showWithAuthorisedUser(controller.show) {
         result =>
@@ -125,7 +129,7 @@ class GroupAddressControllerSpec extends SCRSSpec with WithFakeApplication with 
         .thenReturn(Future.successful(Some(testGroups)))
       when(mockGroupService.retreiveValidatedTxApiAddress(any(), any())(any()))
         .thenReturn(Future.successful(None))
-      when(mockAddressLookupService.initialiseAlfJourney(any(), any(), any(), any())(any[HeaderCarrier]))
+      when(mockAddressLookupService.initialiseAlfJourney(any(), any(), any(), any())(any[HeaderCarrier], any[MessagesProvider]))
         .thenReturn(Future.successful("foo"))
       showWithAuthorisedUser(controller.show) {
         result =>
@@ -234,7 +238,7 @@ class GroupAddressControllerSpec extends SCRSSpec with WithFakeApplication with 
         .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
       when(mockGroupService.retrieveGroups(any())(any()))
         .thenReturn(Future.successful(Some(testGroups)))
-      when(mockAddressLookupService.initialiseAlfJourney(any(), any(), any(), any())(any[HeaderCarrier])).thenReturn(Future.successful("foo"))
+      when(mockAddressLookupService.initialiseAlfJourney(any(), any(), any(), any())(any[HeaderCarrier], any[MessagesProvider])).thenReturn(Future.successful("foo"))
       when(mockGroupService.saveTxShareHolderAddress(any(), any())(any())).thenReturn(Future.successful(Left(new Exception(""))))
       submitWithAuthorisedUser(controller.submit(), FakeRequest().withFormUrlEncodedBody("groupAddress" -> "TxAPI")) {
         result =>
@@ -264,7 +268,7 @@ class GroupAddressControllerSpec extends SCRSSpec with WithFakeApplication with 
         .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
       when(mockGroupService.retrieveGroups(any())(any()))
         .thenReturn(Future.successful(Some(testGroups)))
-      when(mockAddressLookupService.initialiseAlfJourney(any(), any(), any(), any())(any[HeaderCarrier])).thenReturn(Future.successful("foo"))
+      when(mockAddressLookupService.initialiseAlfJourney(any(), any(), any(), any())(any[HeaderCarrier], any[MessagesProvider])).thenReturn(Future.successful("foo"))
       submitWithAuthorisedUser(controller.submit(), FakeRequest().withFormUrlEncodedBody("groupAddress" -> "Other")) {
         result =>
           status(result) shouldBe 303

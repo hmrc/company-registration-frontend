@@ -7,12 +7,14 @@ import itutil.{IntegrationSpecBase, LoginStub}
 import models.{BusinessRegistration, Links}
 import org.jsoup.Jsoup
 import play.api.http.HeaderNames
+import play.api.libs.crypto.DefaultCookieSigner
 import play.api.libs.json.Json
 
 class CompletionCapacityControllerISpec extends IntegrationSpecBase with LoginStub {
   val regId = "5"
   val userId = "/bar/foo"
   val csrfToken = UUID.randomUUID().toString
+  lazy val defaultCookieSigner: DefaultCookieSigner = app.injector.instanceOf[DefaultCookieSigner]
 
   val businessRegResponse = Json.toJson(BusinessRegistration(
     regId,

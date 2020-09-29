@@ -18,24 +18,26 @@ package views
 
 import _root_.helpers.SCRSSpec
 import builders.AuthBuilder
+import config.FrontendAppConfig
 import controllers.reg.SummaryController
 import fixtures.{AccountingDetailsFixture, CorporationTaxFixture, SCRSFixtures}
-import mocks.NavModelRepoMock
+import mocks.{NavModelRepoMock, TakeoverServiceMock}
 import models._
 import org.jsoup.Jsoup
 import org.mockito.Matchers
 import org.mockito.Mockito._
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.MessagesApi
+import play.api.mvc.MessagesControllerComponents
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.test.WithFakeApplication
-import mocks.TakeoverServiceMock
 import utils.JweCommon
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixture
-  with CorporationTaxFixture with NavModelRepoMock with WithFakeApplication with AuthBuilder with TakeoverServiceMock {
+  with CorporationTaxFixture with NavModelRepoMock with GuiceOneAppPerSuite with AuthBuilder with TakeoverServiceMock {
 
   implicit val hcWithExtraHeaders: HeaderCarrier = HeaderCarrier().withExtraHeaders("Accept" -> "application/vnd.hmrc.1.0+json")
 
@@ -59,6 +61,8 @@ class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixtu
 
   class SetupPage {
     val controller = new SummaryController {
+      override lazy val controllerComponents = app.injector.instanceOf[MessagesControllerComponents]
+      override val ec = global
       val authConnector = mockAuthConnector
       val s4LConnector = mockS4LConnector
       val compRegConnector = mockCompanyRegistrationConnector
@@ -67,9 +71,8 @@ class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixtu
       val takeoverService = mockTakeoverService
       val handOffService = mockHandOffService
       val navModelMongo = mockNavModelRepoObj
-      override val appConfig = mockAppConfig
-      override val jwe: JweCommon = mockJweCommon
-      override val messagesApi = fakeApplication.injector.instanceOf[MessagesApi]
+      override lazy val appConfig = app.injector.instanceOf[FrontendAppConfig]
+      lazy val jwe: JweCommon = app.injector.instanceOf[JweCommon]
     }
   }
 

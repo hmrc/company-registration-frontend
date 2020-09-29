@@ -17,28 +17,30 @@
 package controllers.test
 
 import com.google.inject.Inject
-import play.api.mvc.Action
+import play.api.mvc.MessagesControllerComponents
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils._
 
 import scala.concurrent.Future
 
 class FeatureSwitchControllerImpl @Inject()(val scrsFeatureSwitches: SCRSFeatureSwitches,
-                                            val featureSwitchManager: FeatureSwitchManager) extends FeatureSwitchController
+                                            val featureSwitchManager: FeatureSwitchManager,
+                                            mcc: MessagesControllerComponents) extends FeatureSwitchController(mcc)
 
-trait FeatureSwitchController extends FrontendController {
+abstract class FeatureSwitchController(mcc: MessagesControllerComponents) extends FrontendController(mcc) {
 
   val scrsFeatureSwitches: SCRSFeatureSwitches
   val featureSwitchManager: FeatureSwitchManager
-  def handOffFeatureSwitch(featureName : String, featureState : String) = Action.async {
+
+  def handOffFeatureSwitch(featureName: String, featureState: String) = Action.async {
     implicit request =>
 
       def feature = featureState match {
-        case "stub" | "false"                                      => featureSwitchManager.disable(BooleanFeatureSwitch(featureName, enabled = false))
-        case "coho" | "true"                                       => featureSwitchManager.enable(BooleanFeatureSwitch(featureName, enabled = true))
+        case "stub" | "false" => featureSwitchManager.disable(BooleanFeatureSwitch(featureName, enabled = false))
+        case "coho" | "true" => featureSwitchManager.enable(BooleanFeatureSwitch(featureName, enabled = true))
         case date if date.matches(SCRSValidators.datePatternRegex) => featureSwitchManager.setSystemDate(ValueSetFeatureSwitch(featureName, date))
-        case "time-clear"                                          => featureSwitchManager.setSystemDate(ValueSetFeatureSwitch(featureName, ""))
-        case _                                                     => featureSwitchManager.disable(BooleanFeatureSwitch(featureName, enabled = false))
+        case "time-clear" => featureSwitchManager.setSystemDate(ValueSetFeatureSwitch(featureName, ""))
+        case _ => featureSwitchManager.disable(BooleanFeatureSwitch(featureName, enabled = false))
       }
 
       scrsFeatureSwitches(featureName) match {

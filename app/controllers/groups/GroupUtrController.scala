@@ -18,31 +18,32 @@ package controllers.groups
 
 import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
-import controllers.auth.AuthFunction
+import controllers.auth.AuthenticatedController
 import controllers.reg.ControllerErrorHandler
 import forms.GroupUtrForm
 import javax.inject.{Inject, Singleton}
 import models._
-import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent}
+import play.api.i18n.I18nSupport
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.{CommonService, GroupService}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.http.InternalServerException
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.{SCRSExceptions, SessionRegistration}
 import views.html.groups.GroupUtrView
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class GroupUtrController @Inject()(val authConnector: PlayAuthConnector,
                                    val keystoreConnector: KeystoreConnector,
                                    val groupService: GroupService,
                                    val compRegConnector: CompanyRegistrationConnector,
-                                   val messagesApi: MessagesApi
+                                   val controllerComponents: MessagesControllerComponents
                                   )(implicit val appConfig: FrontendAppConfig)
-  extends FrontendController with AuthFunction with CommonService with ControllerErrorHandler
+  extends AuthenticatedController with CommonService with ControllerErrorHandler
     with SCRSExceptions with I18nSupport with SessionRegistration {
+
+  implicit val ec: ExecutionContext = controllerComponents.executionContext
 
   val show: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {

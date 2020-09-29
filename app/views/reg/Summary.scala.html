@@ -28,7 +28,7 @@
   tradingDetails : TradingDetails,
   optTakeoverDetails: Option[TakeoverDetails],
   applicant : AboutYouChoice
-)(implicit request: Request[_], lang: Lang, messages: Messages, appConfig: config.FrontendAppConfig)
+)(implicit request: Request[_], messages: Messages, appConfig: config.FrontendAppConfig)
 
 @ppobMessage = {
     @Messages("page.reg.summary.PPOBSameAsRO")

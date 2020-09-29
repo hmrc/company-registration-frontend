@@ -20,10 +20,9 @@ import models.CHROAddress
 import models.handoff.CompanyNameHandOffFormModel
 import play.api.data.Form
 import play.api.data.Forms.{mapping, optional, text}
-import play.api.i18n.Lang
 
 object FirstHandBackForm {
-  def form(implicit lang:Lang) = Form(
+  def form() = Form(
     mapping(
       "journey_id" -> optional(text),
       "user_id" -> text,

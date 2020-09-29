@@ -26,20 +26,21 @@ import helpers.SCRSSpec
 import mocks.TakeoverServiceMock
 import models.TakeoverDetails
 import org.jsoup.Jsoup
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{AnyContent, AnyContentAsFormUrlEncoded, Request, Result}
+import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.NotFoundException
-import uk.gov.hmrc.play.test.WithFakeApplication
 import views.html.takeovers.OtherBusinessName
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class OtherBusinessNameControllerSpec extends SCRSSpec with WithFakeApplication with AccountingDatesFixture with AccountingDetailsFixture
+class OtherBusinessNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with AccountingDatesFixture with AccountingDetailsFixture
   with LoginFixture with AuthBuilder with TakeoverServiceMock with I18nSupport {
-  implicit lazy val messagesApi: MessagesApi = fakeApplication.injector.instanceOf[MessagesApi]
+  implicit lazy val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
+  val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
 
   class Setup {
     val testBusinessName: String = "testName"
@@ -55,7 +56,7 @@ class OtherBusinessNameControllerSpec extends SCRSSpec with WithFakeApplication 
       mockCompanyRegistrationConnector,
       mockKeystoreConnector,
       mockSCRSFeatureSwitches,
-      messagesApi
+      mockMcc
     )
 
   }

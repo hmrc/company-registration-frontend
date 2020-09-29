@@ -17,21 +17,25 @@
 package controllers.test
 
 import javax.inject.Inject
-
-import play.api.mvc.Action
+import play.api.mvc.MessagesControllerComponents
 import services.internal.TestIncorporationService
 import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 
-class TestIncorporateControllerImpl @Inject()(val checkIncorpService: TestIncorporationService) extends TestIncorporateController
+import scala.concurrent.ExecutionContext
 
-trait TestIncorporateController extends FrontendController {
+class TestIncorporateControllerImpl @Inject()(val checkIncorpService: TestIncorporationService,
+                                              mcc: MessagesControllerComponents) extends TestIncorporateController(mcc)
+
+abstract class TestIncorporateController(mcc: MessagesControllerComponents) extends FrontendController(mcc) {
 
   val checkIncorpService: TestIncorporationService
+
+  implicit val ec: ExecutionContext = mcc.executionContext
 
   def incorporate(txId: String, accepted: Boolean) = Action.async {
     implicit request =>
       checkIncorpService.incorporateTransactionId(txId, accepted) map { success =>
-        Ok(if(success) s"[SUCCESS] incorporating $txId" else s"[FAILED] to incorporate $txId")
+        Ok(if (success) s"[SUCCESS] incorporating $txId" else s"[FAILED] to incorporate $txId")
       }
   }
 }

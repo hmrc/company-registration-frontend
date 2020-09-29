@@ -25,36 +25,37 @@ import models.ConfirmationReferencesSuccessResponse
 import models.connectors.ConfirmationReferences
 import org.mockito.Matchers
 import org.mockito.Mockito._
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.http.Status
-import play.api.i18n.MessagesApi
-import play.api.mvc.Result
+import play.api.i18n.{Messages, MessagesApi}
+import play.api.mvc.{MessagesControllerComponents, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentType, _}
 import services.DeskproService
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.test.WithFakeApplication
-import utils.Messages
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext.Implicits.global
 
-class ConfirmationControllerSpec extends SCRSSpec with CompanyDetailsFixture with WithFakeApplication with AuthBuilder {
+class ConfirmationControllerSpec(implicit val messages: Messages) extends SCRSSpec with CompanyDetailsFixture with GuiceOneAppPerSuite with AuthBuilder {
 
   val mockDeskproService = mock[DeskproService]
 
-
   class Setup {
     val controller = new ConfirmationController {
+      override val controllerComponents = app.injector.instanceOf[MessagesControllerComponents]
       override val authConnector = mockAuthConnector
       override val compRegConnector = mockCompanyRegistrationConnector
       override val keystoreConnector = mockKeystoreConnector
       override val deskproService = mockDeskproService
-      implicit val messagesApi: MessagesApi = fakeApplication.injector.instanceOf[MessagesApi]
-      implicit val appConfig: FrontendAppConfig = fakeApplication.injector.instanceOf[FrontendAppConfig]
+      override implicit val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
+      implicit val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+      implicit val ec: ExecutionContext = global
     }
   }
 
   val regId = "reg12345"
-  val ticketId : Long = 123456789
+  val ticketId: Long = 123456789
   val testUri = Some("uri")
 
   "show" should {
@@ -62,7 +63,7 @@ class ConfirmationControllerSpec extends SCRSSpec with CompanyDetailsFixture wit
 
     "Return a 200 and display the Confirmation page" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("testRegID"))
-      CTRegistrationConnectorMocks.fetchAcknowledgementReference("testRegID", ConfirmationReferencesSuccessResponse(ConfirmationReferences("a",Some("b"),Some("c"),"ABCDEFG0000")))
+      CTRegistrationConnectorMocks.fetchAcknowledgementReference("testRegID", ConfirmationReferencesSuccessResponse(ConfirmationReferences("a", Some("b"), Some("c"), "ABCDEFG0000")))
       when(mockCompanyRegistrationConnector.retrieveCompanyDetails(Matchers.any())(Matchers.any()))
         .thenReturn(Future.successful(Some(validCompanyDetailsResponse)))
 
@@ -150,7 +151,7 @@ class ConfirmationControllerSpec extends SCRSSpec with CompanyDetailsFixture wit
         submitWithAuthorisedUser(controller.deskproPage, FakeRequest().withFormUrlEncodedBody(Nil: _*)) {
           result =>
             status(result) shouldBe OK
-            contentAsString(result) should include(Messages("errorPages.failedSubmission.header"))
+            contentAsString(result) should include(messages("errorPages.failedSubmission.header"))
         }
       }
     }

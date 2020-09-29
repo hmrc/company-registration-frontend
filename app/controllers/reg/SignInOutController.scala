@@ -17,26 +17,24 @@
 package controllers.reg
 
 import java.io.File
-import javax.inject.Inject
 
 import config.FrontendAppConfig
 import connectors._
-import controllers.auth.AuthFunction
+import controllers.auth.AuthenticatedController
 import controllers.handoff.{routes => handoffRoutes}
 import controllers.verification.{routes => emailRoutes}
+import javax.inject.Inject
 import models.ThrottleResponse
 import play.api.Logger
-import play.api.Play.current
-import play.api.i18n.Messages.Implicits._
-import play.api.mvc.{Action, AnyContent, Request, Result}
+import play.api.i18n.I18nSupport
+import play.api.mvc._
 import services._
 import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolments, PlayAuthConnector}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.binders.ContinueUrl
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
 import utils.SCRSExceptions
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class SignInOutControllerImpl @Inject()(val appConfig: FrontendAppConfig,
                                         val authConnector: PlayAuthConnector,
@@ -45,28 +43,28 @@ class SignInOutControllerImpl @Inject()(val appConfig: FrontendAppConfig,
                                         val emailService: EmailVerificationService,
                                         val metrics: MetricsService,
                                         val keystoreConnector: KeystoreConnector,
-                                        val enrolmentsService: EnrolmentsService) extends SignInOutController {
+                                        val enrolmentsService: EnrolmentsService,
+                                        val controllerComponents: MessagesControllerComponents)(implicit val ec: ExecutionContext) extends SignInOutController {
 
   lazy val cRFEBaseUrl = appConfig.self
   lazy val corsRenewHost = appConfig.corsRenewHost
 }
 
-trait SignInOutController extends FrontendController with ControllerErrorHandler with CommonService with SCRSExceptions with AuthFunction {
+abstract class SignInOutController extends AuthenticatedController with ControllerErrorHandler with CommonService with SCRSExceptions with I18nSupport {
   implicit val appConfig: FrontendAppConfig
 
-  val compRegConnector : CompanyRegistrationConnector
-  val handOffService : HandOffService
-  val emailService : EmailVerificationService
-  val enrolmentsService : EnrolmentsService
-  val metrics : MetricsService
+  val compRegConnector: CompanyRegistrationConnector
+  val handOffService: HandOffService
+  val emailService: EmailVerificationService
+  val enrolmentsService: EnrolmentsService
+  val metrics: MetricsService
   val cRFEBaseUrl: String
   val keystoreConnector: KeystoreConnector
   val corsRenewHost: Option[String]
 
-
   def postSignIn(resend: Option[Boolean] = None, handOffID: Option[String] = None, payload: Option[String] = None): Action[AnyContent] = Action.async {
     implicit request =>
-       ctAuthorisedPostSignIn { authDetails =>
+      ctAuthorisedPostSignIn { authDetails =>
         hasOrgAffinity(authDetails.affinityGroup) {
           hasFootprint { response =>
             whenRegistrationIsDraft(response) {
@@ -74,10 +72,10 @@ trait SignInOutController extends FrontendController with ControllerErrorHandler
                 processDeferredHandoff(handOffID, payload, response) {
                   hasNoEnrolments(authDetails.enrolments) {
                     emailService.checkEmailStatus(response.registrationId, response.emailData, authDetails) map {
-                      case VerifiedEmail()      => Redirect(routes.CompletionCapacityController.show())
-                      case NotVerifiedEmail()   => Redirect(routes.RegistrationEmailController.show())
-                      case NoEmail()            => Redirect(controllers.verification.routes.EmailVerificationController.createShow())
-                      case _                    => InternalServerError(defaultErrorPage)
+                      case VerifiedEmail() => Redirect(routes.CompletionCapacityController.show())
+                      case NotVerifiedEmail() => Redirect(routes.RegistrationEmailController.show())
+                      case NoEmail() => Redirect(controllers.verification.routes.EmailVerificationController.createShow())
+                      case _ => InternalServerError(defaultErrorPage)
 
                     } recover {
                       case ex: Throwable =>
@@ -94,7 +92,7 @@ trait SignInOutController extends FrontendController with ControllerErrorHandler
   }
 
   private def whenRegistrationIsDraft(throttleResponse: ThrottleResponse)(f: => Future[Result])
-                                     (implicit hc : HeaderCarrier, req: Request[_]) : Future[Result] = {
+                                     (implicit hc: HeaderCarrier, req: Request[_]): Future[Result] = {
     compRegConnector.fetchRegistrationStatus(throttleResponse.registrationId) flatMap {
       case Some("draft") => f
       case Some("locked") => redirectToHo1WithCachedRegistrationId(throttleResponse.registrationId)
@@ -109,11 +107,11 @@ trait SignInOutController extends FrontendController with ControllerErrorHandler
   }
 
 
-  private def redirectToHo1WithCachedRegistrationId(regid: String)(implicit hc: HeaderCarrier, request : Request[_]) = handOffService.cacheRegistrationID(regid) map { _ =>
+  private def redirectToHo1WithCachedRegistrationId(regid: String)(implicit hc: HeaderCarrier, request: Request[_]) = handOffService.cacheRegistrationID(regid) map { _ =>
     Redirect(handoffRoutes.BasicCompanyDetailsController.basicCompanyDetails())
   }
 
-  private def hasFootprint(f: ThrottleResponse => Future[Result])(implicit hc: HeaderCarrier, request : Request[AnyContent]) : Future[Result] = {
+  private def hasFootprint(f: ThrottleResponse => Future[Result])(implicit hc: HeaderCarrier, request: Request[AnyContent]): Future[Result] = {
     val context = metrics.saveFootprintToCRTimer.time()
     compRegConnector.retrieveOrCreateFootprint flatMap {
       case FootprintFound(throttle) =>
@@ -145,18 +143,18 @@ trait SignInOutController extends FrontendController with ControllerErrorHandler
   }
 
   private[controllers] def processDeferredHandoff(optHandOffID: Option[String], optPayload: Option[String], throttleResponse: ThrottleResponse)(f: => Future[Result])
-                                    (implicit hc: HeaderCarrier): Future[Result] = {
+                                                 (implicit hc: HeaderCarrier): Future[Result] = {
 
     def generateHandOffUrl(handOffID: String, payload: String): String = {
       import controllers.handoff.routes._
       Map(
-        "HO1b"  -> BasicCompanyDetailsController.returnToAboutYou(payload).url,
-        "HO2"   -> CorporationTaxDetailsController.corporationTaxDetails(payload).url,
-        "HO3b"  -> BusinessActivitiesController.businessActivitiesBack(payload).url,
+        "HO1b" -> BasicCompanyDetailsController.returnToAboutYou(payload).url,
+        "HO2" -> CorporationTaxDetailsController.corporationTaxDetails(payload).url,
+        "HO3b" -> BusinessActivitiesController.businessActivitiesBack(payload).url,
         "HO3-1" -> GroupController.groupHandBack(payload).url,
-        "HO3b-1"  -> GroupController.pSCGroupHandBack(payload).url,
-        "HO4"   -> CorporationTaxSummaryController.corporationTaxSummary(payload).url,
-        "HO5b"  -> IncorporationSummaryController.returnToCorporationTaxSummary(payload).url
+        "HO3b-1" -> GroupController.pSCGroupHandBack(payload).url,
+        "HO4" -> CorporationTaxSummaryController.corporationTaxSummary(payload).url,
+        "HO5b" -> IncorporationSummaryController.returnToCorporationTaxSummary(payload).url
       ).mapValues(url => s"${appConfig.self}$url")(handOffID)
     }
 
@@ -167,14 +165,14 @@ trait SignInOutController extends FrontendController with ControllerErrorHandler
     }
   }
 
-  private def hasOrgAffinity(orgAffinity : AffinityGroup)(f: => Future[Result])(implicit hc: HeaderCarrier) : Future[Result] = {
+  private def hasOrgAffinity(orgAffinity: AffinityGroup)(f: => Future[Result])(implicit hc: HeaderCarrier): Future[Result] = {
     orgAffinity match {
       case AffinityGroup.Organisation => f
       case _ => Future.successful(Redirect(emailRoutes.EmailVerificationController.createGGWAccountAffinityShow()))
     }
   }
 
-  private def hasNoEnrolments(enrolments: Enrolments)(f: => Future[Result])(implicit hc : HeaderCarrier) : Future[Result] = {
+  private def hasNoEnrolments(enrolments: Enrolments)(f: => Future[Result])(implicit hc: HeaderCarrier): Future[Result] = {
     if (enrolmentsService.hasBannedRegimes(enrolments)) {
       Logger.warn("[SignInOutController][postSignIn] Throttle was incremented but user was blocked due to existing enrolments")
       metrics.blockedByEnrollment.inc(1)

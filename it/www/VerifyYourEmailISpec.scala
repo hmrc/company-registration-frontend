@@ -19,12 +19,14 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import itutil.{IntegrationSpecBase, LoginStub}
 import org.jsoup.Jsoup
 import play.api.http.HeaderNames
+import play.api.libs.crypto.DefaultCookieSigner
 
 import scala.concurrent.duration.FiniteDuration
 
 class VerifyYourEmailISpec extends IntegrationSpecBase with LoginStub {
 
   val userId = "/wibble"
+  lazy val defaultCookieSigner: DefaultCookieSigner = app.injector.instanceOf[DefaultCookieSigner]
 
   def stubKeystore(session: String, regId: String, email: String) = {
     val keystoreUrl = s"/keystore/company-registration-frontend/${session}"
