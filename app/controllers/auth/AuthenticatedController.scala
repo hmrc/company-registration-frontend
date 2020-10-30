@@ -114,7 +114,9 @@ trait AuthenticatedController extends FrontendBaseController with AuthorisedFunc
 
 
   def authErrorHandlingIncomplete(implicit request: Request[AnyContent]): PartialFunction[Throwable, Result] = {
-    case _: NoActiveSession => Redirect(controllers.reg.routes.IncompleteRegistrationController.show())
+    case e: NoActiveSession =>
+      Logger.info(s"[AuthenticatedController][authErrorHandling] Reason for NoActiveSession: ${e.reason}")
+      Redirect(controllers.reg.routes.IncompleteRegistrationController.show())
     case InternalError(e) =>
       Logger.warn(s"Something went wrong with a call to Auth with exception: ${e}")
       InternalServerError
@@ -125,7 +127,10 @@ trait AuthenticatedController extends FrontendBaseController with AuthorisedFunc
 
   def authErrorHandling(hoID: Option[String] = None, payload: Option[String] = None)
                        (implicit request: Request[AnyContent]): PartialFunction[Throwable, Result] = {
-    case e: NoActiveSession => Redirect(appConfig.loginURL, loginParams(hoID, payload))
+    case e: NoActiveSession => {
+      Logger.info(s"[AuthenticatedController][authErrorHandling] Reason for NoActiveSession: ${e.reason}")
+      Redirect(appConfig.loginURL, loginParams(hoID, payload))
+    }
     case InternalError(e) =>
       Logger.warn(s"Something went wrong with a call to Auth with exception: ${e}")
       InternalServerError
