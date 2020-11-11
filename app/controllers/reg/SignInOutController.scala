@@ -30,7 +30,7 @@ import play.api.i18n.I18nSupport
 import play.api.mvc._
 import services._
 import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolments, PlayAuthConnector}
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 import uk.gov.hmrc.play.binders.ContinueUrl
 import utils.SCRSExceptions
 
@@ -190,7 +190,17 @@ abstract class SignInOutController extends AuthenticatedController with Controll
   }
 
   def renewSession: Action[AnyContent] = Action.async {
-    implicit request =>
+    implicit request => {
+      val optHcAuth = hc.authorization
+      val optSessionAuthToken = request.session.get(SessionKeys.authToken)
+      Logger.warn(s"[SignInOutController] [renewSession] mdtp cookie present? ${request.cookies.get("mdtp").isDefined}")
+      (optHcAuth, optSessionAuthToken) match {
+        case (Some(hcAuth),Some(sAuth)) => if (hcAuth.value == sAuth) {Logger.warn("[SignInOutController] [renewSession] hcAuth and session auth present and equal")}
+                                           else {Logger.warn("[SignInOutController] [renewSession] hcAuth and session auth present but not equal")}
+        case (Some(hcAuth),None) => Logger.warn("[SignInOutController] [renewSession] hcAuth present, session auth not")
+        case (None,Some(sAuth)) => Logger.warn("[SignInOutController] [renewSession] session auth present, hcAuth auth not")
+        case (None, None) => Logger.warn("[SignInOutController] [renewSession] neither session auth or hcAuth present")
+      }
       ctAuthorised {
         type Headers = Seq[Tuple2[String, String]]
         val headers = corsRenewHost.fold[Headers](Seq()) { host =>
@@ -203,6 +213,7 @@ abstract class SignInOutController extends AuthenticatedController with Controll
           Ok.sendFile(new File("conf/renewSession.jpg")).as("image/jpeg").withHeaders(headers: _*)
         }
       }
+    }
   }
 
   def destroySession: Action[AnyContent] = Action {
