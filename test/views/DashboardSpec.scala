@@ -714,7 +714,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
           val document = Jsoup.parse(contentAsString(result))
           document.title should include("Company registration overview")
           document.getElementById("legacyVATStatusText").text() shouldBe "Register using another HMRC service (link opens in a new tab)"
-          document.getElementById("vatUrl").attr("href") shouldBe "https://online.hmrc.gov.uk/registration/newbusiness/introduction"
+          document.getElementById("vatUrl").attr("href") shouldBe "https://tax.service.gov.uk/register-for-vat"
       }
     }
 
@@ -775,7 +775,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
           val document = Jsoup.parse(contentAsString(result))
           document.title should include("Company registration overview")
           document.getElementById("legacyVATStatusText").text() shouldBe "Register using another HMRC service (link opens in a new tab)"
-          document.getElementById("vatUrl").attr("href") shouldBe "https://online.hmrc.gov.uk/registration/newbusiness/introduction"
+          document.getElementById("vatUrl").attr("href") shouldBe "https://tax.service.gov.uk/register-for-vat"
       }
     }
 
