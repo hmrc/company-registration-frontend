@@ -25,6 +25,7 @@ import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.{HandBackService, HandOffService, NavModelNotFoundException}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
+import uk.gov.hmrc.http.SessionKeys
 import utils.{DecryptionError, PayloadError, SessionRegistration}
 import views.html.error_template_restart
 
@@ -48,7 +49,17 @@ trait CorporationTaxDetailsController extends AuthenticatedController with Sessi
 
   //HO2
   def corporationTaxDetails(requestData: String): Action[AnyContent] = Action.async {
-    implicit _request =>
+    implicit _request => {
+      val optHcAuth = hc.authorization
+      val optSessionAuthToken = _request.session.get(SessionKeys.authToken)
+      Logger.warn(s"[CorporationTaxDetailsController][HO2] mdtp cookie present? ${_request.cookies.get("mdtp").isDefined}")
+      (optHcAuth, optSessionAuthToken) match {
+        case (Some(hcAuth),Some(sAuth)) => if (hcAuth.value == sAuth) {Logger.warn("[CorporationTaxDetailsController][HO2] hcAuth and session auth present and equal")}
+        else {Logger.warn("[CorporationTaxDetailsController][HO2] hcAuth and session auth present but not equal")}
+        case (Some(hcAuth),None) => Logger.warn("[CorporationTaxDetailsController][HO2] hcAuth present, session auth not")
+        case (None,Some(sAuth)) => Logger.warn("[CorporationTaxDetailsController][HO2] session auth present, hcAuth auth not")
+        case (None, None) => Logger.warn("[CorporationTaxDetailsController][HO2] neither session auth or hcAuth present")
+      }
       ctAuthorisedHandoff("HO2", requestData) {
         registeredHandOff("HO2", requestData) { _ =>
           handBackService.processCompanyDetailsHandBack(requestData).map {
@@ -64,5 +75,5 @@ trait CorporationTaxDetailsController extends AuthenticatedController with Sessi
           }
         }
       }
-  }
+  }}
 }
