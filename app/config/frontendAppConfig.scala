@@ -85,8 +85,8 @@ class FrontendAppConfig @Inject()(configuration: Configuration, runMode: RunMode
   def accessibilityReportUrl(userAction: String): String =
     s"$contactHost/contact/accessibility-unauthenticated?service=company-registration-frontend&userAction=${encodeUrl(userAction)}"
 
-  lazy val companyAuthHost = try {
-    servicesConfig.getString(s"microservice.services.auth.company-auth.url")
+  lazy val basGatewayHost = try {
+    servicesConfig.getString(s"microservice.services.bas-gateway-frontend.url")
   } catch {
     case _: Throwable => ""
   }
@@ -97,18 +97,18 @@ class FrontendAppConfig @Inject()(configuration: Configuration, runMode: RunMode
     case _: Throwable => ""
   }
   lazy val loginPath = try {
-    servicesConfig.getString(s"microservice.services.auth.login_path")
+    servicesConfig.getString(s"microservice.services.bas-gateway-frontend.login_path")
   } catch {
     case _: Throwable => ""
   }
   lazy val logoutPath = try {
-    servicesConfig.getString(s"microservice.services.auth.logout_path")
+    servicesConfig.getString(s"microservice.services.bas-gateway-frontend.logout_path")
   } catch {
     case _: Throwable => ""
   }
 
-  lazy val loginURL = s"$companyAuthHost$loginPath"
-  lazy val logoutURL = s"$companyAuthHost$logoutPath"
+  lazy val loginURL = s"$basGatewayHost$loginPath"
+  lazy val logoutURL = s"$basGatewayHost$logoutPath"
 
   def prepopAddressUrl(registrationId: String): String =
     s"${servicesConfig.baseUrl("business-registration")}/business-registration/$registrationId/addresses"

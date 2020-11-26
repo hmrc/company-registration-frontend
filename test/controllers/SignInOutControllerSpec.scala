@@ -327,21 +327,21 @@ class SignInOutControllerSpec extends SCRSSpec
     "redirect to the gg sign out url with a continue query string pointing to the questionnaire page" in new Setup {
       val result = controller.signOut()(FakeRequest())
       status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("http://localhost:9025/gg/sign-out?continue=test-base-url%2Fregister-your-company%2Fquestionnaire")
+      redirectLocation(result) shouldBe Some("http://localhost:9553/bas-gateway/sign-out-without-state?continue=test-base-url%2Fregister-your-company%2Fquestionnaire")
     }
 
     "redirect to the gg sign out url with a continue query string pointing to the specified relative page" in new Setup {
       val continueUrl = "/wibble"
       val result = controller.signOut(Some(ContinueUrl(continueUrl)))(FakeRequest())
       status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some(s"http://localhost:9025/gg/sign-out?continue=${encodeURL(continueUrl)}")
+      redirectLocation(result) shouldBe Some(s"http://localhost:9553/bas-gateway/sign-out-without-state?continue=${encodeURL(continueUrl)}")
     }
 
     "redirect to the gg sign out url with a continue query string pointing to the specified absolute page" in new Setup {
       val continueUrl = "https://foo.gov.uk/wibble"
       val result = controller.signOut(Some(ContinueUrl(continueUrl)))(FakeRequest())
       status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some(s"http://localhost:9025/gg/sign-out?continue=${encodeURL(continueUrl)}")
+      redirectLocation(result) shouldBe Some(s"http://localhost:9553/bas-gateway/sign-out-without-state?continue=${encodeURL(continueUrl)}")
     }
 
     "NOT redirect if the url starts with //" in new Setup {

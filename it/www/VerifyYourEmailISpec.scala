@@ -86,7 +86,7 @@ class VerifyYourEmailISpec extends IntegrationSpecBase with LoginStub {
 
       redirectTo shouldBe defined
       redirectTo map { r =>
-        r should include("/gg/sign-in")
+        r should include("/bas-gateway/sign-in")
         r should include("register-your-company%2Fpost-sign-in")
       }
     }

@@ -409,7 +409,7 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with R
   }
 
   "Sign Out" should {
-    "Return a redirect to GG sign out" in {
+    "Return a redirect to Bas Gateway sign out" in {
       stubAuthorisation()
 
       val response = await(buildClient("/sign-out").get())
@@ -420,11 +420,11 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with R
 
       redirectTo shouldBe defined
       redirectTo map { r =>
-        r should include("/gg/sign-out")
+        r should include("/bas-gateway/sign-out")
       }
     }
 
-    "Return a redirect to GG sign out with relative continue URL" in {
+    "Return a redirect to Bas Gateway sign out with relative continue URL" in {
       stubAuthorisation()
 
       val continueURL = "/foo/bar"
@@ -435,12 +435,12 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with R
 
       redirectTo shouldBe defined
       redirectTo map { r =>
-        r should include("/gg/sign-out")
+        r should include("/bas-gateway/sign-out")
         r should include(encodeURL(continueURL))
       }
     }
 
-    "Return a redirect to GG sign out with absolute continue URL" in {
+    "Return a redirect to Bas Gateway sign out with absolute continue URL" in {
       stubAuthorisation()
 
       val continueURL = "http://foo.gov.uk/foo/bar"
@@ -451,7 +451,7 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with R
 
       redirectTo shouldBe defined
       redirectTo map { r =>
-        r should include("/gg/sign-out")
+        r should include("/bas-gateway/sign-out")
         r should include(encodeURL(continueURL))
       }
     }
