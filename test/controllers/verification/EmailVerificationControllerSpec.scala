@@ -74,7 +74,7 @@ class EmailVerificationControllerSpec extends CompanyRegistrationConnectorMock w
         result =>
           status(result) shouldBe 303
           redirectLocation(result) map {
-            _ should include("/gg/sign-in")
+            _ should include("/bas-gateway/sign-in")
           }
       }
     }
