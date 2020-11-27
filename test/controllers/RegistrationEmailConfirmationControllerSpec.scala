@@ -123,7 +123,7 @@ class RegistrationEmailConfirmationControllerSpec extends SCRSSpec with GuiceOne
       showWithUnauthorisedUser(TestController.show()) {
         result =>
           status(result) shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe Some("http://localhost:9553/bas-gateway/sign-in?continue=http%3A%2F%2Flocalhost%3A9970%2Fregister-your-company%2Fpost-sign-in&origin=company-registration-frontend")
+          redirectLocation(result) shouldBe Some("http://localhost:9553/bas-gateway/sign-in?continue_url=http%3A%2F%2Flocalhost%3A9970%2Fregister-your-company%2Fpost-sign-in&origin=company-registration-frontend")
       }
     }
   }
