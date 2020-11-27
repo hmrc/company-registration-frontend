@@ -19,6 +19,6 @@ package fixtures
 import java.net.URLEncoder
 
 trait LoginFixture {
-  lazy val authUrl = s"http://localhost:9553/bas-gateway/sign-in?continue=${URLEncoder.encode(s"http://localhost:9970/register-your-company/post-sign-in", "UTF-8")}&origin=company-registration-frontend"
-  def authUrl(handOffID: String, payload: String) = s"http://localhost:9553/bas-gateway/sign-in?continue=${URLEncoder.encode(s"http://localhost:9970/register-your-company/post-sign-in?handOffID=$handOffID&payload=$payload", "UTF-8")}&origin=company-registration-frontend"
+  lazy val authUrl = s"http://localhost:9553/bas-gateway/sign-in?continue_url=${URLEncoder.encode(s"http://localhost:9970/register-your-company/post-sign-in", "UTF-8")}&origin=company-registration-frontend"
+  def authUrl(handOffID: String, payload: String) = s"http://localhost:9553/bas-gateway/sign-in?continue_url=${URLEncoder.encode(s"http://localhost:9970/register-your-company/post-sign-in?handOffID=$handOffID&payload=$payload", "UTF-8")}&origin=company-registration-frontend"
 }
