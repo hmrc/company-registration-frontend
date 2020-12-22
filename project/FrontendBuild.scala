@@ -36,7 +36,7 @@ private object AppDependencies {
     "uk.gov.hmrc" %% "play-language" % "4.3.0-play-26",
     "uk.gov.hmrc" %% "simple-reactivemongo" % "7.30.0-play-26",
     "uk.gov.hmrc" %% "govuk-template" % "5.55.0-play-26",
-    "uk.gov.hmrc" %% "play-ui" % "8.11.0-play-26",
+    "uk.gov.hmrc" %% "play-ui" % "8.19.0-play-26",
     "com.typesafe.play" %% "play-json-joda" % "2.7.4",
     "com.typesafe.akka" %% "akka-stream" % "2.5.23" force(),
     "com.typesafe.akka" %% "akka-protobuf" % "2.5.23" force(),
