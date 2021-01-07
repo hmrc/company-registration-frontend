@@ -15,6 +15,13 @@
  *@
 
 @import uk.gov.hmrc.http.SessionKeys
+@import layouts.{govuk_template => hmrcGovUkTemplate}
+@import uk.gov.hmrc.play.views.html.{layouts => uiLayouts}
+@import uk.gov.hmrc.play.views.html.{helpers => uiHelpers}
+@import views.html.helpers._
+@import utils.SCRSFeatureSwitches
+@import controllers.reg.routes.SignInOutController
+
 @(appConfig: config.FrontendAppConfig,
   title: String,
   mainClass: Option[String] = None,
@@ -26,13 +33,6 @@
   serviceInfoContent: Html = Html(""),
   pageScripts: Option[Html] = None,
   timeout: Boolean = false)(implicit request: Request[_], messages: Messages)
-
-@import layouts.{govuk_template => hmrcGovUkTemplate}
-@import uk.gov.hmrc.play.views.html.{layouts => uiLayouts}
-@import uk.gov.hmrc.play.views.html.{helpers => uiHelpers}
-@import views.html.helpers._
-@import utils.SCRSFeatureSwitches
-@import controllers.reg.routes.SignInOutController
 
 @head = {
     @uiLayouts.headWithTrackingConsent(
