@@ -1,15 +1,15 @@
 
-import play.sbt.PlayImport.PlayKeys
-import play.sbt.routes.RoutesKeys.routesImport
-import sbt.Keys._
-import sbt._
-import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin
-import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
 
 trait MicroService {
 
-  import uk.gov.hmrc._
-  import DefaultBuildSettings._
+  import play.sbt.PlayImport.PlayKeys
+  import sbt.Keys._
+  import sbt._
+  import scoverage.ScoverageKeys
+  import uk.gov.hmrc.DefaultBuildSettings.{addTestReportOption, defaultSettings, integrationTestSettings, scalaSettings}
+  import uk.gov.hmrc.{SbtArtifactory, SbtAutoBuildPlugin}
+  import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin
+  import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
   import uk.gov.hmrc.versioning.SbtGitVersioning
   import uk.gov.hmrc.versioning.SbtGitVersioning.autoImport.majorVersion
   import play.sbt.routes.RoutesCompiler.autoImport._
@@ -49,7 +49,7 @@ trait MicroService {
       retrieveManaged := true,
       routesImport ++= Seq("uk.gov.hmrc.play.binders._"),
       scalaVersion := "2.11.11",
-      resolvers += Resolver.jcenterRepo
+      resolvers ++= Seq(Resolver.bintrayRepo("hmrc", "releases"), Resolver.jcenterRepo)
     )
     .settings(PlayKeys.devSettings := Seq(
       "akka.http.parsing.max-uri-length" -> "16k")
