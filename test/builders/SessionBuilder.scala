@@ -26,19 +26,22 @@ object SessionBuilder extends SessionBuilder{}
 
 trait SessionBuilder {
 
+  val tokenKey = "token"
+  val userIdKey = "userId"
+
   def updateRequestFormWithSession(fakeRequest: FakeRequest[AnyContentAsFormUrlEncoded], userId: String): FakeRequest[AnyContentAsFormUrlEncoded] = {
     val sessionId = s"session-${UUID.randomUUID}"
     fakeRequest.withSession(
       SessionKeys.sessionId -> sessionId,
-      SessionKeys.token -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId)
+      tokenKey -> "RANDOMTOKEN",
+      userIdKey -> userId)
   }
 
   def buildRequestWithSession(userId: String): FakeRequest[AnyContentAsEmpty.type] = {
     val sessionId = s"session-${UUID.randomUUID}"
     FakeRequest().withSession(
       SessionKeys.sessionId -> sessionId,
-      SessionKeys.token -> "RANDOMTOKEN",
-      SessionKeys.userId -> userId)
+      tokenKey -> "RANDOMTOKEN",
+      userIdKey -> userId)
   }
 }

@@ -34,7 +34,6 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
 
 class GroupAddressControllerSpec()(implicit lang: Lang) extends SCRSSpec with GuiceOneAppPerSuite with MockitoSugar with AuthBuilder {
@@ -43,7 +42,7 @@ class GroupAddressControllerSpec()(implicit lang: Lang) extends SCRSSpec with Gu
   implicit val messages = app.injector.instanceOf[Messages]
   implicit val langs = app.injector.instanceOf[Langs]
   val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
-  implicit val ec: ExecutionContext = global
+  implicit val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
 
   class Setup {
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()

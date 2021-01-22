@@ -19,7 +19,7 @@ package repositories
 import reactivemongo.api.indexes.{Index, IndexType}
 import reactivemongo.bson.{BSONDocument, BSONLong}
 import uk.gov.hmrc.mongo.ReactiveRepository
-import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
 trait TTLIndexing[A, ID] {
@@ -32,7 +32,7 @@ trait TTLIndexing[A, ID] {
 
   def additionalIndexes: List[Index] = List.empty[Index]
 
-  override def ensureIndexes(implicit ec: scala.concurrent.ExecutionContext): Future[Seq[Boolean]] = {
+  override def ensureIndexes(implicit ec: ExecutionContext): Future[Seq[Boolean]] = {
     import reactivemongo.bson.DefaultBSONHandlers._
 
     collection.indexesManager.list().flatMap {
@@ -56,7 +56,7 @@ trait TTLIndexing[A, ID] {
     ensureCustomIndexes(additionalIndexes)
   }
 
-  private def ensureCustomIndexes(otherIndexes: Seq[Index]): Future[Seq[Boolean]] = {
+  private def ensureCustomIndexes(otherIndexes: Seq[Index])(implicit ec: ExecutionContext): Future[Seq[Boolean]] = {
     Future.sequence(Seq(collection.indexesManager.ensure(
       Index(
         key = Seq("lastUpdated" -> IndexType.Ascending),

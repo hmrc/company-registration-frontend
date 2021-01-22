@@ -68,7 +68,7 @@ class EmailMismatchEventSpec extends UnitSpec {
 
         val auditEvent = new EmailMismatchEvent(testModel)(hc, req)
 
-        val result = Json.toJson[EmailMismatchEvent](auditEvent)
+        val result = Json.toJson[ExtendedDataEvent](auditEvent)
         result.getClass shouldBe classOf[JsObject]
         (result \ "auditSource").as[String] shouldBe "company-registration-frontend"
         (result \ "auditType").as[String] shouldBe "emailMismatch"

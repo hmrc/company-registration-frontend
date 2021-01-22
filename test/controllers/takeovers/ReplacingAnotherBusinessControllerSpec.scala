@@ -33,14 +33,13 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.http.NotFoundException
 import views.html.takeovers.ReplacingAnotherBusiness
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
 
 class ReplacingAnotherBusinessControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with AccountingDatesFixture with AccountingDetailsFixture
   with LoginFixture with AuthBuilder with TakeoverServiceMock with I18nSupport {
   implicit lazy val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
   val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
-  implicit val ec: ExecutionContext = global
+  implicit val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
 
   class Setup {
     val testRegistrationId = "testRegistrationId"
