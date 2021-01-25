@@ -31,7 +31,7 @@ import scala.concurrent.Future
 import scala.util.Try
 import scala.util.control.NoStackTrace
 
-class NavModelNotFoundException extends NoStackTrace
+class NavModelNotFoundException(regId: Option[String] = None) extends NoStackTrace
 
 trait HandOffNavigator extends CommonService with SCRSExceptions {
 
@@ -80,7 +80,7 @@ trait HandOffNavigator extends CommonService with SCRSExceptions {
       navModelMongo.getNavModel(reg).flatMap {
         case Some(s) => Future.successful(s)
         case None if canCreate => initNavModel
-        case _ => throw new NavModelNotFoundException
+        case _ => throw new NavModelNotFoundException(Some(reg))
       }
     }
   }

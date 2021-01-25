@@ -77,7 +77,7 @@ class EmailVerifiedEventSpec extends UnitSpec {
 
         val auditEvent = new EmailVerifiedEvent(testModel)(hc, req)
 
-        val result = Json.toJson[EmailVerifiedEvent](auditEvent)
+        val result = Json.toJson[ExtendedDataEvent](auditEvent)
         result.getClass shouldBe classOf[JsObject]
         (result \ "auditSource").as[String] shouldBe "company-registration-frontend"
         (result \ "auditType").as[String] shouldBe "emailVerified"

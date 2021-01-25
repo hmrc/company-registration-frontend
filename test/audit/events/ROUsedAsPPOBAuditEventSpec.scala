@@ -117,7 +117,7 @@ class ROUsedAsPPOBAuditEventSpec extends UnitSpec {
       )
 
       val auditEvent = new ROUsedAsPPOBAuditEvent(detail)(HeaderCarrier(), req)
-      val result = Json.toJson(auditEvent)
+      val result = Json.toJson[ExtendedDataEvent](auditEvent)
 
       (result \ "auditType").as[String] shouldBe "registeredOfficeUsedAsPrincipalPlaceOfBusiness"
       (result \ "detail") shouldBe JsDefined(Json.toJson(detail))

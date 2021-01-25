@@ -28,7 +28,7 @@ class CRLanguageController @Inject()(implicit override val messagesApi: Messages
                                      languageUtils: LanguageUtils,
                                      val cc: ControllerComponents
                                     )
-  extends LanguageController(configuration, languageUtils, cc) {
+  extends LanguageController(languageUtils, cc) {
 
   /** Converts a string to a URL, using the route to this controller. **/
   def langToCall(lang: String): Call = controllers.routes.CRLanguageController.switchToLanguage(lang)
