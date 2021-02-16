@@ -30,7 +30,7 @@
     @if(form.hasErrors) {
         @form.errors.map { error =>
             @if(!(error.key == "")){
-                <li role="tooltip" data-metrics="CTerror:@dataJourney.getOrElse("PageUnknown"):@error.message">
+                <li role="tooltip">
                     <a href="#@error.key"
                        id="@{error.key}-error-summary"
                        data-focuses="@error.key">
@@ -40,7 +40,7 @@
             } else {
                 @if(error.args.nonEmpty){
                     @if(errorArgs.filter(_ == error.args(0)).nonEmpty){
-                        <li role="tooltip" data-metrics="CTerror:@dataJourney.getOrElse("PageUnknown"):@error.message">
+                        <li role="tooltip">
                             <a href="#@error.args(0)"
                                id="@{error.args(0)}-error-summary"
                                data-focuses="@error.args(0)">

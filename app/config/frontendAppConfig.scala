@@ -38,10 +38,7 @@ class FrontendAppConfig @Inject()(configuration: Configuration, runMode: RunMode
   private lazy val contactFormServiceIdentifier = "SCRS"
 
   lazy val assetsPrefix = loadConfig(s"assets.url") + loadConfig(s"assets.version")
-  lazy val analyticsToken = loadConfig(s"google-analytics.token")
-  lazy val analyticsHost = loadConfig(s"google-analytics.host")
   lazy val piwikURL = loadOptionalConfig(s"piwik.url")
-  lazy val analyticsAutoLink = loadConfig(s"google-analytics.autolink")
   lazy val reportAProblemPartialUrl = s"/contact/problem_reports_ajax?service=$contactFormServiceIdentifier"
   lazy val reportAProblemNonJSUrl = s"/contact/problem_reports_nonjs?service=$contactFormServiceIdentifier"
   lazy val govHostUrl = loadConfig(s"microservice.services.gov-uk.gov-host-domain")

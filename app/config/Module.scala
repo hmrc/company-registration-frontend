@@ -21,7 +21,6 @@ import config.filters.{SessionIdFilter, SessionIdFilterImpl}
 import connectors._
 import controllers.dashboard.{CancelRegistrationController, CancelRegistrationControllerImpl, DashboardController, DashboardControllerImpl}
 import controllers.feedback.{FeedbackController, FeedbackControllerImpl}
-import controllers.groups._
 import controllers.handoff._
 import controllers.healthcheck.{HealthCheckController, HealthCheckControllerImpl}
 import controllers.reg._
@@ -56,7 +55,6 @@ class Module extends AbstractModule {
     bind(classOf[EmailVerificationConnector]).to(classOf[EmailVerificationConnectorImpl]).asEagerSingleton()
     bind(classOf[SessionCache]).to(classOf[SCRSSessionCache]).asEagerSingleton()
     bind(classOf[KeystoreConnector]).to(classOf[KeystoreConnectorImpl]).asEagerSingleton()
-    bind(classOf[PlatformAnalyticsConnector]).to(classOf[PlatformAnalyticsConnectorImpl]).asEagerSingleton()
     bind(classOf[S4LConnector]).to(classOf[S4LConnectorImpl]).asEagerSingleton()
 
 

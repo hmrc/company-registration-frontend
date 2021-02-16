@@ -182,19 +182,6 @@ $(document).ready($(function() {
             companyDateHidden.hide();
         }
 
-    $('[data-metrics]').each(function() {
-        var metrics = $(this).attr('data-metrics');
-        var parts = metrics.split(':');
-        ga('send', 'event', parts[0], parts[1], parts[2]);
-    });
-
-    $('[link-analytics]').on('click auxclick contextmenu', function(e) {
-        var metrics = $(this).attr('link-analytics');
-        var parts = metrics.split(':');
-//                                            Page      Link
-        ga('send', 'event', 'LinkUsed', parts[0], parts[1]);
-    });
-
     $("#submissionFailedReportAProblem").each(function(){
         $(".report-error__toggle").click();
         $(".report-error__toggle").hide();

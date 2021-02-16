@@ -32,7 +32,7 @@
             <div class="panel panel-border-narrow">
                 <p>
                     @Messages("page.verification.verify-your-email.dropdown-text1")
-                    <a link-analytics="EmailVerification:StartAgain" href="@controllers.verification.routes.EmailVerificationController.startAgain">@Messages("page.verification.verify-your-email.dropdown-link1")</a>
+                    <a href="@controllers.verification.routes.EmailVerificationController.startAgain">@Messages("page.verification.verify-your-email.dropdown-link1")</a>
                     @Messages("page.verification.verify-your-email.dropdown-text2")
                     <a href="@controllers.verification.routes.EmailVerificationController.resendVerificationLink">@Messages("page.verification.verify-your-email.dropdown-link2")</a>@Messages("common.period")
                     @Messages("page.verification.verify-your-email.dropdown-text3")
