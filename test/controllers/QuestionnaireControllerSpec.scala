@@ -50,10 +50,7 @@ class QuestionnaireControllerSpec extends UnitSpec with GuiceOneAppPerSuite with
         override lazy val assetsPrefix = ""
         override lazy val reportAProblemNonJSUrl = ""
         override lazy val contactFrontendPartialBaseUrl = ""
-        override lazy val analyticsHost = ""
         override lazy val piwikURL = Some("")
-        override lazy val analyticsToken = ""
-        override lazy val analyticsAutoLink = ""
         override lazy val reportAProblemPartialUrl = ""
         override lazy val serviceId = "SCRS"
         override lazy val corsRenewHost = Some("")

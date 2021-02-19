@@ -8,7 +8,5 @@ $(document).ready($(function() {
                 selection = $(this).attr("value")
             }
         });
-
-        ga("send", "event", "AccountingDatesChoice", selection);
     });
 }));

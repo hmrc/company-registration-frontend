@@ -16,12 +16,12 @@
 
 package services
 
-import _root_.connectors.{BusinessRegistrationConnector, PlatformAnalyticsConnector}
+import _root_.connectors.BusinessRegistrationConnector
 import builders.AuthBuilder
 import fixtures.{CompanyContactDetailsFixture, UserDetailsFixture}
 import helpers.SCRSSpec
 import models._
-import org.mockito.Matchers
+
 import org.mockito.Matchers._
 import org.mockito.Mockito._
 
@@ -29,7 +29,6 @@ import scala.concurrent.Future
 
 class CompanyContactDetailsServiceSpec extends SCRSSpec with CompanyContactDetailsFixture with UserDetailsFixture with AuthBuilder {
 
-  val mockPlatformAnalyticsConn = mock[PlatformAnalyticsConnector]
   val mockBusRegConnector = mock[BusinessRegistrationConnector]
 
   trait Setup {
@@ -38,7 +37,6 @@ class CompanyContactDetailsServiceSpec extends SCRSSpec with CompanyContactDetai
       override val companyRegistrationConnector = mockCompanyRegistrationConnector
       override val keystoreConnector = mockKeystoreConnector
       val auditConnector = mockAuditConnector
-      val platformAnalyticsConnector = mockPlatformAnalyticsConn
     }
   }
 
@@ -64,8 +62,6 @@ class CompanyContactDetailsServiceSpec extends SCRSSpec with CompanyContactDetai
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
       CTRegistrationConnectorMocks.retrieveContactDetails(CompanyContactDetailsNotFoundResponse)
       when(mockCompanyRegistrationConnector.retrieveEmail(any())(any())).thenReturn(Future.successful(Some(Email("invalid+des@email.com", "GG", true, true, true))))
-      when(mockPlatformAnalyticsConn.sendEvents(Matchers.any())(Matchers.any()))
-        .thenReturn(Future.successful(()))
 
       await(service.fetchContactDetails) shouldBe CompanyContactDetailsApi(None, None, None)
     }

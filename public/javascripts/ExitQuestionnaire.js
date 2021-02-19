@@ -1,52 +1,5 @@
 
 var submitQuestionnaire = function(ableToAchieve,tryingToDo, satisfaction, meetNeeds, recommendation) {
-    if(ableToAchieve !="" && tryingToDo != "" && satisfaction != "" && meetNeeds != "" && recommendation != ""){
-
-        var ableSplit = ableToAchieve.split("_");
-        ga('send', 'event', {
-            'eventCategory': 'exit_questionnaire',
-            'eventAction': 'ableToAchieve',
-            'eventLabel': ableSplit[0],
-            'eventValue': ableSplit[1]
-        });
-
-        var tryingSplit = tryingToDo.split("_");
-        ga('send', 'event', {
-            'eventCategory': 'exit_questionnaire',
-            'eventAction': 'tryingToDo',
-            'eventLabel': tryingSplit[0],
-            'eventValue': tryingSplit[1]
-        });
-
-
-        var satSplit = satisfaction.split("-");
-        ga('send', 'event', {
-            'eventCategory': 'exit_questionnaire',
-            'eventAction': 'satisfaction',
-            'eventLabel': satSplit[0],
-            'eventValue': satSplit[1]
-        });
-
-        ga('send', 'event', {
-            'eventCategory': 'exit_questionnaire',
-            'eventAction': 'service',
-            'eventLabel': meetNeeds,
-            'eventValue': meetNeeds
-        });
-
-        var recSplit = recommendation.split("-");
-        ga('send', 'event', {
-            'eventCategory': 'exit_questionnaire',
-            'eventAction': 'recommendation',
-            'eventLabel': recSplit[0],
-            'eventValue': recSplit[1]
-        });
-
-        console.log("all good, GA event sent");
-    } else {
-        console.log("one of the fields is missing");
-    }
-
         return true;
 };
 

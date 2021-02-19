@@ -36,14 +36,12 @@ class CompanyContactDetailsServiceImpl @Inject()(val businessRegConnector: Busin
                                              val companyRegistrationConnector: CompanyRegistrationConnector,
                                              val keystoreConnector: KeystoreConnector,
                                              val authConnector: PlayAuthConnector,
-                                             val auditConnector: AuditConnector,
-                                             val platformAnalyticsConnector: PlatformAnalyticsConnector) extends CompanyContactDetailsService
+                                             val auditConnector: AuditConnector) extends CompanyContactDetailsService
 
 trait CompanyContactDetailsService extends CommonService with SCRSExceptions {
   val businessRegConnector: BusinessRegistrationConnector
   val companyRegistrationConnector: CompanyRegistrationConnector
   val auditConnector: AuditConnector
-  val platformAnalyticsConnector: PlatformAnalyticsConnector
 
   def fetchContactDetails(implicit hc: HeaderCarrier): Future[CompanyContactDetailsApi] = {
 
@@ -71,9 +69,7 @@ trait CompanyContactDetailsService extends CommonService with SCRSExceptions {
         if (isEmailValid(verifiedEmail)) {
           Future.successful(CompanyContactDetailsApi(Some(verifiedEmail), None, None))
         } else {
-          platformAnalyticsConnector.sendEvents(GAEvents.invalidDESEmailFromUserDetails).map { _ =>
-            CompanyContactDetailsApi(None, None, None)
-          }
+            Future.successful(CompanyContactDetailsApi(None, None, None))
         }
     }
   }
