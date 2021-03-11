@@ -37,7 +37,6 @@ class PolicySpec extends UnitSpec with GuiceOneAppPerSuite with SCRSMocks with M
 			override val appConfig = mockAppConfig
 			override val messagesApi = app.injector.instanceOf[MessagesApi]
 		}
-    when(mockAppConfig.piwikURL).thenReturn(None)
 	}
 	"PolicyLinks" should {
 		"load the Cookies, privacy and terms page and have the correct URLs" in new SetupPage {

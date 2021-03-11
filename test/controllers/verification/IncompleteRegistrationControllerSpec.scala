@@ -38,7 +38,6 @@ class IncompleteRegistrationControllerSpec extends UnitSpec with GuiceOneAppPerS
       override val messagesApi = app.injector.instanceOf[MessagesApi]
     }
 
-    when(mockAppConfig.piwikURL).thenReturn(None)
   }
 
   "Sending a GET request to IncompleteRegistrationController" should {

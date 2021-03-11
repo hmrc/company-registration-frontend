@@ -50,7 +50,6 @@ class QuestionnaireControllerSpec extends UnitSpec with GuiceOneAppPerSuite with
         override lazy val assetsPrefix = ""
         override lazy val reportAProblemNonJSUrl = ""
         override lazy val contactFrontendPartialBaseUrl = ""
-        override lazy val piwikURL = Some("")
         override lazy val reportAProblemPartialUrl = ""
         override lazy val serviceId = "SCRS"
         override lazy val corsRenewHost = Some("")
@@ -60,7 +59,6 @@ class QuestionnaireControllerSpec extends UnitSpec with GuiceOneAppPerSuite with
       }
     }
 
-    when(mockAppConfig.piwikURL).thenReturn(None)
   }
 
   "show" should {
