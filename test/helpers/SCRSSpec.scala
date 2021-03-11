@@ -79,7 +79,6 @@ trait SCRSSpec extends UnitSpec with MockitoSugar with SCRSMocks with BeforeAndA
        |}""".stripMargin)
 
   //Until CRFE is fully DI
-  when(mockAppConfig.piwikURL).thenReturn(None)
 
   override def beforeEach() {
     resetMocks()

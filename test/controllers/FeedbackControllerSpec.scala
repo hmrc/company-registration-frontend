@@ -75,7 +75,6 @@ class FeedbackControllerSpec extends UnitSpec with MockitoSugar with GuiceOneApp
         override lazy val assetsPrefix = ""
         override lazy val reportAProblemNonJSUrl = ""
         override lazy val contactFrontendPartialBaseUrl = ""
-        override lazy val piwikURL = Some("")
         override lazy val reportAProblemPartialUrl = ""
         override lazy val serviceId = "SCRS"
         override lazy val corsRenewHost = Some("")
