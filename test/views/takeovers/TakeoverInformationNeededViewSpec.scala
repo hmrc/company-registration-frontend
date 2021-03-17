@@ -17,7 +17,6 @@
 package views.takeovers
 
 import config.FrontendAppConfig
-import forms.takeovers.OtherBusinessNameForm
 import org.jsoup.Jsoup
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.{I18nSupport, MessagesApi}
