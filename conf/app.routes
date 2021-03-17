@@ -175,6 +175,8 @@ GET        /home-address                            controllers.takeovers.Previo
 POST       /home-address                            controllers.takeovers.PreviousOwnersAddressController.submit
 GET        /save-alf-home-address-takeovers         controllers.takeovers.PreviousOwnersAddressController.handbackFromALF(id: Option[String])
 
+GET         /takeover-information-needed            controllers.takeovers.TakeoverInformationNeededController.show
+
 #Accessibility
 GET        /accessibility-statement                 controllers.AccessibilityStatementController.show(pageUri: String)
 
