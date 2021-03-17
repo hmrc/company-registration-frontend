@@ -423,6 +423,11 @@ errorPages.incorporationRejected.para4                              = If you sti
 errorPages.incorporationRejected.link                               = https://www.gov.uk/limited-company-formation/register-your-company
 errorPages.incorporationRejected.para4.1                            = GOV.UK page.
 
+## TakeoverInformationNeeded
+errorPages.takeoverInformationNeeded.title                                = We need some additional information
+errorPages.takeoverInformationNeeded.header                               = We need some additional information
+errorPages.takeoverInformationNeeded.p1                                   = Before you continue with the registration, we need some more information about your company taking over another company.
+
 
 ## Address Lookup Generic and Specific Page Config
 ##      Lookup Page
