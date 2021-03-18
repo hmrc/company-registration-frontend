@@ -24,7 +24,7 @@
 
     <p id="paragraph1">@Messages("errorPages.takeoverInformationNeeded.p1")</p>
 
-    @form(action = controllers.takeovers.routes.ReplacingAnotherBusinessController.submit()) {
+    @form(action = controllers.takeovers.routes.ReplacingAnotherBusinessController.show()) {
         <div class="form-group">
             <input class="button" type="submit" id="next" value=@Messages("common.button.continue")>
         </div>

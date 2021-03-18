@@ -19,7 +19,6 @@ package controllers.reg
 import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector, S4LConnector}
 import controllers.auth.AuthenticatedController
-import javax.inject.Inject
 import models._
 import models.handoff.BackHandoff
 import play.api.Logger
@@ -33,6 +32,7 @@ import uk.gov.hmrc.auth.core.retrieve.Retrievals
 import utils._
 import views.html.reg.Summary
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class SummaryControllerImpl @Inject()(val authConnector: PlayAuthConnector,
@@ -72,7 +72,7 @@ trait SummaryController extends AuthenticatedController with CommonService with 
             accountingDates <- compRegConnector.retrieveAccountingDetails(regID)
             ctContactDets <- compRegConnector.retrieveContactDetails(regID)
             companyDetails <- compRegConnector.retrieveCompanyDetails(regID)
-            takeoverDetails <- takeoverService.getTakeoverDetails(regID)
+            optTakeoverDetails <- takeoverService.getTakeoverDetails(regID)
             Some(tradingDetails) <- compRegConnector.retrieveTradingDetails(regID)
             cTRecord <- compRegConnector.retrieveCorporationTaxRegistration(regID)
           } yield {
@@ -85,7 +85,19 @@ trait SummaryController extends AuthenticatedController with CommonService with 
                   case AccountingDetailsSuccessResponse(response) => response
                   case _ => throw new Exception("could not find company accounting details")
                 }
-                Ok(Summary(details.companyName, details.jurisdiction, accountDates, ppobAddress, rOAddress, ctContactDetails, tradingDetails, takeoverDetails, cc))
+                optTakeoverDetails match {
+                  case Some(TakeoverDetails(true, Some(_), Some(_), Some(_), Some(_))) =>
+                    Ok(Summary(details.companyName, details.jurisdiction, accountDates, ppobAddress, rOAddress, ctContactDetails, tradingDetails, optTakeoverDetails, cc))
+                  case Some(TakeoverDetails(true, _, _, _, _)) =>
+                    Redirect(controllers.takeovers.routes.TakeoverInformationNeededController.show())
+                  case None | Some(TakeoverDetails(false, None, None, None, None)) =>
+                    Ok(Summary(details.companyName, details.jurisdiction, accountDates, ppobAddress, rOAddress, ctContactDetails, tradingDetails, optTakeoverDetails, cc))
+                  case Some(TakeoverDetails(false, _, _, _, _)) =>
+                    Redirect(controllers.takeovers.routes.TakeoverInformationNeededController.show())
+                  case _ =>
+                    Logger.error("[SummaryController] [show] Takeover details in unexpected state")
+                    InternalServerError(defaultErrorPage)
+                }
               case _ =>
                 Logger.error(s"[SummaryController] [show] Could not find company details for reg ID : $regID - suspected direct routing to summary page")
                 InternalServerError(defaultErrorPage)
