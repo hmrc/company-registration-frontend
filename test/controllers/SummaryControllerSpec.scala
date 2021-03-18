@@ -16,8 +16,6 @@
 
 package controllers
 
-import java.util.UUID
-
 import builders.AuthBuilder
 import config.FrontendAppConfig
 import controllers.reg.SummaryController
@@ -38,6 +36,7 @@ import services.NavModelNotFoundException
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.JweCommon
 
+import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -117,6 +116,30 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with GuiceOneAppP
       showWithAuthorisedUser(controller.show) {
         result =>
           status(result) shouldBe OK
+      }
+    }
+
+    "return a 303 and redirect to the Takeover Information Needed page if Takeover information is missing but replacingAnotherBusiness is true" in new Setup {
+      mockS4LFetchAndGet("HandBackData", Some(validCompanyNameHandBack))
+
+      when(mockMetaDataService.getApplicantData(Matchers.any())(Matchers.any[HeaderCarrier]()))
+        .thenReturn(Future.successful(aboutYouData))
+
+      mockKeystoreFetchAndGet("registrationID", Some(testRegId))
+      mockGetTakeoverDetails(testRegId)(Future.successful(Some(TakeoverDetails(replacingAnotherBusiness = true))))
+      mockS4LFetchAndGet("CompanyContactDetails", Some(validCompanyContactDetailsModel))
+      CTRegistrationConnectorMocks.retrieveCompanyDetails(Some(validCompanyDetailsResponse))
+      CTRegistrationConnectorMocks.retrieveTradingDetails(Some(tradingDetailsTrue))
+      CTRegistrationConnectorMocks.retrieveContactDetails(CompanyContactDetailsSuccessResponse(validCompanyContactDetailsResponse))
+      CTRegistrationConnectorMocks.retrieveAccountingDetails(validAccountingResponse)
+
+      when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(Matchers.any())(Matchers.any()))
+        .thenReturn(Future.successful(corporationTaxModel))
+
+      showWithAuthorisedUser(controller.show) {
+        result =>
+          status(result) shouldBe 303
+          redirectLocation(result) shouldBe Some("/register-your-company/takeover-information-needed")
       }
     }
   }

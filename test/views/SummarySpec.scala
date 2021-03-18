@@ -27,14 +27,13 @@ import org.jsoup.Jsoup
 import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.i18n.MessagesApi
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.JweCommon
 
-import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixture
   with CorporationTaxFixture with NavModelRepoMock with GuiceOneAppPerSuite with AuthBuilder with TakeoverServiceMock {
@@ -47,14 +46,14 @@ class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixtu
   val testNoTakeoverDetails = TakeoverDetails(replacingAnotherBusiness = false)
   val testBusinessName = TakeoverDetails(replacingAnotherBusiness = true, businessName = Some("ABC Limited"))
   val testTakeOverAddress = TakeoverDetails(replacingAnotherBusiness = true, businessName = Some("ABC Limited"),
-                                            Some(NewAddress("line 1","line 2",Some("line 3"),Some("line 4"),Some("ZZ1 1ZZ"),Some("UK"))))
+    Some(NewAddress("line 1", "line 2", Some("line 3"), Some("line 4"), Some("ZZ1 1ZZ"), Some("UK"))))
   val testTakeOverAddressNoName = TakeoverDetails(replacingAnotherBusiness = true, businessName = None,
-                                            Some(NewAddress("line 1","line 2",Some("line 3"),Some("line 4"),Some("ZZ1 1ZZ"),Some("UK"))))
+    Some(NewAddress("line 1", "line 2", Some("line 3"), Some("line 4"), Some("ZZ1 1ZZ"), Some("UK"))))
   //TODO Will eventually contain the full model.
   val testTakeOverFullModel = TakeoverDetails(replacingAnotherBusiness = true, businessName = Some("ABC Limited"),
-    Some(NewAddress("line 1","line 2",Some("line 3"),Some("line 4"),Some("ZZ1 1ZZ"),Some("UK"))),
+    Some(NewAddress("line 1", "line 2", Some("line 3"), Some("line 4"), Some("ZZ1 1ZZ"), Some("UK"))),
     Some("Agreed Person"),
-    Some(NewAddress("line 1","line 2",Some("line 3"),Some("line 4"),Some("ZZ1 1ZZ"),Some("UK")))
+    Some(NewAddress("line 1", "line 2", Some("line 3"), Some("line 4"), Some("ZZ1 1ZZ"), Some("UK")))
   )
 
   val testRegiId = "12345"
@@ -103,7 +102,7 @@ class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixtu
 
           document.title should include("Check and confirm your answers")
 
-          Map (
+          Map(
             "applicantTitle" -> "Applicant",
             "applicant" -> "Director",
             "companyNameTitle" -> "Company details",
@@ -141,7 +140,7 @@ class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixtu
         result =>
           val document = Jsoup.parse(contentAsString(result))
 
-          Map (
+          Map(
             "applicantTitle" -> "Applicant",
             "applicant" -> "Director",
             "companyNameTitle" -> "Company details",
@@ -180,7 +179,7 @@ class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixtu
 
           document.title should include("Check and confirm your answers")
 
-          Map (
+          Map(
             "applicantTitle" -> "Applicant",
             "applicant" -> "Director",
             "companyNameTitle" -> "Company details",
@@ -194,51 +193,6 @@ class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixtu
             "takeoversTitle" -> "Company takeover",
             "replacingAnotherBusiness" -> "No",
             "replacingAnotherBusinessLabel" -> "Is the new company replacing another business?"
-          ) foreach { case (element, message) =>
-            document.getElementById(element).text() shouldBe message
-          }
-      }
-    }
-
-    "make sure that the Summary page has the correct elements for the business takeover address when there is no business name" in new SetupPage {
-      mockKeystoreFetchAndGet("registrationID", Some(testRegiId))
-
-      when(mockMetaDataService.getApplicantData(Matchers.any())(Matchers.any[HeaderCarrier]()))
-        .thenReturn(Future.successful(applicantData))
-
-      CTRegistrationConnectorMocks.retrieveCompanyDetails(Some(validCompanyDetailsResponse))
-      CTRegistrationConnectorMocks.retrieveTradingDetails(Some(TradingDetails("false")))
-      CTRegistrationConnectorMocks.retrieveContactDetails(CompanyContactDetailsSuccessResponse(validCompanyContactDetailsResponse))
-      CTRegistrationConnectorMocks.retrieveAccountingDetails(validAccountingResponse)
-
-      mockGetTakeoverDetails(testRegiId)(Future.successful(Some(testTakeOverAddressNoName)))
-
-      when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(Matchers.any())(Matchers.any()))
-        .thenReturn(Future.successful(corporationTaxModel))
-
-      showWithAuthorisedUser(controller.show) {
-        result =>
-          val document = Jsoup.parse(contentAsString(result))
-
-          document.title should include("Check and confirm your answers")
-
-          Map (
-            "applicantTitle" -> "Applicant",
-            "applicant" -> "Director",
-            "companyNameTitle" -> "Company details",
-            "companyAccountingTitle" -> "Company accounting",
-            "companyName" -> "testCompanyName",
-            "ROAddress" -> "Premises Line1 Line2 Locality Region FX1 1ZZ Country",
-            "PPOBAddress" -> "Registered Office Address",
-            "companyContact" -> "0123456789 foo@bar.wibble 0123456789",
-            "startDate" -> "10/06/2020",
-            "tradingDetails" -> "No",
-            "takeoversTitle" -> "Company takeover",
-            "replacingAnotherBusiness" -> "Yes",
-            "replacingAnotherBusinessLabel" -> "Is the new company replacing another business?",
-            "businessTakeOverAddressLabel" -> "What is the other business's address?",
-            "businessTakeOverAddress" -> "line 1 line 2 line 3 line 4 ZZ1 1ZZ UK",
-            "change-business-takeover-address" -> "changethe other business's address"
           ) foreach { case (element, message) =>
             document.getElementById(element).text() shouldBe message
           }
@@ -267,7 +221,7 @@ class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixtu
 
           document.title should include("Check and confirm your answers")
 
-          Map (
+          Map(
             "applicantTitle" -> "Applicant",
             "applicant" -> "Director",
             "companyNameTitle" -> "Company details",
@@ -298,7 +252,7 @@ class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixtu
             document.getElementById(element).text() shouldBe message
           }
 
-          Map (
+          Map(
             "change-replacing-another-business" -> "/register-your-company/replacing-another-business",
             "change-other-business-name" -> "/register-your-company/other-business-name",
             "change-business-takeover-address" -> "/register-your-company/other-business-address",
