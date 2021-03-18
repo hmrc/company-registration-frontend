@@ -19,10 +19,8 @@ package www.takeovers
 import java.util.UUID
 
 import fixtures.Fixtures
-import forms.takeovers.ReplacingAnotherBusinessForm._
 import itutil.servicestubs.TakeoverStub
 import itutil.{IntegrationSpecBase, LoginStub, RequestsFinder}
-import models.TakeoverDetails
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.HeaderNames
 import play.api.libs.crypto.DefaultCookieSigner
