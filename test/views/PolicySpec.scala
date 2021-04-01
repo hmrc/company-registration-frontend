@@ -46,7 +46,7 @@ class PolicySpec extends UnitSpec with GuiceOneAppPerSuite with SCRSMocks with M
 			document.title should include("Cookies, privacy and terms")
 
 			document.getElementById("main-heading").text() shouldBe "Cookies, privacy and terms"
-			document.getElementById("ch-cookies").attr("href") shouldBe "http://resources.companieshouse.gov.uk/legal/cookies.shtml"
+			document.getElementById("ch-cookies").attr("href") shouldBe "http://ewf.companieshouse.gov.uk/cookies"
 			document.getElementById("hmrc-cookies").attr("href") shouldBe "https://www.tax.service.gov.uk/help/cookies"
 			document.getElementById("ch-policy").attr("href") shouldBe "https://www.gov.uk/government/organisations/companies-house/about/personal-information-charter"
 			document.getElementById("hmrc-policy").attr("href") shouldBe "https://www.tax.service.gov.uk/help/privacy"
