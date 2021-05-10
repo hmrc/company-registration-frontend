@@ -27,7 +27,7 @@ import models._
 import models.connectors.ConfirmationReferences
 import models.handoff._
 import org.joda.time.{DateTime, LocalDate}
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -119,7 +119,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
 
     "Return a 200" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
-      when(mockMetaDataService.getApplicantData(Matchers.any())(Matchers.any[HeaderCarrier]()))
+      when(mockMetaDataService.getApplicantData(ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(applicantData))
       CTRegistrationConnectorMocks.retrieveCompanyDetails(Some(validCompanyDetailsResponse))
       mockS4LFetchAndGet[CompanyNameHandOffIncoming]("HandBackData", Some(validCompanyNameHandBack))
@@ -127,7 +127,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
       CTRegistrationConnectorMocks.retrieveTradingDetails(Some(TradingDetails("true")))
       CTRegistrationConnectorMocks.retrieveAccountingDetails(validAccountingResponse)
 
-      when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(Matchers.any())(Matchers.any()))
+      when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(corporationTaxModel))
 
       showWithAuthorisedUserRetrieval(controller.getAllS4LEntries, internalID) {
@@ -139,7 +139,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
 
     "Return a 200 even if nothing is returned" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
-      when(mockMetaDataService.getApplicantData(Matchers.any())(Matchers.any[HeaderCarrier]()))
+      when(mockMetaDataService.getApplicantData(ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(applicantDataEmpty))
       CTRegistrationConnectorMocks.retrieveCompanyDetails(None)
       mockS4LFetchAndGet[CompanyNameHandOffIncoming]("HandBackData", None)
@@ -147,7 +147,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
       CTRegistrationConnectorMocks.retrieveContactDetails(CompanyContactDetailsNotFoundResponse)
       CTRegistrationConnectorMocks.retrieveTradingDetails(None)
       CTRegistrationConnectorMocks.retrieveAccountingDetails(AccountingDetailsNotFoundResponse)
-      when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(Matchers.any())(Matchers.any()))
+      when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(corporationTaxModel))
 
       showWithAuthorisedUserRetrieval(controller.getAllS4LEntries, internalID) {
@@ -171,7 +171,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
 
     "Return a 303" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
-      when(mockMetaDataService.updateApplicantDataEndpoint(Matchers.eq(applicantData))(Matchers.any[HeaderCarrier]()))
+      when(mockMetaDataService.updateApplicantDataEndpoint(ArgumentMatchers.eq(applicantData))(ArgumentMatchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(validBusinessRegistrationResponse))
       mockS4LSaveForm[CompanyNameHandOffIncoming]("HandBackData", cacheMap)
       mockS4LSaveForm[PPOBModel]("PPOB", cacheMap)
@@ -214,7 +214,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
     val featureSwitchFalse = BooleanFeatureSwitch("cohoFirstHandOff", false)
 
     "render the feature switch page when the system property for 'cohoFirstHandOff' is true" in new Setup {
-      when(mockSCRSFeatureSwitches(Matchers.contains("cohoFirstHandOff"))).thenReturn(Some(featureSwitchTrue))
+      when(mockSCRSFeatureSwitches(ArgumentMatchers.contains("cohoFirstHandOff"))).thenReturn(Some(featureSwitchTrue))
 
       val result = controller.showFeatureSwitch(FakeRequest())
 
@@ -222,7 +222,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
     }
 
     "render the feature switch page when the system property for 'cohoFirstHandOff' is false" in new Setup {
-      when(mockSCRSFeatureSwitches(Matchers.contains("cohoFirstHandOff"))).thenReturn(Some(featureSwitchFalse))
+      when(mockSCRSFeatureSwitches(ArgumentMatchers.contains("cohoFirstHandOff"))).thenReturn(Some(featureSwitchFalse))
 
       val result = controller.showFeatureSwitch(FakeRequest())
 
@@ -230,7 +230,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
     }
 
     "render the feature switch page when the system property for 'cohoFirstHandOff' is not found" in new Setup {
-      when(mockSCRSFeatureSwitches(Matchers.contains("cohoFirstHandOff"))).thenReturn(None)
+      when(mockSCRSFeatureSwitches(ArgumentMatchers.contains("cohoFirstHandOff"))).thenReturn(None)
       val result = controller.showFeatureSwitch(FakeRequest())
 
       status(result) shouldBe OK
@@ -270,7 +270,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
     )
 
     "cache a fully formed nav model for use in acceptance tests" in new Setup {
-      when(mockHandOffService.cacheNavModel(Matchers.any(), Matchers.any())).thenReturn(Future.successful(Some(navModel)))
+      when(mockHandOffService.cacheNavModel(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(navModel)))
       val result = controller.setupTestNavModel(FakeRequest())
       status(result) shouldBe OK
     }
@@ -281,7 +281,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
     val ackRef = "12345"
 
     "return a 200" in new Setup {
-      when(mockDynamicStubConnector.simulateDesPost(Matchers.eq(ackRef))(Matchers.any()))
+      when(mockDynamicStubConnector.simulateDesPost(ArgumentMatchers.eq(ackRef))(ArgumentMatchers.any()))
         .thenReturn(Future.successful(HttpResponse(200)))
 
       val result = await(controller.simulateDesPost(ackRef)(FakeRequest()))
@@ -304,11 +304,11 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
 
     "return a 200 and a successful email response" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some(registrationId))
-      when(mockCompanyRegistrationConnector.retrieveEmail(Matchers.eq(registrationId))(Matchers.any()))
+      when(mockCompanyRegistrationConnector.retrieveEmail(ArgumentMatchers.eq(registrationId))(ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(email)))
-      when(mockCompanyRegistrationConnector.verifyEmail(Matchers.eq(registrationId), Matchers.any())(Matchers.any()))
+      when(mockCompanyRegistrationConnector.verifyEmail(ArgumentMatchers.eq(registrationId), ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(json))
-      when(mockBusinessRegistrationConnector.retrieveMetadata(Matchers.any(), Matchers.any()))
+      when(mockBusinessRegistrationConnector.retrieveMetadata(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(brResponse))
 
       showWithAuthorisedUser(controller.verifyEmail(true)) {
@@ -320,9 +320,9 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
 
     "return a 200 and an unsuccessful email response if an email couldn't be found" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some(registrationId))
-      when(mockBusinessRegistrationConnector.retrieveMetadata(Matchers.any(), Matchers.any()))
+      when(mockBusinessRegistrationConnector.retrieveMetadata(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(brResponse))
-      when(mockCompanyRegistrationConnector.retrieveEmail(Matchers.eq(registrationId))(Matchers.any()))
+      when(mockCompanyRegistrationConnector.retrieveEmail(ArgumentMatchers.eq(registrationId))(ArgumentMatchers.any()))
         .thenReturn(Future.successful(None))
 
       showWithAuthorisedUser(controller.verifyEmail(true)) {
@@ -376,7 +376,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
 
       mockKeystoreFetchAndGet("registrationID", Some(registrationID))
 
-      when(mockCompanyRegistrationConnector.updateReferences(Matchers.any(), Matchers.any())(Matchers.any()))
+      when(mockCompanyRegistrationConnector.updateReferences(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(response))
 
       showWithAuthorisedUser(controller.handOff6(Some(transId))) {
@@ -391,7 +391,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
 
       mockKeystoreFetchAndGet("registrationID", Some(registrationID))
 
-      when(mockCompanyRegistrationConnector.updateReferences(Matchers.any(), Matchers.any())(Matchers.any()))
+      when(mockCompanyRegistrationConnector.updateReferences(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(response))
 
       showWithAuthorisedUser(controller.handOff6(Some(transId))) {

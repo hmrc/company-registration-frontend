@@ -18,7 +18,7 @@ package utils
 
 import helpers.SCRSSpec
 import org.joda.time.DateTime
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
 
@@ -271,26 +271,26 @@ class FeatureSwitchSpec extends SCRSSpec with MockitoSugar {
 
   "SCRSFeatureSwitches" should {
     "return a disabled feature when the associated system property doesn't exist" in new Setup {
-      when(mockFeatureSwitchManager.getProperty(Matchers.any())).thenReturn(BooleanFeatureSwitch("sausages§", false))
+      when(mockFeatureSwitchManager.getProperty(ArgumentMatchers.any())).thenReturn(BooleanFeatureSwitch("sausages§", false))
       scrsFeatureSwitch.cohoFirstHandOff.enabled shouldBe false
     }
 
     "return an enabled feature when the associated system property is true" in new Setup {
-      when(mockFeatureSwitchManager.getProperty(Matchers.any())).thenReturn(BooleanFeatureSwitch("foobarFeatureFLUFF", true))
+      when(mockFeatureSwitchManager.getProperty(ArgumentMatchers.any())).thenReturn(BooleanFeatureSwitch("foobarFeatureFLUFF", true))
       fMan.enable(scrsFeatureSwitch.cohoFirstHandOff)
 
       scrsFeatureSwitch.cohoFirstHandOff.enabled shouldBe true
     }
 
     "return a disable feature when the associated system property is false" in new Setup {
-      when(mockFeatureSwitchManager.getProperty(Matchers.any())).thenReturn(BooleanFeatureSwitch("foobarFeatureFLUFF", false))
+      when(mockFeatureSwitchManager.getProperty(ArgumentMatchers.any())).thenReturn(BooleanFeatureSwitch("foobarFeatureFLUFF", false))
       fMan.disable(scrsFeatureSwitch.businessActivitiesHandOff)
 
       scrsFeatureSwitch.businessActivitiesHandOff.enabled shouldBe false
     }
 
     "return a cohoFirstHandOff SCRS feature if it exists" in new Setup {
-      when(mockFeatureSwitchManager.getProperty(Matchers.any())).thenReturn(BooleanFeatureSwitch("cohoFirstHandOff", true))
+      when(mockFeatureSwitchManager.getProperty(ArgumentMatchers.any())).thenReturn(BooleanFeatureSwitch("cohoFirstHandOff", true))
       System.setProperty("feature.sages", "true")
 
       scrsFeatureSwitch("sausages") shouldBe Some(BooleanFeatureSwitch("cohoFirstHandOff", true))
@@ -300,14 +300,14 @@ class FeatureSwitchSpec extends SCRSSpec with MockitoSugar {
       scrsFeatureSwitch("walls") shouldBe None
     }
     "return a businessActivitiesHandOff SCRS feature if it exists" in new Setup {
-      when(mockFeatureSwitchManager.getProperty(Matchers.any())).thenReturn(BooleanFeatureSwitch("businessActivitiesHandOff", true))
+      when(mockFeatureSwitchManager.getProperty(ArgumentMatchers.any())).thenReturn(BooleanFeatureSwitch("businessActivitiesHandOff", true))
       System.setProperty("feature.businessActivitiesHandOff", "true")
 
       scrsFeatureSwitch("businessActivitiesHandOff") shouldBe Some(BooleanFeatureSwitch("businessActivitiesHandOff", true))
     }
 
     "return an empty option if the businessActivitiesHandOff system property doesn't exist when using the apply function" in new Setup {
-      when(mockFeatureSwitchManager.getProperty(Matchers.any())).thenReturn(BooleanFeatureSwitch("foobar", false))
+      when(mockFeatureSwitchManager.getProperty(ArgumentMatchers.any())).thenReturn(BooleanFeatureSwitch("foobar", false))
       scrsFeatureSwitch("foobar") shouldBe None
     }
   }

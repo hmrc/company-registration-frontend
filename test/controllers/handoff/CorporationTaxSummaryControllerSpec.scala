@@ -21,7 +21,7 @@ import config.FrontendAppConfig
 import fixtures.LoginFixture
 import helpers.SCRSSpec
 import models.handoff.{NavLinks, SummaryPage1HandOffIncoming}
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.MessagesApi
@@ -76,7 +76,7 @@ class CorporationTaxSummaryControllerSpec extends SCRSSpec with LoginFixture wit
 
     "return a BAD_REQUEST if sending an empty request with authorisation" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("1"))
-      when(mockHandBackService.processSummaryPage1HandBack(Matchers.eq(""))(Matchers.any[HeaderCarrier]))
+      when(mockHandBackService.processSummaryPage1HandBack(ArgumentMatchers.eq(""))(ArgumentMatchers.any[HeaderCarrier]))
         .thenReturn(Future.successful(Failure(DecryptionError)))
 
       showWithAuthorisedUser(TestController.corporationTaxSummary("")) {
@@ -90,7 +90,7 @@ class CorporationTaxSummaryControllerSpec extends SCRSSpec with LoginFixture wit
       mockKeystoreFetchAndGet("registrationID", Some("1"))
       val encryptedPayload = jweInstance().encrypt[SummaryPage1HandOffIncoming](handBackPayload).get
 
-      when(mockHandBackService.processSummaryPage1HandBack(Matchers.eq(encryptedPayload))(Matchers.any[HeaderCarrier]))
+      when(mockHandBackService.processSummaryPage1HandBack(ArgumentMatchers.eq(encryptedPayload))(ArgumentMatchers.any[HeaderCarrier]))
         .thenReturn(Future.successful(Failure(PayloadError)))
 
       showWithAuthorisedUser(TestController.corporationTaxSummary(encryptedPayload)) {
@@ -104,7 +104,7 @@ class CorporationTaxSummaryControllerSpec extends SCRSSpec with LoginFixture wit
       mockKeystoreFetchAndGet("registrationID", Some("1"))
       val encryptedPayload = jweInstance().encrypt[SummaryPage1HandOffIncoming](handBackPayload).get
 
-      when(mockHandBackService.processSummaryPage1HandBack(Matchers.eq(encryptedPayload))(Matchers.any[HeaderCarrier]))
+      when(mockHandBackService.processSummaryPage1HandBack(ArgumentMatchers.eq(encryptedPayload))(ArgumentMatchers.any[HeaderCarrier]))
         .thenReturn(Future.successful(Success(handBackPayload)))
 
       showWithAuthorisedUser(TestController.corporationTaxSummary(encryptedPayload)) {
@@ -118,7 +118,7 @@ class CorporationTaxSummaryControllerSpec extends SCRSSpec with LoginFixture wit
       mockKeystoreFetchAndGet("registrationID", None)
       val encryptedPayload = jweInstance().encrypt[SummaryPage1HandOffIncoming](handBackPayload).get
 
-      when(mockHandBackService.processSummaryPage1HandBack(Matchers.eq(encryptedPayload))(Matchers.any[HeaderCarrier]))
+      when(mockHandBackService.processSummaryPage1HandBack(ArgumentMatchers.eq(encryptedPayload))(ArgumentMatchers.any[HeaderCarrier]))
         .thenReturn(Future.successful(Success(handBackPayload)))
 
       showWithAuthorisedUser(TestController.corporationTaxSummary(encryptedPayload)) {

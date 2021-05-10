@@ -20,7 +20,7 @@ import akka.actor.ActorSystem
 import akka.stream.{ActorMaterializer, Materializer}
 import controllers.test.FeatureSwitchController
 import helpers.SCRSSpec
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.mvc.MessagesControllerComponents
@@ -50,8 +50,8 @@ class FeatureSwitchControllerSpec extends SCRSSpec with GuiceOneAppPerSuite {
       val featureName = "cohoFirstHandOff"
       val featureState = "stub"
 
-      when(mockSCRSFeatureSwitches.apply(Matchers.any[String])).thenReturn(Some(BooleanFeatureSwitch("cohoFirstHandOff", false)))
-      when(mockFeatureSwitchManager.disable(Matchers.any())).thenReturn(BooleanFeatureSwitch("cohoFirstHandOff", false))
+      when(mockSCRSFeatureSwitches.apply(ArgumentMatchers.any[String])).thenReturn(Some(BooleanFeatureSwitch("cohoFirstHandOff", false)))
+      when(mockFeatureSwitchManager.disable(ArgumentMatchers.any())).thenReturn(BooleanFeatureSwitch("cohoFirstHandOff", false))
       val result = controller.handOffFeatureSwitch(featureName, featureState)(FakeRequest())
       status(result) shouldBe OK
       bodyOf(await(result)) shouldBe "BooleanFeatureSwitch(cohoFirstHandOff,false)"
@@ -60,8 +60,8 @@ class FeatureSwitchControllerSpec extends SCRSSpec with GuiceOneAppPerSuite {
     "return a first handoff feature state set to true when we specify coho" in new Setup {
       val featureName = "cohoFirstHandOff"
       val featureState = "coho"
-      when(mockSCRSFeatureSwitches.apply(Matchers.any[String])).thenReturn(Some(BooleanFeatureSwitch("cohoFirstHandOff", true)))
-      when(mockFeatureSwitchManager.enable(Matchers.any())).thenReturn(BooleanFeatureSwitch("cohoFirstHandOff", true))
+      when(mockSCRSFeatureSwitches.apply(ArgumentMatchers.any[String])).thenReturn(Some(BooleanFeatureSwitch("cohoFirstHandOff", true)))
+      when(mockFeatureSwitchManager.enable(ArgumentMatchers.any())).thenReturn(BooleanFeatureSwitch("cohoFirstHandOff", true))
 
       val result = controller.handOffFeatureSwitch(featureName, featureState)(FakeRequest())
       status(result) shouldBe OK
@@ -71,8 +71,8 @@ class FeatureSwitchControllerSpec extends SCRSSpec with GuiceOneAppPerSuite {
     "return a Business Activities hand-off feature state set to false when we specify stub" in new Setup {
       val featureName = "businessActivitiesHandOff"
       val featureState = "stub"
-      when(mockSCRSFeatureSwitches.apply(Matchers.any[String])).thenReturn(Some(BooleanFeatureSwitch("businessActivitiesHandOff", false)))
-      when(mockFeatureSwitchManager.disable(Matchers.any())).thenReturn(BooleanFeatureSwitch("businessActivitiesHandOff", false))
+      when(mockSCRSFeatureSwitches.apply(ArgumentMatchers.any[String])).thenReturn(Some(BooleanFeatureSwitch("businessActivitiesHandOff", false)))
+      when(mockFeatureSwitchManager.disable(ArgumentMatchers.any())).thenReturn(BooleanFeatureSwitch("businessActivitiesHandOff", false))
       val result = controller.handOffFeatureSwitch(featureName, featureState)(FakeRequest())
       status(result) shouldBe OK
       bodyOf(await(result)) shouldBe "BooleanFeatureSwitch(businessActivitiesHandOff,false)"
@@ -81,8 +81,8 @@ class FeatureSwitchControllerSpec extends SCRSSpec with GuiceOneAppPerSuite {
     "return a Business Activities handoff feature state set to true when we specify coho" in new Setup {
       val featureName = "businessActivitiesHandOff"
       val featureState = "coho"
-      when(mockSCRSFeatureSwitches.apply(Matchers.any[String])).thenReturn(Some(BooleanFeatureSwitch("businessActivitiesHandOff", true)))
-      when(mockFeatureSwitchManager.enable(Matchers.any())).thenReturn(BooleanFeatureSwitch("businessActivitiesHandOff", true))
+      when(mockSCRSFeatureSwitches.apply(ArgumentMatchers.any[String])).thenReturn(Some(BooleanFeatureSwitch("businessActivitiesHandOff", true)))
+      when(mockFeatureSwitchManager.enable(ArgumentMatchers.any())).thenReturn(BooleanFeatureSwitch("businessActivitiesHandOff", true))
       val result = controller.handOffFeatureSwitch(featureName, featureState)(FakeRequest())
       status(result) shouldBe OK
       bodyOf(await(result)) shouldBe "BooleanFeatureSwitch(businessActivitiesHandOff,true)"
@@ -92,8 +92,8 @@ class FeatureSwitchControllerSpec extends SCRSSpec with GuiceOneAppPerSuite {
     "return a Business Activities hand-off feature state set to false as a default when we specify xxxx" in new Setup {
       val featureName = "businessActivitiesHandOff"
       val featureState = "xxxx"
-      when(mockSCRSFeatureSwitches.apply(Matchers.any[String])).thenReturn(Some(BooleanFeatureSwitch("businessActivitiesHandOff", false)))
-      when(mockFeatureSwitchManager.disable(Matchers.any())).thenReturn(BooleanFeatureSwitch("businessActivitiesHandOff", false))
+      when(mockSCRSFeatureSwitches.apply(ArgumentMatchers.any[String])).thenReturn(Some(BooleanFeatureSwitch("businessActivitiesHandOff", false)))
+      when(mockFeatureSwitchManager.disable(ArgumentMatchers.any())).thenReturn(BooleanFeatureSwitch("businessActivitiesHandOff", false))
       val result = controller.handOffFeatureSwitch(featureName, featureState)(FakeRequest())
       status(result) shouldBe OK
       bodyOf(await(result)) shouldBe "BooleanFeatureSwitch(businessActivitiesHandOff,false)"
@@ -102,8 +102,8 @@ class FeatureSwitchControllerSpec extends SCRSSpec with GuiceOneAppPerSuite {
     "return a first handoff feature state set to false as a default when we specify xxxx" in new Setup {
       val featureName = "cohoFirstHandOff"
       val featureState = "xxxx"
-      when(mockSCRSFeatureSwitches.apply(Matchers.any[String])).thenReturn(Some(BooleanFeatureSwitch("cohoFirstHandOff", false)))
-      when(mockFeatureSwitchManager.disable(Matchers.any())).thenReturn(BooleanFeatureSwitch("cohoFirstHandOff", false))
+      when(mockSCRSFeatureSwitches.apply(ArgumentMatchers.any[String])).thenReturn(Some(BooleanFeatureSwitch("cohoFirstHandOff", false)))
+      when(mockFeatureSwitchManager.disable(ArgumentMatchers.any())).thenReturn(BooleanFeatureSwitch("cohoFirstHandOff", false))
       val result = controller.handOffFeatureSwitch(featureName, featureState)(FakeRequest())
 
       status(result) shouldBe OK
@@ -114,7 +114,7 @@ class FeatureSwitchControllerSpec extends SCRSSpec with GuiceOneAppPerSuite {
     "return a first handoff feature state set to false as a default when we specify a non implemented feature name" in new Setup {
       val featureName = "Rubbish"
       val featureState = "coho"
-      when(mockSCRSFeatureSwitches.apply(Matchers.any[String])).thenReturn(None)
+      when(mockSCRSFeatureSwitches.apply(ArgumentMatchers.any[String])).thenReturn(None)
       val result = controller.handOffFeatureSwitch(featureName, featureState)(FakeRequest())
 
       status(result) shouldBe BAD_REQUEST

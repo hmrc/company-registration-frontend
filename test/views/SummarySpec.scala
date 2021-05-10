@@ -24,7 +24,7 @@ import fixtures.{AccountingDetailsFixture, CorporationTaxFixture, SCRSFixtures}
 import mocks.{NavModelRepoMock, TakeoverServiceMock}
 import models._
 import org.jsoup.Jsoup
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.mvc.MessagesControllerComponents
@@ -83,7 +83,7 @@ class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixtu
 
       mockKeystoreFetchAndGet("registrationID", Some(testRegiId))
 
-      when(mockMetaDataService.getApplicantData(Matchers.any())(Matchers.any[HeaderCarrier]()))
+      when(mockMetaDataService.getApplicantData(ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(applicantData))
 
       CTRegistrationConnectorMocks.retrieveCompanyDetails(Some(validCompanyDetailsResponse))
@@ -93,7 +93,7 @@ class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixtu
 
       mockGetTakeoverDetails(testRegiId)(Future.successful(None))
 
-      when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(Matchers.any())(Matchers.any()))
+      when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(corporationTaxModel))
 
       showWithAuthorisedUser(controller.show) {
@@ -123,7 +123,7 @@ class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixtu
 
       mockKeystoreFetchAndGet("registrationID", Some(testRegiId))
 
-      when(mockMetaDataService.getApplicantData(Matchers.any())(Matchers.any[HeaderCarrier]()))
+      when(mockMetaDataService.getApplicantData(ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(applicantData))
 
       CTRegistrationConnectorMocks.retrieveTradingDetails(Some(TradingDetails("true")))
@@ -133,7 +133,7 @@ class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixtu
 
       mockGetTakeoverDetails(testRegiId)(Future.successful(None))
 
-      when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(Matchers.any())(Matchers.any()))
+      when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(corporationTaxModel))
 
       showWithAuthorisedUser(controller.show) {
@@ -160,7 +160,7 @@ class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixtu
     "make sure that the Summary page has the correct elements when the user is not taking over a business" in new SetupPage {
       mockKeystoreFetchAndGet("registrationID", Some(testRegiId))
 
-      when(mockMetaDataService.getApplicantData(Matchers.any())(Matchers.any[HeaderCarrier]()))
+      when(mockMetaDataService.getApplicantData(ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(applicantData))
 
       CTRegistrationConnectorMocks.retrieveCompanyDetails(Some(validCompanyDetailsResponse))
@@ -170,7 +170,7 @@ class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixtu
 
       mockGetTakeoverDetails(testRegiId)(Future.successful(Some(testNoTakeoverDetails)))
 
-      when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(Matchers.any())(Matchers.any()))
+      when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(corporationTaxModel))
 
       showWithAuthorisedUser(controller.show) {
@@ -202,7 +202,7 @@ class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixtu
     "make sure that the Summary page has the correct elements for a complete takeover model" in new SetupPage {
       mockKeystoreFetchAndGet("registrationID", Some(testRegiId))
 
-      when(mockMetaDataService.getApplicantData(Matchers.any())(Matchers.any[HeaderCarrier]()))
+      when(mockMetaDataService.getApplicantData(ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(applicantData))
 
       CTRegistrationConnectorMocks.retrieveCompanyDetails(Some(validCompanyDetailsResponse))
@@ -212,7 +212,7 @@ class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixtu
 
       mockGetTakeoverDetails(testRegiId)(Future.successful(Some(testTakeOverFullModel)))
 
-      when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(Matchers.any())(Matchers.any()))
+      when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(corporationTaxModel))
 
       showWithAuthorisedUser(controller.show) {

@@ -17,7 +17,7 @@
 package mocks
 
 import models.handoff.{HandOffNavModel, NavLinks, Receiver, Sender}
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.{JsObject, Json}
@@ -68,10 +68,10 @@ trait NavModelRepoMock {
   )
 
   def mockGetNavModel(handOffNavModel: Option[HandOffNavModel] = Some(handOffNavModelData)) = {
-    when(mockNavModelRepo.getNavModel(Matchers.any[String])).thenReturn(Future.successful(handOffNavModel))
+    when(mockNavModelRepo.getNavModel(ArgumentMatchers.any[String])).thenReturn(Future.successful(handOffNavModel))
   }
 
   def mockInsertNavModel(registrationID: String = "foo", handOffNavModel: Option[HandOffNavModel] = Some(handOffNavModelData)) = {
-    when(mockNavModelRepo.insertNavModel(Matchers.any(), Matchers.any[HandOffNavModel]())).thenReturn(Future.successful(handOffNavModel))
+    when(mockNavModelRepo.insertNavModel(ArgumentMatchers.any(), ArgumentMatchers.any[HandOffNavModel]())).thenReturn(Future.successful(handOffNavModel))
   }
 }

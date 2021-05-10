@@ -18,7 +18,7 @@ package controllers.feedback
 
 import java.net.URLEncoder
 
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 import config._
 import controllers.auth._
 import play.api.Logger
@@ -31,9 +31,9 @@ import uk.gov.hmrc.crypto.PlainText
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.play.partials._
 import views.html.{feedback, feedback_thankyou}
-
 import scala.concurrent.{ExecutionContext, Future}
 
+@Singleton
 class FeedbackControllerImpl @Inject()(val wsHttp: WSHttp,
                                        val authConnector: PlayAuthConnector,
                                        cryptoInitialiser: CryptoInitialiser,

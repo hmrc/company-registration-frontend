@@ -21,8 +21,7 @@ import builders.AuthBuilder
 import fixtures.{CompanyContactDetailsFixture, UserDetailsFixture}
 import helpers.SCRSSpec
 import models._
-
-import org.mockito.Matchers._
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 
 import scala.concurrent.Future

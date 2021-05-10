@@ -23,7 +23,7 @@ import fixtures.CompanyDetailsFixture
 import helpers.SCRSSpec
 import models.ConfirmationReferencesSuccessResponse
 import models.connectors.ConfirmationReferences
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.http.Status
@@ -64,7 +64,7 @@ class ConfirmationControllerSpec(implicit val messages: Messages) extends SCRSSp
     "Return a 200 and display the Confirmation page" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("testRegID"))
       CTRegistrationConnectorMocks.fetchAcknowledgementReference("testRegID", ConfirmationReferencesSuccessResponse(ConfirmationReferences("a", Some("b"), Some("c"), "ABCDEFG0000")))
-      when(mockCompanyRegistrationConnector.retrieveCompanyDetails(Matchers.any())(Matchers.any()))
+      when(mockCompanyRegistrationConnector.retrieveCompanyDetails(ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(validCompanyDetailsResponse)))
 
       showWithAuthorisedUser(controller.show) {
@@ -112,7 +112,7 @@ class ConfirmationControllerSpec(implicit val messages: Messages) extends SCRSSp
         "message" -> "I can't provide a good email address"
       )
 
-      when(mockDeskproService.submitTicket(Matchers.eq(regId), Matchers.any(), Matchers.any())(Matchers.any()))
+      when(mockDeskproService.submitTicket(ArgumentMatchers.eq(regId), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(ticketId))
 
       submitWithAuthorisedUserRetrieval(controller.submitTicket, request, testUri) {

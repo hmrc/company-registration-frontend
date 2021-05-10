@@ -24,7 +24,7 @@ import helpers.SCRSSpec
 import mocks.{CompanyRegistrationConnectorMock, KeystoreMock, SCRSMocks}
 import models.Email
 import org.jsoup.Jsoup
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -84,7 +84,7 @@ class EmailVerificationControllerSpec extends CompanyRegistrationConnectorMock w
       val email = "verified"
       mockKeystoreFetchAndGet[String]("registrationID", Some("regid"))
 
-      when(mockEmailService.fetchEmailBlock(Matchers.eq("regid"))(Matchers.any[HeaderCarrier]())).
+      when(mockEmailService.fetchEmailBlock(ArgumentMatchers.eq("regid"))(ArgumentMatchers.any[HeaderCarrier]())).
         thenReturn(Some(testVerifiedEmail))
 
       showWithAuthorisedUser(controller.verifyShow)(
@@ -111,10 +111,10 @@ class EmailVerificationControllerSpec extends CompanyRegistrationConnectorMock w
       val email = "unverified"
       mockKeystoreFetchAndGet[String]("registrationID", Some("regid"))
 
-      when(mockEmailService.fetchEmailBlock(Matchers.eq("regid"))(Matchers.any[HeaderCarrier]())).
+      when(mockEmailService.fetchEmailBlock(ArgumentMatchers.eq("regid"))(ArgumentMatchers.any[HeaderCarrier]())).
         thenReturn(Some(testUnVerifiedEmail))
 
-      when(mockEmailService.sendVerificationLink(Matchers.eq(email), Matchers.eq("regid"), Matchers.any(), Matchers.any())(Matchers.any[HeaderCarrier](), Matchers.any())).
+      when(mockEmailService.sendVerificationLink(ArgumentMatchers.eq(email), ArgumentMatchers.eq("regid"), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any())).
         thenReturn(Some(false))
 
       showWithAuthorisedUserRetrieval(controller.resendVerificationLink, authResult) {

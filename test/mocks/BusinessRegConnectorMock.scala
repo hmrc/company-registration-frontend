@@ -18,7 +18,7 @@ package mocks
 
 import connectors.BusinessRegistrationConnector
 import models.NewAddress
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.mockito.stubbing.OngoingStubbing
 import org.scalatestplus.mockito.MockitoSugar
@@ -33,9 +33,9 @@ trait BusinessRegConnectorMock extends MockitoSugar {
   def mockUpdatePrePopAddress(registrationId: String, address: NewAddress)(response: Future[Boolean]): OngoingStubbing[Future[Boolean]] =
     when(
       mockBusinessRegConnector.updatePrePopAddress(
-        Matchers.eq(registrationId),
-        Matchers.eq(address)
-      )(Matchers.any[HeaderCarrier])
+        ArgumentMatchers.eq(registrationId),
+        ArgumentMatchers.eq(address)
+      )(ArgumentMatchers.any[HeaderCarrier])
     ) thenReturn response
 
 }

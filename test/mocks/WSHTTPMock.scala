@@ -16,7 +16,7 @@
 
 package mocks
 
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.mockito.stubbing.OngoingStubbing
 import org.scalatestplus.mockito.MockitoSugar
@@ -32,34 +32,36 @@ trait WSHTTPMock {
     lazy val mockWSHttp = mock[WSHttp]
 
     def mockHttpGet[T](url: String, thenReturn: T): OngoingStubbing[Future[T]] = {
-      when(mockWSHttp.GET[T](Matchers.anyString())(Matchers.any[HttpReads[T]](), Matchers.any[HeaderCarrier](), Matchers.any()))
+      when(mockWSHttp.GET[T](ArgumentMatchers.anyString(),ArgumentMatchers.any(),ArgumentMatchers.any())
+        (ArgumentMatchers.any[HttpReads[T]](), ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
         .thenReturn(Future.successful(thenReturn))
     }
 
     def mockHttpGet[T](url: String, thenReturn: Future[T]): OngoingStubbing[Future[T]] = {
-      when(mockWSHttp.GET[T](Matchers.eq(url))(Matchers.any[HttpReads[T]](), Matchers.any[HeaderCarrier](), Matchers.any()))
+      when(mockWSHttp.GET[T](ArgumentMatchers.eq(url),ArgumentMatchers.any(),ArgumentMatchers.any())
+        (ArgumentMatchers.any[HttpReads[T]](), ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
         .thenReturn(thenReturn)
     }
 
     def mockHttpPOST[I, O](url: String, thenReturn: O, mockWSHttp: WSHttp = mockWSHttp): OngoingStubbing[Future[O]] = {
-      when(mockWSHttp.POST[I, O](Matchers.anyString(), Matchers.any[I](), Matchers.any())
-        (Matchers.any[Writes[I]](), Matchers.any[HttpReads[O]](), Matchers.any[HeaderCarrier](), Matchers.any()))
+      when(mockWSHttp.POST[I, O](ArgumentMatchers.anyString(), ArgumentMatchers.any[I](), ArgumentMatchers.any())
+        (ArgumentMatchers.any[Writes[I]](), ArgumentMatchers.any[HttpReads[O]](), ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
         .thenReturn(Future.successful(thenReturn))
     }
 
     def mockHttpPUT[I, O](url: String, thenReturn: O, mockWSHttp: WSHttp = mockWSHttp): OngoingStubbing[Future[O]] = {
-      when(mockWSHttp.PUT[I, O](Matchers.anyString(), Matchers.any[I](), Matchers.any())
-        (Matchers.any[Writes[I]](), Matchers.any[HttpReads[O]](), Matchers.any[HeaderCarrier](), Matchers.any()))
+      when(mockWSHttp.PUT[I, O](ArgumentMatchers.anyString(), ArgumentMatchers.any[I](), ArgumentMatchers.any())
+        (ArgumentMatchers.any[Writes[I]](), ArgumentMatchers.any[HttpReads[O]](), ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
         .thenReturn(Future.successful(thenReturn))
     }
 
     def mockHttpFailedGET[T](url: String, exception: Exception): OngoingStubbing[Future[T]] = {
-      when(mockWSHttp.GET[T](Matchers.anyString())(Matchers.any[HttpReads[T]](), Matchers.any[HeaderCarrier](), Matchers.any()))
+      when(mockWSHttp.GET[T](ArgumentMatchers.anyString())(ArgumentMatchers.any[HttpReads[T]](), ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
         .thenReturn(Future.failed(exception))
     }
 
     def mockHttpFailedPOST[I, O](url: String, exception: Exception, mockWSHttp: WSHttp = mockWSHttp): OngoingStubbing[Future[O]] = {
-      when(mockWSHttp.POST[I, O](Matchers.anyString(), Matchers.any[I](), Matchers.any())(Matchers.any[Writes[I]](), Matchers.any[HttpReads[O]](), Matchers.any[HeaderCarrier](), Matchers.any()))
+      when(mockWSHttp.POST[I, O](ArgumentMatchers.anyString(), ArgumentMatchers.any[I](), ArgumentMatchers.any())(ArgumentMatchers.any[Writes[I]](), ArgumentMatchers.any[HttpReads[O]](), ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
         .thenReturn(Future.failed(exception))
   }
 }

@@ -17,7 +17,7 @@
 package connectors
 
 import helpers.SCRSSpec
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import play.api.libs.json.Json
 import play.api.test.Helpers._
@@ -44,7 +44,7 @@ class KeystoreConnectorSpec extends SCRSSpec {
 
       val returnCacheMap = CacheMap("", Map("" -> Json.toJson(testModel)))
 
-      when(mockSessionCache.cache[TestModel](Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any()))
+      when(mockSessionCache.cache[TestModel](ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(returnCacheMap))
 
       val result = connector.cache[TestModel]("testKey", testModel)
@@ -57,7 +57,7 @@ class KeystoreConnectorSpec extends SCRSSpec {
       val testModel = TestModel("test")
       val list = List(testModel)
 
-      when(mockSessionCache.fetchAndGetEntry[List[TestModel]](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any()))
+      when(mockSessionCache.fetchAndGetEntry[List[TestModel]](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(list)))
 
       val result = connector.fetchAndGet[List[TestModel]]("testKey")
@@ -71,7 +71,7 @@ class KeystoreConnectorSpec extends SCRSSpec {
 
       val returnCacheMap = CacheMap("", Map("" -> Json.toJson(testModel)))
 
-      when(mockSessionCache.fetch()(Matchers.any(), Matchers.any()))
+      when(mockSessionCache.fetch()(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(returnCacheMap)))
 
       val result = connector.fetch()
@@ -81,7 +81,7 @@ class KeystoreConnectorSpec extends SCRSSpec {
 
   "Removing from KeyStore" should {
     "return a HTTP Response" in {
-      when(mockSessionCache.remove()(Matchers.any(), Matchers.any()))
+      when(mockSessionCache.remove()(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(HttpResponse(OK)))
 
       val result = connector.remove()

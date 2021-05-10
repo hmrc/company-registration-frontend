@@ -17,7 +17,7 @@
 package mocks
 
 import models.{AccountingDatesModel, AccountingDetailsResponse}
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
 import services._
@@ -26,19 +26,20 @@ import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.Future
 
 trait AccountingServiceMock {
-    this: MockitoSugar =>
+  this: MockitoSugar =>
 
   lazy val mockAccountingService = mock[AccountingService]
 
   object AccountingServiceMocks {
     def fetchAccountingDetails(details: AccountingDatesModel) = {
-      when(mockAccountingService.fetchAccountingDetails(Matchers.any[HeaderCarrier]()))
+      when(mockAccountingService.fetchAccountingDetails(ArgumentMatchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(details))
     }
 
     def updateAccountingDetails(accountingDetailsResponse: AccountingDetailsResponse) = {
-      when(mockAccountingService.updateAccountingDetails(Matchers.any[AccountingDatesModel]())(Matchers.any[HeaderCarrier]()))
+      when(mockAccountingService.updateAccountingDetails(ArgumentMatchers.any[AccountingDatesModel]())(ArgumentMatchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(accountingDetailsResponse))
     }
   }
+
 }

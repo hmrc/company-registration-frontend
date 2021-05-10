@@ -24,7 +24,7 @@ import uk.gov.hmrc.http.{HttpResponse, NotFoundException, Upstream5xxResponse}
 
 import scala.concurrent.Future
 
-class IncorpInfoConnectorSpec extends SCRSSpec {
+class mockHttpPOSTIncorpInfoConnectorSpec extends SCRSSpec {
 
     val iiUrl = "testIIUrl"
 

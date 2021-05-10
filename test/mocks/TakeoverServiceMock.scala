@@ -17,7 +17,7 @@
 package mocks
 
 import models.{NewAddress, TakeoverDetails}
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
 import services.TakeoverService
@@ -29,27 +29,27 @@ trait TakeoverServiceMock extends MockitoSugar {
   val mockTakeoverService: TakeoverService = mock[TakeoverService]
 
   def mockGetTakeoverDetails(registrationId: String)(response: Future[Option[TakeoverDetails]]): Unit =
-    when(mockTakeoverService.getTakeoverDetails(Matchers.eq(registrationId))(Matchers.any[HeaderCarrier]))
+    when(mockTakeoverService.getTakeoverDetails(ArgumentMatchers.eq(registrationId))(ArgumentMatchers.any[HeaderCarrier]))
       .thenReturn(response)
 
   def mockUpdateReplacingAnotherBusiness(registrationId: String, replacingAnotherBusiness: Boolean)(response: Future[TakeoverDetails]): Unit =
-    when(mockTakeoverService.updateReplacingAnotherBusiness(Matchers.eq(registrationId), Matchers.eq(replacingAnotherBusiness))(Matchers.any[HeaderCarrier]))
+    when(mockTakeoverService.updateReplacingAnotherBusiness(ArgumentMatchers.eq(registrationId), ArgumentMatchers.eq(replacingAnotherBusiness))(ArgumentMatchers.any[HeaderCarrier]))
       .thenReturn(response)
 
   def mockUpdateBusinessName(registrationId: String, businessName: String)(response: Future[TakeoverDetails]): Unit =
-    when(mockTakeoverService.updateBusinessName(Matchers.eq(registrationId), Matchers.eq(businessName))(Matchers.any[HeaderCarrier]))
+    when(mockTakeoverService.updateBusinessName(ArgumentMatchers.eq(registrationId), ArgumentMatchers.eq(businessName))(ArgumentMatchers.any[HeaderCarrier]))
       .thenReturn(response)
 
   def mockUpdateBusinessAddress(registrationId: String, businessAddress: NewAddress)(response: Future[TakeoverDetails]): Unit =
-    when(mockTakeoverService.updateBusinessAddress(Matchers.eq(registrationId), Matchers.eq(businessAddress))(Matchers.any[HeaderCarrier]))
+    when(mockTakeoverService.updateBusinessAddress(ArgumentMatchers.eq(registrationId), ArgumentMatchers.eq(businessAddress))(ArgumentMatchers.any[HeaderCarrier]))
       .thenReturn(response)
 
   def mockUpdatePreviousOwnersName(registrationId: String, previousOwnersName: String)(response: Future[TakeoverDetails]): Unit =
-    when(mockTakeoverService.updatePreviousOwnersName(Matchers.eq(registrationId), Matchers.eq(previousOwnersName))(Matchers.any[HeaderCarrier]))
+    when(mockTakeoverService.updatePreviousOwnersName(ArgumentMatchers.eq(registrationId), ArgumentMatchers.eq(previousOwnersName))(ArgumentMatchers.any[HeaderCarrier]))
       .thenReturn(response)
   
   def mockUpdatePreviousOwnersAddress(registrationId: String, previousOwnersAddress: NewAddress)(response: Future[TakeoverDetails]): Unit =
-    when(mockTakeoverService.updatePreviousOwnersAddress(Matchers.eq(registrationId), Matchers.eq(previousOwnersAddress))(Matchers.any[HeaderCarrier]))
+    when(mockTakeoverService.updatePreviousOwnersAddress(ArgumentMatchers.eq(registrationId), ArgumentMatchers.eq(previousOwnersAddress))(ArgumentMatchers.any[HeaderCarrier]))
       .thenReturn(response)
 
 }

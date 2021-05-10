@@ -17,7 +17,7 @@
 package services
 
 import models.QuestionnaireModel
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.FakeRequest
@@ -47,14 +47,14 @@ class QuestionnaireServiceSpec extends UnitSpec with MockitoSugar {
     val maximum = QuestionnaireModel("able",Some("why"),"trying","satisfaction",1,"recommend",Some("imp"))
 
     "successfully send a audit event of type QuestionnaireAuditEvent" in new Setup {
-      when(mockAuditConnector.sendExtendedEvent(Matchers.any[ExtendedDataEvent]())(Matchers.any[HeaderCarrier](), Matchers.any()))
+      when(mockAuditConnector.sendExtendedEvent(ArgumentMatchers.any[ExtendedDataEvent]())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
         .thenReturn(Future.successful(expected))
 
       await(service.sendAuditEventOnSuccessfulSubmission(minimum)(hc, FakeRequest())) shouldBe expected
     }
 
     "successfully send a audit event with min data" in new Setup {
-      when(mockAuditConnector.sendExtendedEvent(Matchers.any[ExtendedDataEvent]())(Matchers.any[HeaderCarrier](), Matchers.any()))
+      when(mockAuditConnector.sendExtendedEvent(ArgumentMatchers.any[ExtendedDataEvent]())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
         .thenReturn(Future.successful(expected))
 
       await(service.sendAuditEventOnSuccessfulSubmission(maximum)(hc, FakeRequest())) shouldBe expected

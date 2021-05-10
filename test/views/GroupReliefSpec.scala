@@ -22,7 +22,7 @@ import controllers.groups.GroupReliefController
 import fixtures.UserDetailsFixture
 import models.{Email, Groups}
 import org.jsoup.Jsoup
-import org.mockito.Matchers.any
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.{JsValue, Json}

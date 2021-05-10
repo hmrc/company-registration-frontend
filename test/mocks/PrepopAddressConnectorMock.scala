@@ -18,9 +18,9 @@ package mocks
 
 import connectors.PrepopAddressConnector
 import models.NewAddress
-import org.mockito.Matchers
-import org.scalatestplus.mockito.MockitoSugar
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
+import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
@@ -31,6 +31,6 @@ trait PrepopAddressConnectorMock {
   lazy val mockPrepopAddressConnector: PrepopAddressConnector = mock[PrepopAddressConnector]
 
   def mockGetPrepopAddresses(registrationId: String)(response: Future[Seq[NewAddress]]): Unit =
-    when(mockPrepopAddressConnector.getPrepopAddresses(Matchers.eq(registrationId))(Matchers.any[HeaderCarrier]))
+    when(mockPrepopAddressConnector.getPrepopAddresses(ArgumentMatchers.eq(registrationId))(ArgumentMatchers.any[HeaderCarrier]))
       .thenReturn(response)
 }

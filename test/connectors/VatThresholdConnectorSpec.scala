@@ -20,7 +20,7 @@ import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.spi.ILoggingEvent
 import helpers.SCRSSpec
 import org.joda.time.LocalDate
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfter
 import org.scalatest.concurrent.{Eventually, IntegrationPatience}
@@ -40,8 +40,8 @@ class VatThresholdConnectorSpec extends SCRSSpec with UnitSpec with LogCapturing
 
   trait Setup {
     val connector = new VatThresholdConnector {
-    override val serviceBaseUrl = baseUrl
-    override val serviceUri = baseUri
+      override val serviceBaseUrl = baseUrl
+      override val serviceUri = baseUri
       override val wSHttp = mockWSHttp
       val url = s"${serviceBaseUrl}/${serviceUri}/threshold"
     }
@@ -73,6 +73,7 @@ class VatThresholdConnectorSpec extends SCRSSpec with UnitSpec with LogCapturing
       logs.head.getMessage shouldBe msg
       logs.head.getLevel shouldBe level
     }
+
     "use the correct url" in new Setup {
       connector.serviceBaseUrl shouldBe "test vatBaseURL"
       connector.serviceUri shouldBe "test vatserviceUri"
@@ -81,7 +82,7 @@ class VatThresholdConnectorSpec extends SCRSSpec with UnitSpec with LogCapturing
 
       mockHttpGet(connector.url, HttpResponse(OK))
 
-      when(mockWSHttp.GET[HttpResponse](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]))
+      when(mockWSHttp.GET[HttpResponse](ArgumentMatchers.anyString(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any[ExecutionContext]))
         .thenReturn(Future.successful(HttpResponse(200, Some(returnJson))))
 
       await(connector.getVATThreshold(todayDate)) shouldBe thresholdAmount
@@ -91,7 +92,8 @@ class VatThresholdConnectorSpec extends SCRSSpec with UnitSpec with LogCapturing
 
       mockHttpGet(connector.url, HttpResponse(OK))
 
-      when(mockWSHttp.GET[HttpResponse](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]))
+      when(mockWSHttp.GET[HttpResponse](ArgumentMatchers.anyString(), ArgumentMatchers.any(), ArgumentMatchers.any())
+        (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any[ExecutionContext]))
         .thenReturn(Future.successful(HttpResponse(200, Some(noTaxableThresholdReturnJson))))
 
       withCaptureOfLoggingFrom(Logger) { logs =>
@@ -107,7 +109,7 @@ class VatThresholdConnectorSpec extends SCRSSpec with UnitSpec with LogCapturing
 
       mockHttpGet(connector.url, HttpResponse(OK))
 
-      when(mockWSHttp.GET[HttpResponse](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]))
+      when(mockWSHttp.GET[HttpResponse](ArgumentMatchers.anyString(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any[ExecutionContext]))
         .thenReturn(Future.successful(HttpResponse(200, Some(taxableThresholdNotAStringJson))))
 
       withCaptureOfLoggingFrom(Logger) { logs =>
@@ -123,7 +125,8 @@ class VatThresholdConnectorSpec extends SCRSSpec with UnitSpec with LogCapturing
 
       mockHttpGet(connector.url, HttpResponse(OK))
 
-      when(mockWSHttp.GET[HttpResponse](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]))
+      when(mockWSHttp.GET[HttpResponse](ArgumentMatchers.anyString(), ArgumentMatchers.any(), ArgumentMatchers.any())
+        (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any[ExecutionContext]))
         .thenReturn(Future.successful(HttpResponse(200, Some(JsNull))))
 
       withCaptureOfLoggingFrom(Logger) { logs =>
@@ -136,8 +139,9 @@ class VatThresholdConnectorSpec extends SCRSSpec with UnitSpec with LogCapturing
     }
 
     "returns a notfound error when 404 received from VAT REG Threshold service" in new Setup {
-
-      mockHttpFailedGET(connector.url, new NotFoundException("NOTFOUND"))
+      when(mockWSHttp.GET[HttpResponse](ArgumentMatchers.anyString(), ArgumentMatchers.any(), ArgumentMatchers.any())
+        (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+        .thenReturn(Future.failed(new NotFoundException("NOTFOUND")))
 
       withCaptureOfLoggingFrom(Logger) { logs =>
         connector.getVATThreshold(todayDate)
@@ -149,8 +153,9 @@ class VatThresholdConnectorSpec extends SCRSSpec with UnitSpec with LogCapturing
     }
 
     "returns an internal server error when 500 received from VAT REG Threshold service" in new Setup {
-
-      mockHttpFailedGET(connector.url, new InternalServerException("INTERNALSERVERERROR"))
+      when(mockWSHttp.GET[HttpResponse](ArgumentMatchers.anyString(), ArgumentMatchers.any(), ArgumentMatchers.any())
+        (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+        .thenReturn(Future.failed(new InternalServerException("INTERNALSERVERERROR")))
 
       withCaptureOfLoggingFrom(Logger) { logs =>
         connector.getVATThreshold(todayDate)
@@ -162,8 +167,9 @@ class VatThresholdConnectorSpec extends SCRSSpec with UnitSpec with LogCapturing
     }
 
     "returns a bad gateway error when 502 received from VAT REG Threshold service" in new Setup {
-
-      mockHttpFailedGET(connector.url, new BadGatewayException("BADGATEWAYERROR"))
+      when(mockWSHttp.GET[HttpResponse](ArgumentMatchers.anyString(), ArgumentMatchers.any(), ArgumentMatchers.any())
+        (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+        .thenReturn(Future.failed(new BadGatewayException("BADGATEWAYERROR")))
 
       withCaptureOfLoggingFrom(Logger) { logs =>
         connector.getVATThreshold(todayDate)

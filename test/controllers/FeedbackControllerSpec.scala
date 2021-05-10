@@ -18,7 +18,7 @@ package controllers.feedback
 
 import config.FrontendAppConfig
 import mocks.SCRSMocks
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -31,7 +31,6 @@ import play.api.test.Helpers._
 import play.twirl.api.Html
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.http.{HttpGet, HttpPost, HttpResponse}
-import uk.gov.hmrc.play.bootstrap.config.RunMode
 import uk.gov.hmrc.play.http.ws.WSPost
 import uk.gov.hmrc.play.partials.{CachedStaticHtmlPartialRetriever, FormPartialRetriever, HtmlPartial}
 import uk.gov.hmrc.play.test.UnitSpec
@@ -71,7 +70,7 @@ class FeedbackControllerSpec extends UnitSpec with MockitoSugar with GuiceOneApp
 
       override def contactFormReferer(implicit request: Request[AnyContent]): String = request.headers.get(REFERER).getOrElse("")
 
-      override val appConfig: FrontendAppConfig = new FrontendAppConfig(mockConfiguration: Configuration, mock[RunMode]: RunMode) {
+      override val appConfig: FrontendAppConfig = new FrontendAppConfig(mockConfiguration: Configuration) {
         override lazy val assetsPrefix = ""
         override lazy val reportAProblemNonJSUrl = ""
         override lazy val contactFrontendPartialBaseUrl = ""
@@ -105,7 +104,7 @@ class FeedbackControllerSpec extends UnitSpec with MockitoSugar with GuiceOneApp
   "POST /feedback" should {
     val fakePostRequest = FakeRequest("POST", "/register-your-company/feedback").withFormUrlEncodedBody("test" -> "test")
     "return form with thank you for valid selections" in new Setup {
-      when(mockHttp.POSTForm[HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]())).thenReturn(
+      when(mockHttp.POSTForm[HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any[ExecutionContext]())).thenReturn(
         Future.successful(HttpResponse(Status.OK, responseString = Some("1234"))))
 
       val result = target.submit(fakePostRequest)
@@ -113,21 +112,21 @@ class FeedbackControllerSpec extends UnitSpec with MockitoSugar with GuiceOneApp
     }
 
     "return form with errors for invalid selections" in new Setup {
-      when(mockHttp.POSTForm[HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]())).thenReturn(
+      when(mockHttp.POSTForm[HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any[ExecutionContext]())).thenReturn(
         Future.successful(HttpResponse(Status.BAD_REQUEST, responseString = Some("<p>:^(</p>"))))
       val result = target.submit(fakePostRequest)
       status(result) shouldBe Status.BAD_REQUEST
     }
 
     "return error for other http code back from contact-frontend" in new Setup {
-      when(mockHttp.POSTForm[HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]())).thenReturn(
+      when(mockHttp.POSTForm[HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any[ExecutionContext]())).thenReturn(
         Future.successful(HttpResponse(418))) // 418 - I'm a teapot
       val result = target.submit(fakePostRequest)
       status(result) shouldBe Status.INTERNAL_SERVER_ERROR
     }
 
     "return internal server error when there is an empty form" in new Setup {
-      when(mockHttp.POSTForm[HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]())).thenReturn(
+      when(mockHttp.POSTForm[HttpResponse](ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any[ExecutionContext]())).thenReturn(
         Future.successful(HttpResponse(Status.OK, responseString = Some("1234"))))
 
       val result = target.submit(fakeRequest)

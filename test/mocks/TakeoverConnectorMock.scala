@@ -18,7 +18,7 @@ package mocks
 
 import connectors.TakeoverConnector
 import models.TakeoverDetails
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.http.HeaderCarrier
@@ -29,10 +29,10 @@ trait TakeoverConnectorMock extends MockitoSugar {
   val mockTakeoverConnector: TakeoverConnector = mock[TakeoverConnector]
 
   def mockGetTakeoverDetails(registrationId: String)(response: Future[Option[TakeoverDetails]]): Unit =
-    when(mockTakeoverConnector.getTakeoverDetails(Matchers.eq(registrationId))(Matchers.any[HeaderCarrier]))
+    when(mockTakeoverConnector.getTakeoverDetails(ArgumentMatchers.eq(registrationId))(ArgumentMatchers.any[HeaderCarrier]))
       .thenReturn(response)
 
   def mockUpdateTakeoverDetails(registrationId: String, takeoverDetails: TakeoverDetails)(response: Future[TakeoverDetails]): Unit =
-    when(mockTakeoverConnector.updateTakeoverDetails(Matchers.eq(registrationId), Matchers.eq(takeoverDetails))(Matchers.any[HeaderCarrier]))
+    when(mockTakeoverConnector.updateTakeoverDetails(ArgumentMatchers.eq(registrationId), ArgumentMatchers.eq(takeoverDetails))(ArgumentMatchers.any[HeaderCarrier]))
       .thenReturn(response)
 }

@@ -17,7 +17,7 @@
 package mocks
 
 import models.NewAddress
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
 import services.AddressPrepopulationService
@@ -29,7 +29,7 @@ trait AddressPrepopulationServiceMock extends MockitoSugar {
   val mockAddressPrepopulationService: AddressPrepopulationService = mock[AddressPrepopulationService]
 
   def mockRetrieveAddresses(registrationId: String)(response: Future[Seq[NewAddress]]): Unit =
-    when(mockAddressPrepopulationService.retrieveAddresses(Matchers.eq(registrationId))(Matchers.any[HeaderCarrier]))
+    when(mockAddressPrepopulationService.retrieveAddresses(ArgumentMatchers.eq(registrationId))(ArgumentMatchers.any[HeaderCarrier]))
       .thenReturn(response)
 
 }

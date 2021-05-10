@@ -19,8 +19,8 @@ package services
 import fixtures.{AddressFixture, CompanyDetailsFixture, PPOBFixture, UserDetailsFixture}
 import helpers.SCRSSpec
 import models._
-import org.mockito.Matchers
-import org.mockito.Matchers.{any, eq => eqTo}
+import org.mockito.ArgumentMatchers
+import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito._
 import play.api.libs.json.Json
 import play.api.mvc.RequestHeader
@@ -63,15 +63,15 @@ class PPOBServiceSpec extends SCRSSpec with CompanyDetailsFixture with SCRSExcep
   val returnCacheMap = CacheMap("", Map("" -> Json.toJson("")))
   def setupMocks(existingDetails: CompanyDetails, ppobModel: PPOBModel, expectedDetails: CompanyDetails): Unit = {
 
-    when(mockCompanyRegistrationConnector.retrieveCompanyDetails(Matchers.eq(registrationID))(Matchers.any[HeaderCarrier]()))
+    when(mockCompanyRegistrationConnector.retrieveCompanyDetails(ArgumentMatchers.eq(registrationID))(ArgumentMatchers.any[HeaderCarrier]()))
       .thenReturn(Future.successful(Some(existingDetails)))
 
     when(mockCompanyRegistrationConnector.updateCompanyDetails(
-      Matchers.eq(registrationID), Matchers.any()
-    )(Matchers.any[HeaderCarrier]()))
+      ArgumentMatchers.eq(registrationID), ArgumentMatchers.any()
+    )(ArgumentMatchers.any[HeaderCarrier]()))
       .thenReturn(Future.successful(expectedDetails))
 
-    when(mockAuditConnector.sendExtendedEvent(Matchers.any())(Matchers.any(), Matchers.any()))
+    when(mockAuditConnector.sendExtendedEvent(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
       .thenReturn(Future.successful(Success))
 
     mockS4LClear(mockS4LConnector)
@@ -129,10 +129,10 @@ class PPOBServiceSpec extends SCRSSpec with CompanyDetailsFixture with SCRSExcep
 
   "fetchAddressesAndChoice" should {
     "return an RO address, PPOB address and an AddressChoice of RO when given a regId and the address can be normalised" in new Setup {
-      when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(Matchers.any())(Matchers.any[HeaderCarrier]()))
+      when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(buildCorporationTaxModel(addressType = "RO")))
 
-      when(mockCompanyRegistrationConnector.checkROValidPPOB(Matchers.any(), Matchers.any())(Matchers.any[HeaderCarrier]()))
+      when(mockCompanyRegistrationConnector.checkROValidPPOB(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(optNewAddress))
 
       val result = await(service.fetchAddressesAndChoice("123456789"))
@@ -144,10 +144,10 @@ class PPOBServiceSpec extends SCRSSpec with CompanyDetailsFixture with SCRSExcep
     }
 
     "return no RO address, PPOB address and an AddressChoice when given a regId and the address cannot be normalised" in new Setup {
-      when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(Matchers.any())(Matchers.any[HeaderCarrier]()))
+      when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(buildCorporationTaxModel(addressType = "PPOB")))
 
-      when(mockCompanyRegistrationConnector.checkROValidPPOB(Matchers.any(), Matchers.any())(Matchers.any[HeaderCarrier]()))
+      when(mockCompanyRegistrationConnector.checkROValidPPOB(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(None))
 
       val result = await(service.fetchAddressesAndChoice("123456789"))

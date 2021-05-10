@@ -21,10 +21,9 @@ import helpers.SCRSSpec
 import mocks.SCRSMocks
 import models.Ticket
 import models.external.{Ticket => ApiTTicket}
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.logging.SessionId
+import uk.gov.hmrc.http.{HeaderCarrier,SessionId}
 
 import scala.concurrent.Future
 
@@ -82,7 +81,7 @@ class DeskproServiceSpec extends SCRSMocks with SCRSSpec {
     val ticketResponse : Long = 123456789
 
     "return a ticket id fromt DeskPro" in new Setup {
-      when(mockdeskproConnector.submitTicket(Matchers.any())(Matchers.any[HeaderCarrier]()))
+      when(mockdeskproConnector.submitTicket(ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(ticketResponse))
 
       await(service.submitTicket(regId, providedInfo, mockAuthId)) shouldBe ticketResponse

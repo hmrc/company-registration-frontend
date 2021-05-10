@@ -16,7 +16,7 @@
 
 package controllers.test
 
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -49,7 +49,7 @@ class ModifyThrottledUsersControllerSpec extends UnitSpec with MockitoSugar with
     val jsonResponse = Json.parse(s"""{"users_in" : 5}""")
 
     "return a 200" in new Setup {
-      when(mockHttp.GET[JsValue](Matchers.anyString())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]()))
+      when(mockHttp.GET[JsValue](ArgumentMatchers.anyString(),ArgumentMatchers.any(),ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(jsonResponse))
 
       val result = controller.modifyThrottledUsers(5)(FakeRequest())

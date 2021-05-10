@@ -22,7 +22,7 @@ import controllers.reg.CompanyContactDetailsController
 import fixtures.{CompanyContactDetailsFixture, UserDetailsFixture}
 import models.Email
 import org.jsoup.Jsoup
-import org.mockito.Matchers.any
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.MessagesApi
@@ -31,8 +31,8 @@ import play.api.mvc.MessagesControllerComponents
 import play.api.test.Helpers._
 import services.MetricsService
 
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 class CompanyContactDetailsSpec extends SCRSSpec with CompanyContactDetailsFixture with UserDetailsFixture with GuiceOneAppPerSuite
   with AuthBuilder {
@@ -45,7 +45,7 @@ class CompanyContactDetailsSpec extends SCRSSpec with CompanyContactDetailsFixtu
       override val companyContactDetailsService = mockCompanyContactDetailsService
       override val metricsService = mock[MetricsService]
       override val compRegConnector = mockCompanyRegistrationConnector
-      override val keystoreConnector= mockKeystoreConnector
+      override val keystoreConnector = mockKeystoreConnector
       override val appConfig = mockAppConfig
       override lazy val messagesApi = app.injector.instanceOf[MessagesApi]
       override val scrsFeatureSwitches = mockSCRSFeatureSwitches
@@ -53,31 +53,31 @@ class CompanyContactDetailsSpec extends SCRSSpec with CompanyContactDetailsFixtu
     }
 
     val ctDocFirstTimeThrough =
-    Json.parse(
-      s"""
-         |{
-         |    "OID" : "123456789",
-         |    "registrationID" : "1",
-         |    "status" : "draft",
-         |    "formCreationTimestamp" : "2016-10-25T12:20:45Z",
-         |    "language" : "en",
-         |    "verifiedEmail" : {
-         |        "address" : "user@test.com",
-         |        "type" : "GG",
-         |        "link-sent" : true,
-         |        "verified" : true,
-         |        "return-link-email-sent" : false
-         |    }
-         |}""".stripMargin)
+      Json.parse(
+        s"""
+           |{
+           |    "OID" : "123456789",
+           |    "registrationID" : "1",
+           |    "status" : "draft",
+           |    "formCreationTimestamp" : "2016-10-25T12:20:45Z",
+           |    "language" : "en",
+           |    "verifiedEmail" : {
+           |        "address" : "user@test.com",
+           |        "type" : "GG",
+           |        "link-sent" : true,
+           |        "verified" : true,
+           |        "return-link-email-sent" : false
+           |    }
+           |}""".stripMargin)
   }
 
-  "show" should{
+  "show" should {
     "display the CompanyContactDetails page with the correct elements passed into it" in new Setup {
       CompanyContactDetailsServiceMocks.fetchContactDetails(validCompanyContactDetailsModel)
       mockKeystoreFetchAndGet("registrationID", Some("1"))
       CTRegistrationConnectorMocks.retrieveCTRegistration(ctDocFirstTimeThrough)
       when(mockCompanyRegistrationConnector.fetchCompanyName(any())(any())).thenReturn(Future.successful("testCompanyname1"))
-      when(mockCompanyRegistrationConnector.retrieveEmail(any())(any())).thenReturn(Future.successful(Some(Email("verified@email","GG",true,true,true))))
+      when(mockCompanyRegistrationConnector.retrieveEmail(any())(any())).thenReturn(Future.successful(Some(Email("verified@email", "GG", true, true, true))))
 
       showWithAuthorisedUser(controller.show) {
         result =>

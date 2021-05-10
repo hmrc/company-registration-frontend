@@ -22,7 +22,7 @@ import fixtures.TradingDetailsFixtures
 import helpers.SCRSSpec
 import mocks.SCRSMocks
 import models.TradingDetails
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import play.api.libs.json.Format
 import uk.gov.hmrc.http.HeaderCarrier
@@ -42,12 +42,12 @@ class TradingDetailsServiceSpec extends SCRSSpec with SCRSMocks with TradingDeta
 
   "Updating the trading details data for a given user" should {
     "return a TradingDetailsSuccessResponse" in new Setup {
-      when(mockKeystoreConnector.fetchAndGet[String](Matchers.eq("registrationID"))(Matchers.any[HeaderCarrier](), Matchers.any[Format[String]]()))
+      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.eq("registrationID"))(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[Format[String]]()))
         .thenReturn(Future.successful(Some(regID)))
 
-      when(mockCommonService.fetchRegistrationID(Matchers.any[HeaderCarrier]())).thenReturn(Future.successful(regID))
+      when(mockCommonService.fetchRegistrationID(ArgumentMatchers.any[HeaderCarrier]())).thenReturn(Future.successful(regID))
 
-      when(mockCompanyRegistrationConnector.updateTradingDetails(Matchers.eq(regID), Matchers.eq(tradingDetailsTrue))(Matchers.any[HeaderCarrier]()))
+      when(mockCompanyRegistrationConnector.updateTradingDetails(ArgumentMatchers.eq(regID), ArgumentMatchers.eq(tradingDetailsTrue))(ArgumentMatchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(tradingDetailsSuccessResponseTrue))
 
       val result = TestService.updateCompanyInformation(tradingDetailsTrue)
@@ -62,7 +62,7 @@ class TradingDetailsServiceSpec extends SCRSSpec with SCRSMocks with TradingDeta
 
       mockHttpGet[Option[TradingDetails]]("testUrl", Some(tradingDetailsTrue))
 
-      when(mockCompanyRegistrationConnector.retrieveTradingDetails(Matchers.eq(regID))(Matchers.any[HeaderCarrier]()))
+      when(mockCompanyRegistrationConnector.retrieveTradingDetails(ArgumentMatchers.eq(regID))(ArgumentMatchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(Some(tradingDetailsTrue)))
 
       val result = TestService.retrieveTradingDetails(regID)
@@ -76,7 +76,7 @@ class TradingDetailsServiceSpec extends SCRSSpec with SCRSMocks with TradingDeta
 
       mockHttpGet[Option[TradingDetails]]("testUrl", None)
 
-      when(mockCompanyRegistrationConnector.retrieveTradingDetails(Matchers.eq(regID))(Matchers.any[HeaderCarrier]()))
+      when(mockCompanyRegistrationConnector.retrieveTradingDetails(ArgumentMatchers.eq(regID))(ArgumentMatchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(None))
 
       val result = TestService.retrieveTradingDetails(regID)

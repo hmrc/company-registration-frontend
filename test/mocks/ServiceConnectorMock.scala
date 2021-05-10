@@ -17,7 +17,7 @@
 package mocks
 
 import connectors._
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import org.mockito.stubbing.OngoingStubbing
 import org.scalatestplus.mockito.MockitoSugar
@@ -32,20 +32,20 @@ trait ServiceConnectorMock {
   val mockServiceConnector = mock[ServiceConnector]
 
   def getStatusMock(regid: String)(response: StatusResponse, mockConn: ServiceConnector = mockServiceConnector): OngoingStubbing[Future[StatusResponse]] = {
-    when(mockConn.getStatus(Matchers.eq(regid))
-    (Matchers.any[HeaderCarrier]))
+    when(mockConn.getStatus(ArgumentMatchers.eq(regid))
+    (ArgumentMatchers.any[HeaderCarrier]))
       .thenReturn(Future.successful(response))
   }
 
   def cancelRegMock(regid: String)(response: CancellationResponse, mockConn: ServiceConnector = mockServiceConnector): OngoingStubbing[Future[CancellationResponse]] = {
-    when(mockConn.cancelReg(Matchers.eq(regid))(Matchers.any[String => Future[StatusResponse]]())(Matchers.any[HeaderCarrier]))
+    when(mockConn.cancelReg(ArgumentMatchers.eq(regid))(ArgumentMatchers.any[String => Future[StatusResponse]]())(ArgumentMatchers.any[HeaderCarrier]))
       .thenReturn(Future.successful(response))
   }
 
   def canStatusBeCancelledMock(regid: String)(response: Future[String], mockConn: ServiceConnector = mockServiceConnector)
   : OngoingStubbing[Future[String]] = {
-    when(mockConn.canStatusBeCancelled(Matchers.eq(regid))
-    (Matchers.any[String => Future[StatusResponse]]())(Matchers.any[HeaderCarrier]))
+    when(mockConn.canStatusBeCancelled(ArgumentMatchers.eq(regid))
+    (ArgumentMatchers.any[String => Future[StatusResponse]]())(ArgumentMatchers.any[HeaderCarrier]))
       .thenReturn(response)
   }
 }

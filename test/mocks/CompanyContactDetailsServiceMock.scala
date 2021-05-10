@@ -17,7 +17,7 @@
 package mocks
 
 import models._
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.mockito.stubbing.OngoingStubbing
 import org.scalatestplus.mockito.MockitoSugar
@@ -32,13 +32,14 @@ trait CompanyContactDetailsServiceMock {
 
   object CompanyContactDetailsServiceMocks {
     def fetchContactDetails(response: CompanyContactDetailsApi): OngoingStubbing[Future[CompanyContactDetailsApi]] = {
-      when(mockCompanyContactDetailsService.fetchContactDetails(Matchers.any()))
+      when(mockCompanyContactDetailsService.fetchContactDetails(ArgumentMatchers.any()))
         .thenReturn(Future.successful(response))
     }
 
     def updateContactDetails(response: CompanyContactDetailsResponse): OngoingStubbing[Future[CompanyContactDetailsResponse]] = {
-      when(mockCompanyContactDetailsService.updateContactDetails(Matchers.any[CompanyContactDetailsApi]())(Matchers.any()))
+      when(mockCompanyContactDetailsService.updateContactDetails(ArgumentMatchers.any[CompanyContactDetailsApi]())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(response))
     }
   }
+
 }
