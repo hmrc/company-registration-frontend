@@ -22,8 +22,8 @@ import fixtures.LoginFixture
 import helpers.SCRSSpec
 import models.handoff._
 import models.{CHROAddress, Groups, Shareholder}
-import org.mockito.Matchers
-import org.mockito.Matchers.{any, eq => eqTo}
+import org.mockito.ArgumentMatchers
+import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.{JsObject, Json}
@@ -220,6 +220,8 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
       mockKeystoreFetchAndGet("registrationID", Some("1"))
       when(mockGroupService.retrieveGroups(any())(any()))
         .thenReturn(Future.successful(Some(groups)))
+
+
       when(mockHandOffService.buildPSCPayload(any(), any(), eqTo(Some(groups)))(any()))
         .thenReturn(Future.successful(Some("foo", "bar")))
       when(mockHandOffService.buildHandOffUrl(any(), any()))
@@ -280,9 +282,9 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
     )
 
     "redirect to post sign in if no navModel exists" in new Setup {
-      when(mockKeystoreConnector.fetchAndGet[String](Matchers.eq("registrationID"))(Matchers.any(), Matchers.any()))
+      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.eq("registrationID"))(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some("12354")))
-      when(mockHandOffService.fetchNavModel(Matchers.any())(Matchers.any()))
+      when(mockHandOffService.fetchNavModel(ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.failed(new NavModelNotFoundException))
 
       showWithAuthorisedUserRetrieval(TestController.back, Some("extID")) {
@@ -295,9 +297,9 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
     "redirect to the previous stub page" in new Setup {
       val request: FakeRequest[AnyContentAsFormUrlEncoded] = FakeRequest().withFormUrlEncodedBody()
 
-      when(mockHandOffService.fetchNavModel(Matchers.any())(Matchers.any()))
+      when(mockHandOffService.fetchNavModel(ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(handOffNavModel))
-      when(mockHandOffService.buildBackHandOff(Matchers.any())(Matchers.any()))
+      when(mockHandOffService.buildBackHandOff(ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(BackHandoff("EXT-123456", "12354", Json.obj(), Json.obj(), Json.obj())))
       when(mockHandOffService.buildHandOffUrl(any(), any())).thenReturn("foo")
 

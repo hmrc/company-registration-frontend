@@ -24,7 +24,7 @@ import helpers.SCRSSpec
 import mocks.TakeoverServiceMock
 import models._
 import models.handoff._
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.MessagesApi
@@ -99,7 +99,7 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with GuiceOneAppP
     "return a 200 whilst authorised " in new Setup {
       mockS4LFetchAndGet("HandBackData", Some(validCompanyNameHandBack))
 
-      when(mockMetaDataService.getApplicantData(Matchers.any())(Matchers.any[HeaderCarrier]()))
+      when(mockMetaDataService.getApplicantData(ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(aboutYouData))
 
       mockKeystoreFetchAndGet("registrationID", Some(testRegId))
@@ -110,7 +110,7 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with GuiceOneAppP
       CTRegistrationConnectorMocks.retrieveContactDetails(CompanyContactDetailsSuccessResponse(validCompanyContactDetailsResponse))
       CTRegistrationConnectorMocks.retrieveAccountingDetails(validAccountingResponse)
 
-      when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(Matchers.any())(Matchers.any()))
+      when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(corporationTaxModel))
 
       showWithAuthorisedUser(controller.show) {
@@ -122,7 +122,7 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with GuiceOneAppP
     "return a 303 and redirect to the Takeover Information Needed page if Takeover information is missing but replacingAnotherBusiness is true" in new Setup {
       mockS4LFetchAndGet("HandBackData", Some(validCompanyNameHandBack))
 
-      when(mockMetaDataService.getApplicantData(Matchers.any())(Matchers.any[HeaderCarrier]()))
+      when(mockMetaDataService.getApplicantData(ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(aboutYouData))
 
       mockKeystoreFetchAndGet("registrationID", Some(testRegId))
@@ -133,7 +133,7 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with GuiceOneAppP
       CTRegistrationConnectorMocks.retrieveContactDetails(CompanyContactDetailsSuccessResponse(validCompanyContactDetailsResponse))
       CTRegistrationConnectorMocks.retrieveAccountingDetails(validAccountingResponse)
 
-      when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(Matchers.any())(Matchers.any()))
+      when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(corporationTaxModel))
 
       showWithAuthorisedUser(controller.show) {
@@ -157,9 +157,9 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with GuiceOneAppP
 
   "back" should {
     "redirect to post sign in if no navModel exists" in new Setup {
-      when(mockKeystoreConnector.fetchAndGet[String](Matchers.eq("registrationID"))(Matchers.any(), Matchers.any()))
+      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.eq("registrationID"))(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(testRegId)))
-      when(mockHandOffService.fetchNavModel(Matchers.any())(Matchers.any())).thenReturn(Future.failed(new NavModelNotFoundException))
+      when(mockHandOffService.fetchNavModel(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.failed(new NavModelNotFoundException))
       showWithAuthorisedUserRetrieval(controller.back, Some("extID")) {
         res =>
           status(res) shouldBe SEE_OTHER
@@ -169,13 +169,13 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with GuiceOneAppP
     "redirect to the previous stub page" in new Setup {
       val request = FakeRequest().withFormUrlEncodedBody()
 
-      when(mockKeystoreConnector.fetchAndGet[String](Matchers.eq("registrationID"))(Matchers.any(), Matchers.any()))
+      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.eq("registrationID"))(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(testRegId)))
-      when(mockJweCommon.encrypt[BackHandoff](Matchers.any[BackHandoff]())(Matchers.any[Writes[BackHandoff]])).thenReturn(Some("foo"))
+      when(mockJweCommon.encrypt[BackHandoff](ArgumentMatchers.any[BackHandoff]())(ArgumentMatchers.any[Writes[BackHandoff]])).thenReturn(Some("foo"))
 
-      when(mockHandOffService.fetchNavModel(Matchers.any())(Matchers.any())).thenReturn(Future.successful(handOffNavModel))
+      when(mockHandOffService.fetchNavModel(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(handOffNavModel))
 
-      when(mockHandOffService.buildBackHandOff(Matchers.any())(Matchers.any()))
+      when(mockHandOffService.buildBackHandOff(ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(BackHandoff("EXT-123456", testRegId, Json.obj(), Json.obj(), Json.obj())))
 
       submitWithAuthorisedUserRetrieval(controller.back, request, Some("extID")) {
@@ -197,10 +197,10 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with GuiceOneAppP
           jump = Map("testJumpKey" -> "testJumpLink")
         )
       )
-      when(mockKeystoreConnector.fetchAndGet[String](Matchers.eq("registrationID"))(Matchers.any(), Matchers.any()))
+      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.eq("registrationID"))(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(testRegId)))
-      when(mockHandOffService.fetchNavModel(Matchers.any())(Matchers.any())).thenReturn(Future.successful(navModel))
-      when(mockJweCommon.encrypt[JsObject](Matchers.any[JsObject]())(Matchers.any[Writes[JsObject]])).thenReturn(Some("foo"))
+      when(mockHandOffService.fetchNavModel(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(navModel))
+      when(mockJweCommon.encrypt[JsObject](ArgumentMatchers.any[JsObject]())(ArgumentMatchers.any[Writes[JsObject]])).thenReturn(Some("foo"))
       showWithAuthorisedUserRetrieval(controller.summaryBackLink("testJumpKey"), Some("extID")) {
         res =>
           status(res) shouldBe SEE_OTHER
@@ -213,10 +213,10 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with GuiceOneAppP
         Sender(Map("1" -> NavLinks("testForwardLinkFromSender1", "testReverseLinkFromSender1"))),
         Receiver(Map("0" -> NavLinks("testForwardLinkFromReceiver0", "testReverseLinkFromReceiver0")))
       )
-      when(mockKeystoreConnector.fetchAndGet[String](Matchers.eq("registrationID"))(Matchers.any(), Matchers.any()))
+      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.eq("registrationID"))(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(testRegId)))
-      when(mockJweCommon.encrypt[JsObject](Matchers.any[JsObject]())(Matchers.any[Writes[JsObject]])).thenReturn(Some("foo"))
-      when(mockHandOffService.fetchNavModel(Matchers.any())(Matchers.any())).thenReturn(Future.successful(handOffNavModel))
+      when(mockJweCommon.encrypt[JsObject](ArgumentMatchers.any[JsObject]())(ArgumentMatchers.any[Writes[JsObject]])).thenReturn(Some("foo"))
+      when(mockHandOffService.fetchNavModel(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(handOffNavModel))
       showWithAuthorisedUserRetrieval(controller.summaryBackLink("foo"), Some("extID")) {
         res =>
           val ex = intercept[NoSuchElementException](status(res) shouldBe SEE_OTHER)

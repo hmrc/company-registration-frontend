@@ -21,7 +21,7 @@ import config.FrontendAppConfig
 import fixtures.PayloadFixture
 import helpers.SCRSSpec
 import models.SummaryHandOff
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.MessagesApi
@@ -63,10 +63,10 @@ class IncorporationSummaryControllerSpec extends SCRSSpec with PayloadFixture wi
     "return a 303 if user details are retrieved" in new Setup {
       val payload = summaryEncryptedPayload(jweInstance())
       mockKeystoreFetchAndGet("registrationID", Some("1"))
-      when(mockHandOffService.summaryHandOff(Matchers.any())(Matchers.any()))
+      when(mockHandOffService.summaryHandOff(ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(("testLink", payload))))
 
-      when(mockHandOffService.buildHandOffUrl(Matchers.eq("testLink"), Matchers.eq(payload)))
+      when(mockHandOffService.buildHandOffUrl(ArgumentMatchers.eq("testLink"), ArgumentMatchers.eq(payload)))
         .thenReturn(s"testLink?request=$payload")
 
       showWithAuthorisedUserRetrieval(TestController.incorporationSummary, extID) {
@@ -81,7 +81,7 @@ class IncorporationSummaryControllerSpec extends SCRSSpec with PayloadFixture wi
 
     "return a 400 if no link or payload are returned" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("1"))
-      when(mockHandOffService.summaryHandOff(Matchers.any())(Matchers.any()))
+      when(mockHandOffService.summaryHandOff(ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(None))
 
       showWithAuthorisedUserRetrieval(TestController.incorporationSummary, extID) {
@@ -104,7 +104,7 @@ class IncorporationSummaryControllerSpec extends SCRSSpec with PayloadFixture wi
       mockKeystoreFetchAndGet("registrationID", Some("1"))
       val encryptedPayload = jweInstance().encrypt[JsValue](payload).get
 
-      when(mockHandBackService.processCompanyNameReverseHandBack(Matchers.eq(encryptedPayload))(Matchers.any[HeaderCarrier]))
+      when(mockHandBackService.processCompanyNameReverseHandBack(ArgumentMatchers.eq(encryptedPayload))(ArgumentMatchers.any[HeaderCarrier]))
         .thenReturn(Future.successful(Success(payload)))
 
       showWithAuthorisedUser(TestController.returnToCorporationTaxSummary(encryptedPayload)) {
@@ -117,7 +117,7 @@ class IncorporationSummaryControllerSpec extends SCRSSpec with PayloadFixture wi
       mockKeystoreFetchAndGet("registrationID", Some("1"))
       val encryptedPayload = jweInstance().encrypt[JsValue](payload).get
 
-      when(mockHandBackService.processCompanyNameReverseHandBack(Matchers.eq(encryptedPayload))(Matchers.any[HeaderCarrier]))
+      when(mockHandBackService.processCompanyNameReverseHandBack(ArgumentMatchers.eq(encryptedPayload))(ArgumentMatchers.any[HeaderCarrier]))
         .thenReturn(Future.successful(Failure(DecryptionError)))
 
       showWithAuthorisedUser(TestController.returnToCorporationTaxSummary(encryptedPayload)) {
@@ -130,7 +130,7 @@ class IncorporationSummaryControllerSpec extends SCRSSpec with PayloadFixture wi
       mockKeystoreFetchAndGet("registrationID", Some("1"))
       val encryptedPayload = jweInstance().encrypt[JsValue](payload).get
 
-      when(mockHandBackService.processCompanyNameReverseHandBack(Matchers.eq(encryptedPayload))(Matchers.any[HeaderCarrier]))
+      when(mockHandBackService.processCompanyNameReverseHandBack(ArgumentMatchers.eq(encryptedPayload))(ArgumentMatchers.any[HeaderCarrier]))
         .thenReturn(Future.successful(Failure(PayloadError)))
 
       showWithAuthorisedUser(TestController.returnToCorporationTaxSummary(encryptedPayload)) {
@@ -142,7 +142,7 @@ class IncorporationSummaryControllerSpec extends SCRSSpec with PayloadFixture wi
       mockKeystoreFetchAndGet("registrationID", None)
       val encryptedPayload = jweInstance().encrypt[JsValue](payload).get
 
-      when(mockHandBackService.processCompanyNameReverseHandBack(Matchers.eq(encryptedPayload))(Matchers.any[HeaderCarrier]))
+      when(mockHandBackService.processCompanyNameReverseHandBack(ArgumentMatchers.eq(encryptedPayload))(ArgumentMatchers.any[HeaderCarrier]))
         .thenReturn(Future.successful(Success(payload)))
 
       showWithAuthorisedUser(TestController.returnToCorporationTaxSummary(encryptedPayload)) {

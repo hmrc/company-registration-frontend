@@ -20,7 +20,7 @@ import builders.AuthBuilder
 import config.FrontendAppConfig
 import controllers.reg.RegistrationUnsuccessfulController
 import helpers.SCRSSpec
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.MessagesApi
@@ -51,7 +51,7 @@ class RegistrationUnsuccessfulControllerSpec extends SCRSSpec with GuiceOneAppPe
   "show" should {
     "return a 200 when the address type is RO" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
-      when(mockDeleteSubmissionService.deleteSubmission(Matchers.eq("12345"))(Matchers.any[HeaderCarrier]()))
+      when(mockDeleteSubmissionService.deleteSubmission(ArgumentMatchers.eq("12345"))(ArgumentMatchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(true))
 
       showWithAuthorisedUser(controller.show) {
@@ -64,9 +64,9 @@ class RegistrationUnsuccessfulControllerSpec extends SCRSSpec with GuiceOneAppPe
   "submit" should {
     "return a 303" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
-      when(mockDeleteSubmissionService.deleteSubmission(Matchers.eq("12345"))(Matchers.any[HeaderCarrier]()))
+      when(mockDeleteSubmissionService.deleteSubmission(ArgumentMatchers.eq("12345"))(ArgumentMatchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(true))
-      when(mockKeystoreConnector.remove()(Matchers.any()))
+      when(mockKeystoreConnector.remove()(ArgumentMatchers.any()))
         .thenReturn(Future.successful(HttpResponse(200)))
 
       submitWithAuthorisedUser(controller.submit, FakeRequest().withFormUrlEncodedBody(Nil: _*)) {
@@ -88,9 +88,9 @@ class RegistrationUnsuccessfulControllerSpec extends SCRSSpec with GuiceOneAppPe
   "rejectionSubmit" should {
     "return a 303" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
-      when(mockDeleteSubmissionService.deleteSubmission(Matchers.eq("12345"))(Matchers.any[HeaderCarrier]()))
+      when(mockDeleteSubmissionService.deleteSubmission(ArgumentMatchers.eq("12345"))(ArgumentMatchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(true))
-      when(mockKeystoreConnector.remove()(Matchers.any()))
+      when(mockKeystoreConnector.remove()(ArgumentMatchers.any()))
         .thenReturn(Future.successful(HttpResponse(200)))
 
       submitWithAuthorisedUser(controller.rejectionSubmit, FakeRequest().withFormUrlEncodedBody(Nil: _*)) {
@@ -101,7 +101,7 @@ class RegistrationUnsuccessfulControllerSpec extends SCRSSpec with GuiceOneAppPe
     }
     "return a 500 if delete submission returns false" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
-      when(mockDeleteSubmissionService.deleteSubmission(Matchers.eq("12345"))(Matchers.any[HeaderCarrier]()))
+      when(mockDeleteSubmissionService.deleteSubmission(ArgumentMatchers.eq("12345"))(ArgumentMatchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(false))
 
       submitWithAuthorisedUser(controller.rejectionSubmit, FakeRequest().withFormUrlEncodedBody(Nil: _*)) {
@@ -111,7 +111,7 @@ class RegistrationUnsuccessfulControllerSpec extends SCRSSpec with GuiceOneAppPe
     }
     "return a exception if delete submission returns an exception" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
-      when(mockDeleteSubmissionService.deleteSubmission(Matchers.eq("12345"))(Matchers.any[HeaderCarrier]()))
+      when(mockDeleteSubmissionService.deleteSubmission(ArgumentMatchers.eq("12345"))(ArgumentMatchers.any[HeaderCarrier]()))
         .thenReturn(Future.failed(new Exception("")))
 
       intercept[Exception](submitWithAuthorisedUser(controller.rejectionSubmit, FakeRequest().withFormUrlEncodedBody(Nil: _*)) {

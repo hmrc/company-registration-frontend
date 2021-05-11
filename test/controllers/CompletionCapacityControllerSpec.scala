@@ -24,7 +24,7 @@ import fixtures.BusinessRegistrationFixture
 import helpers.SCRSSpec
 import mocks.MetricServiceMock
 import models.{AboutYouChoiceForm, BusinessRegistration}
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -70,7 +70,7 @@ class CompletionCapacityControllerSpec extends SCRSSpec with GuiceOneAppPerSuite
 
     "display the page whilst the user is authorised but with no registration id in session" in new Setup {
       mockKeystoreFetchAndGet("registrationID", None)
-      when(mockBusinessRegConnector.retrieveMetadata(Matchers.any[HeaderCarrier](), Matchers.any[HttpReads[BusinessRegistration]]()))
+      when(mockBusinessRegConnector.retrieveMetadata(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[HttpReads[BusinessRegistration]]()))
         .thenReturn(Future.successful(BusinessRegistrationSuccessResponse(validBusinessRegistrationResponse)))
 
       showWithAuthorisedUser(controller.show()) {
@@ -85,7 +85,7 @@ class CompletionCapacityControllerSpec extends SCRSSpec with GuiceOneAppPerSuite
     "display the page whilst the user is authorised" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("1"))
       CTRegistrationConnectorMocks.retrieveCTRegistration()
-      when(mockBusinessRegConnector.retrieveMetadata(Matchers.any[HeaderCarrier](), Matchers.any[HttpReads[BusinessRegistration]]()))
+      when(mockBusinessRegConnector.retrieveMetadata(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[HttpReads[BusinessRegistration]]()))
         .thenReturn(Future.successful(BusinessRegistrationSuccessResponse(validBusinessRegistrationResponse)))
 
       showWithAuthorisedUser(controller.show()) {
@@ -96,7 +96,7 @@ class CompletionCapacityControllerSpec extends SCRSSpec with GuiceOneAppPerSuite
 
     "return a 303 if the user has entered valid data" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("foo"))
-      when(mockMetaDataService.updateCompletionCapacity(Matchers.eq(AboutYouChoiceForm("director", "")))(Matchers.any[HeaderCarrier]()))
+      when(mockMetaDataService.updateCompletionCapacity(ArgumentMatchers.eq(AboutYouChoiceForm("director", "")))(ArgumentMatchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(validBusinessRegistrationResponse))
 
       submitWithAuthorisedUser(controller.submit(), FakeRequest().withFormUrlEncodedBody(
@@ -111,7 +111,7 @@ class CompletionCapacityControllerSpec extends SCRSSpec with GuiceOneAppPerSuite
 
     "return a 303 if the user has no entry in keystore but has valid data" in new Setup {
       mockKeystoreFetchAndGet("registrationID", None)
-      when(mockMetaDataService.updateCompletionCapacity(Matchers.eq(AboutYouChoiceForm("director", "")))(Matchers.any[HeaderCarrier]()))
+      when(mockMetaDataService.updateCompletionCapacity(ArgumentMatchers.eq(AboutYouChoiceForm("director", "")))(ArgumentMatchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(validBusinessRegistrationResponse))
 
       submitWithAuthorisedUser(controller.submit(), FakeRequest().withFormUrlEncodedBody(

@@ -19,7 +19,7 @@ package services
 import java.time.LocalDate
 
 import helpers.SCRSSpec
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.HeaderCarrier
@@ -69,7 +69,7 @@ class CommonServiceSpec extends SCRSSpec {
     val timestampCacheMap = CacheMap("lastActionTimestamp", Map("lastActionTimestamp" -> Json.toJson(LocalDate.now())))
 
     "cache the passed timestamp in keystore" in new Setup {
-      when(mockKeystoreConnector.cache(Matchers.contains("lastActionTimestamp"), Matchers.any[LocalDate]())(Matchers.any[HeaderCarrier](), Matchers.any()))
+      when(mockKeystoreConnector.cache(ArgumentMatchers.contains("lastActionTimestamp"), ArgumentMatchers.any[LocalDate]())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
         .thenReturn(Future.successful(timestampCacheMap))
 
       await(service.updateLastActionTimestamp()) shouldBe timestampCacheMap

@@ -23,8 +23,8 @@ import helpers.SCRSSpec
 import models._
 import org.jsoup.Jsoup
 import org.jsoup.select.Elements
-import org.mockito.Matchers
-import org.mockito.Matchers.any
+import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -298,16 +298,16 @@ class GroupAddressControllerSpec()(implicit lang: Lang) extends SCRSSpec with Gu
       mockKeystoreFetchAndGet("registrationID", Some("1"))
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
-      when(mockCompanyRegistrationConnector.retrieveEmail(Matchers.any())(Matchers.any[HeaderCarrier]))
+      when(mockCompanyRegistrationConnector.retrieveEmail(ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier]))
         .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
 
-      when(mockGroupService.retrieveGroups(Matchers.any())(Matchers.any[HeaderCarrier]))
+      when(mockGroupService.retrieveGroups(ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier]))
         .thenReturn(Future.successful(Some(testGroups)))
 
-      when(mockAddressLookupService.getAddress(Matchers.eq(alfId))(Matchers.any[HeaderCarrier]))
+      when(mockAddressLookupService.getAddress(ArgumentMatchers.eq(alfId))(ArgumentMatchers.any[HeaderCarrier]))
         .thenReturn(Future.successful(NewAddress("l1", "l2", None, None, None, None, None)))
 
-      when(mockGroupService.updateGroupAddress(Matchers.any(), Matchers.any())(Matchers.any[HeaderCarrier]))
+      when(mockGroupService.updateGroupAddress(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier]))
         .thenReturn(Future.successful(testGroups))
 
       showWithAuthorisedUser(controller.handbackFromALF(Some(alfId))) {

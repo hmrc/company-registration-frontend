@@ -16,8 +16,8 @@
 
 package mocks
 
-import org.mockito.Matchers
 import org.mockito.Mockito._
+import org.mockito.{ArgumentMatchers, Matchers}
 import org.scalatestplus.mockito.MockitoSugar
 import services._
 import uk.gov.hmrc.http.cache.client.CacheMap
@@ -31,8 +31,9 @@ trait HandOffServiceMock {
 
   object HandOffServiceMocks {
     def cacheRegistrationID(cacheMap: CacheMap) = {
-      when(mockHandOffService.cacheRegistrationID(Matchers.anyString())(Matchers.any()))
+      when(mockHandOffService.cacheRegistrationID(ArgumentMatchers.anyString())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(cacheMap))
     }
   }
+
 }

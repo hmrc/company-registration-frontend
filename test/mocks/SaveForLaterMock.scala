@@ -17,7 +17,7 @@
 package mocks
 
 import connectors._
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.mockito.stubbing.OngoingStubbing
 import org.scalatestplus.mockito.MockitoSugar
@@ -33,17 +33,17 @@ trait SaveForLaterMock {
     lazy val mockS4LConnector = mock[S4LConnector]
 
     def mockS4LFetchAndGet[T](formId: String, model: Option[T], mockS4LConnector: S4LConnector = mockS4LConnector): OngoingStubbing[Future[Option[T]]] = {
-      when(mockS4LConnector.fetchAndGet[T](Matchers.anyString(), Matchers.contains(formId))(Matchers.any[HeaderCarrier](), Matchers.any[Format[T]]()))
+      when(mockS4LConnector.fetchAndGet[T](ArgumentMatchers.anyString(), ArgumentMatchers.contains(formId))(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[Format[T]]()))
         .thenReturn(Future.successful(model))
     }
 
     def mockS4LClear(mockS4LConnector: S4LConnector = mockS4LConnector) : OngoingStubbing[Future[HttpResponse]] = {
-      when(mockS4LConnector.clear(Matchers.anyString())(Matchers.any[HeaderCarrier]()))
+      when(mockS4LConnector.clear(ArgumentMatchers.anyString())(ArgumentMatchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(HttpResponse(200)))
     }
 
     def mockS4LSaveForm[T](formId: String, cacheMap: CacheMap, mockS4LConnector: S4LConnector = mockS4LConnector) : OngoingStubbing[Future[CacheMap]] = {
-      when(mockS4LConnector.saveForm[T](Matchers.anyString(), Matchers.contains(formId), Matchers.any[T]())(Matchers.any[HeaderCarrier](), Matchers.any[Format[T]]()))
+      when(mockS4LConnector.saveForm[T](ArgumentMatchers.anyString(), ArgumentMatchers.contains(formId), ArgumentMatchers.any[T]())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[Format[T]]()))
         .thenReturn(Future.successful(cacheMap))
     }
 }

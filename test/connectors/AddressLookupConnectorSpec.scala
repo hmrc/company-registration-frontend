@@ -17,7 +17,7 @@
 package connectors
 
 import helpers.SCRSSpec
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import play.api.libs.json.{JsObject, Json}
 import uk.gov.hmrc.http.{ForbiddenException, HeaderCarrier, NotFoundException}
@@ -48,19 +48,22 @@ class AddressLookupConnectorSpec extends SCRSSpec {
       await(await(connector.getAddress("123"))) shouldBe testAddress
     }
     "return a Not found response" in new Setup {
-      when(mockWSHttp.GET[JsObject](Matchers.anyString())(Matchers.any(), Matchers.any[HeaderCarrier](), Matchers.any[ExecutionContext]))
+      when(mockWSHttp.GET[JsObject](ArgumentMatchers.anyString(),ArgumentMatchers.any(),ArgumentMatchers.any())
+        (ArgumentMatchers.any(), ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]))
         .thenReturn(Future.failed(new NotFoundException("")))
 
       intercept[NotFoundException](await(connector.getAddress("123")))
     }
     "return a Forbidden response" in new Setup {
-      when(mockWSHttp.GET[JsObject](Matchers.anyString())(Matchers.any(), Matchers.any[HeaderCarrier](), Matchers.any[ExecutionContext]))
+      when(mockWSHttp.GET[JsObject](ArgumentMatchers.anyString(),ArgumentMatchers.any(),ArgumentMatchers.any())
+        (ArgumentMatchers.any(), ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]))
         .thenReturn(Future.failed(new ForbiddenException("")))
 
       intercept[ForbiddenException](await(connector.getAddress("123")))
     }
     "return an Exception response" in new Setup {
-      when(mockWSHttp.GET[JsObject](Matchers.anyString())(Matchers.any(), Matchers.any[HeaderCarrier](), Matchers.any[ExecutionContext]))
+      when(mockWSHttp.GET[JsObject](ArgumentMatchers.anyString(),ArgumentMatchers.any(),ArgumentMatchers.any())
+        (ArgumentMatchers.any(), ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]))
         .thenReturn(Future.failed(new RuntimeException("")))
 
       intercept[RuntimeException](await(connector.getAddress("123")))

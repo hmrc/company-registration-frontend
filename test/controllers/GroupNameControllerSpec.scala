@@ -21,8 +21,8 @@ import config.FrontendAppConfig
 import controllers.groups.GroupNameController
 import helpers.SCRSSpec
 import models.{Email, NewAddress, _}
-import org.mockito.Matchers
-import org.mockito.Matchers.any
+import org.mockito.{ArgumentMatchers, Matchers}
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -126,7 +126,7 @@ class GroupNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Moc
     mockKeystoreFetchAndGet("registrationID", Some("reg123"))
     CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("held", ""))
 
-    when(mockGroupService.retrieveGroups(Matchers.any[String])(Matchers.any[HeaderCarrier]))
+    when(mockGroupService.retrieveGroups(ArgumentMatchers.any[String])(ArgumentMatchers.any[HeaderCarrier]))
       .thenReturn(Future.successful(None))
 
     showWithAuthorisedUser(controller.show()) {

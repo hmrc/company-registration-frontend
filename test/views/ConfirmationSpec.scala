@@ -23,7 +23,7 @@ import fixtures.CompanyDetailsFixture
 import models.ConfirmationReferencesSuccessResponse
 import models.connectors.ConfirmationReferences
 import org.jsoup.Jsoup
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.MessagesApi
@@ -59,7 +59,7 @@ class ConfirmationSpec extends SCRSSpec with CompanyDetailsFixture with GuiceOne
       val ackref = "ABCD00000000123"
       val txId = "tx123"
       CTRegistrationConnectorMocks.fetchAcknowledgementReference("testRegID", ConfirmationReferencesSuccessResponse(ConfirmationReferences(txId,Some(paymentRef),Some(payment),ackref)))
-      when(mockCompanyRegistrationConnector.retrieveCompanyDetails(Matchers.any())(Matchers.any()))
+      when(mockCompanyRegistrationConnector.retrieveCompanyDetails(ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(validCompanyDetailsResponse)))
 
       showWithAuthorisedUser(controller.show) {

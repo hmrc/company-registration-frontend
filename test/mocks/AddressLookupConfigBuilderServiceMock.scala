@@ -17,7 +17,7 @@
 package mocks
 
 import models.AlfJourneyConfig
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.mockito.stubbing.OngoingStubbing
 import org.scalatestplus.mockito.MockitoSugar
@@ -36,11 +36,11 @@ trait AddressLookupConfigBuilderServiceMock extends MockitoSugar {
                            )(response: AlfJourneyConfig): OngoingStubbing[AlfJourneyConfig] =
     when(
       mockAddressLookupConfigBuilderService.buildConfig(
-        Matchers.eq(handbackLocation),
-        Matchers.eq(specificJourneyKey),
-        Matchers.eq(lookupPageHeading),
-        Matchers.eq(confirmPageHeading)
-      )(Matchers.any[MessagesApi], Matchers.any[MessagesProvider])
+        ArgumentMatchers.eq(handbackLocation),
+        ArgumentMatchers.eq(specificJourneyKey),
+        ArgumentMatchers.eq(lookupPageHeading),
+        ArgumentMatchers.eq(confirmPageHeading)
+      )(ArgumentMatchers.any[MessagesApi], ArgumentMatchers.any[MessagesProvider])
     ) thenReturn response
 
 }

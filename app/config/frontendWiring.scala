@@ -37,7 +37,7 @@ trait Hooks extends HttpHooks with HttpAuditing {
 class WSHttpImpl @Inject()(appConfig: FrontendAppConfig, config:Configuration, val auditConnector: AuditConnector, val actorSystem: ActorSystem, val wsClient: WSClient) extends WSHttp {
 
   override val appName = appConfig.servicesConfig.getString("appName")
-  override protected def configuration: Option[Config] = Option(config.underlying)
+  override protected def configuration: Config = config.underlying
   protected def appNameConfiguration: Configuration = config
 }
 

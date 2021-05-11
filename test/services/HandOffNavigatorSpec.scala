@@ -21,7 +21,7 @@ import connectors.KeystoreConnector
 import helpers.SCRSSpec
 import mocks.NavModelRepoMock
 import models.handoff.{HandOffNavModel, NavLinks, Receiver, Sender}
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -124,7 +124,7 @@ class HandOffNavigatorSpec extends SCRSSpec with MockitoSugar with GuiceOneAppPe
     "return a new initialised nav model when a nav model cannot be found in keystore OR Mongo" in new SetupWithMongoRepo {
       when(mockSCRSFeatureSwitches.legacyEnv).thenReturn(BooleanFeatureSwitch("", true))
       when(mockSCRSFeatureSwitches.cohoFirstHandOff).thenReturn(BooleanFeatureSwitch("", false))
-      when(mockKeyStoreConnector.fetchAndGet[HandOffNavModel](Matchers.any())(Matchers.any(), Matchers.any()))
+      when(mockKeyStoreConnector.fetchAndGet[HandOffNavModel](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(None))
       mockGetNavModel(handOffNavModel = None)
       mockInsertNavModel()

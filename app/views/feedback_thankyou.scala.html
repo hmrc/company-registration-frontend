@@ -16,8 +16,9 @@
 
 @import uk.gov.hmrc.play.partials.CachedStaticHtmlPartialRetriever
 
+@import scala.concurrent.ExecutionContext
 @(partialUrl: String, redirectUrl: String)(implicit request: Request[_], cachedStaticHtmlPartialRetriever: CachedStaticHtmlPartialRetriever,
-messages: Messages, appConfig: config.FrontendAppConfig)
+messages: Messages, appConfig: config.FrontendAppConfig,ec:ExecutionContext)
 
 @main_template(Messages("feedback.thankyou.title")) {
     @cachedStaticHtmlPartialRetriever.getPartialContent(partialUrl)

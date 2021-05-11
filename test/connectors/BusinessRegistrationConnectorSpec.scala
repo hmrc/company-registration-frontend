@@ -19,7 +19,7 @@ package connectors
 import fixtures.BusinessRegistrationFixture
 import helpers.SCRSSpec
 import models.{Address, BusinessRegistration, CompanyContactDetailsApi}
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import play.api.libs.json.JsValue
 import uk.gov.hmrc.http._
@@ -61,21 +61,24 @@ class BusinessRegistrationConnectorSpec extends SCRSSpec with BusinessRegistrati
     }
 
     "return a Not Found response when a metadata record can not be found" in new Setup {
-      when(mockWSHttp.GET[BusinessRegistration](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]))
+      when(mockWSHttp.GET[BusinessRegistration](ArgumentMatchers.anyString(),ArgumentMatchers.any(),ArgumentMatchers.any())
+        (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any[ExecutionContext]))
         .thenReturn(Future.failed(new NotFoundException("Bad request")))
 
       await(connector.retrieveMetadata(registrationId)) shouldBe BusinessRegistrationNotFoundResponse
     }
 
     "return a Forbidden response when a metadata record can not be accessed by the user" in new Setup {
-      when(mockWSHttp.GET[BusinessRegistration](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]))
+      when(mockWSHttp.GET[BusinessRegistration](ArgumentMatchers.anyString(),ArgumentMatchers.any(),ArgumentMatchers.any())
+        (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any[ExecutionContext]))
         .thenReturn(Future.failed(new ForbiddenException("Forbidden")))
 
       await(connector.retrieveMetadata(registrationId)) shouldBe BusinessRegistrationForbiddenResponse
     }
 
     "return an Exception response when an unspecified error has occurred" in new Setup {
-      when(mockWSHttp.GET[BusinessRegistration](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]))
+      when(mockWSHttp.GET[BusinessRegistration](ArgumentMatchers.anyString(),ArgumentMatchers.any(),ArgumentMatchers.any())
+        (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any[ExecutionContext]))
         .thenReturn(Future.failed(new Exception("exception")))
 
       await(connector.retrieveMetadata(registrationId)).getClass shouldBe BusinessRegistrationErrorResponse(new Exception).getClass
@@ -90,21 +93,24 @@ class BusinessRegistrationConnectorSpec extends SCRSSpec with BusinessRegistrati
     }
 
     "return a Not Found response when a metadata record can not be found" in new Setup {
-      when(mockWSHttp.GET[BusinessRegistration](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]))
+      when(mockWSHttp.GET[BusinessRegistration](ArgumentMatchers.anyString(),ArgumentMatchers.any(),ArgumentMatchers.any())
+        (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any[ExecutionContext]))
         .thenReturn(Future.failed(new NotFoundException("Bad request")))
 
       await(connector.retrieveMetadata) shouldBe BusinessRegistrationNotFoundResponse
     }
 
     "return a Forbidden response when a metadata record can not be accessed by the user" in new Setup {
-      when(mockWSHttp.GET[BusinessRegistration](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]))
+      when(mockWSHttp.GET[BusinessRegistration](ArgumentMatchers.anyString(),ArgumentMatchers.any(),ArgumentMatchers.any())
+        (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any[ExecutionContext]))
         .thenReturn(Future.failed(new ForbiddenException("Forbidden")))
 
       await(connector.retrieveMetadata) shouldBe BusinessRegistrationForbiddenResponse
     }
 
     "return an Exception response when an unspecified error has occurred" in new Setup {
-      when(mockWSHttp.GET[BusinessRegistration](Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]))
+      when(mockWSHttp.GET[BusinessRegistration](ArgumentMatchers.anyString(),ArgumentMatchers.any(),ArgumentMatchers.any())
+        (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any[ExecutionContext]))
         .thenReturn(Future.failed(new Exception("exception")))
 
       await(connector.retrieveMetadata).getClass shouldBe BusinessRegistrationErrorResponse(new Exception).getClass
@@ -115,7 +121,7 @@ class BusinessRegistrationConnectorSpec extends SCRSSpec with BusinessRegistrati
     "return a business registration model" in new Setup {
       mockHttpGet[BusinessRegistration]("testUrl", validBusinessRegistrationResponse)
 
-      when(mockBusRegConnector.retrieveMetadata(Matchers.any[HeaderCarrier](), Matchers.any()))
+      when(mockBusRegConnector.retrieveMetadata(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
         .thenReturn(BusinessRegistrationSuccessResponse(validBusinessRegistrationResponse))
 
       mockHttpPOST[JsValue, BusinessRegistration](connector.businessRegUrl, validBusinessRegistrationResponse)
@@ -133,7 +139,8 @@ class BusinessRegistrationConnectorSpec extends SCRSSpec with BusinessRegistrati
     )
 
     "return true when a 200 is returned from BR" in new Setup {
-      when(mockWSHttp.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]))
+      when(mockWSHttp.POST[JsValue, HttpResponse](ArgumentMatchers.anyString(), ArgumentMatchers.any(), ArgumentMatchers.any())
+        (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any[ExecutionContext]))
         .thenReturn(Future.successful(HttpResponse(200)))
 
       val result = await(connector.updatePrePopContactDetails(registrationId, companyDetails))
@@ -142,7 +149,8 @@ class BusinessRegistrationConnectorSpec extends SCRSSpec with BusinessRegistrati
     }
 
     "return false when any 4xx response is returned from BR" in new Setup {
-      when(mockWSHttp.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]))
+      when(mockWSHttp.POST[JsValue, HttpResponse](ArgumentMatchers.anyString(), ArgumentMatchers.any(), ArgumentMatchers.any())
+        (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any[ExecutionContext]))
         .thenReturn(Future.failed(new BadRequestException("test")))
 
       val result = await(connector.updatePrePopContactDetails(registrationId, companyDetails))
@@ -164,7 +172,8 @@ class BusinessRegistrationConnectorSpec extends SCRSSpec with BusinessRegistrati
     )
 
     "return true when a 200 is returned from BR" in new Setup {
-      when(mockWSHttp.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]))
+      when(mockWSHttp.POST[JsValue, HttpResponse](ArgumentMatchers.anyString(), ArgumentMatchers.any(), ArgumentMatchers.any())
+        (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any[ExecutionContext]))
         .thenReturn(Future.successful(HttpResponse(200)))
 
       val result = await(connector.updatePrePopAddress(registrationId, address))
@@ -173,7 +182,8 @@ class BusinessRegistrationConnectorSpec extends SCRSSpec with BusinessRegistrati
     }
 
     "return false when any 4xx response is returned from BR" in new Setup {
-      when(mockWSHttp.POST[JsValue, HttpResponse](Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any(), Matchers.any(), Matchers.any[ExecutionContext]))
+      when(mockWSHttp.POST[JsValue, HttpResponse](ArgumentMatchers.anyString(), ArgumentMatchers.any(), ArgumentMatchers.any())
+        (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any[ExecutionContext]))
         .thenReturn(Future.failed(new BadRequestException("test")))
 
       val result = await(connector.updatePrePopAddress(registrationId, address))

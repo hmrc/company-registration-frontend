@@ -18,33 +18,32 @@ package mocks
 
 import config.FrontendAppConfig
 import connectors._
-import org.mockito.Matchers
-import org.mockito.Matchers.any
+import org.mockito.ArgumentMatchers
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.Configuration
 import play.api.libs.json.JsValue
-import play.api.mvc.MessagesControllerComponents
 import services._
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.cache.client.{CacheMap, SessionCache}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.model.Audit
-import utils.{BooleanFeatureSwitch, FeatureSwitch, FeatureSwitchManager, JweCommon, SCRSFeatureSwitches}
+import utils.{BooleanFeatureSwitch, FeatureSwitchManager, JweCommon, SCRSFeatureSwitches}
 
 import scala.concurrent.Future
 
 trait SCRSMocks extends CompanyContactDetailsServiceMock
-    with AccountingServiceMock
-    with CompanyRegistrationConnectorMock
-    with KeystoreMock
-    with SaveForLaterMock
-    with WSHTTPMock
-    with HandOffServiceMock
-    with HandBackServiceMock
-    with NavModelRepoMock
-    with PrepopAddressConnectorMock
-    with AddressLookupConnectorMock {
+  with AccountingServiceMock
+  with CompanyRegistrationConnectorMock
+  with KeystoreMock
+  with SaveForLaterMock
+  with WSHTTPMock
+  with HandOffServiceMock
+  with HandBackServiceMock
+  with NavModelRepoMock
+  with PrepopAddressConnectorMock
+  with AddressLookupConnectorMock {
   this: MockitoSugar =>
 
   val mockMetricsService = mock[MetricsService]
@@ -74,7 +73,7 @@ trait SCRSMocks extends CompanyContactDetailsServiceMock
 
 
   def mockFetchRegistrationID[T <: CommonService](response: String, mock: T) = {
-    when(mock.fetchRegistrationID(Matchers.any[HeaderCarrier]()))
+    when(mock.fetchRegistrationID(ArgumentMatchers.any[HeaderCarrier]()))
       .thenReturn(Future.successful(response))
   }
 

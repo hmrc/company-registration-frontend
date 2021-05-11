@@ -27,9 +27,9 @@ import models.auth.AuthDetails
 import models.connectors.ConfirmationReferences
 import models.external.{OtherRegStatus, Statuses}
 import org.joda.time.DateTime
-import org.mockito.Matchers.{any, eq => eqTo}
+import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito._
-import org.mockito.{ArgumentCaptor, Matchers}
+import org.mockito.{ArgumentCaptor, ArgumentMatchers}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.{JsObject, JsValue, Json}
 import play.api.test.FakeRequest
@@ -480,7 +480,7 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
 
         val captor = ArgumentCaptor.forClass(classOf[EmailMismatchEvent])
 
-        when(mockAuditConnector.sendExtendedEvent(captor.capture())(Matchers.any[HeaderCarrier](), Matchers.any[ExecutionContext]()))
+        when(mockAuditConnector.sendExtendedEvent(captor.capture())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]()))
           .thenReturn(Future.successful(Success))
 
         when(mockCompanyRegistrationConnector.retrieveEmail(any())(any()))
@@ -508,7 +508,7 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
 
         await(service.checkForEmailMismatch(regId, authDetails.copy(email = matchingEmail))) shouldBe false
 
-        verify(mockAuditConnector, times(0)).sendExtendedEvent(Matchers.any())(Matchers.any[HeaderCarrier](), Matchers.any[ExecutionContext]())
+        verify(mockAuditConnector, times(0)).sendExtendedEvent(ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]())
       }
 
       "there has been no email mismatch audit event sent in the session, and there is no verified email in CR" in new Setup {
@@ -520,7 +520,7 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
 
         await(service.checkForEmailMismatch(regId, authDetails)) shouldBe false
 
-        verify(mockAuditConnector, times(0)).sendExtendedEvent(Matchers.any())(Matchers.any[HeaderCarrier](), Matchers.any[ExecutionContext]())
+        verify(mockAuditConnector, times(0)).sendExtendedEvent(ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]())
       }
 
       "there has been an email mismatch audit event sent in the session, and it mismatched" in new Setup {

@@ -16,7 +16,7 @@
 
 package builders
 
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.mvc._
@@ -33,19 +33,19 @@ trait AuthBuilder extends MockitoSugar {
   val userId = "testUserId"
 
   def mockAuthorisedUser[A](future: Future[A]) {
-    when(mockAuthConnector.authorise[A](Matchers.any[Predicate](), Matchers.any[Retrieval[A]]())(Matchers.any(), Matchers.any())) thenReturn {
+    when(mockAuthConnector.authorise[A](ArgumentMatchers.any[Predicate](), ArgumentMatchers.any[Retrieval[A]]())(ArgumentMatchers.any(), ArgumentMatchers.any())) thenReturn {
       future
     }
   }
 
   def mockUnauthorisedUser() {
-    when(mockAuthConnector.authorise[Unit](Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())) thenReturn {
+    when(mockAuthConnector.authorise[Unit](ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())) thenReturn {
       Future.failed(MissingBearerToken(""))
     }
   }
 
   def mockAuthFailure() {
-    when(mockAuthConnector.authorise[Unit](Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any())) thenReturn {
+    when(mockAuthConnector.authorise[Unit](ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())) thenReturn {
       Future.failed(IncorrectCredentialStrength(""))
     }
   }

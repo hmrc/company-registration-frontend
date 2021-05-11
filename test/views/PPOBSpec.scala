@@ -24,7 +24,7 @@ import fixtures.PPOBFixture
 import mocks.NavModelRepoMock
 import models.{CHROAddress, NewAddress, PPOBChoice}
 import org.jsoup.Jsoup
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.{Lang, Langs, Messages}
@@ -64,7 +64,7 @@ class PPOBSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixture with Nav
       CTRegistrationConnectorMocks.retrieveCTRegistration()
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
 
-      when(mockPPOBService.fetchAddressesAndChoice(Matchers.any())(Matchers.any()))
+      when(mockPPOBService.fetchAddressesAndChoice(ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(CHROAddress("38", "line 1", Some("line 2"), "Telford", "UK", None, Some("ZZ1 1ZZ"), None)), None, PPOBChoice("")))
 
 
@@ -85,7 +85,7 @@ class PPOBSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixture with Nav
       CTRegistrationConnectorMocks.retrieveCTRegistration()
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
 
-      when(mockPPOBService.fetchAddressesAndChoice(Matchers.any())(Matchers.any()))
+      when(mockPPOBService.fetchAddressesAndChoice(ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(CHROAddress("38", "line 1", Some("line 2"), "Telford", "UK", None, Some("ZZ1 1ZZ"), None)),
                                            Some(NewAddress("line 1", "line 2", None, None, Some("ZZ2 2ZZ"), None, None)),
                                            PPOBChoice("PPOB")))
@@ -108,7 +108,7 @@ class PPOBSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixture with Nav
       CTRegistrationConnectorMocks.retrieveCTRegistration()
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
 
-      when(mockPPOBService.fetchAddressesAndChoice(Matchers.any())(Matchers.any()))
+      when(mockPPOBService.fetchAddressesAndChoice(ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(CHROAddress("14", "St Test Walk", Some("Testley"), "Testford", "UK", None, Some("TE1 1ST"), Some("Testshire"))),
           Some(NewAddress("14 St Test Walk", "Testley", Some("Testford"), Some("Testshire"), Some("TE1 1ST"), Some("UK"), Some("txid"))),
           PPOBChoice("RO")))
@@ -131,7 +131,7 @@ class PPOBSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixture with Nav
       CTRegistrationConnectorMocks.retrieveCTRegistration()
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
 
-      when(mockPPOBService.fetchAddressesAndChoice(Matchers.any())(Matchers.any()))
+      when(mockPPOBService.fetchAddressesAndChoice(ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(None, Some(NewAddress("line 1", "line 2", None, None, None, None, None)), PPOBChoice("")))
 
       showWithAuthorisedUser(controller.show) {

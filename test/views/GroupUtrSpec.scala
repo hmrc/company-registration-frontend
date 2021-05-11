@@ -23,7 +23,7 @@ import fixtures.UserDetailsFixture
 import models.{NewAddress, _}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatcher
-import org.mockito.Matchers.any
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.{JsValue, Json}
@@ -49,7 +49,7 @@ class GroupUtrSpec extends SCRSSpec with UserDetailsFixture
     )
 
     case class funcMatcher(func: Groups => Future[Result]) extends ArgumentMatcher[Groups => Future[Result]] {
-      override def matches(oarg: scala.Any): Boolean = true
+      override def matches(argument: Groups => Future[Result]): Boolean = true
     }
 
 

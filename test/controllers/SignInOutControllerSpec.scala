@@ -26,7 +26,7 @@ import fixtures._
 import helpers.SCRSSpec
 import mocks.MetricServiceMock
 import models.{Email, ThrottleResponse}
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.Json
@@ -92,19 +92,19 @@ class SignInOutControllerSpec extends SCRSSpec
     "return a 303 if accessing with authorisation for a new journey" in new Setup {
       val expected = ThrottleResponse("12345", true, false, false, Some(Email("email", "GG", false, false, false)))
 
-      when(mockEnrolmentsService.hasBannedRegimes(Matchers.any()))
+      when(mockEnrolmentsService.hasBannedRegimes(ArgumentMatchers.any()))
         .thenReturn(Future.successful(false))
 
-      when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(Matchers.any()))
+      when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(ArgumentMatchers.any()))
         .thenReturn(Future.successful(FootprintFound(expected)))
 
-      when(mockEmailService.checkEmailStatus(Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
+      when(mockEmailService.checkEmailStatus(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(VerifiedEmail()))
 
-      when(mockCompanyRegistrationConnector.fetchRegistrationStatus(Matchers.any())(Matchers.any()))
+      when(mockCompanyRegistrationConnector.fetchRegistrationStatus(ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(None))
 
-      when(mockHandOffService.cacheRegistrationID(Matchers.eq(registrationID))(Matchers.any()))
+      when(mockHandOffService.cacheRegistrationID(ArgumentMatchers.eq(registrationID))(ArgumentMatchers.any()))
         .thenReturn(Future.successful(cacheMap))
 
       showWithAuthorisedUserRetrieval(controller.postSignIn(None), authDetails) {
@@ -153,16 +153,16 @@ class SignInOutControllerSpec extends SCRSSpec
     "return a 303 if accessing with authorisation for an existing journey" in new Setup {
       val expected = ThrottleResponse("12345", false, false, false, Some(Email("email", "GG", false, false, false)))
 
-      when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(Matchers.any()))
+      when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(ArgumentMatchers.any()))
         .thenReturn(Future.successful(FootprintFound(expected)))
 
-      when(mockCompanyRegistrationConnector.fetchRegistrationStatus(Matchers.any())(Matchers.any()))
+      when(mockCompanyRegistrationConnector.fetchRegistrationStatus(ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(None))
 
-      when(mockHandOffService.cacheRegistrationID(Matchers.eq(registrationID))(Matchers.any()))
+      when(mockHandOffService.cacheRegistrationID(ArgumentMatchers.eq(registrationID))(ArgumentMatchers.any()))
         .thenReturn(Future.successful(cacheMap))
 
-      when(mockEmailService.checkEmailStatus(Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
+      when(mockEmailService.checkEmailStatus(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(VerifiedEmail()))
 
       showWithAuthorisedUserRetrieval(controller.postSignIn(None), authDetails) {
@@ -178,17 +178,17 @@ class SignInOutControllerSpec extends SCRSSpec
 
       val expected = ThrottleResponse("12345", false, false, false, registrationProgress = Some(HO5))
 
-      when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(Matchers.any()))
+      when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(ArgumentMatchers.any()))
         .thenReturn(Future.successful(FootprintFound(expected)))
 
-      when(mockCompanyRegistrationConnector.fetchRegistrationStatus(Matchers.any())(Matchers.any()))
+      when(mockCompanyRegistrationConnector.fetchRegistrationStatus(ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(None))
 
-      when(mockHandOffService.cacheRegistrationID(Matchers.eq(registrationID))(Matchers.any()))
+      when(mockHandOffService.cacheRegistrationID(ArgumentMatchers.eq(registrationID))(ArgumentMatchers.any()))
         .thenReturn(Future.successful(cacheMap))
 
       mockKeystoreCache(registrationID, registrationID, cacheMap)
-      when(mockKeystoreConnector.cache(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
+      when(mockKeystoreConnector.cache(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(cacheMap))
 
       showWithAuthorisedUserRetrieval(controller.postSignIn(None), authDetails) {
@@ -204,13 +204,13 @@ class SignInOutControllerSpec extends SCRSSpec
 
       val expected = ThrottleResponse("12345", false, true, false, registrationProgress = Some(HO5))
 
-      when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(Matchers.any()))
+      when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(ArgumentMatchers.any()))
         .thenReturn(Future.successful(FootprintFound(expected)))
 
-      when(mockCompanyRegistrationConnector.fetchRegistrationStatus(Matchers.any())(Matchers.any()))
+      when(mockCompanyRegistrationConnector.fetchRegistrationStatus(ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some("locked")))
 
-      when(mockHandOffService.cacheRegistrationID(Matchers.eq(registrationID))(Matchers.any()))
+      when(mockHandOffService.cacheRegistrationID(ArgumentMatchers.eq(registrationID))(ArgumentMatchers.any()))
         .thenReturn(Future.successful(cacheMap))
 
       showWithAuthorisedUserRetrieval(controller.postSignIn(None), authDetails) {
@@ -226,13 +226,13 @@ class SignInOutControllerSpec extends SCRSSpec
 
       val expected = ThrottleResponse("12345", false, true, false, registrationProgress = Some(HO5))
 
-      when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(Matchers.any()))
+      when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(ArgumentMatchers.any()))
         .thenReturn(Future.successful(FootprintFound(expected)))
 
-      when(mockCompanyRegistrationConnector.fetchRegistrationStatus(Matchers.any())(Matchers.any()))
+      when(mockCompanyRegistrationConnector.fetchRegistrationStatus(ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some("held")))
 
-      when(mockHandOffService.cacheRegistrationID(Matchers.eq(registrationID))(Matchers.any()))
+      when(mockHandOffService.cacheRegistrationID(ArgumentMatchers.eq(registrationID))(ArgumentMatchers.any()))
         .thenReturn(Future.successful(cacheMap))
 
       showWithAuthorisedUserRetrieval(controller.postSignIn(None), authDetails) {
@@ -245,13 +245,13 @@ class SignInOutControllerSpec extends SCRSSpec
     "return a 303 if accessing with authorisation for a complete journey" in new Setup {
       val expected = ThrottleResponse("12345", false, true, true)
 
-      when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(Matchers.any()))
+      when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(ArgumentMatchers.any()))
         .thenReturn(Future.successful(FootprintFound(expected)))
 
-      when(mockCompanyRegistrationConnector.fetchRegistrationStatus(Matchers.any())(Matchers.any()))
+      when(mockCompanyRegistrationConnector.fetchRegistrationStatus(ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some("held")))
 
-      when(mockHandOffService.cacheRegistrationID(Matchers.eq(registrationID))(Matchers.any()))
+      when(mockHandOffService.cacheRegistrationID(ArgumentMatchers.eq(registrationID))(ArgumentMatchers.any()))
         .thenReturn(Future.successful(cacheMap))
 
       showWithAuthorisedUserRetrieval(controller.postSignIn(None), authDetails) {
@@ -264,19 +264,19 @@ class SignInOutControllerSpec extends SCRSSpec
     "return a 303 if accessing with authorised but that account has restricted enrolments" in new Setup {
       val expected = ThrottleResponse("12345", true, false, false)
 
-      when(mockEnrolmentsService.hasBannedRegimes(Matchers.any()))
+      when(mockEnrolmentsService.hasBannedRegimes(ArgumentMatchers.any()))
         .thenReturn(Future.successful(true))
 
-      when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(Matchers.any()))
+      when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(ArgumentMatchers.any()))
         .thenReturn(Future.successful(FootprintFound(expected)))
 
-      when(mockEmailService.checkEmailStatus(Matchers.any(), Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
+      when(mockEmailService.checkEmailStatus(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(VerifiedEmail()))
 
-      when(mockCompanyRegistrationConnector.fetchRegistrationStatus(Matchers.any())(Matchers.any()))
+      when(mockCompanyRegistrationConnector.fetchRegistrationStatus(ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(None))
 
-      when(mockHandOffService.cacheRegistrationID(Matchers.eq(registrationID))(Matchers.any()))
+      when(mockHandOffService.cacheRegistrationID(ArgumentMatchers.eq(registrationID))(ArgumentMatchers.any()))
         .thenReturn(Future.successful(cacheMap))
 
       showWithAuthorisedUserRetrieval(controller.postSignIn(None), authDetails) {
@@ -287,7 +287,7 @@ class SignInOutControllerSpec extends SCRSSpec
     }
 
     "handle the too many requests case appropriately" in new Setup {
-      when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(Matchers.any()))
+      when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(ArgumentMatchers.any()))
         .thenReturn(Future.successful(FootprintTooManyRequestsResponse))
 
       showWithAuthorisedUserRetrieval(controller.postSignIn(None), authDetails) {
@@ -296,10 +296,10 @@ class SignInOutControllerSpec extends SCRSSpec
     }
 
     "handle the forbidden error appropriately" in new Setup {
-      when(mockEnrolmentsService.hasBannedRegimes(Matchers.any()))
+      when(mockEnrolmentsService.hasBannedRegimes(ArgumentMatchers.any()))
         .thenReturn(Future.successful(false))
 
-      when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(Matchers.any()))
+      when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(ArgumentMatchers.any()))
         .thenReturn(Future.successful(FootprintForbiddenResponse))
 
       showWithAuthorisedUserRetrieval(controller.postSignIn(None), authDetails) {
@@ -308,10 +308,10 @@ class SignInOutControllerSpec extends SCRSSpec
     }
 
     "handle an unexpected error appropriately" in new Setup {
-      when(mockEnrolmentsService.hasBannedRegimes(Matchers.any()))
+      when(mockEnrolmentsService.hasBannedRegimes(ArgumentMatchers.any()))
         .thenReturn(Future.successful(false))
 
-      when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(Matchers.any()))
+      when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(ArgumentMatchers.any()))
         .thenReturn(Future.successful(FootprintErrorResponse(new Exception("Stuff happened"))))
 
       showWithAuthorisedUserRetrieval(controller.postSignIn(None), authDetails) {
@@ -442,7 +442,7 @@ class SignInOutControllerSpec extends SCRSSpec
 
   "renewSession" should {
     "return 200 when hit with Authorised User" in new Setup {
-      when(mockKeystoreConnector.cache(Matchers.contains("lastActionTimestamp"), Matchers.any[LocalDate]())(Matchers.any[HeaderCarrier](), Matchers.any()))
+      when(mockKeystoreConnector.cache(ArgumentMatchers.contains("lastActionTimestamp"), ArgumentMatchers.any[LocalDate]())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
         .thenReturn(Future.successful(cacheMap))
 
       showWithAuthorisedUser(controller.renewSession()) { a =>
@@ -455,7 +455,7 @@ class SignInOutControllerSpec extends SCRSSpec
     }
 
     "return CORS headers when a cors host is supplied" in new Setup(Some("http://localhost:12345")) {
-      when(mockKeystoreConnector.cache(Matchers.contains("lastActionTimestamp"), Matchers.any[LocalDate]())(Matchers.any[HeaderCarrier](), Matchers.any()))
+      when(mockKeystoreConnector.cache(ArgumentMatchers.contains("lastActionTimestamp"), ArgumentMatchers.any[LocalDate]())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
         .thenReturn(Future.successful(cacheMap))
 
       showWithAuthorisedUser(controller.renewSession()) { a =>

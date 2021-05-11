@@ -20,8 +20,8 @@ import builders.AuthBuilder
 import config.FrontendAppConfig
 import fixtures.{LoginFixture, PayloadFixture}
 import helpers.SCRSSpec
-import org.mockito.Matchers
-import org.mockito.Matchers.{eq => eqTo}
+import org.mockito.ArgumentMatchers
+import org.mockito.ArgumentMatchers.{eq => eqTo}
 import org.mockito.Mockito._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.MessagesApi
@@ -64,7 +64,7 @@ class BusinessActivitiesControllerSpec extends SCRSSpec with PayloadFixture with
     "return a 303 when keystore returns none but has authorisation" in new Setup {
       mockKeystoreFetchAndGet("registrationID", None)
 
-      when(mockHandOffService.buildBusinessActivitiesPayload(Matchers.any(), Matchers.any())(Matchers.any()))
+      when(mockHandOffService.buildBusinessActivitiesPayload(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some("testUrl" -> validEncryptedBusinessActivities(jweInstance()))))
 
       showWithAuthorisedUserRetrieval(controller.businessActivities, externalID) {
@@ -77,7 +77,7 @@ class BusinessActivitiesControllerSpec extends SCRSSpec with PayloadFixture with
 
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
 
-      when(mockHandOffService.buildBusinessActivitiesPayload(Matchers.any(), Matchers.any())(Matchers.any()))
+      when(mockHandOffService.buildBusinessActivitiesPayload(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some("testUrl" -> validEncryptedBusinessActivities(jweInstance()))))
 
       showWithAuthorisedUserRetrieval(controller.businessActivities, externalID) {
@@ -89,7 +89,7 @@ class BusinessActivitiesControllerSpec extends SCRSSpec with PayloadFixture with
     "return a bad request if a url and payload are not returned" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
 
-      when(mockHandOffService.buildBusinessActivitiesPayload(Matchers.any(), Matchers.any())(Matchers.any()))
+      when(mockHandOffService.buildBusinessActivitiesPayload(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(None))
 
       showWithAuthorisedUserRetrieval(controller.businessActivities, externalID) {
@@ -114,7 +114,7 @@ class BusinessActivitiesControllerSpec extends SCRSSpec with PayloadFixture with
     "return a 400 if sending an empty request with authorisation" in new Setup {
 
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
-      when(mockHandBackService.processBusinessActivitiesHandBack(eqTo(""))(Matchers.any[HeaderCarrier]))
+      when(mockHandBackService.processBusinessActivitiesHandBack(eqTo(""))(ArgumentMatchers.any[HeaderCarrier]))
         .thenReturn(Failure(DecryptionError))
 
       showWithAuthorisedUser(controller.businessActivitiesBack("")) {
@@ -127,7 +127,7 @@ class BusinessActivitiesControllerSpec extends SCRSSpec with PayloadFixture with
     "return a 400 if a payload error is returned from hand back service" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
       val payload = validEncryptedBusinessActivities(jweInstance())
-      when(mockHandBackService.processBusinessActivitiesHandBack(eqTo(payload))(Matchers.any[HeaderCarrier]))
+      when(mockHandBackService.processBusinessActivitiesHandBack(eqTo(payload))(ArgumentMatchers.any[HeaderCarrier]))
         .thenReturn(Failure(PayloadError))
 
       showWithAuthorisedUser(controller.businessActivitiesBack(payload)) {
@@ -140,7 +140,7 @@ class BusinessActivitiesControllerSpec extends SCRSSpec with PayloadFixture with
     "return a 303 if submitting with request data and with authorisation" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
       val payload = validEncryptedBusinessActivities(jweInstance())
-      when(mockHandBackService.processBusinessActivitiesHandBack(eqTo(payload))(Matchers.any[HeaderCarrier]))
+      when(mockHandBackService.processBusinessActivitiesHandBack(eqTo(payload))(ArgumentMatchers.any[HeaderCarrier]))
         .thenReturn(Future.successful(Success(Json.toJson(validBusinessActivitiesPayload))))
 
       showWithAuthorisedUser(controller.businessActivitiesBack(payload)) {
@@ -153,7 +153,7 @@ class BusinessActivitiesControllerSpec extends SCRSSpec with PayloadFixture with
     "return a 303 if submitting with request data with authorisation but keystore has expired" in new Setup {
       mockKeystoreFetchAndGet("registrationID", None)
       val payload = validEncryptedBusinessActivities(jweInstance())
-      when(mockHandBackService.processBusinessActivitiesHandBack(eqTo(payload))(Matchers.any[HeaderCarrier]))
+      when(mockHandBackService.processBusinessActivitiesHandBack(eqTo(payload))(ArgumentMatchers.any[HeaderCarrier]))
         .thenReturn(Future.successful(Success(Json.toJson(validBusinessActivitiesPayload))))
 
       showWithAuthorisedUser(controller.businessActivitiesBack(payload)) {

@@ -22,7 +22,7 @@ import fixtures.{LoginFixture, PayloadFixture}
 import helpers.SCRSSpec
 import models.CHROAddress
 import models.handoff.CompanyNameHandOffIncoming
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.MessagesApi
@@ -80,7 +80,7 @@ class CorporationTaxDetailsControllerSpec extends SCRSSpec with PayloadFixture w
 
     "return a BAD_REQUEST if sending an empty request with authorisation" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("1"))
-      when(mockHandBackService.processCompanyDetailsHandBack(Matchers.eq(""))(Matchers.any[HeaderCarrier]))
+      when(mockHandBackService.processCompanyDetailsHandBack(ArgumentMatchers.eq(""))(ArgumentMatchers.any[HeaderCarrier]))
         .thenReturn(Failure(DecryptionError))
 
       showWithAuthorisedUser(TestController.corporationTaxDetails("")) {
@@ -92,7 +92,7 @@ class CorporationTaxDetailsControllerSpec extends SCRSSpec with PayloadFixture w
 
     "return a BAD_REQUEST if a payload error is returned from hand back service" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("1"))
-      when(mockHandBackService.processCompanyDetailsHandBack(Matchers.eq(payloadEncrypted.get))(Matchers.any[HeaderCarrier]))
+      when(mockHandBackService.processCompanyDetailsHandBack(ArgumentMatchers.eq(payloadEncrypted.get))(ArgumentMatchers.any[HeaderCarrier]))
         .thenReturn(Failure(PayloadError))
 
       showWithAuthorisedUser(TestController.corporationTaxDetails(payloadEncrypted.get)) {
@@ -104,7 +104,7 @@ class CorporationTaxDetailsControllerSpec extends SCRSSpec with PayloadFixture w
 
     "return a SEE_OTHER if submitting with request data and with authorisation" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("1"))
-      when(mockHandBackService.processCompanyDetailsHandBack(Matchers.eq(payloadEncrypted.get))(Matchers.any[HeaderCarrier]))
+      when(mockHandBackService.processCompanyDetailsHandBack(ArgumentMatchers.eq(payloadEncrypted.get))(ArgumentMatchers.any[HeaderCarrier]))
         .thenReturn(Future.successful(Success(handBackPayload)))
 
       showWithAuthorisedUser(TestController.corporationTaxDetails(payloadEncrypted.get)) {
@@ -117,7 +117,7 @@ class CorporationTaxDetailsControllerSpec extends SCRSSpec with PayloadFixture w
 
     "return a SEE_OTHER if submitting with request data and with authorisation but keystore has expired" in new Setup {
       mockKeystoreFetchAndGet("registrationID", None)
-      when(mockHandBackService.processCompanyDetailsHandBack(Matchers.eq(payloadEncrypted.get))(Matchers.any[HeaderCarrier]))
+      when(mockHandBackService.processCompanyDetailsHandBack(ArgumentMatchers.eq(payloadEncrypted.get))(ArgumentMatchers.any[HeaderCarrier]))
         .thenReturn(Future.successful(Success(handBackPayload)))
 
       showWithAuthorisedUser(TestController.corporationTaxDetails(payloadEncrypted.get)) {

@@ -21,11 +21,11 @@ import java.net.URLEncoder
 import controllers.reg.routes
 import javax.inject.Inject
 import play.api.Configuration
-import uk.gov.hmrc.play.bootstrap.config.{RunMode, ServicesConfig}
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
-class FrontendAppConfig @Inject()(configuration: Configuration, runMode: RunMode) {
+class FrontendAppConfig @Inject()(configuration: Configuration) {
 
-  val servicesConfig = new ServicesConfig(configuration, runMode)
+  val servicesConfig = new ServicesConfig(configuration)
 
   private def loadConfig(key: String) = servicesConfig.getString(key)
 

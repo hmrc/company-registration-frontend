@@ -22,8 +22,8 @@ import controllers.groups.GroupUtrController
 import helpers.SCRSSpec
 import models.{Email, NewAddress, _}
 import org.jsoup.Jsoup
-import org.mockito.Matchers
-import org.mockito.Matchers.any
+import org.mockito.ArgumentMatchers
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -78,7 +78,7 @@ class GroupUtrControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Mock
       mockKeystoreFetchAndGet("registrationID", Some("reg123"))
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("held", ""))
 
-      when(mockGroupService.retrieveGroups(Matchers.any[String])(Matchers.any[HeaderCarrier]))
+      when(mockGroupService.retrieveGroups(ArgumentMatchers.any[String])(ArgumentMatchers.any[HeaderCarrier]))
         .thenReturn(Future.successful(None))
 
       showWithAuthorisedUser(controller.show()) {

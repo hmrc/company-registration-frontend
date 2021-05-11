@@ -18,7 +18,7 @@ package mocks
 
 import connectors.AddressLookupConnector
 import models.AlfJourneyConfig
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import org.mockito.stubbing.OngoingStubbing
 import org.scalatestplus.mockito.MockitoSugar
@@ -31,7 +31,7 @@ trait AddressLookupConnectorMock extends MockitoSugar {
   val mockAddressLookupConnector: AddressLookupConnector = mock[AddressLookupConnector]
 
   def mockGetOnRampUrl(alfJourneyConfig: AlfJourneyConfig)(response: Future[String]): OngoingStubbing[Future[String]] =
-    when(mockAddressLookupConnector.getOnRampURL(Matchers.eq(alfJourneyConfig))(Matchers.any[HeaderCarrier]()))
+    when(mockAddressLookupConnector.getOnRampURL(ArgumentMatchers.eq(alfJourneyConfig))(ArgumentMatchers.any[HeaderCarrier]()))
       .thenReturn(response)
 
 }

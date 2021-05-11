@@ -22,7 +22,7 @@ import controllers.dashboard.DashboardController
 import models.external.Statuses
 import models.{Dashboard, IncorpAndCTDashboard, ServiceDashboard, ServiceLinks}
 import org.jsoup.Jsoup
-import org.mockito.Matchers
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.MessagesApi
@@ -32,8 +32,8 @@ import services.{DashboardBuilt, DashboardService}
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, ~}
 import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolment, EnrolmentIdentifier, Enrolments}
 
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
 
@@ -67,7 +67,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
     ), Credentials("test", "test")
   )
 
-  val payeThresholds    = Map("weekly" -> 113, "monthly" -> 490, "annually" -> 5876)
+  val payeThresholds = Map("weekly" -> 113, "monthly" -> 490, "annually" -> 5876)
   val newPayeThresholds = Map("weekly" -> 116, "monthly" -> 503, "annually" -> 6032)
   val vatThresholds = Map("yearly" -> 10000)
 
@@ -84,14 +84,14 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
         ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
       )
 
-      when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
+      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
-      when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
+      when(mockDashboardService.buildDashboard(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(DashboardBuilt(dashboard)))
 
-              when(mockDashboardService.checkForEmailMismatch(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
-          .thenReturn(Future.successful(true))
+      when(mockDashboardService.checkForEmailMismatch(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+        .thenReturn(Future.successful(true))
 
       showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
@@ -124,13 +124,13 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
         ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
       )
 
-      when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
+      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
-      when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
+      when(mockDashboardService.buildDashboard(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(DashboardBuilt(dashboard)))
 
-      when(mockDashboardService.checkForEmailMismatch(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
+      when(mockDashboardService.checkForEmailMismatch(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(true))
 
       showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
@@ -164,14 +164,14 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
         ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
       )
 
-      when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
+      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
-      when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
+      when(mockDashboardService.buildDashboard(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(DashboardBuilt(dashboard)))
 
-              when(mockDashboardService.checkForEmailMismatch(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
-          .thenReturn(Future.successful(true))
+      when(mockDashboardService.checkForEmailMismatch(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+        .thenReturn(Future.successful(true))
 
       showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
@@ -201,14 +201,14 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
         ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
       )
 
-      when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
+      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
-      when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
+      when(mockDashboardService.buildDashboard(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(DashboardBuilt(dashboard)))
 
-      when(mockDashboardService.checkForEmailMismatch(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
-          .thenReturn(Future.successful(true))
+      when(mockDashboardService.checkForEmailMismatch(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+        .thenReturn(Future.successful(true))
 
       showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
@@ -241,13 +241,13 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
           ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
         )
 
-        when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
+        when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(Some(regId)))
 
-        when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
+        when(mockDashboardService.buildDashboard(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
           .thenReturn(Future.successful(DashboardBuilt(dashboard)))
 
-        when(mockDashboardService.checkForEmailMismatch(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
+        when(mockDashboardService.checkForEmailMismatch(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(true))
 
         showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
@@ -279,13 +279,13 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
           ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
         )
 
-        when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
+        when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(Some(regId)))
 
-        when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
+        when(mockDashboardService.buildDashboard(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
           .thenReturn(Future.successful(DashboardBuilt(dashboard)))
 
-        when(mockDashboardService.checkForEmailMismatch(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
+        when(mockDashboardService.checkForEmailMismatch(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(true))
 
         showWithAuthorisedUserRetrieval(controller.show, authDetails(Set(Enrolment("IR-CT", Seq(EnrolmentIdentifier("UTR", "exampleUTR")), "activated")))) {
@@ -318,13 +318,13 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
           ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
         )
 
-        when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
+        when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(Some(regId)))
 
-        when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
+        when(mockDashboardService.buildDashboard(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
           .thenReturn(Future.successful(DashboardBuilt(dashboard)))
 
-        when(mockDashboardService.checkForEmailMismatch(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
+        when(mockDashboardService.checkForEmailMismatch(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(true))
 
         showWithAuthorisedUserRetrieval(controller.show, authDetails(Set(Enrolment("IR-CT", Seq(EnrolmentIdentifier("UTR", "exampleUTR")), "activated")))) {
@@ -358,13 +358,13 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
           ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
         )
 
-        when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
+        when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(Some(regId)))
 
-        when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
+        when(mockDashboardService.buildDashboard(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
           .thenReturn(Future.successful(DashboardBuilt(dashboard)))
 
-        when(mockDashboardService.checkForEmailMismatch(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
+        when(mockDashboardService.checkForEmailMismatch(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(true))
 
         showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
@@ -398,14 +398,14 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
         ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
       )
 
-      when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
+      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
-      when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
+      when(mockDashboardService.buildDashboard(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(DashboardBuilt(dashboard)))
 
-              when(mockDashboardService.checkForEmailMismatch(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
-          .thenReturn(Future.successful(true))
+      when(mockDashboardService.checkForEmailMismatch(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+        .thenReturn(Future.successful(true))
 
       showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
@@ -426,14 +426,14 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
         ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
       )
 
-      when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
+      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
-      when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
+      when(mockDashboardService.buildDashboard(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(DashboardBuilt(dashboard)))
 
-              when(mockDashboardService.checkForEmailMismatch(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
-          .thenReturn(Future.successful(true))
+      when(mockDashboardService.checkForEmailMismatch(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+        .thenReturn(Future.successful(true))
 
       showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
@@ -454,14 +454,14 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
         ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
       )
 
-      when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
+      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
-      when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
+      when(mockDashboardService.buildDashboard(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(DashboardBuilt(dashboard)))
 
-              when(mockDashboardService.checkForEmailMismatch(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
-          .thenReturn(Future.successful(true))
+      when(mockDashboardService.checkForEmailMismatch(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+        .thenReturn(Future.successful(true))
 
       showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
@@ -483,14 +483,14 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
         ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
       )
 
-      when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
+      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
-      when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
+      when(mockDashboardService.buildDashboard(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(DashboardBuilt(dashboard)))
 
-              when(mockDashboardService.checkForEmailMismatch(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
-          .thenReturn(Future.successful(true))
+      when(mockDashboardService.checkForEmailMismatch(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+        .thenReturn(Future.successful(true))
 
       showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
@@ -512,14 +512,14 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
         ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
       )
 
-      when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
+      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
-      when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
+      when(mockDashboardService.buildDashboard(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(DashboardBuilt(dashboard)))
 
-              when(mockDashboardService.checkForEmailMismatch(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
-          .thenReturn(Future.successful(true))
+      when(mockDashboardService.checkForEmailMismatch(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+        .thenReturn(Future.successful(true))
 
       showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
@@ -546,14 +546,14 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
         ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
       )
 
-      when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
+      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
-      when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
+      when(mockDashboardService.buildDashboard(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(DashboardBuilt(dashboard)))
 
-              when(mockDashboardService.checkForEmailMismatch(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
-          .thenReturn(Future.successful(true))
+      when(mockDashboardService.checkForEmailMismatch(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+        .thenReturn(Future.successful(true))
 
       showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
@@ -581,14 +581,14 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
         ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
       )
 
-      when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
+      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
-      when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
+      when(mockDashboardService.buildDashboard(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(DashboardBuilt(dashboard)))
 
-              when(mockDashboardService.checkForEmailMismatch(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
-          .thenReturn(Future.successful(true))
+      when(mockDashboardService.checkForEmailMismatch(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+        .thenReturn(Future.successful(true))
 
       showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
@@ -612,13 +612,13 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
           hasVATCred = false
         )
 
-        when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
+        when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(Some(regId)))
 
-        when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
+        when(mockDashboardService.buildDashboard(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
           .thenReturn(Future.successful(DashboardBuilt(dashboard)))
 
-        when(mockDashboardService.checkForEmailMismatch(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
+        when(mockDashboardService.checkForEmailMismatch(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(true))
 
         showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
@@ -641,14 +641,14 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
         ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
       )
 
-      when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
+      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
-      when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
+      when(mockDashboardService.buildDashboard(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(DashboardBuilt(dashboard)))
 
-              when(mockDashboardService.checkForEmailMismatch(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
-          .thenReturn(Future.successful(true))
+      when(mockDashboardService.checkForEmailMismatch(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+        .thenReturn(Future.successful(true))
 
       showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
@@ -671,14 +671,14 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
         ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
       )
 
-      when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
+      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
-      when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
+      when(mockDashboardService.buildDashboard(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(DashboardBuilt(dashboard)))
 
-              when(mockDashboardService.checkForEmailMismatch(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
-          .thenReturn(Future.successful(true))
+      when(mockDashboardService.checkForEmailMismatch(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+        .thenReturn(Future.successful(true))
 
       showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
@@ -700,14 +700,14 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
         hasVATCred = false
       )
 
-      when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
+      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
-      when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
+      when(mockDashboardService.buildDashboard(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(DashboardBuilt(dashboard)))
 
-              when(mockDashboardService.checkForEmailMismatch(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
-          .thenReturn(Future.successful(true))
+      when(mockDashboardService.checkForEmailMismatch(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+        .thenReturn(Future.successful(true))
 
       showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
@@ -732,13 +732,13 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
           hasVATCred = false
         )
 
-        when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
+        when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(Some(regId)))
 
-        when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
+        when(mockDashboardService.buildDashboard(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
           .thenReturn(Future.successful(DashboardBuilt(dashboard)))
 
-        when(mockDashboardService.checkForEmailMismatch(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
+        when(mockDashboardService.checkForEmailMismatch(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(true))
 
         showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
@@ -761,14 +761,14 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
         hasVATCred = false
       )
 
-      when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
+      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
-      when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
+      when(mockDashboardService.buildDashboard(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(DashboardBuilt(dashboard)))
 
-              when(mockDashboardService.checkForEmailMismatch(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
-          .thenReturn(Future.successful(true))
+      when(mockDashboardService.checkForEmailMismatch(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+        .thenReturn(Future.successful(true))
 
       showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
@@ -790,14 +790,14 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
         hasVATCred = true
       )
 
-      when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
+      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
-      when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
+      when(mockDashboardService.buildDashboard(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(DashboardBuilt(dashboard)))
 
-              when(mockDashboardService.checkForEmailMismatch(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
-          .thenReturn(Future.successful(true))
+      when(mockDashboardService.checkForEmailMismatch(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+        .thenReturn(Future.successful(true))
 
       showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
@@ -819,14 +819,14 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
         hasVATCred = false
       )
 
-      when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
+      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
-      when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
+      when(mockDashboardService.buildDashboard(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(DashboardBuilt(dashboard)))
 
-              when(mockDashboardService.checkForEmailMismatch(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
-          .thenReturn(Future.successful(true))
+      when(mockDashboardService.checkForEmailMismatch(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+        .thenReturn(Future.successful(true))
 
       showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
@@ -848,14 +848,14 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
         ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
       )
 
-      when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
+      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
-      when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
+      when(mockDashboardService.buildDashboard(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(DashboardBuilt(dashboard)))
 
-              when(mockDashboardService.checkForEmailMismatch(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
-          .thenReturn(Future.successful(true))
+      when(mockDashboardService.checkForEmailMismatch(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+        .thenReturn(Future.successful(true))
 
       showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
@@ -877,14 +877,14 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
         ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
       )
 
-      when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
+      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
-      when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
+      when(mockDashboardService.buildDashboard(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(DashboardBuilt(dashboard)))
 
-              when(mockDashboardService.checkForEmailMismatch(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
-          .thenReturn(Future.successful(true))
+      when(mockDashboardService.checkForEmailMismatch(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+        .thenReturn(Future.successful(true))
 
       showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
@@ -908,14 +908,14 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
         ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
       )
 
-      when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
+      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
-      when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
+      when(mockDashboardService.buildDashboard(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(DashboardBuilt(dashboard)))
 
-              when(mockDashboardService.checkForEmailMismatch(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
-          .thenReturn(Future.successful(true))
+      when(mockDashboardService.checkForEmailMismatch(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+        .thenReturn(Future.successful(true))
 
       showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
@@ -934,14 +934,14 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
         ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
       )
 
-      when(mockKeystoreConnector.fetchAndGet[String](Matchers.any())(Matchers.any(), Matchers.any()))
+      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
-      when(mockDashboardService.buildDashboard(Matchers.any(), Matchers.any())(Matchers.any()))
+      when(mockDashboardService.buildDashboard(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(DashboardBuilt(dashboard)))
 
-              when(mockDashboardService.checkForEmailMismatch(Matchers.any(), Matchers.any())(Matchers.any(), Matchers.any()))
-          .thenReturn(Future.successful(true))
+      when(mockDashboardService.checkForEmailMismatch(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+        .thenReturn(Future.successful(true))
 
       showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
