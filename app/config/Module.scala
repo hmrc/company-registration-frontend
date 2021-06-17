@@ -20,7 +20,6 @@ import com.google.inject.AbstractModule
 import config.filters.{SessionIdFilter, SessionIdFilterImpl}
 import connectors._
 import controllers.dashboard.{CancelRegistrationController, CancelRegistrationControllerImpl, DashboardController, DashboardControllerImpl}
-import controllers.feedback.{FeedbackController, FeedbackControllerImpl}
 import controllers.handoff._
 import controllers.healthcheck.{HealthCheckController, HealthCheckControllerImpl}
 import controllers.reg._
@@ -91,7 +90,6 @@ class Module extends AbstractModule {
 
     //controllers
     bind(classOf[CancelRegistrationController]).to(classOf[CancelRegistrationControllerImpl]).asEagerSingleton()
-    bind(classOf[FeedbackController]).to(classOf[FeedbackControllerImpl]).asEagerSingleton()
     bind(classOf[BasicCompanyDetailsController]).to(classOf[BasicCompanyDetailsControllerImpl])
     bind(classOf[BusinessActivitiesController]).to(classOf[BusinessActivitiesControllerImpl]).asEagerSingleton()
     bind(classOf[CorporationTaxDetailsController]).to(classOf[CorporationTaxDetailsControllerImpl]).asEagerSingleton()
