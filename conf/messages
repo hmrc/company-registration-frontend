@@ -33,7 +33,6 @@ common.dateExample                                                  = For exampl
 common.button.ConfirmAndContinue                                    = Confirm and continue
 common.period                                                       = .
 common.differentAddress                                             = A different address
-feedback.thankyou.title                                             = Your feedback
 app.common.titleError                                               = Error:
 
 
@@ -229,9 +228,6 @@ page.verification.create-new-ggw-account.main-title                 = You need t
 page.verification.create-new-ggw-account.para.one                   = The Government Gateway account you signed in with has already been used to register for other services.
 page.verification.create-new-ggw-account.para.two                   = If you use this account to register a new limited company it will cancel any existing enrolments you have.
 page.verification.create-new-ggw-account.para.three                 = You need to create a new account to use this service.
-
-## Feedback page
-page.feedback.description                                           = Send your feedback
 
 ## Error restart page
 error.restart.description                                           = Something went wrong

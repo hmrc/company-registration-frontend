@@ -54,10 +54,6 @@ GET        /summary-jump-back/:jumpKey              controllers.reg.SummaryContr
 GET        /reached-maximum-users                   controllers.reg.LimitReachedController.show
 POST       /reached-maximum-users                   controllers.reg.LimitReachedController.submit
 
-GET        /feedback                                controllers.feedback.FeedbackController.show
-POST       /feedback                                controllers.feedback.FeedbackController.submit
-GET        /thankyou                                controllers.feedback.FeedbackController.thankyou
-
 GET        /post-sign-in                            controllers.reg.SignInOutController.postSignIn(resend: Option[Boolean] ?= None, handOffID: Option[String] ?= None, payload: Option[String] ?= None)
 
 POST       /post-sign-in                            controllers.reg.SignInOutController.postSignIn(resend: Option[Boolean] ?= None, handOffID: Option[String] ?= None, payload: Option[String] ?= None)

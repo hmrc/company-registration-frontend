@@ -7,19 +7,19 @@ private object AppDependencies {
 
   val compile = Seq(
     ws,
-    "uk.gov.hmrc" %% "bootstrap-frontend-play-26" % "5.1.0",
-    "uk.gov.hmrc" %% "play-partials" % "7.1.0-play-26",
+    "uk.gov.hmrc" %% "bootstrap-frontend-play-26" % "5.4.0",
+    "uk.gov.hmrc" %% "play-partials" % "8.1.0-play-26",
     "uk.gov.hmrc" %% "url-builder" % "3.5.0-play-26",
-    "uk.gov.hmrc" %% "http-caching-client" % "9.4.0-play-26",
+    "uk.gov.hmrc" %% "http-caching-client" % "9.5.0-play-26",
     "uk.gov.hmrc" %% "play-conditional-form-mapping" % "1.9.0-play-26",
     "org.bitbucket.b_c" % "jose4j" % "0.5.0",
-    "uk.gov.hmrc" %% "time" % "3.19.0",
+    "uk.gov.hmrc" %% "time" % "3.25.0",
     "uk.gov.hmrc" %% "play-allowlist-filter" % "1.0.0-play-26",
     "commons-validator" % "commons-validator" % "1.6",
-    "uk.gov.hmrc" %% "play-language" % "4.12.0-play-26",
+    "uk.gov.hmrc" %% "play-language" % "5.1.0-play-26",
     "uk.gov.hmrc" %% "simple-reactivemongo" % "8.0.0-play-26",
-    "uk.gov.hmrc" %% "govuk-template" % "5.66.0-play-26",
-    "uk.gov.hmrc" %% "play-ui" % "9.2.0-play-26",
+    "uk.gov.hmrc" %% "govuk-template" % "5.68.0-play-26",
+    "uk.gov.hmrc" %% "play-ui" % "9.5.0-play-26",
     "com.typesafe.play" %% "play-json-joda" % "2.9.2"
   )
 
