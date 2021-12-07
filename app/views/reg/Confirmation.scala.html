@@ -14,47 +14,46 @@
  * limitations under the License.
  *@
 
-@import controllers.CRLanguageController
-@import play.api.Application
+@import uk.gov.hmrc.play.views.html.helpers.form
+
 
 @(confirmationRefs: models.connectors.ConfirmationReferences)(implicit request: Request[_], messages: Messages, appConfig: config.FrontendAppConfig)
 
-@import uk.gov.hmrc.play.views.html.helpers.form
 
-@main_template(title = Messages("page.reg.Confirmation.description"), mainClass = None) {
+@main_template(title = messages("page.reg.Confirmation.description"), mainClass = None) {
     <div class="box-shaded-grey">
-        <h1 id="heading-application-submitted" class="heading-large">@Messages("page.reg.Confirmation.description")</h1>
+        <h1 id="heading-application-submitted" class="heading-large">@messages("page.reg.Confirmation.description")</h1>
     </div>
 
 
-    <p>@Messages("page.reg.Confirmation.application-refs")</p>
+    <p>@messages("page.reg.Confirmation.application-refs")</p>
     <ul class="list list-bullet">
-        <li><strong style="font-weight: bold;" id="ltd-ref">@confirmationRefs.transactionId</strong> @Messages("page.reg.Confirmation.your.limited")</li>
-        <li><strong style="font-weight: bold;" id="ackref">@confirmationRefs.acknowledgementReference</strong> @Messages("page.reg.Confirmation.your.refnumber")</li>
+        <li><strong style="font-weight: bold;" id="ltd-ref">@confirmationRefs.transactionId</strong> @messages("page.reg.Confirmation.your.limited")</li>
+        <li><strong style="font-weight: bold;" id="ackref">@confirmationRefs.acknowledgementReference</strong> @messages("page.reg.Confirmation.your.refnumber")</li>
     </ul>
-    <p>@Messages("page.reg.Confirmation.email")</p>
+    <p>@messages("page.reg.Confirmation.email")</p>
 
-    <h2 class="heading-medium" id="next-steps">@Messages("page.reg.Confirmation.next-steps")</h2>
+    <h2 class="heading-medium" id="next-steps">@messages("page.reg.Confirmation.next-steps")</h2>
 
-    <p>@Messages("page.reg.Confirmation.next-steps.receive")</p>
+    <p>@messages("page.reg.Confirmation.next-steps.receive")</p>
     <ul class="list list-bullet">
-        <li>@Messages("page.reg.Confirmation.next-steps.point1")</li>
-        <li>@Messages("page.reg.Confirmation.next-steps.point2")</li>
-        <li>@Messages("page.reg.Confirmation.next-steps.point3")</li>
+        <li>@messages("page.reg.Confirmation.next-steps.point1")</li>
+        <li>@messages("page.reg.Confirmation.next-steps.point2")</li>
+        <li>@messages("page.reg.Confirmation.next-steps.point3")</li>
     </ul>
 
     <div class="panel panel-border-wide">
-        <p>@Messages("page.reg.Confirmation.keep-safe.text")</p>
+        <p>@messages("page.reg.Confirmation.keep-safe.text")</p>
     </div>
 
 
     <br>
     @form(action = controllers.reg.routes.ConfirmationController.submit()) {
         <div class="form-group">
-            <input class="button" type="submit" id="next" value="@Messages("page.reg.finish.btn")">
+            <input class="button" type="submit" id="next" value="@messages("page.reg.finish.btn")">
         </div>
     }
     <div class="form-group">
-        <a href="questionnaire">@Messages("page.reg.Confirmation.questionnaire.link")</a><b> @Messages("page.reg.Confirmation.questionnaire.time")</b>
+        <a href="questionnaire">@messages("page.reg.Confirmation.questionnaire.link")</a><b> @messages("page.reg.Confirmation.questionnaire.time")</b>
     </div>
 }
