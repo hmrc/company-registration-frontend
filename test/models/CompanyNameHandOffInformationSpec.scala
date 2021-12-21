@@ -16,10 +16,10 @@
 
 package models
 
+import helpers.UnitSpec
 import models.handoff.CompanyNameHandOffInformation
 import org.joda.time.{DateTime, DateTimeZone}
 import play.api.libs.json.{JsObject, Json}
-import uk.gov.hmrc.play.test.UnitSpec
 
 class CompanyNameHandOffInformationSpec extends UnitSpec {
 

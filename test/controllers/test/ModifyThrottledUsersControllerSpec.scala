@@ -16,6 +16,7 @@
 
 package controllers.test
 
+import helpers.UnitSpec
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
@@ -26,7 +27,6 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpGet}
 import uk.gov.hmrc.play.http.ws.WSGet
-import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.{ExecutionContext, Future}
 

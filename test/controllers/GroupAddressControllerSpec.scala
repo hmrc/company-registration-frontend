@@ -19,6 +19,7 @@ package controllers
 import builders.AuthBuilder
 import config.FrontendAppConfig
 import controllers.groups.GroupAddressController
+import controllers.reg.ControllerErrorHandler
 import helpers.SCRSSpec
 import models._
 import org.jsoup.Jsoup
@@ -33,16 +34,20 @@ import play.api.mvc.{AnyContentAsEmpty, MessagesControllerComponents}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.HeaderCarrier
-
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext.Implicits.global
+import views.html.groups.GroupAddressView
+import scala.concurrent.Future
 
 class GroupAddressControllerSpec()(implicit lang: Lang) extends SCRSSpec with GuiceOneAppPerSuite with MockitoSugar with AuthBuilder {
 
-  implicit val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+  lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
+  lazy val mockFrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+  lazy val mockControllerErrorHandler = app.injector.instanceOf[ControllerErrorHandler]
+  lazy val mockGroupAddressView = app.injector.instanceOf[GroupAddressView]
+
   implicit val messages = app.injector.instanceOf[Messages]
   implicit val langs = app.injector.instanceOf[Langs]
-  val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
-  implicit val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
+
 
   class Setup {
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
@@ -54,7 +59,12 @@ class GroupAddressControllerSpec()(implicit lang: Lang) extends SCRSSpec with Gu
       mockCompanyRegistrationConnector,
       mockKeystoreConnector,
       mockAddressLookupService,
-      mockMcc
+      mockMcc,
+      mockGroupAddressView
+    )
+    (
+      mockFrontendAppConfig,
+      global
     )
   }
 

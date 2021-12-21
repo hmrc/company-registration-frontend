@@ -16,6 +16,7 @@
 
 package services
 
+import helpers.UnitSpec
 import models.QuestionnaireModel
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
@@ -24,7 +25,6 @@ import play.api.test.FakeRequest
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.audit.model.ExtendedDataEvent
-import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
 

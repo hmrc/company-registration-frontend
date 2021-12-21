@@ -31,19 +31,15 @@ import views.html.error_template_restart
 import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success}
 
-class CorporationTaxSummaryControllerImpl @Inject()(val authConnector: PlayAuthConnector,
+class CorporationTaxSummaryController @Inject()(val authConnector: PlayAuthConnector,
                                                     val keystoreConnector: KeystoreConnector,
                                                     val handOffService: HandOffService,
-                                                    val appConfig: FrontendAppConfig,
                                                     val compRegConnector: CompanyRegistrationConnector,
                                                     val handBackService: HandBackService,
-                                                    val ec: ExecutionContext,
-                                                    val controllerComponents: MessagesControllerComponents) extends CorporationTaxSummaryController
-
-trait CorporationTaxSummaryController extends AuthenticatedController with I18nSupport with SessionRegistration {
-  val handBackService: HandBackService
-
-  implicit val appConfig: FrontendAppConfig
+                                                    val controllerComponents: MessagesControllerComponents,
+                                                    error_template_restart: error_template_restart)
+                                                   (implicit val appConfig: FrontendAppConfig, implicit val ec: ExecutionContext)
+  extends AuthenticatedController with I18nSupport with SessionRegistration {
 
   //HO4
   def corporationTaxSummary(requestData: String): Action[AnyContent] = Action.async {

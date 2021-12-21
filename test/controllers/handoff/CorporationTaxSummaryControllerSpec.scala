@@ -18,37 +18,45 @@ package controllers.handoff
 
 import builders.AuthBuilder
 import config.FrontendAppConfig
+import controllers.reg.ControllerErrorHandler
 import fixtures.LoginFixture
 import helpers.SCRSSpec
 import models.handoff.{NavLinks, SummaryPage1HandOffIncoming}
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.i18n.MessagesApi
 import play.api.libs.json.Json
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.{DecryptionError, JweCommon, PayloadError}
+import views.html.{error_template, error_template_restart}
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
 class CorporationTaxSummaryControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPerSuite with AuthBuilder {
 
+  lazy val errorTemplatePage = app.injector.instanceOf[error_template]
+  lazy val errorTemplateRestartPage = app.injector.instanceOf[error_template_restart]
+  lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
+  lazy val mockControllerErrorHandler = app.injector.instanceOf[ControllerErrorHandler]
+  lazy val mockFrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+
   class Setup {
 
-    object TestController extends CorporationTaxSummaryController {
-      override val controllerComponents = app.injector.instanceOf[MessagesControllerComponents]
-      val authConnector = mockAuthConnector
-      val keystoreConnector = mockKeystoreConnector
-      val handBackService = mockHandBackService
-      val compRegConnector = mockCompanyRegistrationConnector
-      implicit val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
-      override val messagesApi = app.injector.instanceOf[MessagesApi]
-      implicit val ec: ExecutionContext = global
-    }
+    val testController = new  CorporationTaxSummaryController (
+      mockAuthConnector,
+      mockKeystoreConnector,
+      mockHandOffService,
+      mockCompanyRegistrationConnector,
+      mockHandBackService,
+      mockMcc,
+      errorTemplateRestartPage
+    )(
+      mockFrontendAppConfig,global
+    )
 
     val jweInstance = () => app.injector.instanceOf[JweCommon]
   }
@@ -66,7 +74,7 @@ class CorporationTaxSummaryControllerSpec extends SCRSSpec with LoginFixture wit
     "return a SEE_OTHER if submitting without authorisation" in new Setup {
       val encryptedPayload: Option[String] = jweInstance().encrypt[SummaryPage1HandOffIncoming](handBackPayload)
 
-      showWithUnauthorisedUser(TestController.corporationTaxSummary(encryptedPayload.get)) {
+      showWithUnauthorisedUser(testController.corporationTaxSummary(encryptedPayload.get)) {
         result =>
           status(result) shouldBe SEE_OTHER
           val url = authUrl("HO4", encryptedPayload.get)
@@ -79,7 +87,7 @@ class CorporationTaxSummaryControllerSpec extends SCRSSpec with LoginFixture wit
       when(mockHandBackService.processSummaryPage1HandBack(ArgumentMatchers.eq(""))(ArgumentMatchers.any[HeaderCarrier]))
         .thenReturn(Future.successful(Failure(DecryptionError)))
 
-      showWithAuthorisedUser(TestController.corporationTaxSummary("")) {
+      showWithAuthorisedUser(testController.corporationTaxSummary("")) {
         result =>
           status(result) shouldBe BAD_REQUEST
           redirectLocation(result) shouldBe None
@@ -93,7 +101,7 @@ class CorporationTaxSummaryControllerSpec extends SCRSSpec with LoginFixture wit
       when(mockHandBackService.processSummaryPage1HandBack(ArgumentMatchers.eq(encryptedPayload))(ArgumentMatchers.any[HeaderCarrier]))
         .thenReturn(Future.successful(Failure(PayloadError)))
 
-      showWithAuthorisedUser(TestController.corporationTaxSummary(encryptedPayload)) {
+      showWithAuthorisedUser(testController.corporationTaxSummary(encryptedPayload)) {
         result =>
           status(result) shouldBe BAD_REQUEST
           redirectLocation(result) shouldBe None
@@ -107,7 +115,7 @@ class CorporationTaxSummaryControllerSpec extends SCRSSpec with LoginFixture wit
       when(mockHandBackService.processSummaryPage1HandBack(ArgumentMatchers.eq(encryptedPayload))(ArgumentMatchers.any[HeaderCarrier]))
         .thenReturn(Future.successful(Success(handBackPayload)))
 
-      showWithAuthorisedUser(TestController.corporationTaxSummary(encryptedPayload)) {
+      showWithAuthorisedUser(testController.corporationTaxSummary(encryptedPayload)) {
         result =>
           status(result) shouldBe SEE_OTHER
           redirectLocation(result) shouldBe
@@ -121,7 +129,7 @@ class CorporationTaxSummaryControllerSpec extends SCRSSpec with LoginFixture wit
       when(mockHandBackService.processSummaryPage1HandBack(ArgumentMatchers.eq(encryptedPayload))(ArgumentMatchers.any[HeaderCarrier]))
         .thenReturn(Future.successful(Success(handBackPayload)))
 
-      showWithAuthorisedUser(TestController.corporationTaxSummary(encryptedPayload)) {
+      showWithAuthorisedUser(testController.corporationTaxSummary(encryptedPayload)) {
         result =>
           status(result) shouldBe SEE_OTHER
           redirectLocation(result) shouldBe Some(s"/register-your-company/post-sign-in?handOffID=HO4&payload=$encryptedPayload")

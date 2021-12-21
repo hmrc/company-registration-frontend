@@ -19,6 +19,7 @@ package views
 import _root_.helpers.SCRSSpec
 import builders.AuthBuilder
 import controllers.groups.GroupReliefController
+import controllers.reg.ControllerErrorHandler
 import fixtures.UserDetailsFixture
 import models.{Email, Groups}
 import org.jsoup.Jsoup
@@ -28,6 +29,7 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.Helpers._
+import views.html.groups.GroupReliefView
 
 import scala.concurrent.Future
 
@@ -39,7 +41,9 @@ class GroupReliefSpec extends SCRSSpec with UserDetailsFixture with AuthBuilder 
       mockGroupService,
       mockCompanyRegistrationConnector,
       mockKeystoreConnector,
-      app.injector.instanceOf[MessagesControllerComponents]
+      app.injector.instanceOf[MessagesControllerComponents],
+      app.injector.instanceOf[ControllerErrorHandler],
+      app.injector.instanceOf[GroupReliefView]
     )
 
     val ctDocFirstTimeThrough: JsValue =

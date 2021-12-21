@@ -31,7 +31,7 @@ import services.TakeoverService
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.http.NotFoundException
 import utils.{SCRSFeatureSwitches, SessionRegistration}
-import views.html.takeovers.OtherBusinessName
+import views.html.takeovers.{OtherBusinessName => OtherBusinessNameView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -41,10 +41,12 @@ class OtherBusinessNameController @Inject()(val authConnector: PlayAuthConnector
                                             val compRegConnector: CompanyRegistrationConnector,
                                             val keystoreConnector: KeystoreConnector,
                                             val scrsFeatureSwitches: SCRSFeatureSwitches,
-                                            val controllerComponents: MessagesControllerComponents
+                                            val controllerComponents: MessagesControllerComponents,
+                                            val controllerErrorHandler: ControllerErrorHandler,
+                                            view: OtherBusinessNameView
                                            )(implicit val appConfig: FrontendAppConfig,
                                              val ec: ExecutionContext
-                                           ) extends AuthenticatedController with ControllerErrorHandler with SessionRegistration with I18nSupport {
+                                           ) extends AuthenticatedController with SessionRegistration with I18nSupport {
 
   val show: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
@@ -59,9 +61,9 @@ class OtherBusinessNameController @Inject()(val authConnector: PlayAuthConnector
               case None =>
                 Redirect(ReplacingAnotherBusinessController.show())
               case Some(TakeoverDetails(_, Some(businessName), _, _, _)) =>
-                Ok(OtherBusinessName(OtherBusinessNameForm.form.fill(businessName)))
+                Ok(view(OtherBusinessNameForm.form.fill(businessName)))
               case _ =>
-                Ok(OtherBusinessName(OtherBusinessNameForm.form))
+                Ok(view(OtherBusinessNameForm.form))
             }
           }
         }
@@ -77,7 +79,7 @@ class OtherBusinessNameController @Inject()(val authConnector: PlayAuthConnector
       registered { regId =>
         OtherBusinessNameForm.form.bindFromRequest.fold(
           errors =>
-            Future.successful(BadRequest(OtherBusinessName(errors))),
+            Future.successful(BadRequest(view(errors))),
           otherBusinessName => {
             takeoverService.updateBusinessName(regId, otherBusinessName) map {
               _ => Redirect(routes.OtherBusinessAddressController.show())

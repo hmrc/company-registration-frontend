@@ -20,7 +20,7 @@ import java.util.UUID
 
 import audit.events.EmailVerifiedEvent
 import fixtures.UserDetailsFixture
-import helpers.SCRSSpec
+import helpers.{SCRSSpec, UnitSpec}
 import models.auth.AuthDetails
 import models.{Email, EmailVerificationRequest}
 import org.mockito.Mockito._
@@ -36,7 +36,6 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.audit.http.connector.AuditResult.Success
-import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.{ExecutionContext, Future}
 

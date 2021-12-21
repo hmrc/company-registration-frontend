@@ -16,10 +16,11 @@
 
 package audit.events
 
+import helpers.UnitSpec
 import models.{CompanyContactDetails, Links}
 import play.api.libs.json.Json
 import play.api.test.FakeRequest
-import uk.gov.hmrc.play.test.UnitSpec
+
 
 class ContactDetailsAuditEventSpec extends UnitSpec {
 

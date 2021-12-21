@@ -20,57 +20,54 @@ import config.FrontendAppConfig
 import connectors._
 import controllers.auth.AuthenticatedController
 import forms.CancelForm
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc._
 import play.twirl.api.Html
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import utils.SessionRegistration
+import views.html.dashboard.{CancelPaye => CancelPayeView}
+import views.html.dashboard.{CancelVat => CancelVatView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class CancelRegistrationControllerImpl @Inject()(val payeConnector: PAYEConnector,
-                                                 val vatConnector: VATConnector,
-                                                 val keystoreConnector: KeystoreConnector,
-                                                 val authConnector: PlayAuthConnector,
-                                                 val compRegConnector: CompanyRegistrationConnector,
-                                                 val appConfig: FrontendAppConfig,
-                                                 val ec: ExecutionContext,
-                                                 val controllerComponents: MessagesControllerComponents) extends CancelRegistrationController
+@Singleton
+class CancelRegistrationController @Inject()(val payeConnector: PAYEConnector,
+                                             val vatConnector: VATConnector,
+                                             val keystoreConnector: KeystoreConnector,
+                                             val authConnector: PlayAuthConnector,
+                                             val compRegConnector: CompanyRegistrationConnector,
+                                             val controllerComponents: MessagesControllerComponents,
+                                             cancelPayeView: CancelPayeView,
+                                             canelVatView: CancelVatView)
+                                            (implicit val appConfig: FrontendAppConfig, implicit val ec: ExecutionContext)
+  extends AuthenticatedController with SessionRegistration with I18nSupport {
 
-trait CancelRegistrationController extends AuthenticatedController with SessionRegistration with I18nSupport {
-
-  val payeConnector: PAYEConnector
-  val vatConnector: VATConnector
-  val keystoreConnector: KeystoreConnector
-  val compRegConnector: CompanyRegistrationConnector
-
-  implicit val appConfig: FrontendAppConfig
 
   def showCancelPAYE: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
-      showCancelService(payeConnector, views.html.dashboard.CancelPaye(CancelForm.form.fill(false)))
+      showCancelService(payeConnector, cancelPayeView(CancelForm.form.fill(false)))
     }
   }
 
   val submitCancelPAYE: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
       submitCancelService(payeConnector,
-        (a: Form[Boolean]) => views.html.dashboard.CancelPaye(a))
+        (a: Form[Boolean]) => cancelPayeView(a))
     }
   }
 
   def showCancelVAT: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
-      showCancelService(vatConnector, views.html.dashboard.CancelVat(CancelForm.form.fill(false)))
+      showCancelService(vatConnector, canelVatView(CancelForm.form.fill(false)))
     }
   }
 
   val submitCancelVAT: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
       submitCancelService(vatConnector,
-        (a: Form[Boolean]) => views.html.dashboard.CancelVat(a))
+        (a: Form[Boolean]) => canelVatView(a))
     }
   }
 

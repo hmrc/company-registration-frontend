@@ -18,18 +18,19 @@ package controllers.handoff
 
 import builders.AuthBuilder
 import config.FrontendAppConfig
+import controllers.reg.ControllerErrorHandler
 import fixtures.PayloadFixture
 import helpers.SCRSSpec
 import models.SummaryHandOff
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.i18n.MessagesApi
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.{DecryptionError, JweCommon, PayloadError}
+import views.html.error_template_restart
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -37,19 +38,25 @@ import scala.util.{Failure, Success}
 
 class IncorporationSummaryControllerSpec extends SCRSSpec with PayloadFixture with GuiceOneAppPerSuite with AuthBuilder {
 
+  lazy val errorTemplateRestartPage = app.injector.instanceOf[error_template_restart]
+  lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
+  lazy val mockControllerErrorHandler = app.injector.instanceOf[ControllerErrorHandler]
+  lazy val mockFrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+  
   class Setup {
 
-    val TestController = new IncorporationSummaryController {
-      override val controllerComponents = app.injector.instanceOf[MessagesControllerComponents]
-      val authConnector = mockAuthConnector
-      val keystoreConnector = mockKeystoreConnector
-      val handOffService = mockHandOffService
-      val handBackService = mockHandBackService
-      override val compRegConnector = mockCompanyRegistrationConnector
-      implicit val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
-      override val messagesApi = app.injector.instanceOf[MessagesApi]
-      implicit val ec = global
-    }
+    val testController = new IncorporationSummaryController (
+      mockAuthConnector,
+      mockKeystoreConnector,
+      mockHandOffService,
+      mockCompanyRegistrationConnector,
+      mockHandBackService,
+      mockMcc,
+      mockControllerErrorHandler,
+      errorTemplateRestartPage
+    )(
+      mockFrontendAppConfig,global
+    )
     val jweInstance = () => app.injector.instanceOf[JweCommon]
   }
 
@@ -69,7 +76,7 @@ class IncorporationSummaryControllerSpec extends SCRSSpec with PayloadFixture wi
       when(mockHandOffService.buildHandOffUrl(ArgumentMatchers.eq("testLink"), ArgumentMatchers.eq(payload)))
         .thenReturn(s"testLink?request=$payload")
 
-      showWithAuthorisedUserRetrieval(TestController.incorporationSummary, extID) {
+      showWithAuthorisedUserRetrieval(testController.incorporationSummary, extID) {
         result =>
           status(result) shouldBe SEE_OTHER
 
@@ -84,7 +91,7 @@ class IncorporationSummaryControllerSpec extends SCRSSpec with PayloadFixture wi
       when(mockHandOffService.summaryHandOff(ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(None))
 
-      showWithAuthorisedUserRetrieval(TestController.incorporationSummary, extID) {
+      showWithAuthorisedUserRetrieval(testController.incorporationSummary, extID) {
         result =>
           status(result) shouldBe BAD_REQUEST
       }
@@ -107,7 +114,7 @@ class IncorporationSummaryControllerSpec extends SCRSSpec with PayloadFixture wi
       when(mockHandBackService.processCompanyNameReverseHandBack(ArgumentMatchers.eq(encryptedPayload))(ArgumentMatchers.any[HeaderCarrier]))
         .thenReturn(Future.successful(Success(payload)))
 
-      showWithAuthorisedUser(TestController.returnToCorporationTaxSummary(encryptedPayload)) {
+      showWithAuthorisedUser(testController.returnToCorporationTaxSummary(encryptedPayload)) {
         result =>
           status(result) shouldBe SEE_OTHER
       }
@@ -120,7 +127,7 @@ class IncorporationSummaryControllerSpec extends SCRSSpec with PayloadFixture wi
       when(mockHandBackService.processCompanyNameReverseHandBack(ArgumentMatchers.eq(encryptedPayload))(ArgumentMatchers.any[HeaderCarrier]))
         .thenReturn(Future.successful(Failure(DecryptionError)))
 
-      showWithAuthorisedUser(TestController.returnToCorporationTaxSummary(encryptedPayload)) {
+      showWithAuthorisedUser(testController.returnToCorporationTaxSummary(encryptedPayload)) {
         result =>
           status(result) shouldBe BAD_REQUEST
       }
@@ -133,7 +140,7 @@ class IncorporationSummaryControllerSpec extends SCRSSpec with PayloadFixture wi
       when(mockHandBackService.processCompanyNameReverseHandBack(ArgumentMatchers.eq(encryptedPayload))(ArgumentMatchers.any[HeaderCarrier]))
         .thenReturn(Future.successful(Failure(PayloadError)))
 
-      showWithAuthorisedUser(TestController.returnToCorporationTaxSummary(encryptedPayload)) {
+      showWithAuthorisedUser(testController.returnToCorporationTaxSummary(encryptedPayload)) {
         result =>
           status(result) shouldBe BAD_REQUEST
       }
@@ -145,7 +152,7 @@ class IncorporationSummaryControllerSpec extends SCRSSpec with PayloadFixture wi
       when(mockHandBackService.processCompanyNameReverseHandBack(ArgumentMatchers.eq(encryptedPayload))(ArgumentMatchers.any[HeaderCarrier]))
         .thenReturn(Future.successful(Success(payload)))
 
-      showWithAuthorisedUser(TestController.returnToCorporationTaxSummary(encryptedPayload)) {
+      showWithAuthorisedUser(testController.returnToCorporationTaxSummary(encryptedPayload)) {
         result =>
           status(result) shouldBe SEE_OTHER
           redirectLocation(result) shouldBe Some(s"/register-your-company/post-sign-in?handOffID=HO5b&payload=$encryptedPayload")

@@ -19,32 +19,28 @@ package controllers.reg
 import config.FrontendAppConfig
 import connectors.KeystoreConnector
 import controllers.auth.AuthenticatedController
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.CommonService
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import utils.SCRSExceptions
-import views.html.reg.LimitReached
+import views.html.reg.{LimitReached => LimitReachedView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class LimitReachedControllerImpl @Inject()(val authConnector: PlayAuthConnector,
-                                           val keystoreConnector: KeystoreConnector,
-                                           val appConfig: FrontendAppConfig,
-                                           val controllerComponents: MessagesControllerComponents)(implicit val ec: ExecutionContext) extends LimitReachedController {
+@Singleton
+class LimitReachedController @Inject()(val authConnector: PlayAuthConnector,
+                                       val keystoreConnector: KeystoreConnector,
+                                       val controllerComponents: MessagesControllerComponents,
+                                       view: LimitReachedView)(implicit val appConfig: FrontendAppConfig, implicit val ec: ExecutionContext)
+  extends AuthenticatedController with CommonService with SCRSExceptions with I18nSupport {
 
-  lazy val cohoUrl = appConfig.servicesConfig.getConfString("coho-service.web-incs", throw new Exception("Couldn't find Coho url"))
-}
-
-abstract class LimitReachedController extends AuthenticatedController with CommonService with SCRSExceptions with I18nSupport {
-  val cohoUrl: String
-
-  implicit val appConfig: FrontendAppConfig
+  val cohoUrl = appConfig.servicesConfig.getConfString("coho-service.web-incs", throw new Exception("Couldn't find Coho url"))
 
   val show: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
-      Future.successful(Ok(LimitReached(cohoUrl)))
+      Future.successful(Ok(view(cohoUrl)))
     }
   }
 

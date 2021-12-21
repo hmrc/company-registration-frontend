@@ -28,19 +28,16 @@ import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.i18n.MessagesApi
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name, ~}
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.test.UnitSpec
-
-import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContext.Implicits.global
+import views.html.verification.{CreateGGWAccount, CreateNewGGWAccount, createNewAccount, verifyYourEmail}
 
 
-class EmailVerificationControllerSpec extends CompanyRegistrationConnectorMock with UnitSpec with MockitoSugar with SCRSMocks with SCRSSpec
+class EmailVerificationControllerSpec extends SCRSSpec with CompanyRegistrationConnectorMock with MockitoSugar with SCRSMocks
   with GuiceOneAppPerSuite with KeystoreMock with AuthBuilder {
 
   implicit val system = ActorSystem("test")
@@ -50,21 +47,32 @@ class EmailVerificationControllerSpec extends CompanyRegistrationConnectorMock w
   def testUnVerifiedEmail = Email("unverified", "GG", linkSent = true, verified = false, returnLinkEmailSent = true)
 
   implicit def mat: Materializer = ActorMaterializer()
+  lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
+  lazy val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+  lazy val mockCreateGGWAccount = app.injector.instanceOf[CreateGGWAccount]
+  lazy val mockCreateNewGGWAccount = app.injector.instanceOf[CreateNewGGWAccount]
+  lazy val mockCreateNewAccount = app.injector.instanceOf[createNewAccount]
+  lazy val mockVerifyYourEmail = app.injector.instanceOf[verifyYourEmail]
+
 
   class Setup {
-    val controller = new EmailVerificationController {
-      override lazy val controllerComponents = app.injector.instanceOf[MessagesControllerComponents]
-      val authConnector = mockAuthConnector
-      val keystoreConnector = mockKeystoreConnector
-      override val compRegConnector = mockCompanyRegistrationConnector
-      override val emailVerificationService = mockEmailService
-      override lazy val messagesApi = app.injector.instanceOf[MessagesApi]
-      implicit lazy val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
-      val ec: ExecutionContext = global
-
-      val createGGWAccountUrl = "testURL"
-      val callbackUrl = "testCallBack"
-      val frontEndUrl = "/testFrontEndUrl"
+    val controller = new EmailVerificationController(
+      mockAuthConnector,
+      mockKeystoreConnector,
+      mockEmailService,
+      mockCompanyRegistrationConnector,
+      mockMcc,
+      mockVerifyYourEmail,
+      mockCreateGGWAccount,
+      mockCreateNewGGWAccount,
+      mockCreateNewAccount
+    )(
+      appConfig,
+      global
+    ) {
+      override lazy val createGGWAccountUrl = "testURL"
+      override lazy val callbackUrl = "testCallBack"
+      override lazy val frontEndUrl = "/testFrontEndUrl"
     }
   }
 

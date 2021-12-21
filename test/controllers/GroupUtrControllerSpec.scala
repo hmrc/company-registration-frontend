@@ -19,6 +19,7 @@ package controllers
 import builders.AuthBuilder
 import config.FrontendAppConfig
 import controllers.groups.GroupUtrController
+import controllers.reg.ControllerErrorHandler
 import helpers.SCRSSpec
 import models.{Email, NewAddress, _}
 import org.jsoup.Jsoup
@@ -31,12 +32,18 @@ import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.HeaderCarrier
+import views.html.groups.GroupUtrView
+import scala.concurrent.ExecutionContext.Implicits.global
+
 
 import scala.concurrent.Future
 
 class GroupUtrControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with MockitoSugar with AuthBuilder {
 
-  implicit val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+  lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
+  implicit lazy val mockFrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+  lazy val mockControllerErrorHandler = app.injector.instanceOf[ControllerErrorHandler]
+  lazy val mockGroupUtrView = app.injector.instanceOf[GroupUtrView]
 
   class Setup {
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
@@ -45,7 +52,8 @@ class GroupUtrControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Mock
       mockKeystoreConnector,
       mockGroupService,
       mockCompanyRegistrationConnector,
-      app.injector.instanceOf[MessagesControllerComponents]
+      mockMcc,
+      mockGroupUtrView
     )
   }
 

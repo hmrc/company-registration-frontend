@@ -14,10 +14,11 @@
  * limitations under the License.
  *@
 
-@(field: Field, radioOptions: Seq[(String, String)], isHeading: Boolean, args: (Symbol, Any)*)(implicit messages: Messages)
-
 @import play.api.i18n._
 @import views.html.helper._
+
+@this()
+@(field: Field, radioOptions: Seq[(String, String)], isHeading: Boolean, args: (Symbol, Any)*)(implicit messages: Messages)
 
 @elements = @{new FieldElements(field.id, field, Html(""), args.toMap, messages) }
 @fieldsetClass = {@elements.args.get('_groupClass)@if(elements.hasErrors){ form-group-error}}
@@ -33,7 +34,7 @@
         }
     </legend>
 }
-@elements.errors.map{error => <span class="error-notification">@Messages(error)</span>}
+@elements.errors.map{error => <span class="error-notification">@Messages(error.toString)</span>}
 
 @radioOptions.map { case (value, label) =>
     @defining(s"${elements.field.name}-${value.toLowerCase.replace(" ","_")}")  { inputId =>

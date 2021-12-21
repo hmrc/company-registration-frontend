@@ -32,7 +32,7 @@ import services.{AddressLookupFrontendService, AddressPrepopulationService, Take
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.http.NotFoundException
 import utils.{SCRSFeatureSwitches, SessionRegistration}
-import views.html.takeovers.HomeAddress
+import views.html.takeovers.{HomeAddress => HomeAddressView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -45,9 +45,11 @@ class PreviousOwnersAddressController @Inject()(val authConnector: PlayAuthConne
                                                 val businessRegConnector: BusinessRegistrationConnector,
                                                 val keystoreConnector: KeystoreConnector,
                                                 val scrsFeatureSwitches: SCRSFeatureSwitches,
-                                                val controllerComponents: MessagesControllerComponents
+                                                val controllerComponents: MessagesControllerComponents,
+                                                val controllerErrorHandler: ControllerErrorHandler,
+                                                view: HomeAddressView
                                                )(implicit val appConfig: FrontendAppConfig
-                                               ) extends AuthenticatedController with ControllerErrorHandler with SessionRegistration {
+                                               ) extends AuthenticatedController with SessionRegistration {
 
   implicit val ec: ExecutionContext = controllerComponents.executionContext
 
@@ -78,7 +80,7 @@ class PreviousOwnersAddressController @Inject()(val authConnector: PlayAuthConne
                         HomeAddressForm.form(addressSeq.length)
                     }
 
-                    Ok(HomeAddress(prepopulatedForm, previousOwnersName, addressSeq))
+                    Ok(view(prepopulatedForm, previousOwnersName, addressSeq))
                       .addingToSession(addressSeqKey -> Json.toJson(addressSeq).toString())
                 }
               case None =>
@@ -103,7 +105,7 @@ class PreviousOwnersAddressController @Inject()(val authConnector: PlayAuthConne
                 case (Some(TakeoverDetails(_, _, _, Some(previousOwnersName), _)), Some(addressSeq)) =>
                   HomeAddressForm.form(addressSeq.length).bindFromRequest.fold(
                     formWithErrors =>
-                      Future.successful(BadRequest(HomeAddress(formWithErrors, previousOwnersName, addressSeq))),
+                      Future.successful(BadRequest(view(formWithErrors, previousOwnersName, addressSeq))),
                     {
                       case OtherAddress =>
                         addressLookupFrontendService.initialiseAlfJourney(

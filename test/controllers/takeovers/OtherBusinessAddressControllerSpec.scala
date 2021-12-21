@@ -19,6 +19,7 @@ package controllers.takeovers
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import builders.AuthBuilder
+import controllers.reg.ControllerErrorHandler
 import controllers.takeovers.OtherBusinessAddressController._
 import fixtures.LoginFixture
 import forms.takeovers.OtherBusinessAddressForm
@@ -59,6 +60,8 @@ class OtherBusinessAddressControllerSpec(implicit lang: Lang) extends SCRSSpec
   implicit val messages: Messages = app.injector.instanceOf[Messages]
   implicit val langs = app.injector.instanceOf[Langs]
   val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
+  val page = app.injector.instanceOf[OtherBusinessAddress]
+  val mockControllerErrorHandler = app.injector.instanceOf[ControllerErrorHandler]
 
   object TestOtherBusinessAddressController extends OtherBusinessAddressController(
     mockAuthConnector,
@@ -69,7 +72,9 @@ class OtherBusinessAddressControllerSpec(implicit lang: Lang) extends SCRSSpec
     mockBusinessRegConnector,
     mockKeystoreConnector,
     mockSCRSFeatureSwitches,
-    mockMcc
+    mockMcc,
+    mockControllerErrorHandler,
+    page
   )
 
   "show" when {
@@ -142,7 +147,7 @@ class OtherBusinessAddressControllerSpec(implicit lang: Lang) extends SCRSSpec
           val res: Result = TestOtherBusinessAddressController.show()(request)
 
           status(res) shouldBe OK
-          bodyOf(res) shouldBe OtherBusinessAddress(OtherBusinessAddressForm.form(testBusinessName, 1), testBusinessName, Seq(testBusinessAddress)).body
+          bodyOf(res) shouldBe page(OtherBusinessAddressForm.form(testBusinessName, 1), testBusinessName, Seq(testBusinessAddress)).body
           session(res).get(addressSeqKey) should contain(Json.toJson(Seq(testBusinessAddress)).toString())
         }
       }
@@ -167,7 +172,7 @@ class OtherBusinessAddressControllerSpec(implicit lang: Lang) extends SCRSSpec
           val res: Result = TestOtherBusinessAddressController.show()(request)
 
           status(res) shouldBe OK
-          bodyOf(res) shouldBe OtherBusinessAddress(
+          bodyOf(res) shouldBe page(
             OtherBusinessAddressForm.form(testBusinessName, 2).fill(PreselectedAddress(1)),
             testBusinessName,
             Seq(testBusinessAddress, testOldBusinessAddress)
@@ -198,7 +203,7 @@ class OtherBusinessAddressControllerSpec(implicit lang: Lang) extends SCRSSpec
           val res: Result = TestOtherBusinessAddressController.show()(request)
 
           status(res) shouldBe OK
-          bodyOf(res) shouldBe OtherBusinessAddress(
+          bodyOf(res) shouldBe page(
             OtherBusinessAddressForm.form(testBusinessName, 2).fill(PreselectedAddress(1)),
             testBusinessName,
             Seq(testBusinessAddress, testOldBusinessAddress)

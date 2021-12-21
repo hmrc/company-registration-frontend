@@ -27,33 +27,34 @@ import org.jsoup.Jsoup
 import org.mockito.{ArgumentMatcher, ArgumentMatchers}
 import org.mockito.Mockito._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.i18n.MessagesApi
 import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name, ~}
 import uk.gov.hmrc.http.HeaderCarrier
-
+import views.html.reg.{ConfirmRegistrationEmail => ConfirmRegistrationEmailView}
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 
 class RegistrationEmailConfirmationControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder with SCRSMocks {
 
   class Setup {
-
-    object TestController extends RegistrationEmailConfirmationController {
-      override lazy val controllerComponents = app.injector.instanceOf[MessagesControllerComponents]
-      val emailVerificationService = mockEmailService
-      val authConnector = mockAuthConnector
-      override val keystoreConnector = mockKeystoreConnector
-      implicit lazy val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
-      override val compRegConnector = mockCompanyRegistrationConnector
-      implicit val hc: HeaderCarrier = HeaderCarrier()
-      implicit val fr = FakeRequest()
-      override lazy val messagesApi = app.injector.instanceOf[MessagesApi]
-      implicit val ec: ExecutionContext = global
-
+    lazy val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+    lazy val controllerComponents = app.injector.instanceOf[MessagesControllerComponents]
+    lazy val mockConfirmRegistrationEmailView = app.injector.instanceOf[ConfirmRegistrationEmailView]
+    
+    object TestController extends RegistrationEmailConfirmationController(
+      mockEmailService,
+      mockAuthConnector,
+      mockKeystoreConnector,
+      mockCompanyRegistrationConnector,
+      controllerComponents,
+      mockConfirmRegistrationEmailView
+    )(
+      appConfig,
+      global
+    ){
       def showLogicFun(f: Future[Result] = TestController.showLogic(HeaderCarrier(), FakeRequest())) = f
 
       def submitLogicFun(
@@ -61,8 +62,8 @@ class RegistrationEmailConfirmationControllerSpec extends SCRSSpec with GuiceOne
                           authProviderId: String = "aId",
                           extIdFromAuth: String = "ext",
                           r: Request[AnyContent]) = TestController.submitLogic(regID, authProviderId, extIdFromAuth)(HeaderCarrier(), r)
-    }
 
+    }
     val mockOfFunction = () => Future.successful(Results.Ok(""))
   }
 

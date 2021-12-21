@@ -24,7 +24,7 @@ import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.test.UnitSpec
+
 
 import scala.util.Random
 

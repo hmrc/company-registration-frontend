@@ -19,6 +19,7 @@ package controllers.takeovers
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import builders.AuthBuilder
+import controllers.reg.ControllerErrorHandler
 import fixtures.LoginFixture
 import forms.takeovers.WhoAgreedTakeoverForm
 import forms.takeovers.WhoAgreedTakeoverForm._
@@ -54,13 +55,19 @@ class WhoAgreedTakeoverControllerSpec extends SCRSSpec
   val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
   implicit val ec: ExecutionContext = mockMcc.executionContext
 
+  val page = app.injector.instanceOf[WhoAgreedTakeover]
+  val mockControllerErrorHandler = app.injector.instanceOf[ControllerErrorHandler]
+
+
   object TestWhoAgreedTakeoverController extends WhoAgreedTakeoverController(
     mockAuthConnector,
     mockTakeoverService,
     mockCompanyRegistrationConnector,
     mockKeystoreConnector,
     mockSCRSFeatureSwitches,
-    mockMcc
+    mockMcc,
+    mockControllerErrorHandler,
+    page
   )
 
   "show" when {
@@ -152,7 +159,7 @@ class WhoAgreedTakeoverControllerSpec extends SCRSSpec
           val res: Result = TestWhoAgreedTakeoverController.show()(request)
 
           status(res) shouldBe OK
-          bodyOf(res) shouldBe WhoAgreedTakeover(WhoAgreedTakeoverForm.form, testBusinessName).body
+          bodyOf(res) shouldBe page(WhoAgreedTakeoverForm.form, testBusinessName).body
         }
       }
 
@@ -175,7 +182,7 @@ class WhoAgreedTakeoverControllerSpec extends SCRSSpec
           val res: Result = TestWhoAgreedTakeoverController.show()(request)
 
           status(res) shouldBe OK
-          bodyOf(res) shouldBe WhoAgreedTakeover(WhoAgreedTakeoverForm.form.fill(testPreviousOwnersName), testBusinessName).body
+          bodyOf(res) shouldBe page(WhoAgreedTakeoverForm.form.fill(testPreviousOwnersName), testBusinessName).body
         }
       }
     }

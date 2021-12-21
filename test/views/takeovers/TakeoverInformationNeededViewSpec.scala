@@ -17,12 +17,13 @@
 package views.takeovers
 
 import config.FrontendAppConfig
+import helpers.UnitSpec
 import org.jsoup.Jsoup
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
-import uk.gov.hmrc.play.test.UnitSpec
+import views.html.errors.takeoverInformationNeeded
 
 class TakeoverInformationNeededViewSpec extends UnitSpec with GuiceOneAppPerSuite with I18nSupport {
 
@@ -31,7 +32,8 @@ class TakeoverInformationNeededViewSpec extends UnitSpec with GuiceOneAppPerSuit
   implicit lazy val frontendAppConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
 
   "TakeoverInformationNeededView" should {
-    lazy val view = views.html.errors.takeoverInformationNeeded()
+    lazy val page = app.injector.instanceOf[takeoverInformationNeeded]
+    lazy val view = page()
     lazy val doc = Jsoup.parse(view.body)
 
     lazy val title = "We need some additional information"

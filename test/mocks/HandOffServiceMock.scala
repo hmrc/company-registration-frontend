@@ -17,7 +17,7 @@
 package mocks
 
 import org.mockito.Mockito._
-import org.mockito.{ArgumentMatchers, Matchers}
+import org.mockito.{ArgumentMatchers}
 import org.scalatestplus.mockito.MockitoSugar
 import services._
 import uk.gov.hmrc.http.cache.client.CacheMap

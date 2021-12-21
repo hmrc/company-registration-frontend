@@ -18,7 +18,7 @@ package views
 
 import _root_.helpers.SCRSSpec
 import builders.AuthBuilder
-import controllers.reg.ConfirmationController
+import controllers.reg.{ConfirmationController, ControllerErrorHandler}
 import fixtures.CompanyDetailsFixture
 import models.ConfirmationReferencesSuccessResponse
 import models.connectors.ConfirmationReferences
@@ -26,29 +26,41 @@ import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.i18n.MessagesApi
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.Helpers._
 import services.DeskproService
-
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import views.html.reg.{Confirmation => ConfirmationView}
+import views.html.errors.{submissionFailed => submissionFailedView}
+import views.html.errors.{deskproSubmitted => deskproSubmittedView}
 
 class ConfirmationSpec extends SCRSSpec with CompanyDetailsFixture with GuiceOneAppPerSuite with AuthBuilder {
 
   val mockDeskproService = mock[DeskproService]
+  lazy val mockControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
+  lazy val mockControllerErrorHandler = app.injector.instanceOf[ControllerErrorHandler]
+  lazy val mockConfirmationView = app.injector.instanceOf[ConfirmationView]
+  lazy val mockSubmissionFailedView = app.injector.instanceOf[submissionFailedView]
+  lazy val mockDeskproSubmittedView = app.injector.instanceOf[deskproSubmittedView]
 
   class SetupPage {
-    val controller = new ConfirmationController {
-      override lazy val controllerComponents = app.injector.instanceOf[MessagesControllerComponents]
-      override val authConnector = mockAuthConnector
-      override val compRegConnector = mockCompanyRegistrationConnector
-      override val keystoreConnector = mockKeystoreConnector
-      override val deskproService = mockDeskproService
-      override implicit lazy val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
-      override val appConfig = mockAppConfig
-      override val ec = global
-    }
+    val controller = new ConfirmationController (
+      mockAuthConnector,
+      mockCompanyRegistrationConnector,
+      mockKeystoreConnector,
+      mockDeskproService,
+      mockControllerComponents,
+      mockControllerErrorHandler,
+      mockConfirmationView,
+      mockSubmissionFailedView,
+      mockDeskproSubmittedView
+    )
+    (
+      mockAppConfig,
+      global
+    )
+
   }
 
   "Confirmation.show" should {

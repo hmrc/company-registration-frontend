@@ -19,39 +19,36 @@ package controllers.test
 import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, DynamicStubConnector, KeystoreConnector}
 import forms.test.ETMPPost
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 import models.test.{ETMPAcknowledgment, ETMPCTRecordUpdates, ETMPNotification}
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.CommonService
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SCRSExceptions
-import views.html.test.{CTUpdatesDisplay, EMTPPostView}
+import views.html.test.{EMTPPostView, CTUpdatesDisplay => CTUpdatesDisplayView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class ETMPNotificationTestControllerImpl @Inject()(val brdsConnector: DynamicStubConnector,
-                                                   val crConnector: CompanyRegistrationConnector,
-                                                   val keystoreConnector: KeystoreConnector,
-                                                   val appConfig: FrontendAppConfig,
-                                                   mcc: MessagesControllerComponents,
-                                                   ec: ExecutionContext) extends ETMPNotificationTestController(mcc)(ec)
-
-abstract class ETMPNotificationTestController(mcc: MessagesControllerComponents)(implicit ec: ExecutionContext) extends FrontendController(mcc) with CommonService with SCRSExceptions with I18nSupport {
-  val brdsConnector: DynamicStubConnector
-
-  val crConnector: CompanyRegistrationConnector
-  implicit val appConfig: FrontendAppConfig
+@Singleton
+class ETMPNotificationTestController @Inject()(val brdsConnector: DynamicStubConnector,
+                                               val crConnector: CompanyRegistrationConnector,
+                                               val keystoreConnector: KeystoreConnector,
+                                               mcc: MessagesControllerComponents,
+                                               viewEMTPPostView: EMTPPostView,
+                                               viewCTUpdatesDisplayView: CTUpdatesDisplayView)
+                                              (implicit val appConfig: FrontendAppConfig, implicit val ec: ExecutionContext)
+  extends FrontendController(mcc) with CommonService with SCRSExceptions with I18nSupport {
 
   def show: Action[AnyContent] = Action.async {
     implicit request =>
-      Future.successful(Ok(EMTPPostView(ETMPPost.form.fill(ETMPNotification("", "", "", Some(""), "")))))
+      Future.successful(Ok(viewEMTPPostView(ETMPPost.form.fill(ETMPNotification("", "", "", Some(""), "")))))
   }
 
   def submit: Action[AnyContent] = Action.async {
     implicit request =>
       ETMPPost.form.bindFromRequest.fold(
-        errors => Future.successful(BadRequest(EMTPPostView(errors))),
+        errors => Future.successful(BadRequest(viewEMTPPostView(errors))),
         valid =>
           brdsConnector.postETMPNotificationData(valid) map {
             _ => Ok
@@ -74,7 +71,7 @@ abstract class ETMPNotificationTestController(mcc: MessagesControllerComponents)
           acknowledgementRefs.timestamp,
           acknowledgementRefs.status
         )
-        Ok(CTUpdatesDisplay(fetchedData))
+        Ok(viewCTUpdatesDisplayView(fetchedData))
       }
   }
 }

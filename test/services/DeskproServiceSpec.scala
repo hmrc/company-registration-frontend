@@ -27,7 +27,7 @@ import uk.gov.hmrc.http.{HeaderCarrier,SessionId}
 
 import scala.concurrent.Future
 
-class DeskproServiceSpec extends SCRSMocks with SCRSSpec {
+class DeskproServiceSpec extends SCRSSpec {
 
   val mockdeskproConnector = mock[DeskproConnector]
 

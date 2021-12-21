@@ -14,11 +14,17 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.play.views.html.helpers.{form}
-@import controllers.CRLanguageController
-@import play.api.Application
-@import views.html.helpers.{inputRadioGroupHidden, dateFieldsFreeInline, errorSummary, inputRadioGroup}
 @import views.helpers.TitleHelper.title
+@import views.html.helpers.inputRadioGroupHidden
+@import views.html.helpers.inputRadioGroup
+@import views.html.helpers.errorSummary
+@import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
+
+@this(main_template: main_template,
+        errorSummary: errorSummary,
+        inputRadioGroupHidden: inputRadioGroupHidden,
+        inputRadioGroup: inputRadioGroup,
+        formWithCsrf: FormWithCSRF)
 
 @(returningUser: Form[models.ReturningUser], isUserLoggedin: Boolean)(implicit request: Request[_], messages: Messages, appConfig: config.FrontendAppConfig)
 
@@ -38,7 +44,7 @@
         returningUser, dataJourney = Some("ReturningUser")
     )
 
-    @form(action = controllers.reg.routes.ReturningUserController.submit()) {
+    @formWithCsrf(action = controllers.reg.routes.ReturningUserController.submit()) {
 
         @if(isUserLoggedin) {
             @inputRadioGroupHidden(

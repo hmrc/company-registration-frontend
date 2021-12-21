@@ -18,41 +18,46 @@ package controllers
 
 import builders.AuthBuilder
 import config.FrontendAppConfig
-import controllers.reg.AccountingDatesController
+import controllers.reg.{AccountingDatesController, ControllerErrorHandler}
 import fixtures.{AccountingDatesFixture, AccountingDetailsFixture, LoginFixture}
 import helpers.SCRSSpec
 import mocks.MetricServiceMock
 import models.{AccountingDetailsBadRequestResponse, AccountingDetailsNotFoundResponse}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.i18n.MessagesApi
 import play.api.libs.json.Json
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services.{AccountingService, MetricsService, TimeService}
+import services.{AccountingService, TimeService}
 import uk.gov.hmrc.http.cache.client.CacheMap
-
-import scala.concurrent.ExecutionContext
+import views.html.reg.{AccountingDates => AccountingDatesView}
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class AccountingDatesControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with AccountingDatesFixture with AccountingDetailsFixture
   with LoginFixture with AuthBuilder {
 
   val cacheMap: CacheMap = CacheMap("", Map("" -> Json.toJson(validAccountingDatesModelCRN)))
+  lazy val accountingDatesView = app.injector.instanceOf[AccountingDatesView]
+  lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
+  lazy val mockControllerErrorHandler = app.injector.instanceOf[ControllerErrorHandler]
+  lazy val mockFrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+  lazy val timeServiceMock: TimeService = app.injector.instanceOf[TimeService]
+
 
   class Setup {
-    val controller = new AccountingDatesController {
-      override lazy val controllerComponents = app.injector.instanceOf[MessagesControllerComponents]
-      override val accountingService = mockAccountingService
-      override val authConnector = mockAuthConnector
-      override val metricsService: MetricsService = MetricServiceMock
-      override val timeService: TimeService = app.injector.instanceOf[TimeService]
-      override val compRegConnector = mockCompanyRegistrationConnector
-      override val keystoreConnector = mockKeystoreConnector
-      implicit lazy val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
-      override lazy val messagesApi = app.injector.instanceOf[MessagesApi]
-      implicit val ec: ExecutionContext = global
-    }
+    val controller = new AccountingDatesController(
+      mockAuthConnector,
+      mockCompanyRegistrationConnector,
+      mockKeystoreConnector,
+      mockAccountingService,
+      MetricServiceMock,
+      timeServiceMock,
+      mockMcc,
+      mockControllerErrorHandler,
+      accountingDatesView
+    )(mockFrontendAppConfig,
+      global)
+
   }
 
   "The AccountingDatesController" should {

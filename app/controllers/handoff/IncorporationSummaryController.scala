@@ -33,20 +33,16 @@ import views.html.error_template_restart
 import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success}
 
-class IncorporationSummaryControllerImpl @Inject()(val authConnector: PlayAuthConnector,
+class IncorporationSummaryController @Inject()(val authConnector: PlayAuthConnector,
                                                    val keystoreConnector: KeystoreConnector,
                                                    val handOffService: HandOffService,
-                                                   val appConfig: FrontendAppConfig,
                                                    val compRegConnector: CompanyRegistrationConnector,
                                                    val handBackService: HandBackService,
-                                                   val ec: ExecutionContext,
-                                                   val controllerComponents: MessagesControllerComponents) extends IncorporationSummaryController
-
-abstract class IncorporationSummaryController extends AuthenticatedController with SessionRegistration with ControllerErrorHandler with I18nSupport {
-  val handOffService: HandOffService
-
-  val handBackService: HandBackService
-  implicit val appConfig: FrontendAppConfig
+                                                   val controllerComponents: MessagesControllerComponents,
+                                                   val controllerErrorHandler: ControllerErrorHandler,
+                                                   error_template_restart: error_template_restart)
+                                                  (implicit val appConfig: FrontendAppConfig, implicit val ec: ExecutionContext)
+  extends AuthenticatedController with SessionRegistration with I18nSupport {
 
   //HO5
   def incorporationSummary: Action[AnyContent] = Action.async {
@@ -55,7 +51,7 @@ abstract class IncorporationSummaryController extends AuthenticatedController wi
         registered { a =>
           handOffService.summaryHandOff(externalID) map {
             case Some((url, payload)) => Redirect(handOffService.buildHandOffUrl(url, payload))
-            case None => BadRequest(defaultErrorPage)
+            case None => BadRequest(controllerErrorHandler.defaultErrorPage)
           } recover {
             case ex: NavModelNotFoundException => Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))
           }

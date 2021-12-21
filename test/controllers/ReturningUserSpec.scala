@@ -21,58 +21,60 @@ import config.FrontendAppConfig
 import controllers.reg.ReturningUserController
 import helpers.SCRSSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.i18n.MessagesApi
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-
-import scala.concurrent.ExecutionContext
+import views.html.reg.ReturningUserView
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class ReturningUserSpec extends SCRSSpec with AuthBuilder with GuiceOneAppPerSuite {
+  lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
+  lazy val mockFrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+  lazy val mockReturningUserView = app.injector.instanceOf[ReturningUserView]
 
   class Setup {
 
-    object TestController extends ReturningUserController {
-      override lazy val controllerComponents = app.injector.instanceOf[MessagesControllerComponents]
-      val createGGWAccountUrl = "CreateGGWAccountURL"
-      val eligUri = "/eligibility-for-setting-up-company"
-      val eligBaseUrl = "EligURL"
-      val compRegFeUrl = "CompRegFEURL"
-      val authConnector = mockAuthConnector
-      implicit lazy val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
-      override lazy val messagesApi = app.injector.instanceOf[MessagesApi]
-      implicit val ec: ExecutionContext = global
+    val testController = new ReturningUserController(
+      mockAuthConnector,
+      mockMcc,
+      mockReturningUserView
+    )(
+      global,
+      mockFrontendAppConfig
+    ) {
+      override lazy val createGGWAccountUrl = "CreateGGWAccountURL"
+      override lazy val eligUri = "/eligibility-for-setting-up-company"
+      override lazy val eligBaseUrl = "EligURL"
+      override lazy val compRegFeUrl = "CompRegFEURL"
     }
-
   }
 
   "Sending a GET request to ReturningUserController" should {
     "return a 200 and show the page if you are logged in" in new Setup {
-      showWithAuthorisedUser(TestController.show) {
+      showWithAuthorisedUser(testController.show) {
         result =>
           status(result) shouldBe OK
       }
     }
 
     "return a 200 and show the page if you are not logged in" in new Setup {
-      showWithUnauthorisedUser(TestController.show) {
+      showWithUnauthorisedUser(testController.show) {
         result =>
           status(result) shouldBe OK
       }
     }
 
     "Sending a POST request to ReturningUserController" should {
-      "return a 303 and send user to company registration eligibility when they start a new registrationn" in new Setup {
+      "return a 303 and send user to company registration eligibility when they start a new registration" in new Setup {
 
-        val result = TestController.submit()(FakeRequest().withFormUrlEncodedBody("returningUser" -> "true"))
+        val result = testController.submit()(FakeRequest().withFormUrlEncodedBody("returningUser" -> "true"))
         status(result) shouldBe SEE_OTHER
         redirectLocation(result).get should include("EligURL")
         redirectLocation(result).get should include("/eligibility-for-setting-up-company")
       }
       "return a 303 and send user to sign-in page when they are not starting a new registration" in new Setup {
 
-        val result = TestController.submit()(FakeRequest().withFormUrlEncodedBody("returningUser" -> "false"))
+        val result = testController.submit()(FakeRequest().withFormUrlEncodedBody("returningUser" -> "false"))
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some("/register-your-company/post-sign-in")
       }

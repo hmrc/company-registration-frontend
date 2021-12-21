@@ -18,6 +18,7 @@ package controllers.handoff
 
 import builders.AuthBuilder
 import config.FrontendAppConfig
+import controllers.reg.ControllerErrorHandler
 import fixtures.LoginFixture
 import helpers.SCRSSpec
 import models.handoff._
@@ -32,33 +33,43 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.{defaultAwaitTimeout, redirectLocation}
 import services.NavModelNotFoundException
 import utils.JweCommon
+import views.html.error_template_restart
 
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
+import scala.concurrent.ExecutionContext.Implicits.global
 
 
 class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPerSuite with AuthBuilder {
 
-  implicit val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+  lazy val errorTemplateRestartPage = app.injector.instanceOf[error_template_restart]
+  lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
+  lazy val mockControllerErrorHandler = app.injector.instanceOf[ControllerErrorHandler]
+  lazy val mockFrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+  lazy val mockJWECommon = app.injector.instanceOf[JweCommon]
 
   class Setup {
 
-    object TestController extends GroupController(
+    val testController = new GroupController (
       mockAuthConnector,
       mockKeystoreConnector,
       mockHandOffService,
       mockCompanyRegistrationConnector,
       mockHandBackService,
       mockGroupService,
-      app.injector.instanceOf[JweCommon],
-      app.injector.instanceOf[MessagesControllerComponents]
+      mockJWECommon,
+      mockMcc,
+      mockControllerErrorHandler,
+      errorTemplateRestartPage
+    )(
+      mockFrontendAppConfig,global
     )
 
   }
 
   "groupHandBack" should {
     "return 303 when missing bearer token" in new Setup {
-      showWithUnauthorisedUser(TestController.groupHandBack("foo")) {
+      showWithUnauthorisedUser(testController.groupHandBack("foo")) {
         result =>
           status(result) shouldBe 303
           redirectLocation(result).get shouldBe authUrl("HO3-1", "foo")
@@ -68,7 +79,7 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
     "return a 303 and redirect to post sign due to keystore returning nothing" in new Setup {
       mockKeystoreFetchAndGet("registrationID", None)
 
-      showWithAuthorisedUser(TestController.groupHandBack("")) {
+      showWithAuthorisedUser(testController.groupHandBack("")) {
         result =>
           status(result) shouldBe 303
           redirectLocation(result).get shouldBe "/register-your-company/post-sign-in?handOffID=HO3-1&payload="
@@ -80,7 +91,7 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
       when(mockHandBackService.processGroupsHandBack(any[String]())(any()))
         .thenReturn(Future.successful(Failure(new Exception("foo"))))
 
-      showWithAuthorisedUser(TestController.groupHandBack("fooBarNotDecryptable")) {
+      showWithAuthorisedUser(testController.groupHandBack("fooBarNotDecryptable")) {
         result =>
           status(result) shouldBe 400
       }
@@ -106,7 +117,7 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
           Some(true))))
       )
 
-    showWithAuthorisedUser(TestController.groupHandBack("fooBar")) {
+    showWithAuthorisedUser(testController.groupHandBack("fooBar")) {
       result =>
         status(result) shouldBe 303
         redirectLocation(result).get shouldBe controllers.handoff.routes.GroupController.PSCGroupHandOff().url
@@ -133,7 +144,7 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
           Some(true))))
       )
 
-    showWithAuthorisedUser(TestController.groupHandBack("fooBar")) {
+    showWithAuthorisedUser(testController.groupHandBack("fooBar")) {
       result =>
         status(result) shouldBe 303
         redirectLocation(result).get shouldBe controllers.groups.routes.GroupReliefController.show().url
@@ -153,7 +164,7 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
           None)))
       )
 
-    showWithAuthorisedUser(TestController.groupHandBack("fooBar")) {
+    showWithAuthorisedUser(testController.groupHandBack("fooBar")) {
       result =>
         status(result) shouldBe 400
     }
@@ -164,14 +175,14 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
     when(mockHandBackService.processGroupsHandBack(any[String]())(any()))
       .thenReturn(Future.failed(new Exception("foo")))
 
-    intercept[Exception](showWithAuthorisedUser(TestController.groupHandBack("fooBar")) {
+    intercept[Exception](showWithAuthorisedUser(testController.groupHandBack("fooBar")) {
       result => await(result)
     })
   }
 
   "PSCGroupHandOff" should {
     "return 303 when missing bearer token" in new Setup {
-      showWithUnauthorisedUser(TestController.PSCGroupHandOff()) {
+      showWithUnauthorisedUser(testController.PSCGroupHandOff()) {
         result =>
           status(result) shouldBe 303
           redirectLocation(result).get shouldBe authUrl
@@ -180,7 +191,7 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
 
     "return a 303 and redirect to post sign due to keystore returning nothing" in new Setup {
       mockKeystoreFetchAndGet("registrationID", None)
-      showWithAuthorisedUserRetrieval(TestController.PSCGroupHandOff(), Some("extID")) {
+      showWithAuthorisedUserRetrieval(testController.PSCGroupHandOff(), Some("extID")) {
         result =>
           status(result) shouldBe 303
           redirectLocation(result).get shouldBe controllers.reg.routes.SignInOutController.postSignIn(None, None, None).url
@@ -194,7 +205,7 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
       when(mockHandOffService.buildPSCPayload(any(), any(), any())(any()))
         .thenReturn(Future.successful(None))
 
-      showWithAuthorisedUserRetrieval(TestController.PSCGroupHandOff(), Some("extID")) {
+      showWithAuthorisedUserRetrieval(testController.PSCGroupHandOff(), Some("extID")) {
         result => status(result) shouldBe 400
       }
     }
@@ -208,7 +219,7 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
       when(mockHandOffService.buildHandOffUrl(any(), any()))
         .thenReturn("foo/bar/wizz/3-2")
 
-      showWithAuthorisedUserRetrieval(TestController.PSCGroupHandOff(), Some("extID")) {
+      showWithAuthorisedUserRetrieval(testController.PSCGroupHandOff(), Some("extID")) {
         result =>
           status(result) shouldBe 303
           redirectLocation(result).get shouldBe "foo/bar/wizz/3-2"
@@ -227,7 +238,7 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
       when(mockHandOffService.buildHandOffUrl(any(), any()))
         .thenReturn("foo/bar/wizz/3-2")
 
-      showWithAuthorisedUserRetrieval(TestController.PSCGroupHandOff(), Some("extID")) {
+      showWithAuthorisedUserRetrieval(testController.PSCGroupHandOff(), Some("extID")) {
         result =>
           status(result) shouldBe 303
           redirectLocation(result).get shouldBe "foo/bar/wizz/3-2"
@@ -242,7 +253,7 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
         .thenReturn(Future.failed(new NavModelNotFoundException))
       when(mockHandOffService.buildHandOffUrl(any(), any())).thenReturn("foo/bar/wizz/3-2")
 
-      showWithAuthorisedUserRetrieval(TestController.PSCGroupHandOff(), Some("extID")) {
+      showWithAuthorisedUserRetrieval(testController.PSCGroupHandOff(), Some("extID")) {
         result =>
           status(result) shouldBe 303
           redirectLocation(result).get shouldBe controllers.reg.routes.SignInOutController.postSignIn(None).url
@@ -254,7 +265,7 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
       when(mockHandOffService.buildPSCPayload(any(), any(), any())(any()))
         .thenReturn(Future.failed(new Exception()))
 
-      intercept[Exception](showWithAuthorisedUser(TestController.PSCGroupHandOff) {
+      intercept[Exception](showWithAuthorisedUser(testController.PSCGroupHandOff) {
         result => await(result)
       })
     }
@@ -287,7 +298,7 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
       when(mockHandOffService.fetchNavModel(ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.failed(new NavModelNotFoundException))
 
-      showWithAuthorisedUserRetrieval(TestController.back, Some("extID")) {
+      showWithAuthorisedUserRetrieval(testController.back, Some("extID")) {
         res =>
           status(res) shouldBe 303
           redirectLocation(res) shouldBe Some("/register-your-company/post-sign-in")
@@ -303,7 +314,7 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
         .thenReturn(Future.successful(BackHandoff("EXT-123456", "12354", Json.obj(), Json.obj(), Json.obj())))
       when(mockHandOffService.buildHandOffUrl(any(), any())).thenReturn("foo")
 
-      submitWithAuthorisedUserRetrieval(TestController.back, request, Some("extID")) {
+      submitWithAuthorisedUserRetrieval(testController.back, request, Some("extID")) {
         result =>
           status(result) shouldBe 303
           redirectLocation(result) shouldBe Some("foo")

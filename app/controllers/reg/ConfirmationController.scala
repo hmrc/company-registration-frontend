@@ -20,7 +20,7 @@ import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthenticatedController
 import forms.errors.DeskproForm
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 import models.ConfirmationReferencesSuccessResponse
 import play.api.Logger
 import play.api.i18n.I18nSupport
@@ -29,23 +29,24 @@ import services.{CommonService, DeskproService}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.auth.core.retrieve.Retrievals
 import utils.{SCRSExceptions, SessionRegistration}
-import views.html.reg.Confirmation
+import views.html.reg.{Confirmation => ConfirmationView}
+import views.html.errors.{submissionFailed => submissionFailedView}
+import views.html.errors.{deskproSubmitted => deskproSubmittedView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class ConfirmationControllerImpl @Inject()(val authConnector: PlayAuthConnector,
-                                           val compRegConnector: CompanyRegistrationConnector,
-                                           val keystoreConnector: KeystoreConnector,
-                                           val deskproService: DeskproService,
-                                           val appConfig: FrontendAppConfig,
-                                           val controllerComponents: MessagesControllerComponents)(implicit val ec: ExecutionContext) extends ConfirmationController
-
-abstract class ConfirmationController extends AuthenticatedController with SessionRegistration with CommonService
-  with SCRSExceptions with ControllerErrorHandler with I18nSupport {
-
-  val compRegConnector: CompanyRegistrationConnector
-  val deskproService: DeskproService
-  implicit val appConfig: FrontendAppConfig
+@Singleton
+class ConfirmationController @Inject()(val authConnector: PlayAuthConnector,
+                                       val compRegConnector: CompanyRegistrationConnector,
+                                       val keystoreConnector: KeystoreConnector,
+                                       val deskproService: DeskproService,
+                                       val controllerComponents: MessagesControllerComponents,
+                                       val controllerErrorHandler: ControllerErrorHandler,
+                                       confirmationView: ConfirmationView,
+                                       submissionFailedView: submissionFailedView,
+                                       deskproSubmittedView: deskproSubmittedView
+                                      )(implicit val appConfig: FrontendAppConfig, implicit val ec: ExecutionContext) extends AuthenticatedController with SessionRegistration with CommonService
+  with SCRSExceptions with I18nSupport {
 
   val show: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
@@ -53,10 +54,10 @@ abstract class ConfirmationController extends AuthenticatedController with Sessi
         regID <- fetchRegistrationID
         references <- compRegConnector.fetchConfirmationReferences(regID)
       } yield references match {
-        case ConfirmationReferencesSuccessResponse(ref) => Ok(Confirmation(ref))
+        case ConfirmationReferencesSuccessResponse(ref) => Ok(confirmationView(ref))
         case _ =>
           Logger.error(s"[ConfirmationController] [show] could not find acknowledgement ID for reg ID: $regID")
-          InternalServerError(defaultErrorPage)
+          InternalServerError(controllerErrorHandler.defaultErrorPage)
       }
     }
   }
@@ -69,7 +70,7 @@ abstract class ConfirmationController extends AuthenticatedController with Sessi
 
   val deskproPage: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
-      Future.successful(Ok(views.html.errors.submissionFailed(DeskproForm.form)))
+      Future.successful(Ok(submissionFailedView(DeskproForm.form)))
     }
   }
 
@@ -77,7 +78,7 @@ abstract class ConfirmationController extends AuthenticatedController with Sessi
     ctAuthorisedOptStr(Retrievals.userDetailsUri) { uri =>
       fetchRegistrationID.flatMap(regID =>
         DeskproForm.form.bindFromRequest.fold(
-          errors => Future.successful(BadRequest(views.html.errors.submissionFailed(errors))),
+          errors => Future.successful(BadRequest(submissionFailedView(errors))),
           success => deskproService.submitTicket(regID, success, uri) map {
             _ => Redirect(controllers.reg.routes.ConfirmationController.submittedTicket())
           }
@@ -88,7 +89,7 @@ abstract class ConfirmationController extends AuthenticatedController with Sessi
 
   val submittedTicket: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
-      Future.successful(Ok(views.html.errors.deskproSubmitted()))
+      Future.successful(Ok(deskproSubmittedView()))
     }
   }
 }

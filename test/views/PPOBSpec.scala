@@ -19,7 +19,7 @@ package views
 import _root_.connectors.BusinessRegistrationConnector
 import _root_.helpers.SCRSSpec
 import builders.AuthBuilder
-import controllers.reg.PPOBController
+import controllers.reg.{ControllerErrorHandler, PPOBController}
 import fixtures.PPOBFixture
 import mocks.NavModelRepoMock
 import models.{CHROAddress, NewAddress, PPOBChoice}
@@ -30,33 +30,44 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.{Lang, Langs, Messages}
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.Helpers._
+import repositories.NavModelRepo
 import services.AddressLookupFrontendService
-import utils.JweCommon
+import utils.SCRSFeatureSwitches
+
+import scala.concurrent.ExecutionContext.Implicits.global
+import views.html.reg.{PrinciplePlaceOfBusiness => PrinciplePlaceOfBusinessView}
 
 import scala.concurrent.Future
 
 class PPOBSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixture with NavModelRepoMock with GuiceOneAppPerSuite with AuthBuilder {
-  val mockNavModelRepoObj = mockNavModelRepo
-  val mockBusinessRegConnector = mock[BusinessRegistrationConnector]
-  val mockAddressLookupFrontendService = mock[AddressLookupFrontendService]
-  val mockMessages = app.injector.instanceOf[Messages]
+  lazy val mockNavModelRepoObj = mock[NavModelRepo]
+  lazy val mockBusinessRegConnector = mock[BusinessRegistrationConnector]
+  lazy val mockAddressLookupFrontendService = mock[AddressLookupFrontendService]
+  override lazy val mockSCRSFeatureSwitches = mock[SCRSFeatureSwitches]
+  lazy val mockMessages = app.injector.instanceOf[Messages]
   implicit val langs = app.injector.instanceOf[Langs]
 
   class SetupPage {
-    val controller = new PPOBController {
-      override val controllerComponents = app.injector.instanceOf[MessagesControllerComponents]
-      override val authConnector = mockAuthConnector
-      override val s4LConnector = mockS4LConnector
-      override val keystoreConnector = mockKeystoreConnector
-      override val compRegConnector = mockCompanyRegistrationConnector
-      override val pPOBService = mockPPOBService
-      override val handOffService = mockHandOffService
-      override val businessRegConnector = mockBusinessRegConnector
-      override val addressLookupFrontendService = mockAddressLookupFrontendService
-      override val appConfig = mockAppConfig
-      override val jwe: JweCommon = mockJweCommon
-      implicit val messages = mockMessages
-    }
+    val controller = new PPOBController(
+      mockAuthConnector,
+      mockS4LConnector,
+      mockKeystoreConnector,
+      mockCompanyRegistrationConnector,
+      mockHandOffService,
+      mockBusinessRegConnector,
+      mockNavModelRepoObj,
+      mockJweCommon,
+      mockAddressLookupFrontendService,
+      mockPPOBService,
+      mockSCRSFeatureSwitches,
+      app.injector.instanceOf[MessagesControllerComponents],
+      app.injector.instanceOf[ControllerErrorHandler],
+      app.injector.instanceOf[PrinciplePlaceOfBusinessView]
+
+    )
+    (mockAppConfig,
+      global
+      )
   }
 
   "PPOBController.show" should {

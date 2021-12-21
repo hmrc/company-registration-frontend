@@ -32,12 +32,12 @@ import services.{AddressLookupFrontendService, AddressPrepopulationService, Take
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.http.NotFoundException
 import utils.{SCRSFeatureSwitches, SessionRegistration}
-import views.html.takeovers.OtherBusinessAddress
+import views.html.takeovers.{OtherBusinessAddress => OtherBusinessAddressView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class OtherBusinessAddressController @Inject()(val authConnector: PlayAuthConnector,
+class OtherBusinessAddressController        @Inject()(val authConnector: PlayAuthConnector,
                                                val takeoverService: TakeoverService,
                                                val addressPrepopulationService: AddressPrepopulationService,
                                                val addressLookupFrontendService: AddressLookupFrontendService,
@@ -45,9 +45,11 @@ class OtherBusinessAddressController @Inject()(val authConnector: PlayAuthConnec
                                                val businessRegConnector: BusinessRegistrationConnector,
                                                val keystoreConnector: KeystoreConnector,
                                                val scrsFeatureSwitches: SCRSFeatureSwitches,
-                                               val controllerComponents: MessagesControllerComponents
+                                               val controllerComponents: MessagesControllerComponents,
+                                               val controllerErrorHandler: ControllerErrorHandler,
+                                               view: OtherBusinessAddressView
                                               )(implicit val appConfig: FrontendAppConfig
-                                              ) extends AuthenticatedController with ControllerErrorHandler with SessionRegistration {
+                                              ) extends AuthenticatedController with SessionRegistration {
 
   implicit val ec: ExecutionContext = controllerComponents.executionContext
 
@@ -73,13 +75,13 @@ class OtherBusinessAddressController @Inject()(val authConnector: PlayAuthConnec
                       OtherBusinessAddressForm.form(businessName, addressSeq.length)
                   }
 
-                  Ok(OtherBusinessAddress(prepopulatedForm, businessName, addressSeq))
+                  Ok(view(prepopulatedForm, businessName, addressSeq))
                     .addingToSession(addressSeqKey -> Json.toJson(addressSeq).toString())
               }
             case Some(TakeoverDetails(_, Some(businessName), _, _, _)) =>
               addressPrepopulationService.retrieveAddresses(regId).map {
                 addressSeq =>
-                  Ok(OtherBusinessAddress(OtherBusinessAddressForm.form(businessName, addressSeq.length), businessName, addressSeq))
+                  Ok(view(OtherBusinessAddressForm.form(businessName, addressSeq.length), businessName, addressSeq))
                     .addingToSession(addressSeqKey -> Json.toJson(addressSeq).toString())
               }
             case None =>
@@ -103,7 +105,7 @@ class OtherBusinessAddressController @Inject()(val authConnector: PlayAuthConnec
               (optTakeoverDetails, optAddressSeq) match {
                 case (Some(TakeoverDetails(_, Some(businessName), _, _, _)), Some(addressSeq)) => OtherBusinessAddressForm.form(businessName, addressSeq.length).bindFromRequest.fold(
                   formWithErrors =>
-                    Future.successful(BadRequest(OtherBusinessAddress(formWithErrors, businessName, addressSeq))),
+                    Future.successful(BadRequest(view(formWithErrors, businessName, addressSeq))),
                   {
                     case OtherAddress =>
                       addressLookupFrontendService.initialiseAlfJourney(

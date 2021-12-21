@@ -22,11 +22,13 @@ import play.api.http.Status
 import play.api.mvc.{AnyContentAsEmpty, MessagesControllerComponents}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import views.html.help.accessibility_statement
 
 class AccessibilityStatementControllerSpec extends SCRSSpec with GuiceOneAppPerSuite {
 
   object TestAccessibilityStatementController extends AccessibilityStatementController(
-    app.injector.instanceOf[MessagesControllerComponents]
+    app.injector.instanceOf[MessagesControllerComponents],
+    app.injector.instanceOf[accessibility_statement]
   )
 
   val testGetRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest("GET", "/accessibility-statement")

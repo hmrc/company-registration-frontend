@@ -14,15 +14,22 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.play.views.html.helpers.form
-@import uk.gov.hmrc.play.views.html.{helpers => govHelpers}
-@import views.html.helpers.{inputRadioGroupHidden, errorSummary}
 @import views.helpers.TitleHelper.title
+@import views.html.helpers.inputRadioGroupHidden
+@import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
+@import views.html.helpers.input
+@import views.html.helpers.errorSummary
+
+@this(main_template: main_template,
+        errorSummary: errorSummary,
+        inputRadioGroupHidden: inputRadioGroupHidden,
+        formWithCsrf: FormWithCSRF,
+        Input: input)
 
 @(groupUTR: Form[GroupUTR], parentCompanyName: String)(implicit request: Request[_], messages: Messages, appConfig: config.FrontendAppConfig)
 
 @differentHidden = {
-    @govHelpers.input(
+    @Input(
         groupUTR("utr"),
         '_inputClass -> "form-control-1-2",
         '_labelClass -> "form-label cascading",
@@ -47,7 +54,7 @@
             <p id="para-one">@Messages("page.groups.groupUtr.p1")</p>
         </div>
 
-        @form(action = controllers.groups.routes.GroupUtrController.submit()) {
+        @formWithCsrf(action = controllers.groups.routes.GroupUtrController.submit()) {
 
             <div class="form-group">
             @inputRadioGroupHidden(

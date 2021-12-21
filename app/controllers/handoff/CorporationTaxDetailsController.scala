@@ -32,20 +32,16 @@ import views.html.error_template_restart
 import scala.concurrent.ExecutionContext
 import scala.util.{Failure, Success}
 
-class CorporationTaxDetailsControllerImpl @Inject()(val authConnector: PlayAuthConnector,
-                                                    val keystoreConnector: KeystoreConnector,
-                                                    val handOffService: HandOffService,
-                                                    val appConfig: FrontendAppConfig,
-                                                    val compRegConnector: CompanyRegistrationConnector,
-                                                    val handBackService: HandBackService,
-                                                    val ec: ExecutionContext,
-                                                    val controllerComponents: MessagesControllerComponents) extends CorporationTaxDetailsController
+class CorporationTaxDetailsController @Inject()(val authConnector: PlayAuthConnector,
+                                                val keystoreConnector: KeystoreConnector,
+                                                val handOffService: HandOffService,
+                                                val compRegConnector: CompanyRegistrationConnector,
+                                                val handBackService: HandBackService,
+                                                val controllerComponents: MessagesControllerComponents,
+                                                error_template_restart: error_template_restart)
+                                               (implicit val appConfig: FrontendAppConfig, implicit val ec: ExecutionContext)
+  extends AuthenticatedController with SessionRegistration with I18nSupport {
 
-trait CorporationTaxDetailsController extends AuthenticatedController with SessionRegistration with I18nSupport {
-  val handOffService: HandOffService
-
-  val handBackService: HandBackService
-  implicit val appConfig: FrontendAppConfig
 
   //HO2
   def corporationTaxDetails(requestData: String): Action[AnyContent] = Action.async {
@@ -54,10 +50,14 @@ trait CorporationTaxDetailsController extends AuthenticatedController with Sessi
       val optSessionAuthToken = _request.session.get(SessionKeys.authToken)
       Logger.warn(s"[CorporationTaxDetailsController][HO2] mdtp cookie present? ${_request.cookies.get("mdtp").isDefined}")
       (optHcAuth, optSessionAuthToken) match {
-        case (Some(hcAuth),Some(sAuth)) => if (hcAuth.value == sAuth) {Logger.warn("[CorporationTaxDetailsController][HO2] hcAuth and session auth present and equal")}
-        else {Logger.warn("[CorporationTaxDetailsController][HO2] hcAuth and session auth present but not equal")}
-        case (Some(hcAuth),None) => Logger.warn("[CorporationTaxDetailsController][HO2] hcAuth present, session auth not")
-        case (None,Some(sAuth)) => Logger.warn("[CorporationTaxDetailsController][HO2] session auth present, hcAuth auth not")
+        case (Some(hcAuth), Some(sAuth)) => if (hcAuth.value == sAuth) {
+          Logger.warn("[CorporationTaxDetailsController][HO2] hcAuth and session auth present and equal")
+        }
+        else {
+          Logger.warn("[CorporationTaxDetailsController][HO2] hcAuth and session auth present but not equal")
+        }
+        case (Some(hcAuth), None) => Logger.warn("[CorporationTaxDetailsController][HO2] hcAuth present, session auth not")
+        case (None, Some(sAuth)) => Logger.warn("[CorporationTaxDetailsController][HO2] session auth present, hcAuth auth not")
         case (None, None) => Logger.warn("[CorporationTaxDetailsController][HO2] neither session auth or hcAuth present")
       }
       ctAuthorisedHandoff("HO2", requestData) {
@@ -75,5 +75,6 @@ trait CorporationTaxDetailsController extends AuthenticatedController with Sessi
           }
         }
       }
-  }}
+    }
+  }
 }

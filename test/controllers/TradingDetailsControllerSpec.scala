@@ -21,7 +21,7 @@ import java.util.UUID
 import builders.AuthBuilder
 import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
-import controllers.reg.TradingDetailsController
+import controllers.reg.{ControllerErrorHandler, TradingDetailsController}
 import fixtures.TradingDetailsFixtures
 import helpers.SCRSSpec
 import mocks.MetricServiceMock
@@ -29,14 +29,13 @@ import models.TradingDetails
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.i18n.MessagesApi
 import play.api.libs.json.Format
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services.{MetricsService, TradingDetailsService}
+import services.TradingDetailsService
 import uk.gov.hmrc.http.HeaderCarrier
-
+import views.html.reg.TradingDetailsView
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -44,23 +43,27 @@ class TradingDetailsControllerSpec extends SCRSSpec with GuiceOneAppPerSuite wit
 
   val mockTradingDetailsService = mock[TradingDetailsService]
   val mockKeyStoreConnector = mock[KeystoreConnector]
-  val mockCompRegConnector = mock[CompanyRegistrationConnector]
-
+  lazy val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+  lazy val mockControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
+  lazy val mockControllerErrorHandler = app.injector.instanceOf[ControllerErrorHandler]
+  lazy val mockTradingDetailsView = app.injector.instanceOf[TradingDetailsView]
   val regID = UUID.randomUUID.toString
 
   class Setup {
-
-    object TestController extends TradingDetailsController {
-      override lazy val controllerComponents = app.injector.instanceOf[MessagesControllerComponents]
-      val authConnector = mockAuthConnector
-      val tradingDetailsService = mockTradingDetailsService
-      override val compRegConnector = mockCompanyRegistrationConnector
-      override val keystoreConnector = mockKeystoreConnector
-      override val metricsService: MetricsService = MetricServiceMock
-      implicit lazy val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
-      override lazy val messagesApi = app.injector.instanceOf[MessagesApi]
-      implicit val ec: ExecutionContext = global
-    }
+    reset(mockCompanyRegistrationConnector)
+    val  testController = new TradingDetailsController (
+      mockAuthConnector,
+      mockTradingDetailsService,
+      MetricServiceMock,
+      mockCompanyRegistrationConnector,
+      mockKeystoreConnector,
+      mockControllerComponents,
+      mockControllerErrorHandler,
+      mockTradingDetailsView
+    )(
+      appConfig,
+      global
+    )
 
   }
 
@@ -74,20 +77,20 @@ class TradingDetailsControllerSpec extends SCRSSpec with GuiceOneAppPerSuite wit
 
       mockHttpGet[Option[TradingDetails]]("testUrl", Some(tradingDetailsTrue))
 
-      when(mockCompRegConnector.retrieveTradingDetails(ArgumentMatchers.eq(regID))(ArgumentMatchers.any[HeaderCarrier]()))
+      when(mockCompanyRegistrationConnector.retrieveTradingDetails(ArgumentMatchers.eq(regID))(ArgumentMatchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(Some(tradingDetailsTrue)))
 
       when(mockTradingDetailsService.retrieveTradingDetails(ArgumentMatchers.eq(regID))(ArgumentMatchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(TradingDetails("true")))
 
-      showWithAuthorisedUser(TestController.show()) {
+      showWithAuthorisedUser(testController.show()) {
         result =>
           status(result) shouldBe OK
       }
     }
 
     "return a 303 whilst requesting a with an unauthorised user" in new Setup {
-      showWithUnauthorisedUser(TestController.show()) {
+      showWithUnauthorisedUser(testController.show()) {
         result => status(result) shouldBe SEE_OTHER
       }
     }
@@ -101,13 +104,13 @@ class TradingDetailsControllerSpec extends SCRSSpec with GuiceOneAppPerSuite wit
 
         when(mockTradingDetailsService.fetchRegistrationID(ArgumentMatchers.any[HeaderCarrier]())).thenReturn(Future.successful(regID))
 
-        when(mockCompRegConnector.updateTradingDetails(ArgumentMatchers.eq(regID), ArgumentMatchers.eq(tradingDetailsTrue))(ArgumentMatchers.any[HeaderCarrier]()))
+        when(mockCompanyRegistrationConnector.updateTradingDetails(ArgumentMatchers.eq(regID), ArgumentMatchers.eq(tradingDetailsTrue))(ArgumentMatchers.any[HeaderCarrier]()))
           .thenReturn(Future.successful(tradingDetailsSuccessResponseTrue))
 
         when(mockTradingDetailsService.updateCompanyInformation(ArgumentMatchers.eq(tradingDetailsTrue))(ArgumentMatchers.any[HeaderCarrier]()))
           .thenReturn(Future.successful(tradingDetailsSuccessResponseTrue))
         mockKeystoreFetchAndGet("registrationID", Some(regID))
-        submitWithAuthorisedUser(TestController.submit, FakeRequest().withFormUrlEncodedBody("regularPayments" -> "true")) {
+        submitWithAuthorisedUser(testController.submit, FakeRequest().withFormUrlEncodedBody("regularPayments" -> "true")) {
           result =>
             status(result) shouldBe SEE_OTHER
             redirectLocation(result) shouldBe Some("/register-your-company/business-activities")
@@ -117,7 +120,7 @@ class TradingDetailsControllerSpec extends SCRSSpec with GuiceOneAppPerSuite wit
 
     "posting with no keystore entry" in new Setup {
       mockKeystoreFetchAndGet("registrationID", None)
-      submitWithAuthorisedUser(TestController.submit, FakeRequest().withFormUrlEncodedBody("regularPayments" -> "true")) {
+      submitWithAuthorisedUser(testController.submit, FakeRequest().withFormUrlEncodedBody("regularPayments" -> "true")) {
         result =>
           status(result) shouldBe SEE_OTHER
           redirectLocation(result) shouldBe Some("/register-your-company/post-sign-in")
@@ -131,13 +134,13 @@ class TradingDetailsControllerSpec extends SCRSSpec with GuiceOneAppPerSuite wit
 
         when(mockTradingDetailsService.fetchRegistrationID(ArgumentMatchers.any[HeaderCarrier]())).thenReturn(Future.successful(regID))
 
-        when(mockCompRegConnector.updateTradingDetails(ArgumentMatchers.eq(regID), ArgumentMatchers.eq(tradingDetailsTrue))(ArgumentMatchers.any[HeaderCarrier]()))
+        when(mockCompanyRegistrationConnector.updateTradingDetails(ArgumentMatchers.eq(regID), ArgumentMatchers.eq(tradingDetailsTrue))(ArgumentMatchers.any[HeaderCarrier]()))
           .thenReturn(Future.successful(tradingDetailsErrorResponse))
 
         when(mockTradingDetailsService.updateCompanyInformation(ArgumentMatchers.eq(tradingDetailsTrue))(ArgumentMatchers.any[HeaderCarrier]()))
           .thenReturn(Future.successful(tradingDetailsErrorResponse))
         mockKeystoreFetchAndGet("registrationID", Some(regID))
-        submitWithAuthorisedUser(TestController.submit, FakeRequest().withFormUrlEncodedBody("regularPayments" -> "true")) {
+        submitWithAuthorisedUser(testController.submit, FakeRequest().withFormUrlEncodedBody("regularPayments" -> "true")) {
           result =>
             status(result) shouldBe BAD_REQUEST
         }
@@ -149,13 +152,13 @@ class TradingDetailsControllerSpec extends SCRSSpec with GuiceOneAppPerSuite wit
 
         when(mockTradingDetailsService.fetchRegistrationID(ArgumentMatchers.any[HeaderCarrier]())).thenReturn(Future.successful(regID))
 
-        when(mockCompRegConnector.updateTradingDetails(ArgumentMatchers.eq(regID), ArgumentMatchers.eq(tradingDetailsTrue))(ArgumentMatchers.any[HeaderCarrier]()))
+        when(mockCompanyRegistrationConnector.updateTradingDetails(ArgumentMatchers.eq(regID), ArgumentMatchers.eq(tradingDetailsTrue))(ArgumentMatchers.any[HeaderCarrier]()))
           .thenReturn(Future.successful(tradingDetailsNotFoundResponse))
 
         when(mockTradingDetailsService.updateCompanyInformation(ArgumentMatchers.eq(tradingDetailsTrue))(ArgumentMatchers.any[HeaderCarrier]()))
           .thenReturn(Future.successful(tradingDetailsNotFoundResponse))
         mockKeystoreFetchAndGet("registrationID", Some(regID))
-        submitWithAuthorisedUser(TestController.submit, FakeRequest().withFormUrlEncodedBody("regularPayments" -> "true")) {
+        submitWithAuthorisedUser(testController.submit, FakeRequest().withFormUrlEncodedBody("regularPayments" -> "true")) {
           result =>
             status(result) shouldBe BAD_REQUEST
         }
@@ -167,13 +170,13 @@ class TradingDetailsControllerSpec extends SCRSSpec with GuiceOneAppPerSuite wit
 
         when(mockTradingDetailsService.fetchRegistrationID(ArgumentMatchers.any[HeaderCarrier]())).thenReturn(Future.successful(regID))
 
-        when(mockCompRegConnector.updateTradingDetails(ArgumentMatchers.eq(regID), ArgumentMatchers.eq(tradingDetailsTrue))(ArgumentMatchers.any[HeaderCarrier]()))
+        when(mockCompanyRegistrationConnector.updateTradingDetails(ArgumentMatchers.eq(regID), ArgumentMatchers.eq(tradingDetailsTrue))(ArgumentMatchers.any[HeaderCarrier]()))
           .thenReturn(Future.successful(tradingDetailsForbiddenResponse))
 
         when(mockTradingDetailsService.updateCompanyInformation(ArgumentMatchers.eq(tradingDetailsTrue))(ArgumentMatchers.any[HeaderCarrier]()))
           .thenReturn(Future.successful(tradingDetailsForbiddenResponse))
         mockKeystoreFetchAndGet("registrationID", Some(regID))
-        submitWithAuthorisedUser(TestController.submit, FakeRequest().withFormUrlEncodedBody("regularPayments" -> "true")) {
+        submitWithAuthorisedUser(testController.submit, FakeRequest().withFormUrlEncodedBody("regularPayments" -> "true")) {
           result =>
             status(result) shouldBe BAD_REQUEST
         }
@@ -181,7 +184,7 @@ class TradingDetailsControllerSpec extends SCRSSpec with GuiceOneAppPerSuite wit
 
       "posting with invalid data" in new Setup {
         mockKeystoreFetchAndGet("registrationID", Some("foo"))
-        submitWithAuthorisedUser(TestController.submit, FakeRequest().withFormUrlEncodedBody("regularPayments" -> "")) {
+        submitWithAuthorisedUser(testController.submit, FakeRequest().withFormUrlEncodedBody("regularPayments" -> "")) {
           result =>
             status(result) shouldBe BAD_REQUEST
         }

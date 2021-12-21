@@ -30,38 +30,30 @@ import services._
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.auth.core.retrieve.Retrievals
 import utils._
-import views.html.reg.Summary
+import views.html.reg.{Summary => SummaryView}
+import javax.inject.{Inject, Singleton}
 
-import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class SummaryControllerImpl @Inject()(val authConnector: PlayAuthConnector,
-                                      val s4LConnector: S4LConnector,
-                                      val compRegConnector: CompanyRegistrationConnector,
-                                      val keystoreConnector: KeystoreConnector,
-                                      val metaDataService: MetaDataService,
-                                      val takeoverService: TakeoverService,
-                                      val handOffService: HandOffService,
-                                      val navModelRepo: NavModelRepo,
-                                      val appConfig: FrontendAppConfig,
-                                      val scrsFeatureSwitches: SCRSFeatureSwitches,
-                                      val jwe: JweCommon,
-                                      val controllerComponents: MessagesControllerComponents)
-                                     (implicit val ec: ExecutionContext) extends SummaryController {
+@Singleton
+class SummaryController @Inject()(val authConnector: PlayAuthConnector,
+                                  val s4LConnector: S4LConnector,
+                                  val compRegConnector: CompanyRegistrationConnector,
+                                  val keystoreConnector: KeystoreConnector,
+                                  val metaDataService: MetaDataService,
+                                  val takeoverService: TakeoverService,
+                                  val handOffService: HandOffService,
+                                  val navModelRepo: NavModelRepo,
+                                  val scrsFeatureSwitches: SCRSFeatureSwitches,
+                                  val jwe: JweCommon,
+                                  val controllerComponents: MessagesControllerComponents,
+                                  val controllerErrorHandler: ControllerErrorHandler,
+                                  view: SummaryView)
+                                 (implicit val appConfig: FrontendAppConfig, implicit val ec: ExecutionContext)
+  extends AuthenticatedController with CommonService with SCRSExceptions
+    with SessionRegistration with I18nSupport {
   lazy val navModelMongo = navModelRepo.repository
-}
 
-trait SummaryController extends AuthenticatedController with CommonService with SCRSExceptions with ControllerErrorHandler
-  with SessionRegistration with I18nSupport {
-  implicit val appConfig: FrontendAppConfig
-
-  val s4LConnector: S4LConnector
-  val compRegConnector: CompanyRegistrationConnector
-  val jwe: JweCommon
-
-  val metaDataService: MetaDataService
-  val takeoverService: TakeoverService
-  val handOffService: HandOffService
 
   val show: Action[AnyContent] = Action.async {
     implicit request =>
@@ -87,25 +79,25 @@ trait SummaryController extends AuthenticatedController with CommonService with 
                 }
                 optTakeoverDetails match {
                   case Some(TakeoverDetails(true, Some(_), Some(_), Some(_), Some(_))) =>
-                    Ok(Summary(details.companyName, details.jurisdiction, accountDates, ppobAddress, rOAddress, ctContactDetails, tradingDetails, optTakeoverDetails, cc))
+                    Ok(view(details.companyName, details.jurisdiction, accountDates, ppobAddress, rOAddress, ctContactDetails, tradingDetails, optTakeoverDetails, cc))
                   case Some(TakeoverDetails(true, _, _, _, _)) =>
                     Redirect(controllers.takeovers.routes.TakeoverInformationNeededController.show())
                   case None | Some(TakeoverDetails(false, None, None, None, None)) =>
-                    Ok(Summary(details.companyName, details.jurisdiction, accountDates, ppobAddress, rOAddress, ctContactDetails, tradingDetails, optTakeoverDetails, cc))
+                    Ok(view(details.companyName, details.jurisdiction, accountDates, ppobAddress, rOAddress, ctContactDetails, tradingDetails, optTakeoverDetails, cc))
                   case Some(TakeoverDetails(false, _, _, _, _)) =>
                     Redirect(controllers.takeovers.routes.TakeoverInformationNeededController.show())
                   case _ =>
                     Logger.error("[SummaryController] [show] Takeover details in unexpected state")
-                    InternalServerError(defaultErrorPage)
+                    InternalServerError(controllerErrorHandler.defaultErrorPage)
                 }
               case _ =>
                 Logger.error(s"[SummaryController] [show] Could not find company details for reg ID : $regID - suspected direct routing to summary page")
-                InternalServerError(defaultErrorPage)
+                InternalServerError(controllerErrorHandler.defaultErrorPage)
             }
           }) recover {
             case ex: Throwable =>
               Logger.error(s"[SummaryController] [show] Error occurred while loading the summary page - ${ex.getMessage}")
-              InternalServerError(defaultErrorPage)
+              InternalServerError(controllerErrorHandler.defaultErrorPage)
           }
         }
       }

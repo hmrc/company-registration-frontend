@@ -16,14 +16,14 @@
 
 package controllers.test
 
+import helpers.UnitSpec
 import org.scalatestplus.mockito.MockitoSugar
-import org.scalatestplus.play.OneAppPerSuite
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.SessionKeys
-import uk.gov.hmrc.play.test.UnitSpec
 
-class EditSessionControllerSpec extends UnitSpec with MockitoSugar with OneAppPerSuite {
+class EditSessionControllerSpec extends UnitSpec with MockitoSugar with GuiceOneAppPerSuite {
 
   val sessionId = "session-id"
   val newSessionId = "new-session-id"

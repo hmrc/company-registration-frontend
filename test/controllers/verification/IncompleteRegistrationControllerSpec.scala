@@ -17,15 +17,15 @@
 package controllers.verification
 
 import controllers.reg.IncompleteRegistrationController
+import helpers.UnitSpec
 import mocks.SCRSMocks
-import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.MessagesApi
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.play.test.UnitSpec
+import views.html.reg.IncompleteRegistration
 
 class IncompleteRegistrationControllerSpec extends UnitSpec with GuiceOneAppPerSuite with SCRSMocks with MockitoSugar {
 
@@ -33,7 +33,9 @@ class IncompleteRegistrationControllerSpec extends UnitSpec with GuiceOneAppPerS
 
   class Setup {
 
-    object TestController extends IncompleteRegistrationController(mockMcc) {
+    val page = app.injector.instanceOf[IncompleteRegistration]
+
+    object TestController extends IncompleteRegistrationController(mockMcc, page) {
       override val appConfig = mockAppConfig
       override val messagesApi = app.injector.instanceOf[MessagesApi]
     }

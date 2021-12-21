@@ -17,7 +17,7 @@
 package forms
 
 import fixtures.PPOBFixture
-import uk.gov.hmrc.play.test.UnitSpec
+import helpers.UnitSpec
 
 class ReturningUserFormSpec extends UnitSpec with PPOBFixture {
 

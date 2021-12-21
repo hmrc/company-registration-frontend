@@ -95,7 +95,9 @@ class AccessibilityStatementSpec extends SCRSSpec with GuiceOneAppPerSuite {
   lazy val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
   val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
 
-  lazy val page: HtmlFormat.Appendable = accessibility_statement(testAccessibilityReportUrl, testServiceStartUrl)(
+  val view = app.injector.instanceOf[accessibility_statement]
+
+  lazy val page: HtmlFormat.Appendable = view(testAccessibilityReportUrl, testServiceStartUrl)(
     request,
     messagesApi.preferred(request),
     mockAppConfig

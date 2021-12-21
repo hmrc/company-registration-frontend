@@ -14,9 +14,12 @@
  * limitations under the License.
  *@
 
-@()(implicit request: Request[_], messages: Messages, appConfig: config.FrontendAppConfig)
+@import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
 
-@import uk.gov.hmrc.play.views.html.helpers.form
+@this(main_template: main_template,
+        formWithCsrf: FormWithCSRF)
+
+@()(implicit request: Request[_], messages: Messages, appConfig: config.FrontendAppConfig)
 
 @main_template(title = Messages("page.reg.registrationUnsuccessful.title"), mainClass = None) {
 
@@ -34,7 +37,7 @@
          <p>@Messages("page.reg.registrationUnsuccessful.startAgain")</p>
     </div>
 
-@form(action = controllers.reg.routes.RegistrationUnsuccessfulController.submit()) {
+@formWithCsrf(action = controllers.reg.routes.RegistrationUnsuccessfulController.submit()) {
     <div class="form-group">
       <input class="button" type="submit" id="next" value="@Messages("common.button.startAgain")">
     </div>

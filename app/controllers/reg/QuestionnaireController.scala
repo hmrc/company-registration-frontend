@@ -18,35 +18,33 @@ package controllers.reg
 
 import config.FrontendAppConfig
 import forms.QuestionnaireForm
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 import play.api.i18n.I18nSupport
 import play.api.mvc.MessagesControllerComponents
 import services.{MetricsService, QuestionnaireService}
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
-import views.html.reg.Questionnaire
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+import views.html.reg.{Questionnaire => QuestionnaireView}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-class QuestionnaireControllerImpl @Inject()(val metricsService: MetricsService,
-                                            val qService: QuestionnaireService,
-                                            val appConfig: FrontendAppConfig,
-                                            mcc: MessagesControllerComponents) extends QuestionnaireController(mcc)
+@Singleton
+class QuestionnaireController @Inject()(val metricsService: MetricsService,
+                                        val qService: QuestionnaireService,
+                                        mcc: MessagesControllerComponents,
+                                        view: QuestionnaireView)(implicit val appConfig: FrontendAppConfig, implicit val ec: ExecutionContext) extends FrontendController(mcc) with I18nSupport {
 
-abstract class QuestionnaireController(mcc: MessagesControllerComponents) extends FrontendController(mcc) with I18nSupport {
-  implicit val appConfig: FrontendAppConfig
+
   lazy val gHost = appConfig.govHostUrl
-  val metricsService: MetricsService
-  val qService: QuestionnaireService
   val show = Action.async {
     implicit request =>
-      Future.successful(Ok(Questionnaire(QuestionnaireForm.formFilled)))
+      Future.successful(Ok(view(QuestionnaireForm.formFilled)))
   }
 
   val submit = Action.async {
     implicit request =>
       QuestionnaireForm.form.bindFromRequest.fold(
         errors =>
-          Future.successful(BadRequest(Questionnaire(errors))),
+          Future.successful(BadRequest(view(errors))),
         success => {
           metricsService.numberOfQuestionnairesSubmitted.inc()
           qService.sendAuditEventOnSuccessfulSubmission(success)

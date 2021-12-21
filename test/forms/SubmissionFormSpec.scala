@@ -16,9 +16,8 @@
 
 package forms
 
-import helpers.FormTestHelpers
+import helpers.{FormTestHelpers, UnitSpec}
 import play.api.data.FormError
-import uk.gov.hmrc.play.test.UnitSpec
 
 class SubmissionFormSpec extends UnitSpec with FormTestHelpers {
 

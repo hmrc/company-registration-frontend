@@ -20,22 +20,15 @@ import config.FrontendAppConfig
 import javax.inject.Inject
 import play.api.i18n.I18nSupport
 import play.api.mvc.MessagesControllerComponents
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SCRSFeatureSwitches
 import views.html.healthcheck.HealthCheck
 
-class HealthCheckControllerImpl @Inject()(val scrsFeatureSwitches: SCRSFeatureSwitches,
-                                          val appConfig: FrontendAppConfig,
-                                          mcc: MessagesControllerComponents) extends HealthCheckController(mcc) {
-
-  override def healthCheckFeature: Boolean = scrsFeatureSwitches.healthCheck.enabled
-}
-
-abstract class HealthCheckController(mcc: MessagesControllerComponents) extends FrontendController(mcc) with I18nSupport {
-
-  implicit val appConfig: FrontendAppConfig
-
-  def healthCheckFeature: Boolean
+class HealthCheckController @Inject()(val scrsFeatureSwitches: SCRSFeatureSwitches,
+                                    mcc: MessagesControllerComponents,
+                                     view: HealthCheck
+                                    )(implicit val appConfig: FrontendAppConfig) extends FrontendController(mcc) with I18nSupport {
+   def healthCheckFeature: Boolean = scrsFeatureSwitches.healthCheck.enabled
 
   def checkHealth(status: Option[Int] = None) = Action {
     implicit request =>
@@ -43,6 +36,6 @@ abstract class HealthCheckController(mcc: MessagesControllerComponents) extends 
         Ok
       } else {
         status.fold(ServiceUnavailable)(new Status(_))
-      }) (HealthCheck())
+      }) (view())
   }
 }

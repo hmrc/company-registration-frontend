@@ -16,8 +16,7 @@
 
 package forms
 
-import helpers.FormTestHelpers
-import uk.gov.hmrc.play.test.UnitSpec
+import helpers.{FormTestHelpers, UnitSpec}
 
 class CompanyDetailsFormSpec extends UnitSpec with FormTestHelpers {
 

@@ -14,9 +14,15 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.play.views.html.helpers.form
-@import views.html.helpers.{errorSummary, inputRadioGroup}
 @import views.helpers.TitleHelper.title
+@import uk.gov.hmrc.play.views.html.helpers.InputRadioGroup
+@import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
+@import views.html.helpers.errorSummary
+
+@this(main_template: main_template,
+        inputRadioGroup: InputRadioGroup,
+        errorSummary: errorSummary,
+        formWithCSRF: FormWithCSRF)
 
 @(replacingAnotherBusiness: Form[Boolean])(implicit request: Request[_], messages: Messages, appConfig: config.FrontendAppConfig)
 
@@ -50,12 +56,11 @@
         </details>
     </div>
 
-    @form(action = controllers.takeovers.routes.ReplacingAnotherBusinessController.submit()) {
+    @formWithCSRF(action = controllers.takeovers.routes.ReplacingAnotherBusinessController.submit()) {
         <div class="form-group">
         @inputRadioGroup(
             replacingAnotherBusiness("replacingAnotherBusiness"),
             Seq("true" -> Messages("common.button.yes"), "false" -> Messages("common.button.no")),
-            isHeading = false,
             '_labelClass -> "block-label radio-label",
             '_legendClass -> "visually-hidden",
             '_legend -> Messages("page.takeovers.replacingAnotherBusiness.title"),

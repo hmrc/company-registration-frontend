@@ -17,9 +17,9 @@
 package utils
 
 import forms.AccountingDatesFormT
+import helpers.UnitSpec
 import org.joda.time.{DateTime, LocalDate}
 import services.{BankHolidays, TimeService}
-import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.time.workingdays.BankHolidaySet
 
 class SCRSValidatorsSpec extends UnitSpec {

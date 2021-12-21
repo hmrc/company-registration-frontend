@@ -21,6 +21,7 @@ import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthenticatedController
 import controllers.reg.{ControllerErrorHandler, routes => regRoutes}
 import forms.takeovers.WhoAgreedTakeoverForm
+
 import javax.inject.{Inject, Singleton}
 import models.TakeoverDetails
 import play.api.i18n.I18nSupport
@@ -39,9 +40,11 @@ class WhoAgreedTakeoverController @Inject()(val authConnector: PlayAuthConnector
                                             val compRegConnector: CompanyRegistrationConnector,
                                             val keystoreConnector: KeystoreConnector,
                                             val scrsFeatureSwitches: SCRSFeatureSwitches,
-                                            val controllerComponents: MessagesControllerComponents
+                                            val controllerComponents: MessagesControllerComponents,
+                                            val controllerErrorHandler: ControllerErrorHandler,
+                                            view: WhoAgreedTakeover
                                            )(implicit val appConfig: FrontendAppConfig, val ec: ExecutionContext
-                                           ) extends AuthenticatedController with ControllerErrorHandler with SessionRegistration with I18nSupport {
+                                           ) extends AuthenticatedController with SessionRegistration with I18nSupport {
 
   val show: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
@@ -57,9 +60,9 @@ class WhoAgreedTakeoverController @Inject()(val authConnector: PlayAuthConnector
             case None =>
               Future.successful(Redirect(routes.ReplacingAnotherBusinessController.show()))
             case Some(TakeoverDetails(_, Some(businessName), _, Some(prepopName), _)) =>
-              Future.successful(Ok(WhoAgreedTakeover(WhoAgreedTakeoverForm.form.fill(prepopName), businessName)))
+              Future.successful(Ok(view(WhoAgreedTakeoverForm.form.fill(prepopName), businessName)))
             case Some(TakeoverDetails(_, Some(businessName), _, None, _)) =>
-              Future.successful(Ok(WhoAgreedTakeover(WhoAgreedTakeoverForm.form, businessName)))
+              Future.successful(Ok(view(WhoAgreedTakeoverForm.form, businessName)))
           }
         }
         else {
@@ -76,7 +79,7 @@ class WhoAgreedTakeoverController @Inject()(val authConnector: PlayAuthConnector
           formWithErrors =>
             takeoverService.getTakeoverDetails(regId).flatMap {
               case Some(TakeoverDetails(_, Some(businessName), _, _, _)) =>
-                Future.successful(BadRequest(WhoAgreedTakeover(formWithErrors, businessName)))
+                Future.successful(BadRequest(view(formWithErrors, businessName)))
               case _ =>
                 Future.successful(Redirect(routes.WhoAgreedTakeoverController.show()))
             },

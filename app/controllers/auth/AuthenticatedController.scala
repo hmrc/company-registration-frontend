@@ -25,7 +25,7 @@ import uk.gov.hmrc.auth.core.retrieve.Retrievals._
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.emailVerified
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Retrieval, ~}
 import uk.gov.hmrc.auth.core.{AuthorisedFunctions, _}
-import uk.gov.hmrc.play.bootstrap.controller.FrontendBaseController
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
 import scala.concurrent.{ExecutionContext, Future}
 

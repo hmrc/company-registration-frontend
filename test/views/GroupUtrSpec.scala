@@ -19,6 +19,7 @@ package views
 import _root_.helpers.SCRSSpec
 import builders.AuthBuilder
 import controllers.groups.GroupUtrController
+import controllers.reg.ControllerErrorHandler
 import fixtures.UserDetailsFixture
 import models.{NewAddress, _}
 import org.jsoup.Jsoup
@@ -30,6 +31,7 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{AnyContentAsEmpty, MessagesControllerComponents, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import views.html.groups.GroupUtrView
 
 import scala.concurrent.Future
 
@@ -45,7 +47,8 @@ class GroupUtrSpec extends SCRSSpec with UserDetailsFixture
       mockKeystoreConnector,
       mockGroupService,
       mockCompanyRegistrationConnector,
-      app.injector.instanceOf[MessagesControllerComponents]
+      app.injector.instanceOf[MessagesControllerComponents],
+      app.injector.instanceOf[GroupUtrView]
     )
 
     case class funcMatcher(func: Groups => Future[Result]) extends ArgumentMatcher[Groups => Future[Result]] {

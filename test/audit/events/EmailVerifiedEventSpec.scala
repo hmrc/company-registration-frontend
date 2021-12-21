@@ -16,11 +16,11 @@
 
 package audit.events
 
+import helpers.UnitSpec
 import play.api.libs.json.{JsObject, Json}
 import play.api.test.FakeRequest
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.model.ExtendedDataEvent
-import uk.gov.hmrc.play.test.UnitSpec
 
 class EmailVerifiedEventSpec extends UnitSpec {
 

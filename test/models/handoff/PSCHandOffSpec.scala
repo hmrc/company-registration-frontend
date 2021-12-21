@@ -16,9 +16,9 @@
 
 package models.handoff
 
+import helpers.UnitSpec
 import models.NewAddress
 import play.api.libs.json.Json
-import uk.gov.hmrc.play.test.UnitSpec
 
 class PSCHandOffSpec extends UnitSpec{
 

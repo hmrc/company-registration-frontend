@@ -16,9 +16,9 @@
 
 package models.external
 
+import helpers.UnitSpec
 import org.joda.time.DateTime
 import play.api.libs.json.{JsResultException, JsSuccess, Json}
-import uk.gov.hmrc.play.test.UnitSpec
 
 
 class OtherRegStatusSpec extends UnitSpec {

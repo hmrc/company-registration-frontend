@@ -27,25 +27,22 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services._
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import utils.{SCRSExceptions, SessionRegistration}
-
+import views.html.dashboard.{Dashboard => DashboardView}
+import views.html.reg.{RegistrationUnsuccessful => RegistrationUnsuccessfulView}
 import scala.concurrent.{ExecutionContext, Future}
 
-class DashboardControllerImpl @Inject()(val authConnector: PlayAuthConnector,
+class DashboardController @Inject()(val authConnector: PlayAuthConnector,
                                         val keystoreConnector: KeystoreConnector,
                                         val compRegConnector: CompanyRegistrationConnector,
-                                        val appConfig: FrontendAppConfig,
                                         val dashboardService: DashboardService,
-                                        val ec: ExecutionContext,
-                                        val controllerComponents: MessagesControllerComponents) extends DashboardController {
+                                        val controllerComponents: MessagesControllerComponents,
+                                        val controllerErrorHandler: ControllerErrorHandler,
+                                        viewDashboard: DashboardView,
+                                        viewRegistrationUnsuccessful: RegistrationUnsuccessfulView)
+                                       (implicit val appConfig: FrontendAppConfig, implicit val ec: ExecutionContext) extends AuthenticatedController with CommonService with SCRSExceptions
+   with SessionRegistration with I18nSupport {
   lazy val companiesHouseURL = appConfig.servicesConfig.getConfString("coho-service.sign-in", throw new Exception("Could not find config for coho-sign-in url"))
-}
 
-abstract class DashboardController extends AuthenticatedController with CommonService with SCRSExceptions
-  with ControllerErrorHandler with SessionRegistration with I18nSupport {
-  implicit val appConfig: FrontendAppConfig
-
-  val companiesHouseURL: String
-  val dashboardService: DashboardService
 
   val show: Action[AnyContent] = Action.async {
     implicit request =>
@@ -54,12 +51,12 @@ abstract class DashboardController extends AuthenticatedController with CommonSe
         registered { regId =>
           dashboardService.checkForEmailMismatch(regId, authDetails) flatMap { _ =>
             dashboardService.buildDashboard(regId, authDetails.enrolments) map {
-              case DashboardBuilt(dash) => Ok(views.html.dashboard.Dashboard(dash, companiesHouseURL))
+              case DashboardBuilt(dash) => Ok(viewDashboard(dash, companiesHouseURL))
               case CouldNotBuild => Redirect(controllers.handoff.routes.BasicCompanyDetailsController.basicCompanyDetails())
-              case RejectedIncorp => Ok(views.html.reg.RegistrationUnsuccessful())
+              case RejectedIncorp => Ok(viewRegistrationUnsuccessful())
             } recover {
               case ex => Logger.error(s"[Dashboard Controller] [Show] buildDashboard returned an error ${ex.getMessage}", ex)
-                InternalServerError(defaultErrorPage)
+                InternalServerError(controllerErrorHandler.defaultErrorPage)
             }
           }
         }

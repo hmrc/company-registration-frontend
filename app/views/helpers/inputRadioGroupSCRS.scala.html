@@ -14,6 +14,7 @@
  * limitations under the License.
  *@
 
+@this()
 @(field: Field, radioOptions: Seq[(String, String)], isHeading: Boolean, args: (Symbol, Any)*)(implicit messages: Messages)
 
 @import play.api.i18n._
@@ -35,7 +36,7 @@
     </legend>
 }
 
-@elements.errors.map{error => <span class="error-notification">@Messages(error)</span>}
+@elements.errors.map{error => <span class="error-notification">@Messages(error.toString)</span>}
 
 @if(elements.args.get('_hintText).isDefined){
     <span class="form-hint">@elements.args.get('_hintText)</span>

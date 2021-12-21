@@ -18,11 +18,11 @@ package services
 
 import java.util.UUID
 
+import helpers.UnitSpec
 import mocks.TakeoverConnectorMock
 import models.{NewAddress, TakeoverDetails}
 import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.http.{HeaderCarrier, InternalServerException}
-import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future

@@ -14,10 +14,11 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.play.views.html.helpers.form
-@import models.AccountingDatesModel.{WHEN_REGISTERED, FUTURE_DATE, NOT_PLANNING_TO_YET}
-@import controllers.CRLanguageController
-@import play.api.Application
+@import models.AccountingDatesModel.{WHEN_REGISTERED, NOT_PLANNING_TO_YET}
+@import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
+
+@this(main_template: main_template,
+        formWithCSRF: FormWithCSRF)
 
 @(companyName : String,
   jurisdiction : String,
@@ -220,7 +221,7 @@
       <p>@messages("page.reg.summary.information.indent")</p>
     </div>
   </div>
-  @form(action = controllers.reg.routes.SummaryController.submit()) {
+  @formWithCSRF(action = controllers.reg.routes.SummaryController.submit()) {
   <div class="form-group">
     <input class="button" type="submit" id="next" value="@Messages("common.button.ConfirmAndContinue")">
   </div>

@@ -21,7 +21,7 @@ import java.time.LocalDate
 import builders.AuthBuilder
 import config.FrontendAppConfig
 import connectors._
-import controllers.reg.SignInOutController
+import controllers.reg.{ControllerErrorHandler, SignInOutController}
 import fixtures._
 import helpers.SCRSSpec
 import mocks.MetricServiceMock
@@ -39,31 +39,38 @@ import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolments}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.binders.ContinueUrl
-
+import views.html.{timeout => timeoutView}
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class SignInOutControllerSpec extends SCRSSpec
   with UserDetailsFixture with PayloadFixture with PPOBFixture with BusinessRegistrationFixture with CompanyDetailsFixture with GuiceOneAppPerSuite
   with AuthBuilder {
 
   val mockEnrolmentsService = mock[EnrolmentsService]
-
+  lazy val mockControllerErrorHandler = app.injector.instanceOf[ControllerErrorHandler]
+  lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
+  lazy val mockFrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+  lazy val mockTimeoutView = app.injector.instanceOf[timeoutView]
   class Setup(val corsHost: Option[String] = None) {
 
-    val controller = new SignInOutController {
-      override val controllerComponents = app.injector.instanceOf[MessagesControllerComponents]
-      override val authConnector = mockAuthConnector
-      override val compRegConnector = mockCompanyRegistrationConnector
-      override val handOffService = mockHandOffService
-      override val emailService = mockEmailService
-      override val enrolmentsService = mockEnrolmentsService
-      val keystoreConnector = mockKeystoreConnector
-      override val metrics = MetricServiceMock
-      override val corsRenewHost = corsHost
-      val cRFEBaseUrl = "test-base-url"
-      implicit val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
-      implicit val ec: ExecutionContext = global
+    val controller = new SignInOutController (
+      mockAuthConnector,
+      mockCompanyRegistrationConnector,
+      mockHandOffService,
+      mockEmailService,
+      MetricServiceMock,
+      mockKeystoreConnector,
+      mockEnrolmentsService,
+      mockControllerErrorHandler,
+      mockMcc,
+      mockTimeoutView
+    )(
+      mockFrontendAppConfig,
+      global
+    ){
+      override lazy val corsRenewHost = corsHost
+      override lazy val cRFEBaseUrl = "test-base-url"
     }
   }
 

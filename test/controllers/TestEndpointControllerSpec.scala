@@ -21,7 +21,7 @@ import config.FrontendAppConfig
 import connectors._
 import controllers.test.TestEndpointController
 import fixtures.{CorporationTaxFixture, SCRSFixtures}
-import forms.AccountingDatesFormT
+import forms.{AccountingDatesForm, AccountingDatesFormT}
 import helpers.SCRSSpec
 import models._
 import models.connectors.ConfirmationReferences
@@ -31,24 +31,31 @@ import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.i18n.MessagesApi
 import play.api.libs.json.Json
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services.{BankHolidays, DashboardService, HandOffService, TimeService}
+import repositories.NavModelRepo
+import services.{BankHolidays, DashboardService, TimeService}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.time.workingdays.BankHolidaySet
-import utils.{BooleanFeatureSwitch, FeatureSwitchManager}
+import utils.BooleanFeatureSwitch
+import views.html.dashboard.{Dashboard => DashboardView}
+import views.html.reg.{TestEndpoint => TestEndpointView}
+import views.html.test.{TestEndpointSummary => TestEndpointSummaryView}
+import views.html.test.{FeatureSwitch => FeatureSwitchView}
+import views.html.test.{PrePopAddresses => PrePopAddressesView}
+import views.html.test.{PrePopContactDetails => PrePopContactDetailsView}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
 
 class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with MockitoSugar with CorporationTaxFixture with GuiceOneAppPerSuite with AuthBuilder {
 
-  val mockNavModelRepoObj = mockNavModelRepo
+  val mockNavModelRepoObj = mock[NavModelRepo]
   val applicantData = AboutYouChoice("Director")
   val applicantDataEmpty = AboutYouChoice("")
   val applicantDataSeq = Seq("completionCapacity" -> "Director")
@@ -60,42 +67,55 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
   val mockDynamicStubConnector = mock[DynamicStubConnector]
   val mockBusinessRegistrationConnector = mock[BusinessRegistrationConnector]
   val mockDashboardService = mock[DashboardService]
+  lazy val mockControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
+
+  lazy val mockDashboardView = app.injector.instanceOf[DashboardView]
+  lazy val mockTestEndpointView = app.injector.instanceOf[TestEndpointView]
+  lazy val mockTestEndpointSummaryView = app.injector.instanceOf[TestEndpointSummaryView]
+  lazy val mockFeatureSwitchView = app.injector.instanceOf[FeatureSwitchView]
+  lazy val mockPrePopAddressesView = app.injector.instanceOf[PrePopAddressesView]
+  lazy val mockPrePopContactDetailsView = app.injector.instanceOf[PrePopContactDetailsView]
+  lazy val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
 
   class Setup {
     resetMocks()
-    val controller = new TestEndpointController {
-      override lazy val controllerComponents = app.injector.instanceOf[MessagesControllerComponents]
-      override val dashboardService = mockDashboardService
-      override val authConnector = mockAuthConnector
-      override val s4LConnector = mockS4LConnector
-      override val keystoreConnector = mockKeystoreConnector
-      override val compRegConnector = mockCompanyRegistrationConnector
-      override val scrsFeatureSwitches = mockSCRSFeatureSwitches
-      override val metaDataService = mockMetaDataService
-      val dynStubConnector = mockDynamicStubConnector
-      val brConnector = mockBusinessRegistrationConnector
-      val navModelMongo = mockNavModelRepoObj
-      val coHoURL = "foobarwizzbangwollop"
-      override lazy val messagesApi = app.injector.instanceOf[MessagesApi]
-      implicit lazy val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
-      implicit val ec: ExecutionContext = global
-      override val timeService: TimeService = mockTimeService
-      override val handOffService: HandOffService = mockHandOffService
-      override val featureSwitchManager: FeatureSwitchManager = mockFeatureSwitchManager
+
+    val controller = new TestEndpointController (
+      mockAuthConnector,
+      mockS4LConnector,
+      mockKeystoreConnector,
+      mockCompanyRegistrationConnector,
+      mockSCRSFeatureSwitches,
+      mockMetaDataService,
+      mockDynamicStubConnector,
+      mockBusinessRegistrationConnector,
+      mockNavModelRepoObj,
+      mockDashboardService,
+      mockTimeService,
+      mockHandOffService,
+      mockFeatureSwitchManager,
+      mockControllerComponents,
+      mockTestEndpointView,
+      mockTestEndpointSummaryView,
+      mockFeatureSwitchView,
+      mockPrePopAddressesView,
+      mockPrePopContactDetailsView,
+      mockDashboardView
+    )(
+      appConfig,
+      global
+      ){
       override lazy val accDForm = new AccountingDatesFormT {
         override val timeService = new TimeService {
           override val bHS: BankHolidaySet = BankHolidays.bankHolidaySet
           override val dayEndHour: Int = 1
-
           override def currentDateTime: DateTime = DateTime.now
-
           override def currentLocalDate: LocalDate = LocalDate.now
         }
         override val now: LocalDate = LocalDate.now
       }
     }
 
-    implicit val hc = HeaderCarrier()
   }
 
   val registrationID = "testRegID"
@@ -179,7 +199,6 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
       CTRegistrationConnectorMocks.updateAccountingDetails(validAccountingResponse)
       CTRegistrationConnectorMocks.updateContactDetails(CompanyContactDetailsSuccessResponse(validCompanyContactDetailsResponse))
       CTRegistrationConnectorMocks.updateTradingDetails(TradingDetailsSuccessResponse(TradingDetails("false")))
-
       val request = FakeRequest().withFormUrlEncodedBody(
         futureDateData.toSeq ++
           handBackFormData ++

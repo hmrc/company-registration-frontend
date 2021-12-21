@@ -18,6 +18,13 @@
 @import helpers.{errorSummary, input}
 @import models.TakeoverDetails
 @import views.helpers.TitleHelper.title
+@import uk.gov.hmrc.play.views.html.helpers.ErrorSummary
+@import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
+
+@this(main_template: main_template,
+        errorSummary: errorSummary,
+        input: input,
+        formWithCsrf: FormWithCSRF)
 
 @(whoAgreedTakeover: Form[String], businessName: String)(implicit request: Request[_], messages: Messages, appConfig: config.FrontendAppConfig)
 
@@ -41,7 +48,7 @@
         </ul>
     </div>
 
-    @form(action = controllers.takeovers.routes.WhoAgreedTakeoverController.submit()) {
+    @formWithCsrf(action = controllers.takeovers.routes.WhoAgreedTakeoverController.submit()) {
         <div class ="form-group">
             @input(
             whoAgreedTakeover("whoAgreedTakeover"),

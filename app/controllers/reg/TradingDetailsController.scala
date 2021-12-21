@@ -20,7 +20,7 @@ import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthenticatedController
 import forms.TradingDetailsForm
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 import models.{TradingDetailsErrorResponse, TradingDetailsForbiddenResponse, TradingDetailsNotFoundResponse, TradingDetailsSuccessResponse}
 import play.api.i18n.I18nSupport
 import play.api.mvc.MessagesControllerComponents
@@ -31,20 +31,15 @@ import views.html.reg.TradingDetailsView
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class TradingDetailsControllerImpl @Inject()(val authConnector: PlayAuthConnector,
-                                             val tradingDetailsService: TradingDetailsService,
-                                             val metricsService: MetricsService,
-                                             val compRegConnector: CompanyRegistrationConnector,
-                                             val keystoreConnector: KeystoreConnector,
-                                             val appConfig: FrontendAppConfig,
-                                             val ec: ExecutionContext,
-                                             val controllerComponents: MessagesControllerComponents) extends TradingDetailsController
-
-abstract class TradingDetailsController extends AuthenticatedController with ControllerErrorHandler with SessionRegistration with I18nSupport {
-  implicit val appConfig: FrontendAppConfig
-
-  val tradingDetailsService: TradingDetailsService
-  val metricsService: MetricsService
+@Singleton
+class TradingDetailsController @Inject()(val authConnector: PlayAuthConnector,
+                                         val tradingDetailsService: TradingDetailsService,
+                                         val metricsService: MetricsService,
+                                         val compRegConnector: CompanyRegistrationConnector,
+                                         val keystoreConnector: KeystoreConnector,
+                                         val controllerComponents: MessagesControllerComponents,
+                                         val controllerErrorHandler: ControllerErrorHandler,
+                                         view: TradingDetailsView)(implicit val appConfig: FrontendAppConfig, implicit val ec: ExecutionContext) extends AuthenticatedController with SessionRegistration with I18nSupport {
 
   val show = Action.async { implicit request =>
     ctAuthorised {
@@ -52,7 +47,7 @@ abstract class TradingDetailsController extends AuthenticatedController with Con
         for {
           tradingDetails <- tradingDetailsService.retrieveTradingDetails(regID)
         } yield {
-          Ok(TradingDetailsView(TradingDetailsForm.form.fill(tradingDetails)))
+          Ok(view(TradingDetailsForm.form.fill(tradingDetails)))
         }
       }
     }
@@ -62,7 +57,7 @@ abstract class TradingDetailsController extends AuthenticatedController with Con
     ctAuthorised {
       registered { a =>
         TradingDetailsForm.form.bindFromRequest.fold(
-          errors => Future.successful(BadRequest(TradingDetailsView(errors))),
+          errors => Future.successful(BadRequest(view(errors))),
           payments => {
             val context = metricsService.saveTradingDetailsToCRTimer.time()
             tradingDetailsService.updateCompanyInformation(payments).map {
@@ -71,13 +66,13 @@ abstract class TradingDetailsController extends AuthenticatedController with Con
                 Redirect(controllers.handoff.routes.BusinessActivitiesController.businessActivities())
               case TradingDetailsErrorResponse(_) =>
                 context.stop()
-                BadRequest(defaultErrorPage)
+                BadRequest(controllerErrorHandler.defaultErrorPage)
               case TradingDetailsNotFoundResponse =>
                 context.stop()
-                BadRequest(defaultErrorPage)
+                BadRequest(controllerErrorHandler.defaultErrorPage)
               case TradingDetailsForbiddenResponse =>
                 context.stop()
-                BadRequest(defaultErrorPage)
+                BadRequest(controllerErrorHandler.defaultErrorPage)
             }
           }
         )

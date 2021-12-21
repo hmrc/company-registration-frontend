@@ -16,6 +16,7 @@
 
 package services
 
+import helpers.UnitSpec
 import mocks.SCRSMocks
 import models._
 import models.connectors.ConfirmationReferences
@@ -23,7 +24,6 @@ import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.http.{HeaderCarrier, InternalServerException}
-import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future

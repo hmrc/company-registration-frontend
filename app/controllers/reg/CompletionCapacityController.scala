@@ -20,40 +20,35 @@ import config.FrontendAppConfig
 import connectors.{BusinessRegistrationConnector, BusinessRegistrationSuccessResponse, CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthenticatedController
 import forms.AboutYouForm
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.{MetaDataService, MetricsService}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import utils.SessionRegistration
-import views.html.reg.CompletionCapacity
+import views.html.reg.{CompletionCapacity => CompletionCapacityView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class CompletionCapacityControllerImpl @Inject()(
-                                                  val authConnector: PlayAuthConnector,
-                                                  val keystoreConnector: KeystoreConnector,
-                                                  val businessRegConnector: BusinessRegistrationConnector,
-                                                  val metricsService: MetricsService,
-                                                  val appConfig: FrontendAppConfig,
-                                                  val metaDataService: MetaDataService,
-                                                  val compRegConnector: CompanyRegistrationConnector,
-                                                  val controllerComponents: MessagesControllerComponents
-                                                )(implicit val ec: ExecutionContext) extends CompletionCapacityController
+@Singleton
+class CompletionCapacityController @Inject()(
+                                              val authConnector: PlayAuthConnector,
+                                              val keystoreConnector: KeystoreConnector,
+                                              val businessRegConnector: BusinessRegistrationConnector,
+                                              val metricsService: MetricsService,
+                                              val metaDataService: MetaDataService,
+                                              val compRegConnector: CompanyRegistrationConnector,
+                                              val controllerComponents: MessagesControllerComponents,
+                                              view: CompletionCapacityView
+                                            )(implicit val ec: ExecutionContext, implicit val appConfig: FrontendAppConfig) extends AuthenticatedController with SessionRegistration with I18nSupport {
 
-trait CompletionCapacityController extends AuthenticatedController with SessionRegistration with I18nSupport {
-
-  val businessRegConnector: BusinessRegistrationConnector
-  val metaDataService: MetaDataService
-  val metricsService: MetricsService
-  implicit val appConfig: FrontendAppConfig
 
   def show(): Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
       checkStatus { regId =>
         businessRegConnector.retrieveMetadata map {
-          case BusinessRegistrationSuccessResponse(x) => Ok(CompletionCapacity(AboutYouForm.populateForm(x.completionCapacity.getOrElse("")))) //todo double check empty cc
-          case _ => Ok(CompletionCapacity(AboutYouForm.aboutYouFilled))
+          case BusinessRegistrationSuccessResponse(x) => Ok(view(AboutYouForm.populateForm(x.completionCapacity.getOrElse("")))) //todo double check empty cc
+          case _ => Ok(view(AboutYouForm.aboutYouFilled))
         }
       }
     }
@@ -63,7 +58,7 @@ trait CompletionCapacityController extends AuthenticatedController with SessionR
     ctAuthorised {
       registered { a =>
         AboutYouForm.form.bindFromRequest.fold(
-          errors => Future.successful(BadRequest(CompletionCapacity(errors))),
+          errors => Future.successful(BadRequest(view(errors))),
           success => {
             val context = metricsService.saveCompletionCapacityToCRTimer.time()
             metaDataService.updateCompletionCapacity(success) map {

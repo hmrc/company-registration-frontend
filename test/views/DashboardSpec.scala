@@ -19,6 +19,7 @@ package views
 import _root_.helpers.SCRSSpec
 import builders.AuthBuilder
 import controllers.dashboard.DashboardController
+import controllers.reg.ControllerErrorHandler
 import models.external.Statuses
 import models.{Dashboard, IncorpAndCTDashboard, ServiceDashboard, ServiceLinks}
 import org.jsoup.Jsoup
@@ -34,22 +35,32 @@ import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolment, EnrolmentIdentifier, Enr
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import views.html.dashboard.{Dashboard => DashboardView}
+import views.html.reg.{RegistrationUnsuccessful => RegistrationUnsuccessfulView}
 
 class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
 
-  val mockDashboardService = mock[DashboardService]
+  lazy val mockDashboardService = mock[DashboardService]
+  lazy val mockControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
+  lazy val mockControllerErrorHandler = app.injector.instanceOf[ControllerErrorHandler]
+  lazy val mockDashboardView = app.injector.instanceOf[DashboardView]
+  lazy val mockRegistrationUnsuccessfulView = app.injector.instanceOf[RegistrationUnsuccessfulView]
 
   class Setup {
-    val controller = new DashboardController {
-      override lazy val controllerComponents = app.injector.instanceOf[MessagesControllerComponents]
-      override val authConnector = mockAuthConnector
-      override val keystoreConnector = mockKeystoreConnector
-      override val dashboardService = mockDashboardService
-      override val compRegConnector = mockCompanyRegistrationConnector
-      override val companiesHouseURL = "testUrl"
-      override val appConfig = mockAppConfig
-      override lazy val messagesApi = app.injector.instanceOf[MessagesApi]
-      override val ec = global
+    val controller = new DashboardController (
+      mockAuthConnector,
+      mockKeystoreConnector,
+      mockCompanyRegistrationConnector,
+      mockDashboardService,
+      mockControllerComponents,
+      mockControllerErrorHandler,
+      mockDashboardView,
+      mockRegistrationUnsuccessfulView
+    )(
+      mockAppConfig,
+      global
+    ) {
+      override lazy val companiesHouseURL = "testUrl"
     }
   }
 

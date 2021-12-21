@@ -25,7 +25,7 @@ import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import models.{CHROAddress, NewAddress}
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.libs.json.Json
-import play.api.libs.ws.WSClient
+import play.api.libs.ws.{WSClient, WSRequest}
 
 object WiremockHelper {
   val wiremockPort = 11111
@@ -52,7 +52,7 @@ trait WiremockHelper {
 
   def resetWiremock() = WireMock.reset()
 
-  def buildClient(path: String) = ws.url(s"http://localhost:$port/register-your-company${path.replace("""/register-your-company""", "")}").withFollowRedirects(false)
+  def buildClient(path: String): WSRequest = ws.url(s"http://localhost:$port/register-your-company${path.replace("""/register-your-company""", "")}").withFollowRedirects(false)
 
   def listAllStubs = listAllStubMappings
 
@@ -65,13 +65,22 @@ trait WiremockHelper {
       )
     )
 
-  def stubPost(url: String, status: Integer, responseBody: String, responseHeader: (String, String) = ("", "")) =
+  def stubPost(url: String, status: Integer, responseBody: String, responseHeader: (String, String) = ("", "")): StubMapping =
     stubFor(post(urlMatching(url))
       .willReturn(
         aResponse().
           withStatus(status).
           withBody(responseBody)
           withHeader(responseHeader._1, responseHeader._2)
+      )
+    )
+
+  def stubPost(url: String, status: Integer, responseBody: String): StubMapping =
+    stubFor(post(urlMatching(url))
+      .willReturn(
+        aResponse().
+          withStatus(status).
+          withBody(responseBody)
       )
     )
 

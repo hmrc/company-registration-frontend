@@ -16,7 +16,7 @@
 
 package forms.errors
 
-import uk.gov.hmrc.play.test.UnitSpec
+import helpers.UnitSpec
 
 class DeskproFormSpec extends UnitSpec {
 

@@ -18,6 +18,7 @@ package controllers.handoff
 
 import builders.AuthBuilder
 import config.FrontendAppConfig
+import controllers.reg.ControllerErrorHandler
 import fixtures.PayloadFixture
 import helpers.SCRSSpec
 import models.Email
@@ -25,33 +26,41 @@ import models.handoff.CompanyNameHandOffIncoming
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.i18n.MessagesApi
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.retrieve.{Name, ~}
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.{DecryptionError, JweCommon, PayloadError}
-
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 import scala.util.{Failure, Success}
+import views.html.error_template
+import views.html.error_template_restart
 
 class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture with GuiceOneAppPerSuite with AuthBuilder {
 
+  lazy val errorTemplatePage = app.injector.instanceOf[error_template]
+  lazy val errorTemplateRestartPage = app.injector.instanceOf[error_template_restart]
+  lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
+  lazy val mockControllerErrorHandler = app.injector.instanceOf[ControllerErrorHandler]
+  lazy val mockFrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+
   class Setup {
 
-    object TestController extends BasicCompanyDetailsController {
-      override lazy val controllerComponents = app.injector.instanceOf[MessagesControllerComponents]
-      val authConnector = mockAuthConnector
-      val keystoreConnector = mockKeystoreConnector
-      val handOffService = mockHandOffService
-      val handBackService = mockHandBackService
-      override val compRegConnector = mockCompanyRegistrationConnector
-      implicit lazy val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
-      override lazy val messagesApi = app.injector.instanceOf[MessagesApi]
-      implicit val ec: ExecutionContext = global
-    }
+    val testController = new BasicCompanyDetailsController(
+      mockAuthConnector,
+      mockKeystoreConnector,
+      mockHandOffService,
+      mockCompanyRegistrationConnector,
+      mockHandBackService,
+      mockMcc,
+      mockControllerErrorHandler,
+      errorTemplatePage,
+      errorTemplateRestartPage
+    )(
+      mockFrontendAppConfig,global
+    )
 
     val jweInstance = () => app.injector.instanceOf[JweCommon]
   }
@@ -77,7 +86,7 @@ class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture wit
         when(mockHandOffService.buildHandOffUrl(ArgumentMatchers.eq("testUrl/basic-company-details"), ArgumentMatchers.eq("testEncryptedPayload")))
           .thenReturn(s"testUrl/basic-company-details?request=testEncryptedPayload")
 
-        showWithAuthorisedUserRetrieval(TestController.basicCompanyDetails, authDetails) {
+        showWithAuthorisedUserRetrieval(testController.basicCompanyDetails, authDetails) {
           result =>
             status(result) shouldBe SEE_OTHER
 
@@ -99,7 +108,7 @@ class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture wit
         .thenReturn(s"testUrl/basic-company-details?request=$encryptedPayload")
 
 
-      showWithAuthorisedUserRetrieval(TestController.basicCompanyDetails, authDetails) {
+      showWithAuthorisedUserRetrieval(testController.basicCompanyDetails, authDetails) {
         result =>
           status(result) shouldBe SEE_OTHER
           val encryptedPayload = redirectLocation(result).get.split("request=")(1)
@@ -114,7 +123,7 @@ class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture wit
       when(mockHandOffService.companyNamePayload(ArgumentMatchers.eq("1"), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(None))
 
-      showWithAuthorisedUserRetrieval(TestController.basicCompanyDetails, authDetails) {
+      showWithAuthorisedUserRetrieval(testController.basicCompanyDetails, authDetails) {
         result =>
           status(result) shouldBe BAD_REQUEST
       }
@@ -123,7 +132,7 @@ class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture wit
 
       mockKeystoreFetchAndGet("registrationID", Some("1"))
       when(mockCompanyRegistrationConnector.retrieveEmail(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
-      showWithAuthorisedUserRetrieval(TestController.basicCompanyDetails, authDetails) {
+      showWithAuthorisedUserRetrieval(testController.basicCompanyDetails, authDetails) {
         result =>
           status(result) shouldBe 303
           redirectLocation(result).get shouldBe controllers.reg.routes.SignInOutController.postSignIn().url
@@ -146,7 +155,7 @@ class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture wit
       when(mockHandBackService.processCompanyNameReverseHandBack(ArgumentMatchers.eq(encryptedPayload))(ArgumentMatchers.any[HeaderCarrier]))
         .thenReturn(Future.successful(Success(payload)))
 
-      showWithAuthorisedUser(TestController.returnToAboutYou(encryptedPayload)) {
+      showWithAuthorisedUser(testController.returnToAboutYou(encryptedPayload)) {
         result =>
           status(result) shouldBe SEE_OTHER
       }
@@ -158,7 +167,7 @@ class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture wit
       when(mockHandBackService.processCompanyNameReverseHandBack(ArgumentMatchers.eq(encryptedPayload))(ArgumentMatchers.any[HeaderCarrier]))
         .thenReturn(Future.successful(Success(payload)))
 
-      showWithAuthorisedUser(TestController.returnToAboutYou(encryptedPayload)) {
+      showWithAuthorisedUser(testController.returnToAboutYou(encryptedPayload)) {
         result =>
           status(result) shouldBe SEE_OTHER
           redirectLocation(result) shouldBe Some(s"/register-your-company/post-sign-in?handOffID=HO1b&payload=$encryptedPayload")
@@ -172,7 +181,7 @@ class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture wit
       when(mockHandBackService.processCompanyNameReverseHandBack(ArgumentMatchers.eq(encryptedPayload))(ArgumentMatchers.any[HeaderCarrier]))
         .thenReturn(Future.successful(Failure(DecryptionError)))
 
-      showWithAuthorisedUser(TestController.returnToAboutYou(encryptedPayload)) {
+      showWithAuthorisedUser(testController.returnToAboutYou(encryptedPayload)) {
         result =>
           status(result) shouldBe BAD_REQUEST
       }
@@ -185,7 +194,7 @@ class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture wit
       when(mockHandBackService.processCompanyNameReverseHandBack(ArgumentMatchers.eq(encryptedPayload))(ArgumentMatchers.any[HeaderCarrier]))
         .thenReturn(Future.successful(Failure(PayloadError)))
 
-      showWithAuthorisedUser(TestController.returnToAboutYou(encryptedPayload)) {
+      showWithAuthorisedUser(testController.returnToAboutYou(encryptedPayload)) {
         result =>
           status(result) shouldBe BAD_REQUEST
       }

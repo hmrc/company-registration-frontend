@@ -24,7 +24,7 @@ import javax.inject.{Inject, Singleton}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import utils.SessionRegistration
-import views.html.errors.takeoverInformationNeeded
+import views.html.errors.{takeoverInformationNeeded => takeoverInformationNeededView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -32,14 +32,16 @@ import scala.concurrent.{ExecutionContext, Future}
 class TakeoverInformationNeededController @Inject()(val authConnector: PlayAuthConnector,
                                                     val keystoreConnector: KeystoreConnector,
                                                     val compRegConnector: CompanyRegistrationConnector,
-                                                    val controllerComponents: MessagesControllerComponents)
+                                                    val controllerComponents: MessagesControllerComponents,
+                                                    val controllerErrorHandler: ControllerErrorHandler,
+                                                    view: takeoverInformationNeededView)
                                                    (implicit val appConfig: FrontendAppConfig, val ec: ExecutionContext
-                                                   ) extends AuthenticatedController with ControllerErrorHandler with SessionRegistration {
+                                                   ) extends AuthenticatedController with SessionRegistration {
 
   def show: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
       checkStatus {
-        _ => Future.successful(Ok(takeoverInformationNeeded()))
+        _ => Future.successful(Ok(view()))
       }
     }
   }

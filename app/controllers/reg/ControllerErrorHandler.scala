@@ -17,14 +17,15 @@
 package controllers.reg
 
 import config.FrontendAppConfig
+import javax.inject.{Inject, Singleton}
 import play.api.i18n.Messages
 import play.api.mvc.Request
+import views.html.{error_template => errorTemplateView}
 
-trait ControllerErrorHandler {
+@Singleton
+class ControllerErrorHandler @Inject()(error_template: errorTemplateView)(implicit val appConfig: FrontendAppConfig){
 
-  implicit val appConfig: FrontendAppConfig
-
-  def defaultErrorPage(implicit request: Request[_], message: Messages) = views.html.error_template(
+  def defaultErrorPage(implicit request: Request[_], message: Messages) = error_template(
     Messages("global.error.title"),
     Messages("global.error.heading"),
     Messages("global.error.message", controllers.reg.routes.CompletionCapacityController.show())

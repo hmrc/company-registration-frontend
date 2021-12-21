@@ -35,7 +35,6 @@ import views.html.error_template_restart
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
-@Singleton
 class GroupController @Inject()(val authConnector: PlayAuthConnector,
                                 val keystoreConnector: KeystoreConnector,
                                 val handOffService: HandOffService,
@@ -43,11 +42,11 @@ class GroupController @Inject()(val authConnector: PlayAuthConnector,
                                 val handBackService: HandBackService,
                                 val groupService: GroupService,
                                 val jwe: JweCommon,
-                                val controllerComponents: MessagesControllerComponents
-                               )(implicit val appConfig: FrontendAppConfig)
-  extends AuthenticatedController with I18nSupport with SessionRegistration with ControllerErrorHandler {
-
-  implicit val ec: ExecutionContext = controllerComponents.executionContext
+                                val controllerComponents: MessagesControllerComponents,
+                                val controllerErrorHandler: ControllerErrorHandler,
+                                error_template_restart: error_template_restart
+                               )(implicit val appConfig: FrontendAppConfig, implicit val ec: ExecutionContext)
+  extends AuthenticatedController with I18nSupport with SessionRegistration {
 
   // 3.1 handback
   def groupHandBack(requestData: String): Action[AnyContent] = Action.async {
@@ -128,7 +127,7 @@ class GroupController @Inject()(val authConnector: PlayAuthConnector,
             case Success(_) => groupService.retrieveGroups(regID).map(groupsRedirect)
             case Failure(PayloadError) => Future.successful(BadRequest(error_template_restart("3b-1", "PayloadError")))
             case Failure(DecryptionError) => Future.successful(BadRequest(error_template_restart("3b-1", "DecryptionError")))
-            case _ => Future.successful(InternalServerError(defaultErrorPage))
+            case _ => Future.successful(InternalServerError(controllerErrorHandler.defaultErrorPage))
           }
         }
       }

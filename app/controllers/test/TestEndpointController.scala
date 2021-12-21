@@ -21,7 +21,8 @@ import connectors._
 import controllers.auth.AuthenticatedController
 import forms._
 import forms.test.{CompanyContactTestEndpointForm, FeatureSwitchForm}
-import javax.inject.Inject
+
+import javax.inject.{Inject, Singleton}
 import models._
 import models.connectors.ConfirmationReferences
 import models.handoff._
@@ -35,50 +36,46 @@ import services._
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.auth.core.retrieve.Retrievals
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads}
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import utils._
-import views.html.reg.TestEndpoint
+import views.html.dashboard.{Dashboard => DashboardView}
+import views.html.reg.{TestEndpoint => TestEndpointView}
+import views.html.test.{TestEndpointSummary => TestEndpointSummaryView}
+import views.html.test.{FeatureSwitch => FeatureSwitchView}
+import views.html.test.{PrePopAddresses => PrePopAddressesView}
+import views.html.test.{PrePopContactDetails => PrePopContactDetailsView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-
-class TestEndpointControllerImpl @Inject()(
-                                            val authConnector: PlayAuthConnector,
-                                            val s4LConnector: S4LConnector,
-                                            val keystoreConnector: KeystoreConnector,
-                                            val compRegConnector: CompanyRegistrationConnector,
-                                            val scrsFeatureSwitches: SCRSFeatureSwitches,
-                                            val metaDataService: MetaDataService,
-                                            val dynStubConnector: DynamicStubConnector,
-                                            val brConnector: BusinessRegistrationConnector,
-                                            val navModelRepo: NavModelRepo,
-                                            val dashboardService: DashboardService,
-                                            val appConfig: FrontendAppConfig,
-                                            val timeService: TimeService,
-                                            val handOffService: HandOffService,
-                                            val featureSwitchManager: FeatureSwitchManager,
-                                            val controllerComponents: MessagesControllerComponents
-                                          )(implicit val ec: ExecutionContext) extends TestEndpointController {
+@Singleton
+class TestEndpointController @Inject()(
+                                        val authConnector: PlayAuthConnector,
+                                        val s4LConnector: S4LConnector,
+                                        val keystoreConnector: KeystoreConnector,
+                                        val compRegConnector: CompanyRegistrationConnector,
+                                        val scrsFeatureSwitches: SCRSFeatureSwitches,
+                                        val metaDataService: MetaDataService,
+                                        val dynStubConnector: DynamicStubConnector,
+                                        val brConnector: BusinessRegistrationConnector,
+                                        val navModelRepo: NavModelRepo,
+                                        val dashboardService: DashboardService,
+                                        val timeService: TimeService,
+                                        val handOffService: HandOffService,
+                                        val featureSwitchManager: FeatureSwitchManager,
+                                        val controllerComponents: MessagesControllerComponents,
+                                        viewTestEndpoint: TestEndpointView,
+                                        viewTestEndpointSummary: TestEndpointSummaryView,
+                                        viewFeatureSwitch: FeatureSwitchView,
+                                        viewPrePopAddresses: PrePopAddressesView,
+                                        viewPrePopContactDetails: PrePopContactDetailsView,
+                                        viewDashboard: DashboardView
+                                      )(implicit val appConfig: FrontendAppConfig, implicit val ec: ExecutionContext)
+  extends AuthenticatedController with CommonService
+    with SCRSExceptions with SessionRegistration with I18nSupport {
   lazy val navModelMongo = navModelRepo.repository
 
   lazy val coHoURL = appConfig.servicesConfig.getConfString("coho-service.sign-in", throw new Exception("Could not find config for coho-sign-in url"))
-}
 
-trait TestEndpointController extends AuthenticatedController with CommonService
-  with SCRSExceptions with SessionRegistration with I18nSupport {
-
-  val s4LConnector: S4LConnector
-  val keystoreConnector: KeystoreConnector
-  val compRegConnector: CompanyRegistrationConnector
-  val scrsFeatureSwitches: SCRSFeatureSwitches
-  val metaDataService: MetaDataService
-  val dynStubConnector: DynamicStubConnector
-  val brConnector: BusinessRegistrationConnector
-  val dashboardService: DashboardService
-  implicit val appConfig: FrontendAppConfig
-  val timeService: TimeService
-  val handOffService: HandOffService
-  val featureSwitchManager: FeatureSwitchManager
-  val coHoURL: String
   lazy val accDForm: AccountingDatesFormT = new AccountingDatesForm(timeService)
 
 
@@ -130,7 +127,7 @@ trait TestEndpointController extends AuthenticatedController with CommonService
             case _ => CompanyContactDetailsApi(None, None, None)
           })
           val tradingDetailsForm = TradingDetailsForm.form.fill(tradingDetails.getOrElse(TradingDetails()))
-          Ok(TestEndpoint(accountingDatesForm, handBackForm, companyContactForm, companyDetailsForm, tradingDetailsForm, applicantForm))
+          Ok(viewTestEndpoint(accountingDatesForm, handBackForm, companyContactForm, companyDetailsForm, tradingDetailsForm, applicantForm))
         }
       }
   }
@@ -179,13 +176,13 @@ trait TestEndpointController extends AuthenticatedController with CommonService
       val takeoverSwitch = fetchTakeoverSwitch.toString
       val form = FeatureSwitchForm.form.fill(FeatureSwitch(firstHandOffSwitch, legacyEnvSwitch, takeoverSwitch))
 
-      Future.successful(Ok(views.html.test.FeatureSwitch(form)))
+      Future.successful(Ok(viewFeatureSwitch(form)))
   }
 
   def updateFeatureSwitch() = Action.async {
     implicit request =>
       FeatureSwitchForm.form.bindFromRequest().fold(
-        errors => Future.successful(BadRequest(views.html.test.FeatureSwitch(errors))),
+        errors => Future.successful(BadRequest(viewFeatureSwitch(errors))),
         success => {
           Seq(
             BooleanFeatureSwitch(scrsFeatureSwitches.COHO, success.firstHandOff.toBoolean),
@@ -199,7 +196,7 @@ trait TestEndpointController extends AuthenticatedController with CommonService
           }
 
           val form = FeatureSwitchForm.form.fill(success)
-          Future.successful(Ok(views.html.test.FeatureSwitch(form)))
+          Future.successful(Ok(viewFeatureSwitch(form)))
         }
       )
   }
@@ -286,7 +283,7 @@ trait TestEndpointController extends AuthenticatedController with CommonService
 
   val testEndpointSummary = Action.async {
     implicit request =>
-      Future.successful(Ok(views.html.test.TestEndpointSummary()))
+      Future.successful(Ok(viewTestEndpointSummary()))
   }
 
 
@@ -296,7 +293,7 @@ trait TestEndpointController extends AuthenticatedController with CommonService
         registered { regId =>
           brConnector.fetchPrePopAddress(regId) map { js =>
             val addresses = Json.fromJson(js)(Address.prePopReads).get
-            Ok(views.html.test.PrePopAddresses(addresses))
+            Ok(viewPrePopAddresses(addresses))
           }
         }
       }
@@ -308,7 +305,7 @@ trait TestEndpointController extends AuthenticatedController with CommonService
         registered { regId =>
           brConnector.fetchPrePopContactDetails(regId) map { js =>
             val contactDetails = Json.fromJson(js)(CompanyContactDetailsApi.prePopReads).get
-            Ok(views.html.test.PrePopContactDetails(contactDetails))
+            Ok(viewPrePopContactDetails(contactDetails))
           }
         }
       }
@@ -349,7 +346,7 @@ trait TestEndpointController extends AuthenticatedController with CommonService
       val vatDash = ServiceDashboard(vatStatus, Some("lastUpdateDate"), Some("ack"), vatLinks, Some(Map("yearly" -> 85000)))
 
       val dash = Dashboard("companyNameStubbed", incorpAndCTDash, payeDash, vatDash, hasVATCred = true)
-      Ok(views.html.dashboard.Dashboard(dash, coHoURL))
+      Ok(viewDashboard(dash, coHoURL))
   }
 
   def handOff6(transactionId: Option[String]): Action[AnyContent] = Action.async {

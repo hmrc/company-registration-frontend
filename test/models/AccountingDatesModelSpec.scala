@@ -16,7 +16,7 @@
 
 package models
 
-import uk.gov.hmrc.play.test.UnitSpec
+import helpers.UnitSpec
 
 class AccountingDatesModelSpec extends UnitSpec {
 

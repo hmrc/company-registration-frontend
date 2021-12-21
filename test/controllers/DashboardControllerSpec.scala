@@ -19,6 +19,7 @@ package controllers
 import builders.AuthBuilder
 import config.FrontendAppConfig
 import controllers.dashboard.DashboardController
+import controllers.reg.ControllerErrorHandler
 import helpers.SCRSSpec
 import models.{Dashboard, IncorpAndCTDashboard, ServiceDashboard, ServiceLinks}
 import org.jsoup.Jsoup
@@ -26,16 +27,16 @@ import org.jsoup.nodes.Document
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.i18n.MessagesApi
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.{CouldNotBuild, DashboardBuilt, DashboardService, RejectedIncorp}
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, ~}
 import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolments}
-
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
+import views.html.dashboard.{Dashboard => DashboardView}
+import views.html.reg.{RegistrationUnsuccessful => RegistrationUnsuccessfulView}
 
 class DashboardControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
 
@@ -44,18 +45,25 @@ class DashboardControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Aut
   class Setup {
 
     reset(mockDashboardService)
+    lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
+    lazy val mockFrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+    lazy val mockControllerErrorHandler = app.injector.instanceOf[ControllerErrorHandler]
+    lazy val mockDashboardView = app.injector.instanceOf[DashboardView]
+    lazy val mockRegistrationUnsuccessfulView = app.injector.instanceOf[RegistrationUnsuccessfulView]
 
-    val controller = new DashboardController {
-      override lazy val controllerComponents = app.injector.instanceOf[MessagesControllerComponents]
-      override val dashboardService = mockDashboardService
-      override val keystoreConnector = mockKeystoreConnector
-      override val authConnector = mockAuthConnector
-      override val compRegConnector = mockCompanyRegistrationConnector
-      override val companiesHouseURL = "testUrl"
-      implicit lazy val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
-      override lazy val messagesApi = app.injector.instanceOf[MessagesApi]
-      implicit val ec: ExecutionContext = global
-    }
+    val controller = new DashboardController(
+      mockAuthConnector,
+      mockKeystoreConnector,
+      mockCompanyRegistrationConnector,
+      mockDashboardService,
+      mockMcc,
+      mockControllerErrorHandler,
+      mockDashboardView,
+      mockRegistrationUnsuccessfulView
+    )(
+      mockFrontendAppConfig,
+      global
+    )
   }
 
   val payeThresholds = Map("weekly" -> 113, "monthly" -> 490, "annually" -> 5876)
@@ -149,7 +157,7 @@ class DashboardControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Aut
       "building the dashboard returns something unexpected" in new Setup {
         mockKeystoreFetchAndGet("registrationID", Some(regId))
         when(mockDashboardService.buildDashboard(eqTo(regId), any())(any()))
-          .thenReturn(Future.failed(new RuntimeException("")))
+          .thenReturn(Future.failed(new Exception("")))
         when(mockDashboardService.checkForEmailMismatch(any(), any())(any(), any()))
           .thenReturn(Future.successful(true))
 

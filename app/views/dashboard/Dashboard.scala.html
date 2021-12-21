@@ -14,10 +14,17 @@
  * limitations under the License.
  *@
 
+@import views.html.dashboard.displayRegistrationActions
+@import views.html.dashboard.displayRegistrationStatus
+@import views.html.dashboard.vatDashboard
+
+@this(main_template: main_template,
+        view: displayRegistrationActions,
+        view2: displayRegistrationStatus,
+        view3: vatDashboard )
+
 @(dash: models.Dashboard, cohoSignIn: String)(implicit request: Request[_], messages: Messages, appConfig: config.FrontendAppConfig)
 
-@import uk.gov.hmrc.play.views.html.helpers.form
-@import play.twirl.api.Html
 @import play.twirl.api.HtmlFormat
 @import scala.collection.immutable.Seq
 
@@ -121,12 +128,12 @@
     @{dash.payeDash.status match {
        case "notStarted"    => doYouNeedToRegisterHelp
        case "notEligible"   => notEligiblePAYE
-       case "draft"         => HtmlFormat.fill(Seq(displayRegistrationActions(dash.payeDash, "paye"), doYouNeedToRegisterHelp))
+       case "draft"         => HtmlFormat.fill(Seq(view(dash.payeDash, "paye"), doYouNeedToRegisterHelp))
        case "held"          => HtmlFormat.fill(Seq(PAYERef, PAYEPending))
        case "submitted"     => HtmlFormat.fill(Seq(PAYEDate, PAYERef, PAYESubmitted))
        case "acknowledged"  => {""}
-       case "invalid"       => HtmlFormat.fill(Seq(displayRegistrationActions(dash.payeDash, "paye"), doYouNeedToRegisterHelp))
-       case "rejected"      => HtmlFormat.fill(Seq(displayRegistrationActions(dash.payeDash, "paye"), doYouNeedToRegisterHelp))
+       case "invalid"       => HtmlFormat.fill(Seq(view(dash.payeDash, "paye"), doYouNeedToRegisterHelp))
+       case "rejected"      => HtmlFormat.fill(Seq(view(dash.payeDash, "paye"), doYouNeedToRegisterHelp))
        case "notEnabled"    => {""}
        case "unavailable"   => {""}
     }}
@@ -262,9 +269,9 @@
                     <tbody>
                         @if(dash.payeDash.status == "notStarted"){
                                 @payeMap
-                                @displayRegistrationStatus(dash.payeDash, "paye")
+                                @view2(dash.payeDash, "paye")
                         } else {
-                                @displayRegistrationStatus(dash.payeDash, "paye")
+                                @view2(dash.payeDash, "paye")
                                 @payeMap
                         }
                     </tbody>
@@ -272,7 +279,7 @@
             }
 
             @if(showVATBlock) @{
-                vatDashboard(dash.vatDash, dash.vatFeatureFlag)
+                view3(dash.vatDash, dash.vatFeatureFlag)
             }
 
         </div>
