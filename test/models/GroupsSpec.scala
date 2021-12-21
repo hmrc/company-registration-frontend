@@ -16,8 +16,8 @@
 
 package models
 
+import helpers.UnitSpec
 import play.api.libs.json.Json
-import uk.gov.hmrc.play.test.UnitSpec
 
 
 class GroupsSpec extends UnitSpec {

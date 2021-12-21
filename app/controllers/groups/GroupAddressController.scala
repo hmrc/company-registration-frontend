@@ -22,15 +22,16 @@ import controllers.auth.AuthenticatedController
 import controllers.groups.GroupAddressController._
 import controllers.reg.ControllerErrorHandler
 import forms.GroupAddressForm
+
 import javax.inject.{Inject, Singleton}
 import models._
 import play.api.i18n.{Messages, MessagesProvider}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import play.api.mvc.{Action, AnyContent, BaseController, MessagesControllerComponents, Result}
 import services.{AddressLookupFrontendService, GroupService}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.http.{HeaderCarrier, InternalServerException}
 import utils.SessionRegistration
-import views.html.groups.GroupAddressView
+import views.html.groups.{GroupAddressView, GroupNameView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -40,11 +41,10 @@ class GroupAddressController @Inject()(val authConnector: PlayAuthConnector,
                                        val compRegConnector: CompanyRegistrationConnector,
                                        val keystoreConnector: KeystoreConnector,
                                        val addressLookupFrontendService: AddressLookupFrontendService,
-                                       val controllerComponents: MessagesControllerComponents
-                                      )(implicit val appConfig: FrontendAppConfig)
-  extends AuthenticatedController with ControllerErrorHandler with SessionRegistration {
-
-  implicit val ec: ExecutionContext = controllerComponents.executionContext
+                                       val controllerComponents: MessagesControllerComponents,
+                                       view: GroupAddressView
+                                      )(implicit val appConfig: FrontendAppConfig, implicit val ec: ExecutionContext)
+  extends SessionRegistration with AuthenticatedController {
 
   val show: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
@@ -53,7 +53,7 @@ class GroupAddressController @Inject()(val authConnector: PlayAuthConnector,
           case Some(groups@Groups(true, Some(companyName), optAddressAndType, _)) =>
             (companyName.nameType, optAddressAndType) match {
               case ("Other", Some(addressAndType)) =>
-                Future.successful(Ok(GroupAddressView(
+                Future.successful(Ok(view(
                   GroupAddressForm.form.fill(GroupAddressChoice(addressAndType.addressType)),
                   Map("ALF" -> addressAndType.address.mkString),
                   companyName.name))
@@ -64,7 +64,7 @@ class GroupAddressController @Inject()(val authConnector: PlayAuthConnector,
                   case None => alfRedirect(regID, groups)
                   case Some(address) =>
                     groupService.dropOldFields(groups, address, regID).flatMap { updatedGroups =>
-                      Future.successful(Ok(GroupAddressView(
+                      Future.successful(Ok(view(
                         updatedGroups.addressAndType.fold(GroupAddressForm.form)(address => GroupAddressForm.form.fill(GroupAddressChoice(address.addressType))),
                         groupService.createAddressMap(updatedGroups.addressAndType, address),
                         companyName.name))
@@ -90,7 +90,7 @@ class GroupAddressController @Inject()(val authConnector: PlayAuthConnector,
             GroupAddressForm.form.bindFromRequest.fold(
               errors => {
                 groupService.retreiveValidatedTxApiAddress(groups, regID).flatMap {
-                  case Some(address) => Future.successful(BadRequest(GroupAddressView(
+                  case Some(address) => Future.successful(BadRequest(view(
                     errors,
                     groupService.createAddressMap(optAddressAndType, address),
                     companyName.name)))

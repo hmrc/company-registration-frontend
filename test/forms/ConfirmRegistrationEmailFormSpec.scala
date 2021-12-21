@@ -16,7 +16,7 @@
 
 package forms
 
-import uk.gov.hmrc.play.test.UnitSpec
+import helpers.UnitSpec
 
 class ConfirmRegistrationEmailFormSpec extends UnitSpec {
 

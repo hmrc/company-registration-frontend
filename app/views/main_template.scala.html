@@ -14,6 +14,13 @@
  * limitations under the License.
  *@
 
+@import uk.gov.hmrc.play.views.html.layouts.Sidebar
+@import uk.gov.hmrc.play.views.html.layouts.Article
+
+@this(govuk_wrapper: govuk_wrapper,
+        sidebar: Sidebar,
+        article: Article)
+
 @(title: String,
   sidebarLinks: Option[Html] = None,
   contentHeader: Option[Html] = None,
@@ -23,13 +30,10 @@
   timeout: Boolean = true
 )(mainContent: Html)(implicit request : Request[_], messages: Messages, appConfig: config.FrontendAppConfig)
 
-@import uk.gov.hmrc.play.views.html.layouts
-
 @serviceInfoContent = {}
 
 @sidebar = {
     @if(sidebarLinks.isDefined) {
-        @layouts.sidebar(sidebarLinks.get, Some("sidebar"))
     }
 }
 
@@ -39,7 +43,7 @@
                bodyClasses = bodyClasses,
                sidebar = sidebar,
                contentHeader = contentHeader,
-               mainContent = layouts.article(mainContent),
+               mainContent = article(mainContent),
                serviceInfoContent = serviceInfoContent,
                pageScripts = pageScripts,
                timeout = timeout

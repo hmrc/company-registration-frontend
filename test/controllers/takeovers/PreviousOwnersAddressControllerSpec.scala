@@ -19,6 +19,7 @@ package controllers.takeovers
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import builders.AuthBuilder
+import controllers.reg.ControllerErrorHandler
 import controllers.takeovers.OtherBusinessAddressController._
 import fixtures.LoginFixture
 import forms.takeovers.HomeAddressForm
@@ -61,6 +62,9 @@ class PreviousOwnersAddressControllerSpec()(implicit val lang: Lang) extends SCR
   implicit val messages: Messages = app.injector.instanceOf[Messages]
   implicit val langs = app.injector.instanceOf[Langs]
   val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
+  val page = app.injector.instanceOf[HomeAddress]
+  val mockControllerErrorHandler = app.injector.instanceOf[ControllerErrorHandler]
+
 
   object TestPreviousOwnersAddressController extends PreviousOwnersAddressController(
     mockAuthConnector,
@@ -71,7 +75,9 @@ class PreviousOwnersAddressControllerSpec()(implicit val lang: Lang) extends SCR
     mockBusinessRegConnector,
     mockKeystoreConnector,
     mockSCRSFeatureSwitches,
-    mockMcc
+    mockMcc,
+    mockControllerErrorHandler,
+    page
   )
 
   "show" when {
@@ -193,7 +199,7 @@ class PreviousOwnersAddressControllerSpec()(implicit val lang: Lang) extends SCR
           val res: Result = TestPreviousOwnersAddressController.show()(request)
 
           status(res) shouldBe OK
-          bodyOf(res) shouldBe HomeAddress(
+          bodyOf(res) shouldBe page(
             HomeAddressForm.form(2).fill(PreselectedAddress(1)),
             testPreviousOwnersName,
             Seq(testBusinessAddress, testOldPreviousOwnersAddress)
@@ -227,7 +233,7 @@ class PreviousOwnersAddressControllerSpec()(implicit val lang: Lang) extends SCR
           val res: Result = TestPreviousOwnersAddressController.show()(request)
 
           status(res) shouldBe OK
-          bodyOf(res) shouldBe HomeAddress(
+          bodyOf(res) shouldBe page(
             HomeAddressForm.form(2).fill(PreselectedAddress(1)),
             testPreviousOwnersName,
             Seq(testBusinessAddress, testOldPreviousOwnersAddress)

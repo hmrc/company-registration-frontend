@@ -31,7 +31,7 @@ import services.TakeoverService
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.http.NotFoundException
 import utils.{SCRSFeatureSwitches, SessionRegistration}
-import views.html.takeovers.ReplacingAnotherBusiness
+import views.html.takeovers.{ReplacingAnotherBusiness => ReplacingAnotherBusinessView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -41,9 +41,11 @@ class ReplacingAnotherBusinessController @Inject()(val authConnector: PlayAuthCo
                                                    val compRegConnector: CompanyRegistrationConnector,
                                                    val keystoreConnector: KeystoreConnector,
                                                    val scrsFeatureSwitches: SCRSFeatureSwitches,
-                                                   val controllerComponents: MessagesControllerComponents
+                                                   val controllerComponents: MessagesControllerComponents,
+                                                   val controllerErrorHandler: ControllerErrorHandler,
+                                                   view: ReplacingAnotherBusinessView
                                                   )(implicit val appConfig: FrontendAppConfig, val ec: ExecutionContext
-                                                  ) extends AuthenticatedController with ControllerErrorHandler with SessionRegistration with I18nSupport {
+                                                  ) extends AuthenticatedController with SessionRegistration with I18nSupport {
 
   val show: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
@@ -58,7 +60,7 @@ class ReplacingAnotherBusinessController @Inject()(val authConnector: PlayAuthCo
               case None =>
                 ReplacingAnotherBusinessForm.form
             }
-            Ok(ReplacingAnotherBusiness(form))
+            Ok(view(form))
           }
         } else {
           Future.failed(new NotFoundException("Takeovers feature switch was not enabled."))
@@ -72,7 +74,7 @@ class ReplacingAnotherBusinessController @Inject()(val authConnector: PlayAuthCo
       registered { regId =>
         ReplacingAnotherBusinessForm.form.bindFromRequest.fold(
           errors =>
-            Future.successful(BadRequest(ReplacingAnotherBusiness(errors))),
+            Future.successful(BadRequest(view(errors))),
           replacingAnotherBusiness =>
             takeoverService.updateReplacingAnotherBusiness(regId, replacingAnotherBusiness) map {
               _ =>

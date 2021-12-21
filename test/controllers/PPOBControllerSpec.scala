@@ -21,7 +21,7 @@ import java.util.Locale
 import builders.AuthBuilder
 import config.FrontendAppConfig
 import connectors.BusinessRegistrationConnector
-import controllers.reg.PPOBController
+import controllers.reg.{ControllerErrorHandler, PPOBController}
 import fixtures.PPOBFixture
 import helpers.SCRSSpec
 import models._
@@ -35,38 +35,52 @@ import play.api.libs.json.{Json, Writes}
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import repositories.NavModelRepo
 import services.{AddressLookupFrontendService, NavModelNotFoundException}
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
-import utils.JweCommon
+import utils.{JweCommon, SCRSFeatureSwitches}
+import views.html.reg.{PrinciplePlaceOfBusiness => PrinciplePlaceOfBusinessView}
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class PPOBControllerSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixture with GuiceOneAppPerSuite with AuthBuilder {
 
-  val mockNavModelRepoObj = mockNavModelRepo
-  val mockBusinessRegConnector = mock[BusinessRegistrationConnector]
-  val mockAddressLookupFrontendService = mock[AddressLookupFrontendService]
+  lazy val mockNavModelRepoObj = mock[NavModelRepo]
+  lazy val mockBusinessRegConnector = mock[BusinessRegistrationConnector]
+  lazy val mockAddressLookupFrontendService = mock[AddressLookupFrontendService]
+  lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
+  lazy val mockFrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+  lazy val mockControllerErrorHandler = app.injector.instanceOf[ControllerErrorHandler]
+  override lazy val mockSCRSFeatureSwitches = app.injector.instanceOf[SCRSFeatureSwitches]
+  lazy val mockPrinciplePlaceOfBusinessView = app.injector.instanceOf[PrinciplePlaceOfBusinessView]
   implicit val langs = app.injector.instanceOf[Langs]
 
   val regId = "reg-12345"
 
   trait Setup {
-    val controller = new PPOBController {
-      override val controllerComponents = app.injector.instanceOf[MessagesControllerComponents]
-      override val authConnector = mockAuthConnector
-      override val s4LConnector = mockS4LConnector
-      override val keystoreConnector = mockKeystoreConnector
-      override val compRegConnector = mockCompanyRegistrationConnector
-      override val pPOBService = mockPPOBService
-      override val handOffService = mockHandOffService
-      override val businessRegConnector = mockBusinessRegConnector
-      override val addressLookupFrontendService = mockAddressLookupFrontendService
-      implicit val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
-      override val jwe: JweCommon = mockJweCommon
-      implicit val messages: Messages = app.injector.instanceOf[MessagesApi].preferred(Seq(Lang(Locale.ENGLISH)))
-    }
+    val controller = new PPOBController(
+      mockAuthConnector,
+      mockS4LConnector,
+      mockKeystoreConnector,
+      mockCompanyRegistrationConnector,
+      mockHandOffService,
+      mockBusinessRegConnector,
+      mockNavModelRepoObj,
+      mockJweCommon,
+      mockAddressLookupFrontendService,
+      mockPPOBService,
+      mockSCRSFeatureSwitches,
+      mockMcc,
+      mockControllerErrorHandler,
+      mockPrinciplePlaceOfBusinessView
+    )
+    (
+      mockFrontendAppConfig,
+      global
+    )
 
     def mockCheckStatus(ret: Option[String] = Some(regId)) = {
       when(mockKeystoreConnector.fetchAndGet[String](eqTo("registrationID"))(any(), any()))

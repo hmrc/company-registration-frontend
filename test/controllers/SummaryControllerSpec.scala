@@ -18,7 +18,7 @@ package controllers
 
 import builders.AuthBuilder
 import config.FrontendAppConfig
-import controllers.reg.SummaryController
+import controllers.reg.{ControllerErrorHandler, SummaryController}
 import fixtures.{AccountingDetailsFixture, CorporationTaxFixture, SCRSFixtures, TradingDetailsFixtures}
 import helpers.SCRSSpec
 import mocks.TakeoverServiceMock
@@ -27,24 +27,25 @@ import models.handoff._
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.i18n.MessagesApi
 import play.api.libs.json.{JsObject, Json, Writes}
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.NavModelNotFoundException
 import uk.gov.hmrc.http.HeaderCarrier
-import utils.JweCommon
+import utils.{SCRSFeatureSwitches, SCRSFeatureSwitchesImpl}
 
 import java.util.UUID
+import repositories.NavModelRepo
+import views.html.reg.{Summary => SummaryView}
+
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with GuiceOneAppPerSuite with AccountingDetailsFixture with TradingDetailsFixtures
   with CorporationTaxFixture with AuthBuilder with TakeoverServiceMock {
 
   val aboutYouData = AboutYouChoice("Director")
-  val mockNavModelRepoObj = mockNavModelRepo
 
   val handOffNavModel = HandOffNavModel(
     Sender(
@@ -63,22 +64,35 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with GuiceOneAppP
       Some(Json.parse("""{"testCHBagKey": "testValue"}""").as[JsObject])
     )
   )
+  lazy val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+  lazy val mockControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
+  lazy val mockControllerErrorHandler = app.injector.instanceOf[ControllerErrorHandler]
+  lazy val mockSummaryView = app.injector.instanceOf[SummaryView]
+  lazy val mockNavModelRepoObj = app.injector.instanceOf[NavModelRepo]
+  override lazy val mockSCRSFeatureSwitches = mock[SCRSFeatureSwitchesImpl]
+
+
 
   class Setup {
-    val controller = new SummaryController {
-      override lazy val controllerComponents = app.injector.instanceOf[MessagesControllerComponents]
-      override val s4LConnector = mockS4LConnector
-      override val authConnector = mockAuthConnector
-      override val compRegConnector = mockCompanyRegistrationConnector
-      override val keystoreConnector = mockKeystoreConnector
-      override val metaDataService = mockMetaDataService
-      override val takeoverService = mockTakeoverService
-      override val handOffService = mockHandOffService
-      implicit lazy val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
-      override val jwe: JweCommon = mockJweCommon
-      override lazy val messagesApi = app.injector.instanceOf[MessagesApi]
-      implicit val ec: ExecutionContext = global
-    }
+    val controller = new SummaryController (
+      mockAuthConnector,
+      mockS4LConnector,
+      mockCompanyRegistrationConnector,
+      mockKeystoreConnector,
+      mockMetaDataService,
+      mockTakeoverService,
+      mockHandOffService,
+      mockNavModelRepoObj,
+      mockSCRSFeatureSwitches,
+      mockJweCommon,
+      mockControllerComponents,
+      mockControllerErrorHandler,
+      mockSummaryView
+    )(
+      appConfig,
+      global
+      )
+
   }
 
   lazy val regID = UUID.randomUUID.toString

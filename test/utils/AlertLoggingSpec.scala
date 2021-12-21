@@ -17,12 +17,11 @@
 package utils
 
 import java.time.LocalTime
-
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.spi.ILoggingEvent
+import helpers.{LogCapturing, UnitSpec}
 import org.scalatest.concurrent.Eventually
 import play.api.Logger
-import uk.gov.hmrc.play.test.{LogCapturing, UnitSpec}
 
 class AlertLoggingSpec extends UnitSpec with LogCapturing with Eventually {
 

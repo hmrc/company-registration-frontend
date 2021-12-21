@@ -31,22 +31,19 @@ import views.html.{error_template, error_template_restart}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
-class BasicCompanyDetailsControllerImpl @Inject()(val authConnector: PlayAuthConnector,
-                                                  val keystoreConnector: KeystoreConnector,
-                                                  val handOffService: HandOffService,
-                                                  val appConfig: FrontendAppConfig,
-                                                  val compRegConnector: CompanyRegistrationConnector,
-                                                  val handBackService: HandBackService,
-                                                  val ec: ExecutionContext,
-                                                  val controllerComponents: MessagesControllerComponents) extends BasicCompanyDetailsController
+class BasicCompanyDetailsController @Inject()(val authConnector: PlayAuthConnector,
+                                              val keystoreConnector: KeystoreConnector,
+                                              val handOffService: HandOffService,
+                                              val compRegConnector: CompanyRegistrationConnector,
+                                              val handBackService: HandBackService,
+                                              val controllerComponents: MessagesControllerComponents,
+                                              val controllerErrorHandler: ControllerErrorHandler,
+                                              error_template: error_template,
+                                              error_template_restart: error_template_restart
+                                             )
+                                             (implicit val appConfig: FrontendAppConfig, implicit val ec: ExecutionContext)
+  extends AuthenticatedController with SessionRegistration with I18nSupport {
 
-trait BasicCompanyDetailsController extends AuthenticatedController with SessionRegistration with ControllerErrorHandler with I18nSupport {
-
-  val handOffService: HandOffService
-  val handBackService: HandBackService
-  val compRegConnector: CompanyRegistrationConnector
-
-  implicit val appConfig: FrontendAppConfig
 
   //HO1
   val basicCompanyDetails: Action[AnyContent] = Action.async {
@@ -75,7 +72,7 @@ trait BasicCompanyDetailsController extends AuthenticatedController with Session
             case Success(_) => Redirect(controllers.reg.routes.CompletionCapacityController.show())
             case Failure(PayloadError) => BadRequest(error_template_restart("1b", "PayloadError"))
             case Failure(DecryptionError) => BadRequest(error_template_restart("1b", "DecryptionError"))
-            case _ => InternalServerError(defaultErrorPage)
+            case _ => InternalServerError(controllerErrorHandler.defaultErrorPage)
           } recover {
             case ex: NavModelNotFoundException => Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))
           }

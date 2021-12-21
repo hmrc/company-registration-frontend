@@ -20,13 +20,14 @@ import config.FrontendAppConfig
 import javax.inject.{Inject, Singleton}
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.help.accessibility_statement
 
 import scala.concurrent.Future
 
 @Singleton
-class AccessibilityStatementController @Inject()(mcc: MessagesControllerComponents
+class AccessibilityStatementController @Inject()(mcc: MessagesControllerComponents,
+                                                 accessibility_statement: accessibility_statement
                                                 )(implicit appConfig: FrontendAppConfig)
   extends FrontendController(mcc) with I18nSupport {
 

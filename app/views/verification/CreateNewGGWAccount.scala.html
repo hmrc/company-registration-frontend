@@ -18,6 +18,7 @@
 @import controllers.CRLanguageController
 @import play.api.Application
 
+@this(main_template: main_template)
 @(newAccountUrl:String)(implicit request: Request[_], messages: Messages, appConfig: config.FrontendAppConfig)
 
 @main_template(title = Messages("page.verification.create-new-ggw-account.title"), mainClass = None) {

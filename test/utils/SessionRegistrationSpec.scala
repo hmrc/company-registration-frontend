@@ -17,6 +17,7 @@
 package utils
 
 import ch.qos.logback.classic.Level
+import helpers.{LogCapturing, UnitSpec}
 import mocks.{CompanyRegistrationConnectorMock, KeystoreMock}
 import org.mockito.Mockito._
 import org.scalatest.concurrent.Eventually
@@ -26,7 +27,6 @@ import play.api.Logger
 import play.api.mvc.Results
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.test.{LogCapturing, UnitSpec}
 
 import scala.concurrent.Future
 

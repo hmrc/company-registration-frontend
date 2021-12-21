@@ -19,6 +19,7 @@ package controllers
 import builders.AuthBuilder
 import config.FrontendAppConfig
 import controllers.groups.GroupReliefController
+import controllers.reg.ControllerErrorHandler
 import helpers.SCRSSpec
 import models.Groups
 import org.mockito.ArgumentMatchers._
@@ -30,12 +31,16 @@ import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.HeaderCarrier
-
+import views.html.groups.GroupReliefView
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class GroupReliefControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with MockitoSugar with AuthBuilder {
 
-  implicit val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+  lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
+  lazy val mockFrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+  lazy val mockControllerErrorHandler = app.injector.instanceOf[ControllerErrorHandler]
+  lazy val mockGroupReliefView = app.injector.instanceOf[GroupReliefView]
 
   class Setup {
     reset(mockCompanyRegistrationConnector)
@@ -44,7 +49,11 @@ class GroupReliefControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with M
       mockGroupService,
       mockCompanyRegistrationConnector,
       mockKeystoreConnector,
-      app.injector.instanceOf[MessagesControllerComponents]
+      mockMcc,
+      mockControllerErrorHandler,
+      mockGroupReliefView
+    )(
+      mockFrontendAppConfig
     )
 
     def cTDoc(status: String, groupBlock: String): JsValue = Json.parse(

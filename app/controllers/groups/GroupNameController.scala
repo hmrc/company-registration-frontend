@@ -38,11 +38,10 @@ class GroupNameController @Inject()(val authConnector: PlayAuthConnector,
                                     val groupService: GroupService,
                                     val compRegConnector: CompanyRegistrationConnector,
                                     val keystoreConnector: KeystoreConnector,
-                                    val controllerComponents: MessagesControllerComponents
-                                   )(implicit val appConfig: FrontendAppConfig)
-  extends AuthenticatedController with ControllerErrorHandler with SessionRegistration with I18nSupport {
-
-  implicit val ec: ExecutionContext = controllerComponents.executionContext
+                                    val controllerComponents: MessagesControllerComponents,
+                                    view: GroupNameView
+                                   )(implicit val appConfig: FrontendAppConfig, implicit val ec: ExecutionContext)
+  extends AuthenticatedController with SessionRegistration with I18nSupport {
 
   val show: Action[AnyContent] = Action.async {
     implicit request =>
@@ -52,7 +51,7 @@ class GroupNameController @Inject()(val authConnector: PlayAuthConnector,
             case Some(groups@Groups(true, _, _, _)) =>
               groupService.returnValidShareholdersAndUpdateGroups(groups, regID).map { res =>
                 val (listOfShareholders, updatedGroups) = res
-                Ok(GroupNameView(
+                Ok(view(
                   groups.nameOfCompany.fold(GroupNameForm.form)(gName => GroupNameForm.form.fill(gName)),
                   updatedGroups.nameOfCompany,
                   listOfShareholders
@@ -73,7 +72,7 @@ class GroupNameController @Inject()(val authConnector: PlayAuthConnector,
               val (listOfShareholders, updatedGroups) = res
               GroupNameForm.form.bindFromRequest.fold(
                 errors => {
-                  Future.successful(BadRequest(GroupNameView(errors, updatedGroups.nameOfCompany, listOfShareholders)))
+                  Future.successful(BadRequest(view(errors, updatedGroups.nameOfCompany, listOfShareholders)))
                 },
                 name => {
                   groupService.updateGroupName(name, updatedGroups, regID).map { _ =>

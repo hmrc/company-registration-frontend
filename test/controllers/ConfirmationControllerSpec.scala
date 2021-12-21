@@ -18,7 +18,7 @@ package controllers
 
 import builders.AuthBuilder
 import config.FrontendAppConfig
-import controllers.reg.ConfirmationController
+import controllers.reg.{ConfirmationController, ControllerErrorHandler}
 import fixtures.CompanyDetailsFixture
 import helpers.SCRSSpec
 import models.ConfirmationReferencesSuccessResponse
@@ -27,31 +27,41 @@ import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.http.Status
-import play.api.i18n.{Messages, MessagesApi}
+import play.api.i18n.Messages
 import play.api.mvc.{MessagesControllerComponents, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentType, _}
 import services.DeskproService
 import uk.gov.hmrc.http.HeaderCarrier
-
-import scala.concurrent.{ExecutionContext, Future}
+import views.html.reg.{Confirmation => ConfirmationView}
+import views.html.errors.{submissionFailed => submissionFailedView}
+import views.html.errors.{deskproSubmitted => deskproSubmittedView}
+import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class ConfirmationControllerSpec(implicit val messages: Messages) extends SCRSSpec with CompanyDetailsFixture with GuiceOneAppPerSuite with AuthBuilder {
 
-  val mockDeskproService = mock[DeskproService]
+  lazy val mockDeskproService = mock[DeskproService]
+  lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
+  lazy val mockFrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+  lazy val mockControllerErrorHandler = app.injector.instanceOf[ControllerErrorHandler]
+  lazy val mockConfirmationView = app.injector.instanceOf[ConfirmationView]
+  lazy val mockSubmissionFailedView = app.injector.instanceOf[submissionFailedView]
+  lazy val mockDeskproSubmittedView = app.injector.instanceOf[deskproSubmittedView]
 
   class Setup {
-    val controller = new ConfirmationController {
-      override val controllerComponents = app.injector.instanceOf[MessagesControllerComponents]
-      override val authConnector = mockAuthConnector
-      override val compRegConnector = mockCompanyRegistrationConnector
-      override val keystoreConnector = mockKeystoreConnector
-      override val deskproService = mockDeskproService
-      override implicit val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
-      implicit val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
-      implicit val ec: ExecutionContext = global
-    }
+    val controller = new ConfirmationController (
+      mockAuthConnector,
+      mockCompanyRegistrationConnector,
+      mockKeystoreConnector,
+      mockDeskproService,
+      mockMcc,
+      mockControllerErrorHandler,
+      mockConfirmationView,
+      mockSubmissionFailedView,
+      mockDeskproSubmittedView
+    )
+    (mockFrontendAppConfig,global)
   }
 
   val regId = "reg12345"

@@ -28,30 +28,38 @@ import org.joda.time.DateTime
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.http.Status._
-import play.api.i18n.{Lang, Messages, MessagesApi}
+import play.api.i18n.{Lang, Messages}
 import play.api.mvc.{AnyContent, MessagesControllerComponents, Request}
 import play.api.test.FakeRequest
 import uk.gov.hmrc.play.http.ws.WSHttp
-
+import views.html.dashboard.{CancelPaye => CancelPayeView}
+import views.html.dashboard.{CancelVat => CancelVatView}
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class CancelRegistrationControllerSpec extends SCRSSpec with MockitoSugar with GuiceOneAppPerSuite with ServiceConnectorMock with AuthBuilder {
 
   val mockHttp = mock[WSHttp]
+  lazy val cancelPayeView = app.injector.instanceOf[CancelPayeView]
+  lazy val cancelVatView = app.injector.instanceOf[CancelVatView]
+  lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
+  lazy val mockFrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+
 
   class Setup(r: Request[AnyContent]) {
-    val controller = new CancelRegistrationController {
-      override lazy val controllerComponents = app.injector.instanceOf[MessagesControllerComponents]
-      override val authConnector = mockAuthConnector
-      override val compRegConnector = mockCompanyRegistrationConnector
-      override val keystoreConnector = mockKeystoreConnector
-      override val payeConnector = mockPAYEConnector
-      override val vatConnector = mockVATConnector
-      implicit lazy val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
-      override lazy val messagesApi = app.injector.instanceOf[MessagesApi]
-      implicit val ec: ExecutionContext = global
-    }
+    val controller = new CancelRegistrationController (
+      mockPAYEConnector,
+      mockVATConnector,
+      mockKeystoreConnector,
+      mockAuthConnector,
+      mockCompanyRegistrationConnector,
+      mockMcc,
+      cancelPayeView,
+      cancelVatView
+    )(
+      mockFrontendAppConfig,
+      global
+    )
     implicit val request = r
     implicit val messagesApi: Messages = controller.messagesApi.preferred(Seq(Lang("en")))
   }
@@ -71,7 +79,7 @@ class CancelRegistrationControllerSpec extends SCRSSpec with MockitoSugar with G
       getStatusMock(testRegID)(SuccessfulResponse(validStatus))
       canStatusBeCancelledMock(testRegID)(Future.successful("foo"))
       val form = CancelForm.form.fill(false)
-      val view = views.html.dashboard.CancelPaye(form)
+      val view = cancelPayeView(form)
 
       val res = await(controller.showCancelService(mockServiceConnector, view))
       status(res) shouldBe 200
@@ -80,21 +88,21 @@ class CancelRegistrationControllerSpec extends SCRSSpec with MockitoSugar with G
     "not display the page and should redirect if the user is logged in and does not have a registration id " in new Setup(r = FakeRequest()) {
       mockKeystoreFetchAndGet("registrationID", None)
 
-      val res = await(controller.showCancelService(mockServiceConnector, views.html.dashboard.CancelPaye(CancelForm.form.fill(false))))
+      val res = await(controller.showCancelService(mockServiceConnector, cancelPayeView(CancelForm.form.fill(false))))
       status(res) shouldBe SEE_OTHER
     }
     "not display the page if user:logged in, has regID,regID is draft" in new Setup(r = FakeRequest()) {
       mockKeystoreFetchAndGet("registrationID", Some(testRegID))
       CTRegistrationConnectorMocks.retrieveCTRegistration()
 
-      val res = await(controller.showCancelService(mockServiceConnector, views.html.dashboard.CancelPaye(CancelForm.form.fill(false))))
+      val res = await(controller.showCancelService(mockServiceConnector, cancelPayeView(CancelForm.form.fill(false))))
       status(res) shouldBe SEE_OTHER
     }
     "not display the page if user:logged in, has regID,regID is rejected" in new Setup(r = FakeRequest()) {
       mockKeystoreFetchAndGet("registrationID", Some(testRegID))
       CTRegistrationConnectorMocks.retrieveCTRegistration(buildCorporationTaxModel(status = "rejected"))
 
-      val res = await(controller.showCancelService(mockServiceConnector, views.html.dashboard.CancelPaye(CancelForm.form.fill(false))))
+      val res = await(controller.showCancelService(mockServiceConnector, cancelPayeView(CancelForm.form.fill(false))))
       status(res) shouldBe SEE_OTHER
     }
     "not display the page if user:logged in, has regID,regID is not draft / rejected, no cancelURL is returned" in new Setup(r = FakeRequest()) {
@@ -103,7 +111,7 @@ class CancelRegistrationControllerSpec extends SCRSSpec with MockitoSugar with G
       getStatusMock(testRegID)(SuccessfulResponse(OtherRegStatus("", None, None, None, None)))
       canStatusBeCancelledMock(testRegID)(Future.failed(cantCancel))
 
-      val res = await(controller.showCancelService(mockServiceConnector, views.html.dashboard.CancelPaye(CancelForm.form.fill(false))))
+      val res = await(controller.showCancelService(mockServiceConnector, cancelPayeView(CancelForm.form.fill(false))))
       status(res) shouldBe SEE_OTHER
     }
   }
@@ -144,7 +152,7 @@ class CancelRegistrationControllerSpec extends SCRSSpec with MockitoSugar with G
       getStatusMock(testRegID)(SuccessfulResponse(OtherRegStatus("", None, None, None, None)))
       cancelRegMock(testRegID)(NotCancelled)
 
-      val res = await(controller.submitCancelService(mockServiceConnector, _ => views.html.dashboard.CancelVat(CancelForm.form.fill(true))))
+      val res = await(controller.submitCancelService(mockServiceConnector, _ => cancelVatView(CancelForm.form.fill(true))))
       status(res) shouldBe SEE_OTHER
     }
 
@@ -155,7 +163,7 @@ class CancelRegistrationControllerSpec extends SCRSSpec with MockitoSugar with G
       getStatusMock(testRegID)(SuccessfulResponse(OtherRegStatus("", None, None, Some("foo"), None)))
       cancelRegMock(testRegID)(Cancelled)
 
-      val res = await(controller.submitCancelService(mockServiceConnector, _ => views.html.dashboard.CancelVat(CancelForm.form.fill(true))))
+      val res = await(controller.submitCancelService(mockServiceConnector, _ => cancelVatView(CancelForm.form.fill(true))))
       status(res) shouldBe SEE_OTHER
     }
     "redirect to dashboard where user has reg id in draft state/cancelURL exists" in new Setup(r = FakeRequest().withFormUrlEncodedBody("cancelService" -> "true")) {
@@ -164,7 +172,7 @@ class CancelRegistrationControllerSpec extends SCRSSpec with MockitoSugar with G
       getStatusMock(testRegID)(SuccessfulResponse(OtherRegStatus("", None, None, Some("foo"), None)))
       cancelRegMock(testRegID)(Cancelled)
 
-      val res = await(controller.submitCancelService(mockServiceConnector, _ => views.html.dashboard.CancelVat(CancelForm.form.fill(true))))
+      val res = await(controller.submitCancelService(mockServiceConnector, _ => cancelVatView(CancelForm.form.fill(true))))
       status(res) shouldBe SEE_OTHER
     }
     "return redirect when all conditions are met to cancel a service, but user selects false" in new Setup(r = FakeRequest().withFormUrlEncodedBody("cancelService" -> "true")) {
@@ -172,7 +180,7 @@ class CancelRegistrationControllerSpec extends SCRSSpec with MockitoSugar with G
       CTRegistrationConnectorMocks.retrieveCTRegistration(buildCorporationTaxModel(status = "foo"))
       getStatusMock(testRegID)(SuccessfulResponse(OtherRegStatus("", None, None, Some("foo"), None)))
 
-      val res = await(controller.submitCancelService(mockServiceConnector, _ => views.html.dashboard.CancelVat(CancelForm.form.fill(false))))
+      val res = await(controller.submitCancelService(mockServiceConnector, _ => cancelVatView(CancelForm.form.fill(false))))
       status(res) shouldBe SEE_OTHER
     }
   }

@@ -20,7 +20,7 @@ import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthenticatedController
 import forms.ConfirmRegistrationEmailForm
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 import models.{ConfirmRegistrationEmailModel, RegistrationEmailModel}
 import play.api.i18n.I18nSupport
 import play.api.mvc._
@@ -28,24 +28,19 @@ import services.{CommonService, EmailVerificationService}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.{SCRSExceptions, SessionRegistration}
-import views.html.reg.ConfirmRegistrationEmail
+import views.html.reg.{ConfirmRegistrationEmail => ConfirmRegistrationEmailView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-
-class RegistrationEmailConfirmationControllerImpl @Inject()(val emailVerificationService: EmailVerificationService,
-                                                            val authConnector: PlayAuthConnector,
-                                                            val keystoreConnector: KeystoreConnector,
-                                                            val appConfig: FrontendAppConfig,
-                                                            val compRegConnector: CompanyRegistrationConnector,
-                                                            val controllerComponents: MessagesControllerComponents)
-                                                           (implicit val ec: ExecutionContext) extends RegistrationEmailConfirmationController
-
-abstract class RegistrationEmailConfirmationController extends AuthenticatedController with CommonService with SCRSExceptions with I18nSupport with SessionRegistration {
-
-  val keystoreConnector: KeystoreConnector
-  val emailVerificationService: EmailVerificationService
-  implicit val appConfig: FrontendAppConfig
+@Singleton
+class RegistrationEmailConfirmationController @Inject()(val emailVerificationService: EmailVerificationService,
+                                                        val authConnector: PlayAuthConnector,
+                                                        val keystoreConnector: KeystoreConnector,
+                                                        val compRegConnector: CompanyRegistrationConnector,
+                                                        val controllerComponents: MessagesControllerComponents,
+                                                        view: ConfirmRegistrationEmailView)
+                                                       (implicit val appConfig: FrontendAppConfig, implicit val ec: ExecutionContext)
+  extends AuthenticatedController with CommonService with SCRSExceptions with I18nSupport with SessionRegistration {
 
   val show: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
@@ -63,21 +58,21 @@ abstract class RegistrationEmailConfirmationController extends AuthenticatedCont
     }
   }
 
-  protected def showLogic(implicit hc: HeaderCarrier, request: Request[AnyContent]): Future[Result] = {
+  def showLogic(implicit hc: HeaderCarrier, request: Request[AnyContent]): Future[Result] = {
     for {
       confEmail <- keystoreConnector.fetchAndGet[ConfirmRegistrationEmailModel]("ConfirmEmail")
       regEmail <- keystoreConnector.fetchAndGet[RegistrationEmailModel]("RegEmail")
     } yield {
       val confEmailForm = confEmail.map(x => ConfirmRegistrationEmailForm.form.fill(x)).getOrElse(ConfirmRegistrationEmailForm.form)
       if (regEmail.exists(_.differentEmail.isDefined)) {
-        Ok(ConfirmRegistrationEmail(confEmailForm, regEmail.get.differentEmail.get))
+        Ok(view(confEmailForm, regEmail.get.differentEmail.get))
       } else {
         Redirect(routes.SignInOutController.postSignIn(None, None, None))
       }
     }
   }
 
-  protected def submitLogic(regId: String, providerIdFromAuth: String, externalIdFromAuth: String)(implicit hc: HeaderCarrier, request: Request[AnyContent]): Future[Result] = {
+  def submitLogic(regId: String, providerIdFromAuth: String, externalIdFromAuth: String)(implicit hc: HeaderCarrier, request: Request[AnyContent]): Future[Result] = {
 
     keystoreConnector.fetchAndGet[RegistrationEmailModel]("RegEmail").flatMap { regEmail =>
       if (!regEmail.exists(_.differentEmail.isDefined)) {
@@ -87,7 +82,7 @@ abstract class RegistrationEmailConfirmationController extends AuthenticatedCont
         val diffEmail = regEmail.get.differentEmail.get
         ConfirmRegistrationEmailForm.form.bindFromRequest().fold(
           hasErrors =>
-            Future.successful(BadRequest(ConfirmRegistrationEmail(hasErrors, diffEmail))),
+            Future.successful(BadRequest(view(hasErrors, diffEmail))),
           success =>
             if (success.confirmEmail) {
               emailVerificationService.sendVerificationLink(diffEmail, regId, providerIdFromAuth, externalIdFromAuth)

@@ -14,8 +14,10 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.play.views.html.helpers.form
+@import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
 
+@this(main_template: main_template,
+        formWithCsrf: FormWithCSRF)
 
 @(confirmationRefs: models.connectors.ConfirmationReferences)(implicit request: Request[_], messages: Messages, appConfig: config.FrontendAppConfig)
 
@@ -48,7 +50,7 @@
 
 
     <br>
-    @form(action = controllers.reg.routes.ConfirmationController.submit()) {
+    @formWithCsrf(action = controllers.reg.routes.ConfirmationController.submit()) {
         <div class="form-group">
             <input class="button" type="submit" id="next" value="@messages("page.reg.finish.btn")">
         </div>

@@ -38,9 +38,10 @@ class GroupUtrController @Inject()(val authConnector: PlayAuthConnector,
                                    val keystoreConnector: KeystoreConnector,
                                    val groupService: GroupService,
                                    val compRegConnector: CompanyRegistrationConnector,
-                                   val controllerComponents: MessagesControllerComponents
+                                   val controllerComponents: MessagesControllerComponents,
+                                   val view: GroupUtrView
                                   )(implicit val appConfig: FrontendAppConfig)
-  extends AuthenticatedController with CommonService with ControllerErrorHandler
+  extends AuthenticatedController with CommonService
     with SCRSExceptions with I18nSupport with SessionRegistration {
 
   implicit val ec: ExecutionContext = controllerComponents.executionContext
@@ -50,9 +51,9 @@ class GroupUtrController @Inject()(val authConnector: PlayAuthConnector,
       checkStatus { regID =>
         groupService.retrieveGroups(regID).flatMap {
           case Some(Groups(true, Some(companyName), Some(_), Some(companyUtr))) =>
-            Future.successful(Ok(GroupUtrView(GroupUtrForm.form.fill(companyUtr), companyName.name)))
+            Future.successful(Ok(view(GroupUtrForm.form.fill(companyUtr), companyName.name)))
           case Some(Groups(true, Some(companyName), Some(_), None)) =>
-            Future.successful(Ok(GroupUtrView(GroupUtrForm.form, companyName.name)))
+            Future.successful(Ok(view(GroupUtrForm.form, companyName.name)))
           case Some(Groups(true, Some(_), None, _)) =>
             Future.successful(Redirect(controllers.groups.routes.GroupAddressController.show().url))
           case Some(Groups(true, None, _, _)) =>
@@ -72,7 +73,7 @@ class GroupUtrController @Inject()(val authConnector: PlayAuthConnector,
           case Some(groups@Groups(true, Some(companyName), Some(_), _)) =>
             GroupUtrForm.form.bindFromRequest.fold(
               errors =>
-                Future.successful(BadRequest(GroupUtrView(errors, companyName.name))),
+                Future.successful(BadRequest(view(errors, companyName.name))),
               groupUtr => {
                 groupService.updateGroupUtr(groupUtr, groups, regID).map { _ =>
                   Redirect(controllers.handoff.routes.GroupController.PSCGroupHandOff())

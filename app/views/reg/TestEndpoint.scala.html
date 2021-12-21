@@ -14,13 +14,15 @@
  * limitations under the License.
  *@
 
-@import controllers.reg.routes._
 @import models._
-@import models.handoff._
-@import uk.gov.hmrc.play.views.html.helpers.{form, input, errorSummary}
-@import config.FrontendAppConfig
-@import controllers.CRLanguageController
-@import play.api.Application
+@import uk.gov.hmrc.play.views.html.helpers.{FormWithCSRF}
+@import views.html.helpers.errorSummary
+@import views.html.helpers.input
+
+@this(main_template: main_template,
+        formWithCSRF: FormWithCSRF,
+        input: input,
+        errorSummary: errorSummary)
 
 @(accountingDatesForm: Form[AccountingDatesModel],
   firstHandBackForm: Form[models.handoff.CompanyNameHandOffFormModel],
@@ -36,7 +38,7 @@
         applicantForm
     )
 
-    @form(action = controllers.test.routes.TestEndpointController.postAllS4LEntries) {
+    @formWithCSRF(action = controllers.test.routes.TestEndpointController.postAllS4LEntries) {
         <h1>Mongo</h1>
 
         <h2>Applicant</h2>

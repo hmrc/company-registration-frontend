@@ -19,7 +19,8 @@ package helpers
 import play.api.data.{Form, FormError}
 import play.api.mvc.AnyContentAsFormUrlEncoded
 import play.api.test.FakeRequest
-import uk.gov.hmrc.play.test.UnitSpec
+import play.api.data.FormBinding.Implicits._
+
 
 trait FormTestHelpers {
   _: UnitSpec =>
@@ -30,21 +31,21 @@ trait FormTestHelpers {
 
   private[helpers] def bind(formData: Seq[(String, String)], form: Form[_]): Either[Option[Seq[FormError]], _] = {
     val request = FakeRequest().withFormUrlEncodedBody(formData: _*)
-    form.bindFromRequest()(request).fold(
+    form.bindFromRequest()(request,formBinding).fold(
       hasErrors => Left(Some(hasErrors.errors)),
       success => Right(Some(success))
     )
   }
 
   def bindSuccess(request: FakeRequest[AnyContentAsFormUrlEncoded], form: Form[_]): Some[_] = {
-    form.bindFromRequest()(request).fold(
+    form.bindFromRequest()(request,formBinding).fold(
       formWithErrors => Some(formWithErrors.errors(0)),
       userData => Some(userData)
     )
   }
 
   def bindWithError(request: FakeRequest[AnyContentAsFormUrlEncoded], form: Form[_]): Some[_] = {
-    form.bindFromRequest()(request).fold(
+    form.bindFromRequest()(request,formBinding).fold(
       formWithErrors => Some(formWithErrors.errors(0)),
       userData => Some(None)
     )

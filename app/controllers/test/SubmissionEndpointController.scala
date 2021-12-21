@@ -20,7 +20,8 @@ import config.FrontendAppConfig
 import connectors.S4LConnector
 import controllers.auth.AuthenticatedController
 import forms.SubmissionForm
-import javax.inject.Inject
+
+import javax.inject.{Inject, Singleton}
 import models.SubmissionModel
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -30,16 +31,12 @@ import views.html.reg.SubmissionEndpoint
 
 import scala.concurrent.ExecutionContext
 
-class SubmissionEndpointControllerImpl @Inject()(val authConnector: PlayAuthConnector,
-                                                 val s4LConnector: S4LConnector,
-                                                 val appConfig: FrontendAppConfig,
-                                                 val controllerComponents: MessagesControllerComponents)
-                                                (implicit val ec: ExecutionContext) extends SubmissionEndpointController
-
-trait SubmissionEndpointController extends AuthenticatedController with I18nSupport {
-  val s4LConnector: S4LConnector
-
-  implicit val appConfig: FrontendAppConfig
+@Singleton
+class SubmissionEndpointController @Inject()(val authConnector: PlayAuthConnector,
+                                             val s4LConnector: S4LConnector,
+                                             val controllerComponents: MessagesControllerComponents,
+                                             view: SubmissionEndpoint)
+                                            (implicit val appConfig: FrontendAppConfig, implicit val ec: ExecutionContext) extends AuthenticatedController with I18nSupport {
 
   val getAllS4LEntries: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorisedOptStr(Retrievals.internalId) { internalID =>
@@ -48,7 +45,7 @@ trait SubmissionEndpointController extends AuthenticatedController with I18nSupp
         submission = fetchSubmission.getOrElse(SubmissionModel("No submission found", "No submission ref"))
       } yield {
         val submissionForm = SubmissionForm.form.fill(submission)
-        Ok(SubmissionEndpoint(submissionForm))
+        Ok(view(submissionForm))
       }
     }
   }

@@ -22,17 +22,19 @@ import play.api.http.DefaultHttpFilters
 import play.api.i18n.MessagesApi
 import play.api.mvc.Request
 import play.twirl.api.Html
-import uk.gov.hmrc.play.bootstrap.filters.{FrontendFilters}
-import uk.gov.hmrc.play.bootstrap.http.FrontendErrorHandler
+import uk.gov.hmrc.play.bootstrap.frontend.filters.FrontendFilters
+import uk.gov.hmrc.play.bootstrap.frontend.http.FrontendErrorHandler
+import views.html.error_template
 
 class SCRSErrorHandler @Inject()(val appConfig: FrontendAppConfig,
-                                  val messagesApi: MessagesApi) extends FrontendErrorHandlerSCRS
+                                  val messagesApi: MessagesApi,
+                                 error_template: error_template
+                                ) extends FrontendErrorHandler {
 
-trait FrontendErrorHandlerSCRS extends FrontendErrorHandler {
-  val appConfig: FrontendAppConfig
-  override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit rh: Request[_]): Html = {
+
+  def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit rh: Request[_]): Html = {
     implicit lazy val ac = appConfig
-    views.html.error_template(pageTitle, heading, message)
+    error_template(pageTitle, heading, message)
   }
 }
 class SCRSFilters @Inject()(defaultFilters : FrontendFilters, seshFilter: SessionIdFilter) extends DefaultHttpFilters(defaultFilters.filters :+ seshFilter: _*)

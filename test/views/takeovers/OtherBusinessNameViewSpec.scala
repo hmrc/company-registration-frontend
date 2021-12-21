@@ -18,22 +18,24 @@ package views.takeovers
 
 import config.FrontendAppConfig
 import forms.takeovers.OtherBusinessNameForm
+import helpers.UnitSpec
 import org.jsoup.Jsoup
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
-import uk.gov.hmrc.play.test.UnitSpec
+import views.html.takeovers.OtherBusinessName
 
 class OtherBusinessNameViewSpec extends UnitSpec with GuiceOneAppPerSuite with I18nSupport {
 
   implicit lazy val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
   implicit lazy val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
   implicit lazy val frontendAppConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+  implicit lazy val page = app.injector.instanceOf[OtherBusinessName]
 
   "OtherBusinessNameView" should {
     lazy val form = OtherBusinessNameForm.form
-    lazy val view = views.html.takeovers.OtherBusinessName(form)
+    lazy val view = page(form)
     lazy val doc = Jsoup.parse(view.body)
 
     lazy val title = "What is the name of the other business?"

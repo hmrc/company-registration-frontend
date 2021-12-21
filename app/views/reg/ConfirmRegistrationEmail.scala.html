@@ -14,10 +14,15 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.play.views.html.helpers.form
-@import uk.gov.hmrc.play.views.html.{helpers => govHelpers}
-@import views.html.helpers.{inputRadioGroup, errorSummary}
+@import uk.gov.hmrc.play.views.html.helpers.{InputRadioGroup, form}
 @import views.helpers.TitleHelper.title
+@import views.html.helpers.errorSummary
+@import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
+
+@this(main_template: main_template,
+        errorSummary: errorSummary,
+        inputRadioGroup: InputRadioGroup,
+        formWithCsrf: FormWithCSRF)
 
 @(confirmRegistrationEmail: Form[ConfirmRegistrationEmailModel], differentEmail: String)(implicit request: Request[_], messages: Messages, appConfig: config.FrontendAppConfig)
 
@@ -38,13 +43,12 @@
             <p>@Messages("page.reg.confirmRegistrationEmail.p1", differentEmail)</p>
         </div>
 
-        @form(action = controllers.reg.routes.RegistrationEmailConfirmationController.submit()) {
+        @formWithCsrf(action = controllers.reg.routes.RegistrationEmailConfirmationController.submit()) {
 
         <div class="form-group">
             @inputRadioGroup(
                 confirmRegistrationEmail("confirmRegistrationEmail"),
                 Seq("true" -> Messages("page.reg.confirmRegistrationEmail.radio1"), "false" -> Messages("page.reg.confirmRegistrationEmail.radio2")),
-                isHeading = false,
                 '_labelClass -> "block-label radio-label",
                 '_legend -> Messages("page.reg.confirmRegistrationEmail.heading", differentEmail),
                 '_legendClass -> "visually-hidden"

@@ -18,13 +18,14 @@ package views.takeovers
 
 import config.FrontendAppConfig
 import forms.takeovers.{HomeAddressForm, OtherBusinessAddressForm}
+import helpers.UnitSpec
 import models.NewAddress
 import org.jsoup.Jsoup
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
-import uk.gov.hmrc.play.test.UnitSpec
+import views.html.takeovers.HomeAddress
 
 class HomeAddressViewSpec extends UnitSpec with GuiceOneAppPerSuite with I18nSupport {
 
@@ -35,9 +36,11 @@ class HomeAddressViewSpec extends UnitSpec with GuiceOneAppPerSuite with I18nSup
   val testPreviousOwnerName: String = "testName"
   val testBusinessAddress: NewAddress = NewAddress("testLine1", "testLine2", None, None, Some("Z11 11Z"), Some("testCountry"))
 
+  val page = app.injector.instanceOf[HomeAddress]
+
   "OtherBusinessAddressView" should {
     lazy val form = HomeAddressForm.form(1)
-    lazy val view = views.html.takeovers.HomeAddress(form, testPreviousOwnerName, Seq(testBusinessAddress))
+    lazy val view = page(form, testPreviousOwnerName, Seq(testBusinessAddress))
     lazy val doc = Jsoup.parse(view.body)
 
     lazy val title = s"What is $testPreviousOwnerName’s home address?"
@@ -48,10 +51,6 @@ class HomeAddressViewSpec extends UnitSpec with GuiceOneAppPerSuite with I18nSup
 
     s"have an expected title: $title" in {
       doc.title should include(title)
-    }
-
-    s"have an expected heading: $heading" in {
-      doc.selectFirst("h1").text shouldBe heading
     }
 
     s"have expected radio labels: $address and $otherAddress" in {

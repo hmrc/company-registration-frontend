@@ -16,8 +16,8 @@
 
 package models.connectors
 
+import helpers.UnitSpec
 import play.api.libs.json.{JsObject, Json}
-import uk.gov.hmrc.play.test.UnitSpec
 
 class ConfirmationReferencesSpec extends UnitSpec {
 

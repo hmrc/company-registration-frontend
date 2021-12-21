@@ -17,11 +17,11 @@
 package controllers
 
 import controllers.reg.IndexController
+import helpers.UnitSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.play.test.UnitSpec
 
 class IndexControllerSpec extends UnitSpec with GuiceOneAppPerSuite {
   lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]

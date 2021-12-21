@@ -17,12 +17,14 @@
 package controllers.test
 
 import com.google.inject.Inject
+import javax.inject.Singleton
 import play.api.mvc.MessagesControllerComponents
-import uk.gov.hmrc.play.bootstrap.controller.FrontendController
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils._
 
 import scala.concurrent.Future
 
+@Singleton
 class FeatureSwitchControllerImpl @Inject()(val scrsFeatureSwitches: SCRSFeatureSwitches,
                                             val featureSwitchManager: FeatureSwitchManager,
                                             mcc: MessagesControllerComponents) extends FeatureSwitchController(mcc)

@@ -14,11 +14,17 @@
  * limitations under the License.
  *@
 
-@(ppobForm: Form[PPOBChoice], ROAddress: Option[CHROAddress], PPOBAddress: Option[NewAddress], choice: PPOBChoice)(implicit request: Request[_], messages: Messages, appConfig: config.FrontendAppConfig)
-
-@import uk.gov.hmrc.play.views.html.helpers.{form, input}
-@import views.html.helpers.{inputRadioGroup, errorSummary}
 @import views.helpers.TitleHelper.title
+@import views.html.helpers.inputRadioGroup
+@import views.html.helpers.errorSummary
+@import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
+
+@this(main_template: main_template,
+        errorSummary: errorSummary,
+        inputRadioGroup: inputRadioGroup,
+        formWithCsrf: FormWithCSRF)
+
+@(ppobForm: Form[PPOBChoice], ROAddress: Option[CHROAddress], PPOBAddress: Option[NewAddress], choice: PPOBChoice)(implicit request: Request[_], messages: Messages, appConfig: config.FrontendAppConfig)
 
 @main_template(title = title(Messages("page.reg.ppob.description"),ppobForm)) {
 
@@ -51,7 +57,7 @@
         </details>
     </div>
 
-    @form(action = controllers.reg.routes.PPOBController.submit()) {
+    @formWithCsrf(action = controllers.reg.routes.PPOBController.submit()) {
         <div class="form-group">
             @inputRadioGroup(
                 ppobForm("addressChoice"),

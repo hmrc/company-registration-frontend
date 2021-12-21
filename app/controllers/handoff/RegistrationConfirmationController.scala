@@ -19,7 +19,7 @@ package controllers.handoff
 import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthenticatedController
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 import models.{ConfirmationReferencesSuccessResponse, DESFailureRetriable}
 import play.api.Logger
 import play.api.i18n.I18nSupport
@@ -33,20 +33,17 @@ import views.html.{error_template, error_template_restart}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
-class RegistrationConfirmationControllerImpl @Inject()(val authConnector: PlayAuthConnector,
-                                                       val keystoreConnector: KeystoreConnector,
-                                                       val handOffService: HandOffService,
-                                                       val appConfig: FrontendAppConfig,
-                                                       val compRegConnector: CompanyRegistrationConnector,
-                                                       val handBackService: HandBackService,
-                                                       val ec: ExecutionContext,
-                                                       val controllerComponents: MessagesControllerComponents) extends RegistrationConfirmationController
-
-trait RegistrationConfirmationController extends AuthenticatedController with I18nSupport with SessionRegistration {
-  val handBackService: HandBackService
-
-  val handOffService: HandOffService
-  implicit val appConfig: FrontendAppConfig
+class RegistrationConfirmationController @Inject()(val authConnector: PlayAuthConnector,
+                                                   val keystoreConnector: KeystoreConnector,
+                                                   val handOffService: HandOffService,
+                                                   val compRegConnector: CompanyRegistrationConnector,
+                                                   val handBackService: HandBackService,
+                                                   val controllerComponents: MessagesControllerComponents,
+                                                   error_template_restart: error_template_restart,
+                                                   error_template: error_template
+                                                  )
+                                                  (implicit val appConfig: FrontendAppConfig, implicit val ec: ExecutionContext)
+  extends AuthenticatedController with I18nSupport with SessionRegistration {
 
   //HO5.1 & old HO6
   def registrationConfirmation(requestData: String): Action[AnyContent] = Action.async {

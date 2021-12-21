@@ -19,20 +19,28 @@ package controllers
 import config.FrontendAppConfig
 import helpers.SCRSSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.i18n.MessagesApi
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import views.html.policies
+import scala.concurrent.ExecutionContext.Implicits.global
 
 class PolicyControllerSpec extends SCRSSpec with GuiceOneAppPerSuite {
 
-  val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
+  lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
+  lazy val mockFrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+  lazy val mockPolicies = app.injector.instanceOf[policies]
+
 
   class Setup {
-    val controller = new PolicyController(mockMcc) {
-      implicit val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
-      override val messagesApi = app.injector.instanceOf[MessagesApi]
-    }
+    val controller = new PolicyController(
+      mockMcc,
+      mockPolicies
+    )
+    (
+      mockFrontendAppConfig,
+      global
+    )
   }
 
   "Sending a GET request to the PolicyController" should {

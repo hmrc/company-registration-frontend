@@ -18,39 +18,45 @@ package views
 
 import _root_.helpers.SCRSSpec
 import builders.AuthBuilder
-import controllers.reg.CompanyContactDetailsController
+import controllers.reg.{CompanyContactDetailsController, ControllerErrorHandler}
 import fixtures.{CompanyContactDetailsFixture, UserDetailsFixture}
 import models.Email
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.i18n.MessagesApi
 import play.api.libs.json.Json
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.Helpers._
 import services.MetricsService
-
+import views.html.reg.{CompanyContactDetails => CompanyContactDetailsView}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class CompanyContactDetailsSpec extends SCRSSpec with CompanyContactDetailsFixture with UserDetailsFixture with GuiceOneAppPerSuite
   with AuthBuilder {
+  lazy val mockControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
+  lazy val mockControllerErrorHandler = app.injector.instanceOf[ControllerErrorHandler]
+  lazy val mockCompanyContactDetailsView = app.injector.instanceOf[CompanyContactDetailsView]
 
   class Setup {
-    val controller = new CompanyContactDetailsController {
-      override lazy val controllerComponents = app.injector.instanceOf[MessagesControllerComponents]
-      override val authConnector = mockAuthConnector
-      override val s4LConnector = mockS4LConnector
-      override val companyContactDetailsService = mockCompanyContactDetailsService
-      override val metricsService = mock[MetricsService]
-      override val compRegConnector = mockCompanyRegistrationConnector
-      override val keystoreConnector = mockKeystoreConnector
-      override val appConfig = mockAppConfig
-      override lazy val messagesApi = app.injector.instanceOf[MessagesApi]
-      override val scrsFeatureSwitches = mockSCRSFeatureSwitches
-      override val ec = global
-    }
+    val controller = new CompanyContactDetailsController (
+      mockAuthConnector,
+      mockS4LConnector,
+      mock[MetricsService],
+      mockCompanyRegistrationConnector,
+      mockKeystoreConnector,
+      mockCompanyContactDetailsService,
+      mockSCRSFeatureSwitches,
+      mockControllerComponents,
+      mockControllerErrorHandler,
+      mockCompanyContactDetailsView
+    )
+    (
+      mockAppConfig,
+      global
+      )
+
 
     val ctDocFirstTimeThrough =
       Json.parse(

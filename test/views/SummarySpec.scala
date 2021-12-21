@@ -19,7 +19,7 @@ package views
 import _root_.helpers.SCRSSpec
 import builders.AuthBuilder
 import config.FrontendAppConfig
-import controllers.reg.SummaryController
+import controllers.reg.{ControllerErrorHandler, SummaryController}
 import fixtures.{AccountingDetailsFixture, CorporationTaxFixture, SCRSFixtures}
 import mocks.{NavModelRepoMock, TakeoverServiceMock}
 import models._
@@ -29,8 +29,10 @@ import org.mockito.Mockito._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.Helpers._
+import repositories.NavModelRepo
 import uk.gov.hmrc.http.HeaderCarrier
-import utils.JweCommon
+import utils.{JweCommon, SCRSFeatureSwitches}
+import views.html.reg.{Summary => SummaryView}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -41,7 +43,6 @@ class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixtu
   implicit val hcWithExtraHeaders: HeaderCarrier = HeaderCarrier().withExtraHeaders("Accept" -> "application/vnd.hmrc.1.0+json")
 
   val applicantData = AboutYouChoice("Director")
-  val mockNavModelRepoObj = mockNavModelRepo
   val testTakeoverDetails = TakeoverDetails(replacingAnotherBusiness = true)
   val testNoTakeoverDetails = TakeoverDetails(replacingAnotherBusiness = false)
   val testBusinessName = TakeoverDetails(replacingAnotherBusiness = true, businessName = Some("ABC Limited"))
@@ -57,22 +58,34 @@ class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixtu
   )
 
   val testRegiId = "12345"
+  lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
+  lazy val mockControllerErrorHandler = app.injector.instanceOf[ControllerErrorHandler]
+  lazy val mockFrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+  override lazy val mockSCRSFeatureSwitches = mock[SCRSFeatureSwitches]
+  lazy val mockSummaryView = app.injector.instanceOf[SummaryView]
+  lazy val mockNavModelRepoObj = app.injector.instanceOf[NavModelRepo]
+
 
   class SetupPage {
-    val controller = new SummaryController {
-      override lazy val controllerComponents = app.injector.instanceOf[MessagesControllerComponents]
-      override val ec = global
-      val authConnector = mockAuthConnector
-      val s4LConnector = mockS4LConnector
-      val compRegConnector = mockCompanyRegistrationConnector
-      val keystoreConnector = mockKeystoreConnector
-      val metaDataService = mockMetaDataService
-      val takeoverService = mockTakeoverService
-      val handOffService = mockHandOffService
-      val navModelMongo = mockNavModelRepoObj
-      override lazy val appConfig = app.injector.instanceOf[FrontendAppConfig]
-      lazy val jwe: JweCommon = app.injector.instanceOf[JweCommon]
-    }
+    val controller = new SummaryController (
+      mockAuthConnector,
+      mockS4LConnector,
+      mockCompanyRegistrationConnector,
+      mockKeystoreConnector,
+      mockMetaDataService,
+      mockTakeoverService,
+      mockHandOffService,
+      mockNavModelRepoObj,
+      mockSCRSFeatureSwitches,
+      mockJweCommon,
+      mockMcc,
+      mockControllerErrorHandler,
+      mockSummaryView
+    )
+    (
+      mockFrontendAppConfig,
+      global
+      )
   }
 
   "show" should {

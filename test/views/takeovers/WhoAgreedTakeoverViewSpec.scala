@@ -18,12 +18,13 @@ package views.takeovers
 
 import config.FrontendAppConfig
 import forms.takeovers.WhoAgreedTakeoverForm
+import helpers.UnitSpec
 import org.jsoup.Jsoup
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
-import uk.gov.hmrc.play.test.UnitSpec
+import views.html.takeovers.WhoAgreedTakeover
 
 class WhoAgreedTakeoverViewSpec extends UnitSpec with GuiceOneAppPerSuite with I18nSupport {
 
@@ -34,7 +35,8 @@ class WhoAgreedTakeoverViewSpec extends UnitSpec with GuiceOneAppPerSuite with I
 
   "OtherBusinessNameView" should {
     lazy val form = WhoAgreedTakeoverForm.form
-    lazy val view = views.html.takeovers.WhoAgreedTakeover(form, testPreviousOwnerName)
+    lazy val page = app.injector.instanceOf[WhoAgreedTakeover]
+    lazy val view = page(form, testPreviousOwnerName)
     lazy val doc = Jsoup.parse(view.body)
 
     lazy val title = s"Who agreed the takeover on behalf of $testPreviousOwnerName?"

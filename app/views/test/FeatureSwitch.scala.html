@@ -14,10 +14,12 @@
  * limitations under the License.
  *@
 
-@import controllers.reg.routes._
-@import uk.gov.hmrc.play.views.html.helpers.form
-@import views.html.helpers.inputRadioGroup
-@import config.FrontendAppConfig
+@import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
+@import uk.gov.hmrc.play.views.html.helpers.InputRadioGroup
+
+@this(main_template: main_template,
+        inputRadioGroup: InputRadioGroup,
+        formWithCsrf: FormWithCSRF)
 
 @(featureSwitchForm: Form[models.test.FeatureSwitch])(implicit request: Request[_], messages: Messages, appConfig: config.FrontendAppConfig)
 
@@ -28,13 +30,12 @@
         <h1 class="form-title heading-large" id="main-heading">Feature switch</h1>
 
 
-        @form(action = controllers.test.routes.TestEndpointController.updateFeatureSwitch()) {
+        @formWithCsrf(action = controllers.test.routes.TestEndpointController.updateFeatureSwitch()) {
 
             <h2>First hand off</h2>
             @inputRadioGroup(
                 featureSwitchForm("firstHandOff"),
                 Seq("true" -> "CoHo", "false" -> "Stub"),
-                isHeading = false,
                 '_labelClass -> "block-label radio-label",
                 '_groupClass -> "form-group inline"
             )
@@ -43,7 +44,6 @@
             @inputRadioGroup(
                 featureSwitchForm("legacyEnv"),
                 Seq("true" -> "DCD (Legacy)", "false" -> "AWS"),
-                isHeading = false,
                 '_labelClass -> "block-label radio-label",
                 '_groupClass -> "form-group inline"
             )
@@ -52,7 +52,6 @@
             @inputRadioGroup(
                 featureSwitchForm("takeovers"),
                 Seq("true" -> "Enabled", "false" -> "Disabled"),
-                isHeading = false,
                 '_labelClass -> "block-label radio-label",
                 '_groupClass -> "form-group inline"
             )

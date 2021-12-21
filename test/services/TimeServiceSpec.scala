@@ -16,9 +16,9 @@
 
 package services
 
+import helpers.UnitSpec
 import org.joda.time.{DateTime, LocalDate}
 import org.scalatestplus.mockito.MockitoSugar
-import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.time.workingdays.{BankHoliday, BankHolidaySet}
 
 class TimeServiceSpec extends UnitSpec with MockitoSugar {

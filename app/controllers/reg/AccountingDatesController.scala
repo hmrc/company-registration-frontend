@@ -20,35 +20,32 @@ import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthenticatedController
 import forms.AccountingDatesForm
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 import models.{AccountingDatesModel, AccountingDetailsNotFoundResponse, AccountingDetailsSuccessResponse}
 import play.api.i18n.I18nSupport
 import play.api.mvc.MessagesControllerComponents
 import services.{AccountingService, MetricsService, TimeService}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import utils.{SessionRegistration, SystemDate}
-import views.html.reg.AccountingDates
+import views.html.reg.{AccountingDates => AccountingDatesView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class AccountingDatesControllerImpl @Inject()(val authConnector: PlayAuthConnector,
-                                              val compRegConnector: CompanyRegistrationConnector,
-                                              val keystoreConnector: KeystoreConnector,
-                                              val appConfig: FrontendAppConfig,
-                                              val accountingService: AccountingService,
-                                              val metricsService: MetricsService,
-                                              val timeService: TimeService,
-                                              val ec: ExecutionContext,
-                                              val controllerComponents: MessagesControllerComponents) extends AccountingDatesController
+@Singleton
+class AccountingDatesController @Inject()(val authConnector: PlayAuthConnector,
+                                          val compRegConnector: CompanyRegistrationConnector,
+                                          val keystoreConnector: KeystoreConnector,
+                                          val accountingService: AccountingService,
+                                          val metricsService: MetricsService,
+                                          val timeService: TimeService,
+                                          val controllerComponents: MessagesControllerComponents,
+                                          val controllerErrorHandler: ControllerErrorHandler,
+                                          view: AccountingDatesView)
+                                         (implicit val appConfig: FrontendAppConfig, implicit val ec: ExecutionContext)
+  extends AuthenticatedController with SessionRegistration with I18nSupport {
 
-abstract class AccountingDatesController extends AuthenticatedController with ControllerErrorHandler with SessionRegistration with I18nSupport {
 
-  val accountingService: AccountingService
-  val metricsService: MetricsService
-  val timeService: TimeService
   lazy val accDForm = new AccountingDatesForm(timeService)
-
-  implicit val appConfig: FrontendAppConfig
   implicit lazy val bHS = timeService.bHS
 
   val show = Action.async { implicit request =>
@@ -56,7 +53,7 @@ abstract class AccountingDatesController extends AuthenticatedController with Co
       checkStatus { _ =>
         accountingService.fetchAccountingDetails.map {
           accountingDetails => {
-            Ok(AccountingDates(accDForm.form.fill(accountingDetails), timeService.futureWorkingDate(SystemDate.getSystemDate, 60)))
+            Ok(view(accDForm.form.fill(accountingDetails), timeService.futureWorkingDate(SystemDate.getSystemDate, 60)))
           }
         }
       }
@@ -67,7 +64,7 @@ abstract class AccountingDatesController extends AuthenticatedController with Co
     ctAuthorised {
       accDForm.form.bindFromRequest().fold(
         formWithErrors => {
-          Future.successful(BadRequest(AccountingDates(formWithErrors, timeService.futureWorkingDate(SystemDate.getSystemDate, 60))))
+          Future.successful(BadRequest(view(formWithErrors, timeService.futureWorkingDate(SystemDate.getSystemDate, 60))))
         }, {
           val context = metricsService.saveAccountingDatesToCRTimer.time()
           data => {
@@ -82,10 +79,10 @@ abstract class AccountingDatesController extends AuthenticatedController with Co
                 Redirect(routes.TradingDetailsController.show())
               case AccountingDetailsNotFoundResponse =>
                 context.stop()
-                NotFound(defaultErrorPage)
+                NotFound(controllerErrorHandler.defaultErrorPage)
               case _ =>
                 context.stop()
-                BadRequest(defaultErrorPage)
+                BadRequest(controllerErrorHandler.defaultErrorPage)
             }
           }
         }

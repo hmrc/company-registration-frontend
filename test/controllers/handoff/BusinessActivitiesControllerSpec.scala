@@ -18,6 +18,7 @@ package controllers.handoff
 
 import builders.AuthBuilder
 import config.FrontendAppConfig
+import controllers.reg.ControllerErrorHandler
 import fixtures.{LoginFixture, PayloadFixture}
 import helpers.SCRSSpec
 import org.mockito.ArgumentMatchers
@@ -30,30 +31,37 @@ import play.api.mvc.MessagesControllerComponents
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.{DecryptionError, JweCommon, PayloadError}
+import views.html.{error_template, error_template_restart}
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
 class BusinessActivitiesControllerSpec extends SCRSSpec with PayloadFixture with LoginFixture with GuiceOneAppPerSuite with AuthBuilder {
 
-  class Setup {
-    val controller = new BusinessActivitiesController {
-      override lazy val controllerComponents = app.injector.instanceOf[MessagesControllerComponents]
-      val authConnector = mockAuthConnector
-      val keystoreConnector = mockKeystoreConnector
-      val handOffService = mockHandOffService
-      val handBackService = mockHandBackService
-      override val compRegConnector = mockCompanyRegistrationConnector
-      implicit lazy val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
-      override lazy val messagesApi = app.injector.instanceOf[MessagesApi]
-      implicit val ec: ExecutionContext = global
-    }
-  }
+  lazy val errorTemplatePage = app.injector.instanceOf[error_template]
+  lazy val errorTemplateRestartPage = app.injector.instanceOf[error_template_restart]
+  lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
+  lazy val mockControllerErrorHandler = app.injector.instanceOf[ControllerErrorHandler]
+  lazy val mockFrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
 
+  class Setup {
+    val controller = new BusinessActivitiesController(
+      mockAuthConnector,
+      mockKeystoreConnector,
+      mockHandOffService,
+      mockCompanyRegistrationConnector,
+      mockHandBackService,
+      mockMcc,
+      mockControllerErrorHandler,
+      errorTemplatePage,
+      errorTemplateRestartPage
+    )(
+      mockFrontendAppConfig, global
+    )
   val jweInstance = () => app.injector.instanceOf[JweCommon]
   val externalID = Some("extID")
-
+}
   "BusinessActivitiesHandOff" should {
     "return a 303 if accessing without authorisation" in new Setup {
       showWithUnauthorisedUser(controller.businessActivities) {

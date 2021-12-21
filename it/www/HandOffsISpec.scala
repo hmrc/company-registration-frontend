@@ -82,9 +82,9 @@ class HandOffsISpec extends IntegrationSpecBase with LoginStub with HandOffFixtu
       stubKeystore(SessionId, regId, 404)
 
       When(s"A GET request is made to $url with a payload")
-      val response = buildClient(s"$url?request=$payload")
-        .withHeaders(HeaderNames.COOKIE -> getSessionCookie(userId = userId))
-        .get()
+      val response = await(buildClient(s"$url?request=$payload")
+        .withHttpHeaders(HeaderNames.COOKIE -> getSessionCookie(userId = userId))
+        .get())
 
       And("The request is redirected to /post-sign-in")
       response.status shouldBe 303
@@ -97,9 +97,9 @@ class HandOffsISpec extends IntegrationSpecBase with LoginStub with HandOffFixtu
 
 
       Then(s"The request is redirected back to $url with the payload as a query string")
-      val responseBack = followRequest(redirect)
-        .withHeaders(HeaderNames.COOKIE -> getSessionCookie(userId = userId))
-        .get()
+      val responseBack = await(followRequest(redirect)
+        .withHttpHeaders(HeaderNames.COOKIE -> getSessionCookie(userId = userId))
+        .get())
 
       responseBack.status shouldBe 303
       responseBack.header(HeaderNames.LOCATION).get shouldBe s"http://localhost:9970/register-your-company$url?request=$payload"

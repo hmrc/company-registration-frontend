@@ -14,16 +14,24 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.play.views.html.helpers.form
-@import helpers.{oneOfManyErrorWrapper, inputRadioGroupHidden, errorSummary}
-@import models.Groups
-@import uk.gov.hmrc.play.views.html.{helpers => govHelpers}
 @import views.helpers.TitleHelper.title
+@import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
+@import views.html.helpers.input
+@import views.html.helpers.errorSummary
+@import views.html.helpers.inputRadioGroupHidden
+
+
+
+@this(main_template: main_template,
+        errorSummary: errorSummary,
+        inputRadioGroupHidden: inputRadioGroupHidden,
+        Input: input,
+        formWithCsrf: FormWithCSRF)
 
 @(shareholdersForm: Form[GroupCompanyName], optionCompanyName: Option[GroupCompanyName], shareholderNames: List[String])(implicit request: Request[_], messages: Messages, appConfig: config.FrontendAppConfig)
 
 @otherHidden = {
-@govHelpers.input(
+@Input(
     shareholdersForm("otherName"),
     '_inputClass -> "form-control-1-2",
     '_labelClass -> "form-label cascading",
@@ -40,7 +48,7 @@
         shareholdersForm, dataJourney = Some("GroupCompanyName")
     )
 
-    @form(action = controllers.groups.routes.GroupNameController.submit()) {
+    @formWithCsrf(action = controllers.groups.routes.GroupNameController.submit()) {
         <div class="form-group">
         @inputRadioGroupHidden(
                 shareholdersForm("groupName"),

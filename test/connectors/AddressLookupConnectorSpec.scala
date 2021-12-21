@@ -22,6 +22,7 @@ import org.mockito.Mockito._
 import play.api.libs.json.{JsObject, Json}
 import uk.gov.hmrc.http.{ForbiddenException, HeaderCarrier, NotFoundException}
 
+
 import scala.concurrent.{ExecutionContext, Future}
 
 class AddressLookupConnectorSpec extends SCRSSpec {
@@ -45,7 +46,7 @@ class AddressLookupConnectorSpec extends SCRSSpec {
     "return an address response" in new Setup {
       mockHttpGet[JsObject]("testUrl", testAddress)
 
-      await(await(connector.getAddress("123"))) shouldBe testAddress
+      await(connector.getAddress("123")) shouldBe testAddress
     }
     "return a Not found response" in new Setup {
       when(mockWSHttp.GET[JsObject](ArgumentMatchers.anyString(),ArgumentMatchers.any(),ArgumentMatchers.any())

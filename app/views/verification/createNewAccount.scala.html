@@ -14,9 +14,13 @@
  * limitations under the License.
  *@
 
+@import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
+
+@this(main_template: main_template,
+        formWithCsrf: FormWithCSRF)
+
 @()(implicit request: Request[_], messages: Messages, appConfig: config.FrontendAppConfig)
 
-@import uk.gov.hmrc.play.views.html.helpers.form
 
 @main_template(title = Messages("page.verification.create-new-account.title"), mainClass = None) {
 
@@ -30,7 +34,7 @@
         <div class="form-group">
             <p id="description-two">@Messages("page.verification.create-new-account.description.two")</p>
         </div>
-        @form(action = controllers.verification.routes.EmailVerificationController.createSubmit()) {
+        @formWithCsrf(action = controllers.verification.routes.EmailVerificationController.createSubmit()) {
         <div class="form-group">
             <input class="button button--link" type="submit" value="@Messages("page.verification.create-new-account.bottomLink")">
         </div>

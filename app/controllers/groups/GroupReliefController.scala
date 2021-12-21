@@ -37,9 +37,11 @@ class GroupReliefController @Inject()(val authConnector: PlayAuthConnector,
                                       val groupService: GroupService,
                                       val compRegConnector: CompanyRegistrationConnector,
                                       val keystoreConnector: KeystoreConnector,
-                                      val controllerComponents: MessagesControllerComponents
+                                      val controllerComponents: MessagesControllerComponents,
+                                      val controllerErrorHandler: ControllerErrorHandler,
+                                      view: GroupReliefView
                                      )(implicit val appConfig: FrontendAppConfig)
-  extends AuthenticatedController with ControllerErrorHandler with SessionRegistration with I18nSupport {
+  extends AuthenticatedController with SessionRegistration with I18nSupport {
 
   implicit val ec: ExecutionContext = controllerComponents.executionContext
 
@@ -51,7 +53,7 @@ class GroupReliefController @Inject()(val authConnector: PlayAuthConnector,
           companyName <- compRegConnector.fetchCompanyName(regID)
         } yield {
           val form: Form[Boolean] = groups.fold(GroupReliefForm.form)(grps => GroupReliefForm.form.fill(grps.groupRelief))
-          Ok(GroupReliefView(form, companyName))
+          Ok(view(form, companyName))
         }
       }
     }
@@ -63,7 +65,7 @@ class GroupReliefController @Inject()(val authConnector: PlayAuthConnector,
         GroupReliefForm.form.bindFromRequest.fold(
           errors =>
             compRegConnector.fetchCompanyName(regID).map { cName =>
-              BadRequest(GroupReliefView(errors, cName))
+              BadRequest(view(errors, cName))
             },
           relief => {
             groupService.updateGroupRelief(relief, regID).map { _ =>

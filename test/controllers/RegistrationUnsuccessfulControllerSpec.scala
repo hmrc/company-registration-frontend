@@ -23,31 +23,38 @@ import helpers.SCRSSpec
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.i18n.MessagesApi
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
+import views.html.reg.{RegistrationUnsuccessful => RegistrationUnsuccessfulView}
+import views.html.errors.{incorporationRejected => IncorporationRejectedView}
 
 class RegistrationUnsuccessfulControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
+  lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
+  lazy val mockFrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+  lazy val mockRegistrationUnsuccessfulView = app.injector.instanceOf[RegistrationUnsuccessfulView]
+  lazy val mockIncorporationRejectedView = app.injector.instanceOf[IncorporationRejectedView]
+
+  lazy val registerCompanyGOVUKLink: String = "https://www.gov.uk/limited-company-formation/register-your-company"
 
   class Setup {
-    val controller = new RegistrationUnsuccessfulController {
-      override val controllerComponents = app.injector.instanceOf[MessagesControllerComponents]
-      override val keystoreConnector = mockKeystoreConnector
-      override val authConnector = mockAuthConnector
-      override val deleteSubService = mockDeleteSubmissionService
-      override val compRegConnector = mockCompanyRegistrationConnector
-      implicit val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
-      override val registerCompanyGOVUKLink: String = "foobar"
-      override val messagesApi = app.injector.instanceOf[MessagesApi]
-      implicit val ec: ExecutionContext = global
-    }
-  }
 
+    val controller = new RegistrationUnsuccessfulController (
+      mockAuthConnector,
+      mockKeystoreConnector,
+      mockCompanyRegistrationConnector,
+      mockDeleteSubmissionService,
+      mockMcc,
+      mockRegistrationUnsuccessfulView,
+      mockIncorporationRejectedView
+    )(
+      mockFrontendAppConfig,
+      global
+    )
+  }
   "show" should {
     "return a 200 when the address type is RO" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
@@ -96,7 +103,7 @@ class RegistrationUnsuccessfulControllerSpec extends SCRSSpec with GuiceOneAppPe
       submitWithAuthorisedUser(controller.rejectionSubmit, FakeRequest().withFormUrlEncodedBody(Nil: _*)) {
         result =>
           status(result) shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe Some("foobar")
+          redirectLocation(result) shouldBe Some(registerCompanyGOVUKLink)
       }
     }
     "return a 500 if delete submission returns false" in new Setup {

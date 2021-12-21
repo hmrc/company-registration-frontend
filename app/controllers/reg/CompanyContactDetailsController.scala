@@ -20,37 +20,30 @@ import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector, S4LConnector}
 import controllers.auth.AuthenticatedController
 import forms.CompanyContactForm
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 import models.{CompanyContactDetailsBadRequestResponse, CompanyContactDetailsForbiddenResponse, CompanyContactDetailsNotFoundResponse, CompanyContactDetailsSuccessResponse}
 import play.api.i18n.I18nSupport
 import play.api.mvc.MessagesControllerComponents
 import services.{CompanyContactDetailsService, MetricsService}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import utils.{SCRSFeatureSwitches, SessionRegistration}
-import views.html.reg.CompanyContactDetails
+import views.html.reg.{CompanyContactDetails => CompanyContactDetailsView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class CompanyContactDetailsControllerImpl @Inject()(val authConnector: PlayAuthConnector,
-                                                    val s4LConnector: S4LConnector,
-                                                    val metricsService: MetricsService,
-                                                    val compRegConnector: CompanyRegistrationConnector,
-                                                    val keystoreConnector: KeystoreConnector,
-                                                    val appConfig: FrontendAppConfig,
-                                                    val companyContactDetailsService: CompanyContactDetailsService,
-                                                    val scrsFeatureSwitches: SCRSFeatureSwitches,
-                                                    val controllerComponents: MessagesControllerComponents)
-                                                   (implicit val ec: ExecutionContext) extends CompanyContactDetailsController
+@Singleton
+class CompanyContactDetailsController @Inject()(val authConnector: PlayAuthConnector,
+                                                val s4LConnector: S4LConnector,
+                                                val metricsService: MetricsService,
+                                                val compRegConnector: CompanyRegistrationConnector,
+                                                val keystoreConnector: KeystoreConnector,
+                                                val companyContactDetailsService: CompanyContactDetailsService,
+                                                val scrsFeatureSwitches: SCRSFeatureSwitches,
+                                                val controllerComponents: MessagesControllerComponents,
+                                                val controllerErrorHandler: ControllerErrorHandler,
+                                                view: CompanyContactDetailsView)
+                                               (implicit val appConfig: FrontendAppConfig, implicit val ec: ExecutionContext) extends AuthenticatedController with SessionRegistration with I18nSupport {
 
-abstract class CompanyContactDetailsController extends AuthenticatedController with ControllerErrorHandler with SessionRegistration with I18nSupport {
-
-  val s4LConnector: S4LConnector
-  val companyContactDetailsService: CompanyContactDetailsService
-  val compRegConnector: CompanyRegistrationConnector
-  val metricsService: MetricsService
-  val scrsFeatureSwitches: SCRSFeatureSwitches
-
-  implicit val appConfig: FrontendAppConfig
 
   val show = Action.async {
     implicit request =>
@@ -59,7 +52,7 @@ abstract class CompanyContactDetailsController extends AuthenticatedController w
           for {
             contactDetails <- companyContactDetailsService.fetchContactDetails
             companyName <- compRegConnector.fetchCompanyName(regId)
-          } yield Ok(CompanyContactDetails(CompanyContactForm.form.fill(contactDetails), companyName))
+          } yield Ok(view(CompanyContactForm.form.fill(contactDetails), companyName))
         }
       }
   }
@@ -70,7 +63,7 @@ abstract class CompanyContactDetailsController extends AuthenticatedController w
         registered { regId =>
           CompanyContactForm.form.bindFromRequest().fold(
             hasErrors =>
-              compRegConnector.fetchCompanyName(regId).map(cName => BadRequest(CompanyContactDetails(hasErrors, cName))),
+              compRegConnector.fetchCompanyName(regId).map(cName => BadRequest(view(hasErrors, cName))),
             data => {
               val context = metricsService.saveContactDetailsToCRTimer.time()
               companyContactDetailsService.updateContactDetails(data) flatMap {
@@ -86,10 +79,10 @@ abstract class CompanyContactDetailsController extends AuthenticatedController w
                       }
                     }
                   }
-                case CompanyContactDetailsNotFoundResponse => Future.successful(NotFound(defaultErrorPage))
-                case CompanyContactDetailsBadRequestResponse => Future.successful(BadRequest(defaultErrorPage))
-                case CompanyContactDetailsForbiddenResponse => Future.successful(Forbidden(defaultErrorPage))
-                case _ => Future.successful(InternalServerError(defaultErrorPage))
+                case CompanyContactDetailsNotFoundResponse => Future.successful(NotFound(controllerErrorHandler.defaultErrorPage))
+                case CompanyContactDetailsBadRequestResponse => Future.successful(BadRequest(controllerErrorHandler.defaultErrorPage))
+                case CompanyContactDetailsForbiddenResponse => Future.successful(Forbidden(controllerErrorHandler.defaultErrorPage))
+                case _ => Future.successful(InternalServerError(controllerErrorHandler.defaultErrorPage))
               }
             }
           )

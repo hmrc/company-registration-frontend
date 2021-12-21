@@ -16,11 +16,26 @@
 
 @import uk.gov.hmrc.http.SessionKeys
 @import layouts.{govuk_template => hmrcGovUkTemplate}
-@import uk.gov.hmrc.play.views.html.{layouts => uiLayouts}
-@import uk.gov.hmrc.play.views.html.{helpers => uiHelpers}
+
+
+
+
+@import uk.gov.hmrc.play.views.html.layouts._
+
+
+@import layouts.GovUkTemplate
 @import views.html.helpers._
 @import utils.SCRSFeatureSwitches
 @import controllers.reg.routes.SignInOutController
+
+@this(mainContentHeader: MainContentHeader,
+      headAndTrackingConsent: HeadWithTrackingConsent,
+      headerNav: HeaderNav,
+      footerLayout: Footer,
+      govUkTemplate: GovUkTemplate,
+      mainContentLayout: MainContent,
+      footerLinksLayout: FooterLinks)
+
 
 @(appConfig: config.FrontendAppConfig,
   title: String,
@@ -35,7 +50,7 @@
   timeout: Boolean = false)(implicit request: Request[_], messages: Messages)
 
 @head = {
-    @uiLayouts.headWithTrackingConsent(
+    @headAndTrackingConsent(
       linkElem = None,
       headScripts = None)
     <meta name="format-detection" content="telephone=no" />
@@ -60,7 +75,7 @@
 }
 
 @insideHeader = {
-    @uiLayouts.header_nav(
+    @headerNav(
       navTitle = Some(messages("common.service.name")),
       navTitleLink = None,
       showBetaLink = false,
@@ -89,7 +104,7 @@
 }
 
 @bodyEnd = {
-    @uiLayouts.footer(
+    @footerLayout(
       analyticsToken = None,
       analyticsHost = "",
       ssoUrl = None,
@@ -128,7 +143,7 @@
 @gethelpForm = {<div class="report-error"><a href="https://www.tax.service.gov.uk/contact/report-technical-problem?service=SCRS">@Messages("report.a.problem.link")</a></div>}
 
 @content = {
-    @uiLayouts.main_content(
+    @mainContentLayout(
       article = mainContent,
       mainClass = mainClass,
       mainDataAttributes = mainDataAttributes,
@@ -138,4 +153,4 @@
       sidebar = sidebar)
 }
 
-@hmrcGovUkTemplate(Some(title), bodyClasses)(head, bodyEnd, insideHeader, afterHeader, footerTop, Some(footerLinks), true)(content)
+@govUkTemplate(Some(title), bodyClasses)(head, bodyEnd, insideHeader, afterHeader, footerTop, Some(footerLinks), true)(content)

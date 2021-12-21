@@ -19,6 +19,7 @@ package controllers.takeovers
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import builders.AuthBuilder
+import controllers.reg.ControllerErrorHandler
 import fixtures.{AccountingDatesFixture, AccountingDetailsFixture, LoginFixture}
 import forms.takeovers.ReplacingAnotherBusinessForm
 import forms.takeovers.ReplacingAnotherBusinessForm.replacingAnotherBusinessKey
@@ -46,6 +47,10 @@ class ReplacingAnotherBusinessControllerSpec extends SCRSSpec with GuiceOneAppPe
     implicit val request: Request[AnyContent] = FakeRequest()
     implicit val actorSystem: ActorSystem = ActorSystem("MyTest")
     implicit val actorMaterializer: ActorMaterializer = ActorMaterializer()
+    val page = app.injector.instanceOf[ReplacingAnotherBusiness]
+    val mockControllerErrorHandler = app.injector.instanceOf[ControllerErrorHandler]
+
+
 
 
     object TestReplacingAnotherBusinessController extends ReplacingAnotherBusinessController(
@@ -54,7 +59,9 @@ class ReplacingAnotherBusinessControllerSpec extends SCRSSpec with GuiceOneAppPe
       mockCompanyRegistrationConnector,
       mockKeystoreConnector,
       mockSCRSFeatureSwitches,
-      mockMcc
+      mockMcc,
+      mockControllerErrorHandler,
+      page
     )
 
   }
@@ -72,7 +79,7 @@ class ReplacingAnotherBusinessControllerSpec extends SCRSSpec with GuiceOneAppPe
           val res: Result = await(TestReplacingAnotherBusinessController.show()(request))
 
           status(res) shouldBe OK
-          bodyOf(res) shouldBe ReplacingAnotherBusiness(ReplacingAnotherBusinessForm.form).body
+          bodyOf(res) shouldBe page(ReplacingAnotherBusinessForm.form).body
 
         }
       }
@@ -90,7 +97,7 @@ class ReplacingAnotherBusinessControllerSpec extends SCRSSpec with GuiceOneAppPe
           val res: Result = await(TestReplacingAnotherBusinessController.show()(request))
 
           status(res) shouldBe OK
-          bodyOf(res) shouldBe ReplacingAnotherBusiness(ReplacingAnotherBusinessForm.form.fill(testTakeoverDetails.replacingAnotherBusiness)).body
+          bodyOf(res) shouldBe page(ReplacingAnotherBusinessForm.form.fill(testTakeoverDetails.replacingAnotherBusiness)).body
 
         }
       }

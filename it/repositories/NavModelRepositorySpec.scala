@@ -17,15 +17,15 @@
 package repositories
 
 import fixtures.HandOffFixtures
+import itutil.IntegrationSpecBase
 import org.scalatest.concurrent.{Eventually, ScalaFutures}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.modules.reactivemongo.ReactiveMongoComponent
 import reactivemongo.api.indexes.{Index, IndexType}
-import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class NavModelRepositorySpec extends UnitSpec with GuiceOneAppPerSuite with ScalaFutures with Eventually with HandOffFixtures {
+class NavModelRepositorySpec extends IntegrationSpecBase with ScalaFutures with Eventually with HandOffFixtures {
 
   class Setup {
     val rc = app.injector.instanceOf[ReactiveMongoComponent]

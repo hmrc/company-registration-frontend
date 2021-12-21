@@ -33,7 +33,7 @@ lazy val microservice = Project(appName, file("."))
   .settings(defaultSettings(): _*)
   .settings(
     libraryDependencies ++= appDependencies,
-    fork in Test := true,
+    fork in Test := false,
     retrieveManaged := true,
     routesImport ++= Seq("uk.gov.hmrc.play.binders._"),
     scalaVersion := "2.12.12",

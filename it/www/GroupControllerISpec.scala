@@ -382,10 +382,10 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
       stubGet(s"/company-registration/corporation-tax-registration/$regId/groups", 200, expected)
       stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR)
 
-      val fResponse = buildClient(controllers.groups.routes.GroupReliefController.show().url).
-        withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
-        .get()
-      val doc = Jsoup.parse(await(fResponse.body))
+      val fResponse = await(buildClient(controllers.groups.routes.GroupReliefController.show().url).
+        withHttpHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
+        .get())
+      val doc = Jsoup.parse(fResponse.body)
       doc.getElementById("groupRelief-true").attr("checked") shouldBe "checked"
     }
   }
@@ -428,10 +428,10 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
            |    }""".stripMargin)
       stubPost(s"/company-registration/corporation-tax-registration/check-list-of-group-names", 200, """["wizz", "bar ", "bar"]""")
 
-      val fResponse = buildClient(controllers.groups.routes.GroupNameController.show().url).
-        withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
-        .get()
-      val doc = Jsoup.parse(await(fResponse.body))
+      val fResponse = await(buildClient(controllers.groups.routes.GroupNameController.show().url).
+        withHttpHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
+        .get())
+      val doc = Jsoup.parse(fResponse.body)
 
       doc.getElementById("groupName-othername").attr("checked") shouldBe "checked"
       doc.getElementById("otherName").`val` shouldBe "foo"
@@ -466,10 +466,10 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
            |    }""".stripMargin)
       stubPost(s"/company-registration/corporation-tax-registration/check-list-of-group-names", 200, """["Foo Bar", "bar"]""")
 
-      val fResponse = buildClient(controllers.groups.routes.GroupNameController.show().url).
-        withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
-        .get()
-      val doc = Jsoup.parse(await(fResponse.body))
+      val fResponse = await(buildClient(controllers.groups.routes.GroupNameController.show().url).
+        withHttpHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
+        .get())
+      val doc = Jsoup.parse(fResponse.body)
       doc.getElementById("groupName-othername").attr("checked") shouldBe ""
       doc.getElementById("otherName").`val` shouldBe ""
       doc.getElementById("otherName-hidden").attr("style") shouldBe ""
@@ -503,10 +503,10 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
            |    }""".stripMargin)
       stubPost(s"/company-registration/corporation-tax-registration/check-list-of-group-names", 200, """["Foo Bar", "bar"]""")
 
-      val fResponse = buildClient(controllers.groups.routes.GroupNameController.show().url).
-        withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
-        .get()
-      val doc = Jsoup.parse(await(fResponse.body))
+      val fResponse = await(buildClient(controllers.groups.routes.GroupNameController.show().url).
+        withHttpHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
+        .get())
+      val doc = Jsoup.parse(fResponse.body)
 
       doc.getElementById("groupName-othername").attr("checked") shouldBe ""
       doc.getElementById("otherName").`val` shouldBe ""
@@ -550,13 +550,12 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
           |   }
           |}""".stripMargin)
       stubGet(s"/company-registration/corporation-tax-registration/$regId/groups", 200, jsonToBeParsed.toString)
-      val fResponse = buildClient(controllers.groups.routes.GroupAddressController.show().url).
-        withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
-        .get()
-      val doc = Jsoup.parse(await(fResponse.body))
+      val fResponse = await(buildClient(controllers.groups.routes.GroupAddressController.show().url).
+        withHttpHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
+        .get())
+      val doc = Jsoup.parse(fResponse.body)
       doc.getElementById("groupAddress-alf").`val` shouldBe "ALF"
-      val label = await(doc.getElementsByTag("label")
-        .filter { e: Elements => !e.attr("for", "groupAddress-alf").isEmpty }).first()
+      val label = doc.getElementsByTag("label").first()
       label.text shouldBe "1 abc, 2 abc, 3 abc, 4 abc, ZZ1 1ZZ, country A"
     }
   }
@@ -752,11 +751,11 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
           |}""".stripMargin)
 
       stubGet(s"/company-registration/corporation-tax-registration/$regId/groups", 200, jsonToBeParsed.toString)
-      val fResponse = buildClient(controllers.groups.routes.GroupUtrController.show().url).
-        withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
-        .get()
+      val fResponse = await(buildClient(controllers.groups.routes.GroupUtrController.show().url).
+        withHttpHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
+        .get())
 
-      val doc = Jsoup.parse(await(fResponse.body))
+      val doc = Jsoup.parse(fResponse.body)
       doc.getElementById("groupUtr-utr").`val` shouldBe "utr"
       doc.getElementById("utr").`val` shouldBe "1234567890"
       doc.getElementById("groupUtr-utr").attr("checked") shouldBe "checked"

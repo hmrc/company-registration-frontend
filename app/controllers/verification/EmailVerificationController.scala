@@ -19,7 +19,7 @@ package controllers.verification
 import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthenticatedController
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import services.EmailVerificationService
@@ -27,30 +27,24 @@ import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.play.binders.ContinueUrl
 import utils.SessionRegistration
 import views.html.verification.{CreateGGWAccount, CreateNewGGWAccount, createNewAccount, verifyYourEmail}
-
 import scala.concurrent.{ExecutionContext, Future}
 
-class EmailVerificationControllerImpl @Inject()(val authConnector: PlayAuthConnector,
-                                                val keystoreConnector: KeystoreConnector,
-                                                val emailVerificationService: EmailVerificationService,
-                                                val compRegConnector: CompanyRegistrationConnector,
-                                                val appConfig: FrontendAppConfig,
-                                                val ec: ExecutionContext,
-                                                val controllerComponents: MessagesControllerComponents) extends EmailVerificationController {
+@Singleton
+class EmailVerificationController @Inject()(val authConnector: PlayAuthConnector,
+                                            val keystoreConnector: KeystoreConnector,
+                                            val emailVerificationService: EmailVerificationService,
+                                            val compRegConnector: CompanyRegistrationConnector,
+                                            val controllerComponents: MessagesControllerComponents,
+                                            verifyYourEmail: verifyYourEmail,
+                                            CreateGGWAccount: CreateGGWAccount,
+                                            CreateNewGGWAccount: CreateNewGGWAccount,
+                                            createNewAccount: createNewAccount
+                                           )(implicit val appConfig: FrontendAppConfig,
+                                             implicit val ec: ExecutionContext) extends AuthenticatedController with SessionRegistration with I18nSupport {
+
   lazy val createGGWAccountUrl = appConfig.servicesConfig.getConfString("gg-reg-fe.url", throw new Exception("Could not find config for gg-reg-fe url"))
   lazy val callbackUrl = appConfig.servicesConfig.getConfString("auth.login-callback.url", throw new Exception("Could not find config for callback url"))
   lazy val frontEndUrl = appConfig.self
-
-}
-
-abstract class EmailVerificationController extends AuthenticatedController with SessionRegistration with I18nSupport {
-
-  implicit val appConfig: FrontendAppConfig
-  val keystoreConnector: KeystoreConnector
-  val createGGWAccountUrl: String
-  val callbackUrl: String
-  val frontEndUrl: String
-  val emailVerificationService: EmailVerificationService
 
   val verifyShow: Action[AnyContent] = Action.async {
     implicit request =>

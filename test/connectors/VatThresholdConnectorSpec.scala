@@ -18,7 +18,7 @@ package connectors
 
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.spi.ILoggingEvent
-import helpers.SCRSSpec
+import helpers.{LogCapturing, SCRSSpec, UnitSpec}
 import org.joda.time.LocalDate
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
@@ -29,7 +29,6 @@ import play.api.Logger
 import play.api.http.Status._
 import play.api.libs.json.{JsNull, Json}
 import uk.gov.hmrc.http._
-import uk.gov.hmrc.play.test.{LogCapturing, UnitSpec}
 
 import scala.concurrent.{ExecutionContext, Future}
 

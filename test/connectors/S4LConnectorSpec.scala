@@ -16,6 +16,7 @@
 
 package connectors
 
+import helpers.UnitSpec
 import models.AccountingDatesModel
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
@@ -26,7 +27,6 @@ import play.api.libs.json.Json
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.cache.client.{CacheMap, ShortLivedCache}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import uk.gov.hmrc.play.test.UnitSpec
 
 import scala.concurrent.Future
 

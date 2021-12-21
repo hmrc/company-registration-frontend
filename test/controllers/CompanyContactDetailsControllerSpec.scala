@@ -18,7 +18,7 @@ package controllers
 
 import builders.AuthBuilder
 import config.FrontendAppConfig
-import controllers.reg.CompanyContactDetailsController
+import controllers.reg.{CompanyContactDetailsController, ControllerErrorHandler}
 import fixtures.{CompanyContactDetailsFixture, UserDetailsFixture}
 import helpers.SCRSSpec
 import mocks.MetricServiceMock
@@ -26,33 +26,40 @@ import models.CompanyContactDetailsSuccessResponse
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.i18n.MessagesApi
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services.MetricsService
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name, ~}
-
+import views.html.reg.{CompanyContactDetails => CompanyContactDetailsView}
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class CompanyContactDetailsControllerSpec extends SCRSSpec with UserDetailsFixture with CompanyContactDetailsFixture
   with GuiceOneAppPerSuite with AuthBuilder {
 
+  lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
+  lazy val mockFrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+  lazy val mockControllerErrorHandler = app.injector.instanceOf[ControllerErrorHandler]
+  lazy val mockCompanyContactDetailsView = app.injector.instanceOf[CompanyContactDetailsView]
+
+
   class Setup {
-    val controller = new CompanyContactDetailsController {
-      override lazy val controllerComponents = app.injector.instanceOf[MessagesControllerComponents]
-      override val authConnector = mockAuthConnector
-      override val s4LConnector = mockS4LConnector
-      override val companyContactDetailsService = mockCompanyContactDetailsService
-      override val metricsService: MetricsService = MetricServiceMock
-      override val compRegConnector = mockCompanyRegistrationConnector
-      override val keystoreConnector = mockKeystoreConnector
-      implicit lazy val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
-      override lazy val messagesApi = app.injector.instanceOf[MessagesApi]
-      override val scrsFeatureSwitches = mockSCRSFeatureSwitches
-      implicit val ec: ExecutionContext = global
-    }
+    val controller = new CompanyContactDetailsController (
+      mockAuthConnector,
+      mockS4LConnector,
+      MetricServiceMock,
+      mockCompanyRegistrationConnector,
+      mockKeystoreConnector,
+      mockCompanyContactDetailsService,
+      mockSCRSFeatureSwitches,
+      mockMcc,
+      mockControllerErrorHandler,
+      mockCompanyContactDetailsView
+    )
+    (
+      mockFrontendAppConfig,
+      global
+    )
   }
 
   val authDetails = new ~(

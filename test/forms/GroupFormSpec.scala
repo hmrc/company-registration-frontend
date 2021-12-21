@@ -16,9 +16,9 @@
 
 package forms
 
+import helpers.UnitSpec
 import models.{GroupCompanyName, GroupUTR}
 import play.api.data.Form
-import uk.gov.hmrc.play.test.UnitSpec
 
 class GroupFormSpec extends UnitSpec  {
 

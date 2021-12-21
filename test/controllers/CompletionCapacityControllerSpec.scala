@@ -19,7 +19,7 @@ package controllers
 import builders.AuthBuilder
 import config.FrontendAppConfig
 import connectors.{BusinessRegistrationConnector, BusinessRegistrationSuccessResponse}
-import controllers.reg.CompletionCapacityController
+import controllers.reg.{CompletionCapacityController, ControllerErrorHandler}
 import fixtures.BusinessRegistrationFixture
 import helpers.SCRSSpec
 import mocks.MetricServiceMock
@@ -28,33 +28,36 @@ import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.i18n.MessagesApi
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services.MetricsService
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads}
-
+import views.html.reg.{CompletionCapacity => CompletionCapacityView}
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class CompletionCapacityControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with MockitoSugar with BusinessRegistrationFixture with AuthBuilder {
 
-  val mockBusinessRegConnector = mock[BusinessRegistrationConnector]
+  lazy val mockBusinessRegConnector = mock[BusinessRegistrationConnector]
+  lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
+  lazy val mockFrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+  lazy val mockControllerErrorHandler = app.injector.instanceOf[ControllerErrorHandler]
+  lazy val mockCompletionCapacityView = app.injector.instanceOf[CompletionCapacityView]
 
   class Setup {
-    val controller = new CompletionCapacityController {
-      override val controllerComponents = app.injector.instanceOf[MessagesControllerComponents]
-      val authConnector = mockAuthConnector
-      val keystoreConnector = mockKeystoreConnector
-      val businessRegConnector = mockBusinessRegConnector
-      val metaDataService = mockMetaDataService
-      override val compRegConnector = mockCompanyRegistrationConnector
-      override val metricsService: MetricsService = MetricServiceMock
-      implicit val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
-      override val messagesApi = app.injector.instanceOf[MessagesApi]
-      implicit val ec: ExecutionContext = global
-    }
+    val controller = new CompletionCapacityController(
+
+      mockAuthConnector,
+      mockKeystoreConnector,
+      mockBusinessRegConnector,
+      MetricServiceMock,
+      mockMetaDataService,
+      mockCompanyRegistrationConnector,
+      mockMcc,
+      mockCompletionCapacityView
+    )(
+      global,mockFrontendAppConfig
+    )
 
   }
 

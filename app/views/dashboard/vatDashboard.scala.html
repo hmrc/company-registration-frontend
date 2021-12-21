@@ -14,6 +14,12 @@
  * limitations under the License.
  *@
 
+@import views.html.dashboard.displayRegistrationStatus
+@import views.html.dashboard.displayRegistrationActions
+
+@this(displayRegistrationStatus: displayRegistrationStatus,
+        displayRegistrationActions: displayRegistrationActions)
+
 @(vatDash: ServiceDashboard, vatFeatureFlag: Boolean)(implicit request: Request[_], messages: Messages)
 @import models.external.Statuses._
 

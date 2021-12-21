@@ -16,9 +16,9 @@
 
 package models.handoff
 
+import helpers.UnitSpec
 import models.{Address, PPOB}
 import play.api.libs.json.{JsObject, Json}
-import uk.gov.hmrc.play.test.UnitSpec
 
 class BusinessActivitiesModelSpec extends UnitSpec {
 

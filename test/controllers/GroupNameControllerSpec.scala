@@ -19,9 +19,10 @@ package controllers
 import builders.AuthBuilder
 import config.FrontendAppConfig
 import controllers.groups.GroupNameController
+import controllers.reg.ControllerErrorHandler
 import helpers.SCRSSpec
 import models.{Email, NewAddress, _}
-import org.mockito.{ArgumentMatchers, Matchers}
+import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
@@ -31,13 +32,16 @@ import play.api.mvc.{AnyContentAsEmpty, MessagesControllerComponents}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.HeaderCarrier
-
+import views.html.groups.GroupNameView
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class GroupNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with MockitoSugar with AuthBuilder {
 
-  implicit val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
-  val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
+  lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
+  lazy val mockFrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+  lazy val mockControllerErrorHandler = app.injector.instanceOf[ControllerErrorHandler]
+  lazy val mockGroupNameView = app.injector.instanceOf[GroupNameView]
 
   class Setup {
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
@@ -46,7 +50,11 @@ class GroupNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Moc
       mockGroupService,
       mockCompanyRegistrationConnector,
       mockKeystoreConnector,
-      mockMcc
+      mockMcc,
+      mockGroupNameView
+    )(
+      mockFrontendAppConfig,
+      global
     )
 
     def cTDoc(status: String, groupBlock: String): JsValue = Json.parse(

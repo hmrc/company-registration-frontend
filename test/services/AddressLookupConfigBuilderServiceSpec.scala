@@ -16,12 +16,12 @@
 
 package services
 
+import helpers.UnitSpec
 import mocks.AppConfigMock
 import models._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.{Messages, MessagesApi, MessagesProvider}
 import play.api.mvc.Call
-import uk.gov.hmrc.play.test.UnitSpec
 
 class AddressLookupConfigBuilderServiceSpec()(implicit messagesProvider: MessagesProvider) extends UnitSpec with GuiceOneAppPerSuite with AppConfigMock {
 

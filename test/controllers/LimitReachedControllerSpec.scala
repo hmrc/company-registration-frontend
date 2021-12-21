@@ -18,27 +18,33 @@ package controllers
 
 import builders.AuthBuilder
 import config.FrontendAppConfig
-import controllers.reg.LimitReachedController
-import helpers.SCRSSpec
+import controllers.reg.{ControllerErrorHandler, LimitReachedController}
+import helpers.{SCRSSpec, UnitSpec}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.play.test.UnitSpec
-
-import scala.concurrent.ExecutionContext
+import views.html.reg.{LimitReached => LimitReachedView}
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class LimitReachedControllerSpec extends UnitSpec with SCRSSpec with AuthBuilder with GuiceOneAppPerSuite {
 
+  lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
+  lazy val mockFrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+  lazy val mockControllerErrorHandler = app.injector.instanceOf[ControllerErrorHandler]
+  lazy val mockLimitReachedView = app.injector.instanceOf[LimitReachedView]
+
   class Setup {
-    val controller = new LimitReachedController() {
-      override lazy val controllerComponents = app.injector.instanceOf[MessagesControllerComponents]
-      val cohoUrl: String = "testGGUrl"
-      val authConnector = mockAuthConnector
-      val keystoreConnector = mockKeystoreConnector
-      implicit lazy val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
-      implicit lazy val ec: ExecutionContext = global
+    val controller = new LimitReachedController(
+      mockAuthConnector,
+      mockKeystoreConnector,
+      mockMcc,
+      mockLimitReachedView
+    )(
+      mockFrontendAppConfig,
+      global
+    ){
+      override val cohoUrl: String = "testGGUrl"
     }
   }
 

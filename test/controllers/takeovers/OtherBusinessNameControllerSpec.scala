@@ -19,6 +19,7 @@ package controllers.takeovers
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import builders.AuthBuilder
+import controllers.reg.ControllerErrorHandler
 import fixtures.{AccountingDatesFixture, AccountingDetailsFixture, LoginFixture}
 import forms.takeovers.OtherBusinessNameForm
 import forms.takeovers.OtherBusinessNameForm.otherBusinessNameKey
@@ -48,6 +49,9 @@ class OtherBusinessNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
     implicit val request: Request[AnyContent] = FakeRequest()
     implicit val actorSystem: ActorSystem = ActorSystem("MyTest")
     implicit val actorMaterializer: ActorMaterializer = ActorMaterializer()
+    val page = app.injector.instanceOf[OtherBusinessName]
+    val mockControllerErrorHandler = app.injector.instanceOf[ControllerErrorHandler]
+
 
 
     object TestOtherBusinessNameController extends OtherBusinessNameController(
@@ -56,7 +60,9 @@ class OtherBusinessNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
       mockCompanyRegistrationConnector,
       mockKeystoreConnector,
       mockSCRSFeatureSwitches,
-      mockMcc
+      mockMcc,
+      mockControllerErrorHandler,
+      page
     )
 
   }
@@ -109,7 +115,7 @@ class OtherBusinessNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
           val res: Result = await(TestOtherBusinessNameController.show()(request))
 
           status(res) shouldBe OK
-          bodyOf(res) shouldBe OtherBusinessName(OtherBusinessNameForm.form).body
+          bodyOf(res) shouldBe page(OtherBusinessNameForm.form).body
         }
       }
 
@@ -126,7 +132,7 @@ class OtherBusinessNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
           val res: Result = await(TestOtherBusinessNameController.show()(request))
 
           status(res) shouldBe OK
-          bodyOf(res) shouldBe OtherBusinessName(OtherBusinessNameForm.form.fill(testBusinessName)).body
+          bodyOf(res) shouldBe page(OtherBusinessNameForm.form.fill(testBusinessName)).body
         }
       }
     }

@@ -17,10 +17,8 @@
 package models
 
 import fixtures.CorporationTaxFixture
-import helpers.JsonValidation
-import play.api.data.validation.ValidationError
+import helpers.{JsonValidation, UnitSpec}
 import play.api.libs.json.{JsPath, Json, JsonValidationError}
-import uk.gov.hmrc.play.test.UnitSpec
 
 class NewAddressSpec extends UnitSpec with CorporationTaxFixture with JsonValidation {
 

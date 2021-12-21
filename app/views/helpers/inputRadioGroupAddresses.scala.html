@@ -14,8 +14,9 @@
  * limitations under the License.
  *@
 
-@import views.html.helpers.inputRadioGroup
+@import uk.gov.hmrc.play.views.html.helpers.InputRadioGroup
 
+@this(inputRadioGroup: InputRadioGroup)
 @(field: Field, addresses: Seq[NewAddress], legend: String, isHeading: Boolean, isHidden: Boolean)(implicit messages: Messages)
 
 @inputRadioGroup(
@@ -23,7 +24,6 @@
  addresses.zipWithIndex.map { case (address, count) =>
   (count.toString, address.mkString)
  } ++ Seq(("Other", messages("common.differentAddress"))),
- isHeading,
  '_labelClass -> "block-label radio-label",
  '_legend -> legend,
  '_legendClass -> {if(isHidden) {"visually-hidden"} else {""}}

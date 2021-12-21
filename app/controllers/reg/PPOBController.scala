@@ -21,7 +21,7 @@ import config.FrontendAppConfig
 import controllers.auth.AuthenticatedController
 import controllers.reg.PPOBController._
 import forms.PPOBForm
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 import models._
 import models.handoff.BackHandoff
 import play.api.Logger
@@ -33,39 +33,28 @@ import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.auth.core.retrieve.Retrievals
 import uk.gov.hmrc.http.HeaderCarrier
 import utils._
+import views.html.reg.{PrinciplePlaceOfBusiness => PrinciplePlaceOfBusinessView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class PPOBControllerImpl @Inject()(val authConnector: PlayAuthConnector,
-                                   val s4LConnector: S4LConnector,
-                                   val keystoreConnector: KeystoreConnector,
-                                   val compRegConnector: CompanyRegistrationConnector,
-                                   val handOffService: HandOffService,
-                                   val businessRegConnector: BusinessRegistrationConnector,
-                                   val appConfig: FrontendAppConfig,
-                                   val navModelRepo: NavModelRepo,
-                                   val jwe: JweCommon,
-                                   val addressLookupFrontendService: AddressLookupFrontendService,
-                                   val pPOBService: PPOBService,
-                                   val scrsFeatureSwitches: SCRSFeatureSwitches,
-                                   val controllerComponents: MessagesControllerComponents)() extends PPOBController {
+@Singleton
+class PPOBController @Inject()(val authConnector: PlayAuthConnector,
+                               val s4LConnector: S4LConnector,
+                               val keystoreConnector: KeystoreConnector,
+                               val compRegConnector: CompanyRegistrationConnector,
+                               val handOffService: HandOffService,
+                               val businessRegConnector: BusinessRegistrationConnector,
+                               val navModelRepo: NavModelRepo,
+                               val jwe: JweCommon,
+                               val addressLookupFrontendService: AddressLookupFrontendService,
+                               val pPOBService: PPOBService,
+                               val scrsFeatureSwitches: SCRSFeatureSwitches,
+                               val controllerComponents: MessagesControllerComponents,
+                               val controllerErrorHandler: ControllerErrorHandler,
+                               view: PrinciplePlaceOfBusinessView)
+                              (implicit val appConfig: FrontendAppConfig, implicit val ec: ExecutionContext) extends AuthenticatedController
+  with SessionRegistration {
   lazy val navModelMongo = navModelRepo.repository
-}
-
-trait PPOBController extends AuthenticatedController
-  with SessionRegistration with ControllerErrorHandler {
-
-  implicit val appConfig: FrontendAppConfig
-  implicit val ec: ExecutionContext = controllerComponents.executionContext
-
-  val s4LConnector: S4LConnector
-  val keystoreConnector: KeystoreConnector
-  val addressLookupFrontendService: AddressLookupFrontendService
-  val compRegConnector: CompanyRegistrationConnector
-  val pPOBService: PPOBService
-  val handOffService: HandOffService
-  val businessRegConnector: BusinessRegistrationConnector
-  val jwe: JweCommon
 
   def show: Action[AnyContent] = Action.async {
     implicit request =>
@@ -78,7 +67,7 @@ trait PPOBController extends AuthenticatedController
             choice = addresses._3
             form = PPOBForm.aLFForm.fill(choice)
           } yield {
-            Ok(views.html.reg.PrinciplePlaceOfBusiness(form, ro, ppob, choice))
+            Ok(view(form, ro, ppob, choice))
           }
         }
       }
@@ -117,7 +106,7 @@ trait PPOBController extends AuthenticatedController
                 ppob = addresses._2
                 choice = addresses._3
               } yield {
-                BadRequest(views.html.reg.PrinciplePlaceOfBusiness(errors, ro, ppob, choice))
+                BadRequest(view(errors, ro, ppob, choice))
               }
             },
             success => {
@@ -141,7 +130,7 @@ trait PPOBController extends AuthenticatedController
                   ).map(Redirect(_))
                 case unexpected =>
                   Logger.warn(s"[PPOBController] [Submit] '$unexpected' address choice submitted for reg ID: $regId")
-                  Future.successful(BadRequest(defaultErrorPage))
+                  Future.successful(BadRequest(controllerErrorHandler.defaultErrorPage))
               }
             }
           )

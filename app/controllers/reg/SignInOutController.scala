@@ -33,34 +33,24 @@ import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolments, PlayAuthConnector}
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 import uk.gov.hmrc.play.binders.ContinueUrl
 import utils.SCRSExceptions
+import views.html.{timeout => timeoutView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class SignInOutControllerImpl @Inject()(val appConfig: FrontendAppConfig,
-                                        val authConnector: PlayAuthConnector,
-                                        val compRegConnector: CompanyRegistrationConnector,
-                                        val handOffService: HandOffService,
-                                        val emailService: EmailVerificationService,
-                                        val metrics: MetricsService,
-                                        val keystoreConnector: KeystoreConnector,
-                                        val enrolmentsService: EnrolmentsService,
-                                        val controllerComponents: MessagesControllerComponents)(implicit val ec: ExecutionContext) extends SignInOutController {
+class SignInOutController @Inject()(val authConnector: PlayAuthConnector,
+                                    val compRegConnector: CompanyRegistrationConnector,
+                                    val handOffService: HandOffService,
+                                    val emailService: EmailVerificationService,
+                                    val metrics: MetricsService,
+                                    val keystoreConnector: KeystoreConnector,
+                                    val enrolmentsService: EnrolmentsService,
+                                    val controllerErrorHandler: ControllerErrorHandler,
+                                    val controllerComponents: MessagesControllerComponents,
+                                    timeoutView: timeoutView)(implicit val appConfig: FrontendAppConfig, implicit val ec: ExecutionContext)
+  extends AuthenticatedController with CommonService with SCRSExceptions with I18nSupport {
 
   lazy val cRFEBaseUrl = appConfig.self
   lazy val corsRenewHost = appConfig.corsRenewHost
-}
-
-abstract class SignInOutController extends AuthenticatedController with ControllerErrorHandler with CommonService with SCRSExceptions with I18nSupport {
-  implicit val appConfig: FrontendAppConfig
-
-  val compRegConnector: CompanyRegistrationConnector
-  val handOffService: HandOffService
-  val emailService: EmailVerificationService
-  val enrolmentsService: EnrolmentsService
-  val metrics: MetricsService
-  val cRFEBaseUrl: String
-  val keystoreConnector: KeystoreConnector
-  val corsRenewHost: Option[String]
 
   def postSignIn(resend: Option[Boolean] = None, handOffID: Option[String] = None, payload: Option[String] = None): Action[AnyContent] = Action.async {
     implicit request =>
@@ -75,12 +65,12 @@ abstract class SignInOutController extends AuthenticatedController with Controll
                       case VerifiedEmail() => Redirect(routes.CompletionCapacityController.show())
                       case NotVerifiedEmail() => Redirect(routes.RegistrationEmailController.show())
                       case NoEmail() => Redirect(controllers.verification.routes.EmailVerificationController.createShow())
-                      case _ => InternalServerError(defaultErrorPage)
+                      case _ => InternalServerError(controllerErrorHandler.defaultErrorPage)
 
                     } recover {
                       case ex: Throwable =>
                         Logger.error(s"[SignInOutController] [postSignIn] error occurred during post sign in - ${ex.getMessage}")
-                        BadRequest(defaultErrorPage)
+                        BadRequest(controllerErrorHandler.defaultErrorPage)
                     }
                   }
                 }
@@ -102,7 +92,7 @@ abstract class SignInOutController extends AuthenticatedController with Controll
       }
       case _ => f
     } recover {
-      case _: Exception => InternalServerError(defaultErrorPage)
+      case _: Exception => InternalServerError(controllerErrorHandler.defaultErrorPage)
     }
   }
 
@@ -123,11 +113,11 @@ abstract class SignInOutController extends AuthenticatedController with Controll
       case FootprintForbiddenResponse =>
         context.stop()
         Logger.error(s"[SignInOutController] [postSignIn] - retrieveOrCreateFootprint returned FootprintForbiddenResponse")
-        Future.successful(Forbidden(defaultErrorPage))
+        Future.successful(Forbidden(controllerErrorHandler.defaultErrorPage))
       case FootprintErrorResponse(ex) =>
         context.stop()
         Logger.error(s"[SignInOutController] [postSignIn] - retrieveOrCreateFootprint returned FootprintErrorResponse($ex)")
-        Future.successful(InternalServerError(defaultErrorPage))
+        Future.successful(InternalServerError(controllerErrorHandler.defaultErrorPage))
     }
   }
 
@@ -148,13 +138,13 @@ abstract class SignInOutController extends AuthenticatedController with Controll
     def generateHandOffUrl(handOffID: String, payload: String): String = {
       import controllers.handoff.routes._
       Map(
-        "HO1b" -> BasicCompanyDetailsController.returnToAboutYou(payload).url,
-        "HO2" -> CorporationTaxDetailsController.corporationTaxDetails(payload).url,
-        "HO3b" -> BusinessActivitiesController.businessActivitiesBack(payload).url,
-        "HO3-1" -> GroupController.groupHandBack(payload).url,
-        "HO3b-1" -> GroupController.pSCGroupHandBack(payload).url,
-        "HO4" -> CorporationTaxSummaryController.corporationTaxSummary(payload).url,
-        "HO5b" -> IncorporationSummaryController.returnToCorporationTaxSummary(payload).url
+        "HO1b" -> controllers.handoff.routes.BasicCompanyDetailsController.returnToAboutYou(payload).url,
+        "HO2" -> controllers.handoff.routes.CorporationTaxDetailsController.corporationTaxDetails(payload).url,
+        "HO3b" -> controllers.handoff.routes.BusinessActivitiesController.businessActivitiesBack(payload).url,
+        "HO3-1" -> controllers.handoff.routes.GroupController.groupHandBack(payload).url,
+        "HO3b-1" -> controllers.handoff.routes.GroupController.pSCGroupHandBack(payload).url,
+        "HO4" -> controllers.handoff.routes.CorporationTaxSummaryController.corporationTaxSummary(payload).url,
+        "HO5b" -> controllers.handoff.routes.IncorporationSummaryController.returnToCorporationTaxSummary(payload).url
       ).mapValues(url => s"${appConfig.self}$url")(handOffID)
     }
 
@@ -195,10 +185,14 @@ abstract class SignInOutController extends AuthenticatedController with Controll
       val optSessionAuthToken = request.session.get(SessionKeys.authToken)
       Logger.warn(s"[SignInOutController] [renewSession] mdtp cookie present? ${request.cookies.get("mdtp").isDefined}")
       (optHcAuth, optSessionAuthToken) match {
-        case (Some(hcAuth),Some(sAuth)) => if (hcAuth.value == sAuth) {Logger.warn("[SignInOutController] [renewSession] hcAuth and session auth present and equal")}
-                                           else {Logger.warn("[SignInOutController] [renewSession] hcAuth and session auth present but not equal")}
-        case (Some(hcAuth),None) => Logger.warn("[SignInOutController] [renewSession] hcAuth present, session auth not")
-        case (None,Some(sAuth)) => Logger.warn("[SignInOutController] [renewSession] session auth present, hcAuth auth not")
+        case (Some(hcAuth), Some(sAuth)) => if (hcAuth.value == sAuth) {
+          Logger.warn("[SignInOutController] [renewSession] hcAuth and session auth present and equal")
+        }
+        else {
+          Logger.warn("[SignInOutController] [renewSession] hcAuth and session auth present but not equal")
+        }
+        case (Some(hcAuth), None) => Logger.warn("[SignInOutController] [renewSession] hcAuth present, session auth not")
+        case (None, Some(sAuth)) => Logger.warn("[SignInOutController] [renewSession] session auth present, hcAuth auth not")
         case (None, None) => Logger.warn("[SignInOutController] [renewSession] neither session auth or hcAuth present")
       }
       ctAuthorised {
@@ -222,6 +216,6 @@ abstract class SignInOutController extends AuthenticatedController with Controll
 
   def timeoutShow: Action[AnyContent] = Action.async {
     implicit request =>
-      Future.successful(Ok(views.html.timeout()))
+      Future.successful(Ok(timeoutView()))
   }
 }

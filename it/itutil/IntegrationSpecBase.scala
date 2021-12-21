@@ -21,15 +21,23 @@ import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.{Application, Environment, Mode}
-import uk.gov.hmrc.play.test.UnitSpec
 import utils.{FeatureSwitch, FeatureSwitchManager, SCRSFeatureSwitches}
 import WiremockHelper._
-import play.api.libs.crypto.DefaultCookieSigner
 import play.api.libs.ws.WSResponse
+import play.api.test.{DefaultAwaitTimeout,FutureAwaits}
 
-trait IntegrationSpecBase extends UnitSpec
-  with GivenWhenThen with GuiceOneServerPerSuite with ScalaFutures with Matchers
-  with WiremockHelper with BeforeAndAfterEach with BeforeAndAfterAll with IntegrationPatience {
+
+trait IntegrationSpecBase extends WordSpec
+  with GivenWhenThen
+  with GuiceOneServerPerSuite
+  with ScalaFutures
+  with Matchers
+  with WiremockHelper
+  with BeforeAndAfterEach
+  with BeforeAndAfterAll
+  with FutureAwaits
+  with DefaultAwaitTimeout
+  with IntegrationPatience {
 
   val testkey = "Fak3-t0K3n-f0r-pUBLic-r3p0SiT0rY"
 

@@ -19,13 +19,13 @@ package config
 import com.google.inject.AbstractModule
 import config.filters.{SessionIdFilter, SessionIdFilterImpl}
 import connectors._
-import controllers.dashboard.{CancelRegistrationController, CancelRegistrationControllerImpl, DashboardController, DashboardControllerImpl}
+import controllers.dashboard.{CancelRegistrationController, DashboardController}
 import controllers.handoff._
-import controllers.healthcheck.{HealthCheckController, HealthCheckControllerImpl}
+import controllers.healthcheck.{HealthCheckController}
 import controllers.reg._
 import controllers.test._
-import controllers.verification.{EmailVerificationController, EmailVerificationControllerImpl}
-import controllers.{PolicyController, PolicyControllerImpl}
+import controllers.verification.{EmailVerificationController}
+import controllers.{PolicyController}
 import repositories.{NavModelRepo, NavModelRepoImpl}
 import services._
 import services.internal.{TestIncorporationService, TestIncorporationServiceImpl}
@@ -36,7 +36,6 @@ import utils._
 class Module extends AbstractModule {
   override def configure(): Unit = {
     bind(classOf[CryptoInitialiser]).to(classOf[CryptoInitialiserImpl]).asEagerSingleton()
-    bind(classOf[FrontendErrorHandlerSCRS]).to(classOf[SCRSErrorHandler]).asEagerSingleton()
 
     bind(classOf[SessionIdFilter]).to(classOf[SessionIdFilterImpl]).asEagerSingleton()
     bind(classOf[WSHttp]).to(classOf[WSHttpImpl]).asEagerSingleton()
@@ -89,46 +88,15 @@ class Module extends AbstractModule {
     bind(classOf[TestIncorporationService]).to(classOf[TestIncorporationServiceImpl]).asEagerSingleton()
 
     //controllers
-    bind(classOf[CancelRegistrationController]).to(classOf[CancelRegistrationControllerImpl]).asEagerSingleton()
-    bind(classOf[BasicCompanyDetailsController]).to(classOf[BasicCompanyDetailsControllerImpl])
-    bind(classOf[BusinessActivitiesController]).to(classOf[BusinessActivitiesControllerImpl]).asEagerSingleton()
-    bind(classOf[CorporationTaxDetailsController]).to(classOf[CorporationTaxDetailsControllerImpl]).asEagerSingleton()
-    bind(classOf[IncorporationSummaryController]).to(classOf[IncorporationSummaryControllerImpl]).asEagerSingleton()
-    bind(classOf[RegistrationConfirmationController]).to(classOf[RegistrationConfirmationControllerImpl]).asEagerSingleton()
-    bind(classOf[CorporationTaxSummaryController]).to(classOf[CorporationTaxSummaryControllerImpl]).asEagerSingleton()
-
-    bind(classOf[AccountingDatesController]).to(classOf[AccountingDatesControllerImpl]).asEagerSingleton()
-
-    bind(classOf[HealthCheckController]).to(classOf[HealthCheckControllerImpl]).asEagerSingleton()
     bind(classOf[ApplicationInProgressController]).to(classOf[ApplicationInProgressControllerImpl]).asEagerSingleton()
-    bind(classOf[CompanyContactDetailsController]).to(classOf[CompanyContactDetailsControllerImpl]).asEagerSingleton()
-    bind(classOf[DashboardController]).to(classOf[DashboardControllerImpl]).asEagerSingleton()
-    bind(classOf[CompletionCapacityController]).to(classOf[CompletionCapacityControllerImpl]).asEagerSingleton()
-    bind(classOf[ConfirmationController]).to(classOf[ConfirmationControllerImpl]).asEagerSingleton()
-    bind(classOf[IncompleteRegistrationController]).to(classOf[IncompleteRegistrationControllerImpl]).asEagerSingleton()
     bind(classOf[IndexController]).to(classOf[IndexControllerImpl]).asEagerSingleton()
-    bind(classOf[LimitReachedController]).to(classOf[LimitReachedControllerImpl]).asEagerSingleton()
-    bind(classOf[PPOBController]).to(classOf[PPOBControllerImpl]).asEagerSingleton()
-    bind(classOf[QuestionnaireController]).to(classOf[QuestionnaireControllerImpl]).asEagerSingleton()
-    bind(classOf[RegistrationEmailConfirmationController]).to(classOf[RegistrationEmailConfirmationControllerImpl]).asEagerSingleton()
-    bind(classOf[RegistrationEmailController]).to(classOf[RegistrationEmailControllerImpl]).asEagerSingleton()
-    bind(classOf[RegistrationUnsuccessfulController]).to(classOf[RegistrationUnsuccessfulControllerImpl]).asEagerSingleton()
-    bind(classOf[ReturningUserController]).to(classOf[ReturningUserControllerImpl]).asEagerSingleton()
-    bind(classOf[SignInOutController]).to(classOf[SignInOutControllerImpl]).asEagerSingleton()
-    bind(classOf[SummaryController]).to(classOf[SummaryControllerImpl]).asEagerSingleton()
-    bind(classOf[TradingDetailsController]).to(classOf[TradingDetailsControllerImpl]).asEagerSingleton()
     bind(classOf[WelcomeController]).to(classOf[WelcomeControllerImpl]).asEagerSingleton()
-    bind(classOf[EmailVerificationController]).to(classOf[EmailVerificationControllerImpl]).asEagerSingleton()
 
     //test controllers
     bind(classOf[CTMongoTestController]).to(classOf[CTMongoTestControllerImpl]).asEagerSingleton()
     bind(classOf[EditSessionController]).to(classOf[EditSessionControllerImpl]).asEagerSingleton()
-    bind(classOf[ETMPNotificationTestController]).to(classOf[ETMPNotificationTestControllerImpl]).asEagerSingleton()
     bind(classOf[FeatureSwitchController]).to(classOf[FeatureSwitchControllerImpl]).asEagerSingleton()
     bind(classOf[ModifyThrottledUsersController]).to(classOf[ModifyThrottledUsersControllerImpl]).asEagerSingleton()
-    bind(classOf[SubmissionEndpointController]).to(classOf[SubmissionEndpointControllerImpl]).asEagerSingleton()
-    bind(classOf[TestEndpointController]).to(classOf[TestEndpointControllerImpl]).asEagerSingleton()
     bind(classOf[TestIncorporateController]).to(classOf[TestIncorporateControllerImpl]).asEagerSingleton()
-    bind(classOf[PolicyController]).to(classOf[PolicyControllerImpl]).asEagerSingleton()
     }
   }

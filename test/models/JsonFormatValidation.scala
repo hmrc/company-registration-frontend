@@ -16,9 +16,9 @@
 
 package models
 
+import helpers.UnitSpec
 import play.api.data.validation.ValidationError
 import play.api.libs.json.{JsError, JsPath, JsResult, JsSuccess, JsonValidationError}
-import uk.gov.hmrc.play.test.UnitSpec
 
 trait JsonFormatValidation {
   this: UnitSpec =>
