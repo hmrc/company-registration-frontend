@@ -44,7 +44,7 @@
         returningUser, dataJourney = Some("ReturningUser")
     )
 
-    @formWithCsrf(action = controllers.reg.routes.ReturningUserController.submit()) {
+    @formWithCsrf(action = controllers.reg.routes.ReturningUserController.submit) {
 
         @if(isUserLoggedin) {
             @inputRadioGroupHidden(

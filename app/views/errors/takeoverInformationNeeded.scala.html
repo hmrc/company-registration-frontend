@@ -14,7 +14,6 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.play.views.html.helpers.form
 @import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
 
 @this(main_template: main_template,
@@ -28,7 +27,7 @@
 
     <p id="paragraph1">@Messages("errorPages.takeoverInformationNeeded.p1")</p>
 
-    @formWithCsrf(action = controllers.takeovers.routes.ReplacingAnotherBusinessController.show()) {
+    @formWithCsrf(action = controllers.takeovers.routes.ReplacingAnotherBusinessController.show) {
         <div class="form-group">
             <input class="button" type="submit" id="next" value=@Messages("common.button.continue")>
         </div>

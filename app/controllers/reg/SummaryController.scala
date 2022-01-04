@@ -21,7 +21,7 @@ import connectors.{CompanyRegistrationConnector, KeystoreConnector, S4LConnector
 import controllers.auth.AuthenticatedController
 import models._
 import models.handoff.BackHandoff
-import play.api.Logger
+import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -51,7 +51,7 @@ class SummaryController @Inject()(val authConnector: PlayAuthConnector,
                                   view: SummaryView)
                                  (implicit val appConfig: FrontendAppConfig, implicit val ec: ExecutionContext)
   extends AuthenticatedController with CommonService with SCRSExceptions
-    with SessionRegistration with I18nSupport {
+    with SessionRegistration with I18nSupport with Logging {
   lazy val navModelMongo = navModelRepo.repository
 
 
@@ -81,22 +81,22 @@ class SummaryController @Inject()(val authConnector: PlayAuthConnector,
                   case Some(TakeoverDetails(true, Some(_), Some(_), Some(_), Some(_))) =>
                     Ok(view(details.companyName, details.jurisdiction, accountDates, ppobAddress, rOAddress, ctContactDetails, tradingDetails, optTakeoverDetails, cc))
                   case Some(TakeoverDetails(true, _, _, _, _)) =>
-                    Redirect(controllers.takeovers.routes.TakeoverInformationNeededController.show())
+                    Redirect(controllers.takeovers.routes.TakeoverInformationNeededController.show)
                   case None | Some(TakeoverDetails(false, None, None, None, None)) =>
                     Ok(view(details.companyName, details.jurisdiction, accountDates, ppobAddress, rOAddress, ctContactDetails, tradingDetails, optTakeoverDetails, cc))
                   case Some(TakeoverDetails(false, _, _, _, _)) =>
-                    Redirect(controllers.takeovers.routes.TakeoverInformationNeededController.show())
+                    Redirect(controllers.takeovers.routes.TakeoverInformationNeededController.show)
                   case _ =>
-                    Logger.error("[SummaryController] [show] Takeover details in unexpected state")
+                    logger.error("[SummaryController] [show] Takeover details in unexpected state")
                     InternalServerError(controllerErrorHandler.defaultErrorPage)
                 }
               case _ =>
-                Logger.error(s"[SummaryController] [show] Could not find company details for reg ID : $regID - suspected direct routing to summary page")
+                logger.error(s"[SummaryController] [show] Could not find company details for reg ID : $regID - suspected direct routing to summary page")
                 InternalServerError(controllerErrorHandler.defaultErrorPage)
             }
           }) recover {
             case ex: Throwable =>
-              Logger.error(s"[SummaryController] [show] Error occurred while loading the summary page - ${ex.getMessage}")
+              logger.error(s"[SummaryController] [show] Error occurred while loading the summary page - ${ex.getMessage}")
               InternalServerError(controllerErrorHandler.defaultErrorPage)
           }
         }
@@ -107,7 +107,7 @@ class SummaryController @Inject()(val authConnector: PlayAuthConnector,
   val submit: Action[AnyContent] = Action.async {
     implicit request =>
       ctAuthorised {
-        Future.successful(Redirect(controllers.handoff.routes.IncorporationSummaryController.incorporationSummary()))
+        Future.successful(Redirect(controllers.handoff.routes.IncorporationSummaryController.incorporationSummary))
       }
   }
 
@@ -158,7 +158,7 @@ class SummaryController @Inject()(val authConnector: PlayAuthConnector,
     companyContactDetailsResponse match {
       case CompanyContactDetailsSuccessResponse(response) => CompanyContactDetails.toApiModel(response)
       case _ =>
-        Logger.error(s"[SummaryController] [extractContactDetails] Could not find company details - suspected direct routing to summary page")
+        logger.error(s"[SummaryController] [extractContactDetails] Could not find company details - suspected direct routing to summary page")
         throw new Exception("could not find company contact details - suspected direct routing to summary page")
     }
   }

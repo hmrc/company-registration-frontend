@@ -17,7 +17,6 @@
 package services
 
 import javax.inject.Inject
-
 import _root_.connectors._
 import audit.events.{EmailMismatchEvent, EmailMismatchEventDetail}
 import config.FrontendAppConfig
@@ -32,7 +31,6 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import utils._
 import play.api.libs.json.JodaReads._
-
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.control.NoStackTrace
@@ -134,7 +132,7 @@ trait DashboardService extends SCRSExceptions with AlertLogging with CommonServi
 
   private[services] def buildPAYEDashComponent(regId: String, enrolments: Enrolments)(implicit hc: HeaderCarrier): Future[ServiceDashboard] = {
     implicit val startURL: String = s"$payeBaseUrl$payeUri"
-    implicit val cancelURL: Call = controllers.dashboard.routes.CancelRegistrationController.showCancelPAYE()
+    implicit val cancelURL: Call = controllers.dashboard.routes.CancelRegistrationController.showCancelPAYE
 
     if (featureFlag.paye.enabled) {
       statusToServiceDashboard(payeConnector.getStatus(regId), enrolments, List(appConfig.IR_PAYE), Some(getCurrentPayeThresholds))
@@ -155,7 +153,7 @@ trait DashboardService extends SCRSExceptions with AlertLogging with CommonServi
 
   private[services] def buildVATDashComponent(regId: String, enrolments: Enrolments)(implicit hc: HeaderCarrier): Future[ServiceDashboard] = {
     implicit val startURL: String = s"$vatBaseUrl$vatUri"
-    implicit val cancelURL: Call = controllers.dashboard.routes.CancelRegistrationController.showCancelVAT()
+    implicit val cancelURL: Call = controllers.dashboard.routes.CancelRegistrationController.showCancelVAT
 
     getCurrentVatThreshold flatMap { threshold =>
       Try(threshold.toInt) match {

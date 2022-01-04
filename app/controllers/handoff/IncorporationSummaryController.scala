@@ -21,7 +21,7 @@ import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthenticatedController
 import controllers.reg.ControllerErrorHandler
 import javax.inject.Inject
-import play.api.Logger
+import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.{HandBackService, HandOffService, NavModelNotFoundException}
@@ -42,7 +42,7 @@ class IncorporationSummaryController @Inject()(val authConnector: PlayAuthConnec
                                                    val controllerErrorHandler: ControllerErrorHandler,
                                                    error_template_restart: error_template_restart)
                                                   (implicit val appConfig: FrontendAppConfig, implicit val ec: ExecutionContext)
-  extends AuthenticatedController with SessionRegistration with I18nSupport {
+  extends AuthenticatedController with SessionRegistration with I18nSupport with Logging {
 
   //HO5
   def incorporationSummary: Action[AnyContent] = Action.async {
@@ -65,11 +65,11 @@ class IncorporationSummaryController @Inject()(val authConnector: PlayAuthConnec
       ctAuthorisedHandoff("HO5b", request) {
         registeredHandOff("HO5b", request) { _ =>
           handBackService.processCompanyNameReverseHandBack(request).map {
-            case Success(_) => Redirect(controllers.reg.routes.SummaryController.show())
+            case Success(_) => Redirect(controllers.reg.routes.SummaryController.show)
             case Failure(PayloadError) => BadRequest(error_template_restart("5b", "PayloadError"))
             case Failure(DecryptionError) => BadRequest(error_template_restart("5b", "DecryptionError"))
             case unknown => {
-              Logger.warn(s"[IncorporationSummaryController][returnToCorporationTaxSummary] HO5b Unexpected result, sending to post-sign-in : ${unknown}")
+              logger.warn(s"[IncorporationSummaryController][returnToCorporationTaxSummary] HO5b Unexpected result, sending to post-sign-in : ${unknown}")
               Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))
             }
           } recover {

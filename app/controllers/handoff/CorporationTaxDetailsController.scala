@@ -20,7 +20,7 @@ import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthenticatedController
 import javax.inject.Inject
-import play.api.Logger
+import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.{HandBackService, HandOffService, NavModelNotFoundException}
@@ -40,7 +40,7 @@ class CorporationTaxDetailsController @Inject()(val authConnector: PlayAuthConne
                                                 val controllerComponents: MessagesControllerComponents,
                                                 error_template_restart: error_template_restart)
                                                (implicit val appConfig: FrontendAppConfig, implicit val ec: ExecutionContext)
-  extends AuthenticatedController with SessionRegistration with I18nSupport {
+  extends AuthenticatedController with SessionRegistration with I18nSupport with Logging {
 
 
   //HO2
@@ -48,26 +48,26 @@ class CorporationTaxDetailsController @Inject()(val authConnector: PlayAuthConne
     implicit _request => {
       val optHcAuth = hc.authorization
       val optSessionAuthToken = _request.session.get(SessionKeys.authToken)
-      Logger.warn(s"[CorporationTaxDetailsController][HO2] mdtp cookie present? ${_request.cookies.get("mdtp").isDefined}")
+      logger.warn(s"[CorporationTaxDetailsController][HO2] mdtp cookie present? ${_request.cookies.get("mdtp").isDefined}")
       (optHcAuth, optSessionAuthToken) match {
         case (Some(hcAuth), Some(sAuth)) => if (hcAuth.value == sAuth) {
-          Logger.warn("[CorporationTaxDetailsController][HO2] hcAuth and session auth present and equal")
+          logger.warn("[CorporationTaxDetailsController][HO2] hcAuth and session auth present and equal")
         }
         else {
-          Logger.warn("[CorporationTaxDetailsController][HO2] hcAuth and session auth present but not equal")
+          logger.warn("[CorporationTaxDetailsController][HO2] hcAuth and session auth present but not equal")
         }
-        case (Some(hcAuth), None) => Logger.warn("[CorporationTaxDetailsController][HO2] hcAuth present, session auth not")
-        case (None, Some(sAuth)) => Logger.warn("[CorporationTaxDetailsController][HO2] session auth present, hcAuth auth not")
-        case (None, None) => Logger.warn("[CorporationTaxDetailsController][HO2] neither session auth or hcAuth present")
+        case (Some(hcAuth), None) => logger.warn("[CorporationTaxDetailsController][HO2] hcAuth present, session auth not")
+        case (None, Some(sAuth)) => logger.warn("[CorporationTaxDetailsController][HO2] session auth present, hcAuth auth not")
+        case (None, None) => logger.warn("[CorporationTaxDetailsController][HO2] neither session auth or hcAuth present")
       }
       ctAuthorisedHandoff("HO2", requestData) {
         registeredHandOff("HO2", requestData) { _ =>
           handBackService.processCompanyDetailsHandBack(requestData).map {
-            case Success(_) => Redirect(controllers.reg.routes.PPOBController.show())
+            case Success(_) => Redirect(controllers.reg.routes.PPOBController.show)
             case Failure(PayloadError) => BadRequest(error_template_restart("2", "PayloadError"))
             case Failure(DecryptionError) => BadRequest(error_template_restart("2", "DecryptionError"))
             case unknown => {
-              Logger.warn(s"[CorporationTaxDetailsController][corporationTaxDetails] HO2 Unexpected result, sending to post-sign-in : ${unknown}")
+              logger.warn(s"[CorporationTaxDetailsController][corporationTaxDetails] HO2 Unexpected result, sending to post-sign-in : ${unknown}")
               Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))
             }
           } recover {

@@ -45,7 +45,7 @@ class TakeoverInformationNeededControllerISpec extends IntegrationSpecBase with 
       stubKeystore(SessionId, testRegId)
       stubGet(s"/company-registration/corporation-tax-registration/$testRegId/corporation-tax-registration", 200, statusResponseFromCR())
 
-      val res: WSResponse = await(buildClient(controllers.takeovers.routes.TakeoverInformationNeededController.show().url)
+      val res: WSResponse = await(buildClient(controllers.takeovers.routes.TakeoverInformationNeededController.show.url)
         .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie)
         .get())
 

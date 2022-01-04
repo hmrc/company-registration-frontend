@@ -70,9 +70,9 @@ class GroupReliefController @Inject()(val authConnector: PlayAuthConnector,
           relief => {
             groupService.updateGroupRelief(relief, regID).map { _ =>
               if (relief) {
-                Redirect(routes.GroupNameController.show())
+                Redirect(routes.GroupNameController.show)
               } else {
-                Redirect(controllers.handoff.routes.GroupController.PSCGroupHandOff())
+                Redirect(controllers.handoff.routes.GroupController.PSCGroupHandOff)
               }
             }
           }

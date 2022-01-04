@@ -60,7 +60,7 @@ class GroupUtrControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Mock
   "show" should {
     "The GroupUtrController" should {
       "redirect whilst the user is un authorised when sending a GET" in new Setup {
-        showWithUnauthorisedUser(controller.show()) {
+        showWithUnauthorisedUser(controller.show) {
           result => {
             val response = await(result)
             status(response) shouldBe SEE_OTHER
@@ -73,7 +73,7 @@ class GroupUtrControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Mock
     "Redirect the user to post sign in if the user is authorised but has no registration id in session" in new Setup {
       mockKeystoreFetchAndGet("registrationID", None)
 
-      showWithAuthorisedUser(controller.show()) {
+      showWithAuthorisedUser(controller.show) {
         result => {
           val response = await(result)
           status(response) shouldBe SEE_OTHER
@@ -89,7 +89,7 @@ class GroupUtrControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Mock
       when(mockGroupService.retrieveGroups(ArgumentMatchers.any[String])(ArgumentMatchers.any[HeaderCarrier]))
         .thenReturn(Future.successful(None))
 
-      showWithAuthorisedUser(controller.show()) {
+      showWithAuthorisedUser(controller.show) {
 
         result => {
           val response = await(result)
@@ -167,7 +167,7 @@ class GroupUtrControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Mock
       showWithAuthorisedUser(controller.show) {
         result =>
           status(result) shouldBe SEE_OTHER
-          redirectLocation(result) should contain(controllers.groups.routes.GroupAddressController.show().url)
+          redirectLocation(result) should contain(controllers.groups.routes.GroupAddressController.show.url)
       }
     }
 
@@ -185,7 +185,7 @@ class GroupUtrControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Mock
       showWithAuthorisedUser(controller.show) {
         result =>
           status(result) shouldBe SEE_OTHER
-          redirectLocation(result) should contain(controllers.groups.routes.GroupNameController.show().url)
+          redirectLocation(result) should contain(controllers.groups.routes.GroupNameController.show.url)
       }
     }
 
@@ -220,7 +220,7 @@ class GroupUtrControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Mock
       when(mockGroupService.retrieveGroups(any())(any()))
         .thenReturn(Future.successful(Some(testGroups)))
 
-      submitWithAuthorisedUser(controller.submit(), FakeRequest().withFormUrlEncodedBody(
+      submitWithAuthorisedUser(controller.submit, FakeRequest().withFormUrlEncodedBody(
         "groupUtr" -> "xxx",
         "utr" -> "1234567890"
       )) {
@@ -243,7 +243,7 @@ class GroupUtrControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Mock
       when(mockGroupService.updateGroupUtr(any(), any(), any())(any()))
         .thenReturn(Future.successful(testGroups.copy(groupUTR = Some(GroupUTR(Some("1234567890"))))))
 
-      submitWithAuthorisedUser(controller.submit(), FakeRequest().withFormUrlEncodedBody(
+      submitWithAuthorisedUser(controller.submit, FakeRequest().withFormUrlEncodedBody(
         "groupUtr" -> "utr",
         "utr" -> "1234567890"
       )) {
@@ -266,7 +266,7 @@ class GroupUtrControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Mock
       when(mockGroupService.updateGroupUtr(any(), any(), any())(any()))
         .thenReturn(Future.successful(testGroups))
 
-      submitWithAuthorisedUser(controller.submit(), FakeRequest().withFormUrlEncodedBody(
+      submitWithAuthorisedUser(controller.submit, FakeRequest().withFormUrlEncodedBody(
         "groupUtr" -> "noutr"
       )) {
         result =>

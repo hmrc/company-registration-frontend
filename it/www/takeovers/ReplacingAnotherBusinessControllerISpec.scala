@@ -49,7 +49,7 @@ class ReplacingAnotherBusinessControllerISpec extends IntegrationSpecBase with L
       stubGet(s"/company-registration/corporation-tax-registration/$testRegId/corporation-tax-registration", 200, statusResponseFromCR())
       stubGetTakeoverDetails(testRegId, OK, Some(TakeoverDetails(replacingAnotherBusiness = true)))
 
-      val res: WSResponse = await(buildClient(controllers.takeovers.routes.ReplacingAnotherBusinessController.show().url)
+      val res: WSResponse = await(buildClient(controllers.takeovers.routes.ReplacingAnotherBusinessController.show.url)
         .withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
         .get())
 
@@ -67,13 +67,13 @@ class ReplacingAnotherBusinessControllerISpec extends IntegrationSpecBase with L
       stubPutTakeoverDetails(testRegId, OK, TakeoverDetails(replacingAnotherBusiness = false))
 
       val res: WSResponse = await(
-        buildClient(controllers.takeovers.routes.ReplacingAnotherBusinessController.submit().url)
+        buildClient(controllers.takeovers.routes.ReplacingAnotherBusinessController.submit.url)
           .withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
           .post(Map(replacingAnotherBusinessKey -> Seq(false.toString)))
       )
 
       res.status shouldBe SEE_OTHER
-      res.redirectLocation should contain(controllers.reg.routes.AccountingDatesController.show().url)
+      res.redirectLocation should contain(controllers.reg.routes.AccountingDatesController.show.url)
     }
 
     "update the data on the backend and redirect to new page when ready" in new Setup {
@@ -85,13 +85,13 @@ class ReplacingAnotherBusinessControllerISpec extends IntegrationSpecBase with L
       stubPutTakeoverDetails(testRegId, OK, TakeoverDetails(replacingAnotherBusiness = true))
 
       val res: WSResponse = await(
-        buildClient(controllers.takeovers.routes.ReplacingAnotherBusinessController.submit().url)
+        buildClient(controllers.takeovers.routes.ReplacingAnotherBusinessController.submit.url)
           .withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
           .post(Map(replacingAnotherBusinessKey -> Seq(true.toString)))
       )
 
       res.status shouldBe SEE_OTHER
-      res.redirectLocation should contain(controllers.takeovers.routes.OtherBusinessNameController.show().url)
+      res.redirectLocation should contain(controllers.takeovers.routes.OtherBusinessNameController.show.url)
     }
   }
 }

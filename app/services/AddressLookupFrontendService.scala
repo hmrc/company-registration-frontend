@@ -20,7 +20,7 @@ import config.FrontendAppConfig
 import connectors.AddressLookupConnector
 import javax.inject.{Inject, Singleton}
 import models._
-import play.api.i18n.{Lang, Messages, MessagesApi, MessagesProvider}
+import play.api.i18n.{MessagesApi, MessagesProvider}
 import play.api.mvc.Call
 import uk.gov.hmrc.http.HeaderCarrier
 

@@ -28,7 +28,7 @@
 
 @main_template(title = title(Messages("page.reg.ppob.description"),ppobForm)) {
 
-    <a id="back" class="link-back" href="@controllers.reg.routes.PPOBController.back()">@Messages("common.button.back")</a>
+    <a id="back" class="link-back" href="@controllers.reg.routes.PPOBController.back">@Messages("common.button.back")</a>
 
     @errorSummary(
         Messages("common.errorSummary.label"),
@@ -57,7 +57,7 @@
         </details>
     </div>
 
-    @formWithCsrf(action = controllers.reg.routes.PPOBController.submit()) {
+    @formWithCsrf(action = controllers.reg.routes.PPOBController.submit) {
         <div class="form-group">
             @inputRadioGroup(
                 ppobForm("addressChoice"),

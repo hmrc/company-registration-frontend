@@ -28,6 +28,6 @@ class ControllerErrorHandler @Inject()(error_template: errorTemplateView)(implic
   def defaultErrorPage(implicit request: Request[_], message: Messages) = error_template(
     Messages("global.error.title"),
     Messages("global.error.heading"),
-    Messages("global.error.message", controllers.reg.routes.CompletionCapacityController.show())
+    Messages("global.error.message", controllers.reg.routes.CompletionCapacityController.show)
   )
 }

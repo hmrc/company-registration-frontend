@@ -19,8 +19,8 @@ package services
 import config.FrontendAppConfig
 import javax.inject.{Inject, Singleton}
 import models._
-import play.api.i18n.{Lang, Messages, MessagesApi, MessagesProvider}
-import play.api.mvc.{Call, Request}
+import play.api.i18n.{Messages, MessagesApi, MessagesProvider}
+import play.api.mvc.Call
 
 @Singleton
 class AddressLookupConfigBuilderService @Inject()(appConfig: FrontendAppConfig) {
@@ -44,7 +44,7 @@ class AddressLookupConfigBuilderService @Inject()(appConfig: FrontendAppConfig) 
 
     val timeoutConfig = TimeoutConfig(
       timeoutAmount = timeoutLength,
-      timeoutUrl = s"$companyRegistrationFrontendURL${controllers.reg.routes.SignInOutController.timeoutShow().url}"
+      timeoutUrl = s"$companyRegistrationFrontendURL${controllers.reg.routes.SignInOutController.timeoutShow.url}"
     )
 
     val journeyOptions = JourneyOptions(

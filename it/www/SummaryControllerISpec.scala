@@ -79,14 +79,14 @@ class SummaryControllerISpec extends IntegrationSpecBase with LoginStub with Tak
          |    }
          |}""".stripMargin)
 
-    val fResponse = await(buildClient(controllers.reg.routes.SummaryController.show().url)
+    val fResponse = await(buildClient(controllers.reg.routes.SummaryController.show.url)
       .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
       .get())
     val doc = Jsoup.parse(fResponse.body)
     fResponse.status shouldBe 200
     doc.getElementById("companyContactDetails").id shouldBe "companyContactDetails"
     intercept[Exception](doc.getElementById("companyContactName").html)
-    doc.getElementById("change-contact-details").attr("href").contains(controllers.reg.routes.CompanyContactDetailsController.show().url) shouldBe true
+    doc.getElementById("change-contact-details").attr("href").contains(controllers.reg.routes.CompanyContactDetailsController.show.url) shouldBe true
   }
 
   "Redirect to the Takeover Information Needed page if Takeover information is missing but replacingAnotherBusiness is true" in {
@@ -132,11 +132,11 @@ class SummaryControllerISpec extends IntegrationSpecBase with LoginStub with Tak
          |    }
          |}""".stripMargin)
 
-    val fResponse = await(buildClient(controllers.reg.routes.SummaryController.show().url)
+    val fResponse = await(buildClient(controllers.reg.routes.SummaryController.show.url)
       .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
       .get())
     fResponse.status shouldBe 303
-    fResponse.header(HeaderNames.LOCATION).get shouldBe controllers.takeovers.routes.TakeoverInformationNeededController.show().url
+    fResponse.header(HeaderNames.LOCATION).get shouldBe controllers.takeovers.routes.TakeoverInformationNeededController.show.url
   }
 
 

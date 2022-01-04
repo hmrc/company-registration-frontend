@@ -63,7 +63,7 @@ class TradingDetailsController @Inject()(val authConnector: PlayAuthConnector,
             tradingDetailsService.updateCompanyInformation(payments).map {
               case TradingDetailsSuccessResponse(_) =>
                 context.stop()
-                Redirect(controllers.handoff.routes.BusinessActivitiesController.businessActivities())
+                Redirect(controllers.handoff.routes.BusinessActivitiesController.businessActivities)
               case TradingDetailsErrorResponse(_) =>
                 context.stop()
                 BadRequest(controllerErrorHandler.defaultErrorPage)

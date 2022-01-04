@@ -76,7 +76,7 @@ class GroupNameController @Inject()(val authConnector: PlayAuthConnector,
                 },
                 name => {
                   groupService.updateGroupName(name, updatedGroups, regID).map { _ =>
-                    Redirect(controllers.groups.routes.GroupAddressController.show())
+                    Redirect(controllers.groups.routes.GroupAddressController.show)
                   }
                 }
               )

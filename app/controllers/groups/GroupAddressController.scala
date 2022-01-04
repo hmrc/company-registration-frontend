@@ -73,7 +73,7 @@ class GroupAddressController @Inject()(val authConnector: PlayAuthConnector,
                 }
             }
           case Some(Groups(true, None, _, _)) =>
-            Future.successful(Redirect(controllers.groups.routes.GroupNameController.show().url))
+            Future.successful(Redirect(controllers.groups.routes.GroupNameController.show.url))
           case _ =>
             Future.successful(Redirect(controllers.reg.routes.SignInOutController.postSignIn()))
         }
@@ -102,10 +102,10 @@ class GroupAddressController @Inject()(val authConnector: PlayAuthConnector,
                   case "TxAPI" => groupService.saveTxShareHolderAddress(groups, regID).flatMap {
                     _.fold(
                       _ => alfRedirect(regID, groups),
-                      _ => Future.successful(Redirect(controllers.groups.routes.GroupUtrController.show())))
+                      _ => Future.successful(Redirect(controllers.groups.routes.GroupUtrController.show)))
                   }
                   case "Other" => alfRedirect(regID, groups)
-                  case _ => Future.successful(Redirect(controllers.groups.routes.GroupUtrController.show()))
+                  case _ => Future.successful(Redirect(controllers.groups.routes.GroupUtrController.show))
                 }
               }
             )
@@ -125,7 +125,7 @@ class GroupAddressController @Inject()(val authConnector: PlayAuthConnector,
               for {
                 address <- addressLookupFrontendService.getAddress(id)
                 _ <- groupService.updateGroupAddress(GroupsAddressAndType("ALF", address), regID)
-              } yield Redirect(controllers.groups.routes.GroupUtrController.show())
+              } yield Redirect(controllers.groups.routes.GroupUtrController.show)
             case None =>
               throw new InternalServerException("[GroupsAddressController] [handbackFromALF] 'id' query string missing from ALF handback")
           }

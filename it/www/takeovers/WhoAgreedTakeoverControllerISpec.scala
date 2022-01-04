@@ -54,7 +54,7 @@ class WhoAgreedTakeoverControllerISpec extends IntegrationSpecBase with LoginStu
       stubGet(s"/company-registration/corporation-tax-registration/$testRegId/corporation-tax-registration", 200, statusResponseFromCR())
       stubGetTakeoverDetails(testRegId, OK, Some(testTakeoverDetails))
 
-      val res: WSResponse = await(buildClient(controllers.takeovers.routes.WhoAgreedTakeoverController.show().url)
+      val res: WSResponse = await(buildClient(controllers.takeovers.routes.WhoAgreedTakeoverController.show.url)
         .withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
         .get())
 
@@ -67,7 +67,7 @@ class WhoAgreedTakeoverControllerISpec extends IntegrationSpecBase with LoginStu
       stubGet(s"/company-registration/corporation-tax-registration/$testRegId/corporation-tax-registration", 200, statusResponseFromCR())
       stubGetTakeoverDetails(testRegId, OK, Some(testTakeoverDetails.copy(previousOwnersName = Some(testPreviousOwnersName))))
 
-      val res: WSResponse = await(buildClient(controllers.takeovers.routes.WhoAgreedTakeoverController.show().url)
+      val res: WSResponse = await(buildClient(controllers.takeovers.routes.WhoAgreedTakeoverController.show.url)
         .withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
         .get())
 
@@ -85,13 +85,13 @@ class WhoAgreedTakeoverControllerISpec extends IntegrationSpecBase with LoginStu
       stubGetTakeoverDetails(testRegId, OK, Some(testTakeoverDetails))
       stubPutTakeoverDetails(testRegId, OK, testTakeoverDetails.copy(previousOwnersName = Some(testPreviousOwnersName)))
 
-      val res: WSResponse = await(buildClient(controllers.takeovers.routes.WhoAgreedTakeoverController.submit().url)
+      val res: WSResponse = await(buildClient(controllers.takeovers.routes.WhoAgreedTakeoverController.submit.url)
         .withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
         .post(Map(whoAgreedTakeoverKey -> Seq(testPreviousOwnersName)))
       )
 
       res.status shouldBe SEE_OTHER
-      res.redirectLocation should contain(controllers.takeovers.routes.PreviousOwnersAddressController.show().url)
+      res.redirectLocation should contain(controllers.takeovers.routes.PreviousOwnersAddressController.show.url)
     }
   }
 }

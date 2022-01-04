@@ -37,7 +37,7 @@
          <p>@Messages("page.reg.registrationUnsuccessful.startAgain")</p>
     </div>
 
-@formWithCsrf(action = controllers.reg.routes.RegistrationUnsuccessfulController.submit()) {
+@formWithCsrf(action = controllers.reg.routes.RegistrationUnsuccessfulController.submit) {
     <div class="form-group">
       <input class="button" type="submit" id="next" value="@Messages("common.button.startAgain")">
     </div>

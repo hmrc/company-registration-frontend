@@ -60,13 +60,13 @@ class PreviousOwnersAddressController @Inject()(val authConnector: PlayAuthConne
           if (scrsFeatureSwitches.takeovers.enabled) {
             takeoverService.getTakeoverDetails(regId).flatMap {
               case Some(TakeoverDetails(false, _, _, _, _)) =>
-                Future.successful(Redirect(regRoutes.AccountingDatesController.show()))
+                Future.successful(Redirect(regRoutes.AccountingDatesController.show))
               case Some(TakeoverDetails(_, None, _, _, _)) =>
-                Future.successful(Redirect(routes.OtherBusinessNameController.show()))
+                Future.successful(Redirect(routes.OtherBusinessNameController.show))
               case Some(TakeoverDetails(_, _, None, _, _)) =>
-                Future.successful(Redirect(routes.OtherBusinessAddressController.show()))
+                Future.successful(Redirect(routes.OtherBusinessAddressController.show))
               case Some(TakeoverDetails(_, _, _, None, _)) =>
-                Future.successful(Redirect(routes.WhoAgreedTakeoverController.show()))
+                Future.successful(Redirect(routes.WhoAgreedTakeoverController.show))
               case Some(TakeoverDetails(_, _, _, Some(previousOwnersName), optPreviousOwnerHomeAddress)) =>
                 addressPrepopulationService.retrieveAddresses(regId).map {
                   addressSeq =>
@@ -84,7 +84,7 @@ class PreviousOwnersAddressController @Inject()(val authConnector: PlayAuthConne
                       .addingToSession(addressSeqKey -> Json.toJson(addressSeq).toString())
                 }
               case None =>
-                Future.successful(Redirect(routes.ReplacingAnotherBusinessController.show()))
+                Future.successful(Redirect(routes.ReplacingAnotherBusinessController.show))
             }
           }
           else {
@@ -116,11 +116,11 @@ class PreviousOwnersAddressController @Inject()(val authConnector: PlayAuthConne
                         ).map(Redirect(_))
                       case PreselectedAddress(index) =>
                         takeoverService.updatePreviousOwnersAddress(regId, addressSeq(index)).map {
-                          _ => Redirect(regRoutes.AccountingDatesController.show()).removingFromSession(addressSeqKey)
+                          _ => Redirect(regRoutes.AccountingDatesController.show).removingFromSession(addressSeqKey)
                         }
                     }
                   )
-                case _ => Future.successful(Redirect(routes.PreviousOwnersAddressController.show()))
+                case _ => Future.successful(Redirect(routes.PreviousOwnersAddressController.show))
               }
           }
       }
@@ -137,7 +137,7 @@ class PreviousOwnersAddressController @Inject()(val authConnector: PlayAuthConne
                 address <- addressLookupFrontendService.getAddress(id)
                 _ <- takeoverService.updatePreviousOwnersAddress(regId, address)
                 _ <- businessRegConnector.updatePrePopAddress(regId, address)
-              } yield Redirect(regRoutes.AccountingDatesController.show()).removingFromSession(addressSeqKey)
+              } yield Redirect(regRoutes.AccountingDatesController.show).removingFromSession(addressSeqKey)
             case _ =>
               throw new Exception("[Takeovers] [Previous Owners Address] 'id' query string missing from ALF handback")
           }

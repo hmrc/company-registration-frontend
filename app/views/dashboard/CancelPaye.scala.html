@@ -31,7 +31,7 @@
           <p>@Messages("page.reg.cancelpaye.p1")</p>
           <br>
 
-   @formWithCsrf(action = controllers.dashboard.routes.CancelRegistrationController.submitCancelPAYE()) {
+   @formWithCsrf(action = controllers.dashboard.routes.CancelRegistrationController.submitCancelPAYE) {
         <div class="form-group">
             @inputRadioGroup(
                 cancelSelection("cancelService"),

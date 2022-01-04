@@ -84,7 +84,7 @@ class RegistrationEmailConfirmationControllerSpec extends SCRSSpec with GuiceOne
 
       when(mockEmailService.emailVerifiedStatusInSCRS(ArgumentMatchers.any(), ArgumentMatchers.argThat(funcMatcher(mockOfFunction)))(ArgumentMatchers.any())).thenReturn(Future.successful(awaitedFun))
 
-      showWithAuthorisedUser(TestController.show()) {
+      showWithAuthorisedUser(TestController.show) {
         result =>
           status(result) shouldBe OK
           val document = Jsoup.parse(contentAsString(result))
@@ -93,7 +93,7 @@ class RegistrationEmailConfirmationControllerSpec extends SCRSSpec with GuiceOne
     }
     "return a 200 with an authorised user where no data exists in keystore for this page" in new Setup {
       mockKeystoreFetchAndGet[String]("registrationID", Some("regid"))
-      showWithAuthorisedUser(TestController.show()) {
+      showWithAuthorisedUser(TestController.show) {
         mockKeystoreFetchAndGet[ConfirmRegistrationEmailModel]("ConfirmEmail", None)
         mockKeystoreFetchAndGet[RegistrationEmailModel]("RegEmail", Some(RegistrationEmailModel("test@test.com", Some("tester@tester.com"))))
         val awaitedFun = await(TestController.showLogicFun())
@@ -110,7 +110,7 @@ class RegistrationEmailConfirmationControllerSpec extends SCRSSpec with GuiceOne
     "return a 303 redirect with an authorised user because RegistrationEmailModel in keystore is None" in new Setup {
 
       mockKeystoreFetchAndGet[String]("registrationID", Some("regid"))
-      showWithAuthorisedUser(TestController.show()) {
+      showWithAuthorisedUser(TestController.show) {
         mockKeystoreFetchAndGet[ConfirmRegistrationEmailModel]("ConfirmEmail", Some(ConfirmRegistrationEmailModel(true)))
         mockKeystoreFetchAndGet[RegistrationEmailModel]("RegEmail", None)
         val awaitedFun = await(TestController.showLogicFun())
@@ -123,7 +123,7 @@ class RegistrationEmailConfirmationControllerSpec extends SCRSSpec with GuiceOne
       }
     }
     "return a 303 to sign in whilst requesting with an unauthorised user" in new Setup {
-      showWithUnauthorisedUser(TestController.show()) {
+      showWithUnauthorisedUser(TestController.show) {
         result =>
           status(result) shouldBe SEE_OTHER
           redirectLocation(result) shouldBe Some("http://localhost:9553/bas-gateway/sign-in?continue_url=http%3A%2F%2Flocalhost%3A9970%2Fregister-your-company%2Fpost-sign-in&origin=company-registration-frontend")

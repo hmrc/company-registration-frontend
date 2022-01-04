@@ -72,7 +72,7 @@ class SessionRegistrationSpec extends UnitSpec with CompanyRegistrationConnector
 
         mockKeystoreFetchAndGet("registrationID", None)
 
-        withCaptureOfLoggingFrom(Logger) { logEvents =>
+        withCaptureOfLoggingFrom(Logger(SessionRegistration.getClass)) { logEvents =>
 
           val result = SessionRegistration.registered { redirect =>
             Future.successful(Results.Ok)
@@ -151,7 +151,7 @@ class SessionRegistrationSpec extends UnitSpec with CompanyRegistrationConnector
         val result = SessionRegistration.checkStatus(f = redirect =>
             Future.successful(Results.Ok))
         status(result) shouldBe SEE_OTHER
-        redirectLocation(result) shouldBe Some(controllers.dashboard.routes.DashboardController.show().toString)
+        redirectLocation(result) shouldBe Some(controllers.dashboard.routes.DashboardController.show.toString)
     }
 
     "checkStatus should redirect to post-sign-in if status is locked" in {

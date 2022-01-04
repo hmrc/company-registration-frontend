@@ -192,6 +192,9 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with GuiceOneAppP
       when(mockHandOffService.buildBackHandOff(ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(BackHandoff("EXT-123456", testRegId, Json.obj(), Json.obj(), Json.obj())))
 
+      when(mockHandOffService.buildHandOffUrl(ArgumentMatchers.eq("testReverseLinkFromReceiver4"), ArgumentMatchers.eq("foo")))
+        .thenReturn(s"testReverseLinkFromReceiver4?request=foo")
+
       submitWithAuthorisedUserRetrieval(controller.back, request, Some("extID")) {
         result =>
           status(result) shouldBe SEE_OTHER
@@ -215,6 +218,10 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with GuiceOneAppP
         .thenReturn(Future.successful(Some(testRegId)))
       when(mockHandOffService.fetchNavModel(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(navModel))
       when(mockJweCommon.encrypt[JsObject](ArgumentMatchers.any[JsObject]())(ArgumentMatchers.any[Writes[JsObject]])).thenReturn(Some("foo"))
+
+      when(mockHandOffService.buildHandOffUrl(ArgumentMatchers.eq("testJumpLink"), ArgumentMatchers.eq("foo")))
+        .thenReturn(s"testJumpLink?request=foo")
+
       showWithAuthorisedUserRetrieval(controller.summaryBackLink("testJumpKey"), Some("extID")) {
         res =>
           status(res) shouldBe SEE_OTHER

@@ -78,10 +78,10 @@ class OtherBusinessNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
 
           mockGetTakeoverDetails(testRegistrationId)(Future.successful(None))
 
-          val res: Result = await(TestOtherBusinessNameController.show()(request))
+          val res: Result = await(TestOtherBusinessNameController.show(request))
 
           status(res) shouldBe SEE_OTHER
-          redirectLocation(res) should contain(controllers.takeovers.routes.ReplacingAnotherBusinessController.show().url)
+          redirectLocation(res) should contain(controllers.takeovers.routes.ReplacingAnotherBusinessController.show.url)
         }
       }
 
@@ -95,10 +95,10 @@ class OtherBusinessNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
           val testTakeoverDetails: TakeoverDetails = TakeoverDetails(replacingAnotherBusiness = false)
           mockGetTakeoverDetails(testRegistrationId)(Future.successful(Some(testTakeoverDetails)))
 
-          val res: Result = await(TestOtherBusinessNameController.show()(request))
+          val res: Result = await(TestOtherBusinessNameController.show(request))
 
           status(res) shouldBe SEE_OTHER
-          redirectLocation(res) should contain(controllers.reg.routes.AccountingDatesController.show().url)
+          redirectLocation(res) should contain(controllers.reg.routes.AccountingDatesController.show.url)
         }
       }
 
@@ -112,7 +112,7 @@ class OtherBusinessNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
           val testTakeoverDetails: TakeoverDetails = TakeoverDetails(replacingAnotherBusiness = true, None)
           mockGetTakeoverDetails(testRegistrationId)(Future.successful(Some(testTakeoverDetails)))
 
-          val res: Result = await(TestOtherBusinessNameController.show()(request))
+          val res: Result = await(TestOtherBusinessNameController.show(request))
 
           status(res) shouldBe OK
           bodyOf(res) shouldBe page(OtherBusinessNameForm.form).body
@@ -129,7 +129,7 @@ class OtherBusinessNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
           val testTakeoverDetails: TakeoverDetails = TakeoverDetails(replacingAnotherBusiness = true, Some(testBusinessName))
           mockGetTakeoverDetails(testRegistrationId)(Future.successful(Some(testTakeoverDetails)))
 
-          val res: Result = await(TestOtherBusinessNameController.show()(request))
+          val res: Result = await(TestOtherBusinessNameController.show(request))
 
           status(res) shouldBe OK
           bodyOf(res) shouldBe page(OtherBusinessNameForm.form.fill(testBusinessName)).body
@@ -144,7 +144,7 @@ class OtherBusinessNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
         CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
         mockTakeoversFeatureSwitch(isEnabled = false)
 
-        intercept[NotFoundException](await(TestOtherBusinessNameController.show()(request)))
+        intercept[NotFoundException](await(TestOtherBusinessNameController.show(request)))
       }
     }
   }
@@ -164,10 +164,10 @@ class OtherBusinessNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
           val testTakeoverDetails: TakeoverDetails = TakeoverDetails(replacingAnotherBusiness = true, Some(testBusinessName))
           mockUpdateBusinessName(testRegistrationId, testBusinessName)(Future.successful(testTakeoverDetails))
 
-          val res: Result = await(TestOtherBusinessNameController.submit()(request))
+          val res: Result = await(TestOtherBusinessNameController.submit(request))
 
           status(res) shouldBe SEE_OTHER
-          redirectLocation(res) should contain(controllers.takeovers.routes.OtherBusinessAddressController.show().url)
+          redirectLocation(res) should contain(controllers.takeovers.routes.OtherBusinessAddressController.show.url)
         }
       }
 
@@ -182,7 +182,7 @@ class OtherBusinessNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
           override implicit val request: Request[AnyContentAsFormUrlEncoded] =
             FakeRequest().withFormUrlEncodedBody(otherBusinessNameKey -> testBusinessName)
 
-          val res: Result = await(TestOtherBusinessNameController.submit()(request))
+          val res: Result = await(TestOtherBusinessNameController.submit(request))
 
           status(res) shouldBe BAD_REQUEST
           Jsoup.parse(bodyOf(res))
@@ -199,7 +199,7 @@ class OtherBusinessNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
           override implicit val request: Request[AnyContentAsFormUrlEncoded] =
             FakeRequest().withFormUrlEncodedBody(otherBusinessNameKey -> testBusinessName)
 
-          val res: Result = await(TestOtherBusinessNameController.submit()(request))
+          val res: Result = await(TestOtherBusinessNameController.submit(request))
 
           status(res) shouldBe BAD_REQUEST
           Jsoup.parse(bodyOf(res))
@@ -216,7 +216,7 @@ class OtherBusinessNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
           override implicit val request: Request[AnyContentAsFormUrlEncoded] =
             FakeRequest().withFormUrlEncodedBody(otherBusinessNameKey -> testBusinessName)
 
-          val res: Result = await(TestOtherBusinessNameController.submit()(request))
+          val res: Result = await(TestOtherBusinessNameController.submit(request))
 
           status(res) shouldBe BAD_REQUEST
           Jsoup.parse(bodyOf(res))

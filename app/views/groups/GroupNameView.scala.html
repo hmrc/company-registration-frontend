@@ -48,7 +48,7 @@
         shareholdersForm, dataJourney = Some("GroupCompanyName")
     )
 
-    @formWithCsrf(action = controllers.groups.routes.GroupNameController.submit()) {
+    @formWithCsrf(action = controllers.groups.routes.GroupNameController.submit) {
         <div class="form-group">
         @inputRadioGroupHidden(
                 shareholdersForm("groupName"),

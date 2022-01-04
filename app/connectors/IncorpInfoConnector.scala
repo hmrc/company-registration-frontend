@@ -20,7 +20,7 @@ import javax.inject.Inject
 
 import config.{FrontendAppConfig, WSHttp}
 import models.Shareholder
-import play.api.Logger
+import play.api.Logging
 import play.api.libs.json.JsValue
 import services.MetricsService
 import uk.gov.hmrc.http.{CoreGet, HeaderCarrier, HttpException, HttpResponse}
@@ -33,7 +33,7 @@ class IncorpInfoConnectorImpl @Inject()(appConfig: FrontendAppConfig, val wSHttp
  lazy val incorpInfoUrl = s"${appConfig.servicesConfig.baseUrl("incorp-info")}/incorporation-information"
 }
 
-trait IncorpInfoConnector {
+trait IncorpInfoConnector extends Logging {
   val wSHttp: CoreGet
   val incorpInfoUrl: String
 
@@ -54,16 +54,16 @@ trait IncorpInfoConnector {
       if(res.status == 200) {
         res.json.validate[List[Shareholder]].asEither match {
           case Right(l) => Right(l)
-          case Left(l) => Logger.error(s"[returnListOfShareholdersFromTxApi] II returned list of shareholders but data was unparseable, returning empty list to user: $transId")
+          case Left(l) => logger.error(s"[returnListOfShareholdersFromTxApi] II returned list of shareholders but data was unparseable, returning empty list to user: $transId")
             Right(List.empty[Shareholder])
         }
       } else {
-        Logger.error(s"[returnListOfShareholdersFromTxApi] II returned NO shareholders -  This is a problem with the data on the transactional API $transId")
+        logger.error(s"[returnListOfShareholdersFromTxApi] II returned NO shareholders -  This is a problem with the data on the transactional API $transId")
         Right(List.empty[Shareholder])
       }
     }.recover {
       case e :Exception =>
-          Logger.error(s"[returnListOfShareholdersFromTxApi] Something went wrong when calling II: $transId, ${e.getMessage}")
+          logger.error(s"[returnListOfShareholdersFromTxApi] Something went wrong when calling II: $transId, ${e.getMessage}")
         Left(e)
     }
   }
@@ -79,14 +79,14 @@ trait IncorpInfoConnector {
     val queryString = s"txId=$transId&date=2018-1-1${if(isSuccess) "&crn=12345678" else ""}&success=$isSuccess"
 
     wSHttp.GET[HttpResponse](s"$incorpInfoUrl/test-only/add-incorp-update/?$queryString") map (_ => true) recover { case _ =>
-        Logger.error(s"[IncorpInfoConnector] [injectTestIncorporationUpdate] Failed to inject a test incorporation update into II for $transId")
+        logger.error(s"[IncorpInfoConnector] [injectTestIncorporationUpdate] Failed to inject a test incorporation update into II for $transId")
         false
     }
   }
 
   def manuallyTriggerIncorporationUpdate(implicit hc:HeaderCarrier): Future[Boolean] = {
     wSHttp.GET[HttpResponse](s"$incorpInfoUrl/test-only/manual-trigger/fireSubs") map (_ => true) recover { case _ =>
-        Logger.error(s"[IncorpInfoConnector] [manuallyTriggerIncorporationUpdate] Failed to trigger subscription processing on II")
+        logger.error(s"[IncorpInfoConnector] [manuallyTriggerIncorporationUpdate] Failed to trigger subscription processing on II")
         false
     }
   }

@@ -17,12 +17,11 @@
 package controllers.test
 
 import javax.inject.Inject
-import play.api.mvc.{Action, AnyContent, Controller}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.http.SessionKeys
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
-class EditSessionControllerImpl @Inject()() extends EditSessionController
-
-trait EditSessionController extends Controller {
+class EditSessionController @Inject()(mcc:  MessagesControllerComponents) extends FrontendController(mcc) {
 
   def editSession(newSessionId: String): Action[AnyContent] = Action {
     implicit request =>

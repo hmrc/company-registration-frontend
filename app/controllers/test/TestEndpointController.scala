@@ -21,13 +21,12 @@ import connectors._
 import controllers.auth.AuthenticatedController
 import forms._
 import forms.test.{CompanyContactTestEndpointForm, FeatureSwitchForm}
-
 import javax.inject.{Inject, Singleton}
 import models._
 import models.connectors.ConfirmationReferences
 import models.handoff._
 import models.test.FeatureSwitch
-import play.api.Logger
+import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -36,7 +35,6 @@ import services._
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.auth.core.retrieve.Retrievals
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads}
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import utils._
 import views.html.dashboard.{Dashboard => DashboardView}
 import views.html.reg.{TestEndpoint => TestEndpointView}
@@ -44,7 +42,6 @@ import views.html.test.{TestEndpointSummary => TestEndpointSummaryView}
 import views.html.test.{FeatureSwitch => FeatureSwitchView}
 import views.html.test.{PrePopAddresses => PrePopAddressesView}
 import views.html.test.{PrePopContactDetails => PrePopContactDetailsView}
-
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
@@ -71,7 +68,7 @@ class TestEndpointController @Inject()(
                                         viewDashboard: DashboardView
                                       )(implicit val appConfig: FrontendAppConfig, implicit val ec: ExecutionContext)
   extends AuthenticatedController with CommonService
-    with SCRSExceptions with SessionRegistration with I18nSupport {
+    with SCRSExceptions with SessionRegistration with I18nSupport with Logging {
   lazy val navModelMongo = navModelRepo.repository
 
   lazy val coHoURL = appConfig.servicesConfig.getConfString("coho-service.sign-in", throw new Exception("Could not find config for coho-sign-in url"))
@@ -147,7 +144,7 @@ class TestEndpointController @Inject()(
           _ <- compRegConnector.updateAccountingDetails(regID, AccountingDetailsRequest.toRequest(accountingDates))
           _ <- compRegConnector.updateContactDetails(regID, companyContactDetails)
           _ <- compRegConnector.updateTradingDetails(regID, tradingDetailsRequest)
-        } yield Redirect(routes.TestEndpointController.getAllS4LEntries())
+        } yield Redirect(routes.TestEndpointController.getAllS4LEntries)
       }
   }
 
@@ -261,7 +258,7 @@ class TestEndpointController @Inject()(
           brConnector.retrieveMetadata map {
             case BusinessRegistrationSuccessResponse(metaData) => metaData
             case unknown => {
-              Logger.warn(s"[TestEndpointController][verifyEmail/getMetadata] HO6 Unexpected result, sending to post-sign-in : ${unknown}")
+              logger.warn(s"[TestEndpointController][verifyEmail/getMetadata] HO6 Unexpected result, sending to post-sign-in : ${unknown}")
               throw new RuntimeException(s"Unexpected result ${unknown}")
             }
           }

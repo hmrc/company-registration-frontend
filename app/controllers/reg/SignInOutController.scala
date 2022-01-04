@@ -25,7 +25,7 @@ import controllers.handoff.{routes => handoffRoutes}
 import controllers.verification.{routes => emailRoutes}
 import javax.inject.Inject
 import models.ThrottleResponse
-import play.api.Logger
+import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc._
 import services._
@@ -47,7 +47,7 @@ class SignInOutController @Inject()(val authConnector: PlayAuthConnector,
                                     val controllerErrorHandler: ControllerErrorHandler,
                                     val controllerComponents: MessagesControllerComponents,
                                     timeoutView: timeoutView)(implicit val appConfig: FrontendAppConfig, implicit val ec: ExecutionContext)
-  extends AuthenticatedController with CommonService with SCRSExceptions with I18nSupport {
+  extends AuthenticatedController with CommonService with SCRSExceptions with I18nSupport with Logging {
 
   lazy val cRFEBaseUrl = appConfig.self
   lazy val corsRenewHost = appConfig.corsRenewHost
@@ -62,14 +62,14 @@ class SignInOutController @Inject()(val authConnector: PlayAuthConnector,
                 processDeferredHandoff(handOffID, payload, response) {
                   hasNoEnrolments(authDetails.enrolments) {
                     emailService.checkEmailStatus(response.registrationId, response.emailData, authDetails) map {
-                      case VerifiedEmail() => Redirect(routes.CompletionCapacityController.show())
-                      case NotVerifiedEmail() => Redirect(routes.RegistrationEmailController.show())
-                      case NoEmail() => Redirect(controllers.verification.routes.EmailVerificationController.createShow())
+                      case VerifiedEmail() => Redirect(routes.CompletionCapacityController.show)
+                      case NotVerifiedEmail() => Redirect(routes.RegistrationEmailController.show)
+                      case NoEmail() => Redirect(controllers.verification.routes.EmailVerificationController.createShow)
                       case _ => InternalServerError(controllerErrorHandler.defaultErrorPage)
 
                     } recover {
                       case ex: Throwable =>
-                        Logger.error(s"[SignInOutController] [postSignIn] error occurred during post sign in - ${ex.getMessage}")
+                        logger.error(s"[SignInOutController] [postSignIn] error occurred during post sign in - ${ex.getMessage}")
                         BadRequest(controllerErrorHandler.defaultErrorPage)
                     }
                   }
@@ -88,7 +88,7 @@ class SignInOutController @Inject()(val authConnector: PlayAuthConnector,
       case Some("locked") => redirectToHo1WithCachedRegistrationId(throttleResponse.registrationId)
       case Some("held") if !throttleResponse.paymentRefs => redirectToHo1WithCachedRegistrationId(throttleResponse.registrationId)
       case Some(_) => handOffService.cacheRegistrationID(throttleResponse.registrationId) map {
-        _ => Redirect(controllers.dashboard.routes.DashboardController.show())
+        _ => Redirect(controllers.dashboard.routes.DashboardController.show)
       }
       case _ => f
     } recover {
@@ -98,7 +98,7 @@ class SignInOutController @Inject()(val authConnector: PlayAuthConnector,
 
 
   private def redirectToHo1WithCachedRegistrationId(regid: String)(implicit hc: HeaderCarrier, request: Request[_]) = handOffService.cacheRegistrationID(regid) map { _ =>
-    Redirect(handoffRoutes.BasicCompanyDetailsController.basicCompanyDetails())
+    Redirect(handoffRoutes.BasicCompanyDetailsController.basicCompanyDetails)
   }
 
   private def hasFootprint(f: ThrottleResponse => Future[Result])(implicit hc: HeaderCarrier, request: Request[AnyContent]): Future[Result] = {
@@ -109,14 +109,14 @@ class SignInOutController @Inject()(val authConnector: PlayAuthConnector,
         f(throttle)
       case FootprintTooManyRequestsResponse =>
         context.stop()
-        Future.successful(Redirect(routes.LimitReachedController.show()))
+        Future.successful(Redirect(routes.LimitReachedController.show))
       case FootprintForbiddenResponse =>
         context.stop()
-        Logger.error(s"[SignInOutController] [postSignIn] - retrieveOrCreateFootprint returned FootprintForbiddenResponse")
+        logger.error(s"[SignInOutController] [postSignIn] - retrieveOrCreateFootprint returned FootprintForbiddenResponse")
         Future.successful(Forbidden(controllerErrorHandler.defaultErrorPage))
       case FootprintErrorResponse(ex) =>
         context.stop()
-        Logger.error(s"[SignInOutController] [postSignIn] - retrieveOrCreateFootprint returned FootprintErrorResponse($ex)")
+        logger.error(s"[SignInOutController] [postSignIn] - retrieveOrCreateFootprint returned FootprintErrorResponse($ex)")
         Future.successful(InternalServerError(controllerErrorHandler.defaultErrorPage))
     }
   }
@@ -125,7 +125,7 @@ class SignInOutController @Inject()(val authConnector: PlayAuthConnector,
     import constants.RegistrationProgressValues.HO5
     throttle.registrationProgress match {
       case Some(HO5) => cacheRegistrationID(throttle.registrationId).map { _ =>
-        Redirect(controllers.handoff.routes.BasicCompanyDetailsController.basicCompanyDetails())
+        Redirect(controllers.handoff.routes.BasicCompanyDetailsController.basicCompanyDetails)
       }
       case Some(_) => f
       case None => f
@@ -158,15 +158,15 @@ class SignInOutController @Inject()(val authConnector: PlayAuthConnector,
   private def hasOrgAffinity(orgAffinity: AffinityGroup)(f: => Future[Result])(implicit hc: HeaderCarrier): Future[Result] = {
     orgAffinity match {
       case AffinityGroup.Organisation => f
-      case _ => Future.successful(Redirect(emailRoutes.EmailVerificationController.createGGWAccountAffinityShow()))
+      case _ => Future.successful(Redirect(emailRoutes.EmailVerificationController.createGGWAccountAffinityShow))
     }
   }
 
   private def hasNoEnrolments(enrolments: Enrolments)(f: => Future[Result])(implicit hc: HeaderCarrier): Future[Result] = {
     if (enrolmentsService.hasBannedRegimes(enrolments)) {
-      Logger.warn("[SignInOutController][postSignIn] Throttle was incremented but user was blocked due to existing enrolments")
+      logger.warn("[SignInOutController][postSignIn] Throttle was incremented but user was blocked due to existing enrolments")
       metrics.blockedByEnrollment.inc(1)
-      Future.successful(Redirect(emailRoutes.EmailVerificationController.createNewGGWAccountShow()))
+      Future.successful(Redirect(emailRoutes.EmailVerificationController.createNewGGWAccountShow))
     } else f
   }
 
@@ -174,7 +174,7 @@ class SignInOutController @Inject()(val authConnector: PlayAuthConnector,
     implicit request =>
       val c = continueUrl match {
         case Some(str) => str.url
-        case None => s"$cRFEBaseUrl${controllers.reg.routes.QuestionnaireController.show().url}"
+        case None => s"$cRFEBaseUrl${controllers.reg.routes.QuestionnaireController.show.url}"
       }
       Future.successful(Redirect(appConfig.logoutURL, Map("continue" -> Seq(c))))
   }
@@ -183,17 +183,17 @@ class SignInOutController @Inject()(val authConnector: PlayAuthConnector,
     implicit request => {
       val optHcAuth = hc.authorization
       val optSessionAuthToken = request.session.get(SessionKeys.authToken)
-      Logger.warn(s"[SignInOutController] [renewSession] mdtp cookie present? ${request.cookies.get("mdtp").isDefined}")
+      logger.warn(s"[SignInOutController] [renewSession] mdtp cookie present? ${request.cookies.get("mdtp").isDefined}")
       (optHcAuth, optSessionAuthToken) match {
         case (Some(hcAuth), Some(sAuth)) => if (hcAuth.value == sAuth) {
-          Logger.warn("[SignInOutController] [renewSession] hcAuth and session auth present and equal")
+          logger.warn("[SignInOutController] [renewSession] hcAuth and session auth present and equal")
         }
         else {
-          Logger.warn("[SignInOutController] [renewSession] hcAuth and session auth present but not equal")
+          logger.warn("[SignInOutController] [renewSession] hcAuth and session auth present but not equal")
         }
-        case (Some(hcAuth), None) => Logger.warn("[SignInOutController] [renewSession] hcAuth present, session auth not")
-        case (None, Some(sAuth)) => Logger.warn("[SignInOutController] [renewSession] session auth present, hcAuth auth not")
-        case (None, None) => Logger.warn("[SignInOutController] [renewSession] neither session auth or hcAuth present")
+        case (Some(hcAuth), None) => logger.warn("[SignInOutController] [renewSession] hcAuth present, session auth not")
+        case (None, Some(sAuth)) => logger.warn("[SignInOutController] [renewSession] session auth present, hcAuth auth not")
+        case (None, None) => logger.warn("[SignInOutController] [renewSession] neither session auth or hcAuth present")
       }
       ctAuthorised {
         type Headers = Seq[Tuple2[String, String]]
@@ -211,7 +211,7 @@ class SignInOutController @Inject()(val authConnector: PlayAuthConnector,
   }
 
   def destroySession: Action[AnyContent] = Action {
-    Redirect(routes.SignInOutController.timeoutShow()).withNewSession
+    Redirect(routes.SignInOutController.timeoutShow).withNewSession
   }
 
   def timeoutShow: Action[AnyContent] = Action.async {

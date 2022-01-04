@@ -137,7 +137,7 @@ class AlertLoggingSpec extends UnitSpec with LogCapturing with Eventually {
     }
     "accept any Pager Duty key" in new Setup(monday, _8am){
       validKeys foreach { key =>
-        withCaptureOfLoggingFrom(Logger) { logs =>
+        withCaptureOfLoggingFrom(Logger(alertLogging.getClass)) { logs =>
           alertLogging.pagerduty(key)
           logs.head.getMessage shouldBe key.toString
         }
@@ -147,14 +147,14 @@ class AlertLoggingSpec extends UnitSpec with LogCapturing with Eventually {
     "log an error in working hours" when {
       "custom message is not provided" in new Setup(monday, _8am) {
         validKeys foreach { key =>
-          withCaptureOfLoggingFrom(Logger) { logs =>
+          withCaptureOfLoggingFrom(Logger(alertLogging.getClass)) { logs =>
             alertLogging.pagerduty(key)
             found(logs)(1, key.toString, Level.ERROR)
           }
         }
       }
       "custom message is provided" in new Setup(friday, _4_59pm) {
-        withCaptureOfLoggingFrom(Logger) { logs =>
+        withCaptureOfLoggingFrom(Logger(alertLogging.getClass)) { logs =>
           alertLogging.pagerduty(PagerDutyKeys.CT_UTR_MISMATCH, message = Some("test"))
           found(logs)(1, "CT_UTR_MISMATCH - test", Level.ERROR)
         }
@@ -162,20 +162,20 @@ class AlertLoggingSpec extends UnitSpec with LogCapturing with Eventually {
     }
     "log info out of working hours" when {
       "custom message is not provided" in new Setup(monday, _7_59am) {
-        withCaptureOfLoggingFrom(Logger) { logs =>
+        withCaptureOfLoggingFrom(Logger(alertLogging.getClass)) { logs =>
           alertLogging.pagerduty(PagerDutyKeys.CT_UTR_MISMATCH)
           found(logs)(1, "CT_UTR_MISMATCH", Level.INFO)
         }
       }
       "custom message is provided" in new Setup(friday, _5pm) {
-        withCaptureOfLoggingFrom(Logger) { logs =>
+        withCaptureOfLoggingFrom(Logger(alertLogging.getClass)) { logs =>
           alertLogging.pagerduty(PagerDutyKeys.CT_UTR_MISMATCH, message = Some("extra string"))
           found(logs)(1, "CT_UTR_MISMATCH - extra string", Level.INFO)
         }
       }
     }
     "log info when it is not a weekday" in new Setup(saturday, _2pm) {
-      withCaptureOfLoggingFrom(Logger) { logs =>
+      withCaptureOfLoggingFrom(Logger(alertLogging.getClass)) { logs =>
         alertLogging.pagerduty(PagerDutyKeys.CT_UTR_MISMATCH)
         found(logs)(1, "CT_UTR_MISMATCH", Level.INFO)
       }

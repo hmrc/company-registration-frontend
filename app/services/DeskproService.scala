@@ -22,7 +22,6 @@ import connectors.DeskproConnector
 import models.external.Ticket
 import models.{Ticket => TicketForm}
 import uk.gov.hmrc.http.HeaderCarrier
-
 import scala.concurrent.Future
 
 class DeskproServiceImpl @Inject()(val deskproConnector: DeskproConnector) extends DeskproService

@@ -81,10 +81,10 @@ class WhoAgreedTakeoverControllerSpec extends SCRSSpec
 
           mockGetTakeoverDetails(testRegistrationId)(Future.successful(None))
 
-          val res: Result = TestWhoAgreedTakeoverController.show()(request)
+          val res: Result = TestWhoAgreedTakeoverController.show(request)
 
           status(res) shouldBe SEE_OTHER
-          redirectLocation(res) should contain(controllers.takeovers.routes.ReplacingAnotherBusinessController.show().url)
+          redirectLocation(res) should contain(controllers.takeovers.routes.ReplacingAnotherBusinessController.show.url)
         }
       }
 
@@ -97,10 +97,10 @@ class WhoAgreedTakeoverControllerSpec extends SCRSSpec
 
           mockGetTakeoverDetails(testRegistrationId)(Future.successful(Some(TakeoverDetails(replacingAnotherBusiness = false))))
 
-          val res: Result = TestWhoAgreedTakeoverController.show()(request)
+          val res: Result = TestWhoAgreedTakeoverController.show(request)
 
           status(res) shouldBe SEE_OTHER
-          redirectLocation(res) should contain(controllers.reg.routes.AccountingDatesController.show().url)
+          redirectLocation(res) should contain(controllers.reg.routes.AccountingDatesController.show.url)
         }
       }
 
@@ -113,10 +113,10 @@ class WhoAgreedTakeoverControllerSpec extends SCRSSpec
 
           mockGetTakeoverDetails(testRegistrationId)(Future.successful(Some(TakeoverDetails(replacingAnotherBusiness = true))))
 
-          val res: Result = TestWhoAgreedTakeoverController.show()(request)
+          val res: Result = TestWhoAgreedTakeoverController.show(request)
 
           status(res) shouldBe SEE_OTHER
-          redirectLocation(res) should contain(controllers.takeovers.routes.OtherBusinessNameController.show().url)
+          redirectLocation(res) should contain(controllers.takeovers.routes.OtherBusinessNameController.show.url)
         }
       }
 
@@ -134,10 +134,10 @@ class WhoAgreedTakeoverControllerSpec extends SCRSSpec
             )
           )))
 
-          val res: Result = TestWhoAgreedTakeoverController.show()(request)
+          val res: Result = TestWhoAgreedTakeoverController.show(request)
 
           status(res) shouldBe SEE_OTHER
-          redirectLocation(res) should contain(controllers.takeovers.routes.OtherBusinessAddressController.show().url)
+          redirectLocation(res) should contain(controllers.takeovers.routes.OtherBusinessAddressController.show.url)
         }
       }
 
@@ -156,7 +156,7 @@ class WhoAgreedTakeoverControllerSpec extends SCRSSpec
             )
           )))
 
-          val res: Result = TestWhoAgreedTakeoverController.show()(request)
+          val res: Result = TestWhoAgreedTakeoverController.show(request)
 
           status(res) shouldBe OK
           bodyOf(res) shouldBe page(WhoAgreedTakeoverForm.form, testBusinessName).body
@@ -179,7 +179,7 @@ class WhoAgreedTakeoverControllerSpec extends SCRSSpec
             )
           )))
 
-          val res: Result = TestWhoAgreedTakeoverController.show()(request)
+          val res: Result = TestWhoAgreedTakeoverController.show(request)
 
           status(res) shouldBe OK
           bodyOf(res) shouldBe page(WhoAgreedTakeoverForm.form.fill(testPreviousOwnersName), testBusinessName).body
@@ -194,7 +194,7 @@ class WhoAgreedTakeoverControllerSpec extends SCRSSpec
         CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
         mockTakeoversFeatureSwitch(isEnabled = false)
 
-        intercept[NotFoundException](await(TestWhoAgreedTakeoverController.show()(request)))
+        intercept[NotFoundException](await(TestWhoAgreedTakeoverController.show(request)))
       }
     }
   }
@@ -227,10 +227,10 @@ class WhoAgreedTakeoverControllerSpec extends SCRSSpec
           implicit val request: Request[AnyContentAsFormUrlEncoded] =
             FakeRequest().withFormUrlEncodedBody(whoAgreedTakeoverKey -> testPreviousOwnersName)
 
-          val res: Result = TestWhoAgreedTakeoverController.submit()(request)
+          val res: Result = TestWhoAgreedTakeoverController.submit(request)
 
           status(res) shouldBe SEE_OTHER
-          redirectLocation(res) should contain(controllers.takeovers.routes.PreviousOwnersAddressController.show().url)
+          redirectLocation(res) should contain(controllers.takeovers.routes.PreviousOwnersAddressController.show.url)
         }
       }
 
@@ -252,7 +252,7 @@ class WhoAgreedTakeoverControllerSpec extends SCRSSpec
           implicit val request: Request[AnyContentAsFormUrlEncoded] =
             FakeRequest().withFormUrlEncodedBody(whoAgreedTakeoverKey -> "+")
 
-          val res: Result = TestWhoAgreedTakeoverController.submit()(request)
+          val res: Result = TestWhoAgreedTakeoverController.submit(request)
 
           status(res) shouldBe BAD_REQUEST
           Jsoup.parse(bodyOf(res))
@@ -275,7 +275,7 @@ class WhoAgreedTakeoverControllerSpec extends SCRSSpec
           implicit val request: Request[AnyContentAsFormUrlEncoded] =
             FakeRequest().withFormUrlEncodedBody(whoAgreedTakeoverKey -> "")
 
-          val res: Result = TestWhoAgreedTakeoverController.submit()(request)
+          val res: Result = TestWhoAgreedTakeoverController.submit(request)
 
           status(res) shouldBe BAD_REQUEST
           Jsoup.parse(bodyOf(res))
@@ -299,7 +299,7 @@ class WhoAgreedTakeoverControllerSpec extends SCRSSpec
           implicit val request: Request[AnyContentAsFormUrlEncoded] =
             FakeRequest().withFormUrlEncodedBody(whoAgreedTakeoverKey -> "12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901")
 
-          val res: Result = TestWhoAgreedTakeoverController.submit()(request)
+          val res: Result = TestWhoAgreedTakeoverController.submit(request)
 
           status(res) shouldBe BAD_REQUEST
           Jsoup.parse(bodyOf(res))

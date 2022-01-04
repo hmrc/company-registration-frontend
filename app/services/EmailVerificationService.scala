@@ -17,7 +17,6 @@
 package services
 
 import javax.inject.Inject
-
 import audit.events.{EmailVerifiedEvent, EmailVerifiedEventDetail}
 import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, EmailVerificationConnector, KeystoreConnector, SendTemplatedEmailConnector}
@@ -27,7 +26,6 @@ import models.{Email, _}
 import play.api.mvc.{AnyContent, Request, Result, Results}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.control.NoStackTrace

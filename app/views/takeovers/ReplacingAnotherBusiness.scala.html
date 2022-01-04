@@ -56,7 +56,7 @@
         </details>
     </div>
 
-    @formWithCSRF(action = controllers.takeovers.routes.ReplacingAnotherBusinessController.submit()) {
+    @formWithCSRF(action = controllers.takeovers.routes.ReplacingAnotherBusinessController.submit) {
         <div class="form-group">
         @inputRadioGroup(
             replacingAnotherBusiness("replacingAnotherBusiness"),

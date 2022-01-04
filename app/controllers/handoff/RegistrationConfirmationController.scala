@@ -19,9 +19,9 @@ package controllers.handoff
 import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthenticatedController
-import javax.inject.{Inject, Singleton}
+import javax.inject.Inject
 import models.{ConfirmationReferencesSuccessResponse, DESFailureRetriable}
-import play.api.Logger
+import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc._
 import services.{HandBackService, HandOffService, NavModelNotFoundException}
@@ -43,7 +43,7 @@ class RegistrationConfirmationController @Inject()(val authConnector: PlayAuthCo
                                                    error_template: error_template
                                                   )
                                                   (implicit val appConfig: FrontendAppConfig, implicit val ec: ExecutionContext)
-  extends AuthenticatedController with I18nSupport with SessionRegistration {
+  extends AuthenticatedController with I18nSupport with SessionRegistration with Logging {
 
   //HO5.1 & old HO6
   def registrationConfirmation(requestData: String): Action[AnyContent] = Action.async {
@@ -54,13 +54,13 @@ class RegistrationConfirmationController @Inject()(val authConnector: PlayAuthCo
             handBackService.decryptConfirmationHandback(requestData) flatMap {
               case Success(s) => handBackService.storeConfirmationHandOff(s, regid).flatMap {
                 case _ if handBackService.payloadHasForwardLinkAndNoPaymentRefs(s) => getPaymentHandoffResult(externalID)
-                case ConfirmationReferencesSuccessResponse(_) => Future.successful(Redirect(controllers.reg.routes.ConfirmationController.show()))
-                case DESFailureRetriable => Future.successful(Redirect(controllers.reg.routes.ConfirmationController.show()))
-                case _ => Future.successful(Redirect(controllers.reg.routes.ConfirmationController.deskproPage()))
+                case ConfirmationReferencesSuccessResponse(_) => Future.successful(Redirect(controllers.reg.routes.ConfirmationController.show))
+                case DESFailureRetriable => Future.successful(Redirect(controllers.reg.routes.ConfirmationController.show))
+                case _ => Future.successful(Redirect(controllers.reg.routes.ConfirmationController.deskproPage))
               }
               case Failure(DecryptionError) => Future.successful(BadRequest(error_template_restart("6", "DecryptionError")))
               case unknown => Future.successful {
-                Logger.warn(s"[RegistrationConfirmationController][registrationConfirmation] HO6 Unexpected result, sending to post-sign-in : ${unknown}")
+                logger.warn(s"[RegistrationConfirmationController][registrationConfirmation] HO6 Unexpected result, sending to post-sign-in : ${unknown}")
                 Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))
               }
             } recover {
@@ -72,7 +72,7 @@ class RegistrationConfirmationController @Inject()(val authConnector: PlayAuthCo
   }
 
   def paymentConfirmation(requestData: String): Action[AnyContent] = {
-    Logger.info("[RegistrationConfirmationController][paymentConfirmation] New Handoff 6")
+    logger.info("[RegistrationConfirmationController][paymentConfirmation] New Handoff 6")
     registrationConfirmation(requestData)
   }
 

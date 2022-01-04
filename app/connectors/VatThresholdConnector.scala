@@ -20,7 +20,7 @@ import javax.inject.Inject
 
 import config.{FrontendAppConfig, WSHttp}
 import org.joda.time.LocalDate
-import play.api.Logger
+import play.api.Logging
 import play.api.libs.json.{JsNull, JsString}
 import uk.gov.hmrc.http._
 
@@ -35,7 +35,7 @@ class VatThresholdConnectorImpl @Inject()(appConfig: FrontendAppConfig, val wSHt
   lazy val serviceUri = appConfig.servicesConfig.getConfString("vat-registration.uri", "/vatreg")
 }
 
-trait VatThresholdConnector extends HttpErrorFunctions {
+trait VatThresholdConnector extends HttpErrorFunctions with Logging {
   val wSHttp : CoreGet
   val serviceBaseUrl: String
   val serviceUri: String
@@ -52,14 +52,14 @@ trait VatThresholdConnector extends HttpErrorFunctions {
         }
       }
     } recover {
-      case ex: NotFoundException => Logger.error(s"[VATThresholdConnector] [getVATThreshold] $ex"); throw ex
-      case ex: InternalServerException => Logger.error(s"[VATThresholdConnector] [getVATThreshold] $ex"); throw ex
-      case ex: BadGatewayException => Logger.error(s"[VATThresholdConnector] [getVATThreshold] $ex"); throw ex
+      case ex: NotFoundException => logger.error(s"[VATThresholdConnector] [getVATThreshold] $ex"); throw ex
+      case ex: InternalServerException => logger.error(s"[VATThresholdConnector] [getVATThreshold] $ex"); throw ex
+      case ex: BadGatewayException => logger.error(s"[VATThresholdConnector] [getVATThreshold] $ex"); throw ex
     }
   }
 
     private def logAndThrow(msg: String) = {
-    Logger.error(msg)
+    logger.error(msg)
     throw new RuntimeException(msg)
   }
 }

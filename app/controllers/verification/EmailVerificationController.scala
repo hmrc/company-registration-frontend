@@ -81,7 +81,7 @@ class EmailVerificationController @Inject()(val authConnector: PlayAuthConnector
               emailBlockv => emailBlockv.fold[Future[Result]](
                 Future.successful(Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))))
                 (email =>
-                  emailVerificationService.sendVerificationLink(email.address, rId, creds.providerId, extId).map { _ => Redirect(controllers.verification.routes.EmailVerificationController.verifyShow()) }))
+                  emailVerificationService.sendVerificationLink(email.address, rId, creds.providerId, extId).map { _ => Redirect(controllers.verification.routes.EmailVerificationController.verifyShow) }))
           }
         }
       }
@@ -95,12 +95,12 @@ class EmailVerificationController @Inject()(val authConnector: PlayAuthConnector
 
   val createSubmit: Action[AnyContent] = Action.async { implicit request =>
     //TODO change this to create account - need to remove auth context from session / logout
-    Future.successful(Redirect(controllers.reg.routes.ReturningUserController.show()))
+    Future.successful(Redirect(controllers.reg.routes.ReturningUserController.show))
   }
 
   val createGGWAccountAffinityShow: Action[AnyContent] = Action.async {
     implicit request =>
-      val redirect = controllers.reg.routes.ReturningUserController.show().url
+      val redirect = controllers.reg.routes.ReturningUserController.show.url
       val url = controllers.reg.routes.SignInOutController.signOut(Some(ContinueUrl(s"$frontEndUrl$redirect"))).url
       Future.successful(Ok(CreateGGWAccount(url)))
 
@@ -113,13 +113,13 @@ class EmailVerificationController @Inject()(val authConnector: PlayAuthConnector
 
   val createNewGGWAccountShow: Action[AnyContent] = Action.async {
     implicit request =>
-      val redirect = controllers.reg.routes.ReturningUserController.show().url
+      val redirect = controllers.reg.routes.ReturningUserController.show.url
       val url = controllers.reg.routes.SignInOutController.signOut(Some(ContinueUrl(s"$frontEndUrl$redirect"))).url
       Future.successful(Ok(CreateNewGGWAccount(url)))
   }
 
   val startAgain: Action[AnyContent] = Action.async {
     implicit request =>
-      Future.successful(Redirect(controllers.reg.routes.ReturningUserController.show()).withNewSession)
+      Future.successful(Redirect(controllers.reg.routes.ReturningUserController.show).withNewSession)
   }
 }

@@ -29,7 +29,7 @@ class EditSessionControllerSpec extends UnitSpec with MockitoSugar with GuiceOne
   val newSessionId = "new-session-id"
 
   class Setup {
-    val controller = new EditSessionController {}
+    val controller = new EditSessionController(stubMessagesControllerComponents()) {}
   }
 
   "editSession" should {

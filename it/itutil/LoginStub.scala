@@ -23,7 +23,6 @@ import java.util.UUID
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import play.api.http.HeaderNames
-import play.api.libs.Crypto
 import play.api.libs.crypto.DefaultCookieSigner
 import play.api.libs.json.{JsObject, Json}
 import play.api.libs.ws.WSCookie

@@ -47,7 +47,7 @@
         aboutYou, dataJourney = Some("CompletionCapacity")
     )
 
-    @formWithCsrf(action = controllers.reg.routes.CompletionCapacityController.submit()) {
+    @formWithCsrf(action = controllers.reg.routes.CompletionCapacityController.submit) {
         <div class="form-group">
             @inputRadioGroupHidden(
                 aboutYou("completionCapacity"),

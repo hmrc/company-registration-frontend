@@ -71,7 +71,7 @@ class PreviousOwnersAddressControllerISpec extends IntegrationSpecBase
       stubValidateRegisteredOfficeAddress(testCompanyDetails.cHROAddress, OK, testPreviousOwnersAddress)
       stubGetPrepopAddresses(testRegId, OK, Nil)
 
-      val res: WSResponse = await(buildClient(controllers.takeovers.routes.PreviousOwnersAddressController.show().url)
+      val res: WSResponse = await(buildClient(controllers.takeovers.routes.PreviousOwnersAddressController.show.url)
         .withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
         .get()
       )
@@ -89,7 +89,7 @@ class PreviousOwnersAddressControllerISpec extends IntegrationSpecBase
       stubValidateRegisteredOfficeAddress(testCompanyDetails.cHROAddress, OK, testPreviousOwnersAddress)
       stubGetPrepopAddresses(testRegId, OK, Seq(testPreviousOwnersAddress))
 
-      val res: WSResponse = await(buildClient(controllers.takeovers.routes.PreviousOwnersAddressController.show().url)
+      val res: WSResponse = await(buildClient(controllers.takeovers.routes.PreviousOwnersAddressController.show.url)
         .withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
         .get()
       )
@@ -113,7 +113,7 @@ class PreviousOwnersAddressControllerISpec extends IntegrationSpecBase
           addressSeqKey -> Json.toJson(Seq(testPreviousOwnersAddress)).toString()
         ), userId)
 
-      val res: WSResponse = await(buildClient(controllers.takeovers.routes.PreviousOwnersAddressController.submit().url)
+      val res: WSResponse = await(buildClient(controllers.takeovers.routes.PreviousOwnersAddressController.submit.url)
         .withHeaders(
           HeaderNames.COOKIE -> sessionCookie,
           "Csrf-Token" -> "nocheck"
@@ -121,7 +121,7 @@ class PreviousOwnersAddressControllerISpec extends IntegrationSpecBase
       )
 
       res.status shouldBe SEE_OTHER
-      res.redirectLocation should contain(controllers.reg.routes.AccountingDatesController.show().url)
+      res.redirectLocation should contain(controllers.reg.routes.AccountingDatesController.show.url)
     }
 
     "redirect to ALF" in {
@@ -137,7 +137,7 @@ class PreviousOwnersAddressControllerISpec extends IntegrationSpecBase
           addressSeqKey -> Json.toJson(Seq(testBusinessAddress)).toString()
         ), userId)
 
-      val res: WSResponse = await(buildClient(controllers.takeovers.routes.PreviousOwnersAddressController.submit().url)
+      val res: WSResponse = await(buildClient(controllers.takeovers.routes.PreviousOwnersAddressController.submit.url)
         .withHeaders(
           HeaderNames.COOKIE -> sessionCookie,
           "Csrf-Token" -> "nocheck"
@@ -267,7 +267,7 @@ class PreviousOwnersAddressControllerISpec extends IntegrationSpecBase
       )
 
       res.status shouldBe SEE_OTHER
-      res.redirectLocation should contain(controllers.reg.routes.AccountingDatesController.show().url)
+      res.redirectLocation should contain(controllers.reg.routes.AccountingDatesController.show.url)
     }
   }
 }

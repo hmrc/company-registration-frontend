@@ -19,7 +19,7 @@ package connectors
 import config.{FrontendAppConfig, WSHttp}
 import javax.inject.Inject
 import models.TakeoverDetails
-import play.api.Logger
+import play.api.Logging
 import play.api.http.Status._
 import play.api.libs.json.{JsError, JsSuccess}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
@@ -27,7 +27,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import scala.concurrent.{ExecutionContext, Future}
 
 class TakeoverConnector @Inject()(appConfig: FrontendAppConfig,
-                                  http: WSHttp)(implicit ec: ExecutionContext) {
+                                  http: WSHttp)(implicit ec: ExecutionContext) extends Logging {
   def takeOverDetailsUrl(registrationId: String) = s"${appConfig.companyRegistrationUrl}/company-registration/corporation-tax-registration/$registrationId/takeover-details"
 
   def getTakeoverDetails(registrationId: String)(implicit hc: HeaderCarrier): Future[Option[TakeoverDetails]] = {
@@ -39,7 +39,7 @@ class TakeoverConnector @Inject()(appConfig: FrontendAppConfig,
               case JsSuccess(takeOverDetails, _) =>
                 Some(takeOverDetails)
               case JsError(errors) =>
-                Logger.error(s"[getTakeoverDetails] could not parse takeover details json to Takeover Details $registrationId for keys ${errors.map(_._1)}")
+                logger.error(s"[getTakeoverDetails] could not parse takeover details json to Takeover Details $registrationId for keys ${errors.map(_._1)}")
                 None
             }
           case _ =>
@@ -56,7 +56,7 @@ class TakeoverConnector @Inject()(appConfig: FrontendAppConfig,
           case JsSuccess(takeOverDetails, _) =>
             takeOverDetails
           case JsError(errors) =>
-            Logger.error(s"[updateTakeoverDetails] could not parse takeover details json to Takeover Details $registrationId for keys ${errors.map(_._1)}")
+            logger.error(s"[updateTakeoverDetails] could not parse takeover details json to Takeover Details $registrationId for keys ${errors.map(_._1)}")
             throw new Exception("Update returned invalid json")
         }
     }

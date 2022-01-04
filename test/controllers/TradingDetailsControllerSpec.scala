@@ -83,14 +83,14 @@ class TradingDetailsControllerSpec extends SCRSSpec with GuiceOneAppPerSuite wit
       when(mockTradingDetailsService.retrieveTradingDetails(ArgumentMatchers.eq(regID))(ArgumentMatchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(TradingDetails("true")))
 
-      showWithAuthorisedUser(testController.show()) {
+      showWithAuthorisedUser(testController.show) {
         result =>
           status(result) shouldBe OK
       }
     }
 
     "return a 303 whilst requesting a with an unauthorised user" in new Setup {
-      showWithUnauthorisedUser(testController.show()) {
+      showWithUnauthorisedUser(testController.show) {
         result => status(result) shouldBe SEE_OTHER
       }
     }

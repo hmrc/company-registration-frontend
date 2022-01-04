@@ -20,7 +20,7 @@ import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthenticatedController
 import javax.inject.Inject
-import play.api.Logger
+import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.{HandBackService, HandOffService, NavModelNotFoundException}
@@ -39,7 +39,7 @@ class CorporationTaxSummaryController @Inject()(val authConnector: PlayAuthConne
                                                     val controllerComponents: MessagesControllerComponents,
                                                     error_template_restart: error_template_restart)
                                                    (implicit val appConfig: FrontendAppConfig, implicit val ec: ExecutionContext)
-  extends AuthenticatedController with I18nSupport with SessionRegistration {
+  extends AuthenticatedController with I18nSupport with SessionRegistration with Logging {
 
   //HO4
   def corporationTaxSummary(requestData: String): Action[AnyContent] = Action.async {
@@ -47,11 +47,11 @@ class CorporationTaxSummaryController @Inject()(val authConnector: PlayAuthConne
       ctAuthorisedHandoff("HO4", requestData) {
         registeredHandOff("HO4", requestData) { _ =>
           handBackService.processSummaryPage1HandBack(requestData).map {
-            case Success(_) => Redirect(controllers.reg.routes.SummaryController.show())
+            case Success(_) => Redirect(controllers.reg.routes.SummaryController.show)
             case Failure(PayloadError) => BadRequest(error_template_restart("4", "PayloadError"))
             case Failure(DecryptionError) => BadRequest(error_template_restart("4", "DecryptionError"))
             case unknown => {
-              Logger.warn(s"[CorporationTaxSummaryController][corporationTaxSummary] HO4 Unexpected result, sending to post-sign-in : ${unknown}")
+              logger.warn(s"[CorporationTaxSummaryController][corporationTaxSummary] HO4 Unexpected result, sending to post-sign-in : ${unknown}")
               Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))
             }
           } recover {

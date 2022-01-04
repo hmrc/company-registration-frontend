@@ -19,7 +19,7 @@ package connectors
 import config.{FrontendAppConfig, WSHttp}
 import javax.inject.Inject
 import models._
-import play.api.Logger
+import play.api.Logging
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.http._
 
@@ -40,7 +40,7 @@ case object BusinessRegistrationForbiddenResponse extends BusinessRegistrationRe
 
 case class BusinessRegistrationErrorResponse(err: Exception) extends BusinessRegistrationResponse
 
-trait BusinessRegistrationConnector {
+trait BusinessRegistrationConnector extends Logging {
 
   val businessRegUrl: String
   val wsHttp: CoreGet with CorePost
@@ -56,7 +56,7 @@ trait BusinessRegistrationConnector {
         wsHttp.POST[JsValue, BusinessRegistration](s"$businessRegUrl/business-registration/business-tax-registration/update/$registrationID",
           Json.toJson[BusinessRegistration](resp.copy(completionCapacity = Some(completionCapacity))))
       case unknown => {
-        Logger.warn(s"[BusinessRegistrationConnector][retrieveAndUpdateCompletionCapacity] Unexpected result, unable to get BR doc : ${unknown}")
+        logger.warn(s"[BusinessRegistrationConnector][retrieveAndUpdateCompletionCapacity] Unexpected result, unable to get BR doc : ${unknown}")
         throw new RuntimeException("Missing BR document for signed in user")
       }
     }
@@ -68,13 +68,13 @@ trait BusinessRegistrationConnector {
         BusinessRegistrationSuccessResponse(metaData)
     } recover {
       case e: NotFoundException =>
-        Logger.info(s"[BusinessRegistrationConnector] [retrieveMetadata] - Received a NotFound status code when expecting metadata from Business-Registration")
+        logger.info(s"[BusinessRegistrationConnector] [retrieveMetadata] - Received a NotFound status code when expecting metadata from Business-Registration")
         BusinessRegistrationNotFoundResponse
       case e: ForbiddenException =>
-        Logger.error(s"[BusinessRegistrationConnector] [retrieveMetadata] - Received a Forbidden status code when expecting metadata from Business-Registration")
+        logger.error(s"[BusinessRegistrationConnector] [retrieveMetadata] - Received a Forbidden status code when expecting metadata from Business-Registration")
         BusinessRegistrationForbiddenResponse
       case e: Exception =>
-        Logger.error(s"[BusinessRegistrationConnector] [retrieveMetadata] - Received error when expecting metadata from Business-Registration - Error ${e.getMessage}")
+        logger.error(s"[BusinessRegistrationConnector] [retrieveMetadata] - Received error when expecting metadata from Business-Registration - Error ${e.getMessage}")
         BusinessRegistrationErrorResponse(e)
     }
   }
@@ -85,13 +85,13 @@ trait BusinessRegistrationConnector {
         BusinessRegistrationSuccessResponse(metaData)
     } recover {
       case e: NotFoundException =>
-        Logger.info(s"[BusinessRegistrationConnector] [retrieveMetadata] - Received a NotFound status code when expecting metadata from Business-Registration")
+        logger.info(s"[BusinessRegistrationConnector] [retrieveMetadata] - Received a NotFound status code when expecting metadata from Business-Registration")
         BusinessRegistrationNotFoundResponse
       case e: ForbiddenException =>
-        Logger.error(s"[BusinessRegistrationConnector] [retrieveMetadata] - Received a Forbidden status code when expecting metadata from Business-Registration")
+        logger.error(s"[BusinessRegistrationConnector] [retrieveMetadata] - Received a Forbidden status code when expecting metadata from Business-Registration")
         BusinessRegistrationForbiddenResponse
       case e: Exception =>
-        Logger.error(s"[BusinessRegistrationConnector] [retrieveMetadata] - Received error when expecting metadata from Business-Registration - Error ${e.getMessage}")
+        logger.error(s"[BusinessRegistrationConnector] [retrieveMetadata] - Received error when expecting metadata from Business-Registration - Error ${e.getMessage}")
         BusinessRegistrationErrorResponse(e)
     }
   }
@@ -129,10 +129,10 @@ trait BusinessRegistrationConnector {
 
   private def handlePrePopError(funcName: String): PartialFunction[Throwable, Boolean] = {
     case ex: HttpException =>
-      Logger.error(s"[BusinessRegistrationConnector] [$funcName] http status code ${ex.responseCode} returned for reason ${ex.message}", ex)
+      logger.error(s"[BusinessRegistrationConnector] [$funcName] http status code ${ex.responseCode} returned for reason ${ex.message}", ex)
       false
     case ex: Exception =>
-      Logger.error(s"[BusinessRegistrationConnector] [$funcName] unknown exception caught : ${ex.getMessage}", ex)
+      logger.error(s"[BusinessRegistrationConnector] [$funcName] unknown exception caught : ${ex.getMessage}", ex)
       false
   }
 }

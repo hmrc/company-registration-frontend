@@ -19,7 +19,7 @@ package connectors
 import config.{FrontendAppConfig, WSHttp}
 import javax.inject.{Inject, Singleton}
 import models.NewAddress
-import play.api.Logger
+import play.api.Logging
 import play.api.libs.json._
 import uk.gov.hmrc.http._
 
@@ -28,7 +28,7 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class PrepopAddressConnector @Inject()(appConfig: FrontendAppConfig,
                                        http: WSHttp
-                                      )(implicit executionContext: ExecutionContext) {
+                                      )(implicit executionContext: ExecutionContext) extends Logging {
 
   def getPrepopAddresses(registrationId: String)(implicit hc: HeaderCarrier): Future[Seq[NewAddress]] =
     http.GET[HttpResponse](appConfig.prepopAddressUrl(registrationId)) map { response =>
@@ -36,17 +36,17 @@ class PrepopAddressConnector @Inject()(appConfig: FrontendAppConfig,
         case JsSuccess(addresses, _) =>
           addresses
         case JsError(errors) =>
-          Logger.error(s"[Get prepop addresses] Incoming JSON failed format validation with reason(s): $errors")
+          logger.error(s"[Get prepop addresses] Incoming JSON failed format validation with reason(s): $errors")
           Nil
       }
     } recover {
       case _: NotFoundException =>
         Nil
       case e: ForbiddenException =>
-        Logger.error(s"[Get prepop address] Forbidden request (${e.responseCode}) ${e.message}")
+        logger.error(s"[Get prepop address] Forbidden request (${e.responseCode}) ${e.message}")
         Nil
       case e: Exception =>
-        Logger.error(s"[Get prepop address] Unexpected error calling business registration (${e.getMessage})")
+        logger.error(s"[Get prepop address] Unexpected error calling business registration (${e.getMessage})")
         Nil
     }
 
@@ -55,7 +55,7 @@ class PrepopAddressConnector @Inject()(appConfig: FrontendAppConfig,
       .map (_ => true)
       .recover {
         case e: Exception =>
-          Logger.error(s"[Update prepop address] Unexpected error updating prepop address (${e.getMessage})")
+          logger.error(s"[Update prepop address] Unexpected error updating prepop address (${e.getMessage})")
           false
       }
 

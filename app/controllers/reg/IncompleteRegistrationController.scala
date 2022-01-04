@@ -23,7 +23,7 @@ import play.api.mvc.MessagesControllerComponents
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.reg.{IncompleteRegistration => IncompleteRegistrationView}
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 @Singleton
 class IncompleteRegistrationController @Inject()(mcc: MessagesControllerComponents,
@@ -36,6 +36,6 @@ class IncompleteRegistrationController @Inject()(mcc: MessagesControllerComponen
   }
 
   val submit = Action.async { implicit request =>
-    Future.successful(Redirect(routes.CompletionCapacityController.show()))
+    Future.successful(Redirect(routes.CompletionCapacityController.show))
   }
 }

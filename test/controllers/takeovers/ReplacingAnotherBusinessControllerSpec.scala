@@ -76,7 +76,7 @@ class ReplacingAnotherBusinessControllerSpec extends SCRSSpec with GuiceOneAppPe
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
           mockGetTakeoverDetails(testRegistrationId)(Future.successful(None))
 
-          val res: Result = await(TestReplacingAnotherBusinessController.show()(request))
+          val res: Result = await(TestReplacingAnotherBusinessController.show(request))
 
           status(res) shouldBe OK
           bodyOf(res) shouldBe page(ReplacingAnotherBusinessForm.form).body
@@ -94,7 +94,7 @@ class ReplacingAnotherBusinessControllerSpec extends SCRSSpec with GuiceOneAppPe
           val testTakeoverDetails: TakeoverDetails = TakeoverDetails(replacingAnotherBusiness = true)
           mockGetTakeoverDetails(testRegistrationId)(Future.successful(Some(testTakeoverDetails)))
 
-          val res: Result = await(TestReplacingAnotherBusinessController.show()(request))
+          val res: Result = await(TestReplacingAnotherBusinessController.show(request))
 
           status(res) shouldBe OK
           bodyOf(res) shouldBe page(ReplacingAnotherBusinessForm.form.fill(testTakeoverDetails.replacingAnotherBusiness)).body
@@ -109,7 +109,7 @@ class ReplacingAnotherBusinessControllerSpec extends SCRSSpec with GuiceOneAppPe
         CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
         mockTakeoversFeatureSwitch(isEnabled = false)
 
-        intercept[NotFoundException](await(TestReplacingAnotherBusinessController.show()(request)))
+        intercept[NotFoundException](await(TestReplacingAnotherBusinessController.show(request)))
       }
     }
   }
@@ -127,10 +127,10 @@ class ReplacingAnotherBusinessControllerSpec extends SCRSSpec with GuiceOneAppPe
           val testTakeoverDetails: TakeoverDetails = TakeoverDetails(replacingAnotherBusiness = false)
           mockUpdateReplacingAnotherBusiness(testRegistrationId, replacingAnotherBusiness = false)(Future.successful(testTakeoverDetails))
 
-          val res: Result = await(TestReplacingAnotherBusinessController.submit()(request))
+          val res: Result = await(TestReplacingAnotherBusinessController.submit(request))
 
           status(res) shouldBe SEE_OTHER
-          redirectLocation(res) should contain(controllers.reg.routes.AccountingDatesController.show().url)
+          redirectLocation(res) should contain(controllers.reg.routes.AccountingDatesController.show.url)
         }
         "store the selected answer and redirect the user to the next Takeover Page" in new Setup {
           override implicit val request: Request[AnyContentAsFormUrlEncoded] =
@@ -143,10 +143,10 @@ class ReplacingAnotherBusinessControllerSpec extends SCRSSpec with GuiceOneAppPe
           val testTakeoverDetails: TakeoverDetails = TakeoverDetails(replacingAnotherBusiness = true)
           mockUpdateReplacingAnotherBusiness(testRegistrationId, replacingAnotherBusiness = true)(Future.successful(testTakeoverDetails))
 
-          val res: Result = await(TestReplacingAnotherBusinessController.submit()(request))
+          val res: Result = await(TestReplacingAnotherBusinessController.submit(request))
 
           status(res) shouldBe SEE_OTHER
-          redirectLocation(res) should contain(controllers.takeovers.routes.OtherBusinessNameController.show().url)
+          redirectLocation(res) should contain(controllers.takeovers.routes.OtherBusinessNameController.show.url)
         }
       }
     }

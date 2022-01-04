@@ -60,8 +60,8 @@ class BasicCompanyDetailsControllerISpec extends IntegrationSpecBase with LoginS
        |  "hmrc" : {},
        |  "session" : {
        |    "timeout" : 999939,
-       |    "keepalive_url" : "http://localhost:9970${controllers.reg.routes.SignInOutController.renewSession().url}",
-       |    "signedout_url" : "http://localhost:9970${controllers.reg.routes.SignInOutController.destroySession().url}"
+       |    "keepalive_url" : "http://localhost:9970${controllers.reg.routes.SignInOutController.renewSession.url}",
+       |    "signedout_url" : "http://localhost:9970${controllers.reg.routes.SignInOutController.destroySession.url}"
        |  },
        |  "links" : {
        |    "forward" : "link-to-about-you",

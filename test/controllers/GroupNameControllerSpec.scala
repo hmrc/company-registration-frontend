@@ -108,7 +108,7 @@ class GroupNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Moc
 
   "The GroupNameController" should {
     "redirect whilst the user is un authorised when sending a GET" in new Setup {
-      showWithUnauthorisedUser(controller.show()) {
+      showWithUnauthorisedUser(controller.show) {
         result => {
           val response = await(result)
           status(response) shouldBe SEE_OTHER
@@ -121,7 +121,7 @@ class GroupNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Moc
   "Redirect the user to post sign in if the user is authorised but has no registration id in session" in new Setup {
     mockKeystoreFetchAndGet("registrationID", None)
 
-    showWithAuthorisedUser(controller.show()) {
+    showWithAuthorisedUser(controller.show) {
       result => {
         val response = await(result)
         status(response) shouldBe SEE_OTHER
@@ -137,7 +137,7 @@ class GroupNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Moc
     when(mockGroupService.retrieveGroups(ArgumentMatchers.any[String])(ArgumentMatchers.any[HeaderCarrier]))
       .thenReturn(Future.successful(None))
 
-    showWithAuthorisedUser(controller.show()) {
+    showWithAuthorisedUser(controller.show) {
 
       result => {
         val response = await(result)
@@ -209,7 +209,7 @@ class GroupNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Moc
     when(mockGroupService.updateGroupName(any(), any(), any())(any()))
       .thenReturn(Future.successful(testGroups))
 
-    submitWithAuthorisedUser(controller.submit(), FakeRequest().withFormUrlEncodedBody(
+    submitWithAuthorisedUser(controller.submit, FakeRequest().withFormUrlEncodedBody(
       "group-Name" -> "otherName",
       "other-Name" -> "bob co"
     )) {
@@ -237,7 +237,7 @@ class GroupNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Moc
     when(mockGroupService.updateGroupName(any(), any(), any())(any()))
       .thenReturn(Future.successful(testGroups))
 
-    submitWithAuthorisedUser(controller.submit(), FakeRequest().withFormUrlEncodedBody(
+    submitWithAuthorisedUser(controller.submit, FakeRequest().withFormUrlEncodedBody(
       "groupName" -> "otherName",
       "otherName" -> "bob co"
     )) {
@@ -266,7 +266,7 @@ class GroupNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Moc
     when(mockGroupService.updateGroupName(any(), any(), any())(any()))
       .thenReturn(Future.successful(testGroups))
 
-    submitWithAuthorisedUser(controller.submit(), FakeRequest().withFormUrlEncodedBody(
+    submitWithAuthorisedUser(controller.submit, FakeRequest().withFormUrlEncodedBody(
       "groupName" -> "Bob Group",
       "otherName" -> ""
     )) {
