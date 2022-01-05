@@ -59,9 +59,9 @@ class OtherBusinessAddressController        @Inject()(val authConnector: PlayAut
         if (scrsFeatureSwitches.takeovers.enabled) {
           takeoverService.getTakeoverDetails(regId).flatMap {
             case Some(TakeoverDetails(false, _, _, _, _)) =>
-              Future.successful(Redirect(regRoutes.AccountingDatesController.show()))
+              Future.successful(Redirect(regRoutes.AccountingDatesController.show))
             case Some(TakeoverDetails(_, None, _, _, _)) =>
-              Future.successful(Redirect(routes.OtherBusinessNameController.show()))
+              Future.successful(Redirect(routes.OtherBusinessNameController.show))
             case Some(TakeoverDetails(_, Some(businessName), Some(preselectedTakeoverAddress), _, _)) =>
               addressPrepopulationService.retrieveAddresses(regId).map {
                 addressSeq =>
@@ -85,7 +85,7 @@ class OtherBusinessAddressController        @Inject()(val authConnector: PlayAut
                     .addingToSession(addressSeqKey -> Json.toJson(addressSeq).toString())
               }
             case None =>
-              Future.successful(Redirect(routes.ReplacingAnotherBusinessController.show()))
+              Future.successful(Redirect(routes.ReplacingAnotherBusinessController.show))
           }
         }
         else {
@@ -117,12 +117,12 @@ class OtherBusinessAddressController        @Inject()(val authConnector: PlayAut
                     case PreselectedAddress(index) =>
                       takeoverService.updateBusinessAddress(regId, addressSeq(index)).map {
                         _ =>
-                          Redirect(routes.WhoAgreedTakeoverController.show())
+                          Redirect(routes.WhoAgreedTakeoverController.show)
                             .removingFromSession(addressSeqKey)
                       }
                   }
                 )
-                case _ => Future.successful(Redirect(routes.OtherBusinessAddressController.show()))
+                case _ => Future.successful(Redirect(routes.OtherBusinessAddressController.show))
               }
           }
       }
@@ -139,7 +139,7 @@ class OtherBusinessAddressController        @Inject()(val authConnector: PlayAut
                 address <- addressLookupFrontendService.getAddress(id)
                 _ <- takeoverService.updateBusinessAddress(regId, address)
                 _ <- businessRegConnector.updatePrePopAddress(regId, address)
-              } yield Redirect(routes.WhoAgreedTakeoverController.show()).removingFromSession(addressSeqKey)
+              } yield Redirect(routes.WhoAgreedTakeoverController.show).removingFromSession(addressSeqKey)
             case _ =>
               throw new Exception("[Takeovers] [Other Business Address] 'id' query string missing from ALF handback")
           }

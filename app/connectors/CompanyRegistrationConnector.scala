@@ -21,7 +21,7 @@ import javax.inject.Inject
 import config.{FrontendAppConfig, WSHttp}
 import models._
 import models.connectors.ConfirmationReferences
-import play.api.Logger
+import play.api.Logging
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.http._
 
@@ -39,7 +39,7 @@ case object FootprintForbiddenResponse extends FootprintResponse
 case object FootprintTooManyRequestsResponse extends FootprintResponse
 case class FootprintErrorResponse(err: Exception) extends FootprintResponse
 
-trait CompanyRegistrationConnector {
+trait CompanyRegistrationConnector extends Logging {
 
   val companyRegUrl: String
   val wsHttp: CoreGet with CorePost with CorePut with CoreDelete
@@ -61,19 +61,19 @@ trait CompanyRegistrationConnector {
   def retrieveCorporationTaxRegistration(registrationID: String)(implicit hc: HeaderCarrier): Future[JsValue] = {
     wsHttp.GET[JsValue](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/corporation-tax-registration") recover {
       case ex: BadRequestException =>
-        Logger.error(s"[CompanyRegistrationConnector] [retrieveCorporationTaxRegistration] for RegId: $registrationID - ${ex.responseCode} ${ex.message}")
+        logger.error(s"[CompanyRegistrationConnector] [retrieveCorporationTaxRegistration] for RegId: $registrationID - ${ex.responseCode} ${ex.message}")
         throw ex
       case ex: NotFoundException =>
-        Logger.info(s"[CompanyRegistrationConnector] [retrieveCorporationTaxRegistration] for RegId: $registrationID - ${ex.responseCode} ${ex.message}")
+        logger.info(s"[CompanyRegistrationConnector] [retrieveCorporationTaxRegistration] for RegId: $registrationID - ${ex.responseCode} ${ex.message}")
         throw ex
       case ex: Upstream4xxResponse =>
-        Logger.error(s"[CompanyRegistrationConnector] [retrieveCorporationTaxRegistration] for RegId: $registrationID - ${ex.upstreamResponseCode} ${ex.message}")
+        logger.error(s"[CompanyRegistrationConnector] [retrieveCorporationTaxRegistration] for RegId: $registrationID - ${ex.upstreamResponseCode} ${ex.message}")
         throw ex
       case ex: Upstream5xxResponse =>
-        Logger.error(s"[CompanyRegistrationConnector] [retrieveCorporationTaxRegistration] for RegId: $registrationID - ${ex.upstreamResponseCode} ${ex.message}")
+        logger.error(s"[CompanyRegistrationConnector] [retrieveCorporationTaxRegistration] for RegId: $registrationID - ${ex.upstreamResponseCode} ${ex.message}")
         throw ex
       case ex: Exception =>
-        Logger.error(s"[CompanyRegistrationConnector] [retrieveCorporationTaxRegistration] for RegId: $registrationID - Unexpected error occurred: $ex")
+        logger.error(s"[CompanyRegistrationConnector] [retrieveCorporationTaxRegistration] for RegId: $registrationID - Unexpected error occurred: $ex")
         throw ex
     }
   }
@@ -91,7 +91,7 @@ trait CompanyRegistrationConnector {
       case _: BadRequestException =>
         None
       case ex: Exception =>
-        Logger.error(s"[CompanyRegistrationConnector] [checkROAddress] for RegId: $registrationID")
+        logger.error(s"[CompanyRegistrationConnector] [checkROAddress] for RegId: $registrationID")
         throw ex
     }
   }
@@ -106,7 +106,7 @@ trait CompanyRegistrationConnector {
       case _: BadRequestException =>
         None
       case ex: Exception =>
-        Logger.error(s"[CompanyRegistrationConnector] [checkROAddress] for RegId: $registrationID")
+        logger.error(s"[CompanyRegistrationConnector] [checkROAddress] for RegId: $registrationID")
         throw ex
     }
   }
@@ -115,23 +115,23 @@ trait CompanyRegistrationConnector {
 
     wsHttp.GET[ThrottleResponse](s"$companyRegUrl/company-registration/throttle/check-user-access") map {
       response => {
-        Logger.debug(s"[CompanyRegistrationConnector] [retrieveOrCreateFootprint] response is $response")
+        logger.debug(s"[CompanyRegistrationConnector] [retrieveOrCreateFootprint] response is $response")
         FootprintFound(response)
       }
     } recover {
       case e: ForbiddenException =>
-        Logger.error(s"[CompanyRegistrationConnector] [retrieveOrCreateFootprint] - Received a Forbidden status code when expecting footprint")
+        logger.error(s"[CompanyRegistrationConnector] [retrieveOrCreateFootprint] - Received a Forbidden status code when expecting footprint")
         FootprintForbiddenResponse
 
       case e: Upstream4xxResponse =>
-        Logger.error(s"[CompanyRegistrationConnector] [retrieveOrCreateFootprint] - Received a 4xx status code ${e.upstreamResponseCode} when expecting footprint")
+        logger.error(s"[CompanyRegistrationConnector] [retrieveOrCreateFootprint] - Received a 4xx status code ${e.upstreamResponseCode} when expecting footprint")
         e.upstreamResponseCode match {
           case 429 => FootprintTooManyRequestsResponse
           case _ => FootprintErrorResponse(e)
         }
 
       case e: Exception =>
-        Logger.error(s"[CompanyRegistrationConnector] [retrieveOrCreateFootprint] - Received an error when expecting footprint - ${e.getMessage}")
+        logger.error(s"[CompanyRegistrationConnector] [retrieveOrCreateFootprint] - Received an error when expecting footprint - ${e.getMessage}")
         FootprintErrorResponse(e)
     }
 
@@ -141,19 +141,19 @@ trait CompanyRegistrationConnector {
     val json = Json.toJson[CorporationTaxRegistrationRequest](CorporationTaxRegistrationRequest("en"))
     wsHttp.PUT[JsValue, CorporationTaxRegistrationResponse](s"$companyRegUrl/company-registration/corporation-tax-registration/$regId", json) recover {
       case ex: BadRequestException =>
-        Logger.error(s"[CompanyRegistrationConnector] [createCorporationTaxRegistrationDetails] for RegId: $regId - ${ex.responseCode} ${ex.message}")
+        logger.error(s"[CompanyRegistrationConnector] [createCorporationTaxRegistrationDetails] for RegId: $regId - ${ex.responseCode} ${ex.message}")
         throw ex
       case ex: NotFoundException =>
-        Logger.info(s"[CompanyRegistrationConnector] [createCorporationTaxRegistrationDetails] for RegId: $regId - ${ex.responseCode} ${ex.message}")
+        logger.info(s"[CompanyRegistrationConnector] [createCorporationTaxRegistrationDetails] for RegId: $regId - ${ex.responseCode} ${ex.message}")
         throw ex
       case ex: Upstream4xxResponse =>
-        Logger.error(s"[CompanyRegistrationConnector] [createCorporationTaxRegistrationDetails] for RegId: $regId - ${ex.upstreamResponseCode} ${ex.message}")
+        logger.error(s"[CompanyRegistrationConnector] [createCorporationTaxRegistrationDetails] for RegId: $regId - ${ex.upstreamResponseCode} ${ex.message}")
         throw ex
       case ex: Upstream5xxResponse =>
-        Logger.error(s"[CompanyRegistrationConnector] [createCorporationTaxRegistrationDetails] for RegId: $regId - ${ex.upstreamResponseCode} ${ex.message}")
+        logger.error(s"[CompanyRegistrationConnector] [createCorporationTaxRegistrationDetails] for RegId: $regId - ${ex.upstreamResponseCode} ${ex.message}")
         throw ex
       case ex: Exception =>
-        Logger.error(s"[CompanyRegistrationConnector] [createCorporationTaxRegistrationDetails] for RegId: $regId - Unexpected error occurred: $ex")
+        logger.error(s"[CompanyRegistrationConnector] [createCorporationTaxRegistrationDetails] for RegId: $regId - Unexpected error occurred: $ex")
         throw ex
     }
   }
@@ -162,19 +162,19 @@ trait CompanyRegistrationConnector {
                                                (implicit hc: HeaderCarrier, rds: HttpReads[CorporationTaxRegistrationResponse]): Future[Option[CorporationTaxRegistrationResponse]] = {
     wsHttp.GET[Option[CorporationTaxRegistrationResponse]](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID") recover {
       case ex: BadRequestException =>
-        Logger.error(s"[CompanyRegistrationConnector] [retrieveCorporationTaxRegistrationDetails] for RegId: $registrationID - ${ex.responseCode} ${ex.message}")
+        logger.error(s"[CompanyRegistrationConnector] [retrieveCorporationTaxRegistrationDetails] for RegId: $registrationID - ${ex.responseCode} ${ex.message}")
         None
       case ex: NotFoundException =>
-        Logger.info(s"[CompanyRegistrationConnector] [retrieveCorporationTaxRegistrationDetails] for RegId: $registrationID - ${ex.responseCode} ${ex.message}")
+        logger.info(s"[CompanyRegistrationConnector] [retrieveCorporationTaxRegistrationDetails] for RegId: $registrationID - ${ex.responseCode} ${ex.message}")
         None
       case ex: Upstream4xxResponse =>
-        Logger.error(s"[CompanyRegistrationConnector] [retrieveCorporationTaxRegistrationDetails] for RegId: $registrationID - ${ex.upstreamResponseCode} ${ex.message}")
+        logger.error(s"[CompanyRegistrationConnector] [retrieveCorporationTaxRegistrationDetails] for RegId: $registrationID - ${ex.upstreamResponseCode} ${ex.message}")
         None
       case ex: Upstream5xxResponse =>
-        Logger.error(s"[CompanyRegistrationConnector] [retrieveCorporationTaxRegistrationDetails] for RegId: $registrationID - ${ex.upstreamResponseCode} ${ex.message}")
+        logger.error(s"[CompanyRegistrationConnector] [retrieveCorporationTaxRegistrationDetails] for RegId: $registrationID - ${ex.upstreamResponseCode} ${ex.message}")
         None
       case ex: Exception =>
-        Logger.error(s"[CompanyRegistrationConnector] [retrieveCorporationTaxRegistrationDetails] for RegId: $registrationID - Unexpected error occurred: $ex")
+        logger.error(s"[CompanyRegistrationConnector] [retrieveCorporationTaxRegistrationDetails] for RegId: $registrationID - Unexpected error occurred: $ex")
         None
     }
   }
@@ -183,19 +183,19 @@ trait CompanyRegistrationConnector {
     val json = Json.toJson[CompanyDetails](companyDetails)
     wsHttp.PUT[JsValue, CompanyDetails](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/company-details", json) recover {
       case ex: BadRequestException =>
-        Logger.error(s"[CompanyRegistrationConnector] [updateCompanyDetails] for RegId: $registrationID - ${ex.responseCode} ${ex.message}")
+        logger.error(s"[CompanyRegistrationConnector] [updateCompanyDetails] for RegId: $registrationID - ${ex.responseCode} ${ex.message}")
         throw ex
       case ex: NotFoundException =>
-        Logger.info(s"[CompanyRegistrationConnector] [updateCompanyDetails] for RegId: $registrationID - ${ex.responseCode} ${ex.message}")
+        logger.info(s"[CompanyRegistrationConnector] [updateCompanyDetails] for RegId: $registrationID - ${ex.responseCode} ${ex.message}")
         throw ex
       case ex: Upstream4xxResponse =>
-        Logger.error(s"[CompanyRegistrationConnector] [updateCompanyDetails] for RegId: $registrationID - ${ex.upstreamResponseCode} ${ex.message}")
+        logger.error(s"[CompanyRegistrationConnector] [updateCompanyDetails] for RegId: $registrationID - ${ex.upstreamResponseCode} ${ex.message}")
         throw ex
       case ex: Upstream5xxResponse =>
-        Logger.error(s"[CompanyRegistrationConnector] [updateCompanyDetails] for RegId: $registrationID - ${ex.upstreamResponseCode} ${ex.message}")
+        logger.error(s"[CompanyRegistrationConnector] [updateCompanyDetails] for RegId: $registrationID - ${ex.upstreamResponseCode} ${ex.message}")
         throw ex
       case ex: Exception =>
-        Logger.error(s"[CompanyRegistrationConnector] [updateCompanyDetails] for RegId: $registrationID - Unexpected error occurred: $ex")
+        logger.error(s"[CompanyRegistrationConnector] [updateCompanyDetails] for RegId: $registrationID - Unexpected error occurred: $ex")
         throw ex
     }
   }
@@ -203,19 +203,19 @@ trait CompanyRegistrationConnector {
   def retrieveCompanyDetails(registrationID: String)(implicit hc: HeaderCarrier): Future[Option[CompanyDetails]] = {
     wsHttp.GET[Option[CompanyDetails]](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/company-details") recover {
       case ex: BadRequestException =>
-        Logger.error(s"[CompanyRegistrationConnector] [retrieveCompanyDetails] for RegId: $registrationID - ${ex.responseCode} ${ex.message}")
+        logger.error(s"[CompanyRegistrationConnector] [retrieveCompanyDetails] for RegId: $registrationID - ${ex.responseCode} ${ex.message}")
         None
       case ex: NotFoundException =>
-        Logger.info(s"[CompanyRegistrationConnector] [retrieveCompanyDetails] for RegId: $registrationID - ${ex.responseCode} ${ex.message}")
+        logger.info(s"[CompanyRegistrationConnector] [retrieveCompanyDetails] for RegId: $registrationID - ${ex.responseCode} ${ex.message}")
         None
       case ex: Upstream4xxResponse =>
-        Logger.error(s"[CompanyRegistrationConnector] [retrieveCompanyDetails] for RegId: $registrationID - ${ex.upstreamResponseCode} ${ex.message}")
+        logger.error(s"[CompanyRegistrationConnector] [retrieveCompanyDetails] for RegId: $registrationID - ${ex.upstreamResponseCode} ${ex.message}")
         None
       case ex: Upstream5xxResponse =>
-        Logger.error(s"[CompanyRegistrationConnector] [retrieveCompanyDetails] for RegId: $registrationID - ${ex.upstreamResponseCode} ${ex.message}")
+        logger.error(s"[CompanyRegistrationConnector] [retrieveCompanyDetails] for RegId: $registrationID - ${ex.upstreamResponseCode} ${ex.message}")
         None
       case ex: Exception =>
-        Logger.error(s"[CompanyRegistrationConnector] [retrieveCompanyDetails] for RegId: $registrationID - Unexpected error occurred: $ex")
+        logger.error(s"[CompanyRegistrationConnector] [retrieveCompanyDetails] for RegId: $registrationID - Unexpected error occurred: $ex")
         None
     }
   }
@@ -223,19 +223,19 @@ trait CompanyRegistrationConnector {
   def retrieveTradingDetails(registrationID: String)(implicit hc: HeaderCarrier): Future[Option[TradingDetails]] = {
     wsHttp.GET[Option[TradingDetails]](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/trading-details") recover {
       case ex: BadRequestException =>
-        Logger.error(s"[CompanyRegistrationConnector] [retrieveTradingDetails] for RegId: $registrationID - ${ex.responseCode} ${ex.message}")
+        logger.error(s"[CompanyRegistrationConnector] [retrieveTradingDetails] for RegId: $registrationID - ${ex.responseCode} ${ex.message}")
         None
       case ex: NotFoundException =>
-        Logger.info(s"[CompanyRegistrationConnector] [retrieveTradingDetails] for RegId: $registrationID - ${ex.responseCode} ${ex.message}")
+        logger.info(s"[CompanyRegistrationConnector] [retrieveTradingDetails] for RegId: $registrationID - ${ex.responseCode} ${ex.message}")
         None
       case ex: Upstream4xxResponse =>
-        Logger.error(s"[CompanyRegistrationConnector] [retrieveTradingDetails] for RegId: $registrationID - ${ex.upstreamResponseCode} ${ex.message}")
+        logger.error(s"[CompanyRegistrationConnector] [retrieveTradingDetails] for RegId: $registrationID - ${ex.upstreamResponseCode} ${ex.message}")
         None
       case ex: Upstream5xxResponse =>
-        Logger.error(s"[CompanyRegistrationConnector] [retrieveTradingDetails] for RegId: $registrationID - ${ex.upstreamResponseCode} ${ex.message}")
+        logger.error(s"[CompanyRegistrationConnector] [retrieveTradingDetails] for RegId: $registrationID - ${ex.upstreamResponseCode} ${ex.message}")
         None
       case ex: Exception =>
-        Logger.error(s"[CompanyRegistrationConnector] [retrieveTradingDetails] for RegId: $registrationID - Unexpected error occurred: $ex")
+        logger.error(s"[CompanyRegistrationConnector] [retrieveTradingDetails] for RegId: $registrationID - Unexpected error occurred: $ex")
         None
     }
   }
@@ -247,19 +247,19 @@ trait CompanyRegistrationConnector {
           TradingDetailsSuccessResponse(tradingDetailsResp)
       } recover {
       case ex: BadRequestException =>
-        Logger.error(s"[CompanyRegistrationConnector] [updateTradingDetails] for RegId: $registrationID - ${ex.responseCode} ${ex.message}")
+        logger.error(s"[CompanyRegistrationConnector] [updateTradingDetails] for RegId: $registrationID - ${ex.responseCode} ${ex.message}")
         TradingDetailsNotFoundResponse
       case ex: NotFoundException =>
-        Logger.info(s"[CompanyRegistrationConnector] [updateTradingDetails] for RegId: $registrationID - ${ex.responseCode} ${ex.message}")
+        logger.info(s"[CompanyRegistrationConnector] [updateTradingDetails] for RegId: $registrationID - ${ex.responseCode} ${ex.message}")
         TradingDetailsNotFoundResponse
       case ex: Upstream4xxResponse =>
-        Logger.error(s"[CompanyRegistrationConnector] [updateTradingDetails] for RegId: $registrationID - ${ex.upstreamResponseCode} ${ex.message}")
+        logger.error(s"[CompanyRegistrationConnector] [updateTradingDetails] for RegId: $registrationID - ${ex.upstreamResponseCode} ${ex.message}")
         TradingDetailsNotFoundResponse
       case ex: Upstream5xxResponse =>
-        Logger.error(s"[CompanyRegistrationConnector] [updateTradingDetails] for RegId: $registrationID - ${ex.upstreamResponseCode} ${ex.message}")
+        logger.error(s"[CompanyRegistrationConnector] [updateTradingDetails] for RegId: $registrationID - ${ex.upstreamResponseCode} ${ex.message}")
         TradingDetailsNotFoundResponse
       case ex: Exception =>
-        Logger.error(s"[CompanyRegistrationConnector] [updateTradingDetails] for RegId: $registrationID - Unexpected error occurred: $ex")
+        logger.error(s"[CompanyRegistrationConnector] [updateTradingDetails] for RegId: $registrationID - Unexpected error occurred: $ex")
         TradingDetailsNotFoundResponse
     }
   }
@@ -269,16 +269,16 @@ trait CompanyRegistrationConnector {
       response => CompanyContactDetailsSuccessResponse(response)
     } recover {
       case e: BadRequestException =>
-        Logger.error(s"[CompanyRegistrationConnector] [retrieveContactDetails] - Received a Bad Request status code when expecting contact details from Company-Registration")
+        logger.error(s"[CompanyRegistrationConnector] [retrieveContactDetails] - Received a Bad Request status code when expecting contact details from Company-Registration")
         CompanyContactDetailsBadRequestResponse
       case e: NotFoundException =>
-        Logger.info(s"[CompanyRegistrationConnector] [retrieveContactDetails] - Received a Not Found status code when expecting contact details from Company-Registration")
+        logger.info(s"[CompanyRegistrationConnector] [retrieveContactDetails] - Received a Not Found status code when expecting contact details from Company-Registration")
         CompanyContactDetailsNotFoundResponse
       case e: ForbiddenException =>
-        Logger.error(s"[CompanyRegistrationConnector] [retrieveContactDetails] - Received a Forbidden status code when expecting contact details from Company-Registration")
+        logger.error(s"[CompanyRegistrationConnector] [retrieveContactDetails] - Received a Forbidden status code when expecting contact details from Company-Registration")
         CompanyContactDetailsForbiddenResponse
       case e: Exception =>
-        Logger.error(s"[CompanyRegistrationConnector] [retrieveContactDetails] - Received an error when expecting contact details from Company-Registration - ${e.getMessage}")
+        logger.error(s"[CompanyRegistrationConnector] [retrieveContactDetails] - Received an error when expecting contact details from Company-Registration - ${e.getMessage}")
         CompanyContactDetailsBadRequestResponse
     }
   }
@@ -289,16 +289,16 @@ trait CompanyRegistrationConnector {
       response => CompanyContactDetailsSuccessResponse(response)
     } recover {
       case e: BadRequestException =>
-        Logger.error(s"[CompanyRegistrationConnector] [updateContactDetails] - Received a Bad Request status code when expecting contact details from Company-Registration")
+        logger.error(s"[CompanyRegistrationConnector] [updateContactDetails] - Received a Bad Request status code when expecting contact details from Company-Registration")
         CompanyContactDetailsBadRequestResponse
       case e: NotFoundException =>
-        Logger.info(s"[CompanyRegistrationConnector] [updateContactDetails] - Received a Not Found status code when expecting contact details from Company-Registration")
+        logger.info(s"[CompanyRegistrationConnector] [updateContactDetails] - Received a Not Found status code when expecting contact details from Company-Registration")
         CompanyContactDetailsNotFoundResponse
       case e: ForbiddenException =>
-        Logger.error(s"[CompanyRegistrationConnector] [updateContactDetails] - Received a Forbidden status code when expecting contact details from Company-Registration")
+        logger.error(s"[CompanyRegistrationConnector] [updateContactDetails] - Received a Forbidden status code when expecting contact details from Company-Registration")
         CompanyContactDetailsForbiddenResponse
       case e: Exception =>
-        Logger.error(s"[CompanyRegistrationConnector] [updateContactDetails] - Received an error when expecting contact details from Company-Registration - ${e.getMessage}")
+        logger.error(s"[CompanyRegistrationConnector] [updateContactDetails] - Received an error when expecting contact details from Company-Registration - ${e.getMessage}")
         CompanyContactDetailsBadRequestResponse
     }
   }
@@ -308,13 +308,13 @@ trait CompanyRegistrationConnector {
       response => AccountingDetailsSuccessResponse(response)
     } recover {
       case e: BadRequestException =>
-        Logger.error(s"[CompanyRegistrationConnector] [retrieveAccountingDetails] - Received a Bad Request status code when expecting accounting details from Company-Registration")
+        logger.error(s"[CompanyRegistrationConnector] [retrieveAccountingDetails] - Received a Bad Request status code when expecting accounting details from Company-Registration")
         AccountingDetailsBadRequestResponse
       case e: NotFoundException =>
-        Logger.info(s"[CompanyRegistrationConnector] [retrieveAccountingDetails] - Received a Not Found status code when expecting accounting details from Company-Registration")
+        logger.info(s"[CompanyRegistrationConnector] [retrieveAccountingDetails] - Received a Not Found status code when expecting accounting details from Company-Registration")
         AccountingDetailsNotFoundResponse
       case e: Exception =>
-        Logger.error(s"[CompanyRegistrationConnector] [retrieveAccountingDetails] - Received an error when expecting accounting details from Company-Registration - ${e.getMessage}")
+        logger.error(s"[CompanyRegistrationConnector] [retrieveAccountingDetails] - Received an error when expecting accounting details from Company-Registration - ${e.getMessage}")
         AccountingDetailsBadRequestResponse
     }
   }
@@ -325,13 +325,13 @@ trait CompanyRegistrationConnector {
       response => AccountingDetailsSuccessResponse(response)
     } recover {
       case e: BadRequestException =>
-        Logger.error(s"[CompanyRegistrationConnector] [updateAccountingDetails] - Received a Bad Request status code when expecting accounting details from Company-Registration")
+        logger.error(s"[CompanyRegistrationConnector] [updateAccountingDetails] - Received a Bad Request status code when expecting accounting details from Company-Registration")
         AccountingDetailsBadRequestResponse
       case e: NotFoundException =>
-        Logger.info(s"[CompanyRegistrationConnector] [updateAccountingDetails] - Received a Not Found status code when expecting accounting details from Company-Registration")
+        logger.info(s"[CompanyRegistrationConnector] [updateAccountingDetails] - Received a Not Found status code when expecting accounting details from Company-Registration")
         AccountingDetailsNotFoundResponse
       case e: Exception =>
-        Logger.error(s"[CompanyRegistrationConnector] [updateAccountingDetails] - Received an error when expecting accounting details from Company-Registration - ${e.getMessage}")
+        logger.error(s"[CompanyRegistrationConnector] [updateAccountingDetails] - Received an error when expecting accounting details from Company-Registration - ${e.getMessage}")
         AccountingDetailsBadRequestResponse
     }
   }
@@ -341,13 +341,13 @@ trait CompanyRegistrationConnector {
       res => ConfirmationReferencesSuccessResponse(res)
     } recover {
       case e: BadRequestException =>
-        Logger.error(s"[CompanyRegistrationConnector] [fetchConfirmationReferences] - Received a Bad Request status code when expecting acknowledgement ref from Company-Registration")
+        logger.error(s"[CompanyRegistrationConnector] [fetchConfirmationReferences] - Received a Bad Request status code when expecting acknowledgement ref from Company-Registration")
         ConfirmationReferencesBadRequestResponse
       case e: NotFoundException =>
-        Logger.info(s"[CompanyRegistrationConnector] [fetchConfirmationReferences] - Received a Not Found status code when expecting acknowledgement ref from Company-Registration")
+        logger.info(s"[CompanyRegistrationConnector] [fetchConfirmationReferences] - Received a Not Found status code when expecting acknowledgement ref from Company-Registration")
         ConfirmationReferencesNotFoundResponse
       case e: Exception =>
-        Logger.error(s"[CompanyRegistrationConnector] [fetchConfirmationReferences] - Received an error when expecting acknowledgement ref from Company-Registration - ${e.getMessage}")
+        logger.error(s"[CompanyRegistrationConnector] [fetchConfirmationReferences] - Received an error when expecting acknowledgement ref from Company-Registration - ${e.getMessage}")
         ConfirmationReferencesErrorResponse
     }
   }
@@ -357,13 +357,13 @@ trait CompanyRegistrationConnector {
       res => ConfirmationReferencesSuccessResponse(res)
     } recover {
       case e: Upstream4xxResponse =>
-        Logger.error(s"[CompanyRegistrationConnector] [updateReferences] - Received a upstream 4xx code when expecting acknowledgement ref from Company-Registration")
+        logger.error(s"[CompanyRegistrationConnector] [updateReferences] - Received a upstream 4xx code when expecting acknowledgement ref from Company-Registration")
         DESFailureDeskpro
       case e: Upstream5xxResponse =>
-        Logger.info(s"[CompanyRegistrationConnector] [updateReferences] - Received a upstream 5xx status code when expecting acknowledgement ref from Company-Registration")
+        logger.info(s"[CompanyRegistrationConnector] [updateReferences] - Received a upstream 5xx status code when expecting acknowledgement ref from Company-Registration")
         DESFailureRetriable
       case e: Exception =>
-        Logger.error(s"[CompanyRegistrationConnector] [updateReferences] - Received an unknown error when expecting acknowledgement ref from Company-Registration - ${e.getMessage}")
+        logger.error(s"[CompanyRegistrationConnector] [updateReferences] - Received an unknown error when expecting acknowledgement ref from Company-Registration - ${e.getMessage}")
         DESFailureDeskpro
     }
   }
@@ -373,19 +373,19 @@ trait CompanyRegistrationConnector {
       res => Some(res)
     } recover {
       case ex: BadRequestException =>
-        Logger.error(s"[CompanyRegistrationConnector] [fetchHeldTime] for RegId: $registrationId - ${ex.responseCode} ${ex.message}")
+        logger.error(s"[CompanyRegistrationConnector] [fetchHeldTime] for RegId: $registrationId - ${ex.responseCode} ${ex.message}")
         None
       case ex: NotFoundException =>
-        Logger.info(s"[CompanyRegistrationConnector] [fetchHeldTime] for RegId: $registrationId - ${ex.responseCode} ${ex.message}")
+        logger.info(s"[CompanyRegistrationConnector] [fetchHeldTime] for RegId: $registrationId - ${ex.responseCode} ${ex.message}")
         None
       case ex: Upstream4xxResponse =>
-        Logger.error(s"[CompanyRegistrationConnector] [fetchHeldTime] for RegId: $registrationId - ${ex.upstreamResponseCode} ${ex.message}")
+        logger.error(s"[CompanyRegistrationConnector] [fetchHeldTime] for RegId: $registrationId - ${ex.upstreamResponseCode} ${ex.message}")
         None
       case ex: Upstream5xxResponse =>
-        Logger.error(s"[CompanyRegistrationConnector] [fetchHeldTime] for RegId: $registrationId - ${ex.upstreamResponseCode} ${ex.message}")
+        logger.error(s"[CompanyRegistrationConnector] [fetchHeldTime] for RegId: $registrationId - ${ex.upstreamResponseCode} ${ex.message}")
         None
       case ex: Exception =>
-        Logger.error(s"[CompanyRegistrationConnector] [fetchHeldTime] for RegId: $registrationId - Unexpected error occurred: $ex")
+        logger.error(s"[CompanyRegistrationConnector] [fetchHeldTime] for RegId: $registrationId - Unexpected error occurred: $ex")
         None
     }
   }
@@ -394,7 +394,7 @@ trait CompanyRegistrationConnector {
     wsHttp.GET[HttpResponse](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationId/groups").map {
       res => if (res.status == 200) {
         res.json.validate[Groups].fold[Option[Groups]](errors => {
-          Logger.error(s"[getGroups] could not parse groups json to Groups $registrationId for keys ${errors.map(_._1)}")
+          logger.error(s"[getGroups] could not parse groups json to Groups $registrationId for keys ${errors.map(_._1)}")
           Option.empty[Groups]
         }, successG => Some(successG))
       } else {
@@ -407,7 +407,7 @@ trait CompanyRegistrationConnector {
   def updateGroups(registrationId:String, groups: Groups)(implicit hc:HeaderCarrier): Future[Groups] = {
     wsHttp.PUT[Groups, HttpResponse](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationId/groups", groups).map {
           res => res.json.validate[Groups].fold[Groups](errors => {
-        Logger.error(s"[getGroups] could not parse groups json to Groups $registrationId for keys ${errors.map(_._1)}")
+        logger.error(s"[getGroups] could not parse groups json to Groups $registrationId for keys ${errors.map(_._1)}")
         throw new Exception("Update returned invalid json")
       }, identity)
     }
@@ -418,7 +418,7 @@ trait CompanyRegistrationConnector {
       _ => true
     }.recoverWith {
       case e =>
-        Logger.error(s"Delete of groups block failed for $registrationId ${e.getMessage}")
+        logger.error(s"Delete of groups block failed for $registrationId ${e.getMessage}")
         Future.failed(e)
     }
   }
@@ -427,16 +427,16 @@ trait CompanyRegistrationConnector {
     wsHttp.POST[List[String], HttpResponse](s"$companyRegUrl/company-registration/corporation-tax-registration/check-list-of-group-names", listOfShareholders).map { res =>
       if(res.status == 200) {
         res.json.validate[List[String]].getOrElse {
-          Logger.error(s"[shareholderListValidationEndpoint] returned 200 but the list was unparsable, returning empty list to the user, sessionId: ${hc.sessionId}")
+          logger.error(s"[shareholderListValidationEndpoint] returned 200 but the list was unparsable, returning empty list to the user, sessionId: ${hc.sessionId}")
           List.empty[String]
         }
       } else {
-        Logger.error(s"[shareholderListValidationEndpoint] returned 204 because NONE of the names returned from TxApi pass the des validation, empty list returned, sessionId: ${hc.sessionId}")
+        logger.error(s"[shareholderListValidationEndpoint] returned 204 because NONE of the names returned from TxApi pass the des validation, empty list returned, sessionId: ${hc.sessionId}")
         List.empty[String]
       }
     }.recover{
       case e =>
-        Logger.error(s"[shareholderListValidationEndpoint] Something went wrong when calling CR, returning empty list to user: ${hc.sessionId}, ${e.getMessage}")
+        logger.error(s"[shareholderListValidationEndpoint] Something went wrong when calling CR, returning empty list to user: ${hc.sessionId}, ${e.getMessage}")
         List.empty[String]
     }
   }
@@ -448,7 +448,7 @@ trait CompanyRegistrationConnector {
       case e: NotFoundException =>
         None
       case ex: BadRequestException =>
-        Logger.info(s"[CompanyRegistrationConnector] [retrieveEmail] - Could not find a CT document for rid - $registrationId")
+        logger.info(s"[CompanyRegistrationConnector] [retrieveEmail] - Could not find a CT document for rid - $registrationId")
         None
     }
   }
@@ -459,7 +459,7 @@ trait CompanyRegistrationConnector {
       e => Some(e)
     } recover {
       case ex: BadRequestException =>
-        Logger.info(s"[CompanyRegistrationConnector] [updateEmail] - Could not find a CT document for rid - $registrationId")
+        logger.info(s"[CompanyRegistrationConnector] [updateEmail] - Could not find a CT document for rid - $registrationId")
         None
     }
   }
@@ -487,19 +487,19 @@ trait CompanyRegistrationConnector {
     wsHttp.PUT[JsValue, HttpResponse](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/handOff2Reference-ackRef-save", json).map  {
       res => Some(res)} recover {
       case ex: BadRequestException =>
-        Logger.error(s"[CompanyRegistrationConnector] [saveTXIDAfterHO2] for RegId: $registrationID - ${ex.responseCode} ${ex.message}")
+        logger.error(s"[CompanyRegistrationConnector] [saveTXIDAfterHO2] for RegId: $registrationID - ${ex.responseCode} ${ex.message}")
         None
       case ex: NotFoundException =>
-        Logger.info(s"[CompanyRegistrationConnector] [saveTXIDAfterHO2] for RegId: $registrationID - ${ex.responseCode} ${ex.message}")
+        logger.info(s"[CompanyRegistrationConnector] [saveTXIDAfterHO2] for RegId: $registrationID - ${ex.responseCode} ${ex.message}")
         None
       case ex: Upstream4xxResponse =>
-        Logger.error(s"[CompanyRegistrationConnector] [saveTXIDAfterHO2] for RegId: $registrationID - ${ex.upstreamResponseCode} ${ex.message}")
+        logger.error(s"[CompanyRegistrationConnector] [saveTXIDAfterHO2] for RegId: $registrationID - ${ex.upstreamResponseCode} ${ex.message}")
         None
       case ex: Upstream5xxResponse =>
-        Logger.error(s"[CompanyRegistrationConnector] [saveTXIDAfterHO2] for RegId: $registrationID - ${ex.upstreamResponseCode} ${ex.message}")
+        logger.error(s"[CompanyRegistrationConnector] [saveTXIDAfterHO2] for RegId: $registrationID - ${ex.upstreamResponseCode} ${ex.message}")
         None
       case ex: Exception =>
-        Logger.error(s"[CompanyRegistrationConnector] [saveTXIDAfterHO2] for RegId: $registrationID - Unexpected error occurred: $ex")
+        logger.error(s"[CompanyRegistrationConnector] [saveTXIDAfterHO2] for RegId: $registrationID - Unexpected error occurred: $ex")
         None
     }
   }

@@ -14,7 +14,6 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.play.views.html.helpers.form
 @import helpers.{errorSummary, input}
 @import models.TakeoverDetails
 @import views.helpers.TitleHelper.title
@@ -42,7 +41,7 @@
 
     <p id="line1">@messages("page.takeovers.otherBusinessName.paragraph")</p>
 
-    @formWithCsrf(action = controllers.takeovers.routes.OtherBusinessNameController.submit()) {
+    @formWithCsrf(action = controllers.takeovers.routes.OtherBusinessNameController.submit) {
         <div class ="form-group">
             @input(
                 businessName("otherBusinessName"),

@@ -20,7 +20,7 @@ import javax.inject.Inject
 
 import config.{FrontendAppConfig, WSHttp}
 import models.SendTemplatedEmailRequest
-import play.api.Logger
+import play.api.Logging
 import play.api.http.Status._
 import uk.gov.hmrc.http._
 
@@ -34,20 +34,20 @@ class SendTemplatedEmailConnectorImpl @Inject()(appConfig: FrontendAppConfig, va
   lazy val sendTemplatedEmailURL = appConfig.servicesConfig.getConfString("email.sendAnEmailURL", throw new Exception("email.sendAnEmailURL not found"))
 }
 
-trait SendTemplatedEmailConnector extends HttpErrorFunctions {
+trait SendTemplatedEmailConnector extends HttpErrorFunctions with Logging {
   val wSHttp : CorePost
   val sendTemplatedEmailURL : String
 
   def requestTemplatedEmail(templatedEmailRequest : SendTemplatedEmailRequest)(implicit hc : HeaderCarrier) : Future[Boolean] = {
     def errorMsg(status: String, ex: HttpException) = {
-      Logger.error(s"[SendTemplatedEmailConnector] [sendTemplatedEmail] request to send templated email returned a $status - email not sent - reason = ${ex.getMessage}")
+      logger.error(s"[SendTemplatedEmailConnector] [sendTemplatedEmail] request to send templated email returned a $status - email not sent - reason = ${ex.getMessage}")
       throw new TemplateEmailErrorResponse(status)
     }
 
     wSHttp.POST[SendTemplatedEmailRequest, HttpResponse] (s"$sendTemplatedEmailURL", templatedEmailRequest) map { r =>
       r.status match {
         case ACCEPTED => {
-          Logger.debug("[SendTemplatedEmailConnector] [sendTemplatedEmail] request to email service was successful")
+          logger.debug("[SendTemplatedEmailConnector] [sendTemplatedEmail] request to email service was successful")
           true
         }
       }

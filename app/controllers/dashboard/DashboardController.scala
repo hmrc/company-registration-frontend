@@ -21,7 +21,7 @@ import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthenticatedController
 import controllers.reg.ControllerErrorHandler
 import javax.inject.Inject
-import play.api.Logger
+import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services._
@@ -40,7 +40,7 @@ class DashboardController @Inject()(val authConnector: PlayAuthConnector,
                                         viewDashboard: DashboardView,
                                         viewRegistrationUnsuccessful: RegistrationUnsuccessfulView)
                                        (implicit val appConfig: FrontendAppConfig, implicit val ec: ExecutionContext) extends AuthenticatedController with CommonService with SCRSExceptions
-   with SessionRegistration with I18nSupport {
+   with SessionRegistration with I18nSupport with Logging {
   lazy val companiesHouseURL = appConfig.servicesConfig.getConfString("coho-service.sign-in", throw new Exception("Could not find config for coho-sign-in url"))
 
 
@@ -52,10 +52,10 @@ class DashboardController @Inject()(val authConnector: PlayAuthConnector,
           dashboardService.checkForEmailMismatch(regId, authDetails) flatMap { _ =>
             dashboardService.buildDashboard(regId, authDetails.enrolments) map {
               case DashboardBuilt(dash) => Ok(viewDashboard(dash, companiesHouseURL))
-              case CouldNotBuild => Redirect(controllers.handoff.routes.BasicCompanyDetailsController.basicCompanyDetails())
+              case CouldNotBuild => Redirect(controllers.handoff.routes.BasicCompanyDetailsController.basicCompanyDetails)
               case RejectedIncorp => Ok(viewRegistrationUnsuccessful())
             } recover {
-              case ex => Logger.error(s"[Dashboard Controller] [Show] buildDashboard returned an error ${ex.getMessage}", ex)
+              case ex => logger.error(s"[Dashboard Controller] [Show] buildDashboard returned an error ${ex.getMessage}", ex)
                 InternalServerError(controllerErrorHandler.defaultErrorPage)
             }
           }

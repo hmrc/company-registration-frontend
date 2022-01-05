@@ -14,7 +14,6 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.play.views.html.helpers.form
 @import helpers.{errorSummary, input}
 @import models.TakeoverDetails
 @import views.helpers.TitleHelper.title
@@ -48,7 +47,7 @@
         </ul>
     </div>
 
-    @formWithCsrf(action = controllers.takeovers.routes.WhoAgreedTakeoverController.submit()) {
+    @formWithCsrf(action = controllers.takeovers.routes.WhoAgreedTakeoverController.submit) {
         <div class ="form-group">
             @input(
             whoAgreedTakeover("whoAgreedTakeover"),

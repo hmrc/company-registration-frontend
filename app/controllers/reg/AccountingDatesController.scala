@@ -76,7 +76,7 @@ class AccountingDatesController @Inject()(val authConnector: PlayAuthConnector,
             accountingService.updateAccountingDetails(updatedData) map {
               case AccountingDetailsSuccessResponse(_) =>
                 context.stop()
-                Redirect(routes.TradingDetailsController.show())
+                Redirect(routes.TradingDetailsController.show)
               case AccountingDetailsNotFoundResponse =>
                 context.stop()
                 NotFound(controllerErrorHandler.defaultErrorPage)

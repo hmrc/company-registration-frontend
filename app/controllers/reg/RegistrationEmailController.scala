@@ -79,22 +79,22 @@ class RegistrationEmailController @Inject()(val authConnector: PlayAuthConnector
           scpVerifiedEmail.flatMap {
             case true =>
               updateEmailBlockForSCPUsers(regID, emailFromAuth, providerIdFromAuth, externalIdFromAuth).map { res =>
-                Redirect(routes.CompletionCapacityController.show())
+                Redirect(routes.CompletionCapacityController.show)
               }
             case false =>
               emailVerification.sendVerificationLink(emailFromAuth, regID, providerIdFromAuth, externalIdFromAuth).map { emailVerifiedSuccess =>
 
                 if (emailVerifiedSuccess.getOrElse(false)) {
-                  Redirect(routes.CompletionCapacityController.show())
+                  Redirect(routes.CompletionCapacityController.show)
                 }
                 else {
-                  Redirect(controllers.verification.routes.EmailVerificationController.verifyShow())
+                  Redirect(controllers.verification.routes.EmailVerificationController.verifyShow)
                 }
               }
           }
         } else {
           keystoreConnector.cache[RegistrationEmailModel]("RegEmail", success).map { keystoreOutput =>
-            Redirect(routes.RegistrationEmailConfirmationController.show())
+            Redirect(routes.RegistrationEmailConfirmationController.show)
           }
         }
     )

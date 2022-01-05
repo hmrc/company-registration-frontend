@@ -21,7 +21,7 @@ import java.util.NoSuchElementException
 import config.FrontendAppConfig
 import controllers.handoff._
 import models.handoff.{HandOffNavModel, NavLinks, Receiver, Sender}
-import play.api.Logger
+import play.api.Logging
 import repositories._
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.{SCRSExceptions, SCRSFeatureSwitches}
@@ -33,7 +33,7 @@ import scala.util.control.NoStackTrace
 
 class NavModelNotFoundException(regId: Option[String] = None) extends NoStackTrace
 
-trait HandOffNavigator extends CommonService with SCRSExceptions {
+trait HandOffNavigator extends CommonService with SCRSExceptions with Logging {
 
   val scrsFeatureSwitches: SCRSFeatureSwitches
   val appConfig: FrontendAppConfig
@@ -58,17 +58,17 @@ trait HandOffNavigator extends CommonService with SCRSExceptions {
   lazy val summaryUrl              = buildUrl(routes.CorporationTaxSummaryController.corporationTaxSummary().url)
   lazy val groupHandBackUrl        = buildUrl(routes.GroupController.groupHandBack().url)
   lazy val groupBackHandBackUrl    = buildUrl(routes.GroupController.pSCGroupHandBack().url)
-  lazy val groupReliefUrl          = buildUrl(controllers.groups.routes.GroupReliefController.show().url)
-  lazy val groupNameUrl            = buildUrl(controllers.groups.routes.GroupNameController.show().url)
-  lazy val groupAddressUrl         = buildUrl(controllers.groups.routes.GroupAddressController.show().url)
-  lazy val groupUTRUrl             = buildUrl(controllers.groups.routes.GroupUtrController.show().url)
+  lazy val groupReliefUrl          = buildUrl(controllers.groups.routes.GroupReliefController.show.url)
+  lazy val groupNameUrl            = buildUrl(controllers.groups.routes.GroupNameController.show.url)
+  lazy val groupAddressUrl         = buildUrl(controllers.groups.routes.GroupAddressController.show.url)
+  lazy val groupUTRUrl             = buildUrl(controllers.groups.routes.GroupUtrController.show.url)
 
   lazy val returnSummaryUrl        = buildUrl(routes.IncorporationSummaryController.returnToCorporationTaxSummary().url)
   lazy val confirmationURL         = buildUrl(routes.RegistrationConfirmationController.registrationConfirmation().url)
 
   lazy val forwardConfirmationUrl  = buildUrl(routes.RegistrationConfirmationController.paymentConfirmation().url)
-  lazy val renewSessionUrl         = buildUrl(controllers.reg.routes.SignInOutController.renewSession().url)
-  lazy val destorySessionUrl       = buildUrl(controllers.reg.routes.SignInOutController.destroySession().url)
+  lazy val renewSessionUrl         = buildUrl(controllers.reg.routes.SignInOutController.renewSession.url)
+  lazy val destorySessionUrl       = buildUrl(controllers.reg.routes.SignInOutController.destroySession.url)
 
    val postSignInCall = controllers.reg.routes.SignInOutController.postSignIn(None)
   val postSignInUrl = postSignInCall.url
@@ -127,7 +127,7 @@ trait HandOffNavigator extends CommonService with SCRSExceptions {
   }
 
   private def noNavModelPosition(pos: Any)(implicit n: HandOffNavModel) =  {
-    Logger.warn(s"[HandOffNavigator] failed to find navLinks with pos: $pos - current NavModelLinks: ${n.sender.nav} ${n.receiver.nav} ${n.receiver.jump}")
+    logger.warn(s"[HandOffNavigator] failed to find navLinks with pos: $pos - current NavModelLinks: ${n.sender.nav} ${n.receiver.nav} ${n.receiver.jump}")
     throw new NoSuchElementException(s"key not found: $pos")
   }
 

@@ -57,9 +57,9 @@ class OtherBusinessNameController @Inject()(val authConnector: PlayAuthConnector
           } yield {
             optTakeoverInformation match {
               case Some(TakeoverDetails(false, _, _, _, _)) =>
-                Redirect(AccountingDatesController.show())
+                Redirect(AccountingDatesController.show)
               case None =>
-                Redirect(ReplacingAnotherBusinessController.show())
+                Redirect(ReplacingAnotherBusinessController.show)
               case Some(TakeoverDetails(_, Some(businessName), _, _, _)) =>
                 Ok(view(OtherBusinessNameForm.form.fill(businessName)))
               case _ =>
@@ -82,7 +82,7 @@ class OtherBusinessNameController @Inject()(val authConnector: PlayAuthConnector
             Future.successful(BadRequest(view(errors))),
           otherBusinessName => {
             takeoverService.updateBusinessName(regId, otherBusinessName) map {
-              _ => Redirect(routes.OtherBusinessAddressController.show())
+              _ => Redirect(routes.OtherBusinessAddressController.show)
             }
           }
         )

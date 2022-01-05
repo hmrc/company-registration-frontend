@@ -20,7 +20,7 @@ import javax.inject.Inject
 
 import connectors.{BusinessRegistrationConnector, BusinessRegistrationSuccessResponse, KeystoreConnector}
 import models.{AboutYouChoice, AboutYouChoiceForm, BusinessRegistration}
-import play.api.Logger
+import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.SCRSExceptions
 
@@ -30,7 +30,7 @@ import scala.concurrent.Future
 class MetaDataServiceImpl @Inject()(val businessRegConnector: BusinessRegistrationConnector,
                                     val keystoreConnector: KeystoreConnector) extends MetaDataService
 
-trait MetaDataService extends CommonService with SCRSExceptions {
+trait MetaDataService extends CommonService with SCRSExceptions with Logging {
 
   val businessRegConnector : BusinessRegistrationConnector
 
@@ -56,7 +56,7 @@ trait MetaDataService extends CommonService with SCRSExceptions {
         throw new RuntimeException(s"Completion capacity missing at Summary for regId: $regId"))
       )
       case unknown => {
-        Logger.warn(s"[MetaDataService][getApplicantData] Unexpected result, unable to get BR doc : ${unknown}")
+        logger.warn(s"[MetaDataService][getApplicantData] Unexpected result, unable to get BR doc : ${unknown}")
         throw new RuntimeException("Missing BR document for signed in user")
       }
     }

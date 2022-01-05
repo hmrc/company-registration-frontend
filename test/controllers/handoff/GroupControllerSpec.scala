@@ -120,7 +120,7 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
     showWithAuthorisedUser(testController.groupHandBack("fooBar")) {
       result =>
         status(result) shouldBe 303
-        redirectLocation(result).get shouldBe controllers.handoff.routes.GroupController.PSCGroupHandOff().url
+        redirectLocation(result).get shouldBe controllers.handoff.routes.GroupController.PSCGroupHandOff.url
     }
   }
 
@@ -147,7 +147,7 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
     showWithAuthorisedUser(testController.groupHandBack("fooBar")) {
       result =>
         status(result) shouldBe 303
-        redirectLocation(result).get shouldBe controllers.groups.routes.GroupReliefController.show().url
+        redirectLocation(result).get shouldBe controllers.groups.routes.GroupReliefController.show.url
     }
   }
 

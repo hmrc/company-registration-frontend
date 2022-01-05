@@ -20,19 +20,19 @@ import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
 import org.joda.time.{DateTime, DateTimeZone}
-import play.api.Logger
+import play.api.Logging
 
 object PagerDutyKeys extends Enumeration {
   val CT_UTR_MISMATCH = Value
 }
 
-trait AlertLogging {
+trait AlertLogging extends Logging {
   protected val loggingDays: String
   protected val loggingTimes: String
 
   def pagerduty(key: PagerDutyKeys.Value, message: Option[String] = None) {
     val log = s"${key.toString}${message.fold("")(msg => s" - $msg")}"
-    if(inWorkingHours) Logger.error(log) else Logger.info(log)
+    if(inWorkingHours) logger.error(log) else logger.info(log)
   }
 
   def inWorkingHours: Boolean = isLoggingDay && isBetweenLoggingTimes

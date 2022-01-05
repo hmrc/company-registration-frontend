@@ -147,7 +147,7 @@ class CompanyContactDetailsControllerSpec extends SCRSSpec with UserDetailsFixtu
       submitWithAuthorisedUserRetrieval(controller.submit, request, authDetailsAmend) {
         result =>
           status(result) shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe Some(controllers.takeovers.routes.ReplacingAnotherBusinessController.show().url)
+          redirectLocation(result) shouldBe Some(controllers.takeovers.routes.ReplacingAnotherBusinessController.show.url)
       }
     }
 

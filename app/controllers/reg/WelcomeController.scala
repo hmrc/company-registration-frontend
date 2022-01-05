@@ -30,10 +30,10 @@ class WelcomeControllerImpl @Inject()(val appConfig: FrontendAppConfig,
 abstract class WelcomeController(mcc: MessagesControllerComponents) extends FrontendController(mcc) with I18nSupport {
   implicit val appConfig: FrontendAppConfig
   val show = Action.async { implicit request =>
-    Future.successful(PermanentRedirect(routes.ReturningUserController.show().url))
+    Future.successful(PermanentRedirect(routes.ReturningUserController.show.url))
 
   }
   val submit = Action.async { implicit request =>
-    Future.successful(Redirect(routes.ReturningUserController.show()))
+    Future.successful(Redirect(routes.ReturningUserController.show))
   }
 }

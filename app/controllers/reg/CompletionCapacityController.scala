@@ -54,7 +54,7 @@ class CompletionCapacityController @Inject()(
     }
   }
 
-  def submit(): Action[AnyContent] = Action.async { implicit request =>
+  def submit: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
       registered { a =>
         AboutYouForm.form.bindFromRequest.fold(
@@ -64,7 +64,7 @@ class CompletionCapacityController @Inject()(
             metaDataService.updateCompletionCapacity(success) map {
               _ =>
                 context.stop()
-                Redirect(controllers.handoff.routes.BasicCompanyDetailsController.basicCompanyDetails())
+                Redirect(controllers.handoff.routes.BasicCompanyDetailsController.basicCompanyDetails)
             }
           }
         )

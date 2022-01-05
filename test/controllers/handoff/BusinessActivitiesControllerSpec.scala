@@ -25,7 +25,6 @@ import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.{eq => eqTo}
 import org.mockito.Mockito._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.i18n.MessagesApi
 import play.api.libs.json.Json
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.Helpers._
@@ -57,11 +56,13 @@ class BusinessActivitiesControllerSpec extends SCRSSpec with PayloadFixture with
       errorTemplatePage,
       errorTemplateRestartPage
     )(
-      mockFrontendAppConfig, global
+      mockFrontendAppConfig,
+      global
     )
   val jweInstance = () => app.injector.instanceOf[JweCommon]
+  }
   val externalID = Some("extID")
-}
+
   "BusinessActivitiesHandOff" should {
     "return a 303 if accessing without authorisation" in new Setup {
       showWithUnauthorisedUser(controller.businessActivities) {
@@ -83,10 +84,18 @@ class BusinessActivitiesControllerSpec extends SCRSSpec with PayloadFixture with
 
     "return a 303 if accessing with authorisation" in new Setup {
 
+      val payload = validEncryptedBusinessActivities(jweInstance())
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
 
+
+
       when(mockHandOffService.buildBusinessActivitiesPayload(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
-        .thenReturn(Future.successful(Some("testUrl" -> validEncryptedBusinessActivities(jweInstance()))))
+        .thenReturn(Future.successful(Some("testUrl" -> payload)))
+
+      when(mockHandOffService.buildHandOffUrl(ArgumentMatchers.eq("testUrl"), ArgumentMatchers.eq(payload)))
+        .thenReturn(s"testUrl?request=$payload")
+
+
 
       showWithAuthorisedUserRetrieval(controller.businessActivities, externalID) {
         result =>

@@ -103,7 +103,7 @@ class GroupAddressControllerSpec()(implicit lang: Lang) extends SCRSSpec with Gu
       showWithAuthorisedUser(controller.show) {
         result =>
           status(result) shouldBe 303
-          redirectLocation(result).get shouldBe controllers.groups.routes.GroupNameController.show().url
+          redirectLocation(result).get shouldBe controllers.groups.routes.GroupNameController.show.url
       }
     }
 
@@ -219,13 +219,13 @@ class GroupAddressControllerSpec()(implicit lang: Lang) extends SCRSSpec with Gu
         .thenReturn(Future.successful(Some(testAddress)))
       when(mockGroupService.createAddressMap(any(), any()))
         .thenReturn(Map("foo" -> "bar"))
-      submitWithAuthorisedUser(controller.submit(), FakeRequest().withFormUrlEncodedBody("groupAddress" -> "WALLS")) {
+      submitWithAuthorisedUser(controller.submit, FakeRequest().withFormUrlEncodedBody("groupAddress" -> "WALLS")) {
         result =>
           status(result) shouldBe BAD_REQUEST
       }
     }
 
-    s"return 303 to ${controllers.groups.routes.GroupUtrController.show().url} if submission is TxAPI and saveShareholderAddress returns address" in new Setup {
+    s"return 303 to ${controllers.groups.routes.GroupUtrController.show.url} if submission is TxAPI and saveShareholderAddress returns address" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("1"))
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
       when(mockCompanyRegistrationConnector.retrieveEmail(any())(any()))
@@ -233,10 +233,10 @@ class GroupAddressControllerSpec()(implicit lang: Lang) extends SCRSSpec with Gu
       when(mockGroupService.retrieveGroups(any())(any()))
         .thenReturn(Future.successful(Some(testGroups)))
       when(mockGroupService.saveTxShareHolderAddress(any(), any())(any())).thenReturn(Future.successful(Right(testGroups)))
-      submitWithAuthorisedUser(controller.submit(), FakeRequest().withFormUrlEncodedBody("groupAddress" -> "TxAPI")) {
+      submitWithAuthorisedUser(controller.submit, FakeRequest().withFormUrlEncodedBody("groupAddress" -> "TxAPI")) {
         result =>
           status(result) shouldBe 303
-          redirectLocation(result).get shouldBe controllers.groups.routes.GroupUtrController.show().url
+          redirectLocation(result).get shouldBe controllers.groups.routes.GroupUtrController.show.url
       }
     }
 
@@ -249,24 +249,24 @@ class GroupAddressControllerSpec()(implicit lang: Lang) extends SCRSSpec with Gu
         .thenReturn(Future.successful(Some(testGroups)))
       when(mockAddressLookupService.initialiseAlfJourney(any(), any(), any(), any())(any[HeaderCarrier], any[MessagesProvider])).thenReturn(Future.successful("foo"))
       when(mockGroupService.saveTxShareHolderAddress(any(), any())(any())).thenReturn(Future.successful(Left(new Exception(""))))
-      submitWithAuthorisedUser(controller.submit(), FakeRequest().withFormUrlEncodedBody("groupAddress" -> "TxAPI")) {
+      submitWithAuthorisedUser(controller.submit, FakeRequest().withFormUrlEncodedBody("groupAddress" -> "TxAPI")) {
         result =>
           status(result) shouldBe 303
           redirectLocation(result).get shouldBe "foo"
       }
     }
 
-    s"return 303 to ${controllers.groups.routes.GroupUtrController.show().url} if submission is ALF" in new Setup {
+    s"return 303 to ${controllers.groups.routes.GroupUtrController.show.url} if submission is ALF" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("1"))
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
       when(mockCompanyRegistrationConnector.retrieveEmail(any())(any()))
         .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
       when(mockGroupService.retrieveGroups(any())(any()))
         .thenReturn(Future.successful(Some(testGroups)))
-      submitWithAuthorisedUser(controller.submit(), FakeRequest().withFormUrlEncodedBody("groupAddress" -> "ALF")) {
+      submitWithAuthorisedUser(controller.submit, FakeRequest().withFormUrlEncodedBody("groupAddress" -> "ALF")) {
         result =>
           status(result) shouldBe 303
-          redirectLocation(result).get shouldBe controllers.groups.routes.GroupUtrController.show().url
+          redirectLocation(result).get shouldBe controllers.groups.routes.GroupUtrController.show.url
       }
     }
 
@@ -278,24 +278,24 @@ class GroupAddressControllerSpec()(implicit lang: Lang) extends SCRSSpec with Gu
       when(mockGroupService.retrieveGroups(any())(any()))
         .thenReturn(Future.successful(Some(testGroups)))
       when(mockAddressLookupService.initialiseAlfJourney(any(), any(), any(), any())(any[HeaderCarrier], any[MessagesProvider])).thenReturn(Future.successful("foo"))
-      submitWithAuthorisedUser(controller.submit(), FakeRequest().withFormUrlEncodedBody("groupAddress" -> "Other")) {
+      submitWithAuthorisedUser(controller.submit, FakeRequest().withFormUrlEncodedBody("groupAddress" -> "Other")) {
         result =>
           status(result) shouldBe 303
           redirectLocation(result).get shouldBe "foo"
       }
     }
 
-    s"return 303 to ${controllers.groups.routes.GroupUtrController.show().url} if submission is CohoEntered" in new Setup {
+    s"return 303 to ${controllers.groups.routes.GroupUtrController.show.url} if submission is CohoEntered" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("1"))
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
       when(mockCompanyRegistrationConnector.retrieveEmail(any())(any()))
         .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
       when(mockGroupService.retrieveGroups(any())(any()))
         .thenReturn(Future.successful(Some(testGroups)))
-      submitWithAuthorisedUser(controller.submit(), FakeRequest().withFormUrlEncodedBody("groupAddress" -> "CohoEntered")) {
+      submitWithAuthorisedUser(controller.submit, FakeRequest().withFormUrlEncodedBody("groupAddress" -> "CohoEntered")) {
         result =>
           status(result) shouldBe 303
-          redirectLocation(result).get shouldBe controllers.groups.routes.GroupUtrController.show().url
+          redirectLocation(result).get shouldBe controllers.groups.routes.GroupUtrController.show.url
       }
     }
   }
@@ -304,7 +304,7 @@ class GroupAddressControllerSpec()(implicit lang: Lang) extends SCRSSpec with Gu
     val testGroups = Groups(groupRelief = true, Some(GroupCompanyName("testGroupCompanyname1", "CohoEntered")),
       Some(GroupsAddressAndType("foo", NewAddress("l1", "l2", None, None, None, None, None))),
       None)
-    s"return 303 to ${controllers.groups.routes.GroupUtrController.show().url}" in new Setup {
+    s"return 303 to ${controllers.groups.routes.GroupUtrController.show.url}" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("1"))
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
@@ -323,7 +323,7 @@ class GroupAddressControllerSpec()(implicit lang: Lang) extends SCRSSpec with Gu
       showWithAuthorisedUser(controller.handbackFromALF(Some(alfId))) {
         result =>
           status(result) shouldBe 303
-          redirectLocation(result).get shouldBe controllers.groups.routes.GroupUtrController.show().url
+          redirectLocation(result).get shouldBe controllers.groups.routes.GroupUtrController.show.url
       }
     }
   }

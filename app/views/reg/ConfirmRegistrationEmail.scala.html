@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.play.views.html.helpers.{InputRadioGroup, form}
+@import uk.gov.hmrc.play.views.html.helpers.InputRadioGroup
 @import views.helpers.TitleHelper.title
 @import views.html.helpers.errorSummary
 @import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
@@ -43,7 +43,7 @@
             <p>@Messages("page.reg.confirmRegistrationEmail.p1", differentEmail)</p>
         </div>
 
-        @formWithCsrf(action = controllers.reg.routes.RegistrationEmailConfirmationController.submit()) {
+        @formWithCsrf(action = controllers.reg.routes.RegistrationEmailConfirmationController.submit) {
 
         <div class="form-group">
             @inputRadioGroup(

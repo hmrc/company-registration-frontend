@@ -20,7 +20,7 @@ import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthenticatedController
 import controllers.reg.ControllerErrorHandler
-import javax.inject.{Inject, Singleton}
+import javax.inject.Inject
 import models.Groups
 import models.handoff.{BackHandoff, GroupHandBackModel}
 import play.api.i18n.I18nSupport
@@ -58,7 +58,7 @@ class GroupController @Inject()(val authConnector: PlayAuthConnector,
               pscHandOffToGroupsIfDataInTxApi(regID)
             case Success(GroupHandBackModel(_, _, _, _, _, Some(false))) =>
               groupService.dropGroups(regID).map { _ =>
-                Redirect(controllers.handoff.routes.GroupController.PSCGroupHandOff())
+                Redirect(controllers.handoff.routes.GroupController.PSCGroupHandOff)
               }
             case _ => Future.successful(BadRequest(error_template_restart("3-1", "PayloadError")))
           }
@@ -87,8 +87,8 @@ class GroupController @Inject()(val authConnector: PlayAuthConnector,
         groupService.dropOldGroups(eitherShareholders, regID)
       }
     }.flatMap {
-      case Nil => Future.successful(Redirect(controllers.handoff.routes.GroupController.PSCGroupHandOff()))
-      case _ => Future.successful(Redirect(controllers.groups.routes.GroupReliefController.show()))
+      case Nil => Future.successful(Redirect(controllers.handoff.routes.GroupController.PSCGroupHandOff))
+      case _ => Future.successful(Redirect(controllers.groups.routes.GroupReliefController.show))
     }
   }
 
@@ -115,9 +115,9 @@ class GroupController @Inject()(val authConnector: PlayAuthConnector,
       val groupsRedirect = (optGroups: Option[Groups]) => {
         optGroups.fold(Redirect(controllers.reg.routes.SignInOutController.postSignIn())) { groupsExist =>
           if (!groupsExist.groupRelief) {
-            Redirect(controllers.groups.routes.GroupReliefController.show())
+            Redirect(controllers.groups.routes.GroupReliefController.show)
           } else {
-            Redirect(controllers.groups.routes.GroupUtrController.show())
+            Redirect(controllers.groups.routes.GroupUtrController.show)
           }
         }
       }

@@ -24,7 +24,7 @@ import forms.PPOBForm
 import javax.inject.{Inject, Singleton}
 import models._
 import models.handoff.BackHandoff
-import play.api.Logger
+import play.api.Logging
 import play.api.i18n.Messages
 import play.api.mvc._
 import repositories.NavModelRepo
@@ -53,7 +53,7 @@ class PPOBController @Inject()(val authConnector: PlayAuthConnector,
                                val controllerErrorHandler: ControllerErrorHandler,
                                view: PrinciplePlaceOfBusinessView)
                               (implicit val appConfig: FrontendAppConfig, implicit val ec: ExecutionContext) extends AuthenticatedController
-  with SessionRegistration {
+  with SessionRegistration with Logging {
   lazy val navModelMongo = navModelRepo.repository
 
   def show: Action[AnyContent] = Action.async {
@@ -84,7 +84,7 @@ class PPOBController @Inject()(val authConnector: PlayAuthConnector,
                 _ <- pPOBService.saveAddress(regId, ppobKey, Some(address))
                 _ <- updatePrePopAddress(regId, address)
               } yield {
-                Redirect(controllers.reg.routes.CompanyContactDetailsController.show())
+                Redirect(controllers.reg.routes.CompanyContactDetailsController.show)
               }
               case None =>
                 throw new Exception("[PPOBController] [ALF Handback] 'id' query string missing from ALF handback")
@@ -117,10 +117,10 @@ class PPOBController @Inject()(val authConnector: PlayAuthConnector,
                     companyDetails <- pPOBService.retrieveCompanyDetails(regId)
                     _ <- pPOBService.auditROAddress(regId, credID, companyDetails.companyName, companyDetails.cHROAddress)
                   } yield {
-                    Redirect(controllers.reg.routes.CompanyContactDetailsController.show())
+                    Redirect(controllers.reg.routes.CompanyContactDetailsController.show)
                   }
                 case "PPOB" =>
-                  Future.successful(Redirect(controllers.reg.routes.CompanyContactDetailsController.show()))
+                  Future.successful(Redirect(controllers.reg.routes.CompanyContactDetailsController.show))
                 case "Other" =>
                   addressLookupFrontendService.initialiseAlfJourney(
                     handbackLocation = controllers.reg.routes.PPOBController.saveALFAddress(None),
@@ -129,7 +129,7 @@ class PPOBController @Inject()(val authConnector: PlayAuthConnector,
                     confirmPageHeading = Messages("page.addressLookup.PPOB.confirm.description")
                   ).map(Redirect(_))
                 case unexpected =>
-                  Logger.warn(s"[PPOBController] [Submit] '$unexpected' address choice submitted for reg ID: $regId")
+                  logger.warn(s"[PPOBController] [Submit] '$unexpected' address choice submitted for reg ID: $regId")
                   Future.successful(BadRequest(controllerErrorHandler.defaultErrorPage))
               }
             }

@@ -17,24 +17,22 @@
 package services
 
 import javax.inject.Inject
-
 import connectors.CompanyRegistrationConnector
-import play.api.Logger
+import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
-
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 
 class DeleteSubmissionServiceImpl @Inject()(val crConnector: CompanyRegistrationConnector) extends DeleteSubmissionService
 
-trait DeleteSubmissionService {
+trait DeleteSubmissionService extends Logging {
   val crConnector: CompanyRegistrationConnector
 
   def deleteSubmission(regId: String)(implicit hc: HeaderCarrier): Future[Boolean] = {
     crConnector.deleteRegistrationSubmission(regId) map { res => true} recover {
       case ex: Exception =>
-        Logger.error(s"[DeleteSubmissionService] [deleteSubmission] Submission was not deleted.  Message received was ${ex.getMessage}")
+        logger.error(s"[DeleteSubmissionService] [deleteSubmission] Submission was not deleted.  Message received was ${ex.getMessage}")
         false
     }  }
 }

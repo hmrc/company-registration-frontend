@@ -75,7 +75,7 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
       stubGet(s"/company-registration/corporation-tax-registration/$regId/contact-details", 404, "")
       stubContactDetails(regId, 404)
 
-      val fResponse = await(buildClient(controllers.reg.routes.CompanyContactDetailsController.show().url)
+      val fResponse = await(buildClient(controllers.reg.routes.CompanyContactDetailsController.show.url)
         .withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
         .get())
       val doc = Jsoup.parse(fResponse.body)
@@ -100,7 +100,7 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
       stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR())
       stubGet(s"/company-registration/corporation-tax-registration/$regId/contact-details", 200, contactDetailsResp.toString())
 
-      val fResponse = await(buildClient(controllers.reg.routes.CompanyContactDetailsController.show().url)
+      val fResponse = await(buildClient(controllers.reg.routes.CompanyContactDetailsController.show.url)
         .withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
         .get())
       val doc = Jsoup.parse(fResponse.body)
@@ -130,7 +130,7 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
       stubPut(s"/company-registration/corporation-tax-registration/$regId/contact-details", 200, contactDetailsResp.toString())
       stubContactDetails(regId, 200)
 
-      val response = await(buildClient(controllers.reg.routes.CompanyContactDetailsController.submit().url)
+      val response = await(buildClient(controllers.reg.routes.CompanyContactDetailsController.submit.url)
         .withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck").post(
         Map(
           "csrfToken" -> Seq("xxx-ignored-xxx"),
@@ -139,7 +139,7 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
           "contactEmail" -> Seq("foo@foo.com")))
       )
       response.status shouldBe 303
-      response.header(HeaderNames.LOCATION).get shouldBe controllers.reg.routes.AccountingDatesController.show().url
+      response.header(HeaderNames.LOCATION).get shouldBe controllers.reg.routes.AccountingDatesController.show.url
       val audit = Json.parse(getRequestBody("post", "/write/audit")).as[JsObject] \ "detail" \ "businessContactDetails"
       audit.get shouldBe Json.obj("originalEmail" -> "test@test.com", "submittedEmail" -> "foo@foo.com")
       val prePop = Json.parse(getRequestBody("post", s"/business-registration/$regId/contact-details")).as[JsObject]
@@ -150,7 +150,7 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
       stubSuccessfulLogin(userId = userId, otherParamsForAuth = Some(nameAndCredId))
       stubKeystore(SessionId, regId)
       stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR())
-      val response = await(buildClient(controllers.reg.routes.CompanyContactDetailsController.submit().url).
+      val response = await(buildClient(controllers.reg.routes.CompanyContactDetailsController.submit.url).
         withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck").post(
         Map(
           "csrfToken" -> Seq("xxx-ignored-xxx"),
@@ -178,7 +178,7 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
       stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR())
       stubPut(s"/company-registration/corporation-tax-registration/$regId/contact-details", 200, contactDetailsResp.toString())
       stubContactDetails(regId, 200)
-      val response = await(buildClient(controllers.reg.routes.CompanyContactDetailsController.submit().url).
+      val response = await(buildClient(controllers.reg.routes.CompanyContactDetailsController.submit.url).
         withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck").post(
         Map(
           "csrfToken" -> Seq("xxx-ignored-xxx"),
@@ -188,7 +188,7 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
       )
 
       response.status shouldBe 303
-      response.header(HeaderNames.LOCATION).get shouldBe controllers.reg.routes.AccountingDatesController.show().url
+      response.header(HeaderNames.LOCATION).get shouldBe controllers.reg.routes.AccountingDatesController.show.url
       val audit = Json.parse(getRequestBody("post", "/write/audit")).as[JsObject] \ "detail" \ "businessContactDetails"
       audit.get shouldBe Json.obj("originalEmail" -> "test@test.com")
     }
@@ -209,7 +209,7 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
       stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR())
       stubPut(s"/company-registration/corporation-tax-registration/$regId/contact-details", 200, contactDetailsResp.toString())
       stubContactDetails(regId, 200)
-      val response = await(buildClient(controllers.reg.routes.CompanyContactDetailsController.submit().url).
+      val response = await(buildClient(controllers.reg.routes.CompanyContactDetailsController.submit.url).
         withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck").post(
         Map(
           "csrfToken" -> Seq("xxx-ignored-xxx"),
@@ -220,7 +220,7 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
       )
 
       response.status shouldBe 303
-      response.header(HeaderNames.LOCATION).get shouldBe controllers.reg.routes.AccountingDatesController.show().url
+      response.header(HeaderNames.LOCATION).get shouldBe controllers.reg.routes.AccountingDatesController.show.url
       intercept[Exception]((Json.parse(getRequestBody("post", "/write/audit")).as[JsObject] \ "detail" \ "businessContactDetails").get)
 
       findAll(postRequestedFor(urlMatching("/write/audit"))).size() shouldBe 1

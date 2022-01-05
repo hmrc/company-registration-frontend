@@ -19,7 +19,7 @@ package services
 import java.time.LocalDate
 
 import connectors.KeystoreConnector
-import play.api.Logger
+import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.cache.client.CacheMap
 import utils.SCRSExceptions
@@ -27,7 +27,7 @@ import utils.SCRSExceptions
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-trait CommonService {
+trait CommonService extends Logging {
   self : SCRSExceptions =>
 
   val keystoreConnector: KeystoreConnector
@@ -36,7 +36,7 @@ trait CommonService {
     keystoreConnector.fetchAndGet[String]("registrationID").map {
       case Some(regID) => regID
       case None =>
-        Logger.error(s"[CommonService] [fetchRegistrationID] - Could not find a registration ID in keystore")
+        logger.error(s"[CommonService] [fetchRegistrationID] - Could not find a registration ID in keystore")
         throw RegistrationIDNotFoundException
     }
   }

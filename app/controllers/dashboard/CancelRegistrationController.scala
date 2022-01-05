@@ -87,11 +87,11 @@ class CancelRegistrationController @Inject()(val payeConnector: PAYEConnector,
         success =>
           if (success) {
             service.cancelReg(regID)(service.getStatus)(hc).map { _ =>
-              Redirect(routes.DashboardController.show())
+              Redirect(routes.DashboardController.show)
             }
           }
           else {
-            Future.successful(Redirect(routes.DashboardController.show()))
+            Future.successful(Redirect(routes.DashboardController.show))
           })
     }
   }

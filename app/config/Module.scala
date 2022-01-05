@@ -94,7 +94,6 @@ class Module extends AbstractModule {
 
     //test controllers
     bind(classOf[CTMongoTestController]).to(classOf[CTMongoTestControllerImpl]).asEagerSingleton()
-    bind(classOf[EditSessionController]).to(classOf[EditSessionControllerImpl]).asEagerSingleton()
     bind(classOf[FeatureSwitchController]).to(classOf[FeatureSwitchControllerImpl]).asEagerSingleton()
     bind(classOf[ModifyThrottledUsersController]).to(classOf[ModifyThrottledUsersControllerImpl]).asEagerSingleton()
     bind(classOf[TestIncorporateController]).to(classOf[TestIncorporateControllerImpl]).asEagerSingleton()

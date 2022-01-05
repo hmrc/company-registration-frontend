@@ -79,9 +79,9 @@ class ReplacingAnotherBusinessController @Inject()(val authConnector: PlayAuthCo
             takeoverService.updateReplacingAnotherBusiness(regId, replacingAnotherBusiness) map {
               _ =>
                 if (replacingAnotherBusiness) {
-                  Redirect(OtherBusinessNameController.show())
+                  Redirect(OtherBusinessNameController.show)
                 } else {
-                  Redirect(AccountingDatesController.show())
+                  Redirect(AccountingDatesController.show)
                 }
             }
         )

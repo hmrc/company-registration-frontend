@@ -91,10 +91,10 @@ class PreviousOwnersAddressControllerSpec()(implicit val lang: Lang) extends SCR
 
           mockGetTakeoverDetails(testRegistrationId)(Future.successful(None))
 
-          val res: Result = TestPreviousOwnersAddressController.show()(request)
+          val res: Result = TestPreviousOwnersAddressController.show(request)
 
           status(res) shouldBe SEE_OTHER
-          redirectLocation(res) should contain(controllers.takeovers.routes.ReplacingAnotherBusinessController.show().url)
+          redirectLocation(res) should contain(controllers.takeovers.routes.ReplacingAnotherBusinessController.show.url)
         }
       }
 
@@ -108,10 +108,10 @@ class PreviousOwnersAddressControllerSpec()(implicit val lang: Lang) extends SCR
           val testTakeoverDetails: TakeoverDetails = TakeoverDetails(replacingAnotherBusiness = false)
           mockGetTakeoverDetails(testRegistrationId)(Future.successful(Some(testTakeoverDetails)))
 
-          val res: Result = TestPreviousOwnersAddressController.show()(request)
+          val res: Result = TestPreviousOwnersAddressController.show(request)
 
           status(res) shouldBe SEE_OTHER
-          redirectLocation(res) should contain(controllers.reg.routes.AccountingDatesController.show().url)
+          redirectLocation(res) should contain(controllers.reg.routes.AccountingDatesController.show.url)
         }
       }
 
@@ -125,10 +125,10 @@ class PreviousOwnersAddressControllerSpec()(implicit val lang: Lang) extends SCR
           val testTakeoverDetails: TakeoverDetails = TakeoverDetails(replacingAnotherBusiness = true, None)
           mockGetTakeoverDetails(testRegistrationId)(Future.successful(Some(testTakeoverDetails)))
 
-          val res: Result = TestPreviousOwnersAddressController.show()(request)
+          val res: Result = TestPreviousOwnersAddressController.show(request)
 
           status(res) shouldBe SEE_OTHER
-          redirectLocation(res) should contain(controllers.takeovers.routes.OtherBusinessNameController.show().url)
+          redirectLocation(res) should contain(controllers.takeovers.routes.OtherBusinessNameController.show.url)
         }
       }
 
@@ -147,10 +147,10 @@ class PreviousOwnersAddressControllerSpec()(implicit val lang: Lang) extends SCR
           )
           mockGetTakeoverDetails(testRegistrationId)(Future.successful(Some(testTakeoverDetails)))
 
-          val res: Result = TestPreviousOwnersAddressController.show()(request)
+          val res: Result = TestPreviousOwnersAddressController.show(request)
 
           status(res) shouldBe SEE_OTHER
-          redirectLocation(res) should contain(controllers.takeovers.routes.OtherBusinessAddressController.show().url)
+          redirectLocation(res) should contain(controllers.takeovers.routes.OtherBusinessAddressController.show.url)
         }
       }
 
@@ -170,10 +170,10 @@ class PreviousOwnersAddressControllerSpec()(implicit val lang: Lang) extends SCR
           )
           mockGetTakeoverDetails(testRegistrationId)(Future.successful(Some(testTakeoverDetails)))
 
-          val res: Result = TestPreviousOwnersAddressController.show()(request)
+          val res: Result = TestPreviousOwnersAddressController.show(request)
 
           status(res) shouldBe SEE_OTHER
-          redirectLocation(res) should contain(controllers.takeovers.routes.WhoAgreedTakeoverController.show().url)
+          redirectLocation(res) should contain(controllers.takeovers.routes.WhoAgreedTakeoverController.show.url)
         }
       }
 
@@ -196,7 +196,7 @@ class PreviousOwnersAddressControllerSpec()(implicit val lang: Lang) extends SCR
           )
           mockGetTakeoverDetails(testRegistrationId)(Future.successful(Some(testTakeoverDetails)))
 
-          val res: Result = TestPreviousOwnersAddressController.show()(request)
+          val res: Result = TestPreviousOwnersAddressController.show(request)
 
           status(res) shouldBe OK
           bodyOf(res) shouldBe page(
@@ -230,7 +230,7 @@ class PreviousOwnersAddressControllerSpec()(implicit val lang: Lang) extends SCR
           )
           mockGetTakeoverDetails(testRegistrationId)(Future.successful(Some(testTakeoverDetails)))
 
-          val res: Result = TestPreviousOwnersAddressController.show()(request)
+          val res: Result = TestPreviousOwnersAddressController.show(request)
 
           status(res) shouldBe OK
           bodyOf(res) shouldBe page(
@@ -250,7 +250,7 @@ class PreviousOwnersAddressControllerSpec()(implicit val lang: Lang) extends SCR
         CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
         mockTakeoversFeatureSwitch(isEnabled = false)
 
-        intercept[NotFoundException](await(TestPreviousOwnersAddressController.show()(request)))
+        intercept[NotFoundException](await(TestPreviousOwnersAddressController.show(request)))
       }
     }
   }
@@ -276,10 +276,10 @@ class PreviousOwnersAddressControllerSpec()(implicit val lang: Lang) extends SCR
           )
           mockUpdatePreviousOwnersAddress(testRegistrationId, testPreviousOwnersAddress)(testTakeoverDetails)
 
-          val res: Result = TestPreviousOwnersAddressController.submit()(request)
+          val res: Result = TestPreviousOwnersAddressController.submit(request)
 
           status(res) shouldBe SEE_OTHER
-          redirectLocation(res) should contain(controllers.reg.routes.AccountingDatesController.show().url)
+          redirectLocation(res) should contain(controllers.reg.routes.AccountingDatesController.show.url)
           session(res).get(addressSeqKey) shouldBe None
         }
       }
@@ -301,7 +301,7 @@ class PreviousOwnersAddressControllerSpec()(implicit val lang: Lang) extends SCR
             FakeRequest().withFormUrlEncodedBody(homeAddressKey -> "Other")
               .withSession(addressSeqKey -> Json.toJson(Seq(testPreviousOwnersAddress)).toString())
 
-          val res: Result = TestPreviousOwnersAddressController.submit()(request)
+          val res: Result = TestPreviousOwnersAddressController.submit(request)
 
           status(res) shouldBe SEE_OTHER
           redirectLocation(res) should contain("TEST/redirectUrl")
@@ -319,7 +319,7 @@ class PreviousOwnersAddressControllerSpec()(implicit val lang: Lang) extends SCR
             FakeRequest().withFormUrlEncodedBody(homeAddressKey -> "")
               .withSession(addressSeqKey -> Json.toJson(Seq(testPreviousOwnersAddress)).toString())
 
-          val res: Result = TestPreviousOwnersAddressController.submit()(request)
+          val res: Result = TestPreviousOwnersAddressController.submit(request)
 
           status(res) shouldBe BAD_REQUEST
           Jsoup.parse(bodyOf(res)).getElementById("homeAddress-error-summary").text shouldBe "Tell us their home address"
@@ -356,7 +356,7 @@ class PreviousOwnersAddressControllerSpec()(implicit val lang: Lang) extends SCR
           val res: Result = TestPreviousOwnersAddressController.handbackFromALF(Some(testAlfId))(request)
 
           status(res) shouldBe SEE_OTHER
-          redirectLocation(res) should contain(controllers.reg.routes.AccountingDatesController.show().url)
+          redirectLocation(res) should contain(controllers.reg.routes.AccountingDatesController.show.url)
           session(res).get(addressSeqKey) shouldBe None
         }
       }

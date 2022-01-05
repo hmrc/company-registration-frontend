@@ -15,7 +15,6 @@
  *@
 
 @import controllers.reg.routes._
-@import uk.gov.hmrc.play.views.html.helpers.form
 @import views.html.helpers.{inputRadioGroupHidden, dateFieldsFreeInline, errorSummary}
 @import scala.collection.immutable.Seq
 @import controllers.CRLanguageController
@@ -71,7 +70,7 @@
         <div class="panel panel-border-wide">@Messages("page.reg.accountingDates.hint1")</div>
     </div>
 
-    @formWithCsrf(action = AccountingDatesController.submit()) {
+    @formWithCsrf(action = AccountingDatesController.submit) {
         <div class="form-group">
             @inputRadioGroupHidden(
                 accountingDatesForm("businessStartDate"),

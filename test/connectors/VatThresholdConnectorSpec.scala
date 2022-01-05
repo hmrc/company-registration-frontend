@@ -95,7 +95,7 @@ class VatThresholdConnectorSpec extends SCRSSpec with UnitSpec with LogCapturing
         (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any[ExecutionContext]))
         .thenReturn(Future.successful(HttpResponse(200, Some(noTaxableThresholdReturnJson))))
 
-      withCaptureOfLoggingFrom(Logger) { logs =>
+      withCaptureOfLoggingFrom(Logger(connector.getClass)) { logs =>
         connector.getVATThreshold(todayDate)
         eventually {
           logs.size shouldBe 1
@@ -111,7 +111,7 @@ class VatThresholdConnectorSpec extends SCRSSpec with UnitSpec with LogCapturing
       when(mockWSHttp.GET[HttpResponse](ArgumentMatchers.anyString(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any[ExecutionContext]))
         .thenReturn(Future.successful(HttpResponse(200, Some(taxableThresholdNotAStringJson))))
 
-      withCaptureOfLoggingFrom(Logger) { logs =>
+      withCaptureOfLoggingFrom(Logger(connector.getClass)) { logs =>
         connector.getVATThreshold(todayDate)
         eventually {
           logs.size shouldBe 1
@@ -128,7 +128,7 @@ class VatThresholdConnectorSpec extends SCRSSpec with UnitSpec with LogCapturing
         (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any[ExecutionContext]))
         .thenReturn(Future.successful(HttpResponse(200, Some(JsNull))))
 
-      withCaptureOfLoggingFrom(Logger) { logs =>
+      withCaptureOfLoggingFrom(Logger(connector.getClass)) { logs =>
         connector.getVATThreshold(todayDate)
         eventually {
           logs.size shouldBe 1
@@ -142,7 +142,7 @@ class VatThresholdConnectorSpec extends SCRSSpec with UnitSpec with LogCapturing
         (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.failed(new NotFoundException("NOTFOUND")))
 
-      withCaptureOfLoggingFrom(Logger) { logs =>
+      withCaptureOfLoggingFrom(Logger(connector.getClass)) { logs =>
         connector.getVATThreshold(todayDate)
         eventually {
           logs.size shouldBe 1
@@ -156,7 +156,7 @@ class VatThresholdConnectorSpec extends SCRSSpec with UnitSpec with LogCapturing
         (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.failed(new InternalServerException("INTERNALSERVERERROR")))
 
-      withCaptureOfLoggingFrom(Logger) { logs =>
+      withCaptureOfLoggingFrom(Logger(connector.getClass)) { logs =>
         connector.getVATThreshold(todayDate)
         eventually {
           logs.size shouldBe 1
@@ -170,7 +170,7 @@ class VatThresholdConnectorSpec extends SCRSSpec with UnitSpec with LogCapturing
         (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.failed(new BadGatewayException("BADGATEWAYERROR")))
 
-      withCaptureOfLoggingFrom(Logger) { logs =>
+      withCaptureOfLoggingFrom(Logger(connector.getClass)) { logs =>
         connector.getVATThreshold(todayDate)
         eventually {
           logs.size shouldBe 1

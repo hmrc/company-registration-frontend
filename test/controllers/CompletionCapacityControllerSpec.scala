@@ -63,7 +63,7 @@ class CompletionCapacityControllerSpec extends SCRSSpec with GuiceOneAppPerSuite
 
   "The CompletionCapacityController" should {
     "redirect whilst the user is un authorised when sending a GET" in new Setup {
-      showWithUnauthorisedUser(controller.show()) {
+      showWithUnauthorisedUser(controller.show) {
         result => {
           val response = await(result)
           status(response) shouldBe SEE_OTHER
@@ -76,7 +76,7 @@ class CompletionCapacityControllerSpec extends SCRSSpec with GuiceOneAppPerSuite
       when(mockBusinessRegConnector.retrieveMetadata(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[HttpReads[BusinessRegistration]]()))
         .thenReturn(Future.successful(BusinessRegistrationSuccessResponse(validBusinessRegistrationResponse)))
 
-      showWithAuthorisedUser(controller.show()) {
+      showWithAuthorisedUser(controller.show) {
         result => {
           val response = await(result)
           status(response) shouldBe SEE_OTHER
@@ -91,7 +91,7 @@ class CompletionCapacityControllerSpec extends SCRSSpec with GuiceOneAppPerSuite
       when(mockBusinessRegConnector.retrieveMetadata(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[HttpReads[BusinessRegistration]]()))
         .thenReturn(Future.successful(BusinessRegistrationSuccessResponse(validBusinessRegistrationResponse)))
 
-      showWithAuthorisedUser(controller.show()) {
+      showWithAuthorisedUser(controller.show) {
         result =>
           status(result) shouldBe OK
       }
@@ -102,7 +102,7 @@ class CompletionCapacityControllerSpec extends SCRSSpec with GuiceOneAppPerSuite
       when(mockMetaDataService.updateCompletionCapacity(ArgumentMatchers.eq(AboutYouChoiceForm("director", "")))(ArgumentMatchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(validBusinessRegistrationResponse))
 
-      submitWithAuthorisedUser(controller.submit(), FakeRequest().withFormUrlEncodedBody(
+      submitWithAuthorisedUser(controller.submit, FakeRequest().withFormUrlEncodedBody(
         "completionCapacity" -> "director",
         "completionCapacityOther" -> ""
       )) {
@@ -117,7 +117,7 @@ class CompletionCapacityControllerSpec extends SCRSSpec with GuiceOneAppPerSuite
       when(mockMetaDataService.updateCompletionCapacity(ArgumentMatchers.eq(AboutYouChoiceForm("director", "")))(ArgumentMatchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(validBusinessRegistrationResponse))
 
-      submitWithAuthorisedUser(controller.submit(), FakeRequest().withFormUrlEncodedBody(
+      submitWithAuthorisedUser(controller.submit, FakeRequest().withFormUrlEncodedBody(
         "completionCapacity" -> "director",
         "completionCapacityOther" -> ""
       )) {
@@ -127,7 +127,7 @@ class CompletionCapacityControllerSpec extends SCRSSpec with GuiceOneAppPerSuite
     }
     "return a 400 if the user has entered invalid data" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("foo"))
-      submitWithAuthorisedUser(controller.submit(), FakeRequest().withFormUrlEncodedBody(
+      submitWithAuthorisedUser(controller.submit, FakeRequest().withFormUrlEncodedBody(
         "complete" -> "director"
       )) {
         result =>
@@ -137,7 +137,7 @@ class CompletionCapacityControllerSpec extends SCRSSpec with GuiceOneAppPerSuite
   }
   "return a 400 if the user has entered other and ` for data" in new Setup {
     mockKeystoreFetchAndGet("registrationID", Some("foo"))
-    submitWithAuthorisedUser(controller.submit(), FakeRequest().withFormUrlEncodedBody(
+    submitWithAuthorisedUser(controller.submit, FakeRequest().withFormUrlEncodedBody(
       "completionCapacity" -> "other",
       "completionCapacityOther" -> "`"
     )) {

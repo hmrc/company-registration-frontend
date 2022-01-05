@@ -64,7 +64,7 @@ class LimitReachedControllerSpec extends UnitSpec with SCRSSpec with AuthBuilder
 
     "Sending a POST request to LimitReachedController" should {
       "return a 303" in new Setup {
-        val result = controller.submit()(FakeRequest())
+        val result = controller.submit(FakeRequest())
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(controller.cohoUrl)
       }

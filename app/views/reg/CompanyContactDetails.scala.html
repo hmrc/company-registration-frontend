@@ -43,7 +43,7 @@
 
     <h1 class="form-title heading-large" id="main-heading">@Messages("page.reg.company-contact-details.description", companyName)</h1>
 
-    @formWithCsrf(action = controllers.reg.routes.CompanyContactDetailsController.submit()) {
+    @formWithCsrf(action = controllers.reg.routes.CompanyContactDetailsController.submit) {
 
             <div id="helpMessage1">@Messages("page.reg.company-contact-details.helpMessage1")</div>
             <br>

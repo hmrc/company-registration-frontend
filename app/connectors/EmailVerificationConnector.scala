@@ -19,7 +19,7 @@ package connectors
 import javax.inject.Inject
 import config.{FrontendAppConfig, WSHttp}
 import models.EmailVerificationRequest
-import play.api.Logger
+import play.api.Logging
 import play.api.http.Status._
 import play.api.libs.json.{JsObject, Json}
 import uk.gov.hmrc.http._
@@ -35,7 +35,7 @@ class EmailVerificationConnectorImpl @Inject()(val wSHttp: WSHttp, val appConfig
   lazy val checkVerifiedEmailURL = appConfig.servicesConfig.getConfString("email-vs.checkVerifiedEmailURL", throw new Exception("email.checkVerifiedEmailURL not found"))
 }
 
-trait EmailVerificationConnector extends HttpErrorFunctions {
+trait EmailVerificationConnector extends HttpErrorFunctions with Logging {
   val wSHttp : CoreGet with CorePost with CorePut
   val sendVerificationEmailURL : String
   val checkVerifiedEmailURL : String
@@ -46,7 +46,7 @@ trait EmailVerificationConnector extends HttpErrorFunctions {
 
   def checkVerifiedEmail(email : String)(implicit hc : HeaderCarrier) : Future[Boolean] = {
     def errorMsg(status: String) = {
-      Logger.debug(s"[EmailVerificationConnector] [checkVerifiedEmail] request to check verified email returned a $status - email not found / not verified")
+      logger.debug(s"[EmailVerificationConnector] [checkVerifiedEmail] request to check verified email returned a $status - email not found / not verified")
       false
     }
     wSHttp.POST[JsObject, HttpResponse](s"$checkVerifiedEmailURL", Json.obj("email" -> email)) map {
@@ -62,18 +62,18 @@ trait EmailVerificationConnector extends HttpErrorFunctions {
 
   def requestVerificationEmailReturnVerifiedEmailStatus(emailRequest : EmailVerificationRequest)(implicit hc : HeaderCarrier) : Future[Boolean] = {
     def errorMsg(status: String, ex: HttpException) = {
-      Logger.error(s"[EmailVerificationConnector] [requestVerificationEmail] request to send verification email returned a $status - email not sent - reason = ${ex.getMessage}")
+      logger.error(s"[EmailVerificationConnector] [requestVerificationEmail] request to send verification email returned a $status - email not sent - reason = ${ex.getMessage}")
       throw new EmailErrorResponse(status)
     }
 
     wSHttp.POST[EmailVerificationRequest, HttpResponse] (s"$sendVerificationEmailURL", emailRequest) map { r =>
       r.status match {
         case CREATED => {
-          Logger.debug("[EmailVerificationConnector] [requestVerificationEmail] request to verification service successful")
+          logger.debug("[EmailVerificationConnector] [requestVerificationEmail] request to verification service successful")
           false
         }
         case CONFLICT =>
-          Logger.warn("[EmailVerificationConnector] [requestVerificationEmail] request to send verification email returned a 409 - email already verified")
+          logger.warn("[EmailVerificationConnector] [requestVerificationEmail] request to send verification email returned a 409 - email already verified")
           true
       }
     } recover {

@@ -53,7 +53,7 @@
             <p id="para-one">@Messages("page.reg.registrationEmail.description")</p>
         </div>
 
-        @formWithCSRF(action = controllers.reg.routes.RegistrationEmailController.submit()) {
+        @formWithCSRF(action = controllers.reg.routes.RegistrationEmailController.submit) {
 
             <div class="form-group">
             @inputRadioGroupHidden(

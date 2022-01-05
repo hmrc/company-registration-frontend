@@ -34,7 +34,7 @@
         <div class="form-group">
             <p id="description-two">@Messages("page.verification.create-new-account.description.two")</p>
         </div>
-        @formWithCsrf(action = controllers.verification.routes.EmailVerificationController.createSubmit()) {
+        @formWithCsrf(action = controllers.verification.routes.EmailVerificationController.createSubmit) {
         <div class="form-group">
             <input class="button button--link" type="submit" value="@Messages("page.verification.create-new-account.bottomLink")">
         </div>

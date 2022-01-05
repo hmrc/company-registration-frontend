@@ -135,7 +135,7 @@ class SignInOutControllerSpec extends SCRSSpec
       showWithAuthorisedUserRetrieval(controller.postSignIn(None), authDetailsNoEmail) {
         result =>
           status(result) shouldBe SEE_OTHER
-          redirectLocation(result).get shouldBe controllers.verification.routes.EmailVerificationController.createShow().url
+          redirectLocation(result).get shouldBe controllers.verification.routes.EmailVerificationController.createShow.url
       }
 
     }
@@ -480,7 +480,7 @@ class SignInOutControllerSpec extends SCRSSpec
       status(res) shouldBe 303
       headers(res).contains("playFoo") shouldBe false
 
-      redirectLocation(res) shouldBe Some(controllers.reg.routes.SignInOutController.timeoutShow().url)
+      redirectLocation(res) shouldBe Some(controllers.reg.routes.SignInOutController.timeoutShow.url)
     }
   }
   "timeoutShow" should {

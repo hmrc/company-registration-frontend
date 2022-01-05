@@ -55,9 +55,9 @@ class GroupUtrController @Inject()(val authConnector: PlayAuthConnector,
           case Some(Groups(true, Some(companyName), Some(_), None)) =>
             Future.successful(Ok(view(GroupUtrForm.form, companyName.name)))
           case Some(Groups(true, Some(_), None, _)) =>
-            Future.successful(Redirect(controllers.groups.routes.GroupAddressController.show().url))
+            Future.successful(Redirect(controllers.groups.routes.GroupAddressController.show.url))
           case Some(Groups(true, None, _, _)) =>
-            Future.successful(Redirect(controllers.groups.routes.GroupNameController.show().url))
+            Future.successful(Redirect(controllers.groups.routes.GroupNameController.show.url))
           case _ =>
             Future.successful(Redirect(controllers.reg.routes.SignInOutController.postSignIn()))
         }
@@ -76,7 +76,7 @@ class GroupUtrController @Inject()(val authConnector: PlayAuthConnector,
                 Future.successful(BadRequest(view(errors, companyName.name))),
               groupUtr => {
                 groupService.updateGroupUtr(groupUtr, groups, regID).map { _ =>
-                  Redirect(controllers.handoff.routes.GroupController.PSCGroupHandOff())
+                  Redirect(controllers.handoff.routes.GroupController.PSCGroupHandOff)
                 }
               }
             )

@@ -47,7 +47,7 @@ class RegistrationEmailConfirmationISpec extends IntegrationSpecBase with LoginS
     )
   }
 
-  s"${controllers.reg.routes.RegistrationEmailConfirmationController.show().url}" should {
+  s"${controllers.reg.routes.RegistrationEmailConfirmationController.show.url}" should {
     "GET for show should return 200" in {
       stubAuthorisation()
       val emailResponseFromCr =
@@ -84,7 +84,7 @@ class RegistrationEmailConfirmationISpec extends IntegrationSpecBase with LoginS
   val testExternalId = "testId"
   val nameAndCredId = Json.obj("externalId" -> testExternalId) ++ nameJson
 
-  s"${controllers.reg.routes.RegistrationEmailConfirmationController.submit().url}" should {
+  s"${controllers.reg.routes.RegistrationEmailConfirmationController.submit.url}" should {
     "POST for submit should return 303 and redirect to Completion Capacity if YES is selected AND email is already verified" in {
       stubAuthorisation()
       stubSuccessfulLogin(userId = userId, otherParamsForAuth = Some(nameAndCredId))

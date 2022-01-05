@@ -42,7 +42,7 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fix
       stubKeystore(SessionId, "5")
 
       stubGet("/company-registration/corporation-tax-registration/5/accounting-details", 404, "")
-      val fResponse = buildClient(controllers.reg.routes.AccountingDatesController.show().url).
+      val fResponse = buildClient(controllers.reg.routes.AccountingDatesController.show.url).
         withHttpHeaders(HeaderNames.COOKIE -> getSessionCookie(userId = userId)).
         get()
 
@@ -75,7 +75,7 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fix
 
       stubGet("/company-registration/corporation-tax-registration/5/accounting-details", 200, crResponse)
 
-      val fResponse = buildClient(controllers.reg.routes.AccountingDatesController.show().url).
+      val fResponse = buildClient(controllers.reg.routes.AccountingDatesController.show.url).
         withHttpHeaders(HeaderNames.COOKIE -> getSessionCookie(userId = userId)).
         get()
 
@@ -105,7 +105,7 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fix
 
       stubGet("/company-registration/corporation-tax-registration/5/accounting-details", 200, crResponse)
 
-      val fResponse = buildClient(controllers.reg.routes.AccountingDatesController.show().url).
+      val fResponse = buildClient(controllers.reg.routes.AccountingDatesController.show.url).
         withHttpHeaders(HeaderNames.COOKIE -> getSessionCookie(userId = userId)).
         get()
 
@@ -131,7 +131,7 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fix
 
       val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
 
-      val fResponse = buildClient(controllers.reg.routes.AccountingDatesController.submit().url).
+      val fResponse = buildClient(controllers.reg.routes.AccountingDatesController.submit.url).
         withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").
         post(Map(
           "csrfToken" -> Seq("xxx-ignored-xxx"),
@@ -158,7 +158,7 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fix
       val csrfToken = UUID.randomUUID().toString
       val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
 
-      val response = await(buildClient(controllers.reg.routes.AccountingDatesController.submit().url).
+      val response = await(buildClient(controllers.reg.routes.AccountingDatesController.submit.url).
         withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").
         post(Map(
           "csrfToken" -> Seq("xxx-ignored-xxx"),

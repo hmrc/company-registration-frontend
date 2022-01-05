@@ -164,7 +164,7 @@ class PPOBControllerSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixtur
       submitWithAuthorisedUserRetrieval(controller.submit, submission("PPOB"), credID) {
         result =>
           status(result) shouldBe 303
-          redirectLocation(result).get shouldBe controllers.reg.routes.CompanyContactDetailsController.show().url
+          redirectLocation(result).get shouldBe controllers.reg.routes.CompanyContactDetailsController.show.url
       }
     }
 
@@ -182,7 +182,7 @@ class PPOBControllerSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixtur
       submitWithAuthorisedUserRetrieval(controller.submit, submission("RO"), credID) {
         result =>
           status(result) shouldBe 303
-          redirectLocation(result).get shouldBe controllers.reg.routes.CompanyContactDetailsController.show().url
+          redirectLocation(result).get shouldBe controllers.reg.routes.CompanyContactDetailsController.show.url
       }
     }
 
@@ -246,7 +246,7 @@ class PPOBControllerSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixtur
       showWithAuthorisedUser(controller.saveALFAddress(Some(alfId))) {
         result =>
           status(result) shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe Some(controllers.reg.routes.CompanyContactDetailsController.show().url)
+          redirectLocation(result) shouldBe Some(controllers.reg.routes.CompanyContactDetailsController.show.url)
       }
 
     }

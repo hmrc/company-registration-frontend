@@ -34,7 +34,7 @@ class CRLanguageController @Inject()(implicit override val messagesApi: Messages
   def langToCall(lang: String): Call = controllers.routes.CRLanguageController.switchToLanguage(lang)
 
   /** Provides a fallback URL if there is no referer in the request header. **/
-  override protected def fallbackURL: String = configuration.getString(s"language.fallbackUrl").getOrElse("/")
+  override protected def fallbackURL: String = configuration.get[String](s"language.fallbackUrl")
 
   /** Returns a mapping between strings and the corresponding Lang object. **/
   override def languageMap: Map[String, Lang] = Map(

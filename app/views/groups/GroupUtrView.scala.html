@@ -54,7 +54,7 @@
             <p id="para-one">@Messages("page.groups.groupUtr.p1")</p>
         </div>
 
-        @formWithCsrf(action = controllers.groups.routes.GroupUtrController.submit()) {
+        @formWithCsrf(action = controllers.groups.routes.GroupUtrController.submit) {
 
             <div class="form-group">
             @inputRadioGroupHidden(

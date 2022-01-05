@@ -22,7 +22,7 @@ import controllers.auth.AuthenticatedController
 import forms.errors.DeskproForm
 import javax.inject.{Inject, Singleton}
 import models.ConfirmationReferencesSuccessResponse
-import play.api.Logger
+import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.{CommonService, DeskproService}
@@ -46,7 +46,7 @@ class ConfirmationController @Inject()(val authConnector: PlayAuthConnector,
                                        submissionFailedView: submissionFailedView,
                                        deskproSubmittedView: deskproSubmittedView
                                       )(implicit val appConfig: FrontendAppConfig, implicit val ec: ExecutionContext) extends AuthenticatedController with SessionRegistration with CommonService
-  with SCRSExceptions with I18nSupport {
+  with SCRSExceptions with I18nSupport with Logging {
 
   val show: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
@@ -56,7 +56,7 @@ class ConfirmationController @Inject()(val authConnector: PlayAuthConnector,
       } yield references match {
         case ConfirmationReferencesSuccessResponse(ref) => Ok(confirmationView(ref))
         case _ =>
-          Logger.error(s"[ConfirmationController] [show] could not find acknowledgement ID for reg ID: $regID")
+          logger.error(s"[ConfirmationController] [show] could not find acknowledgement ID for reg ID: $regID")
           InternalServerError(controllerErrorHandler.defaultErrorPage)
       }
     }
@@ -64,7 +64,7 @@ class ConfirmationController @Inject()(val authConnector: PlayAuthConnector,
 
   val submit: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
-      Future.successful(Redirect(controllers.dashboard.routes.DashboardController.show()))
+      Future.successful(Redirect(controllers.dashboard.routes.DashboardController.show))
     }
   }
 
@@ -80,7 +80,7 @@ class ConfirmationController @Inject()(val authConnector: PlayAuthConnector,
         DeskproForm.form.bindFromRequest.fold(
           errors => Future.successful(BadRequest(submissionFailedView(errors))),
           success => deskproService.submitTicket(regID, success, uri) map {
-            _ => Redirect(controllers.reg.routes.ConfirmationController.submittedTicket())
+            _ => Redirect(controllers.reg.routes.ConfirmationController.submittedTicket)
           }
         )
       )

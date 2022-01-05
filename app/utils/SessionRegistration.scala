@@ -17,8 +17,7 @@
 package utils
 
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
-import models.Groups
-import play.api.Logger
+import play.api.Logging
 import play.api.libs.json.JsValue
 import play.api.mvc.Result
 import play.api.mvc.Results.Redirect
@@ -27,7 +26,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-trait SessionRegistration {
+trait SessionRegistration extends Logging {
 
   val keystoreConnector: KeystoreConnector
   val compRegConnector: CompanyRegistrationConnector
@@ -41,7 +40,7 @@ trait SessionRegistration {
   private def registered(handOff: Option[String] = None, payload: Option[String] = None)(f: => String => Future[Result])(implicit hc: HeaderCarrier): Future[Result] = {
     keystoreConnector.fetchAndGet[String]("registrationID") flatMap {
       case Some(regId) => f(regId)
-      case None => Logger.error("[SessionRegistration] [registered] returned None from keystore when fetching a registrationID")
+      case None => logger.error("[SessionRegistration] [registered] returned None from keystore when fetching a registrationID")
         Future.successful(Redirect(controllers.reg.routes.SignInOutController.postSignIn(None, handOff, payload)))
     }
   }
@@ -65,7 +64,7 @@ trait SessionRegistration {
 
     def checkSCRSVerified(fullCorpModel: JsValue): Boolean = {
       (fullCorpModel \ "verifiedEmail" \ "verified").asOpt[Boolean].fold {
-        Logger.info("[SessionRegistration] User does not have an Email Block redirecting to post sign in")
+        logger.info("[SessionRegistration] User does not have an Email Block redirecting to post sign in")
         false
       }(e => e)
 
@@ -81,7 +80,7 @@ trait SessionRegistration {
               (ctReg \ "status").as[String] match {
                 case "draft" => f(regId)
                 case "locked" | "held" => Future.successful(Redirect(controllers.reg.routes.SignInOutController.postSignIn(None)))
-                case _ => Future.successful(Redirect(controllers.dashboard.routes.DashboardController.show()))
+                case _ => Future.successful(Redirect(controllers.dashboard.routes.DashboardController.show))
               }
             }
         }

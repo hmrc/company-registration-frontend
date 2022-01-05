@@ -22,7 +22,7 @@ import javax.inject.Inject
 import config.FrontendAppConfig
 import org.jose4j.jwe.{ContentEncryptionAlgorithmIdentifiers => CEAI, JsonWebEncryption => JWE, KeyManagementAlgorithmIdentifiers => KMAI}
 import org.jose4j.keys.AesKey
-import play.api.Logger
+import play.api.Logging
 import play.api.libs.json
 import play.api.libs.json.Json
 
@@ -35,7 +35,7 @@ class Jwe @Inject()(appConfig: FrontendAppConfig) extends JweCommon {
   // $COVERAGE-ON$
 }
 
-trait JweEncryptor {
+trait JweEncryptor extends Logging {
   val key:String
   def aeskey(keytext: String): AesKey
   def encrypt[A](payload: A)(implicit wts: json.Writes[A]) : Option[String] = {
@@ -49,7 +49,7 @@ trait JweEncryptor {
       Some(encryptor.getCompactSerialization)
     } catch {
       case ex: Exception =>
-        Logger.warn(ex.getMessage)
+        logger.warn(ex.getMessage)
         None
       }
     }
@@ -58,7 +58,7 @@ trait JweEncryptor {
 case object DecryptionError extends NoStackTrace
 case object PayloadError extends NoStackTrace
 
-trait JweDecryptor {
+trait JweDecryptor extends Logging {
   val key:String
   def aeskey(keytext: String): AesKey
   def decrypt[A](jweMessage:String)(implicit rds: json.Reads[A]) : Try[A] = {
@@ -76,7 +76,7 @@ trait JweDecryptor {
       Success(payload)
     } catch {
       case e: Exception =>
-        Logger.error(s"[JweDecryptor] [decryptRaw] Could not decrypt payload due to ${e.getMessage}")
+        logger.error(s"[JweDecryptor] [decryptRaw] Could not decrypt payload due to ${e.getMessage}")
         Failure(DecryptionError)
     }
   }
@@ -86,14 +86,14 @@ trait JweDecryptor {
     Try(Json.parse(payload).validate[A]) flatMap(
       _ fold(
         errs => {
-          Logger.error(errs.toString())
+          logger.error(errs.toString())
           Failure(PayloadError)
         },
         valid => Success(valid)
         )
       ) recoverWith {
       case e: Exception =>
-        Logger.error(s"[JweDecryptor] [unpack] Could not unpack payload due to ${e.getMessage}")
+        logger.error(s"[JweDecryptor] [unpack] Could not unpack payload due to ${e.getMessage}")
         Failure(PayloadError)
     }
   }

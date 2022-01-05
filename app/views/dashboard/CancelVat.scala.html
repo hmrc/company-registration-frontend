@@ -14,7 +14,6 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.play.views.html.helpers.form
 @import views.html.helpers.inputRadioGroup
 @import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
 
@@ -34,7 +33,7 @@
             <BR>
         </div>
     </div>
-    @formWithCsrf(action = controllers.dashboard.routes.CancelRegistrationController.submitCancelVAT()) {
+    @formWithCsrf(action = controllers.dashboard.routes.CancelRegistrationController.submitCancelVAT) {
         <div class="form-group">
             @inputRadioGroup(
                 cancelSelection("cancelService"),

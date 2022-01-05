@@ -14,8 +14,6 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.play.views.html.helpers.form
-
 @this(main_template: main_template)
 @()(implicit request: Request[_], messages: Messages, appConfig: config.FrontendAppConfig)
 
@@ -29,7 +27,7 @@
        <p>@Messages("errorPages.incorporationRejected.para2")</p>
        <p>@Messages("errorPages.incorporationRejected.para3")</p>
        <p>@Html(messages("errorPages.incorporationRejected.para4",
-           controllers.reg.routes.RegistrationUnsuccessfulController.rejectionSubmit()))
+           controllers.reg.routes.RegistrationUnsuccessfulController.rejectionSubmit))
           @messages("errorPages.incorporationRejected.para4.1")</p>
 
 }

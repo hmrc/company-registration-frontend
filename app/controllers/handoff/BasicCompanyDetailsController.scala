@@ -69,7 +69,7 @@ class BasicCompanyDetailsController @Inject()(val authConnector: PlayAuthConnect
       ctAuthorisedHandoff("HO1b", request) {
         registeredHandOff("HO1b", request) { _ =>
           handBackService.processCompanyNameReverseHandBack(request).map {
-            case Success(_) => Redirect(controllers.reg.routes.CompletionCapacityController.show())
+            case Success(_) => Redirect(controllers.reg.routes.CompletionCapacityController.show)
             case Failure(PayloadError) => BadRequest(error_template_restart("1b", "PayloadError"))
             case Failure(DecryptionError) => BadRequest(error_template_restart("1b", "DecryptionError"))
             case _ => InternalServerError(controllerErrorHandler.defaultErrorPage)

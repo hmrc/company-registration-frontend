@@ -67,7 +67,7 @@ class BusinessActivitiesController @Inject()(val authConnector: PlayAuthConnecto
       ctAuthorisedHandoff("HO3b", request) {
         registeredHandOff("HO3b", request) { _ =>
           handBackService.processBusinessActivitiesHandBack(request).map {
-            case Success(_) => Redirect(controllers.reg.routes.TradingDetailsController.show())
+            case Success(_) => Redirect(controllers.reg.routes.TradingDetailsController.show)
             case Failure(PayloadError) => BadRequest(error_template_restart("3b", "PayloadError"))
             case Failure(DecryptionError) => BadRequest(error_template_restart("3b", "DecryptionError"))
             case _ => InternalServerError(controllerErrorHandler.defaultErrorPage)

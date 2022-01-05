@@ -128,7 +128,7 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
       val response = await(fResponse)
       await(repo.repository.getNavModel(regId)).get shouldBe handOffNavModelDataUpTo3_1
       response.status shouldBe 303
-      response.header(HeaderNames.LOCATION).get shouldBe controllers.handoff.routes.GroupController.PSCGroupHandOff().url
+      response.header(HeaderNames.LOCATION).get shouldBe controllers.handoff.routes.GroupController.PSCGroupHandOff.url
     }
     "return 400 when a valid payload is passed in without flag (this does not happen any more)" in new Setup {
       stubSuccessfulLogin(userId = userId)
@@ -237,7 +237,7 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
     }
   }
 
-  s"${controllers.handoff.routes.GroupController.PSCGroupHandOff().url}" should {
+  s"${controllers.handoff.routes.GroupController.PSCGroupHandOff.url}" should {
     "Redirect to PSC hand off url from 3-1 entry in nav Model with NO GROUPS in cr" in new Setup {
 
       stubGet(s"/company-registration/corporation-tax-registration/$regId/groups", 204, "")
@@ -247,7 +247,7 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
       await(repo.repository.insertNavModel(regId, handOffNavModelDataWithJust3_2Requirements))
       await(repo.repository.count) shouldBe 1
 
-      val fResponse = buildClient(controllers.handoff.routes.GroupController.PSCGroupHandOff().url).
+      val fResponse = buildClient(controllers.handoff.routes.GroupController.PSCGroupHandOff.url).
         withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
         .get()
 
@@ -297,7 +297,7 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
       await(repo.repository.insertNavModel(regId, handOffNavModelDataWithJust3_2Requirements))
       await(repo.repository.count) shouldBe 1
 
-      val fResponse = buildClient(controllers.handoff.routes.GroupController.PSCGroupHandOff().url).
+      val fResponse = buildClient(controllers.handoff.routes.GroupController.PSCGroupHandOff.url).
         withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
         .get()
 
@@ -322,7 +322,7 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
       stubKeystore(SessionId, regId)
       await(repo.repository.insertNavModel(regId, handOffNavModelDataWithJust3_2Requirements))
       await(repo.repository.count) shouldBe 1
-      val fResponse = buildClient(controllers.handoff.routes.GroupController.PSCGroupHandOff().url).
+      val fResponse = buildClient(controllers.handoff.routes.GroupController.PSCGroupHandOff.url).
         withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
         .get()
 
@@ -342,7 +342,7 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
       stubKeystore(SessionId, regId)
       await(repo.repository.count) shouldBe 0
 
-      val fResponse = buildClient(controllers.handoff.routes.GroupController.PSCGroupHandOff().url).
+      val fResponse = buildClient(controllers.handoff.routes.GroupController.PSCGroupHandOff.url).
         withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
         .get()
 
@@ -382,7 +382,7 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
       stubGet(s"/company-registration/corporation-tax-registration/$regId/groups", 200, expected)
       stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR)
 
-      val fResponse = await(buildClient(controllers.groups.routes.GroupReliefController.show().url).
+      val fResponse = await(buildClient(controllers.groups.routes.GroupReliefController.show.url).
         withHttpHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
         .get())
       val doc = Jsoup.parse(fResponse.body)
@@ -428,7 +428,7 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
            |    }""".stripMargin)
       stubPost(s"/company-registration/corporation-tax-registration/check-list-of-group-names", 200, """["wizz", "bar ", "bar"]""")
 
-      val fResponse = await(buildClient(controllers.groups.routes.GroupNameController.show().url).
+      val fResponse = await(buildClient(controllers.groups.routes.GroupNameController.show.url).
         withHttpHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
         .get())
       val doc = Jsoup.parse(fResponse.body)
@@ -466,7 +466,7 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
            |    }""".stripMargin)
       stubPost(s"/company-registration/corporation-tax-registration/check-list-of-group-names", 200, """["Foo Bar", "bar"]""")
 
-      val fResponse = await(buildClient(controllers.groups.routes.GroupNameController.show().url).
+      val fResponse = await(buildClient(controllers.groups.routes.GroupNameController.show.url).
         withHttpHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
         .get())
       val doc = Jsoup.parse(fResponse.body)
@@ -503,7 +503,7 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
            |    }""".stripMargin)
       stubPost(s"/company-registration/corporation-tax-registration/check-list-of-group-names", 200, """["Foo Bar", "bar"]""")
 
-      val fResponse = await(buildClient(controllers.groups.routes.GroupNameController.show().url).
+      val fResponse = await(buildClient(controllers.groups.routes.GroupNameController.show.url).
         withHttpHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
         .get())
       val doc = Jsoup.parse(fResponse.body)
@@ -550,7 +550,7 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
           |   }
           |}""".stripMargin)
       stubGet(s"/company-registration/corporation-tax-registration/$regId/groups", 200, jsonToBeParsed.toString)
-      val fResponse = await(buildClient(controllers.groups.routes.GroupAddressController.show().url).
+      val fResponse = await(buildClient(controllers.groups.routes.GroupAddressController.show.url).
         withHttpHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
         .get())
       val doc = Jsoup.parse(fResponse.body)
@@ -605,7 +605,7 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
         .post(Map("Csrf-Token" -> Seq("nocheck"), "groupAddress" -> Seq("TxAPI")))
       val res = await(fResponse)
       res.status shouldBe 303
-      res.header(HeaderNames.LOCATION).get shouldBe controllers.groups.routes.GroupUtrController.show().url
+      res.header(HeaderNames.LOCATION).get shouldBe controllers.groups.routes.GroupUtrController.show.url
 
     }
     "redirect to alf if II returns non 2xx on submit" in new Setup {
@@ -717,7 +717,7 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
 
       val res = await(fResponse)
       res.status shouldBe 303
-      res.header(HeaderNames.LOCATION).get shouldBe controllers.groups.routes.GroupUtrController.show().url
+      res.header(HeaderNames.LOCATION).get shouldBe controllers.groups.routes.GroupUtrController.show.url
 
     }
   }
@@ -751,7 +751,7 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
           |}""".stripMargin)
 
       stubGet(s"/company-registration/corporation-tax-registration/$regId/groups", 200, jsonToBeParsed.toString)
-      val fResponse = await(buildClient(controllers.groups.routes.GroupUtrController.show().url).
+      val fResponse = await(buildClient(controllers.groups.routes.GroupUtrController.show.url).
         withHttpHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
         .get())
 
@@ -793,13 +793,13 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
       stubGet(s"/company-registration/corporation-tax-registration/$regId/groups", 200, jsonToBeParsed.toString)
       stubPut(s"/company-registration/corporation-tax-registration/$regId/groups", 200, """{"groupRelief": true}""")
 
-      val fResponse = buildClient(controllers.groups.routes.GroupUtrController.submit().url).
+      val fResponse = buildClient(controllers.groups.routes.GroupUtrController.submit.url).
         withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
         .post(Map("Csrf-Token" -> Seq("nocheck"), "groupUtr" -> Seq("utr"), "utr" -> Seq("123")))
 
       val res = await(fResponse)
       res.status shouldBe 303
-      res.header(HeaderNames.LOCATION).get shouldBe controllers.handoff.routes.GroupController.PSCGroupHandOff().url
+      res.header(HeaderNames.LOCATION).get shouldBe controllers.handoff.routes.GroupController.PSCGroupHandOff.url
     }
   }
 }

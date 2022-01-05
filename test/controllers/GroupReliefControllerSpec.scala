@@ -106,7 +106,7 @@ class GroupReliefControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with M
 
   "The GroupReliefController" should {
     "redirect whilst the user is un authorised when sending a GET" in new Setup {
-      showWithUnauthorisedUser(controller.show()) {
+      showWithUnauthorisedUser(controller.show) {
         result => {
           val response = await(result)
           status(response) shouldBe SEE_OTHER
@@ -123,7 +123,7 @@ class GroupReliefControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with M
       when(mockGroupService.retrieveGroups(any())(any()))
         .thenReturn(Future.successful(None))
 
-      showWithAuthorisedUser(controller.show()) {
+      showWithAuthorisedUser(controller.show) {
         result => {
           val response = await(result)
           status(response) shouldBe SEE_OTHER
@@ -141,7 +141,7 @@ class GroupReliefControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with M
       when(mockCompanyRegistrationConnector.fetchCompanyName(any[String]())(any[HeaderCarrier]()))
         .thenReturn(Future.successful("Company Name"))
 
-      showWithAuthorisedUser(controller.show()) {
+      showWithAuthorisedUser(controller.show) {
 
         result => {
           val response = await(result)
@@ -161,7 +161,7 @@ class GroupReliefControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with M
       when(mockCompanyRegistrationConnector.fetchCompanyName(any[String]())(any[HeaderCarrier]()))
         .thenReturn(Future.successful("Company Name"))
 
-      showWithAuthorisedUser(controller.show()) {
+      showWithAuthorisedUser(controller.show) {
 
         result => {
           val response = await(result)
@@ -179,7 +179,7 @@ class GroupReliefControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with M
       when(mockCompanyRegistrationConnector.fetchCompanyName(any[String]())(any[HeaderCarrier]()))
         .thenReturn(Future.successful("Company Name"))
 
-      showWithAuthorisedUser(controller.show()) {
+      showWithAuthorisedUser(controller.show) {
 
         result => {
           val response = await(result)
@@ -199,7 +199,7 @@ class GroupReliefControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with M
       when(mockGroupService.updateGroupRelief(any[Boolean], any[String])(any[HeaderCarrier]))
         .thenReturn(Future.successful(Groups(groupRelief = true, None, None, None)))
 
-      submitWithAuthorisedUser(controller.submit(), FakeRequest().withFormUrlEncodedBody("groupRelief" -> "true")) {
+      submitWithAuthorisedUser(controller.submit, FakeRequest().withFormUrlEncodedBody("groupRelief" -> "true")) {
         result =>
           status(result) shouldBe SEE_OTHER
           result.header.headers("Location") shouldBe "/register-your-company/owning-companys-name"
@@ -217,7 +217,7 @@ class GroupReliefControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with M
       when(mockGroupService.updateGroupRelief(any[Boolean], any[String])(any[HeaderCarrier]))
         .thenReturn(Future.successful(Groups(groupRelief = true, None, None, None)))
 
-      submitWithAuthorisedUser(controller.submit(), FakeRequest().withFormUrlEncodedBody("groupRelief" -> "false")) {
+      submitWithAuthorisedUser(controller.submit, FakeRequest().withFormUrlEncodedBody("groupRelief" -> "false")) {
         result =>
           status(result) shouldBe SEE_OTHER
           result.header.headers("Location") shouldBe "/register-your-company/psc-handoff"
@@ -235,7 +235,7 @@ class GroupReliefControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with M
       when(mockGroupService.updateGroupRelief(any[Boolean], any[String])(any[HeaderCarrier]))
         .thenReturn(Future.successful(Groups(groupRelief = true, None, None, None)))
 
-      submitWithAuthorisedUser(controller.submit(), FakeRequest().withFormUrlEncodedBody("groupRelief" -> "maybe")) {
+      submitWithAuthorisedUser(controller.submit, FakeRequest().withFormUrlEncodedBody("groupRelief" -> "maybe")) {
         result =>
           status(result) shouldBe BAD_REQUEST
 

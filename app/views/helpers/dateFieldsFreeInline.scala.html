@@ -14,14 +14,14 @@
  * limitations under the License.
  *@
 
-@this()
+@import uk.gov.hmrc.play.views.html.helpers.Input
+@this(input: Input)
 
 @(formItem:Form[_],
-  fieldName: String,
-  errorArgs: Seq[Any],
-  args: (Symbol,Any)*)(implicit request: Request[_], messages: Messages)
+fieldName: String,
+errorArgs: Seq[Any],
+args: (Symbol,Any)*)(implicit request: Request[_], messages: Messages)
 
-@import uk.gov.hmrc.play.views.html.helpers.input
 
 @fieldSetClasses = @{if(formItem.hasErrors){
                         if(formItem(fieldName).hasErrors){

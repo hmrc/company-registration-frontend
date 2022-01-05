@@ -17,18 +17,16 @@
 package services
 
 import javax.inject.Inject
-
 import config.FrontendAppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector, S4LConnector}
 import models._
 import models.handoff._
-import play.api.Logger
+import play.api.Logging
 import play.api.libs.json.{Format, JsObject, JsValue}
 import repositories._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.binders.ContinueUrl
 import utils._
-
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.control.NoStackTrace
@@ -47,7 +45,7 @@ class HandBackServiceImpl @Inject()(val compRegConnector: CompanyRegistrationCon
 
 case object PayloadNotSavedError extends NoStackTrace
 
-trait HandBackService extends HandOffNavigator {
+trait HandBackService extends HandOffNavigator with Logging {
 
   val compRegConnector: CompanyRegistrationConnector
   val jwe : JweCommon
@@ -57,12 +55,12 @@ trait HandBackService extends HandOffNavigator {
   private[services] def decryptHandBackRequest[T](request: String)(f: T => Future[Try[T]])(implicit hc: HeaderCarrier, formats: Format[T]): Future[Try[T]] = {
     request.isEmpty match {
       case true =>
-        Logger.error(s"[HandBackService] [decryptHandBackRequest] Encrypted hand back payload was empty")
+        logger.error(s"[HandBackService] [decryptHandBackRequest] Encrypted hand back payload was empty")
         Future.successful(Failure(DecryptionError))
       case false => jwe.decrypt[T](request) match {
         case Success(payload) => f(payload)
         case Failure(ex) =>
-          Logger.error(s"[HandBackService] [decryptHandBackRequest] Payload could not be decrypted: ${ex}")
+          logger.error(s"[HandBackService] [decryptHandBackRequest] Payload could not be decrypted: ${ex}")
           Future.successful(Failure(ex))
       }
     }
@@ -179,7 +177,7 @@ trait HandBackService extends HandOffNavigator {
         } yield {
           storeResult match {
             case false =>
-              Logger.error("[HandBackService] [processSummaryPage1Handback] CH handoff payload wasn't stored")
+              logger.error("[HandBackService] [processSummaryPage1Handback] CH handoff payload wasn't stored")
               Failure(PayloadNotSavedError)
             case _ => Success(payload)
           }

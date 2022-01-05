@@ -88,10 +88,10 @@ class OtherBusinessAddressControllerSpec(implicit lang: Lang) extends SCRSSpec
 
           mockGetTakeoverDetails(testRegistrationId)(Future.successful(None))
 
-          val res: Result = TestOtherBusinessAddressController.show()(request)
+          val res: Result = TestOtherBusinessAddressController.show(request)
 
           status(res) shouldBe SEE_OTHER
-          redirectLocation(res) should contain(controllers.takeovers.routes.ReplacingAnotherBusinessController.show().url)
+          redirectLocation(res) should contain(controllers.takeovers.routes.ReplacingAnotherBusinessController.show.url)
         }
       }
 
@@ -105,10 +105,10 @@ class OtherBusinessAddressControllerSpec(implicit lang: Lang) extends SCRSSpec
           val testTakeoverDetails: TakeoverDetails = TakeoverDetails(replacingAnotherBusiness = false)
           mockGetTakeoverDetails(testRegistrationId)(Future.successful(Some(testTakeoverDetails)))
 
-          val res: Result = TestOtherBusinessAddressController.show()(request)
+          val res: Result = TestOtherBusinessAddressController.show(request)
 
           status(res) shouldBe SEE_OTHER
-          redirectLocation(res) should contain(controllers.reg.routes.AccountingDatesController.show().url)
+          redirectLocation(res) should contain(controllers.reg.routes.AccountingDatesController.show.url)
         }
       }
 
@@ -122,10 +122,10 @@ class OtherBusinessAddressControllerSpec(implicit lang: Lang) extends SCRSSpec
           val testTakeoverDetails: TakeoverDetails = TakeoverDetails(replacingAnotherBusiness = true, None)
           mockGetTakeoverDetails(testRegistrationId)(Future.successful(Some(testTakeoverDetails)))
 
-          val res: Result = TestOtherBusinessAddressController.show()(request)
+          val res: Result = TestOtherBusinessAddressController.show(request)
 
           status(res) shouldBe SEE_OTHER
-          redirectLocation(res) should contain(controllers.takeovers.routes.OtherBusinessNameController.show().url)
+          redirectLocation(res) should contain(controllers.takeovers.routes.OtherBusinessNameController.show.url)
         }
       }
 
@@ -144,7 +144,7 @@ class OtherBusinessAddressControllerSpec(implicit lang: Lang) extends SCRSSpec
           )
           mockGetTakeoverDetails(testRegistrationId)(Future.successful(Some(testTakeoverDetails)))
 
-          val res: Result = TestOtherBusinessAddressController.show()(request)
+          val res: Result = TestOtherBusinessAddressController.show(request)
 
           status(res) shouldBe OK
           bodyOf(res) shouldBe page(OtherBusinessAddressForm.form(testBusinessName, 1), testBusinessName, Seq(testBusinessAddress)).body
@@ -169,7 +169,7 @@ class OtherBusinessAddressControllerSpec(implicit lang: Lang) extends SCRSSpec
           )
           mockGetTakeoverDetails(testRegistrationId)(Future.successful(Some(testTakeoverDetails)))
 
-          val res: Result = TestOtherBusinessAddressController.show()(request)
+          val res: Result = TestOtherBusinessAddressController.show(request)
 
           status(res) shouldBe OK
           bodyOf(res) shouldBe page(
@@ -200,7 +200,7 @@ class OtherBusinessAddressControllerSpec(implicit lang: Lang) extends SCRSSpec
           )
           mockGetTakeoverDetails(testRegistrationId)(Future.successful(Some(testTakeoverDetails)))
 
-          val res: Result = TestOtherBusinessAddressController.show()(request)
+          val res: Result = TestOtherBusinessAddressController.show(request)
 
           status(res) shouldBe OK
           bodyOf(res) shouldBe page(
@@ -219,7 +219,7 @@ class OtherBusinessAddressControllerSpec(implicit lang: Lang) extends SCRSSpec
         CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
         mockTakeoversFeatureSwitch(isEnabled = false)
 
-        intercept[NotFoundException](await(TestOtherBusinessAddressController.show()(request)))
+        intercept[NotFoundException](await(TestOtherBusinessAddressController.show(request)))
       }
     }
   }
@@ -244,10 +244,10 @@ class OtherBusinessAddressControllerSpec(implicit lang: Lang) extends SCRSSpec
           )
           mockUpdateBusinessAddress(testRegistrationId, testBusinessAddress)(testTakeoverDetails)
 
-          val res: Result = TestOtherBusinessAddressController.submit()(request)
+          val res: Result = TestOtherBusinessAddressController.submit(request)
 
           status(res) shouldBe SEE_OTHER
-          redirectLocation(res) should contain(controllers.takeovers.routes.WhoAgreedTakeoverController.show().url)
+          redirectLocation(res) should contain(controllers.takeovers.routes.WhoAgreedTakeoverController.show.url)
           session(res).get(addressSeqKey) shouldBe None
         }
       }
@@ -268,7 +268,7 @@ class OtherBusinessAddressControllerSpec(implicit lang: Lang) extends SCRSSpec
             FakeRequest().withFormUrlEncodedBody(otherBusinessAddressKey -> "Other")
               .withSession(addressSeqKey -> Json.toJson(Seq(testBusinessAddress)).toString())
 
-          val res: Result = TestOtherBusinessAddressController.submit()(request)
+          val res: Result = TestOtherBusinessAddressController.submit(request)
 
           status(res) shouldBe SEE_OTHER
           redirectLocation(res) should contain("TEST/redirectUrl")
@@ -285,7 +285,7 @@ class OtherBusinessAddressControllerSpec(implicit lang: Lang) extends SCRSSpec
             FakeRequest().withFormUrlEncodedBody(otherBusinessAddressKey -> "")
               .withSession(addressSeqKey -> Json.toJson(Seq(testBusinessAddress)).toString())
 
-          val res: Result = TestOtherBusinessAddressController.submit()(request)
+          val res: Result = TestOtherBusinessAddressController.submit(request)
 
           status(res) shouldBe BAD_REQUEST
           Jsoup.parse(bodyOf(res))
@@ -322,7 +322,7 @@ class OtherBusinessAddressControllerSpec(implicit lang: Lang) extends SCRSSpec
           val res: Result = TestOtherBusinessAddressController.handbackFromALF(Some(testAlfId))(request)
 
           status(res) shouldBe SEE_OTHER
-          redirectLocation(res) should contain(controllers.takeovers.routes.WhoAgreedTakeoverController.show().url)
+          redirectLocation(res) should contain(controllers.takeovers.routes.WhoAgreedTakeoverController.show.url)
           session(res).get(addressSeqKey) shouldBe None
         }
       }

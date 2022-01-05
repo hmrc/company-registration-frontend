@@ -115,7 +115,7 @@
 
 @main_template(title = Messages("page.reg.summary.description")){
 
-  <a id="back" class="link-back" href="@controllers.reg.routes.SummaryController.back()">@Messages("common.button.back")</a>
+  <a id="back" class="link-back" href="@controllers.reg.routes.SummaryController.back">@Messages("common.button.back")</a>
 
   <h1 id="main-heading" class="heading-large">@Messages("page.reg.summary.description")</h1>
   <h2 class="heading-24">@Messages("page.reg.summary.page")</h2>
@@ -221,7 +221,7 @@
       <p>@messages("page.reg.summary.information.indent")</p>
     </div>
   </div>
-  @formWithCSRF(action = controllers.reg.routes.SummaryController.submit()) {
+  @formWithCSRF(action = controllers.reg.routes.SummaryController.submit) {
   <div class="form-group">
     <input class="button" type="submit" id="next" value="@Messages("common.button.ConfirmAndContinue")">
   </div>

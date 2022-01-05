@@ -19,7 +19,7 @@ package connectors
 import config.{FrontendAppConfig, WSHttp}
 import javax.inject.Inject
 import models.{AlfJourneyConfig, NewAddress}
-import play.api.Logger
+import play.api.Logging
 import uk.gov.hmrc.http._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -33,7 +33,7 @@ class AddressLookupConnectorImpl @Inject()(val wSHttp: WSHttp,
 
 class ALFLocationHeaderNotSet extends NoStackTrace
 
-trait AddressLookupConnector {
+trait AddressLookupConnector extends Logging {
 
   val addressLookupFrontendURL: String
   val wSHttp: CoreGet with CorePost
@@ -45,7 +45,7 @@ trait AddressLookupConnector {
     wSHttp.POST[AlfJourneyConfig, HttpResponse](onRampUrl, alfJourneyConfig) map {
       response =>
         response.header(key = locationKey).getOrElse {
-          Logger.error("[AddressLookupConnector] [getOnRampURL] Location header not set in Address Lookup response")
+          logger.error("[AddressLookupConnector] [getOnRampURL] Location header not set in Address Lookup response")
           throw new ALFLocationHeaderNotSet
         }
     }

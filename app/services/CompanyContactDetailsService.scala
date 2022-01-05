@@ -17,18 +17,16 @@
 package services
 
 import javax.inject.Inject
-
 import audit.events.{ContactDetailsAuditEvent, ContactDetailsAuditEventDetail}
 import connectors._
 import models._
-import play.api.Logger
+import play.api.Logging
 import play.api.mvc.{AnyContent, Request}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import utils.SCRSExceptions
-
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -38,7 +36,7 @@ class CompanyContactDetailsServiceImpl @Inject()(val businessRegConnector: Busin
                                              val authConnector: PlayAuthConnector,
                                              val auditConnector: AuditConnector) extends CompanyContactDetailsService
 
-trait CompanyContactDetailsService extends CommonService with SCRSExceptions {
+trait CompanyContactDetailsService extends CommonService with SCRSExceptions with Logging {
   val businessRegConnector: BusinessRegistrationConnector
   val companyRegistrationConnector: CompanyRegistrationConnector
   val auditConnector: AuditConnector
@@ -51,7 +49,7 @@ trait CompanyContactDetailsService extends CommonService with SCRSExceptions {
       verEmail <- companyRegistrationConnector.retrieveEmail(regId) map {
         e =>
           e.fold {
-            Logger.warn("[CompanyContactDetails] - No Email in verified block")
+            logger.warn("[CompanyContactDetails] - No Email in verified block")
             throw new NoSuchElementException("Verified Email not found")
           } {
             _.address

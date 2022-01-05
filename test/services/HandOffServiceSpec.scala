@@ -240,8 +240,8 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
     "return a jsObject" in new Setup {
       service.renewSessionObject shouldBe JsObject(Map(
         "timeout" -> Json.toJson(service.timeout - service.timeoutDisplayLength),
-        "keepalive_url" -> Json.toJson(s"http://localhost:9970${controllers.reg.routes.SignInOutController.renewSession().url}"),
-        "signedout_url" -> Json.toJson(s"http://localhost:9970${controllers.reg.routes.SignInOutController.destroySession().url}")))
+        "keepalive_url" -> Json.toJson(s"http://localhost:9970${controllers.reg.routes.SignInOutController.renewSession.url}"),
+        "signedout_url" -> Json.toJson(s"http://localhost:9970${controllers.reg.routes.SignInOutController.destroySession.url}")))
     }
   }
 

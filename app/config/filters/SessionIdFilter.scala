@@ -19,7 +19,7 @@ package config.filters
 import javax.inject.Inject
 
 import akka.stream.Materializer
-import play.api.Logger
+import play.api.Logging
 import play.api.http.DefaultHttpFilters
 import play.api.mvc.Results.Redirect
 import play.api.mvc.{Filter, RequestHeader, Result}
@@ -34,13 +34,13 @@ class SCRSFilters @Inject()(defaultFilters: FrontendFilters,
 
 class SessionIdFilterImpl @Inject()(val mat: Materializer) extends SessionIdFilter
 
-trait SessionIdFilter extends Filter {
+trait SessionIdFilter extends Filter with Logging {
 
   override def apply(f: (RequestHeader) => Future[Result])(rh: RequestHeader): Future[Result] = {
     val hc = HeaderCarrierConverter.fromHeadersAndSession(rh.headers, Some(rh.session))
     hc.sessionId match {
       case Some(sessionId) if !sessionId.value.matches(desSessionRegex) =>
-        Logger.warn(s"[IncorrectSessionId] The session Id ${sessionId.value} doesn't match the DES schema. Redirecting the user to sign in")
+        logger.warn(s"[IncorrectSessionId] The session Id ${sessionId.value} doesn't match the DES schema. Redirecting the user to sign in")
         Future.successful(Redirect(controllers.reg.routes.SignInOutController.postSignIn(None)).withNewSession)
       case _ => f(rh)
     }

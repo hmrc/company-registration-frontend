@@ -67,14 +67,14 @@ class ReturningUserSpec extends SCRSSpec with AuthBuilder with GuiceOneAppPerSui
     "Sending a POST request to ReturningUserController" should {
       "return a 303 and send user to company registration eligibility when they start a new registration" in new Setup {
 
-        val result = testController.submit()(FakeRequest().withFormUrlEncodedBody("returningUser" -> "true"))
+        val result = testController.submit(FakeRequest().withFormUrlEncodedBody("returningUser" -> "true"))
         status(result) shouldBe SEE_OTHER
         redirectLocation(result).get should include("EligURL")
         redirectLocation(result).get should include("/eligibility-for-setting-up-company")
       }
       "return a 303 and send user to sign-in page when they are not starting a new registration" in new Setup {
 
-        val result = testController.submit()(FakeRequest().withFormUrlEncodedBody("returningUser" -> "false"))
+        val result = testController.submit(FakeRequest().withFormUrlEncodedBody("returningUser" -> "false"))
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some("/register-your-company/post-sign-in")
       }

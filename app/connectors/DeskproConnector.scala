@@ -20,7 +20,7 @@ import javax.inject.Inject
 
 import config.{FrontendAppConfig, WSHttp}
 import models.external.Ticket
-import play.api.Logger
+import play.api.Logging
 import play.api.libs.json._
 import services.MetricsService
 import uk.gov.hmrc.http.{CorePost, HeaderCarrier}
@@ -33,7 +33,7 @@ class DeskproConnectorImpl @Inject()(val appConfig: FrontendAppConfig,
   override lazy val deskProUrl: String = appConfig.servicesConfig.baseUrl("hmrc-deskpro")
 }
 
-trait DeskproConnector {
+trait DeskproConnector extends Logging {
 
   val wSHttp: CorePost
   val deskProUrl : String
@@ -48,7 +48,7 @@ trait DeskproConnector {
     } recover {
       case e =>
         deskproTimer.stop()
-        Logger.warn(s"[DeskproConnector] [submitTicket] returned ${e.getMessage}")
+        logger.warn(s"[DeskproConnector] [submitTicket] returned ${e.getMessage}")
         throw e
     }
   }

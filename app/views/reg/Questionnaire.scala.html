@@ -35,7 +35,7 @@
     @errorSummary(
         Messages("common.errorSummary.label"), qForm, dataJourney = Some("Questionnaire")
     )
-    @formWithCSRF(action = controllers.reg.routes.QuestionnaireController.submit()) {
+    @formWithCSRF(action = controllers.reg.routes.QuestionnaireController.submit) {
 
         <h1 class="form-title heading-large" id="main-heading">@Messages("page.reg.questionnaire.title")</h1>
 

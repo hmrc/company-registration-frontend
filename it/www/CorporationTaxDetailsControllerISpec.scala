@@ -98,7 +98,7 @@ class CorporationTaxDetailsControllerISpec extends IntegrationSpecBase with Logi
 
       val response = await(fResponse)
       response.status shouldBe 303
-      response.header(HeaderNames.LOCATION).get shouldBe controllers.reg.routes.PPOBController.show().url
+      response.header(HeaderNames.LOCATION).get shouldBe controllers.reg.routes.PPOBController.show.url
     }
 
     "return 400 when payload contains invalid data" in {

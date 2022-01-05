@@ -69,7 +69,7 @@ class OtherBusinessAddressControllerISpec extends IntegrationSpecBase
       stubValidateRegisteredOfficeAddress(testCompanyDetails.cHROAddress, OK, testBusinessAddress)
       stubGetPrepopAddresses(testRegId, OK, Nil)
 
-      val res: WSResponse = await(buildClient(controllers.takeovers.routes.OtherBusinessAddressController.show().url)
+      val res: WSResponse = await(buildClient(controllers.takeovers.routes.OtherBusinessAddressController.show.url)
         .withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
         .get()
       )
@@ -87,7 +87,7 @@ class OtherBusinessAddressControllerISpec extends IntegrationSpecBase
       stubValidateRegisteredOfficeAddress(testCompanyDetails.cHROAddress, OK, testBusinessAddress)
       stubGetPrepopAddresses(testRegId, OK, Seq(testBusinessAddress))
 
-      val res: WSResponse = await(buildClient(controllers.takeovers.routes.OtherBusinessAddressController.show().url)
+      val res: WSResponse = await(buildClient(controllers.takeovers.routes.OtherBusinessAddressController.show.url)
         .withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
         .get()
       )
@@ -111,7 +111,7 @@ class OtherBusinessAddressControllerISpec extends IntegrationSpecBase
           addressSeqKey -> Json.toJson(Seq(testBusinessAddress)).toString()
         ), userId)
 
-      val res: WSResponse = await(buildClient(controllers.takeovers.routes.OtherBusinessAddressController.submit().url)
+      val res: WSResponse = await(buildClient(controllers.takeovers.routes.OtherBusinessAddressController.submit.url)
         .withHeaders(
           HeaderNames.COOKIE -> sessionCookie,
           "Csrf-Token" -> "nocheck"
@@ -119,7 +119,7 @@ class OtherBusinessAddressControllerISpec extends IntegrationSpecBase
       )
 
       res.status shouldBe SEE_OTHER
-      res.redirectLocation should contain(controllers.takeovers.routes.WhoAgreedTakeoverController.show().url)
+      res.redirectLocation should contain(controllers.takeovers.routes.WhoAgreedTakeoverController.show.url)
     }
 
     "redirect to ALF" in {
@@ -137,7 +137,7 @@ class OtherBusinessAddressControllerISpec extends IntegrationSpecBase
           addressSeqKey -> Json.toJson(Seq(testBusinessAddress)).toString()
         ), userId)
 
-      val res: WSResponse = await(buildClient(controllers.takeovers.routes.OtherBusinessAddressController.submit().url)
+      val res: WSResponse = await(buildClient(controllers.takeovers.routes.OtherBusinessAddressController.submit.url)
         .withHeaders(
           HeaderNames.COOKIE -> sessionCookie,
           "Csrf-Token" -> "nocheck"
@@ -265,7 +265,7 @@ class OtherBusinessAddressControllerISpec extends IntegrationSpecBase
       )
 
       res.status shouldBe SEE_OTHER
-      res.redirectLocation should contain(controllers.takeovers.routes.WhoAgreedTakeoverController.show().url)
+      res.redirectLocation should contain(controllers.takeovers.routes.WhoAgreedTakeoverController.show.url)
     }
   }
 }

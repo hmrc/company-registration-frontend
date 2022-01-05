@@ -17,10 +17,9 @@
 package repositories
 
 import javax.inject.Inject
-
 import config.FrontendAppConfig
 import models.handoff.HandOffNavModel
-import play.api.Logger
+import play.api.Logging
 import play.api.libs.json.JsObject
 import play.modules.reactivemongo.ReactiveMongoComponent
 import reactivemongo.api.DB
@@ -58,11 +57,11 @@ class NavModelRepoMongo(mongo: () => DB, expireSeconds: Long) extends ReactiveRe
   def indexEnsurer(name: String): Unit = {
     ensureIndexes map {
       r => {
-        Logger.info( s"Ensure Indexes for ${name} returned ${r}" )
-        Logger.info( s"Repo ${name} has ${indexes.size} indexes" )
+        logger.info( s"Ensure Indexes for ${name} returned ${r}" )
+        logger.info( s"Repo ${name} has ${indexes.size} indexes" )
         indexes map { index =>
           val name = index.name.getOrElse("<no-name>")
-          Logger.info(s"Repo:${name} Index:${name} Details:${index}")
+          logger.info(s"Repo:${name} Index:${name} Details:${index}")
         }
       }
     }

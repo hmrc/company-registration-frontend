@@ -14,11 +14,10 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.play.views.html.layouts.Sidebar
-@import uk.gov.hmrc.play.views.html.layouts.Article
+@import uk.gov.hmrc.play.views.html.layouts._
 
 @this(govuk_wrapper: govuk_wrapper,
-        sidebar: Sidebar,
+        sidebarLayout: Sidebar,
         article: Article)
 
 @(title: String,
@@ -34,6 +33,7 @@
 
 @sidebar = {
     @if(sidebarLinks.isDefined) {
+        @sidebarLayout(sidebarLinks.get, Some("sidebar"))
     }
 }
 
