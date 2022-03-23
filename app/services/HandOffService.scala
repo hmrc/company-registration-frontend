@@ -206,7 +206,7 @@ trait HandOffService extends HandOffNavigator {
       BackHandoff(
         externalID,
         regID,
-        navModel.receiver.chData.get,
+        navModel.receiver.chData.getOrElse(throw new Exception("could not get chData from navModel in the buildBackHandOff method")),
         Json.obj(),
         Json.obj()
       )
