@@ -68,7 +68,6 @@ class Module extends AbstractModule {
 
 
     //services
-    bind(classOf[ThresholdService]).to(classOf[ThresholdServiceImpl]).asEagerSingleton()
     bind(classOf[DashboardService]).to(classOf[DashboardServiceImpl]).asEagerSingleton()
     bind(classOf[HandOffService]).to(classOf[HandOffServiceImpl]).asEagerSingleton()
     bind(classOf[HandBackService]).to(classOf[HandBackServiceImpl]).asEagerSingleton()

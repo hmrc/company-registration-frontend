@@ -16,7 +16,7 @@
 
 package views.takeovers
 
-import config.FrontendAppConfig
+import config.AppConfig
 import helpers.UnitSpec
 import org.jsoup.Jsoup
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -29,7 +29,7 @@ class TakeoverInformationNeededViewSpec extends UnitSpec with GuiceOneAppPerSuit
 
   implicit lazy val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
   implicit lazy val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-  implicit lazy val frontendAppConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+  implicit lazy val appConfig: AppConfig = app.injector.instanceOf[AppConfig]
 
   "TakeoverInformationNeededView" should {
     lazy val page = app.injector.instanceOf[takeoverInformationNeeded]

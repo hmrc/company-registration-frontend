@@ -16,7 +16,7 @@
 
 package controllers.reg
 
-import config.FrontendAppConfig
+import config.AppConfig
 import forms.QuestionnaireForm
 import javax.inject.{Inject, Singleton}
 import play.api.i18n.I18nSupport
@@ -31,7 +31,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class QuestionnaireController @Inject()(val metricsService: MetricsService,
                                         val qService: QuestionnaireService,
                                         mcc: MessagesControllerComponents,
-                                        view: QuestionnaireView)(implicit val appConfig: FrontendAppConfig, implicit val ec: ExecutionContext) extends FrontendController(mcc) with I18nSupport {
+                                        view: QuestionnaireView)(implicit val appConfig: AppConfig, implicit val ec: ExecutionContext) extends FrontendController(mcc) with I18nSupport {
 
 
   lazy val gHost = appConfig.govHostUrl

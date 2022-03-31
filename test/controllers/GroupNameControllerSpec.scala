@@ -17,7 +17,7 @@
 package controllers
 
 import builders.AuthBuilder
-import config.FrontendAppConfig
+import config.AppConfig
 import controllers.groups.GroupNameController
 import controllers.reg.ControllerErrorHandler
 import helpers.SCRSSpec
@@ -39,9 +39,9 @@ import scala.concurrent.Future
 class GroupNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with MockitoSugar with AuthBuilder {
 
   lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
-  lazy val mockFrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
   lazy val mockControllerErrorHandler = app.injector.instanceOf[ControllerErrorHandler]
   lazy val mockGroupNameView = app.injector.instanceOf[GroupNameView]
+  override lazy val mockAppConfig = app.injector.instanceOf[AppConfig]
 
   class Setup {
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
@@ -53,7 +53,7 @@ class GroupNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Moc
       mockMcc,
       mockGroupNameView
     )(
-      mockFrontendAppConfig,
+      mockAppConfig,
       global
     )
 

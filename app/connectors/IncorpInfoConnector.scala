@@ -18,7 +18,7 @@ package connectors
 
 import javax.inject.Inject
 
-import config.{FrontendAppConfig, WSHttp}
+import config.{AppConfig, WSHttp}
 import models.Shareholder
 import play.api.Logging
 import play.api.libs.json.JsValue
@@ -28,7 +28,7 @@ import uk.gov.hmrc.http.{CoreGet, HeaderCarrier, HttpException, HttpResponse}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class IncorpInfoConnectorImpl @Inject()(appConfig: FrontendAppConfig, val wSHttp: WSHttp, val metricsService: MetricsService) extends IncorpInfoConnector {
+class IncorpInfoConnectorImpl @Inject()(appConfig: AppConfig, val wSHttp: WSHttp, val metricsService: MetricsService) extends IncorpInfoConnector {
 
  lazy val incorpInfoUrl = s"${appConfig.servicesConfig.baseUrl("incorp-info")}/incorporation-information"
 }

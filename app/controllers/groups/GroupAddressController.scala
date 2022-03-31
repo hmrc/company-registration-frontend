@@ -16,7 +16,7 @@
 
 package controllers.groups
 
-import config.FrontendAppConfig
+import config.AppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthenticatedController
 import controllers.groups.GroupAddressController._
@@ -43,7 +43,7 @@ class GroupAddressController @Inject()(val authConnector: PlayAuthConnector,
                                        val addressLookupFrontendService: AddressLookupFrontendService,
                                        val controllerComponents: MessagesControllerComponents,
                                        view: GroupAddressView
-                                      )(implicit val appConfig: FrontendAppConfig, implicit val ec: ExecutionContext)
+                                      )(implicit val appConfig: AppConfig, implicit val ec: ExecutionContext)
   extends SessionRegistration with AuthenticatedController {
 
   val show: Action[AnyContent] = Action.async { implicit request =>

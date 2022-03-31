@@ -17,7 +17,7 @@
 package controllers
 
 import builders.AuthBuilder
-import config.FrontendAppConfig
+import config.AppConfig
 import controllers.dashboard.DashboardController
 import controllers.reg.ControllerErrorHandler
 import helpers.SCRSSpec
@@ -46,7 +46,7 @@ class DashboardControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Aut
 
     reset(mockDashboardService)
     lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
-    lazy val mockFrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+    lazy val mockAppConfig = app.injector.instanceOf[AppConfig]
     lazy val mockControllerErrorHandler = app.injector.instanceOf[ControllerErrorHandler]
     lazy val mockDashboardView = app.injector.instanceOf[DashboardView]
     lazy val mockRegistrationUnsuccessfulView = app.injector.instanceOf[RegistrationUnsuccessfulView]
@@ -61,7 +61,7 @@ class DashboardControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Aut
       mockDashboardView,
       mockRegistrationUnsuccessfulView
     )(
-      mockFrontendAppConfig,
+      mockAppConfig,
       global
     )
   }

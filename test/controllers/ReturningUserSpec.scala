@@ -17,7 +17,7 @@
 package controllers
 
 import builders.AuthBuilder
-import config.FrontendAppConfig
+import config.AppConfig
 import controllers.reg.ReturningUserController
 import helpers.SCRSSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -29,7 +29,6 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 class ReturningUserSpec extends SCRSSpec with AuthBuilder with GuiceOneAppPerSuite {
   lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
-  lazy val mockFrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
   lazy val mockReturningUserView = app.injector.instanceOf[ReturningUserView]
 
   class Setup {
@@ -40,7 +39,7 @@ class ReturningUserSpec extends SCRSSpec with AuthBuilder with GuiceOneAppPerSui
       mockReturningUserView
     )(
       global,
-      mockFrontendAppConfig
+      mockAppConfig
     ) {
       override lazy val createGGWAccountUrl = "CreateGGWAccountURL"
       override lazy val eligUri = "/eligibility-for-setting-up-company"

@@ -19,7 +19,7 @@ package www
 import java.util.UUID
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import config.FrontendAppConfig
+import config.AppConfig
 import fixtures.{Fixtures, HandOffFixtures}
 import itutil._
 import models.handoff.{NavLinks, PSCHandOff}
@@ -97,7 +97,7 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
     featureSwitch.featureSwitchManager.enable(BooleanFeatureSwitch("pscHandOff", true))
     val repo = new NavModelRepo {
       override val mongo: ReactiveMongoComponent = app.injector.instanceOf[ReactiveMongoComponent]
-      override val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+      override val appConfig: AppConfig = app.injector.instanceOf[AppConfig]
     }
     await(repo.repository.drop)
     await(repo.repository.count) shouldBe 0

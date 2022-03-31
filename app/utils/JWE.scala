@@ -19,7 +19,7 @@ package utils
 import java.nio.charset.{StandardCharsets => CS}
 import javax.inject.Inject
 
-import config.FrontendAppConfig
+import config.AppConfig
 import org.jose4j.jwe.{ContentEncryptionAlgorithmIdentifiers => CEAI, JsonWebEncryption => JWE, KeyManagementAlgorithmIdentifiers => KMAI}
 import org.jose4j.keys.AesKey
 import play.api.Logging
@@ -29,7 +29,7 @@ import play.api.libs.json.Json
 import scala.util.control.NoStackTrace
 import scala.util.{Failure, Success, Try}
 
-class Jwe @Inject()(appConfig: FrontendAppConfig) extends JweCommon {
+class Jwe @Inject()(appConfig: AppConfig) extends JweCommon {
   // $COVERAGE-OFF$
   lazy val key = appConfig.servicesConfig.getConfString("JWE.key", throw new Exception("could not find JWE.key"))
   // $COVERAGE-ON$

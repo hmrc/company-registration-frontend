@@ -16,7 +16,7 @@
 
 package controllers.reg
 
-import config.FrontendAppConfig
+import config.AppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector, S4LConnector}
 import controllers.auth.AuthenticatedController
 import forms.CompanyContactForm
@@ -42,7 +42,7 @@ class CompanyContactDetailsController @Inject()(val authConnector: PlayAuthConne
                                                 val controllerComponents: MessagesControllerComponents,
                                                 val controllerErrorHandler: ControllerErrorHandler,
                                                 view: CompanyContactDetailsView)
-                                               (implicit val appConfig: FrontendAppConfig, implicit val ec: ExecutionContext) extends AuthenticatedController with SessionRegistration with I18nSupport {
+                                               (implicit val appConfig: AppConfig, implicit val ec: ExecutionContext) extends AuthenticatedController with SessionRegistration with I18nSupport {
 
 
   val show = Action.async {

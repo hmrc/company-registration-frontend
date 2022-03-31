@@ -17,7 +17,7 @@
 package controllers
 
 import builders.AuthBuilder
-import config.FrontendAppConfig
+import config.AppConfig
 import controllers.reg.RegistrationUnsuccessfulController
 import helpers.SCRSSpec
 import org.mockito.ArgumentMatchers
@@ -34,9 +34,9 @@ import views.html.errors.{incorporationRejected => IncorporationRejectedView}
 
 class RegistrationUnsuccessfulControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
   lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
-  lazy val mockFrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
   lazy val mockRegistrationUnsuccessfulView = app.injector.instanceOf[RegistrationUnsuccessfulView]
   lazy val mockIncorporationRejectedView = app.injector.instanceOf[IncorporationRejectedView]
+  override lazy val mockAppConfig = app.injector.instanceOf[AppConfig]
 
   lazy val registerCompanyGOVUKLink: String = "https://www.gov.uk/limited-company-formation/register-your-company"
 
@@ -51,7 +51,7 @@ class RegistrationUnsuccessfulControllerSpec extends SCRSSpec with GuiceOneAppPe
       mockRegistrationUnsuccessfulView,
       mockIncorporationRejectedView
     )(
-      mockFrontendAppConfig,
+      mockAppConfig,
       global
     )
   }

@@ -16,7 +16,7 @@
 
 package controllers.dashboard
 
-import config.FrontendAppConfig
+import config.AppConfig
 import connectors._
 import controllers.auth.AuthenticatedController
 import forms.CancelForm
@@ -41,7 +41,7 @@ class CancelRegistrationController @Inject()(val payeConnector: PAYEConnector,
                                              val controllerComponents: MessagesControllerComponents,
                                              cancelPayeView: CancelPayeView,
                                              canelVatView: CancelVatView)
-                                            (implicit val appConfig: FrontendAppConfig, implicit val ec: ExecutionContext)
+                                            (implicit val appConfig: AppConfig, implicit val ec: ExecutionContext)
   extends AuthenticatedController with SessionRegistration with I18nSupport {
 
 

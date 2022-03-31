@@ -16,7 +16,7 @@
 
 package controllers.groups
 
-import config.FrontendAppConfig
+import config.AppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthenticatedController
 import controllers.reg.ControllerErrorHandler
@@ -40,7 +40,7 @@ class GroupUtrController @Inject()(val authConnector: PlayAuthConnector,
                                    val compRegConnector: CompanyRegistrationConnector,
                                    val controllerComponents: MessagesControllerComponents,
                                    val view: GroupUtrView
-                                  )(implicit val appConfig: FrontendAppConfig)
+                                  )(implicit val appConfig: AppConfig)
   extends AuthenticatedController with CommonService
     with SCRSExceptions with I18nSupport with SessionRegistration {
 

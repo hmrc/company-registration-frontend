@@ -19,7 +19,7 @@ package controllers
 import java.time.LocalDate
 
 import builders.AuthBuilder
-import config.FrontendAppConfig
+import config.AppConfig
 import connectors._
 import controllers.reg.{ControllerErrorHandler, SignInOutController}
 import fixtures._
@@ -50,8 +50,9 @@ class SignInOutControllerSpec extends SCRSSpec
   val mockEnrolmentsService = mock[EnrolmentsService]
   lazy val mockControllerErrorHandler = app.injector.instanceOf[ControllerErrorHandler]
   lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
-  lazy val mockFrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
   lazy val mockTimeoutView = app.injector.instanceOf[timeoutView]
+  override lazy val mockAppConfig = app.injector.instanceOf[AppConfig]
+
   class Setup(val corsHost: Option[String] = None) {
 
     val controller = new SignInOutController (
@@ -66,7 +67,7 @@ class SignInOutControllerSpec extends SCRSSpec
       mockMcc,
       mockTimeoutView
     )(
-      mockFrontendAppConfig,
+      mockAppConfig,
       global
     ){
       override lazy val corsRenewHost = corsHost

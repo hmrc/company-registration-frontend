@@ -17,7 +17,7 @@
 package controllers.handoff
 
 import builders.AuthBuilder
-import config.FrontendAppConfig
+import config.AppConfig
 import controllers.reg.ControllerErrorHandler
 import fixtures.LoginFixture
 import helpers.SCRSSpec
@@ -45,7 +45,7 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
   lazy val errorTemplateRestartPage = app.injector.instanceOf[error_template_restart]
   lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
   lazy val mockControllerErrorHandler = app.injector.instanceOf[ControllerErrorHandler]
-  lazy val mockFrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+  override lazy val mockAppConfig = app.injector.instanceOf[AppConfig]
   lazy val mockJWECommon = app.injector.instanceOf[JweCommon]
 
   class Setup {
@@ -62,7 +62,8 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
       mockControllerErrorHandler,
       errorTemplateRestartPage
     )(
-      mockFrontendAppConfig,global
+      mockAppConfig,
+      global
     )
 
   }

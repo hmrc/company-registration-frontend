@@ -17,7 +17,7 @@
 package controllers
 
 import builders.AuthBuilder
-import config.FrontendAppConfig
+import config.AppConfig
 import controllers.reg.{ControllerErrorHandler, SummaryController}
 import fixtures.{AccountingDetailsFixture, CorporationTaxFixture, SCRSFixtures, TradingDetailsFixtures}
 import helpers.SCRSSpec
@@ -64,7 +64,7 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with GuiceOneAppP
       Some(Json.parse("""{"testCHBagKey": "testValue"}""").as[JsObject])
     )
   )
-  lazy val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+  lazy val appConfig: AppConfig = app.injector.instanceOf[AppConfig]
   lazy val mockControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
   lazy val mockControllerErrorHandler = app.injector.instanceOf[ControllerErrorHandler]
   lazy val mockSummaryView = app.injector.instanceOf[SummaryView]

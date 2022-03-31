@@ -16,7 +16,7 @@
 
 package controllers.reg
 
-import config.FrontendAppConfig
+import config.AppConfig
 import connectors.{BusinessRegistrationConnector, BusinessRegistrationSuccessResponse, CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthenticatedController
 import forms.AboutYouForm
@@ -40,7 +40,7 @@ class CompletionCapacityController @Inject()(
                                               val compRegConnector: CompanyRegistrationConnector,
                                               val controllerComponents: MessagesControllerComponents,
                                               view: CompletionCapacityView
-                                            )(implicit val ec: ExecutionContext, implicit val appConfig: FrontendAppConfig) extends AuthenticatedController with SessionRegistration with I18nSupport {
+                                            )(implicit val ec: ExecutionContext, implicit val appConfig: AppConfig) extends AuthenticatedController with SessionRegistration with I18nSupport {
 
 
   def show(): Action[AnyContent] = Action.async { implicit request =>

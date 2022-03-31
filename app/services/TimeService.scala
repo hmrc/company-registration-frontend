@@ -19,7 +19,7 @@ package services
 import java.text.SimpleDateFormat
 import javax.inject.Inject
 
-import config.FrontendAppConfig
+import config.AppConfig
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.{DateTime, LocalDate}
 import uk.gov.hmrc.time.DateTimeUtils._
@@ -44,7 +44,7 @@ object TimeHelper {
 
 }
 
-class TimeServiceImpl @Inject()(val appConfig: FrontendAppConfig) extends TimeService {
+class TimeServiceImpl @Inject()(val appConfig: AppConfig) extends TimeService {
   override lazy val dayEndHour      = appConfig.servicesConfig.getConfInt("time-service.day-end-hour", throw new Exception("could not find config key time-service.day-end-hour"))
   override def currentDateTime      = DateTime.now
   override def currentLocalDate     = SystemDate.getSystemDate

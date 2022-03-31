@@ -16,7 +16,7 @@
 
 package controllers.test
 
-import config.{FrontendAppConfig, WSHttp}
+import config.{AppConfig, WSHttp}
 import javax.inject.Inject
 import play.api.libs.json.JsValue
 import play.api.mvc.MessagesControllerComponents
@@ -27,7 +27,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 
 class CTMongoTestControllerImpl @Inject()(val wSHttp: WSHttp,
-                                          val appConfig: FrontendAppConfig,
+                                          val appConfig: AppConfig,
                                           mcc: MessagesControllerComponents) extends CTMongoTestController(mcc) {
 
   lazy val ctUrl = appConfig.servicesConfig.baseUrl("company-registration")

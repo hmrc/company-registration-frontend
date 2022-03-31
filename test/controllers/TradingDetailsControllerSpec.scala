@@ -19,7 +19,7 @@ package controllers
 import java.util.UUID
 
 import builders.AuthBuilder
-import config.FrontendAppConfig
+import config.AppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.reg.{ControllerErrorHandler, TradingDetailsController}
 import fixtures.TradingDetailsFixtures
@@ -43,7 +43,7 @@ class TradingDetailsControllerSpec extends SCRSSpec with GuiceOneAppPerSuite wit
 
   val mockTradingDetailsService = mock[TradingDetailsService]
   val mockKeyStoreConnector = mock[KeystoreConnector]
-  lazy val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+  lazy val appConfig: AppConfig = app.injector.instanceOf[AppConfig]
   lazy val mockControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
   lazy val mockControllerErrorHandler = app.injector.instanceOf[ControllerErrorHandler]
   lazy val mockTradingDetailsView = app.injector.instanceOf[TradingDetailsView]

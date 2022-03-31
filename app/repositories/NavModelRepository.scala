@@ -17,7 +17,7 @@
 package repositories
 
 import javax.inject.Inject
-import config.FrontendAppConfig
+import config.AppConfig
 import models.handoff.HandOffNavModel
 import play.api.Logging
 import play.api.libs.json.JsObject
@@ -32,11 +32,11 @@ import scala.concurrent.{ExecutionContext, Future}
 
 
 class NavModelRepoImpl @Inject()(val mongo: ReactiveMongoComponent,
-                                 val appConfig: FrontendAppConfig) extends NavModelRepo
+                                 val appConfig: AppConfig) extends NavModelRepo
 
 trait NavModelRepo {
   val mongo: ReactiveMongoComponent
-  val appConfig: FrontendAppConfig
+  val appConfig: AppConfig
 
   lazy val expireAfterSeconds: Long = appConfig.servicesConfig.getConfInt("navModel-time-to-live.ttl", throw new Exception("could not find config key navModel-time-to-live.ttl"))
   lazy val repository: NavModelRepoMongo = new NavModelRepoMongo(mongo.mongoConnector.db, expireAfterSeconds)

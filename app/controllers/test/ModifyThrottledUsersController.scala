@@ -16,7 +16,7 @@
 
 package controllers.test
 
-import config.{FrontendAppConfig, WSHttp}
+import config.{AppConfig, WSHttp}
 import javax.inject.Inject
 import play.api.libs.json.JsValue
 import play.api.mvc.MessagesControllerComponents
@@ -25,7 +25,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import scala.concurrent.ExecutionContext
 
-class ModifyThrottledUsersControllerImpl @Inject()(val appConfig: FrontendAppConfig,
+class ModifyThrottledUsersControllerImpl @Inject()(val appConfig: AppConfig,
                                                    val wSHttp: WSHttp,
                                                    mcc: MessagesControllerComponents) extends ModifyThrottledUsersController(mcc) {
   lazy val crUrl = appConfig.servicesConfig.baseUrl("company-registration")

@@ -16,7 +16,7 @@
 
 package controllers.takeovers
 
-import config.FrontendAppConfig
+import config.AppConfig
 import connectors.{BusinessRegistrationConnector, CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthenticatedController
 import controllers.reg.{ControllerErrorHandler, routes => regRoutes}
@@ -48,7 +48,7 @@ class OtherBusinessAddressController        @Inject()(val authConnector: PlayAut
                                                val controllerComponents: MessagesControllerComponents,
                                                val controllerErrorHandler: ControllerErrorHandler,
                                                view: OtherBusinessAddressView
-                                              )(implicit val appConfig: FrontendAppConfig
+                                              )(implicit val appConfig: AppConfig
                                               ) extends AuthenticatedController with SessionRegistration {
 
   implicit val ec: ExecutionContext = controllerComponents.executionContext

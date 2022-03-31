@@ -17,7 +17,7 @@
 package controllers
 
 import builders.AuthBuilder
-import config.FrontendAppConfig
+import config.AppConfig
 import controllers.reg.RegistrationEmailController
 import helpers.SCRSSpec
 import models.{Email, RegistrationEmailModel}
@@ -44,7 +44,7 @@ import views.html.reg.{RegistrationEmail => RegistrationEmailView}
 class RegistrationEmailControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with MockitoSugar with AuthBuilder {
   lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
   lazy val mockRegistrationEmailView = app.injector.instanceOf[RegistrationEmailView]
-  lazy val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+  lazy val appConfig: AppConfig = app.injector.instanceOf[AppConfig]
 
   class Setup {
     object TestController extends RegistrationEmailController(

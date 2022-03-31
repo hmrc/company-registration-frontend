@@ -16,7 +16,7 @@
 
 package controllers.takeovers
 
-import config.FrontendAppConfig
+import config.AppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthenticatedController
 import controllers.reg.{ControllerErrorHandler, routes => regRoutes}
@@ -43,7 +43,7 @@ class WhoAgreedTakeoverController @Inject()(val authConnector: PlayAuthConnector
                                             val controllerComponents: MessagesControllerComponents,
                                             val controllerErrorHandler: ControllerErrorHandler,
                                             view: WhoAgreedTakeover
-                                           )(implicit val appConfig: FrontendAppConfig, val ec: ExecutionContext
+                                           )(implicit val appConfig: AppConfig, val ec: ExecutionContext
                                            ) extends AuthenticatedController with SessionRegistration with I18nSupport {
 
   val show: Action[AnyContent] = Action.async { implicit request =>

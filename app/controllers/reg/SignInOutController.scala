@@ -18,7 +18,7 @@ package controllers.reg
 
 import java.io.File
 
-import config.FrontendAppConfig
+import config.AppConfig
 import connectors._
 import controllers.auth.AuthenticatedController
 import controllers.handoff.{routes => handoffRoutes}
@@ -46,7 +46,7 @@ class SignInOutController @Inject()(val authConnector: PlayAuthConnector,
                                     val enrolmentsService: EnrolmentsService,
                                     val controllerErrorHandler: ControllerErrorHandler,
                                     val controllerComponents: MessagesControllerComponents,
-                                    timeoutView: timeoutView)(implicit val appConfig: FrontendAppConfig, implicit val ec: ExecutionContext)
+                                    timeoutView: timeoutView)(implicit val appConfig: AppConfig, implicit val ec: ExecutionContext)
   extends AuthenticatedController with CommonService with SCRSExceptions with I18nSupport with Logging {
 
   lazy val cRFEBaseUrl = appConfig.self

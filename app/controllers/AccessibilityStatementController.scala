@@ -16,7 +16,7 @@
 
 package controllers
 
-import config.FrontendAppConfig
+import config.AppConfig
 import javax.inject.{Inject, Singleton}
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -28,7 +28,7 @@ import scala.concurrent.Future
 @Singleton
 class AccessibilityStatementController @Inject()(mcc: MessagesControllerComponents,
                                                  accessibility_statement: accessibility_statement
-                                                )(implicit appConfig: FrontendAppConfig)
+                                                )(implicit appConfig: AppConfig)
   extends FrontendController(mcc) with I18nSupport {
 
   def show(pageUri: String): Action[AnyContent] = Action.async {

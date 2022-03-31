@@ -27,7 +27,7 @@
   mainClass: Option[String] = None,
   pageScripts: Option[Html] = None,
   timeout: Boolean = true
-)(mainContent: Html)(implicit request : Request[_], messages: Messages, appConfig: config.FrontendAppConfig)
+)(mainContent: Html)(implicit request : Request[_], messages: Messages, appConfig: config.AppConfig)
 
 @serviceInfoContent = {}
 

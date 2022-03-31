@@ -17,7 +17,7 @@
 package controllers
 
 import builders.AuthBuilder
-import config.FrontendAppConfig
+import config.AppConfig
 import controllers.groups.GroupAddressController
 import controllers.reg.ControllerErrorHandler
 import helpers.SCRSSpec
@@ -41,7 +41,6 @@ import scala.concurrent.Future
 class GroupAddressControllerSpec()(implicit lang: Lang) extends SCRSSpec with GuiceOneAppPerSuite with MockitoSugar with AuthBuilder {
 
   lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
-  lazy val mockFrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
   lazy val mockControllerErrorHandler = app.injector.instanceOf[ControllerErrorHandler]
   lazy val mockGroupAddressView = app.injector.instanceOf[GroupAddressView]
 
@@ -63,7 +62,7 @@ class GroupAddressControllerSpec()(implicit lang: Lang) extends SCRSSpec with Gu
       mockGroupAddressView
     )
     (
-      mockFrontendAppConfig,
+      mockAppConfig,
       global
     )
   }

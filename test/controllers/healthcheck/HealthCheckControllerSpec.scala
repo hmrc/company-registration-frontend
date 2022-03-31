@@ -16,7 +16,7 @@
 
 package controllers.healthcheck
 
-import config.FrontendAppConfig
+import config.AppConfig
 import helpers.SCRSSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.mvc.MessagesControllerComponents
@@ -33,7 +33,7 @@ class HealthCheckControllerSpec extends SCRSSpec with GuiceOneAppPerSuite {
     val controller = new HealthCheckController(fs ,mockMcc, view) {
       override def healthCheckFeature: Boolean = featureEnabled
 
-      implicit override val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+      implicit override val appConfig: AppConfig = app.injector.instanceOf[AppConfig]
     }
   }
 

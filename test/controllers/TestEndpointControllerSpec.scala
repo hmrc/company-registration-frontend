@@ -17,7 +17,7 @@
 package controllers
 
 import builders.AuthBuilder
-import config.FrontendAppConfig
+import config.AppConfig
 import connectors._
 import controllers.test.TestEndpointController
 import fixtures.{CorporationTaxFixture, SCRSFixtures}
@@ -75,7 +75,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
   lazy val mockFeatureSwitchView = app.injector.instanceOf[FeatureSwitchView]
   lazy val mockPrePopAddressesView = app.injector.instanceOf[PrePopAddressesView]
   lazy val mockPrePopContactDetailsView = app.injector.instanceOf[PrePopContactDetailsView]
-  lazy val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+  lazy val appConfig: AppConfig = app.injector.instanceOf[AppConfig]
 
   class Setup {
     resetMocks()

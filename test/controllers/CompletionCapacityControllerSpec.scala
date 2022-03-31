@@ -17,7 +17,7 @@
 package controllers
 
 import builders.AuthBuilder
-import config.FrontendAppConfig
+import config.AppConfig
 import connectors.{BusinessRegistrationConnector, BusinessRegistrationSuccessResponse}
 import controllers.reg.{CompletionCapacityController, ControllerErrorHandler}
 import fixtures.BusinessRegistrationFixture
@@ -40,9 +40,9 @@ class CompletionCapacityControllerSpec extends SCRSSpec with GuiceOneAppPerSuite
 
   lazy val mockBusinessRegConnector = mock[BusinessRegistrationConnector]
   lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
-  lazy val mockFrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
   lazy val mockControllerErrorHandler = app.injector.instanceOf[ControllerErrorHandler]
   lazy val mockCompletionCapacityView = app.injector.instanceOf[CompletionCapacityView]
+  override lazy val mockAppConfig = app.injector.instanceOf[AppConfig]
 
   class Setup {
     val controller = new CompletionCapacityController(
@@ -56,7 +56,8 @@ class CompletionCapacityControllerSpec extends SCRSSpec with GuiceOneAppPerSuite
       mockMcc,
       mockCompletionCapacityView
     )(
-      global,mockFrontendAppConfig
+      global,
+      mockAppConfig
     )
 
   }

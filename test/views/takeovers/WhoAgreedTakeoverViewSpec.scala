@@ -16,7 +16,7 @@
 
 package views.takeovers
 
-import config.FrontendAppConfig
+import config.AppConfig
 import forms.takeovers.WhoAgreedTakeoverForm
 import helpers.UnitSpec
 import org.jsoup.Jsoup
@@ -30,7 +30,7 @@ class WhoAgreedTakeoverViewSpec extends UnitSpec with GuiceOneAppPerSuite with I
 
   implicit lazy val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
   implicit lazy val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-  implicit lazy val frontendAppConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+  implicit lazy val appConfig: AppConfig = app.injector.instanceOf[AppConfig]
   lazy val testPreviousOwnerName: String = "testName"
 
   "OtherBusinessNameView" should {

@@ -16,7 +16,7 @@
 
 package controllers
 
-import config.FrontendAppConfig
+import config.AppConfig
 import controllers.reg.QuestionnaireController
 import helpers.UnitSpec
 import mocks.{MetricServiceMock, SCRSMocks}
@@ -31,7 +31,9 @@ import play.api.test.Helpers._
 import services.QuestionnaireService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import views.html.reg.{Questionnaire => QuestionnaireView}
+
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -41,7 +43,7 @@ class QuestionnaireControllerSpec extends UnitSpec with GuiceOneAppPerSuite with
   val mockQuestionnaireService = mock[QuestionnaireService]
   val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
   val mockQuestionnaireView = app.injector.instanceOf[QuestionnaireView]
-  implicit val appConfig: FrontendAppConfig = new FrontendAppConfig(mockConfiguration: Configuration){
+  implicit val appConfig: AppConfig = new AppConfig(mock[ServicesConfig]){
     override lazy val assetsPrefix = ""
     override lazy val reportAProblemNonJSUrl = ""
     override lazy val contactFrontendPartialBaseUrl = ""

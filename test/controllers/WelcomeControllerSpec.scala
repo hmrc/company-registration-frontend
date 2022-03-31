@@ -16,7 +16,7 @@
 
 package controllers
 
-import config.FrontendAppConfig
+import config.AppConfig
 import controllers.reg.WelcomeController
 import helpers.SCRSSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -32,7 +32,7 @@ class WelcomeControllerSpec extends SCRSSpec with GuiceOneAppPerSuite {
   class Setup {
 
     object TestController extends WelcomeController(mockMcc) {
-      implicit val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+      implicit val appConfig: AppConfig = app.injector.instanceOf[AppConfig]
       override val messagesApi = app.injector.instanceOf[MessagesApi]
     }
 

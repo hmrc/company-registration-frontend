@@ -16,7 +16,7 @@
 
 package controllers.reg
 
-import config.FrontendAppConfig
+import config.AppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthenticatedController
 import javax.inject.{Inject, Singleton}
@@ -38,7 +38,7 @@ class RegistrationUnsuccessfulController @Inject()(val authConnector: PlayAuthCo
                                                    val controllerComponents: MessagesControllerComponents,
                                                    viewRegistrationUnsuccessful: RegistrationUnsuccessfulView,
                                                    viewincorporationRejectedView: IncorporationRejectedView)
-                                                  (implicit val appConfig: FrontendAppConfig, implicit val ec: ExecutionContext) extends AuthenticatedController with SessionRegistration with I18nSupport {
+                                                  (implicit val appConfig: AppConfig, implicit val ec: ExecutionContext) extends AuthenticatedController with SessionRegistration with I18nSupport {
 
   lazy val registerCompanyGOVUKLink = appConfig.servicesConfig.getConfString("gov-uk.register-your-company", throw new Exception("Could not find config for key: gov-uk.register-your-company"))
 

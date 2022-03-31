@@ -16,7 +16,7 @@
 
 package controllers.test
 
-import config.FrontendAppConfig
+import config.AppConfig
 import connectors._
 import controllers.auth.AuthenticatedController
 import forms._
@@ -45,30 +45,29 @@ import views.html.test.{PrePopContactDetails => PrePopContactDetailsView}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class TestEndpointController @Inject()(
-                                        val authConnector: PlayAuthConnector,
-                                        val s4LConnector: S4LConnector,
-                                        val keystoreConnector: KeystoreConnector,
-                                        val compRegConnector: CompanyRegistrationConnector,
-                                        val scrsFeatureSwitches: SCRSFeatureSwitches,
-                                        val metaDataService: MetaDataService,
-                                        val dynStubConnector: DynamicStubConnector,
-                                        val brConnector: BusinessRegistrationConnector,
-                                        val navModelRepo: NavModelRepo,
-                                        val dashboardService: DashboardService,
-                                        val timeService: TimeService,
-                                        val handOffService: HandOffService,
-                                        val featureSwitchManager: FeatureSwitchManager,
-                                        val controllerComponents: MessagesControllerComponents,
-                                        viewTestEndpoint: TestEndpointView,
-                                        viewTestEndpointSummary: TestEndpointSummaryView,
-                                        viewFeatureSwitch: FeatureSwitchView,
-                                        viewPrePopAddresses: PrePopAddressesView,
-                                        viewPrePopContactDetails: PrePopContactDetailsView,
-                                        viewDashboard: DashboardView
-                                      )(implicit val appConfig: FrontendAppConfig, implicit val ec: ExecutionContext)
-  extends AuthenticatedController with CommonService
-    with SCRSExceptions with SessionRegistration with I18nSupport with Logging {
+class TestEndpointController @Inject()(val authConnector: PlayAuthConnector,
+                                       val s4LConnector: S4LConnector,
+                                       val keystoreConnector: KeystoreConnector,
+                                       val compRegConnector: CompanyRegistrationConnector,
+                                       val scrsFeatureSwitches: SCRSFeatureSwitches,
+                                       val metaDataService: MetaDataService,
+                                       val dynStubConnector: DynamicStubConnector,
+                                       val brConnector: BusinessRegistrationConnector,
+                                       val navModelRepo: NavModelRepo,
+                                       val dashboardService: DashboardService,
+                                       val timeService: TimeService,
+                                       val handOffService: HandOffService,
+                                       val featureSwitchManager: FeatureSwitchManager,
+                                       val controllerComponents: MessagesControllerComponents,
+                                       viewTestEndpoint: TestEndpointView,
+                                       viewTestEndpointSummary: TestEndpointSummaryView,
+                                       viewFeatureSwitch: FeatureSwitchView,
+                                       viewPrePopAddresses: PrePopAddressesView,
+                                       viewPrePopContactDetails: PrePopContactDetailsView,
+                                       viewDashboard: DashboardView
+                                      )(implicit val appConfig: AppConfig, implicit val ec: ExecutionContext)
+  extends AuthenticatedController with CommonService with SCRSExceptions with SessionRegistration with I18nSupport with Logging {
+
   lazy val navModelMongo = navModelRepo.repository
 
   lazy val coHoURL = appConfig.servicesConfig.getConfString("coho-service.sign-in", throw new Exception("Could not find config for coho-sign-in url"))

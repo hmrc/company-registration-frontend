@@ -17,7 +17,7 @@
 package controllers.handoff
 
 import builders.AuthBuilder
-import config.FrontendAppConfig
+import config.AppConfig
 import controllers.reg.ControllerErrorHandler
 import fixtures.{LoginFixture, PayloadFixture}
 import helpers.SCRSSpec
@@ -46,7 +46,6 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
   lazy val errorTemplatePage = app.injector.instanceOf[error_template]
   lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
   lazy val mockControllerErrorHandler = app.injector.instanceOf[ControllerErrorHandler]
-  lazy val mockFrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
 
   class Setup {
 
@@ -59,7 +58,7 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
       mockMcc,
       errorTemplateRestartPage,
       errorTemplatePage
-    )(mockFrontendAppConfig, global)
+    )(mockAppConfig, global)
 
   }
 

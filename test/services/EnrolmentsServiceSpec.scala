@@ -16,7 +16,7 @@
 
 package services
 
-import config.{FrontendAppConfig, WSHttp}
+import config.{AppConfig, WSHttp}
 import helpers.UnitSpec
 import mocks.SCRSMocks
 import org.scalatestplus.mockito.MockitoSugar
@@ -28,7 +28,7 @@ class EnrolmentsServiceSpec extends UnitSpec with GuiceOneAppPerSuite with Mocki
   class Setup {
     object TestService extends EnrolmentsService {
       val http = mock[WSHttp with CoreGet]
-      override val frontendAppConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+      override val appConfig: AppConfig = app.injector.instanceOf[AppConfig]
     }
   }
 

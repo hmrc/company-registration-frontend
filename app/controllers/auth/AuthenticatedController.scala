@@ -16,7 +16,7 @@
 
 package controllers.auth
 
-import config.FrontendAppConfig
+import config.AppConfig
 import models.auth.{AuthDetails, BasicCompanyAuthDetails}
 import play.api.Logging
 import play.api.mvc._
@@ -30,7 +30,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import scala.concurrent.{ExecutionContext, Future}
 
 trait AuthenticatedController extends FrontendBaseController with AuthorisedFunctions with Logging {
-  val appConfig: FrontendAppConfig
+  val appConfig: AppConfig
   val baseFunction: AuthorisedFunction = authorised(AuthProviders(GovernmentGateway) and ConfidenceLevel.L50)
   implicit val ec: ExecutionContext
 

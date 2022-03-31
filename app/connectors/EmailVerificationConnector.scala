@@ -17,7 +17,7 @@
 package connectors
 
 import javax.inject.Inject
-import config.{FrontendAppConfig, WSHttp}
+import config.{AppConfig, WSHttp}
 import models.EmailVerificationRequest
 import play.api.Logging
 import play.api.http.Status._
@@ -30,7 +30,7 @@ import scala.util.control.NoStackTrace
 
 private[connectors] class EmailErrorResponse(s: String) extends NoStackTrace
 
-class EmailVerificationConnectorImpl @Inject()(val wSHttp: WSHttp, val appConfig: FrontendAppConfig) extends EmailVerificationConnector {
+class EmailVerificationConnectorImpl @Inject()(val wSHttp: WSHttp, val appConfig: AppConfig) extends EmailVerificationConnector {
   lazy val sendVerificationEmailURL = appConfig.servicesConfig.getConfString("email-vs.sendVerificationEmailURL", throw new Exception("email.sendVerificationEmailURL not found"))
   lazy val checkVerifiedEmailURL = appConfig.servicesConfig.getConfString("email-vs.checkVerifiedEmailURL", throw new Exception("email.checkVerifiedEmailURL not found"))
 }

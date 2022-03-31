@@ -17,7 +17,7 @@
 package controllers
 
 import builders.AuthBuilder
-import config.FrontendAppConfig
+import config.AppConfig
 import controllers.groups.GroupReliefController
 import controllers.reg.ControllerErrorHandler
 import helpers.SCRSSpec
@@ -38,7 +38,7 @@ import scala.concurrent.Future
 class GroupReliefControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with MockitoSugar with AuthBuilder {
 
   lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
-  lazy val mockFrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+  override lazy val mockAppConfig = app.injector.instanceOf[AppConfig]
   lazy val mockControllerErrorHandler = app.injector.instanceOf[ControllerErrorHandler]
   lazy val mockGroupReliefView = app.injector.instanceOf[GroupReliefView]
 
@@ -53,7 +53,7 @@ class GroupReliefControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with M
       mockControllerErrorHandler,
       mockGroupReliefView
     )(
-      mockFrontendAppConfig
+      mockAppConfig
     )
 
     def cTDoc(status: String, groupBlock: String): JsValue = Json.parse(

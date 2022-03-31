@@ -16,7 +16,7 @@
 
 package controllers.reg
 
-import config.FrontendAppConfig
+import config.AppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector, S4LConnector}
 import controllers.auth.AuthenticatedController
 import models._
@@ -49,7 +49,7 @@ class SummaryController @Inject()(val authConnector: PlayAuthConnector,
                                   val controllerComponents: MessagesControllerComponents,
                                   val controllerErrorHandler: ControllerErrorHandler,
                                   view: SummaryView)
-                                 (implicit val appConfig: FrontendAppConfig, implicit val ec: ExecutionContext)
+                                 (implicit val appConfig: AppConfig, implicit val ec: ExecutionContext)
   extends AuthenticatedController with CommonService with SCRSExceptions
     with SessionRegistration with I18nSupport with Logging {
   lazy val navModelMongo = navModelRepo.repository

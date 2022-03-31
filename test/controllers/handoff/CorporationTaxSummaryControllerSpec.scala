@@ -17,7 +17,7 @@
 package controllers.handoff
 
 import builders.AuthBuilder
-import config.FrontendAppConfig
+import config.AppConfig
 import controllers.reg.ControllerErrorHandler
 import fixtures.LoginFixture
 import helpers.SCRSSpec
@@ -42,7 +42,7 @@ class CorporationTaxSummaryControllerSpec extends SCRSSpec with LoginFixture wit
   lazy val errorTemplateRestartPage = app.injector.instanceOf[error_template_restart]
   lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
   lazy val mockControllerErrorHandler = app.injector.instanceOf[ControllerErrorHandler]
-  lazy val mockFrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+  override lazy val mockAppConfig = app.injector.instanceOf[AppConfig]
 
   class Setup {
 
@@ -55,7 +55,7 @@ class CorporationTaxSummaryControllerSpec extends SCRSSpec with LoginFixture wit
       mockMcc,
       errorTemplateRestartPage
     )(
-      mockFrontendAppConfig,global
+      mockAppConfig,global
     )
 
     val jweInstance = () => app.injector.instanceOf[JweCommon]

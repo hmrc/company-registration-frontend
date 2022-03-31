@@ -16,7 +16,7 @@
 
 package controllers.reg
 
-import config.FrontendAppConfig
+import config.AppConfig
 import javax.inject.Inject
 import play.api.i18n.I18nSupport
 import play.api.mvc.MessagesControllerComponents
@@ -24,11 +24,11 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import scala.concurrent.Future
 
-class WelcomeControllerImpl @Inject()(val appConfig: FrontendAppConfig,
+class WelcomeControllerImpl @Inject()(val appConfig: AppConfig,
                                       mcc: MessagesControllerComponents) extends WelcomeController(mcc)
 
 abstract class WelcomeController(mcc: MessagesControllerComponents) extends FrontendController(mcc) with I18nSupport {
-  implicit val appConfig: FrontendAppConfig
+  implicit val appConfig: AppConfig
   val show = Action.async { implicit request =>
     Future.successful(PermanentRedirect(routes.ReturningUserController.show.url))
 

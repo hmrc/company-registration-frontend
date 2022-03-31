@@ -16,7 +16,7 @@
 
 package controllers.reg
 
-import config.FrontendAppConfig
+import config.AppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthenticatedController
 import forms.RegistrationEmailForm
@@ -41,7 +41,7 @@ class RegistrationEmailController @Inject()(val authConnector: PlayAuthConnector
                                             val compRegConnector: CompanyRegistrationConnector,
                                             val controllerComponents: MessagesControllerComponents,
                                             view: RegistrationEmailView)
-                                           (implicit val appConfig: FrontendAppConfig, implicit val ec: ExecutionContext)
+                                           (implicit val appConfig: AppConfig, implicit val ec: ExecutionContext)
   extends AuthenticatedController with CommonService with SCRSExceptions with I18nSupport with SessionRegistration {
 
   val show: Action[AnyContent] = Action.async { implicit request =>

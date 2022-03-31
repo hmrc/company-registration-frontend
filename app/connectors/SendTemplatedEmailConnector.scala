@@ -18,7 +18,7 @@ package connectors
 
 import javax.inject.Inject
 
-import config.{FrontendAppConfig, WSHttp}
+import config.{AppConfig, WSHttp}
 import models.SendTemplatedEmailRequest
 import play.api.Logging
 import play.api.http.Status._
@@ -30,7 +30,7 @@ import scala.util.control.NoStackTrace
 
 private[connectors] class TemplateEmailErrorResponse(s: String) extends NoStackTrace
 
-class SendTemplatedEmailConnectorImpl @Inject()(appConfig: FrontendAppConfig, val wSHttp: WSHttp) extends SendTemplatedEmailConnector {
+class SendTemplatedEmailConnectorImpl @Inject()(appConfig: AppConfig, val wSHttp: WSHttp) extends SendTemplatedEmailConnector {
   lazy val sendTemplatedEmailURL = appConfig.servicesConfig.getConfString("email.sendAnEmailURL", throw new Exception("email.sendAnEmailURL not found"))
 }
 

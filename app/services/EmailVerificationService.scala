@@ -18,7 +18,7 @@ package services
 
 import javax.inject.Inject
 import audit.events.{EmailVerifiedEvent, EmailVerifiedEventDetail}
-import config.FrontendAppConfig
+import config.AppConfig
 import connectors.{CompanyRegistrationConnector, EmailVerificationConnector, KeystoreConnector, SendTemplatedEmailConnector}
 import models.Email.GG
 import models.auth.AuthDetails
@@ -42,7 +42,7 @@ class EmailVerificationServiceImpl @Inject()(val emailConnector: EmailVerificati
                                              val keystoreConnector: KeystoreConnector,
                                              val auditConnector: AuditConnector,
                                              val handOffService: HandOffService,
-                                             val appConfig: FrontendAppConfig,
+                                             val appConfig: AppConfig,
                                              val templatedEmailConnector: SendTemplatedEmailConnector) extends EmailVerificationService {
   lazy val returnUrl = appConfig.self
   lazy val sendTemplatedEmailURL = appConfig.servicesConfig.getConfString("email.returnToSCRSURL", throw new Exception("email.returnToSCRSURL not found"))

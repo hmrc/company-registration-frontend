@@ -17,7 +17,7 @@
 package controllers
 
 import builders.AuthBuilder
-import config.FrontendAppConfig
+import config.AppConfig
 import controllers.reg.{ControllerErrorHandler, LimitReachedController}
 import helpers.{SCRSSpec, UnitSpec}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -30,9 +30,9 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class LimitReachedControllerSpec extends UnitSpec with SCRSSpec with AuthBuilder with GuiceOneAppPerSuite {
 
   lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
-  lazy val mockFrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
   lazy val mockControllerErrorHandler = app.injector.instanceOf[ControllerErrorHandler]
   lazy val mockLimitReachedView = app.injector.instanceOf[LimitReachedView]
+  override lazy val mockAppConfig = app.injector.instanceOf[AppConfig]
 
   class Setup {
     val controller = new LimitReachedController(
@@ -41,7 +41,7 @@ class LimitReachedControllerSpec extends UnitSpec with SCRSSpec with AuthBuilder
       mockMcc,
       mockLimitReachedView
     )(
-      mockFrontendAppConfig,
+      mockAppConfig,
       global
     ){
       override val cohoUrl: String = "testGGUrl"

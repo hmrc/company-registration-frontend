@@ -16,7 +16,7 @@
 
 package views.takeovers
 
-import config.FrontendAppConfig
+import config.AppConfig
 import forms.takeovers.ReplacingAnotherBusinessForm
 import helpers.UnitSpec
 import org.jsoup.Jsoup
@@ -28,7 +28,7 @@ import views.html.takeovers.ReplacingAnotherBusiness
 class ReplacingAnotherBusinessViewSpec extends UnitSpec with GuiceOneAppPerSuite with I18nSupport {
   implicit lazy val messagesApi = app.injector.instanceOf[MessagesApi]
   implicit lazy val request = FakeRequest()
-  implicit lazy val frontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+  implicit lazy val appConfig = app.injector.instanceOf[AppConfig]
   implicit lazy val page = app.injector.instanceOf[ReplacingAnotherBusiness]
 
   "ReplacingAnotherBusinessView" should {

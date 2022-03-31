@@ -16,7 +16,7 @@
 
 package controllers.takeovers
 
-import config.FrontendAppConfig
+import config.AppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthenticatedController
 import controllers.reg.ControllerErrorHandler
@@ -44,7 +44,7 @@ class ReplacingAnotherBusinessController @Inject()(val authConnector: PlayAuthCo
                                                    val controllerComponents: MessagesControllerComponents,
                                                    val controllerErrorHandler: ControllerErrorHandler,
                                                    view: ReplacingAnotherBusinessView
-                                                  )(implicit val appConfig: FrontendAppConfig, val ec: ExecutionContext
+                                                  )(implicit val appConfig: AppConfig, val ec: ExecutionContext
                                                   ) extends AuthenticatedController with SessionRegistration with I18nSupport {
 
   val show: Action[AnyContent] = Action.async { implicit request =>

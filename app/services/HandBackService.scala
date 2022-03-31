@@ -17,7 +17,7 @@
 package services
 
 import javax.inject.Inject
-import config.FrontendAppConfig
+import config.AppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector, S4LConnector}
 import models._
 import models.handoff._
@@ -37,7 +37,7 @@ class HandBackServiceImpl @Inject()(val compRegConnector: CompanyRegistrationCon
                                     val s4LConnector: S4LConnector,
                                     val navModelRepo: NavModelRepo,
                                     val jwe: JweCommon,
-                                    val appConfig: FrontendAppConfig,
+                                    val appConfig: AppConfig,
                                     val scrsFeatureSwitches: SCRSFeatureSwitches) extends HandBackService {
 
   lazy val navModelMongo = navModelRepo.repository

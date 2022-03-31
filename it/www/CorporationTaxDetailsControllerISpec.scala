@@ -18,7 +18,7 @@ package www
 
 import java.util.UUID
 
-import config.FrontendAppConfig
+import config.AppConfig
 import fixtures.HandOffFixtures
 import itutil.{IntegrationSpecBase, LoginStub}
 import models.{CHROAddress, CompanyDetails, PPOB}
@@ -72,7 +72,7 @@ class CorporationTaxDetailsControllerISpec extends IntegrationSpecBase with Logi
 
   val repo = new NavModelRepo {
     override val mongo: ReactiveMongoComponent = app.injector.instanceOf[ReactiveMongoComponent]
-    override val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+    override val appConfig: AppConfig = app.injector.instanceOf[AppConfig]
   }
 
   val jweDecryptor = app.injector.instanceOf[JweCommon]

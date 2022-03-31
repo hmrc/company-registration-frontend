@@ -16,11 +16,11 @@
 
 package mocks
 
-import config.FrontendAppConfig
+import config.AppConfig
 import org.scalatestplus.mockito.MockitoSugar
 
 trait AppConfigMock extends MockitoSugar {
 
-  val mockAppConfig: FrontendAppConfig = mock[FrontendAppConfig]
+  val mockAppConfig: AppConfig = mock[AppConfig]
 
 }

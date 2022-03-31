@@ -16,7 +16,7 @@
 
 package controllers
 
-import config.FrontendAppConfig
+import config.AppConfig
 import helpers.SCRSSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.mvc.MessagesControllerComponents
@@ -28,7 +28,6 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class PolicyControllerSpec extends SCRSSpec with GuiceOneAppPerSuite {
 
   lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
-  lazy val mockFrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
   lazy val mockPolicies = app.injector.instanceOf[policies]
 
 
@@ -38,7 +37,7 @@ class PolicyControllerSpec extends SCRSSpec with GuiceOneAppPerSuite {
       mockPolicies
     )
     (
-      mockFrontendAppConfig,
+      mockAppConfig,
       global
     )
   }
