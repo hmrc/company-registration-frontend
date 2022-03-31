@@ -16,7 +16,7 @@
 
 package connectors
 
-import config.{FrontendAppConfig, WSHttp}
+import config.{AppConfig, WSHttp}
 import javax.inject.Inject
 import models.TakeoverDetails
 import play.api.Logging
@@ -26,7 +26,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class TakeoverConnector @Inject()(appConfig: FrontendAppConfig,
+class TakeoverConnector @Inject()(appConfig: AppConfig,
                                   http: WSHttp)(implicit ec: ExecutionContext) extends Logging {
   def takeOverDetailsUrl(registrationId: String) = s"${appConfig.companyRegistrationUrl}/company-registration/corporation-tax-registration/$registrationId/takeover-details"
 

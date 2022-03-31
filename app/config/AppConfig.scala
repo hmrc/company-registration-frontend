@@ -16,20 +16,17 @@
 
 package config
 
-import java.net.URLEncoder
-
 import controllers.reg.routes
-import javax.inject.Inject
-import play.api.Configuration
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
-class FrontendAppConfig @Inject()(configuration: Configuration) {
+import java.net.URLEncoder
+import javax.inject.Inject
 
-  val servicesConfig = new ServicesConfig(configuration)
+class AppConfig @Inject()(val servicesConfig: ServicesConfig) {
 
   private def loadConfig(key: String) = servicesConfig.getString(key)
 
-  private def loadOptionalConfig(key: String) = try {
+  private def loadOptionalConfig(key: String): Option[String] = try {
     Option(servicesConfig.getString(key))
   } catch {
     case _: Throwable => None
@@ -112,4 +109,14 @@ class FrontendAppConfig @Inject()(configuration: Configuration) {
   def continueURL(handOffID: Option[String], payload: Option[String]) = s"$loginCallback${routes.SignInOutController.postSignIn(None, handOffID, payload).url}"
 
   lazy val companyRegistrationUrl: String = servicesConfig.baseUrl("company-registration")
+
+  lazy val taxYearStartDate: String = servicesConfig.getString("tax-year-start-date")
+
+  lazy val currentPayeWeeklyThreshold: Int = servicesConfig.getInt("paye.weekly-threshold")
+  lazy val currentPayeMonthlyThreshold: Int = servicesConfig.getInt("paye.monthly-threshold")
+  lazy val currentPayeAnnualThreshold: Int = servicesConfig.getInt("paye.annual-threshold")
+  lazy val oldPayeWeeklyThreshold: Int = servicesConfig.getInt("paye.old-weekly-threshold")
+  lazy val oldPayeMonthlyThreshold: Int = servicesConfig.getInt("paye.old-monthly-threshold")
+  lazy val oldPayeAnnualThreshold: Int = servicesConfig.getInt("paye.old-annual-threshold")
+
 }

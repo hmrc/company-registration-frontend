@@ -20,7 +20,7 @@ import java.util.UUID
 
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, stubFor, urlMatching}
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
-import config.FrontendAppConfig
+import config.AppConfig
 import itutil.{IntegrationSpecBase, LoginStub}
 import models.handoff._
 import play.api.http.HeaderNames
@@ -43,7 +43,7 @@ class BasicCompanyDetailsControllerISpec extends IntegrationSpecBase with LoginS
     val rc = app.injector.instanceOf[ReactiveMongoComponent]
     val repo = new NavModelRepo {
       override val mongo: ReactiveMongoComponent = rc
-      override val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+      override val appConfig: AppConfig = app.injector.instanceOf[AppConfig]
     }
     await(repo.repository.ensureIndexes)
   }

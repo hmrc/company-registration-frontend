@@ -16,21 +16,42 @@
 
 package services
 
-import javax.inject.Inject
+import config.AppConfig
 
+import javax.inject.{Inject, Singleton}
 import connectors.VatThresholdConnector
 import org.joda.time.LocalDate
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.Future
 
-class ThresholdServiceImpl @Inject()(val vatThresholdConnector: VatThresholdConnector) extends ThresholdService {
-  def now: LocalDate = LocalDate.now()
-}
+@Singleton
+class ThresholdService @Inject()(vatThresholdConnector: VatThresholdConnector)
+                                (implicit appConfig: AppConfig) {
 
-trait ThresholdService {
-val vatThresholdConnector: VatThresholdConnector
-  def now: LocalDate
+  def now: LocalDate = LocalDate.now()
 
   def fetchCurrentVatThreshold(implicit hc: HeaderCarrier): Future[String] = vatThresholdConnector.getVATThreshold(now)
+
+  def fetchCurrentPayeThresholds(): Map[String, Int] = {
+    val taxYearStartDate = LocalDate.parse(appConfig.taxYearStartDate)
+
+    val isTaxYear = now.isEqual(taxYearStartDate) || now.isAfter(taxYearStartDate)
+
+    val weeklyThreshold = appConfig.currentPayeWeeklyThreshold
+    val monthlyThreshold = appConfig.currentPayeMonthlyThreshold
+    val annualThreshold = appConfig.currentPayeAnnualThreshold
+
+    val oldWeeklyThreshold = appConfig.oldPayeWeeklyThreshold
+    val oldMonthlyThreshold = appConfig.oldPayeMonthlyThreshold
+    val oldAnnualThreshold = appConfig.oldPayeAnnualThreshold
+
+    if (isTaxYear) {
+      Map("weekly" -> weeklyThreshold, "monthly" -> monthlyThreshold, "annually" -> annualThreshold)
+    }
+    else {
+      Map("weekly" -> oldWeeklyThreshold, "monthly" -> oldMonthlyThreshold, "annually" -> oldAnnualThreshold)
+    }
+  }
+
 }

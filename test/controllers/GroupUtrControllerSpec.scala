@@ -17,7 +17,7 @@
 package controllers
 
 import builders.AuthBuilder
-import config.FrontendAppConfig
+import config.AppConfig
 import controllers.groups.GroupUtrController
 import controllers.reg.ControllerErrorHandler
 import helpers.SCRSSpec
@@ -41,9 +41,9 @@ import scala.concurrent.Future
 class GroupUtrControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with MockitoSugar with AuthBuilder {
 
   lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
-  implicit lazy val mockFrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
   lazy val mockControllerErrorHandler = app.injector.instanceOf[ControllerErrorHandler]
   lazy val mockGroupUtrView = app.injector.instanceOf[GroupUtrView]
+  override lazy val mockAppConfig = app.injector.instanceOf[AppConfig]
 
   class Setup {
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
@@ -54,7 +54,7 @@ class GroupUtrControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Mock
       mockCompanyRegistrationConnector,
       mockMcc,
       mockGroupUtrView
-    )
+    )(mockAppConfig)
   }
 
   "show" should {

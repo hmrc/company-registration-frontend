@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@import config.FrontendAppConfig
+@import config.AppConfig
 @import models.CompanyContactDetailsApi
 @import uk.gov.hmrc.play.views.html.helpers.{FormWithCSRF}
 @import views.helpers.TitleHelper.title
@@ -27,7 +27,7 @@
         input: input,
         errorInline: ErrorInline)
 
-@(contactDetails: Form[CompanyContactDetailsApi], companyName: String)(implicit request: Request[_], messages: Messages, appConfig: FrontendAppConfig)
+@(contactDetails: Form[CompanyContactDetailsApi], companyName: String)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
 @fieldSetClasses =  @{if(contactDetails.hasErrors && (contactDetails.errors.exists(_.args.nonEmpty))) "form-group-error" else "" }
 

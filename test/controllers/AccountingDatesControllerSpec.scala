@@ -17,7 +17,7 @@
 package controllers
 
 import builders.AuthBuilder
-import config.FrontendAppConfig
+import config.AppConfig
 import controllers.reg.{AccountingDatesController, ControllerErrorHandler}
 import fixtures.{AccountingDatesFixture, AccountingDetailsFixture, LoginFixture}
 import helpers.SCRSSpec
@@ -40,9 +40,8 @@ class AccountingDatesControllerSpec extends SCRSSpec with GuiceOneAppPerSuite wi
   lazy val accountingDatesView = app.injector.instanceOf[AccountingDatesView]
   lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
   lazy val mockControllerErrorHandler = app.injector.instanceOf[ControllerErrorHandler]
-  lazy val mockFrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
   lazy val timeServiceMock: TimeService = app.injector.instanceOf[TimeService]
-
+  override lazy val mockAppConfig = app.injector.instanceOf[AppConfig]
 
   class Setup {
     val controller = new AccountingDatesController(
@@ -55,7 +54,7 @@ class AccountingDatesControllerSpec extends SCRSSpec with GuiceOneAppPerSuite wi
       mockMcc,
       mockControllerErrorHandler,
       accountingDatesView
-    )(mockFrontendAppConfig,
+    )(mockAppConfig,
       global)
 
   }

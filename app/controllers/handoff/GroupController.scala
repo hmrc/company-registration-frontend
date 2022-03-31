@@ -16,7 +16,7 @@
 
 package controllers.handoff
 
-import config.FrontendAppConfig
+import config.AppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthenticatedController
 import controllers.reg.ControllerErrorHandler
@@ -45,7 +45,7 @@ class GroupController @Inject()(val authConnector: PlayAuthConnector,
                                 val controllerComponents: MessagesControllerComponents,
                                 val controllerErrorHandler: ControllerErrorHandler,
                                 error_template_restart: error_template_restart
-                               )(implicit val appConfig: FrontendAppConfig, implicit val ec: ExecutionContext)
+                               )(implicit val appConfig: AppConfig, implicit val ec: ExecutionContext)
   extends AuthenticatedController with I18nSupport with SessionRegistration {
 
   // 3.1 handback

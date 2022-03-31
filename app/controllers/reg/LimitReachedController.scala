@@ -16,7 +16,7 @@
 
 package controllers.reg
 
-import config.FrontendAppConfig
+import config.AppConfig
 import connectors.KeystoreConnector
 import controllers.auth.AuthenticatedController
 import javax.inject.{Inject, Singleton}
@@ -33,7 +33,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class LimitReachedController @Inject()(val authConnector: PlayAuthConnector,
                                        val keystoreConnector: KeystoreConnector,
                                        val controllerComponents: MessagesControllerComponents,
-                                       view: LimitReachedView)(implicit val appConfig: FrontendAppConfig, implicit val ec: ExecutionContext)
+                                       view: LimitReachedView)(implicit val appConfig: AppConfig, implicit val ec: ExecutionContext)
   extends AuthenticatedController with CommonService with SCRSExceptions with I18nSupport {
 
   val cohoUrl = appConfig.servicesConfig.getConfString("coho-service.web-incs", throw new Exception("Couldn't find Coho url"))

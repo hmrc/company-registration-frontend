@@ -16,14 +16,14 @@
 
 package services
 
-import config.FrontendAppConfig
+import config.AppConfig
 import javax.inject.{Inject, Singleton}
 import models._
 import play.api.i18n.{Messages, MessagesApi, MessagesProvider}
 import play.api.mvc.Call
 
 @Singleton
-class AddressLookupConfigBuilderService @Inject()(appConfig: FrontendAppConfig) {
+class AddressLookupConfigBuilderService @Inject()(appConfig: AppConfig) {
 
   lazy val companyRegistrationFrontendURL: String = appConfig.self
   lazy val timeoutLength: Int = appConfig.timeoutInSeconds.toInt

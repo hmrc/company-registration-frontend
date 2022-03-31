@@ -16,7 +16,7 @@
 
 package controllers
 
-import config.FrontendAppConfig
+import config.AppConfig
 import javax.inject.{Inject, Singleton}
 import play.api.i18n.I18nSupport
 import play.api.mvc.MessagesControllerComponents
@@ -28,7 +28,7 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class PolicyController @Inject()(mcc: MessagesControllerComponents,
                                      policies: policies)
-                                    (implicit val appConfig: FrontendAppConfig, implicit val ec: ExecutionContext) extends FrontendController(mcc) with I18nSupport {
+                                    (implicit val appConfig: AppConfig, implicit val ec: ExecutionContext) extends FrontendController(mcc) with I18nSupport {
 
 
   def policyLinks = Action.async { implicit request =>

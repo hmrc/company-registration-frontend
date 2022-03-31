@@ -17,7 +17,7 @@
 package controllers.handoff
 
 import builders.AuthBuilder
-import config.FrontendAppConfig
+import config.AppConfig
 import controllers.reg.ControllerErrorHandler
 import fixtures.PayloadFixture
 import helpers.SCRSSpec
@@ -41,8 +41,7 @@ class IncorporationSummaryControllerSpec extends SCRSSpec with PayloadFixture wi
   lazy val errorTemplateRestartPage = app.injector.instanceOf[error_template_restart]
   lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
   lazy val mockControllerErrorHandler = app.injector.instanceOf[ControllerErrorHandler]
-  lazy val mockFrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
-  
+
   class Setup {
 
     val testController = new IncorporationSummaryController (
@@ -55,7 +54,7 @@ class IncorporationSummaryControllerSpec extends SCRSSpec with PayloadFixture wi
       mockControllerErrorHandler,
       errorTemplateRestartPage
     )(
-      mockFrontendAppConfig,global
+      mockAppConfig,global
     )
     val jweInstance = () => app.injector.instanceOf[JweCommon]
   }

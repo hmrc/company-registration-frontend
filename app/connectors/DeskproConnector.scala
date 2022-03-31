@@ -18,7 +18,7 @@ package connectors
 
 import javax.inject.Inject
 
-import config.{FrontendAppConfig, WSHttp}
+import config.{AppConfig, WSHttp}
 import models.external.Ticket
 import play.api.Logging
 import play.api.libs.json._
@@ -28,7 +28,7 @@ import uk.gov.hmrc.http.{CorePost, HeaderCarrier}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class DeskproConnectorImpl @Inject()(val appConfig: FrontendAppConfig,
+class DeskproConnectorImpl @Inject()(val appConfig: AppConfig,
                                      val wSHttp: WSHttp, val metricsService: MetricsService) extends DeskproConnector {
   override lazy val deskProUrl: String = appConfig.servicesConfig.baseUrl("hmrc-deskpro")
 }

@@ -28,7 +28,7 @@
         Input: input,
         formWithCsrf: FormWithCSRF)
 
-@(shareholdersForm: Form[GroupCompanyName], optionCompanyName: Option[GroupCompanyName], shareholderNames: List[String])(implicit request: Request[_], messages: Messages, appConfig: config.FrontendAppConfig)
+@(shareholdersForm: Form[GroupCompanyName], optionCompanyName: Option[GroupCompanyName], shareholderNames: List[String])(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
 @otherHidden = {
 @Input(

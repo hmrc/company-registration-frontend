@@ -34,7 +34,7 @@ trait Hooks extends HttpHooks with HttpAuditing {
   override val hooks = NoneRequired
 }
 
-class WSHttpImpl @Inject()(appConfig: FrontendAppConfig, config:Configuration, val auditConnector: AuditConnector, val actorSystem: ActorSystem, val wsClient: WSClient) extends WSHttp {
+class WSHttpImpl @Inject()(appConfig: AppConfig, config:Configuration, val auditConnector: AuditConnector, val actorSystem: ActorSystem, val wsClient: WSClient) extends WSHttp {
 
   override val appName = appConfig.servicesConfig.getString("appName")
   override protected def configuration: Config = config.underlying
@@ -48,11 +48,11 @@ trait WSHttp extends
   WSDelete with HttpDelete with
   WSPatch with HttpPatch with Hooks
 
-class FrontendAuthConnector @Inject()(appConfig: FrontendAppConfig, val http: WSHttp) extends PlayAuthConnector {
+class FrontendAuthConnector @Inject()(appConfig: AppConfig, val http: WSHttp) extends PlayAuthConnector {
   override lazy val serviceUrl = appConfig.servicesConfig.baseUrl("auth")
 }
 
-class SCRSShortLivedHttpCaching @Inject()(val wSHttp: WSHttp, appConfig: FrontendAppConfig, val appNameConfiguration:Configuration) extends ShortLivedHttpCaching {
+class SCRSShortLivedHttpCaching @Inject()(val wSHttp: WSHttp, appConfig: AppConfig, val appNameConfiguration:Configuration) extends ShortLivedHttpCaching {
   override lazy val http = wSHttp
   override lazy val defaultSource = appConfig.servicesConfig.getString("appName")
   override lazy val baseUri = appConfig.servicesConfig.baseUrl("cachable.short-lived-cache")
@@ -70,7 +70,7 @@ trait CryptoInitialiser {
   lazy val cryptoInstance = applicationCrypto
 }
 
-class SCRSSessionCache @Inject()(appConfig: FrontendAppConfig, val wSHttp: WSHttp, val appNameConfiguration: Configuration) extends SessionCache {
+class SCRSSessionCache @Inject()(appConfig: AppConfig, val wSHttp: WSHttp, val appNameConfiguration: Configuration) extends SessionCache {
   override lazy val http = wSHttp
   override lazy val defaultSource = appConfig.servicesConfig.getString("appName")
   override lazy val baseUri = appConfig.servicesConfig.baseUrl("cachable.session-cache")

@@ -16,7 +16,7 @@
 
 package controllers.test
 
-import config.FrontendAppConfig
+import config.AppConfig
 import connectors.S4LConnector
 import controllers.auth.AuthenticatedController
 import forms.SubmissionForm
@@ -36,7 +36,7 @@ class SubmissionEndpointController @Inject()(val authConnector: PlayAuthConnecto
                                              val s4LConnector: S4LConnector,
                                              val controllerComponents: MessagesControllerComponents,
                                              view: SubmissionEndpoint)
-                                            (implicit val appConfig: FrontendAppConfig, implicit val ec: ExecutionContext) extends AuthenticatedController with I18nSupport {
+                                            (implicit val appConfig: AppConfig, implicit val ec: ExecutionContext) extends AuthenticatedController with I18nSupport {
 
   val getAllS4LEntries: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorisedOptStr(Retrievals.internalId) { internalID =>

@@ -18,7 +18,7 @@ package services
 
 import audit.events.EmailMismatchEvent
 import builders.AuthBuilder
-import config.FrontendAppConfig
+import config.AppConfig
 import connectors.{NotStarted, SuccessfulResponse}
 import helpers.SCRSSpec
 import mocks.ServiceConnectorMock
@@ -26,7 +26,7 @@ import models._
 import models.auth.AuthDetails
 import models.connectors.ConfirmationReferences
 import models.external.{OtherRegStatus, Statuses}
-import org.joda.time.DateTime
+import org.joda.time.{DateTime, LocalDate}
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito._
 import org.mockito.{ArgumentCaptor, ArgumentMatchers}
@@ -40,6 +40,7 @@ import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.audit.http.connector.AuditResult.Success
 import utils.{BooleanFeatureSwitch, SCRSFeatureSwitches}
 import play.api.libs.json.JodaWrites._
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -74,7 +75,7 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
       override val loggingDays = mockLoggingDays
       override val loggingTimes = mockLoggingTimes
       override val thresholdService: ThresholdService = mockThresholdService
-      override val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+      override val appConfig: AppConfig = app.injector.instanceOf[AppConfig]
     }
   }
 
@@ -96,7 +97,7 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
       override val loggingDays = mockLoggingDays
       override val loggingTimes = mockLoggingTimes
       override val thresholdService: ThresholdService = mockThresholdService
-      override val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+      override val appConfig: AppConfig = app.injector.instanceOf[AppConfig]
 
 
       override def buildIncorpCTDashComponent(regId: String, enrolments: Enrolments)(implicit hc: HeaderCarrier) = Future.successful(dash)
@@ -226,6 +227,7 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
 
     "return a DashboardBuilt DashboardStatus when the status of the registration is any other status" in new SetupWithDash(heldDash) {
       getStatusMock(regId)(SuccessfulResponse(payeStatus))
+      when(mockThresholdService.fetchCurrentPayeThresholds()).thenReturn(Map("weekly" -> 120, "monthly" -> 520, "annually" -> 6240))
 
       mockPayeFeature(true)
       mockVatFeature(false)
@@ -302,6 +304,7 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
       val payeDash = ServiceDashboard("held", None, None, ServiceLinks(payeUrl, testOtrsUrl, None, Some("/register-your-company/cancel-paye")), Some(payeThresholds))
       mockPayeFeature(true)
       getStatusMock(regId)(SuccessfulResponse(payeStatus))
+      when(mockThresholdService.fetchCurrentPayeThresholds()).thenReturn(Map("weekly" -> 120, "monthly" -> 520, "annually" -> 6240))
 
       val result = await(service.buildPAYEDashComponent(regId, payeEnrolment))
       result shouldBe payeDash
@@ -312,6 +315,7 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
       val payeDash = ServiceDashboard("rejected", None, None, ServiceLinks(payeUrl, testOtrsUrl, Some("bar"), None), Some(payeThresholds))
       mockPayeFeature(true)
       getStatusMock(regId)(SuccessfulResponse(payeStatus))
+      when(mockThresholdService.fetchCurrentPayeThresholds()).thenReturn(Map("weekly" -> 120, "monthly" -> 520, "annually" -> 6240))
 
       val result = await(service.buildPAYEDashComponent(regId, payeEnrolment))
       result shouldBe payeDash
@@ -321,6 +325,7 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
       val payeDash = ServiceDashboard(Statuses.NOT_ELIGIBLE, None, None, payeLinks, Some(payeThresholds))
       mockPayeFeature(true)
       getStatusMock(regId)(NotStarted)
+      when(mockThresholdService.fetchCurrentPayeThresholds()).thenReturn(Map("weekly" -> 120, "monthly" -> 520, "annually" -> 6240))
 
       val result = await(service.buildPAYEDashComponent(regId, payeEnrolment))
       result shouldBe payeDash
@@ -330,6 +335,7 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
       val payeDash = ServiceDashboard(Statuses.NOT_STARTED, None, None, payeLinks, Some(payeThresholds))
       mockPayeFeature(true)
       getStatusMock(regId)(NotStarted)
+      when(mockThresholdService.fetchCurrentPayeThresholds()).thenReturn(Map("weekly" -> 120, "monthly" -> 520, "annually" -> 6240))
 
       val result = await(service.buildPAYEDashComponent(regId, noEnrolments))
       result shouldBe payeDash
@@ -339,6 +345,7 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
       val payeDash = ServiceDashboard(Statuses.NOT_STARTED, None, None, payeLinks, Some(payeThresholds))
       mockPayeFeature(true)
       getStatusMock(regId)(NotStarted)
+      when(mockThresholdService.fetchCurrentPayeThresholds()).thenReturn(Map("weekly" -> 120, "monthly" -> 520, "annually" -> 6240))
 
       val result = await(service.buildPAYEDashComponent(regId, ctEnrolment("1234567890", true)))
       result shouldBe payeDash
@@ -347,6 +354,7 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
     "return a not enabled Status when the paye feature is turned off" in new Setup {
       val payeDash = ServiceDashboard(Statuses.NOT_ENABLED, None, None, payeLinks, None)
       mockPayeFeature(false)
+      when(mockThresholdService.fetchCurrentPayeThresholds()).thenReturn(Map("weekly" -> 120, "monthly" -> 520, "annually" -> 6240))
 
       val result = await(service.buildPAYEDashComponent(regId, noEnrolments))
       result shouldBe payeDash
@@ -434,29 +442,6 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
       val dateAsJson = Json.toJson(date)
 
       service.extractSubmissionDate(dateAsJson) shouldBe "10 October 2017"
-    }
-  }
-
-  "getPayeThresholds" should {
-    "return the current tax years thresholds if the system date is 2020-04-05" in new Setup {
-      System.setProperty("feature.system-date", "2020-04-05")
-
-      val result = service.getCurrentPayeThresholds
-      result shouldBe Map("weekly" -> 118, "monthly" -> 512, "annually" -> 6136)
-    }
-
-    "return the new tax years thresholds if the system date is 2020-04-06" in new Setup {
-      System.setProperty("feature.system-date", "2020-04-06")
-
-      val result = service.getCurrentPayeThresholds
-      result shouldBe Map("weekly" -> 120, "monthly" -> 520, "annually" -> 6240)
-    }
-
-    "return the new tax years thresholds if the system date is 2020-10-26" in new Setup {
-      System.setProperty("feature.system-date", "2020-10-26")
-
-      val result = service.getCurrentPayeThresholds
-      result shouldBe Map("weekly" -> 120, "monthly" -> 520, "annually" -> 6240)
     }
   }
 

@@ -16,7 +16,7 @@
 
 package controllers.verification
 
-import config.FrontendAppConfig
+import config.AppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthenticatedController
 import javax.inject.{Inject, Singleton}
@@ -39,7 +39,7 @@ class EmailVerificationController @Inject()(val authConnector: PlayAuthConnector
                                             CreateGGWAccount: CreateGGWAccount,
                                             CreateNewGGWAccount: CreateNewGGWAccount,
                                             createNewAccount: createNewAccount
-                                           )(implicit val appConfig: FrontendAppConfig,
+                                           )(implicit val appConfig: AppConfig,
                                              implicit val ec: ExecutionContext) extends AuthenticatedController with SessionRegistration with I18nSupport {
 
   lazy val createGGWAccountUrl = appConfig.servicesConfig.getConfString("gg-reg-fe.url", throw new Exception("Could not find config for gg-reg-fe url"))

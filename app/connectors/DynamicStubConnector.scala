@@ -18,7 +18,7 @@ package connectors
 
 import javax.inject.Inject
 
-import config.{FrontendAppConfig, WSHttp}
+import config.{AppConfig, WSHttp}
 import models.IncorporationResponse
 import models.test.ETMPNotification
 import play.api.libs.json.{JsValue, Json}
@@ -27,7 +27,7 @@ import uk.gov.hmrc.http._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class DynamicStubConnectorImpl @Inject()(val wSHttp: WSHttp, appConfig: FrontendAppConfig) extends DynamicStubConnector {
+class DynamicStubConnectorImpl @Inject()(val wSHttp: WSHttp, appConfig: AppConfig) extends DynamicStubConnector {
 
  lazy val busRegDyUrl = s"${appConfig.servicesConfig.baseUrl("business-registration-dynamic-stub")}/business-registration"
 }

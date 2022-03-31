@@ -16,7 +16,7 @@
 
 package controllers.handoff
 
-import config.FrontendAppConfig
+import config.AppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthenticatedController
 import controllers.reg.ControllerErrorHandler
@@ -42,7 +42,7 @@ class BusinessActivitiesController @Inject()(val authConnector: PlayAuthConnecto
                                              error_template: error_template,
                                              error_template_restart: error_template_restart
                                             )
-                                            (implicit val appConfig: FrontendAppConfig, implicit val ec: ExecutionContext)
+                                            (implicit val appConfig: AppConfig, implicit val ec: ExecutionContext)
   extends AuthenticatedController with SessionRegistration with I18nSupport {
 
 

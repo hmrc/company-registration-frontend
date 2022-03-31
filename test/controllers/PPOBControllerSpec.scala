@@ -19,7 +19,7 @@ package controllers
 import java.util.Locale
 
 import builders.AuthBuilder
-import config.FrontendAppConfig
+import config.AppConfig
 import connectors.BusinessRegistrationConnector
 import controllers.reg.{ControllerErrorHandler, PPOBController}
 import fixtures.PPOBFixture
@@ -52,7 +52,6 @@ class PPOBControllerSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixtur
   lazy val mockBusinessRegConnector = mock[BusinessRegistrationConnector]
   lazy val mockAddressLookupFrontendService = mock[AddressLookupFrontendService]
   lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
-  lazy val mockFrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
   lazy val mockControllerErrorHandler = app.injector.instanceOf[ControllerErrorHandler]
   override lazy val mockSCRSFeatureSwitches = app.injector.instanceOf[SCRSFeatureSwitches]
   lazy val mockPrinciplePlaceOfBusinessView = app.injector.instanceOf[PrinciplePlaceOfBusinessView]
@@ -78,7 +77,7 @@ class PPOBControllerSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixtur
       mockPrinciplePlaceOfBusinessView
     )
     (
-      mockFrontendAppConfig,
+      mockAppConfig,
       global
     )
 

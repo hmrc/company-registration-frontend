@@ -16,7 +16,7 @@
 
 package views.takeovers
 
-import config.FrontendAppConfig
+import config.AppConfig
 import forms.takeovers.{HomeAddressForm, OtherBusinessAddressForm}
 import helpers.UnitSpec
 import models.NewAddress
@@ -31,7 +31,7 @@ class HomeAddressViewSpec extends UnitSpec with GuiceOneAppPerSuite with I18nSup
 
   implicit lazy val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
   implicit lazy val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
-  implicit lazy val frontendAppConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+  implicit lazy val appConfig: AppConfig = app.injector.instanceOf[AppConfig]
 
   val testPreviousOwnerName: String = "testName"
   val testBusinessAddress: NewAddress = NewAddress("testLine1", "testLine2", None, None, Some("Z11 11Z"), Some("testCountry"))

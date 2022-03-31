@@ -16,7 +16,7 @@
 
 package controllers.reg
 
-import config.FrontendAppConfig
+import config.AppConfig
 import javax.inject.{Inject, Singleton}
 import play.api.i18n.I18nSupport
 import play.api.mvc.MessagesControllerComponents
@@ -28,7 +28,7 @@ import scala.concurrent.Future
 @Singleton
 class IncompleteRegistrationController @Inject()(mcc: MessagesControllerComponents,
                                                      view: IncompleteRegistrationView)
-                                                    (implicit val appConfig: FrontendAppConfig) extends FrontendController(mcc) with I18nSupport {
+                                                    (implicit val appConfig: AppConfig) extends FrontendController(mcc) with I18nSupport {
 
 
   val show = Action.async { implicit request =>

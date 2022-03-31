@@ -24,7 +24,7 @@
         inputRadioGroup: inputRadioGroup,
         formWithCsrf: FormWithCSRF)
 
-@(groupRelief: Form[Boolean], companyName: String)(implicit request: Request[_], messages: Messages, appConfig: config.FrontendAppConfig)
+@(groupRelief: Form[Boolean], companyName: String)(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
 @main_template(title = title(Messages("page.groups.groupRelief.title", companyName), groupRelief), mainClass = None) {
 

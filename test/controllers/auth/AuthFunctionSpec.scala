@@ -17,7 +17,7 @@
 package controllers.auth
 
 import builders.AuthBuilder
-import config.FrontendAppConfig
+import config.AppConfig
 import fixtures.{LoginFixture, PayloadFixture}
 import helpers.SCRSSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -39,7 +39,8 @@ class AuthFunctionSpec extends SCRSSpec with PayloadFixture with GuiceOneAppPerS
     implicit val fr = FakeRequest()
     val authFunc = new AuthenticatedController {
       override val controllerComponents = app.injector.instanceOf[MessagesControllerComponents]
-      override val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+      override val appConfig: AppConfig = app.injector.instanceOf[AppConfig]
+
 
 
       override def authConnector: AuthConnector = mockAuthConnector

@@ -16,7 +16,7 @@
 
 package controllers.handoff
 
-import config.FrontendAppConfig
+import config.AppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthenticatedController
 import javax.inject.Inject
@@ -42,7 +42,7 @@ class RegistrationConfirmationController @Inject()(val authConnector: PlayAuthCo
                                                    error_template_restart: error_template_restart,
                                                    error_template: error_template
                                                   )
-                                                  (implicit val appConfig: FrontendAppConfig, implicit val ec: ExecutionContext)
+                                                  (implicit val appConfig: AppConfig, implicit val ec: ExecutionContext)
   extends AuthenticatedController with I18nSupport with SessionRegistration with Logging {
 
   //HO5.1 & old HO6

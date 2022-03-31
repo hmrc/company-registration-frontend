@@ -15,7 +15,7 @@
  *@
 
 @this(main_template: main_template)
-@(webincsUrl: String)(implicit request: Request[_], messages: Messages, appConfig: config.FrontendAppConfig)
+@(webincsUrl: String)(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
 @main_template(title = Messages("page.reg.limit-reached.description"), mainClass = None) {
 

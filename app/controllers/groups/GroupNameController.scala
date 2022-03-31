@@ -16,7 +16,7 @@
 
 package controllers.groups
 
-import config.FrontendAppConfig
+import config.AppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthenticatedController
 import controllers.reg.ControllerErrorHandler
@@ -40,7 +40,7 @@ class GroupNameController @Inject()(val authConnector: PlayAuthConnector,
                                     val keystoreConnector: KeystoreConnector,
                                     val controllerComponents: MessagesControllerComponents,
                                     view: GroupNameView
-                                   )(implicit val appConfig: FrontendAppConfig, implicit val ec: ExecutionContext)
+                                   )(implicit val appConfig: AppConfig, implicit val ec: ExecutionContext)
   extends AuthenticatedController with SessionRegistration with I18nSupport {
 
   val show: Action[AnyContent] = Action.async {

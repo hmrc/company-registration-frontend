@@ -17,7 +17,7 @@
 package controllers.reg
 
 import _root_.connectors.{BusinessRegistrationConnector, CompanyRegistrationConnector, KeystoreConnector, S4LConnector}
-import config.FrontendAppConfig
+import config.AppConfig
 import controllers.auth.AuthenticatedController
 import controllers.reg.PPOBController._
 import forms.PPOBForm
@@ -52,7 +52,7 @@ class PPOBController @Inject()(val authConnector: PlayAuthConnector,
                                val controllerComponents: MessagesControllerComponents,
                                val controllerErrorHandler: ControllerErrorHandler,
                                view: PrinciplePlaceOfBusinessView)
-                              (implicit val appConfig: FrontendAppConfig, implicit val ec: ExecutionContext) extends AuthenticatedController
+                              (implicit val appConfig: AppConfig, implicit val ec: ExecutionContext) extends AuthenticatedController
   with SessionRegistration with Logging {
   lazy val navModelMongo = navModelRepo.repository
 

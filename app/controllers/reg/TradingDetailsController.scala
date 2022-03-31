@@ -16,7 +16,7 @@
 
 package controllers.reg
 
-import config.FrontendAppConfig
+import config.AppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthenticatedController
 import forms.TradingDetailsForm
@@ -39,7 +39,7 @@ class TradingDetailsController @Inject()(val authConnector: PlayAuthConnector,
                                          val keystoreConnector: KeystoreConnector,
                                          val controllerComponents: MessagesControllerComponents,
                                          val controllerErrorHandler: ControllerErrorHandler,
-                                         view: TradingDetailsView)(implicit val appConfig: FrontendAppConfig, implicit val ec: ExecutionContext) extends AuthenticatedController with SessionRegistration with I18nSupport {
+                                         view: TradingDetailsView)(implicit val appConfig: AppConfig, implicit val ec: ExecutionContext) extends AuthenticatedController with SessionRegistration with I18nSupport {
 
   val show = Action.async { implicit request =>
     ctAuthorised {

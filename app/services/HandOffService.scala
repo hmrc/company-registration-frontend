@@ -17,7 +17,7 @@
 package services
 
 import javax.inject.Inject
-import config.FrontendAppConfig
+import config.AppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import models.handoff.{BusinessActivitiesModel, CompanyNameHandOffModel, HandoffPPOB, _}
 import models.{ConfirmationReferencesSuccessResponse, Groups, SummaryHandOff}
@@ -33,7 +33,7 @@ class HandOffServiceImpl @Inject()(
 
                                    val keystoreConnector: KeystoreConnector,
                                    val encryptor: JweCommon,
-                                   val appConfig: FrontendAppConfig,
+                                   val appConfig: AppConfig,
                                    val navModelRepo: NavModelRepo,
                                    val compRegConnector: CompanyRegistrationConnector,
                                    val scrsFeatureSwitches: SCRSFeatureSwitches) extends HandOffService {

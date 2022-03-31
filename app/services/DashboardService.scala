@@ -19,7 +19,7 @@ package services
 import javax.inject.Inject
 import _root_.connectors._
 import audit.events.{EmailMismatchEvent, EmailMismatchEventDetail}
-import config.FrontendAppConfig
+import config.AppConfig
 import models._
 import models.auth.AuthDetails
 import models.external.{OtherRegStatus, Statuses}
@@ -44,7 +44,7 @@ class DashboardServiceImpl @Inject()(val keystoreConnector: KeystoreConnector,
                                      val auditConnector: AuditConnector,
                                      val featureFlag: SCRSFeatureSwitches,
                                      val thresholdService: ThresholdService,
-                                     val appConfig: FrontendAppConfig
+                                     val appConfig: AppConfig
                                     ) extends DashboardService {
 
 
@@ -80,7 +80,7 @@ trait DashboardService extends SCRSExceptions with AlertLogging with CommonServi
   val vatBaseUrl: String
   val vatUri: String
   val featureFlag: SCRSFeatureSwitches
-  val appConfig: FrontendAppConfig
+  val appConfig: AppConfig
 
   def toDashboard(s: OtherRegStatus, thresholds: Option[Map[String, Int]])(implicit startURL: String, cancelURL: Call): ServiceDashboard = {
     ServiceDashboard(
@@ -141,15 +141,7 @@ trait DashboardService extends SCRSExceptions with AlertLogging with CommonServi
     }
   }
 
-  def getCurrentPayeThresholds: Map[String, Int] = {
-    val now = SystemDate.getSystemDate
-    val taxYearStart = LocalDate.parse("2020-04-06")
-    if (now.isEqual(taxYearStart) || now.isAfter(taxYearStart)) {
-      Map("weekly" -> 120, "monthly" -> 520, "annually" -> 6240)
-    } else {
-      Map("weekly" -> 118, "monthly" -> 512, "annually" -> 6136)
-    }
-  }
+  def getCurrentPayeThresholds: Map[String, Int] = thresholdService.fetchCurrentPayeThresholds()
 
   private[services] def buildVATDashComponent(regId: String, enrolments: Enrolments)(implicit hc: HeaderCarrier): Future[ServiceDashboard] = {
     implicit val startURL: String = s"$vatBaseUrl$vatUri"
@@ -167,9 +159,8 @@ trait DashboardService extends SCRSExceptions with AlertLogging with CommonServi
     }
   }
 
-  private[services] def getCurrentVatThreshold(implicit hc: HeaderCarrier): Future[String] = {
+  private[services] def getCurrentVatThreshold(implicit hc: HeaderCarrier): Future[String] =
     thresholdService.fetchCurrentVatThreshold
-  }
 
   private[services] def buildIncorpCTDashComponent(regId: String, enrolments : Enrolments)(implicit hc: HeaderCarrier): Future[IncorpAndCTDashboard] = {
     companyRegistrationConnector.retrieveCorporationTaxRegistration(regId) flatMap {

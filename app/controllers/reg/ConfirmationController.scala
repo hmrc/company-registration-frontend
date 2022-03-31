@@ -16,7 +16,7 @@
 
 package controllers.reg
 
-import config.FrontendAppConfig
+import config.AppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthenticatedController
 import forms.errors.DeskproForm
@@ -45,7 +45,7 @@ class ConfirmationController @Inject()(val authConnector: PlayAuthConnector,
                                        confirmationView: ConfirmationView,
                                        submissionFailedView: submissionFailedView,
                                        deskproSubmittedView: deskproSubmittedView
-                                      )(implicit val appConfig: FrontendAppConfig, implicit val ec: ExecutionContext) extends AuthenticatedController with SessionRegistration with CommonService
+                                      )(implicit val appConfig: AppConfig, implicit val ec: ExecutionContext) extends AuthenticatedController with SessionRegistration with CommonService
   with SCRSExceptions with I18nSupport with Logging {
 
   val show: Action[AnyContent] = Action.async { implicit request =>

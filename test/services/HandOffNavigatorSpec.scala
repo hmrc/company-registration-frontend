@@ -16,7 +16,7 @@
 
 package services
 
-import config.FrontendAppConfig
+import config.AppConfig
 import connectors.KeystoreConnector
 import helpers.SCRSSpec
 import mocks.NavModelRepoMock
@@ -46,7 +46,7 @@ class HandOffNavigatorSpec extends SCRSSpec with MockitoSugar with GuiceOneAppPe
 
       override def fetchRegistrationID(implicit hc: HeaderCarrier) = Future.successful("foo")
 
-      override val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+      override val appConfig: AppConfig = app.injector.instanceOf[AppConfig]
 
       override val scrsFeatureSwitches: SCRSFeatureSwitches = mockSCRSFeatureSwitches
 
@@ -60,7 +60,7 @@ class HandOffNavigatorSpec extends SCRSSpec with MockitoSugar with GuiceOneAppPe
 
       override def fetchRegistrationID(implicit hc: HeaderCarrier) = Future.successful("foo")
 
-      override val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+      override val appConfig: AppConfig = app.injector.instanceOf[AppConfig]
       override val scrsFeatureSwitches: SCRSFeatureSwitches = mockSCRSFeatureSwitches
     }
   }

@@ -16,14 +16,14 @@
 
 package controllers.reg
 
-import config.FrontendAppConfig
+import config.AppConfig
 import javax.inject.{Inject, Singleton}
 import play.api.i18n.Messages
 import play.api.mvc.Request
 import views.html.{error_template => errorTemplateView}
 
 @Singleton
-class ControllerErrorHandler @Inject()(error_template: errorTemplateView)(implicit val appConfig: FrontendAppConfig){
+class ControllerErrorHandler @Inject()(error_template: errorTemplateView)(implicit val appConfig: AppConfig){
 
   def defaultErrorPage(implicit request: Request[_], message: Messages) = error_template(
     Messages("global.error.title"),

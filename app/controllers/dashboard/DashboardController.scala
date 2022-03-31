@@ -16,7 +16,7 @@
 
 package controllers.dashboard
 
-import config.FrontendAppConfig
+import config.AppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthenticatedController
 import controllers.reg.ControllerErrorHandler
@@ -39,7 +39,7 @@ class DashboardController @Inject()(val authConnector: PlayAuthConnector,
                                         val controllerErrorHandler: ControllerErrorHandler,
                                         viewDashboard: DashboardView,
                                         viewRegistrationUnsuccessful: RegistrationUnsuccessfulView)
-                                       (implicit val appConfig: FrontendAppConfig, implicit val ec: ExecutionContext) extends AuthenticatedController with CommonService with SCRSExceptions
+                                       (implicit val appConfig: AppConfig, implicit val ec: ExecutionContext) extends AuthenticatedController with CommonService with SCRSExceptions
    with SessionRegistration with I18nSupport with Logging {
   lazy val companiesHouseURL = appConfig.servicesConfig.getConfString("coho-service.sign-in", throw new Exception("Could not find config for coho-sign-in url"))
 

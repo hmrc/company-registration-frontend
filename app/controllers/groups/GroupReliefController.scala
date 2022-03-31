@@ -16,7 +16,7 @@
 
 package controllers.groups
 
-import config.FrontendAppConfig
+import config.AppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthenticatedController
 import controllers.reg.ControllerErrorHandler
@@ -40,7 +40,7 @@ class GroupReliefController @Inject()(val authConnector: PlayAuthConnector,
                                       val controllerComponents: MessagesControllerComponents,
                                       val controllerErrorHandler: ControllerErrorHandler,
                                       view: GroupReliefView
-                                     )(implicit val appConfig: FrontendAppConfig)
+                                     )(implicit val appConfig: AppConfig)
   extends AuthenticatedController with SessionRegistration with I18nSupport {
 
   implicit val ec: ExecutionContext = controllerComponents.executionContext

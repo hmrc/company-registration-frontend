@@ -16,7 +16,7 @@
 
 package controllers.test
 
-import config.FrontendAppConfig
+import config.AppConfig
 import connectors.{CompanyRegistrationConnector, DynamicStubConnector, KeystoreConnector}
 import forms.test.ETMPPost
 import javax.inject.{Inject, Singleton}
@@ -37,7 +37,7 @@ class ETMPNotificationTestController @Inject()(val brdsConnector: DynamicStubCon
                                                mcc: MessagesControllerComponents,
                                                viewEMTPPostView: EMTPPostView,
                                                viewCTUpdatesDisplayView: CTUpdatesDisplayView)
-                                              (implicit val appConfig: FrontendAppConfig, implicit val ec: ExecutionContext)
+                                              (implicit val appConfig: AppConfig, implicit val ec: ExecutionContext)
   extends FrontendController(mcc) with CommonService with SCRSExceptions with I18nSupport {
 
   def show: Action[AnyContent] = Action.async {

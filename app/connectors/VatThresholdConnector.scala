@@ -18,7 +18,7 @@ package connectors
 
 import javax.inject.Inject
 
-import config.{FrontendAppConfig, WSHttp}
+import config.{AppConfig, WSHttp}
 import org.joda.time.LocalDate
 import play.api.Logging
 import play.api.libs.json.{JsNull, JsString}
@@ -30,7 +30,7 @@ import scala.util.control.NoStackTrace
 
 private[connectors] class VatErrorResponse(s: String) extends NoStackTrace
 
-class VatThresholdConnectorImpl @Inject()(appConfig: FrontendAppConfig, val wSHttp: WSHttp) extends VatThresholdConnector {
+class VatThresholdConnectorImpl @Inject()(appConfig: AppConfig, val wSHttp: WSHttp) extends VatThresholdConnector {
   lazy val serviceBaseUrl =  appConfig.servicesConfig.baseUrl("vat-registration")
   lazy val serviceUri = appConfig.servicesConfig.getConfString("vat-registration.uri", "/vatreg")
 }

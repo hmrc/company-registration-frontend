@@ -16,7 +16,7 @@
 
 package connectors
 
-import config.{FrontendAppConfig, WSHttp}
+import config.{AppConfig, WSHttp}
 import javax.inject.Inject
 import models.external.OtherRegStatus
 import play.api.Logging
@@ -26,18 +26,18 @@ import uk.gov.hmrc.http._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class PAYEConnectorImpl @Inject()(val appConfig: FrontendAppConfig, val wSHttp: WSHttp) extends PAYEConnector
+class PAYEConnectorImpl @Inject()(val appConfig: AppConfig, val wSHttp: WSHttp) extends PAYEConnector
 
 trait PAYEConnector extends ServiceConnector {
-  val appConfig: FrontendAppConfig
+  val appConfig: AppConfig
   lazy val serviceBaseUrl = appConfig.servicesConfig.baseUrl("paye-registration")
   lazy val serviceUri = appConfig.servicesConfig.getConfString("paye-registration.uri", "/paye-registration")
 }
 
-class VATConnectorImpl @Inject()(val appConfig: FrontendAppConfig, val wSHttp: WSHttp) extends VATConnector
+class VATConnectorImpl @Inject()(val appConfig: AppConfig, val wSHttp: WSHttp) extends VATConnector
 
 trait VATConnector extends ServiceConnector {
-  val appConfig: FrontendAppConfig
+  val appConfig: AppConfig
   lazy val serviceBaseUrl = appConfig.servicesConfig.baseUrl("vat-registration")
   lazy val serviceUri = appConfig.servicesConfig.getConfString("vat-registration.uri", "/vatreg")
 }

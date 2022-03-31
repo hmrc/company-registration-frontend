@@ -18,7 +18,7 @@ package views
 
 import _root_.helpers.SCRSSpec
 import builders.AuthBuilder
-import config.FrontendAppConfig
+import config.AppConfig
 import controllers.reg.{ControllerErrorHandler, SummaryController}
 import fixtures.{AccountingDetailsFixture, CorporationTaxFixture, SCRSFixtures}
 import mocks.{NavModelRepoMock, TakeoverServiceMock}
@@ -60,7 +60,6 @@ class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixtu
   val testRegiId = "12345"
   lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
   lazy val mockControllerErrorHandler = app.injector.instanceOf[ControllerErrorHandler]
-  lazy val mockFrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
   override lazy val mockSCRSFeatureSwitches = mock[SCRSFeatureSwitches]
   lazy val mockSummaryView = app.injector.instanceOf[SummaryView]
   lazy val mockNavModelRepoObj = app.injector.instanceOf[NavModelRepo]
@@ -83,7 +82,7 @@ class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixtu
       mockSummaryView
     )
     (
-      mockFrontendAppConfig,
+      mockAppConfig,
       global
       )
   }

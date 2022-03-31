@@ -16,7 +16,7 @@
 
 package controllers.healthcheck
 
-import config.FrontendAppConfig
+import config.AppConfig
 import javax.inject.Inject
 import play.api.i18n.I18nSupport
 import play.api.mvc.MessagesControllerComponents
@@ -27,7 +27,7 @@ import views.html.healthcheck.HealthCheck
 class HealthCheckController @Inject()(val scrsFeatureSwitches: SCRSFeatureSwitches,
                                     mcc: MessagesControllerComponents,
                                      view: HealthCheck
-                                    )(implicit val appConfig: FrontendAppConfig) extends FrontendController(mcc) with I18nSupport {
+                                    )(implicit val appConfig: AppConfig) extends FrontendController(mcc) with I18nSupport {
    def healthCheckFeature: Boolean = scrsFeatureSwitches.healthCheck.enabled
 
   def checkHealth(status: Option[Int] = None) = Action {

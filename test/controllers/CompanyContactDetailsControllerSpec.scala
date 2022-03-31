@@ -17,7 +17,7 @@
 package controllers
 
 import builders.AuthBuilder
-import config.FrontendAppConfig
+import config.AppConfig
 import controllers.reg.{CompanyContactDetailsController, ControllerErrorHandler}
 import fixtures.{CompanyContactDetailsFixture, UserDetailsFixture}
 import helpers.SCRSSpec
@@ -38,7 +38,6 @@ class CompanyContactDetailsControllerSpec extends SCRSSpec with UserDetailsFixtu
   with GuiceOneAppPerSuite with AuthBuilder {
 
   lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
-  lazy val mockFrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
   lazy val mockControllerErrorHandler = app.injector.instanceOf[ControllerErrorHandler]
   lazy val mockCompanyContactDetailsView = app.injector.instanceOf[CompanyContactDetailsView]
 
@@ -57,7 +56,7 @@ class CompanyContactDetailsControllerSpec extends SCRSSpec with UserDetailsFixtu
       mockCompanyContactDetailsView
     )
     (
-      mockFrontendAppConfig,
+      mockAppConfig,
       global
     )
   }

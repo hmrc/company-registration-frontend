@@ -19,7 +19,7 @@ package controllers.verification
 import akka.actor.ActorSystem
 import akka.stream.{ActorMaterializer, Materializer}
 import builders.AuthBuilder
-import config.FrontendAppConfig
+import config.AppConfig
 import helpers.SCRSSpec
 import mocks.{CompanyRegistrationConnectorMock, KeystoreMock, SCRSMocks}
 import models.Email
@@ -48,7 +48,7 @@ class EmailVerificationControllerSpec extends SCRSSpec with CompanyRegistrationC
 
   implicit def mat: Materializer = ActorMaterializer()
   lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
-  lazy val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+  lazy val appConfig: AppConfig = app.injector.instanceOf[AppConfig]
   lazy val mockCreateGGWAccount = app.injector.instanceOf[CreateGGWAccount]
   lazy val mockCreateNewGGWAccount = app.injector.instanceOf[CreateNewGGWAccount]
   lazy val mockCreateNewAccount = app.injector.instanceOf[createNewAccount]

@@ -21,7 +21,7 @@
         formWithCsrf: FormWithCSRF,
         inputRadioGroup: inputRadioGroup)
 
-@(cancelSelection : Form[Boolean])(implicit request: Request[_], messages: Messages, appConfig: config.FrontendAppConfig)
+@(cancelSelection : Form[Boolean])(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
 @main_template(title = Messages("page.reg.cancelpaye.description"), mainClass = None){
 

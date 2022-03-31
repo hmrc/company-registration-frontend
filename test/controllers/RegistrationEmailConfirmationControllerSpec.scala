@@ -18,7 +18,7 @@ package controllers
 
 
 import builders.AuthBuilder
-import config.FrontendAppConfig
+import config.AppConfig
 import controllers.reg.RegistrationEmailConfirmationController
 import helpers.SCRSSpec
 import mocks.SCRSMocks
@@ -40,7 +40,7 @@ import scala.concurrent.Future
 class RegistrationEmailConfirmationControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder with SCRSMocks {
 
   class Setup {
-    lazy val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+    lazy val appConfig: AppConfig = app.injector.instanceOf[AppConfig]
     lazy val controllerComponents = app.injector.instanceOf[MessagesControllerComponents]
     lazy val mockConfirmRegistrationEmailView = app.injector.instanceOf[ConfirmRegistrationEmailView]
     

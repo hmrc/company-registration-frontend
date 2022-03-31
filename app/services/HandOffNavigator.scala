@@ -18,7 +18,7 @@ package services
 
 import java.util.NoSuchElementException
 
-import config.FrontendAppConfig
+import config.AppConfig
 import controllers.handoff._
 import models.handoff.{HandOffNavModel, NavLinks, Receiver, Sender}
 import play.api.Logging
@@ -36,7 +36,7 @@ class NavModelNotFoundException(regId: Option[String] = None) extends NoStackTra
 trait HandOffNavigator extends CommonService with SCRSExceptions with Logging {
 
   val scrsFeatureSwitches: SCRSFeatureSwitches
-  val appConfig: FrontendAppConfig
+  val appConfig: AppConfig
 
   lazy val leg = appConfig.selfFullLegacy
   lazy val full = appConfig.selfFull

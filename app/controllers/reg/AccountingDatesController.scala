@@ -16,7 +16,7 @@
 
 package controllers.reg
 
-import config.FrontendAppConfig
+import config.AppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthenticatedController
 import forms.AccountingDatesForm
@@ -41,7 +41,7 @@ class AccountingDatesController @Inject()(val authConnector: PlayAuthConnector,
                                           val controllerComponents: MessagesControllerComponents,
                                           val controllerErrorHandler: ControllerErrorHandler,
                                           view: AccountingDatesView)
-                                         (implicit val appConfig: FrontendAppConfig, implicit val ec: ExecutionContext)
+                                         (implicit val appConfig: AppConfig, implicit val ec: ExecutionContext)
   extends AuthenticatedController with SessionRegistration with I18nSupport {
 
 

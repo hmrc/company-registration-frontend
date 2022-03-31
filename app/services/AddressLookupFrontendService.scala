@@ -16,7 +16,7 @@
 
 package services
 
-import config.FrontendAppConfig
+import config.AppConfig
 import connectors.AddressLookupConnector
 import javax.inject.{Inject, Singleton}
 import models._
@@ -31,13 +31,13 @@ case class QueryStringMissingException() extends NoStackTrace
 
 @Singleton
 class AddressLookupFrontendService @Inject()(addressLookupFrontendConnector: AddressLookupConnector,
-                                             frontendAppConfig: FrontendAppConfig,
+                                             appConfig: AppConfig,
                                              addressLookupConfigBuilderService: AddressLookupConfigBuilderService,
                                              messagesApi: MessagesApi) {
 
-  lazy val addressLookupFrontendURL: String = frontendAppConfig.servicesConfig.baseUrl("address-lookup-frontend")
-  lazy val companyRegistrationFrontendURL: String = frontendAppConfig.self
-  lazy val timeoutInSeconds: Int = frontendAppConfig.timeoutInSeconds.toInt
+  lazy val addressLookupFrontendURL: String = appConfig.servicesConfig.baseUrl("address-lookup-frontend")
+  lazy val companyRegistrationFrontendURL: String = appConfig.self
+  lazy val timeoutInSeconds: Int = appConfig.timeoutInSeconds.toInt
 
   def initialiseAlfJourney(handbackLocation: Call, specificJourneyKey: String, lookupPageHeading: String, confirmPageHeading: String)(implicit hc: HeaderCarrier, messagesProvider: MessagesProvider): Future[String] = {
     val config = addressLookupConfigBuilderService.buildConfig(

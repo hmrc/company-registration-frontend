@@ -26,7 +26,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.filters.FrontendFilters
 import uk.gov.hmrc.play.bootstrap.frontend.http.FrontendErrorHandler
 import views.html.error_template
 
-class SCRSErrorHandler @Inject()(val appConfig: FrontendAppConfig,
+class SCRSErrorHandler @Inject()(val appConfig: AppConfig,
                                   val messagesApi: MessagesApi,
                                  error_template: error_template
                                 ) extends FrontendErrorHandler {

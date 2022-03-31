@@ -16,7 +16,7 @@
 
 package connectors
 
-import config.{FrontendAppConfig, WSHttp}
+import config.{AppConfig, WSHttp}
 import javax.inject.{Inject, Singleton}
 import models.NewAddress
 import play.api.Logging
@@ -26,7 +26,7 @@ import uk.gov.hmrc.http._
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class PrepopAddressConnector @Inject()(appConfig: FrontendAppConfig,
+class PrepopAddressConnector @Inject()(appConfig: AppConfig,
                                        http: WSHttp
                                       )(implicit executionContext: ExecutionContext) extends Logging {
 

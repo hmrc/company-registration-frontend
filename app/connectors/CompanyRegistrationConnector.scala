@@ -18,7 +18,7 @@ package connectors
 
 import javax.inject.Inject
 
-import config.{FrontendAppConfig, WSHttp}
+import config.{AppConfig, WSHttp}
 import models._
 import models.connectors.ConfirmationReferences
 import play.api.Logging
@@ -28,7 +28,7 @@ import uk.gov.hmrc.http._
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class CompanyRegistrationConnectorImpl @Inject()(val appConfig: FrontendAppConfig,
+class CompanyRegistrationConnectorImpl @Inject()(val appConfig: AppConfig,
                                                  val wsHttp: WSHttp) extends CompanyRegistrationConnector {
   lazy val companyRegUrl = appConfig.servicesConfig.baseUrl("company-registration")
 }

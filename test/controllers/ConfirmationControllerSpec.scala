@@ -17,7 +17,7 @@
 package controllers
 
 import builders.AuthBuilder
-import config.FrontendAppConfig
+import config.AppConfig
 import controllers.reg.{ConfirmationController, ControllerErrorHandler}
 import fixtures.CompanyDetailsFixture
 import helpers.SCRSSpec
@@ -43,7 +43,6 @@ class ConfirmationControllerSpec(implicit val messages: Messages) extends SCRSSp
 
   lazy val mockDeskproService = mock[DeskproService]
   lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
-  lazy val mockFrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
   lazy val mockControllerErrorHandler = app.injector.instanceOf[ControllerErrorHandler]
   lazy val mockConfirmationView = app.injector.instanceOf[ConfirmationView]
   lazy val mockSubmissionFailedView = app.injector.instanceOf[submissionFailedView]
@@ -61,7 +60,7 @@ class ConfirmationControllerSpec(implicit val messages: Messages) extends SCRSSp
       mockSubmissionFailedView,
       mockDeskproSubmittedView
     )
-    (mockFrontendAppConfig,global)
+    (mockAppConfig,global)
   }
 
   val regId = "reg12345"

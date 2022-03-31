@@ -17,7 +17,7 @@
 package services
 
 import builders.AuthBuilder
-import config.FrontendAppConfig
+import config.AppConfig
 import fixtures._
 import helpers.SCRSSpec
 import mocks.{KeystoreMock, NavModelRepoMock}
@@ -58,7 +58,7 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
       lazy val timeout = 100
       lazy val timeoutDisplayLength = 30
       override val scrsFeatureSwitches: SCRSFeatureSwitches = mockSCRSFeatureSwitches
-      override val appConfig: FrontendAppConfig = app.injector.instanceOf[FrontendAppConfig]
+      override val appConfig: AppConfig = app.injector.instanceOf[AppConfig]
     }
   }
 

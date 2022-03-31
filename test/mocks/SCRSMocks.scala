@@ -16,7 +16,7 @@
 
 package mocks
 
-import config.FrontendAppConfig
+import config.AppConfig
 import connectors._
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
@@ -61,7 +61,7 @@ trait SCRSMocks extends CompanyContactDetailsServiceMock
   lazy val mockAddressLookupService = mock[AddressLookupFrontendService]
   lazy val mockEmailVerificationConnector = mock[EmailVerificationConnector]
   lazy val mockSendTemplateEmailConnector = mock[SendTemplatedEmailConnector]
-  lazy implicit val mockAppConfig = mock[FrontendAppConfig]
+  lazy implicit val mockAppConfig = mock[AppConfig]
   lazy val mockPAYEConnector = mock[PAYEConnector]
   lazy val mockVATConnector = mock[VATConnector]
   lazy val mockSCRSFeatureSwitches = mock[SCRSFeatureSwitches]

@@ -16,7 +16,7 @@
 
 package controllers.reg
 
-import config.FrontendAppConfig
+import config.AppConfig
 import controllers.auth.AuthenticatedController
 import forms.ReturningUserForm
 import javax.inject.{Inject, Singleton}
@@ -31,7 +31,7 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class ReturningUserController @Inject()(val authConnector: PlayAuthConnector,
                                         val controllerComponents: MessagesControllerComponents,
-                                        view : ReturningUserView)(implicit val ec: ExecutionContext, implicit val appConfig: FrontendAppConfig) extends AuthenticatedController with I18nSupport {
+                                        view : ReturningUserView)(implicit val ec: ExecutionContext, implicit val appConfig: AppConfig) extends AuthenticatedController with I18nSupport {
   lazy val createGGWAccountUrl = appConfig.servicesConfig.getConfString("gg-reg-fe.url", throw new Exception("Could not find config for gg-reg-fe url"))
   lazy val eligBaseUrl = appConfig.servicesConfig.getConfString(
     "company-registration-eligibility-frontend.url-prefix", throw new Exception("Could not find config for key: company-registration-eligibility-frontend.url-prefix")

@@ -16,7 +16,7 @@
 
 package services
 
-import config.FrontendAppConfig
+import config.AppConfig
 import fixtures.{CompanyDetailsFixture, PayloadFixture, SubmissionFixture}
 import helpers.SCRSSpec
 import models.handoff._
@@ -48,7 +48,7 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
       override val jwe = testJwe
       val continueUrl = mock[ContinueUrl]
       override val scrsFeatureSwitches: SCRSFeatureSwitches = mockSCRSFeatureSwitches
-      override val appConfig: FrontendAppConfig = mockAppConfig
+      override val appConfig: AppConfig = mockAppConfig
     }
   }
 

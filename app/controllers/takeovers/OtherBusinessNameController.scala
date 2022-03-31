@@ -16,7 +16,7 @@
 
 package controllers.takeovers
 
-import config.FrontendAppConfig
+import config.AppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthenticatedController
 import controllers.reg.ControllerErrorHandler
@@ -44,7 +44,7 @@ class OtherBusinessNameController @Inject()(val authConnector: PlayAuthConnector
                                             val controllerComponents: MessagesControllerComponents,
                                             val controllerErrorHandler: ControllerErrorHandler,
                                             view: OtherBusinessNameView
-                                           )(implicit val appConfig: FrontendAppConfig,
+                                           )(implicit val appConfig: AppConfig,
                                              val ec: ExecutionContext
                                            ) extends AuthenticatedController with SessionRegistration with I18nSupport {
 

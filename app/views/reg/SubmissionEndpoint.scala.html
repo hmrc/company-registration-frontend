@@ -23,7 +23,7 @@
         formWithCSRF: FormWithCSRF,
         input: input)
 
-@(submissionForm: Form[SubmissionModel])(implicit request: Request[_], messages: Messages, appConfig: config.FrontendAppConfig)
+@(submissionForm: Form[SubmissionModel])(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
 @main_template(title = Messages(""), mainClass = Some("full-width")) {
 
