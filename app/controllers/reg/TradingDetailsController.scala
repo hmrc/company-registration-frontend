@@ -55,7 +55,7 @@ class TradingDetailsController @Inject()(val authConnector: PlayAuthConnector,
 
   val submit = Action.async { implicit request =>
     ctAuthorised {
-      registered { a =>
+      registered { _ =>
         TradingDetailsForm.form.bindFromRequest.fold(
           errors => Future.successful(BadRequest(view(errors))),
           payments => {
