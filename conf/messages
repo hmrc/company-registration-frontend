@@ -160,7 +160,7 @@ page.reg.ct61.radioNoLabel                                          = No
 page.reg.ct61.radioNoText                                           = To understand when your company may need to account for Income Tax in the future, it is best to speak to an accountant.
 page.reg.ct61.radioYesLabel                                         = Yes
 page.reg.ct61.radioYesText                                          = You may need to report these payments to HM Revenue & Customs (HMRC) using form CT61. After the company is set up, we will send you the form. If you are not sure about what to include on it, speak to an accountant.
-error.regularPayments.required                                      = Tell us if the company will do one of these things in its first 3 months
+error.regularPayments.required                                      = Select yes if the company will account for Income Tax in its first 3 months
 
 ## Summary Page
 page.reg.summary.description                                        = Check and confirm your answers
@@ -497,12 +497,12 @@ page.groups.groupRelief.dropdownTitle                                  = What is
 page.groups.groupRelief.dropdownText                                   = Any company that is a member of a group for group relief purposes may claim or surrender losses and other amounts to or from other members of that group to reduce their Corporation Tax liability.
 page.groups.groupRelief.yesLabel                                       = Yes
 page.groups.groupRelief.noLabel                                        = No
-error.groupRelief.required                                             = Tell us whether for Corporation Tax, the new company will be in the same group for group relief purposes as the company that owns it
+error.groupRelief.required                                             = Select yes if the new company will be in the same group as its owner, for group relief purposes
 
 page.groups.groupName.title                                            = What is the name of the owning company?
 page.groups.groupName.heading                                          = What is the name of the owning company?
 page.groups.groupName.somethingElse                                    = Something else
-error.groupName.required                                               = Tell us the owning company''s name
+error.groupName.required                                               = Enter the name of the owner company
 page.groups.groupName.enterName                                        = Enter the company name
 page.groups.groupName.noCompanyNameEntered                             = Enter the owning company''s name
 page.groups.groupName.20CharsOrLess                                    = Enter the name using 20 characters or less
