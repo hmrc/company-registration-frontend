@@ -180,8 +180,6 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
     }
   }
 
-  def mockPayeFeature(enable: Boolean) = when(mockfeatureFlag.paye).thenReturn(BooleanFeatureSwitch("paye", enabled = enable))
-
   def mockVatFeature(enable: Boolean) = when(mockfeatureFlag.vat).thenReturn(BooleanFeatureSwitch("vat", enabled = enable))
 
   def ctEnrolment(id: String, active: Boolean) = Enrolments(Set(Enrolment("IR-CT", Seq(EnrolmentIdentifier("UTR", id)), if (active) "activated" else "other")))
@@ -203,14 +201,12 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
 
     val payeDash = ServiceDashboard("", None, None, ServiceLinks(payeUrl, "OTRS url", None, Some("/register-your-company/cancel-paye")), Some(payeThresholds))
     val payeStatus = OtherRegStatus("", None, None, Some("foo"), None)
-    val vatDash = ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
     val vatDashOTRS = ServiceDashboard("notEnabled", None, None, ServiceLinks("test/vat-uri", "OTRS url", None, None), Some(vatThresholds))
 
 
     "return a CouldNotBuild DashboardStatus when the status of the registration is draft" in new SetupWithDash(draftDash) {
       getStatusMock(regId)(SuccessfulResponse(payeStatus))
 
-      mockPayeFeature(true)
       mockVatFeature(false)
       val res = await(service.buildDashboard(regId, noEnrolments))
       res shouldBe CouldNotBuild
@@ -219,7 +215,6 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
     "return a RejectedIncorp DashboardStatus when the status of the registration is rejected" in new SetupWithDash(rejectedDash) {
       getStatusMock(regId)(SuccessfulResponse(payeStatus))
 
-      mockPayeFeature(true)
       mockVatFeature(false)
       val res = await(service.buildDashboard(regId, noEnrolments))
       res shouldBe RejectedIncorp
@@ -229,7 +224,6 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
       getStatusMock(regId)(SuccessfulResponse(payeStatus))
       when(mockThresholdService.fetchCurrentPayeThresholds()).thenReturn(Map("weekly" -> 120, "monthly" -> 520, "annually" -> 6240))
 
-      mockPayeFeature(true)
       mockVatFeature(false)
       val res = await(service.buildDashboard(regId, vatEnrolment))
       res shouldBe DashboardBuilt(Dashboard("", heldDash, payeDash, vatDashOTRS, hasVATCred = true))
@@ -302,7 +296,6 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
     "return a Status when one is fetched from paye-registration with cancelURL" in new Setup {
       val payeStatus = OtherRegStatus("held", None, None, Some("foo"), None)
       val payeDash = ServiceDashboard("held", None, None, ServiceLinks(payeUrl, testOtrsUrl, None, Some("/register-your-company/cancel-paye")), Some(payeThresholds))
-      mockPayeFeature(true)
       getStatusMock(regId)(SuccessfulResponse(payeStatus))
       when(mockThresholdService.fetchCurrentPayeThresholds()).thenReturn(Map("weekly" -> 120, "monthly" -> 520, "annually" -> 6240))
 
@@ -313,7 +306,6 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
     "return a Status when one is fetched from paye-registration with restartURL" in new Setup {
       val payeStatus = OtherRegStatus("rejected", None, None, None, Some("bar"))
       val payeDash = ServiceDashboard("rejected", None, None, ServiceLinks(payeUrl, testOtrsUrl, Some("bar"), None), Some(payeThresholds))
-      mockPayeFeature(true)
       getStatusMock(regId)(SuccessfulResponse(payeStatus))
       when(mockThresholdService.fetchCurrentPayeThresholds()).thenReturn(Map("weekly" -> 120, "monthly" -> 520, "annually" -> 6240))
 
@@ -323,7 +315,6 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
 
     "return an ineligible Status when nothing is fetched from paye-registration and the user already has a PAYE enrolment" in new Setup {
       val payeDash = ServiceDashboard(Statuses.NOT_ELIGIBLE, None, None, payeLinks, Some(payeThresholds))
-      mockPayeFeature(true)
       getStatusMock(regId)(NotStarted)
       when(mockThresholdService.fetchCurrentPayeThresholds()).thenReturn(Map("weekly" -> 120, "monthly" -> 520, "annually" -> 6240))
 
@@ -333,7 +324,6 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
 
     "return a not started Status when nothing is fetched from paye-registration and the user does not have a PAYE enrolment" in new Setup {
       val payeDash = ServiceDashboard(Statuses.NOT_STARTED, None, None, payeLinks, Some(payeThresholds))
-      mockPayeFeature(true)
       getStatusMock(regId)(NotStarted)
       when(mockThresholdService.fetchCurrentPayeThresholds()).thenReturn(Map("weekly" -> 120, "monthly" -> 520, "annually" -> 6240))
 
@@ -343,20 +333,10 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
 
     "return a not started Status when nothing is fetched from paye-registration and the user does not have a PAYE enrolment but has a IR-CT enrolement" in new Setup {
       val payeDash = ServiceDashboard(Statuses.NOT_STARTED, None, None, payeLinks, Some(payeThresholds))
-      mockPayeFeature(true)
       getStatusMock(regId)(NotStarted)
       when(mockThresholdService.fetchCurrentPayeThresholds()).thenReturn(Map("weekly" -> 120, "monthly" -> 520, "annually" -> 6240))
 
       val result = await(service.buildPAYEDashComponent(regId, ctEnrolment("1234567890", true)))
-      result shouldBe payeDash
-    }
-
-    "return a not enabled Status when the paye feature is turned off" in new Setup {
-      val payeDash = ServiceDashboard(Statuses.NOT_ENABLED, None, None, payeLinks, None)
-      mockPayeFeature(false)
-      when(mockThresholdService.fetchCurrentPayeThresholds()).thenReturn(Map("weekly" -> 120, "monthly" -> 520, "annually" -> 6240))
-
-      val result = await(service.buildPAYEDashComponent(regId, noEnrolments))
       result shouldBe payeDash
     }
   }

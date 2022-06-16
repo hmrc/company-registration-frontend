@@ -72,7 +72,7 @@ class ReplacingAnotherBusinessControllerSpec extends SCRSSpec with GuiceOneAppPe
         "return 200 with the replacing another business page" in new Setup {
           mockAuthorisedUser(Future.successful({}))
           mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
-          mockTakeoversFeatureSwitch(isEnabled = true)
+
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
           mockGetTakeoverDetails(testRegistrationId)(Future.successful(None))
 
@@ -88,7 +88,7 @@ class ReplacingAnotherBusinessControllerSpec extends SCRSSpec with GuiceOneAppPe
         "return 200 with the replacing another business page" in new Setup {
           mockAuthorisedUser(Future.successful({}))
           mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
-          mockTakeoversFeatureSwitch(isEnabled = true)
+
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
           val testTakeoverDetails: TakeoverDetails = TakeoverDetails(replacingAnotherBusiness = true)
@@ -100,16 +100,6 @@ class ReplacingAnotherBusinessControllerSpec extends SCRSSpec with GuiceOneAppPe
           bodyOf(res) shouldBe page(ReplacingAnotherBusinessForm.form.fill(testTakeoverDetails.replacingAnotherBusiness)).body
 
         }
-      }
-    }
-    "the feature switch is disabled" should {
-      "throw a NotFoundException" in new Setup {
-        mockAuthorisedUser(Future.successful({}))
-        mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
-        CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
-        mockTakeoversFeatureSwitch(isEnabled = false)
-
-        intercept[NotFoundException](await(TestReplacingAnotherBusinessController.show(request)))
       }
     }
   }

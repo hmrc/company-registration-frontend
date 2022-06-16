@@ -18,21 +18,19 @@ package controllers.takeovers
 
 import config.AppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
+import controllers.reg.{ routes => regRoutes}
 import controllers.auth.AuthenticatedController
 import controllers.reg.ControllerErrorHandler
-import controllers.reg.routes.AccountingDatesController
-import controllers.takeovers.routes.OtherBusinessNameController
 import forms.takeovers.ReplacingAnotherBusinessForm
-import javax.inject.{Inject, Singleton}
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.TakeoverService
 import uk.gov.hmrc.auth.core.PlayAuthConnector
-import uk.gov.hmrc.http.NotFoundException
 import utils.{SCRSFeatureSwitches, SessionRegistration}
 import views.html.takeovers.{ReplacingAnotherBusiness => ReplacingAnotherBusinessView}
 
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
@@ -50,20 +48,16 @@ class ReplacingAnotherBusinessController @Inject()(val authConnector: PlayAuthCo
   val show: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
       checkStatus { regId =>
-        if (scrsFeatureSwitches.takeovers.enabled) {
-          for {
-            optTakeoverInformation <- takeoverService.getTakeoverDetails(regId)
-          } yield {
-            val form: Form[Boolean] = optTakeoverInformation match {
-              case Some(takeoverDetails) =>
-                ReplacingAnotherBusinessForm.form.fill(takeoverDetails.replacingAnotherBusiness)
-              case None =>
-                ReplacingAnotherBusinessForm.form
-            }
-            Ok(view(form))
+        for {
+          optTakeoverInformation <- takeoverService.getTakeoverDetails(regId)
+        } yield {
+          val form: Form[Boolean] = optTakeoverInformation match {
+            case Some(takeoverDetails) =>
+              ReplacingAnotherBusinessForm.form.fill(takeoverDetails.replacingAnotherBusiness)
+            case None =>
+              ReplacingAnotherBusinessForm.form
           }
-        } else {
-          Future.failed(new NotFoundException("Takeovers feature switch was not enabled."))
+          Ok(view(form))
         }
       }
     }
@@ -79,9 +73,9 @@ class ReplacingAnotherBusinessController @Inject()(val authConnector: PlayAuthCo
             takeoverService.updateReplacingAnotherBusiness(regId, replacingAnotherBusiness) map {
               _ =>
                 if (replacingAnotherBusiness) {
-                  Redirect(OtherBusinessNameController.show)
+                  Redirect(routes.OtherBusinessNameController.show)
                 } else {
-                  Redirect(AccountingDatesController.show)
+                  Redirect(regRoutes.AccountingDatesController.show)
                 }
             }
         )

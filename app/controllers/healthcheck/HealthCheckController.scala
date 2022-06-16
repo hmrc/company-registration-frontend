@@ -24,18 +24,11 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SCRSFeatureSwitches
 import views.html.healthcheck.HealthCheck
 
-class HealthCheckController @Inject()(val scrsFeatureSwitches: SCRSFeatureSwitches,
-                                    mcc: MessagesControllerComponents,
+class HealthCheckController @Inject()(mcc: MessagesControllerComponents,
                                      view: HealthCheck
                                     )(implicit val appConfig: AppConfig) extends FrontendController(mcc) with I18nSupport {
-   def healthCheckFeature: Boolean = scrsFeatureSwitches.healthCheck.enabled
 
-  def checkHealth(status: Option[Int] = None) = Action {
-    implicit request =>
-      (if (healthCheckFeature) {
-        Ok
-      } else {
-        status.fold(ServiceUnavailable)(new Status(_))
-      }) (view())
+  def checkHealth() = Action {
+    implicit request => Ok(view())
   }
 }

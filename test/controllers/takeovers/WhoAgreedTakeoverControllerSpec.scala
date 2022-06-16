@@ -76,7 +76,7 @@ class WhoAgreedTakeoverControllerSpec extends SCRSSpec
         "return 303 with a redirect to replacing another business controller" in {
           mockAuthorisedUser(Future.successful({}))
           mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
-          mockTakeoversFeatureSwitch(isEnabled = true)
+
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
           mockGetTakeoverDetails(testRegistrationId)(Future.successful(None))
@@ -92,7 +92,7 @@ class WhoAgreedTakeoverControllerSpec extends SCRSSpec
         "return 303 with a redirect to accounting dates controller" in {
           mockAuthorisedUser(Future.successful({}))
           mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
-          mockTakeoversFeatureSwitch(isEnabled = true)
+
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
           mockGetTakeoverDetails(testRegistrationId)(Future.successful(Some(TakeoverDetails(replacingAnotherBusiness = false))))
@@ -108,7 +108,7 @@ class WhoAgreedTakeoverControllerSpec extends SCRSSpec
         "return 303 with a redirect to other business name page" in {
           mockAuthorisedUser(Future.successful({}))
           mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
-          mockTakeoversFeatureSwitch(isEnabled = true)
+
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
           mockGetTakeoverDetails(testRegistrationId)(Future.successful(Some(TakeoverDetails(replacingAnotherBusiness = true))))
@@ -124,7 +124,7 @@ class WhoAgreedTakeoverControllerSpec extends SCRSSpec
         "return 303 with a redirect to other business address page" in {
           mockAuthorisedUser(Future.successful({}))
           mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
-          mockTakeoversFeatureSwitch(isEnabled = true)
+
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
           mockGetTakeoverDetails(testRegistrationId)(Future.successful(Some(
@@ -145,7 +145,7 @@ class WhoAgreedTakeoverControllerSpec extends SCRSSpec
         "return 200 with the who agreed takeover page" in {
           mockAuthorisedUser(Future.successful({}))
           mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
-          mockTakeoversFeatureSwitch(isEnabled = true)
+
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
           mockGetTakeoverDetails(testRegistrationId)(Future.successful(Some(
@@ -167,7 +167,7 @@ class WhoAgreedTakeoverControllerSpec extends SCRSSpec
         "return 200 with the who agreed takeover page" in {
           mockAuthorisedUser(Future.successful({}))
           mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
-          mockTakeoversFeatureSwitch(isEnabled = true)
+
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
           mockGetTakeoverDetails(testRegistrationId)(Future.successful(Some(
@@ -186,17 +186,6 @@ class WhoAgreedTakeoverControllerSpec extends SCRSSpec
         }
       }
     }
-
-    "the feature switch is disabled" should {
-      "throw a NotFoundException" in {
-        mockAuthorisedUser(Future.successful({}))
-        mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
-        CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
-        mockTakeoversFeatureSwitch(isEnabled = false)
-
-        intercept[NotFoundException](await(TestWhoAgreedTakeoverController.show(request)))
-      }
-    }
   }
 
   "submit" when {
@@ -206,7 +195,7 @@ class WhoAgreedTakeoverControllerSpec extends SCRSSpec
           mockAuthorisedUser(Future.successful({}))
           mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
-          mockTakeoversFeatureSwitch(isEnabled = true)
+
 
           mockGetTakeoverDetails(testRegistrationId)(Future.successful(Some(
             TakeoverDetails(
@@ -239,7 +228,7 @@ class WhoAgreedTakeoverControllerSpec extends SCRSSpec
           mockAuthorisedUser(Future.successful({}))
           mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
-          mockTakeoversFeatureSwitch(isEnabled = true)
+
 
           mockGetTakeoverDetails(testRegistrationId)(Future.successful(Some(
             TakeoverDetails(
@@ -262,7 +251,7 @@ class WhoAgreedTakeoverControllerSpec extends SCRSSpec
           mockAuthorisedUser(Future.successful({}))
           mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
-          mockTakeoversFeatureSwitch(isEnabled = true)
+
 
           mockGetTakeoverDetails(testRegistrationId)(Future.successful(Some(
             TakeoverDetails(
@@ -286,7 +275,7 @@ class WhoAgreedTakeoverControllerSpec extends SCRSSpec
           mockAuthorisedUser(Future.successful({}))
           mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
-          mockTakeoversFeatureSwitch(isEnabled = true)
+
 
           mockGetTakeoverDetails(testRegistrationId)(Future.successful(Some(
             TakeoverDetails(

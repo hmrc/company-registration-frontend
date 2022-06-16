@@ -57,38 +57,34 @@ class PreviousOwnersAddressController @Inject()(val authConnector: PlayAuthConne
     ctAuthorised {
       checkStatus {
         regId =>
-          if (scrsFeatureSwitches.takeovers.enabled) {
-            takeoverService.getTakeoverDetails(regId).flatMap {
-              case Some(TakeoverDetails(false, _, _, _, _)) =>
-                Future.successful(Redirect(regRoutes.AccountingDatesController.show))
-              case Some(TakeoverDetails(_, None, _, _, _)) =>
-                Future.successful(Redirect(routes.OtherBusinessNameController.show))
-              case Some(TakeoverDetails(_, _, None, _, _)) =>
-                Future.successful(Redirect(routes.OtherBusinessAddressController.show))
-              case Some(TakeoverDetails(_, _, _, None, _)) =>
-                Future.successful(Redirect(routes.WhoAgreedTakeoverController.show))
-              case Some(TakeoverDetails(_, _, _, Some(previousOwnersName), optPreviousOwnerHomeAddress)) =>
-                addressPrepopulationService.retrieveAddresses(regId).map {
-                  addressSeq =>
-                    val prepopulatedForm = addressSeq.zipWithIndex.collectFirst {
-                      case (preselectedAddress, index) if optPreviousOwnerHomeAddress.exists(address => address isEqualTo preselectedAddress) =>
-                        index
-                    } match {
-                      case Some(index) =>
-                        HomeAddressForm.form(addressSeq.length).fill(PreselectedAddress(index))
-                      case None =>
-                        HomeAddressForm.form(addressSeq.length)
-                    }
 
-                    Ok(view(prepopulatedForm, previousOwnersName, addressSeq))
-                      .addingToSession(addressSeqKey -> Json.toJson(addressSeq).toString())
-                }
-              case None =>
-                Future.successful(Redirect(routes.ReplacingAnotherBusinessController.show))
-            }
-          }
-          else {
-            Future.failed(new NotFoundException("Takeovers feature switch was not enabled."))
+          takeoverService.getTakeoverDetails(regId).flatMap {
+            case Some(TakeoverDetails(false, _, _, _, _)) =>
+              Future.successful(Redirect(regRoutes.AccountingDatesController.show))
+            case Some(TakeoverDetails(_, None, _, _, _)) =>
+              Future.successful(Redirect(routes.OtherBusinessNameController.show))
+            case Some(TakeoverDetails(_, _, None, _, _)) =>
+              Future.successful(Redirect(routes.OtherBusinessAddressController.show))
+            case Some(TakeoverDetails(_, _, _, None, _)) =>
+              Future.successful(Redirect(routes.WhoAgreedTakeoverController.show))
+            case Some(TakeoverDetails(_, _, _, Some(previousOwnersName), optPreviousOwnerHomeAddress)) =>
+              addressPrepopulationService.retrieveAddresses(regId).map {
+                addressSeq =>
+                  val prepopulatedForm = addressSeq.zipWithIndex.collectFirst {
+                    case (preselectedAddress, index) if optPreviousOwnerHomeAddress.exists(address => address isEqualTo preselectedAddress) =>
+                      index
+                  } match {
+                    case Some(index) =>
+                      HomeAddressForm.form(addressSeq.length).fill(PreselectedAddress(index))
+                    case None =>
+                      HomeAddressForm.form(addressSeq.length)
+                  }
+
+                  Ok(view(prepopulatedForm, previousOwnersName, addressSeq))
+                    .addingToSession(addressSeqKey -> Json.toJson(addressSeq).toString())
+              }
+            case None =>
+              Future.successful(Redirect(routes.ReplacingAnotherBusinessController.show))
           }
       }
     }

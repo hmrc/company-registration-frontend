@@ -87,8 +87,6 @@ class BusinessActivitiesControllerSpec extends SCRSSpec with PayloadFixture with
       val payload = validEncryptedBusinessActivities(jweInstance())
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
 
-
-
       when(mockHandOffService.buildBusinessActivitiesPayload(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some("testUrl" -> payload)))
 

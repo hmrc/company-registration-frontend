@@ -73,7 +73,7 @@ class OtherBusinessNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
         "return 303 with a redirect to replacing another business controller" in new Setup {
           mockAuthorisedUser(Future.successful({}))
           mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
-          mockTakeoversFeatureSwitch(isEnabled = true)
+
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
           mockGetTakeoverDetails(testRegistrationId)(Future.successful(None))
@@ -89,7 +89,7 @@ class OtherBusinessNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
         "return 303 with a redirect to accounting dates controller" in new Setup {
           mockAuthorisedUser(Future.successful({}))
           mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
-          mockTakeoversFeatureSwitch(isEnabled = true)
+
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
           val testTakeoverDetails: TakeoverDetails = TakeoverDetails(replacingAnotherBusiness = false)
@@ -106,7 +106,7 @@ class OtherBusinessNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
         "return 200 with the other business name page" in new Setup {
           mockAuthorisedUser(Future.successful({}))
           mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
-          mockTakeoversFeatureSwitch(isEnabled = true)
+
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
           val testTakeoverDetails: TakeoverDetails = TakeoverDetails(replacingAnotherBusiness = true, None)
@@ -123,7 +123,7 @@ class OtherBusinessNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
         "return 200 with the other business name page" in new Setup {
           mockAuthorisedUser(Future.successful({}))
           mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
-          mockTakeoversFeatureSwitch(isEnabled = true)
+
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
           val testTakeoverDetails: TakeoverDetails = TakeoverDetails(replacingAnotherBusiness = true, Some(testBusinessName))
@@ -136,17 +136,6 @@ class OtherBusinessNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
         }
       }
     }
-
-    "the feature switch is disabled" should {
-      "throw a NotFoundException" in new Setup {
-        mockAuthorisedUser(Future.successful({}))
-        mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
-        CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
-        mockTakeoversFeatureSwitch(isEnabled = false)
-
-        intercept[NotFoundException](await(TestOtherBusinessNameController.show(request)))
-      }
-    }
   }
 
   "submit" when {
@@ -156,7 +145,7 @@ class OtherBusinessNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
           mockAuthorisedUser(Future.successful({}))
           mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
-          mockTakeoversFeatureSwitch(isEnabled = true)
+
 
           override implicit val request: Request[AnyContentAsFormUrlEncoded] =
             FakeRequest().withFormUrlEncodedBody(otherBusinessNameKey -> testBusinessName)
@@ -176,7 +165,7 @@ class OtherBusinessNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
           mockAuthorisedUser(Future.successful({}))
           mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
-          mockTakeoversFeatureSwitch(isEnabled = true)
+
 
           override val testBusinessName: String = ""
           override implicit val request: Request[AnyContentAsFormUrlEncoded] =
@@ -193,7 +182,7 @@ class OtherBusinessNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
           mockAuthorisedUser(Future.successful({}))
           mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
-          mockTakeoversFeatureSwitch(isEnabled = true)
+
 
           override val testBusinessName: String = "test©Æф"
           override implicit val request: Request[AnyContentAsFormUrlEncoded] =
@@ -210,7 +199,7 @@ class OtherBusinessNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
           mockAuthorisedUser(Future.successful({}))
           mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
-          mockTakeoversFeatureSwitch(isEnabled = true)
+
 
           override val testBusinessName: String = "01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890"
           override implicit val request: Request[AnyContentAsFormUrlEncoded] =

@@ -21,52 +21,22 @@ import helpers.SCRSSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
-import utils.SCRSFeatureSwitches
 import views.html.healthcheck.HealthCheck
 
 class HealthCheckControllerSpec extends SCRSSpec with GuiceOneAppPerSuite {
 
   val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
   val view = app.injector.instanceOf[HealthCheck]
-  val fs = app.injector.instanceOf[SCRSFeatureSwitches]
-  class Setup(featureEnabled: Boolean = false) {
-    val controller = new HealthCheckController(fs ,mockMcc, view) {
-      override def healthCheckFeature: Boolean = featureEnabled
-
+  class Setup() {
+    val controller = new HealthCheckController(mockMcc, view) {
       implicit override val appConfig: AppConfig = app.injector.instanceOf[AppConfig]
     }
   }
 
   "calling any route" should {
     "return OK" when {
-      "feature flag is off" in new Setup(true) {
+      "checking health" in new Setup() {
         status(controller.checkHealth()(FakeRequest())) shouldBe 200
-      }
-      "feature flag is on and query string is OK" in new Setup {
-        status(controller.checkHealth(Some(200))(FakeRequest())) shouldBe 200
-      }
-    }
-    "feature flag is on" when {
-      "return ServiceUnavailable when no query is provided" in new Setup {
-        status(controller.checkHealth()(FakeRequest())) shouldBe 503
-      }
-      "return when ServiceUnavailable specified in the query" in new Setup {
-        status(controller.checkHealth(Some(503))(FakeRequest())) shouldBe 503
-      }
-      "return any given input" in new Setup {
-        val statuses = List(
-          404,
-          400,
-          500,
-          502,
-          501,
-          999999,
-          -1
-        )
-
-        statuses foreach { code =>
-          status(controller.checkHealth(Some(code))(FakeRequest())) shouldBe code
-        }
       }
     }
   }

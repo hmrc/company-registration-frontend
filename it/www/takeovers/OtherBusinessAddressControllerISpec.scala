@@ -62,7 +62,6 @@ class OtherBusinessAddressControllerISpec extends IntegrationSpecBase
     "display the page" in {
       stubAuthorisation()
       stubKeystore(SessionId, testRegId)
-      setupFeatures(takeovers = true)
       stubGet(s"/company-registration/corporation-tax-registration/$testRegId/corporation-tax-registration", 200, statusResponseFromCR())
       stubGetTakeoverDetails(testRegId, OK, Some(testTakeoverDetails))
       stubRetrieveCRCompanyDetails(testRegId, OK, Json.toJson(testCompanyDetails).toString())
@@ -80,7 +79,6 @@ class OtherBusinessAddressControllerISpec extends IntegrationSpecBase
     "display and prepop the page" in {
       stubAuthorisation()
       stubKeystore(SessionId, testRegId)
-      setupFeatures(takeovers = true)
       stubGet(s"/company-registration/corporation-tax-registration/$testRegId/corporation-tax-registration", 200, statusResponseFromCR())
       stubGetTakeoverDetails(testRegId, OK, Some(testTakeoverDetails.copy(businessTakeoverAddress = Some(testBusinessAddress))))
       stubRetrieveCRCompanyDetails(testRegId, OK, Json.toJson(testCompanyDetails).toString())
@@ -101,7 +99,6 @@ class OtherBusinessAddressControllerISpec extends IntegrationSpecBase
     "redirect to who agreed takeover page" in {
       stubAuthorisation()
       stubKeystore(SessionId, testRegId)
-      setupFeatures(takeovers = true)
       stubGet(s"/company-registration/corporation-tax-registration/$testRegId/corporation-tax-registration", 200, statusResponseFromCR())
       stubGetTakeoverDetails(testRegId, OK, Some(testTakeoverDetails))
       stubPutTakeoverDetails(testRegId, OK, testTakeoverDetails.copy(businessTakeoverAddress = Some(testBusinessAddress)))
@@ -125,7 +122,6 @@ class OtherBusinessAddressControllerISpec extends IntegrationSpecBase
     "redirect to ALF" in {
       stubAuthorisation()
       stubKeystore(SessionId, testRegId)
-      setupFeatures(takeovers = true)
       stubGet(s"/company-registration/corporation-tax-registration/$testRegId/corporation-tax-registration", 200, statusResponseFromCR())
       stubGetTakeoverDetails(testRegId, OK, Some(testTakeoverDetails))
       stubInitAlfJourney(redirectLocation = "/test")
@@ -223,7 +219,6 @@ class OtherBusinessAddressControllerISpec extends IntegrationSpecBase
 
       stubAuthorisation()
       stubKeystore(SessionId, testRegId)
-      setupFeatures(takeovers = true)
       stubGet(s"/company-registration/corporation-tax-registration/$testRegId/corporation-tax-registration", 200, statusResponseFromCR())
       stubGetTakeoverDetails(testRegId, OK, Some(testTakeoverDetails))
       stubPutTakeoverDetails(testRegId, OK, testTakeoverDetails.copy(businessTakeoverAddress = Some(testBusinessAddress.copy(postcode = None))))

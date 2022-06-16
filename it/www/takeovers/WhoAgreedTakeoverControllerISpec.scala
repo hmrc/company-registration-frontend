@@ -50,7 +50,6 @@ class WhoAgreedTakeoverControllerISpec extends IntegrationSpecBase with LoginStu
     "display the page" in {
       stubAuthorisation()
       stubKeystore(SessionId, testRegId)
-      setupFeatures(takeovers = true)
       stubGet(s"/company-registration/corporation-tax-registration/$testRegId/corporation-tax-registration", 200, statusResponseFromCR())
       stubGetTakeoverDetails(testRegId, OK, Some(testTakeoverDetails))
 
@@ -63,7 +62,6 @@ class WhoAgreedTakeoverControllerISpec extends IntegrationSpecBase with LoginStu
     "display and prepop the page" in {
       stubAuthorisation()
       stubKeystore(SessionId, testRegId)
-      setupFeatures(takeovers = true)
       stubGet(s"/company-registration/corporation-tax-registration/$testRegId/corporation-tax-registration", 200, statusResponseFromCR())
       stubGetTakeoverDetails(testRegId, OK, Some(testTakeoverDetails.copy(previousOwnersName = Some(testPreviousOwnersName))))
 
@@ -80,7 +78,6 @@ class WhoAgreedTakeoverControllerISpec extends IntegrationSpecBase with LoginStu
     "update the takeover block and redirect to previous owners address page" in {
       stubAuthorisation()
       stubKeystore(SessionId, testRegId)
-      setupFeatures(takeovers = true)
       stubGet(s"/company-registration/corporation-tax-registration/$testRegId/corporation-tax-registration", 200, statusResponseFromCR())
       stubGetTakeoverDetails(testRegId, OK, Some(testTakeoverDetails))
       stubPutTakeoverDetails(testRegId, OK, testTakeoverDetails.copy(previousOwnersName = Some(testPreviousOwnersName)))

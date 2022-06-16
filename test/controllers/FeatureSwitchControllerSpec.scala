@@ -68,37 +68,6 @@ class FeatureSwitchControllerSpec extends SCRSSpec with GuiceOneAppPerSuite {
       bodyOf(await(result)) shouldBe "BooleanFeatureSwitch(cohoFirstHandOff,true)"
     }
 
-    "return a Business Activities hand-off feature state set to false when we specify stub" in new Setup {
-      val featureName = "businessActivitiesHandOff"
-      val featureState = "stub"
-      when(mockSCRSFeatureSwitches.apply(ArgumentMatchers.any[String])).thenReturn(Some(BooleanFeatureSwitch("businessActivitiesHandOff", false)))
-      when(mockFeatureSwitchManager.disable(ArgumentMatchers.any())).thenReturn(BooleanFeatureSwitch("businessActivitiesHandOff", false))
-      val result = controller.handOffFeatureSwitch(featureName, featureState)(FakeRequest())
-      status(result) shouldBe OK
-      bodyOf(await(result)) shouldBe "BooleanFeatureSwitch(businessActivitiesHandOff,false)"
-    }
-
-    "return a Business Activities handoff feature state set to true when we specify coho" in new Setup {
-      val featureName = "businessActivitiesHandOff"
-      val featureState = "coho"
-      when(mockSCRSFeatureSwitches.apply(ArgumentMatchers.any[String])).thenReturn(Some(BooleanFeatureSwitch("businessActivitiesHandOff", true)))
-      when(mockFeatureSwitchManager.enable(ArgumentMatchers.any())).thenReturn(BooleanFeatureSwitch("businessActivitiesHandOff", true))
-      val result = controller.handOffFeatureSwitch(featureName, featureState)(FakeRequest())
-      status(result) shouldBe OK
-      bodyOf(await(result)) shouldBe "BooleanFeatureSwitch(businessActivitiesHandOff,true)"
-    }
-
-
-    "return a Business Activities hand-off feature state set to false as a default when we specify xxxx" in new Setup {
-      val featureName = "businessActivitiesHandOff"
-      val featureState = "xxxx"
-      when(mockSCRSFeatureSwitches.apply(ArgumentMatchers.any[String])).thenReturn(Some(BooleanFeatureSwitch("businessActivitiesHandOff", false)))
-      when(mockFeatureSwitchManager.disable(ArgumentMatchers.any())).thenReturn(BooleanFeatureSwitch("businessActivitiesHandOff", false))
-      val result = controller.handOffFeatureSwitch(featureName, featureState)(FakeRequest())
-      status(result) shouldBe OK
-      bodyOf(await(result)) shouldBe "BooleanFeatureSwitch(businessActivitiesHandOff,false)"
-    }
-
     "return a first handoff feature state set to false as a default when we specify xxxx" in new Setup {
       val featureName = "cohoFirstHandOff"
       val featureState = "xxxx"

@@ -82,11 +82,7 @@ trait IntegrationSpecBase extends WordSpec
   )
 
   def setupFeatures(cohoFirstHandOff: Boolean = false,
-                    businessActivitiesHandOff: Boolean = false,
-                    paye: Boolean = false,
                     vat: Boolean = false,
-                    signPosting: Boolean = false,
-                    takeovers: Boolean = false
                    ): FeatureSwitch = {
     def enableFeature(fs: FeatureSwitch, enabled: Boolean): FeatureSwitch = {
       if (enabled) {
@@ -97,10 +93,7 @@ trait IntegrationSpecBase extends WordSpec
     }
 
     enableFeature(app.injector.instanceOf[SCRSFeatureSwitches].cohoFirstHandOff, cohoFirstHandOff)
-    enableFeature(app.injector.instanceOf[SCRSFeatureSwitches].businessActivitiesHandOff, businessActivitiesHandOff)
-    enableFeature(app.injector.instanceOf[SCRSFeatureSwitches].paye, paye)
     enableFeature(app.injector.instanceOf[SCRSFeatureSwitches].vat, vat)
-    enableFeature(app.injector.instanceOf[SCRSFeatureSwitches].takeovers, takeovers)
   }
 
   override def beforeEach(): Unit = {

@@ -4,7 +4,7 @@
 ->         /                                           health.Routes
 ->     	   /template                                   template.Routes
 GET        /admin/metrics                              com.kenshoo.play.metrics.MetricsController.metrics
-GET        /company-registration-health                controllers.healthcheck.HealthCheckController.checkHealth(status: Option[Int])
+GET        /company-registration-health                controllers.healthcheck.HealthCheckController.checkHealth()
 
 
 

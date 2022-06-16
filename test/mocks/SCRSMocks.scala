@@ -77,9 +77,6 @@ trait SCRSMocks extends CompanyContactDetailsServiceMock
       .thenReturn(Future.successful(response))
   }
 
-  def mockTakeoversFeatureSwitch(isEnabled: Boolean): Unit =
-    when(mockSCRSFeatureSwitches.takeovers).thenReturn(BooleanFeatureSwitch("takeoverFeatureSwitch", isEnabled))
-
   def mockCacheRegistrationID(registrationId: String, mock: KeystoreConnector = mockKeystoreConnector) = {
     when(mock.cache[String](any(), any())(any(), any())).thenReturn(Future.successful(CacheMap("", Map.empty[String, JsValue])))
   }
