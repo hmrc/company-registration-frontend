@@ -139,7 +139,7 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
           "contactEmail" -> Seq("foo@foo.com")))
       )
       response.status shouldBe 303
-      response.header(HeaderNames.LOCATION).get shouldBe controllers.reg.routes.AccountingDatesController.show.url
+      response.header(HeaderNames.LOCATION).get shouldBe controllers.takeovers.routes.ReplacingAnotherBusinessController.show.url
       val audit = Json.parse(getRequestBody("post", "/write/audit")).as[JsObject] \ "detail" \ "businessContactDetails"
       audit.get shouldBe Json.obj("originalEmail" -> "test@test.com", "submittedEmail" -> "foo@foo.com")
       val prePop = Json.parse(getRequestBody("post", s"/business-registration/$regId/contact-details")).as[JsObject]
@@ -188,7 +188,7 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
       )
 
       response.status shouldBe 303
-      response.header(HeaderNames.LOCATION).get shouldBe controllers.reg.routes.AccountingDatesController.show.url
+      response.header(HeaderNames.LOCATION).get shouldBe controllers.takeovers.routes.ReplacingAnotherBusinessController.show.url
       val audit = Json.parse(getRequestBody("post", "/write/audit")).as[JsObject] \ "detail" \ "businessContactDetails"
       audit.get shouldBe Json.obj("originalEmail" -> "test@test.com")
     }
@@ -220,7 +220,7 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
       )
 
       response.status shouldBe 303
-      response.header(HeaderNames.LOCATION).get shouldBe controllers.reg.routes.AccountingDatesController.show.url
+      response.header(HeaderNames.LOCATION).get shouldBe controllers.takeovers.routes.ReplacingAnotherBusinessController.show.url
       intercept[Exception]((Json.parse(getRequestBody("post", "/write/audit")).as[JsObject] \ "detail" \ "businessContactDetails").get)
 
       findAll(postRequestedFor(urlMatching("/write/audit"))).size() shouldBe 1

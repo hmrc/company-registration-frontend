@@ -21,17 +21,15 @@ import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthenticatedController
 import controllers.reg.{ControllerErrorHandler, routes => regRoutes}
 import forms.takeovers.WhoAgreedTakeoverForm
-
-import javax.inject.{Inject, Singleton}
 import models.TakeoverDetails
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.TakeoverService
 import uk.gov.hmrc.auth.core.PlayAuthConnector
-import uk.gov.hmrc.http.NotFoundException
 import utils.{SCRSFeatureSwitches, SessionRegistration}
 import views.html.takeovers.WhoAgreedTakeover
 
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
@@ -49,24 +47,19 @@ class WhoAgreedTakeoverController @Inject()(val authConnector: PlayAuthConnector
   val show: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
       checkStatus { regId =>
-        if (scrsFeatureSwitches.takeovers.enabled) {
-          takeoverService.getTakeoverDetails(regId).flatMap {
-            case Some(TakeoverDetails(false, _, _, _, _)) =>
-              Future.successful(Redirect(regRoutes.AccountingDatesController.show))
-            case Some(TakeoverDetails(_, None, _, _, _)) =>
-              Future.successful(Redirect(routes.OtherBusinessNameController.show))
-            case Some(TakeoverDetails(_, _, None, _, _)) =>
-              Future.successful(Redirect(routes.OtherBusinessAddressController.show))
-            case None =>
-              Future.successful(Redirect(routes.ReplacingAnotherBusinessController.show))
-            case Some(TakeoverDetails(_, Some(businessName), _, Some(prepopName), _)) =>
-              Future.successful(Ok(view(WhoAgreedTakeoverForm.form.fill(prepopName), businessName)))
-            case Some(TakeoverDetails(_, Some(businessName), _, None, _)) =>
-              Future.successful(Ok(view(WhoAgreedTakeoverForm.form, businessName)))
-          }
-        }
-        else {
-          Future.failed(new NotFoundException("Takeovers feature switch was not enabled."))
+        takeoverService.getTakeoverDetails(regId).flatMap {
+          case Some(TakeoverDetails(false, _, _, _, _)) =>
+            Future.successful(Redirect(regRoutes.AccountingDatesController.show))
+          case Some(TakeoverDetails(_, None, _, _, _)) =>
+            Future.successful(Redirect(routes.OtherBusinessNameController.show))
+          case Some(TakeoverDetails(_, _, None, _, _)) =>
+            Future.successful(Redirect(routes.OtherBusinessAddressController.show))
+          case None =>
+            Future.successful(Redirect(routes.ReplacingAnotherBusinessController.show))
+          case Some(TakeoverDetails(_, Some(businessName), _, Some(prepopName), _)) =>
+            Future.successful(Ok(view(WhoAgreedTakeoverForm.form.fill(prepopName), businessName)))
+          case Some(TakeoverDetails(_, Some(businessName), _, None, _)) =>
+            Future.successful(Ok(view(WhoAgreedTakeoverForm.form, businessName)))
         }
       }
     }

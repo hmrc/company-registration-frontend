@@ -83,7 +83,6 @@ class OtherBusinessAddressControllerSpec(implicit lang: Lang) extends SCRSSpec
         "return 303 with a redirect to replacing another business controller" in {
           mockAuthorisedUser(Future.successful({}))
           mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
-          mockTakeoversFeatureSwitch(isEnabled = true)
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
           mockGetTakeoverDetails(testRegistrationId)(Future.successful(None))
@@ -99,7 +98,6 @@ class OtherBusinessAddressControllerSpec(implicit lang: Lang) extends SCRSSpec
         "return 303 with a redirect to accounting dates controller" in {
           mockAuthorisedUser(Future.successful({}))
           mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
-          mockTakeoversFeatureSwitch(isEnabled = true)
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
           val testTakeoverDetails: TakeoverDetails = TakeoverDetails(replacingAnotherBusiness = false)
@@ -116,7 +114,7 @@ class OtherBusinessAddressControllerSpec(implicit lang: Lang) extends SCRSSpec
         "return 303 with a redirect to other business name page" in {
           mockAuthorisedUser(Future.successful({}))
           mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
-          mockTakeoversFeatureSwitch(isEnabled = true)
+
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
           val testTakeoverDetails: TakeoverDetails = TakeoverDetails(replacingAnotherBusiness = true, None)
@@ -133,7 +131,7 @@ class OtherBusinessAddressControllerSpec(implicit lang: Lang) extends SCRSSpec
         "return 200 with the other business address page" in {
           mockAuthorisedUser(Future.successful({}))
           mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
-          mockTakeoversFeatureSwitch(isEnabled = true)
+
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
           mockRetrieveAddresses(testRegistrationId)(Future.successful(Seq(testBusinessAddress)))
@@ -156,7 +154,7 @@ class OtherBusinessAddressControllerSpec(implicit lang: Lang) extends SCRSSpec
         "return 200 with the other business address page prepopulated with the previously selected address" in {
           mockAuthorisedUser(Future.successful({}))
           mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
-          mockTakeoversFeatureSwitch(isEnabled = true)
+
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
           val testOldBusinessAddress: NewAddress = testBusinessAddress.copy(addressLine1 = "otherTestLine1")
@@ -184,7 +182,7 @@ class OtherBusinessAddressControllerSpec(implicit lang: Lang) extends SCRSSpec
         "return 200 with the other business address page prepopulated with the previously selected address" in {
           mockAuthorisedUser(Future.successful({}))
           mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
-          mockTakeoversFeatureSwitch(isEnabled = true)
+
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
           val testOldBusinessAddress: NewAddress = testBusinessAddress.copy(addressLine1 = "otherTestLine1")
@@ -212,16 +210,6 @@ class OtherBusinessAddressControllerSpec(implicit lang: Lang) extends SCRSSpec
         }
       }
     }
-    "the feature switch is disabled" should {
-      "throw a NotFoundException" in {
-        mockAuthorisedUser(Future.successful({}))
-        mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
-        CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
-        mockTakeoversFeatureSwitch(isEnabled = false)
-
-        intercept[NotFoundException](await(TestOtherBusinessAddressController.show(request)))
-      }
-    }
   }
 
   "submit" when {
@@ -231,7 +219,6 @@ class OtherBusinessAddressControllerSpec(implicit lang: Lang) extends SCRSSpec
           mockAuthorisedUser(Future.successful({}))
           mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
-          mockTakeoversFeatureSwitch(isEnabled = true)
 
           implicit val request: Request[AnyContentAsFormUrlEncoded] =
             FakeRequest().withFormUrlEncodedBody(otherBusinessAddressKey -> "0")
@@ -256,7 +243,7 @@ class OtherBusinessAddressControllerSpec(implicit lang: Lang) extends SCRSSpec
           mockAuthorisedUser(Future.successful({}))
           mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
-          mockTakeoversFeatureSwitch(isEnabled = true)
+
           mockInitialiseAlfJourney(
             handbackLocation = controllers.takeovers.routes.OtherBusinessAddressController.handbackFromALF(None),
             specificJourneyKey = "takeovers",
@@ -279,7 +266,7 @@ class OtherBusinessAddressControllerSpec(implicit lang: Lang) extends SCRSSpec
           mockAuthorisedUser(Future.successful({}))
           mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
-          mockTakeoversFeatureSwitch(isEnabled = true)
+
 
           implicit val request: Request[AnyContentAsFormUrlEncoded] =
             FakeRequest().withFormUrlEncodedBody(otherBusinessAddressKey -> "")
@@ -304,7 +291,7 @@ class OtherBusinessAddressControllerSpec(implicit lang: Lang) extends SCRSSpec
           mockAuthorisedUser(Future.successful({}))
           mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
-          mockTakeoversFeatureSwitch(isEnabled = true)
+
           mockGetAddress(id = testAlfId)(Future.successful(testBusinessAddress))
 
           implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()

@@ -71,12 +71,7 @@ class CompanyContactDetailsController @Inject()(val authConnector: PlayAuthConne
                   context.stop()
                   companyContactDetailsService.checkIfAmendedDetails(email, cred, eID, details).flatMap { _ =>
                     companyContactDetailsService.updatePrePopContactDetails(regId, models.CompanyContactDetails.toApiModel(details)) map { _ =>
-                      if (scrsFeatureSwitches.takeovers.enabled) {
-                        Redirect(controllers.takeovers.routes.ReplacingAnotherBusinessController.show)
-                      }
-                      else {
-                        Redirect(routes.AccountingDatesController.show)
-                      }
+                      Redirect(controllers.takeovers.routes.ReplacingAnotherBusinessController.show)
                     }
                   }
                 case CompanyContactDetailsNotFoundResponse => Future.successful(NotFound(controllerErrorHandler.defaultErrorPage))

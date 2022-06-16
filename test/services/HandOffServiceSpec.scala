@@ -64,7 +64,6 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
 
   override def beforeEach() {
     System.clearProperty("feature.cohoFirstHandOff")
-    System.clearProperty("feature.businessActivitiesHandOff")
   }
 
   val externalID = "testExternalID"

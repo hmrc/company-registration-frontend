@@ -37,7 +37,7 @@ import views.html.takeovers.{OtherBusinessAddress => OtherBusinessAddressView}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class OtherBusinessAddressController        @Inject()(val authConnector: PlayAuthConnector,
+class OtherBusinessAddressController @Inject()(val authConnector: PlayAuthConnector,
                                                val takeoverService: TakeoverService,
                                                val addressPrepopulationService: AddressPrepopulationService,
                                                val addressLookupFrontendService: AddressLookupFrontendService,
@@ -56,40 +56,35 @@ class OtherBusinessAddressController        @Inject()(val authConnector: PlayAut
   val show: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
       checkStatus { regId =>
-        if (scrsFeatureSwitches.takeovers.enabled) {
-          takeoverService.getTakeoverDetails(regId).flatMap {
-            case Some(TakeoverDetails(false, _, _, _, _)) =>
-              Future.successful(Redirect(regRoutes.AccountingDatesController.show))
-            case Some(TakeoverDetails(_, None, _, _, _)) =>
-              Future.successful(Redirect(routes.OtherBusinessNameController.show))
-            case Some(TakeoverDetails(_, Some(businessName), Some(preselectedTakeoverAddress), _, _)) =>
-              addressPrepopulationService.retrieveAddresses(regId).map {
-                addressSeq =>
-                  val prepopulatedForm = addressSeq.zipWithIndex.collectFirst {
-                    case (preselectedAddress, index) if preselectedAddress.isEqualTo(preselectedTakeoverAddress) =>
-                      index
-                  } match {
-                    case Some(index) =>
-                      OtherBusinessAddressForm.form(businessName, addressSeq.length).fill(PreselectedAddress(index))
-                    case None =>
-                      OtherBusinessAddressForm.form(businessName, addressSeq.length)
-                  }
+        takeoverService.getTakeoverDetails(regId).flatMap {
+          case Some(TakeoverDetails(false, _, _, _, _)) =>
+            Future.successful(Redirect(regRoutes.AccountingDatesController.show))
+          case Some(TakeoverDetails(_, None, _, _, _)) =>
+            Future.successful(Redirect(routes.OtherBusinessNameController.show))
+          case Some(TakeoverDetails(_, Some(businessName), Some(preselectedTakeoverAddress), _, _)) =>
+            addressPrepopulationService.retrieveAddresses(regId).map {
+              addressSeq =>
+                val prepopulatedForm = addressSeq.zipWithIndex.collectFirst {
+                  case (preselectedAddress, index) if preselectedAddress.isEqualTo(preselectedTakeoverAddress) =>
+                    index
+                } match {
+                  case Some(index) =>
+                    OtherBusinessAddressForm.form(businessName, addressSeq.length).fill(PreselectedAddress(index))
+                  case None =>
+                    OtherBusinessAddressForm.form(businessName, addressSeq.length)
+                }
 
-                  Ok(view(prepopulatedForm, businessName, addressSeq))
-                    .addingToSession(addressSeqKey -> Json.toJson(addressSeq).toString())
-              }
-            case Some(TakeoverDetails(_, Some(businessName), _, _, _)) =>
-              addressPrepopulationService.retrieveAddresses(regId).map {
-                addressSeq =>
-                  Ok(view(OtherBusinessAddressForm.form(businessName, addressSeq.length), businessName, addressSeq))
-                    .addingToSession(addressSeqKey -> Json.toJson(addressSeq).toString())
-              }
-            case None =>
-              Future.successful(Redirect(routes.ReplacingAnotherBusinessController.show))
-          }
-        }
-        else {
-          Future.failed(new NotFoundException("Takeovers feature switch was not enabled."))
+                Ok(view(prepopulatedForm, businessName, addressSeq))
+                  .addingToSession(addressSeqKey -> Json.toJson(addressSeq).toString())
+            }
+          case Some(TakeoverDetails(_, Some(businessName), _, _, _)) =>
+            addressPrepopulationService.retrieveAddresses(regId).map {
+              addressSeq =>
+                Ok(view(OtherBusinessAddressForm.form(businessName, addressSeq.length), businessName, addressSeq))
+                  .addingToSession(addressSeqKey -> Json.toJson(addressSeq).toString())
+            }
+          case None =>
+            Future.successful(Redirect(routes.ReplacingAnotherBusinessController.show))
         }
       }
     }

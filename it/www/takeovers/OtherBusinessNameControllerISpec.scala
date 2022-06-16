@@ -46,7 +46,6 @@ class OtherBusinessNameControllerISpec extends IntegrationSpecBase with LoginStu
     "display the page" in new Setup {
       stubAuthorisation()
       stubKeystore(SessionId, testRegId)
-      setupFeatures(takeovers = true)
       stubGet(s"/company-registration/corporation-tax-registration/$testRegId/corporation-tax-registration", 200, statusResponseFromCR())
       stubGetTakeoverDetails(testRegId, OK, Some(TakeoverDetails(replacingAnotherBusiness = true)))
 
@@ -60,7 +59,6 @@ class OtherBusinessNameControllerISpec extends IntegrationSpecBase with LoginStu
     "display and prepop the page" in new Setup {
       stubAuthorisation()
       stubKeystore(SessionId, testRegId)
-      setupFeatures(takeovers = true)
       stubGet(s"/company-registration/corporation-tax-registration/$testRegId/corporation-tax-registration", 200, statusResponseFromCR())
       val testPrepopBusinessName: String = "another test name"
       stubGetTakeoverDetails(testRegId, OK, Some(TakeoverDetails(replacingAnotherBusiness = true, Some(testPrepopBusinessName))))
@@ -78,7 +76,6 @@ class OtherBusinessNameControllerISpec extends IntegrationSpecBase with LoginStu
     "update the takeover data in the backend and redirect to next page" in new Setup {
       stubAuthorisation()
       stubKeystore(SessionId, testRegId)
-      setupFeatures(takeovers = true)
       stubGet(s"/company-registration/corporation-tax-registration/$testRegId/corporation-tax-registration", 200, statusResponseFromCR())
       stubGetTakeoverDetails(testRegId, OK, Some(TakeoverDetails(replacingAnotherBusiness = true)))
       stubPutTakeoverDetails(testRegId, OK, TakeoverDetails(replacingAnotherBusiness = true, Some(testBusinessName)))

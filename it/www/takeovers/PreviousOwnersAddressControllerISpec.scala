@@ -64,7 +64,6 @@ class PreviousOwnersAddressControllerISpec extends IntegrationSpecBase
     "display the page" in {
       stubAuthorisation()
       stubKeystore(SessionId, testRegId)
-      setupFeatures(takeovers = true)
       stubGet(s"/company-registration/corporation-tax-registration/$testRegId/corporation-tax-registration", 200, statusResponseFromCR())
       stubGetTakeoverDetails(testRegId, OK, Some(testTakeoverDetails))
       stubRetrieveCRCompanyDetails(testRegId, OK, Json.toJson(testCompanyDetails).toString())
@@ -82,7 +81,6 @@ class PreviousOwnersAddressControllerISpec extends IntegrationSpecBase
     "display and prepop the page" in {
       stubAuthorisation()
       stubKeystore(SessionId, testRegId)
-      setupFeatures(takeovers = true)
       stubGet(s"/company-registration/corporation-tax-registration/$testRegId/corporation-tax-registration", 200, statusResponseFromCR())
       stubGetTakeoverDetails(testRegId, OK, Some(testTakeoverDetails.copy(previousOwnersAddress = Some(testPreviousOwnersAddress))))
       stubRetrieveCRCompanyDetails(testRegId, OK, Json.toJson(testCompanyDetails).toString())
@@ -103,7 +101,6 @@ class PreviousOwnersAddressControllerISpec extends IntegrationSpecBase
     "redirect to who agreed takeover page" in {
       stubAuthorisation()
       stubKeystore(SessionId, testRegId)
-      setupFeatures(takeovers = true)
       stubGet(s"/company-registration/corporation-tax-registration/$testRegId/corporation-tax-registration", 200, statusResponseFromCR())
       stubGetTakeoverDetails(testRegId, OK, Some(testTakeoverDetails))
       stubPutTakeoverDetails(testRegId, OK, testTakeoverDetails.copy(previousOwnersAddress = Some(testPreviousOwnersAddress)))
@@ -127,7 +124,6 @@ class PreviousOwnersAddressControllerISpec extends IntegrationSpecBase
     "redirect to ALF" in {
       stubAuthorisation()
       stubKeystore(SessionId, testRegId)
-      setupFeatures(takeovers = true)
       stubGet(s"/company-registration/corporation-tax-registration/$testRegId/corporation-tax-registration", 200, statusResponseFromCR())
       stubGetTakeoverDetails(testRegId, OK, Some(testTakeoverDetails))
       stubInitAlfJourney(redirectLocation = "/test")
@@ -225,7 +221,6 @@ class PreviousOwnersAddressControllerISpec extends IntegrationSpecBase
 
       stubAuthorisation()
       stubKeystore(SessionId, testRegId)
-      setupFeatures(takeovers = true)
       stubGet(s"/company-registration/corporation-tax-registration/$testRegId/corporation-tax-registration", 200, statusResponseFromCR())
       stubGetTakeoverDetails(testRegId, OK, Some(testTakeoverDetails))
       stubPutTakeoverDetails(testRegId, OK, testTakeoverDetails.copy(previousOwnersAddress = Some(testPreviousOwnersAddress.copy(postcode = None))))

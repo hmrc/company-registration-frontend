@@ -45,7 +45,6 @@ class ReplacingAnotherBusinessControllerISpec extends IntegrationSpecBase with L
     "retrieve the existing data from the backend and serve the page" in new Setup {
       stubAuthorisation()
       stubKeystore(SessionId, testRegId)
-      setupFeatures(takeovers = true)
       stubGet(s"/company-registration/corporation-tax-registration/$testRegId/corporation-tax-registration", 200, statusResponseFromCR())
       stubGetTakeoverDetails(testRegId, OK, Some(TakeoverDetails(replacingAnotherBusiness = true)))
 
@@ -61,7 +60,6 @@ class ReplacingAnotherBusinessControllerISpec extends IntegrationSpecBase with L
     "update the data on the backend and redirect to accounting dates" in new Setup {
       stubAuthorisation()
       stubKeystore(SessionId, testRegId)
-      setupFeatures(takeovers = true)
       stubGet(s"/company-registration/corporation-tax-registration/$testRegId/corporation-tax-registration", 200, statusResponseFromCR())
       stubGetTakeoverDetails(testRegId, OK, Some(TakeoverDetails(replacingAnotherBusiness = false)))
       stubPutTakeoverDetails(testRegId, OK, TakeoverDetails(replacingAnotherBusiness = false))
@@ -79,7 +77,6 @@ class ReplacingAnotherBusinessControllerISpec extends IntegrationSpecBase with L
     "update the data on the backend and redirect to new page when ready" in new Setup {
       stubAuthorisation()
       stubKeystore(SessionId, testRegId)
-      setupFeatures(takeovers = true)
       stubGet(s"/company-registration/corporation-tax-registration/$testRegId/corporation-tax-registration", 200, statusResponseFromCR())
       stubGetTakeoverDetails(testRegId, OK, Some(TakeoverDetails(replacingAnotherBusiness = false)))
       stubPutTakeoverDetails(testRegId, OK, TakeoverDetails(replacingAnotherBusiness = true))

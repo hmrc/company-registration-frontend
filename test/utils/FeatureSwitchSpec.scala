@@ -28,7 +28,6 @@ class FeatureSwitchSpec extends SCRSSpec with MockitoSugar {
     resetMocks()
     System.clearProperty("feature.test")
     System.clearProperty("feature.cohoFirstHandOff")
-    System.clearProperty("feature.businessActivitiesHandOff")
   }
 
   override def afterAll(): Unit = {
@@ -282,13 +281,6 @@ class FeatureSwitchSpec extends SCRSSpec with MockitoSugar {
       scrsFeatureSwitch.cohoFirstHandOff.enabled shouldBe true
     }
 
-    "return a disable feature when the associated system property is false" in new Setup {
-      when(mockFeatureSwitchManager.getProperty(ArgumentMatchers.any())).thenReturn(BooleanFeatureSwitch("foobarFeatureFLUFF", false))
-      fMan.disable(scrsFeatureSwitch.businessActivitiesHandOff)
-
-      scrsFeatureSwitch.businessActivitiesHandOff.enabled shouldBe false
-    }
-
     "return a cohoFirstHandOff SCRS feature if it exists" in new Setup {
       when(mockFeatureSwitchManager.getProperty(ArgumentMatchers.any())).thenReturn(BooleanFeatureSwitch("cohoFirstHandOff", true))
       System.setProperty("feature.sages", "true")
@@ -298,17 +290,6 @@ class FeatureSwitchSpec extends SCRSSpec with MockitoSugar {
 
     "return an empty option if the cohoFirstHandOff system property doesn't exist when using the apply function" in new Setup {
       scrsFeatureSwitch("walls") shouldBe None
-    }
-    "return a businessActivitiesHandOff SCRS feature if it exists" in new Setup {
-      when(mockFeatureSwitchManager.getProperty(ArgumentMatchers.any())).thenReturn(BooleanFeatureSwitch("businessActivitiesHandOff", true))
-      System.setProperty("feature.businessActivitiesHandOff", "true")
-
-      scrsFeatureSwitch("businessActivitiesHandOff") shouldBe Some(BooleanFeatureSwitch("businessActivitiesHandOff", true))
-    }
-
-    "return an empty option if the businessActivitiesHandOff system property doesn't exist when using the apply function" in new Setup {
-      when(mockFeatureSwitchManager.getProperty(ArgumentMatchers.any())).thenReturn(BooleanFeatureSwitch("foobar", false))
-      scrsFeatureSwitch("foobar") shouldBe None
     }
   }
 }

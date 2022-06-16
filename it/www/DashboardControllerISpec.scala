@@ -184,7 +184,7 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
 
       val csrfToken = UUID.randomUUID().toString
 
-      setupFeatures(paye = true, vat = false)
+      setupFeatures(vat = false)
 
       stubSuccessfulLogin(userId = userId)
       setupSimpleAuthWithEnrolmentsMocks(enrolmentsURI)
@@ -227,7 +227,6 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
        """.stripMargin
 
       val csrfToken = UUID.randomUUID().toString
-      setupFeatures(paye = true)
 
       stubSuccessfulLogin(userId = userId)
       setupSimpleAuthWithEnrolmentsMocks(enrolmentsURI)
@@ -255,8 +254,6 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
     }
 
     "not display the VAT block when the vat feature switch is OFF" in {
-      setupFeatures(paye = true)
-
       stubSuccessfulLogin(userId = userId)
       setupSimpleAuthWithEnrolmentsMocks(enrolmentsURI)
       stubVATThresholdAmount(LocalDate.now())
@@ -286,8 +283,6 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
 
 
     "not display the dashboard if we get a non int value for the threshold" in {
-      setupFeatures(paye = true)
-
       stubSuccessfulLogin(userId = userId)
       setupSimpleAuthWithEnrolmentsMocks(enrolmentsURI)
       stubIncorrectVATThresholdAmount(LocalDate.now())
@@ -312,7 +307,7 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
 
     "correctly display the VAT block" when {
       "the vat feature switch is ON and status is SUBMITTED" in {
-        setupFeatures(paye = true, vat = true)
+        setupFeatures(vat = true)
 
         stubSuccessfulLogin(userId = userId)
         setupSimpleAuthWithEnrolmentsMocks(enrolmentsURI)
@@ -339,7 +334,7 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
       }
 
       "the vat feature switch is ON and status is HELD" in {
-        setupFeatures(paye = true, vat = true)
+        setupFeatures(vat = true)
 
         stubSuccessfulLogin(userId = userId)
         setupSimpleAuthWithEnrolmentsMocks(enrolmentsURI)
@@ -366,7 +361,7 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
       }
 
       "the vat feature switch is OFF and status is HELD" in {
-        setupFeatures(paye = true)
+        setupFeatures(vat = false)
 
         stubSuccessfulLogin(userId = userId)
         setupSimpleAuthWithEnrolmentsMocks(enrolmentsURI)
@@ -393,7 +388,7 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
       }
 
       "there is no VAT registration" in {
-        setupFeatures(paye = true, vat = true)
+        setupFeatures(vat = true)
 
         stubSuccessfulLogin(userId = userId)
         setupSimpleAuthWithEnrolmentsMocks(enrolmentsURI)
@@ -421,7 +416,7 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
       }
 
       "there is a VAT registration in draft status" in {
-        setupFeatures(paye = true, vat = true)
+        setupFeatures(vat = true)
 
         stubSuccessfulLogin(userId = userId)
         setupSimpleAuthWithEnrolmentsMocks(enrolmentsURI)

@@ -48,19 +48,22 @@ class DashboardServiceImpl @Inject()(val keystoreConnector: KeystoreConnector,
                                     ) extends DashboardService {
 
 
-  lazy val otrsUrl         = appConfig.servicesConfig.getConfString("otrs.url", throw new Exception("Could not find config for key: otrs.url"))
-  lazy val payeBaseUrl     = appConfig.servicesConfig.getConfString("paye-registration-www.url-prefix", throw new Exception("Could not find config for key: paye-registration-www.url-prefix"))
-  lazy val payeUri         = appConfig.servicesConfig.getConfString("paye-registration-www.start-url", throw new Exception("Could not find config for key: paye-registration-www.start-url"))
-  lazy val vatBaseUrl      = appConfig.servicesConfig.getConfString("vat-registration-www.url-prefix", throw new Exception("Could not find config for key: vat-registration-www.url-prefix"))
-  lazy val vatUri          = appConfig.servicesConfig.getConfString("vat-registration-www.start-url", throw new Exception("Could not find config for key: vat-registration-www.start-url"))
+  lazy val otrsUrl = appConfig.servicesConfig.getConfString("otrs.url", throw new Exception("Could not find config for key: otrs.url"))
+  lazy val payeBaseUrl = appConfig.servicesConfig.getConfString("paye-registration-www.url-prefix", throw new Exception("Could not find config for key: paye-registration-www.url-prefix"))
+  lazy val payeUri = appConfig.servicesConfig.getConfString("paye-registration-www.start-url", throw new Exception("Could not find config for key: paye-registration-www.start-url"))
+  lazy val vatBaseUrl = appConfig.servicesConfig.getConfString("vat-registration-www.url-prefix", throw new Exception("Could not find config for key: vat-registration-www.url-prefix"))
+  lazy val vatUri = appConfig.servicesConfig.getConfString("vat-registration-www.start-url", throw new Exception("Could not find config for key: vat-registration-www.start-url"))
 
-  lazy val loggingDays     = appConfig.servicesConfig.getConfString("alert-config.logging-day", throw new Exception("Could not find config key: LoggingDay"))
-  lazy val loggingTimes    = appConfig.servicesConfig.getConfString("alert-config.logging-time", throw new Exception("Could not find config key: LoggingTime"))
+  lazy val loggingDays = appConfig.servicesConfig.getConfString("alert-config.logging-day", throw new Exception("Could not find config key: LoggingDay"))
+  lazy val loggingTimes = appConfig.servicesConfig.getConfString("alert-config.logging-time", throw new Exception("Could not find config key: LoggingTime"))
 }
 
 sealed trait DashboardStatus
+
 case class DashboardBuilt(d: Dashboard) extends DashboardStatus
+
 case object RejectedIncorp extends DashboardStatus
+
 case object CouldNotBuild extends DashboardStatus
 
 class ConfirmationRefsNotFoundException extends NoStackTrace
@@ -134,11 +137,8 @@ trait DashboardService extends SCRSExceptions with AlertLogging with CommonServi
     implicit val startURL: String = s"$payeBaseUrl$payeUri"
     implicit val cancelURL: Call = controllers.dashboard.routes.CancelRegistrationController.showCancelPAYE
 
-    if (featureFlag.paye.enabled) {
-      statusToServiceDashboard(payeConnector.getStatus(regId), enrolments, List(appConfig.IR_PAYE), Some(getCurrentPayeThresholds))
-    } else {
-      Future.successful(toDashboard(OtherRegStatus(Statuses.NOT_ENABLED, None, None, None, None), None))
-    }
+    statusToServiceDashboard(payeConnector.getStatus(regId), enrolments, List(appConfig.IR_PAYE), Some(getCurrentPayeThresholds))
+
   }
 
   def getCurrentPayeThresholds: Map[String, Int] = thresholdService.fetchCurrentPayeThresholds()
@@ -150,8 +150,8 @@ trait DashboardService extends SCRSExceptions with AlertLogging with CommonServi
     getCurrentVatThreshold flatMap { threshold =>
       Try(threshold.toInt) match {
         case Success(intThreshold) => if (featureFlag.vat.enabled) {
-        statusToServiceDashboard(vatConnector.getStatus(regId), enrolments, List(appConfig.HMCE_VATDEC_ORG,appConfig.HMCE_VATVAR_ORG), Some(Map("yearly" -> intThreshold)))
-      } else {
+          statusToServiceDashboard(vatConnector.getStatus(regId), enrolments, List(appConfig.HMCE_VATDEC_ORG, appConfig.HMCE_VATVAR_ORG), Some(Map("yearly" -> intThreshold)))
+        } else {
           Future.successful(toDashboard(OtherRegStatus(Statuses.NOT_ENABLED, None, None, None, None), Some(Map("yearly" -> intThreshold))))
         }
         case Failure(ex) => throw new Exception(s"Value from Vat Reg Threshold not an int for regid: ${regId} Exception was $ex")
@@ -162,7 +162,7 @@ trait DashboardService extends SCRSExceptions with AlertLogging with CommonServi
   private[services] def getCurrentVatThreshold(implicit hc: HeaderCarrier): Future[String] =
     thresholdService.fetchCurrentVatThreshold
 
-  private[services] def buildIncorpCTDashComponent(regId: String, enrolments : Enrolments)(implicit hc: HeaderCarrier): Future[IncorpAndCTDashboard] = {
+  private[services] def buildIncorpCTDashComponent(regId: String, enrolments: Enrolments)(implicit hc: HeaderCarrier): Future[IncorpAndCTDashboard] = {
     companyRegistrationConnector.retrieveCorporationTaxRegistration(regId) flatMap {
       ctReg =>
         (ctReg \ "status").as[String] match {
@@ -187,24 +187,24 @@ trait DashboardService extends SCRSExceptions with AlertLogging with CommonServi
   private[services] def buildHeld(regId: String, ctReg: JsValue)(implicit hc: HeaderCarrier): Future[IncorpAndCTDashboard] = {
     for {
       heldSubmissionDate <- companyRegistrationConnector.fetchHeldSubmissionTime(regId)
-      submissionDate      = heldSubmissionDate.map(date => extractSubmissionDate(date))
+      submissionDate = heldSubmissionDate.map(date => extractSubmissionDate(date))
     } yield {
       ctReg.as[IncorpAndCTDashboard](IncorpAndCTDashboard.reads(submissionDate))
     }
   }
 
-  private[services] def buildAcknowledged(regId: String, ctReg: JsValue, enrolments : Enrolments): IncorpAndCTDashboard = {
+  private[services] def buildAcknowledged(regId: String, ctReg: JsValue, enrolments: Enrolments): IncorpAndCTDashboard = {
     val ctData = ctReg.as[IncorpAndCTDashboard](IncorpAndCTDashboard.reads(None))
     val matchCTUTR = for {
-      ctutr     <- ctData.ctutr
+      ctutr <- ctData.ctutr
       enrolment <- enrolments.getEnrolment(appConfig.IR_CT)
-      id        <- enrolment.getIdentifier("UTR") if enrolment.isActivated
+      id <- enrolment.getIdentifier("UTR") if enrolment.isActivated
     } yield id.value == ctutr
 
     matchCTUTR match {
       case Some(true) => ctData
       case Some(false) =>
-        pagerduty(PagerDutyKeys.CT_UTR_MISMATCH,Some(s" - for registration id: $regId"))
+        pagerduty(PagerDutyKeys.CT_UTR_MISMATCH, Some(s" - for registration id: $regId"))
         ctData.copy(ctutr = None)
       case _ =>
         ctData.copy(ctutr = None)
@@ -212,11 +212,11 @@ trait DashboardService extends SCRSExceptions with AlertLogging with CommonServi
   }
 
   private[services] def extractSubmissionDate(jsonDate: JsValue): String = {
-    val dgdt : DateTime = jsonDate.as[DateTime]
+    val dgdt: DateTime = jsonDate.as[DateTime]
     dgdt.toString("d MMMM yyyy")
   }
 
-  def checkForEmailMismatch(regID : String, authDetails : AuthDetails)(implicit hc : HeaderCarrier, req: Request[AnyContent]) : Future[Boolean] = {
+  def checkForEmailMismatch(regID: String, authDetails: AuthDetails)(implicit hc: HeaderCarrier, req: Request[AnyContent]): Future[Boolean] = {
     keystoreConnector.fetchAndGet[Boolean]("emailMismatchAudit") flatMap {
       case Some(mismatchResult) => Future.successful(mismatchResult)
       case _ => companyRegistrationConnector.retrieveEmail(regID) flatMap {
