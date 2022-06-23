@@ -499,12 +499,12 @@ page.groups.groupRelief.yesLabel                                       = Yes
 page.groups.groupRelief.noLabel                                        = No
 error.groupRelief.required                                             = Select yes if the new company will be in the same group as its owner, for group relief purposes
 
-page.groups.groupName.title                                            = What is the name of the owning company?
-page.groups.groupName.heading                                          = What is the name of the owning company?
+page.groups.groupName.title                                            = What is the name of the owner company?
+page.groups.groupName.heading                                          = What is the name of the owner company?
 page.groups.groupName.somethingElse                                    = Something else
-error.groupName.required                                               = Enter the name of the owner company
+error.groupName.required                                               = Select the name of the owner company
 page.groups.groupName.enterName                                        = Enter the company name
-page.groups.groupName.noCompanyNameEntered                             = Enter the owning company''s name
+page.groups.groupName.noCompanyNameEntered                             = Enter the name of the owner company
 page.groups.groupName.20CharsOrLess                                    = Enter the name using 20 characters or less
 page.groups.groupName.invalidFormat                                    = Enter the name using only letters, numbers, spaces, hyphens and apostrophes
 

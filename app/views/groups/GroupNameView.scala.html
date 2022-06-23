@@ -54,11 +54,11 @@
                 shareholdersForm("groupName"),
                 (optionCompanyName.fold(Seq.empty[(String, String)])(gcn =>
                     if(gcn.nameType != "Other") {
-                        Seq((gcn.name, gcn.name))
+                        Seq((gcn.name, gcn.name.capitalize))
                     } else {
                         Seq.empty
                     }) ++
-                        shareholderNames.map(name => (name, name))).sortBy(s => s._1) ++ Seq(("otherName", messages("page.groups.groupName.somethingElse"))),
+                        shareholderNames.map(name => (name, name.capitalize))).sortBy(s => s._1) ++ Seq(("otherName", messages("page.groups.groupName.somethingElse"))),
                 Seq(("otherName" -> otherHidden)),
                 isHeading = true,
                 '_labelClass -> "block-label radio-label",
