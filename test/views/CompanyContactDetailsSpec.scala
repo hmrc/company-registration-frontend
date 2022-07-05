@@ -97,7 +97,7 @@ class CompanyContactDetailsSpec extends SCRSSpec with CompanyContactDetailsFixtu
           document.getElementById("contactDaytimePhoneLabel").text() shouldBe "Contact number Give a mobile number, if you have one"
           document.getElementById("contactMobileLabel").text() shouldBe "Other contact number"
           document.getElementById("next").attr("value") shouldBe "Save and continue"
-          document.getElementById("helpMessage1").text() shouldBe "We will only do this if we have questions about the company's Corporation Tax."
+          document.getElementById("helpMessage1").text() shouldBe "We will only do this if we have questions about the company’s Corporation Tax."
       }
     }
   }

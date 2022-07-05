@@ -141,7 +141,7 @@ class EmailVerificationControllerSpec extends SCRSSpec with CompanyRegistrationC
       status(result) shouldBe 200
       val document = Jsoup.parse(contentAsString(result))
       document.title should include("You need to create a new Government Gateway account")
-      document.getElementById("description-one").text should include("doesn't have an email address linked")
+      document.getElementById("description-one").text should include("doesn’t have an email address linked")
     }
   }
 
@@ -149,8 +149,8 @@ class EmailVerificationControllerSpec extends SCRSSpec with CompanyRegistrationC
     "go to incorrect-account-type page" in new Setup {
       val result = await(controller.createGGWAccountAffinityShow(FakeRequest()))
       val document = Jsoup.parse(contentAsString(result))
-      document.title should include("You've signed in with the wrong type of account")
-      document.getElementById("main-heading").text shouldBe "You've signed in with the wrong type of account"
+      document.title should include("You’ve signed in with the wrong type of account")
+      document.getElementById("main-heading").text shouldBe "You’ve signed in with the wrong type of account"
       document.getElementById("para-one").text should include("This service only works with Government Gateway accounts that have been set up for organisations.")
     }
   }

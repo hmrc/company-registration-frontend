@@ -114,10 +114,10 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
             "incorpSubmissionDate" -> "10 October 2017",
             "incorpTransID" -> "trans-12345",
             "incorpPaymentReference" -> "pay-12345",
-            "incorpSubmittedText" -> "If your application is successful we'll send you an email with the company registration number and certificate within 2 working days of the submission date.",
+            "incorpSubmittedText" -> "If your application is successful we’ll send you an email with the company registration number and certificate within 2 working days of the submission date.",
             "ctStatusText" -> "Pending",
             "ackRef" -> "ack-12345",
-            "ctPendingText" -> "We've received your application but can't process it until we've set up the limited company."
+            "ctPendingText" -> "We’ve received your application but can’t process it until we’ve set up the limited company."
           ) foreach { case (element, message) =>
             document.getElementById(element).text() shouldBe message
           }
@@ -153,10 +153,10 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
             "incorpStatusText" -> "Pending",
             "incorpTransID" -> "trans-12345",
             "incorpPaymentReference" -> "pay-12345",
-            "incorpSubmittedText" -> "If your application is successful we'll send you an email with the company registration number and certificate within 2 working days of the submission date.",
+            "incorpSubmittedText" -> "If your application is successful we’ll send you an email with the company registration number and certificate within 2 working days of the submission date.",
             "ctStatusText" -> "Pending",
             "ackRef" -> "ack-12345",
-            "ctPendingText" -> "We've received your application but can't process it until we've set up the limited company."
+            "ctPendingText" -> "We’ve received your application but can’t process it until we’ve set up the limited company."
           ) foreach { case (element, message) =>
             document.getElementById(element).text() shouldBe message
           }
@@ -194,7 +194,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
             "crn" -> "crn123",
             "ctStatusText" -> "Pending",
             "submittedAckRef" -> "ack-12345",
-            "CTifSuccess" -> "If your application is successful we'll send you:"
+            "CTifSuccess" -> "If your application is successful we’ll send you:"
           ) foreach { case (element, message) =>
             document.getElementById(element).text() shouldBe message
           }
@@ -387,7 +387,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
               "incorpStatusText" -> "Registered",
               "crn" -> "crn123",
               "ctStatusText" -> "Registered",
-              "noCTEnrolmentMessage" -> "We've sent you an activation code in the post. Use this to activate your Corporation Tax enrolment so you can manage Corporation Tax online."
+              "noCTEnrolmentMessage" -> "We’ve sent you an activation code in the post. Use this to activate your Corporation Tax enrolment so you can manage Corporation Tax online."
             ) foreach { case (element, message) =>
               document.getElementById(element).text() shouldBe message
             }

@@ -251,13 +251,13 @@ class SummarySpec extends SCRSSpec with SCRSFixtures with AccountingDetailsFixtu
             "otherBusinessName" -> "ABC Limited",
             "otherBusinessNameLabel" -> "What is the name of the other business?",
             "change-other-business-name" -> "changethe name of the other business",
-            "businessTakeOverAddressLabel" -> "What is ABC Limited's address?",
+            "businessTakeOverAddressLabel" -> "What is ABC Limited’s address?",
             "businessTakeOverAddress" -> "line 1 line 2 line 3 line 4 ZZ1 1ZZ UK",
-            "change-business-takeover-address" -> "changeABC Limited's address",
+            "change-business-takeover-address" -> "changeABC Limited’s address",
             "personWhoAgreedTakeoverLabel" -> "Who agreed the takeover?",
             "personWhoAgreedTakeover" -> "Agreed Person",
             "change-who-agreed-takeover" -> "changethe name of who agreed the takeover",
-            "previousOwnersAddressLabel" -> "What is Agreed Person's home address?",
+            "previousOwnersAddressLabel" -> "What is Agreed Person’s home address?",
             "previousOwnersAddress" -> "line 1 line 2 line 3 line 4 ZZ1 1ZZ UK",
             "change-previous-owners-address" -> "changethe address given"
           ) foreach { case (element, message) =>
