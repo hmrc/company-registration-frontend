@@ -139,7 +139,7 @@ validation.nonEmpty                                                 = This field
 validation.invalid                                                  = Enter your relationship to the business using 100 characters or less
 
 ## PPOB
-page.reg.ppob.description                                           = What is the company’s ’principal place of business’?
+page.reg.ppob.description                                           = What is the company’s ‘principal place of business’?
 page.reg.ppob.differentAddress                                      = A different address
 page.reg.ppob.location                                              = This is where the company will carry out most of its business activities.
 page.reg.ppob.mobileBusiness                                        = If this will be in different locations, use the address where the company will keep its financial or business records.
@@ -243,7 +243,7 @@ page.verification.create-new-account.bottomLink                     = Create a n
 
 page.verification.verify-your-email.title                           = Confirm your email address
 page.verification.verify-your-email.description                     = We are going to send a message to {0}.
-page.verification.verify-your-email.p1                              = Look for an email from the GOV.UK team with the subject ’Confirm your email address’. Click the link in the email to confirm your address.
+page.verification.verify-your-email.p1                              = Look for an email from the GOV.UK team with the subject ‘Confirm your email address’. Click the link in the email to confirm your address.
 page.verification.verify-your-email.hint1                           = This link expires after 3 days.
 page.verification.verify-your-email.dropdown-title                  = If you haven’t received a confirmation email
 page.verification.verify-your-email.dropdown-text1                  = Check your junk folder. If it’s not there, you’ll need to
@@ -420,9 +420,9 @@ errorPages.incorporationRejected.link                               = https://ww
 errorPages.incorporationRejected.para4.1                            = GOV.UK page.
 
 ## TakeoverInformationNeeded
-errorPages.takeoverInformationNeeded.title                                = We need some additional information
-errorPages.takeoverInformationNeeded.header                               = We need some additional information
-errorPages.takeoverInformationNeeded.p1                                   = Before you continue with the registration, we need some more information about your company taking over another company.
+errorPages.takeoverInformationNeeded.title                          = We need some additional information
+errorPages.takeoverInformationNeeded.header                         = We need some additional information
+errorPages.takeoverInformationNeeded.p1                             = Before you continue with the registration, we need some more information about your company taking over another company.
 
 
 ## Address Lookup Generic and Specific Page Config
