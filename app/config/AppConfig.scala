@@ -47,6 +47,9 @@ class AppConfig @Inject()(val servicesConfig: ServicesConfig) {
   lazy val timeoutInSeconds: String = loadConfig("microservice.timeoutInSeconds")
   lazy val timeoutDisplayLength: String = loadConfig("microservice.timeoutDisplayLength")
 
+  lazy val timeoutInSecondsInt: Int = servicesConfig.getInt("microservice.timeoutInSeconds")
+  lazy val timeoutDisplayLengthInt: Int = servicesConfig.getInt("microservice.timeoutDisplayLength")
+
   lazy val commonFooterUrl = "https://www.tax.service.gov.uk/register-your-company/cookies-privacy-terms"
   lazy val helpFooterUrl = "https://www.gov.uk/help"
 

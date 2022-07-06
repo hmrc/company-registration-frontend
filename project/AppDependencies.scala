@@ -20,7 +20,9 @@ private object AppDependencies {
     "uk.gov.hmrc" %% "simple-reactivemongo" % "8.0.0-play-28",
     "uk.gov.hmrc" %% "govuk-template" % "5.72.0-play-28",
     "uk.gov.hmrc" %% "play-ui" % "9.7.0-play-28",
-    "com.typesafe.play" %% "play-json-joda" % "2.9.2"
+    "com.typesafe.play" %% "play-json-joda" % "2.9.2",
+    "uk.gov.hmrc" %% "play-frontend-hmrc" % "3.21.0-play-28",
+    "uk.gov.hmrc" %% "play-frontend-govuk" % "1.0.0-play-28"
   )
 
   def defaultTest(scope: String) = Seq(
