@@ -277,7 +277,7 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
       doc.getElementById("legacyVATStatusText").text() shouldBe "Register using another HMRC service (link opens in a new tab)"
       doc.getElementById("vatThresholdLastYear").text shouldBe "your taxable sales were over £85,000 at the end of any month in the last year"
       doc.getElementById("vatThresholdNext30Day").text shouldBe "you expect your taxable sales to go over £85,000 in the next 30-day period"
-      doc.getElementById("vatThresholdAnnually").text shouldBe "You can register voluntarily if the company's annual taxable sales are less than £85,000."
+      doc.getElementById("vatThresholdAnnually").text shouldBe "You can register voluntarily if the company’s annual taxable sales are less than £85,000."
       a[NullPointerException] shouldBe thrownBy(doc.getElementById("vatThreshold").text)
     }
 
