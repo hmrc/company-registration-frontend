@@ -517,7 +517,7 @@ error.groupAddress.required                                            = Tell us
 
 page.groups.groupUtr.title                                             = Do you know {0}’s Unique Taxpayer Reference (UTR)?
 page.groups.groupUtr.heading                                           = Do you know {0}’s Unique Taxpayer Reference (UTR)?
-page.groups.groupUtr.p1                                                = It is a 10-digit number and will be on any tax returns or documents from HMRC. It might be called a ’company tax reference’.
+page.groups.groupUtr.p1                                                = It is a 10-digit number and will be on any tax returns or documents from HMRC. It might be called a ‘company tax reference’.
 page.groups.groupUtr.yesLabel                                          = Yes
 page.groups.groupUtr.noLabel                                           = No
 page.groups.groupUtr.utrLabel                                          = Enter the UTR
