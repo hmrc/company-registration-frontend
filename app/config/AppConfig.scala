@@ -38,6 +38,7 @@ class AppConfig @Inject()(val servicesConfig: ServicesConfig) {
   lazy val reportAProblemPartialUrl = s"/contact/problem_reports_ajax?service=$contactFormServiceIdentifier"
   lazy val reportAProblemNonJSUrl = s"/contact/problem_reports_nonjs?service=$contactFormServiceIdentifier"
   lazy val govHostUrl = loadConfig(s"microservice.services.gov-uk.gov-host-domain")
+  lazy val reportAProblemLayout: String = "https://www.tax.service.gov.uk/contact/report-technical-problem?service=SCRS"
 
   lazy val contactFrontendPartialBaseUrl = servicesConfig.baseUrl("contact-frontend")
   lazy val serviceId = contactFormServiceIdentifier
