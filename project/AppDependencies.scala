@@ -8,21 +8,21 @@ private object AppDependencies {
   val compile = Seq(
     ws,
     "uk.gov.hmrc" %% "bootstrap-frontend-play-28" % "5.16.0",
-    "uk.gov.hmrc" %% "play-partials" % "8.2.0-play-28",
+    "uk.gov.hmrc" %% "play-partials" % "8.3.0-play-28",
     "uk.gov.hmrc" %% "url-builder" % "3.5.0-play-28",
-    "uk.gov.hmrc" %% "http-caching-client" % "9.5.0-play-28",
-    "uk.gov.hmrc" %% "play-conditional-form-mapping" % "1.9.0-play-28",
+    "uk.gov.hmrc" %% "http-caching-client" % "9.6.0-play-28",
+    "uk.gov.hmrc" %% "play-conditional-form-mapping" % "1.11.0-play-28",
     "org.bitbucket.b_c" % "jose4j" % "0.5.0",
     "uk.gov.hmrc" %% "time" % "3.25.0",
     "uk.gov.hmrc" %% "play-allowlist-filter" % "1.0.0-play-28",
     "commons-validator" % "commons-validator" % "1.6",
     "uk.gov.hmrc" %% "play-language" % "5.1.0-play-28",
     "uk.gov.hmrc" %% "simple-reactivemongo" % "8.0.0-play-28",
-    "uk.gov.hmrc" %% "govuk-template" % "5.72.0-play-28",
-    "uk.gov.hmrc" %% "play-ui" % "9.7.0-play-28",
+    "uk.gov.hmrc" %% "govuk-template" % "5.78.0-play-28",
+    "uk.gov.hmrc" %% "play-ui" % "9.10.0-play-28",
     "com.typesafe.play" %% "play-json-joda" % "2.9.2",
-    "uk.gov.hmrc" %% "play-frontend-hmrc" % "3.21.0-play-28",
-    "uk.gov.hmrc" %% "play-frontend-govuk" % "1.0.0-play-28"
+    "uk.gov.hmrc" %% "play-frontend-hmrc" % "3.22.0-play-28",
+    "uk.gov.hmrc" %% "play-frontend-govuk" % "2.0.0-play-28"
   )
 
   def defaultTest(scope: String) = Seq(
