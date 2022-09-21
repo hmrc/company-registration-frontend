@@ -175,7 +175,7 @@ class OtherBusinessNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
 
           status(res) shouldBe BAD_REQUEST
           Jsoup.parse(bodyOf(res))
-            .getElementsByClass("error-notification").text shouldBe "Tell us the name of the other business"
+            .getElementById("otherBusinessName-error").text shouldBe "Tell us the name of the other business"
         }
 
         "return a bad request and update the page with errors if name is invalid" in new Setup {
@@ -192,7 +192,7 @@ class OtherBusinessNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
 
           status(res) shouldBe BAD_REQUEST
           Jsoup.parse(bodyOf(res))
-            .getElementsByClass("error-notification").text shouldBe "Business name must not include ©, Æ and ф"
+            .getElementById("otherBusinessName-error").text shouldBe "Business name must not include ©, Æ and ф"
         }
 
         "return a bad request and update the page with errors if name is too long" in new Setup {
@@ -209,7 +209,7 @@ class OtherBusinessNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
 
           status(res) shouldBe BAD_REQUEST
           Jsoup.parse(bodyOf(res))
-            .getElementsByClass("error-notification").text shouldBe "Enter the name using 100 characters or less"
+            .getElementById("otherBusinessName-error").text shouldBe "Enter the name using 100 characters or less"
         }
       }
     }

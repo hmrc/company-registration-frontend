@@ -156,11 +156,11 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
             "incorpSubmittedText" -> "If your application is successful we’ll send you an email with the company registration number and certificate within 2 working days of the submission date.",
             "ctStatusText" -> "Pending",
             "ackRef" -> "ack-12345",
-            "ctPendingText" -> "We’ve received your application but can’t process it until we’ve set up the limited company."
+            "ctPendingText" -> "We’ve received your application but can’t process it until we’ve set up the limited company.",
+            "incorpSubmissionDate" -> ""
           ) foreach { case (element, message) =>
             document.getElementById(element).text() shouldBe message
           }
-          intercept[NullPointerException](document.getElementById("incorpSubmissionDate").`val`)
       }
     }
 
@@ -233,7 +233,6 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
           ) foreach { case (element, message) =>
             document.getElementById(element).text() shouldBe message
           }
-          document.getElementById("noCTEnrolmentMessage") shouldBe null
 
       }
     }
@@ -386,7 +385,6 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
             Map(
               "incorpStatusText" -> "Registered",
               "crn" -> "crn123",
-              "ctStatusText" -> "Registered",
               "noCTEnrolmentMessage" -> "We’ve sent you an activation code in the post. Use this to activate your Corporation Tax enrolment so you can manage Corporation Tax online."
             ) foreach { case (element, message) =>
               document.getElementById(element).text() shouldBe message
@@ -479,7 +477,6 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
           val document = Jsoup.parse(contentAsString(result))
           document.title should include("Company registration overview")
           document.getElementById("payeStatusText").text() shouldBe "Register for PAYE"
-          document.getElementById("payeRegUrl").attr("href") shouldBe dashboard.payeDash.links.startURL
       }
     }
 
@@ -696,7 +693,6 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
           val document = Jsoup.parse(contentAsString(result))
           document.title should include("Company registration overview")
           document.getElementById("payeStatusText").text() shouldBe "Unsuccessful"
-          document.getElementById("payeRej").attr("href") shouldBe "bar"
       }
     }
 
@@ -724,8 +720,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
         result =>
           val document = Jsoup.parse(contentAsString(result))
           document.title should include("Company registration overview")
-          document.getElementById("legacyVATStatusText").text() shouldBe "Register using another HMRC service (link opens in a new tab)"
-          document.getElementById("vatUrl").attr("href") shouldBe "https://tax.service.gov.uk/register-for-vat"
+          document.getElementById("legacyVATStatusText").text() shouldBe "Register using another HMRC service (opens in new tab)"
       }
     }
 
@@ -785,8 +780,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
         result =>
           val document = Jsoup.parse(contentAsString(result))
           document.title should include("Company registration overview")
-          document.getElementById("legacyVATStatusText").text() shouldBe "Register using another HMRC service (link opens in a new tab)"
-          document.getElementById("vatUrl").attr("href") shouldBe "https://tax.service.gov.uk/register-for-vat"
+          document.getElementById("legacyVATStatusText").text() shouldBe "Register using another HMRC service (opens in new tab)"
       }
     }
 
@@ -873,8 +867,6 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
           val document = Jsoup.parse(contentAsString(result))
           document.title should include("Company registration overview")
           document.getElementById("payeStatusText").text() shouldBe "Incomplete"
-          document.getElementById("payeCancelLink").text() shouldBe "Cancel registration"
-          document.getElementById("payeCancelLink").attr("href") shouldBe "cancelURL"
       }
     }
 
@@ -902,7 +894,6 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
           val document = Jsoup.parse(contentAsString(result))
           document.title should include("Company registration overview")
           document.getElementById("payeStatusText").text() shouldBe "Incomplete"
-          document.getElementById("payeCancelLink") shouldBe null
       }
     }
   }
@@ -931,7 +922,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
       showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
-          document.getElementById("employer-help-thresholds").text() shouldBe "pay any employees - including company directors - £113 or more a week (this is the same as £490 a month or £5,876 a year)"
+          document.getElementById("employer-help-thresholds").text() shouldBe "Use this service to register a company if it will do either of the following in the next 2 months:"
       }
     }
 
@@ -957,7 +948,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
       showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
-          document.getElementById("employer-help-thresholds").text() shouldBe "pay any employees - including company directors - £116 or more a week (this is the same as £503 a month or £6,032 a year)"
+          document.getElementById("employer-help-thresholds").text() shouldBe "Use this service to register a company if it will do either of the following in the next 2 months:"
       }
     }
   }

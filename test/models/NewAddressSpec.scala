@@ -57,7 +57,7 @@ class NewAddressSpec extends UnitSpec with CorporationTaxFixture with JsonValida
     "return an address handling options" in {
       val address = NewAddress("10 Test Street", "Testtown", Some("testshire"), Some("testlevania"), None, None)
 
-      address.mkString shouldBe "10 Test Street, Testtown, testshire, testlevania"
+      address.toString shouldBe "10 Test Street, Testtown, testshire, testlevania"
     }
   }
 

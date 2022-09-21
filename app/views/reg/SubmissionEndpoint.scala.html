@@ -16,26 +16,33 @@
 
 @import models._
 @import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
-@import uk.gov.hmrc.play.views.html.helpers.Input
-@import views.html.helpers.input
 
-@this(main_template: main_template,
+@this(layout: templates.layout,
         formWithCSRF: FormWithCSRF,
-        input: input)
+        h2: components.h2,
+        inputText: components.inputText)
 
 @(submissionForm: Form[SubmissionModel])(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
-@main_template(title = Messages(""), mainClass = Some("full-width")) {
+@layout(pageTitle = Some(Messages(""))) {
 
     @formWithCSRF(action = controllers.test.routes.SubmissionEndpointController.getAllS4LEntries) {
-        <h2>Submission</h2>
-        @input(
-            submissionForm("submissionStatus"),
-            '_label -> "Submission Status : "
+        @h2(messages("Submission"))
+
+        @inputText(
+            form = submissionForm,
+            name = "submissionStatus",
+            id = "submissionStatus",
+            label = messages("Submission Status : "),
+            isPageHeading = false,
         )
-        @input(
-            submissionForm("submissionRef"),
-            '_label -> "Submission reference number : "
+
+        @inputText(
+            form = submissionForm,
+            name = "submissionRef",
+            id = "submissionRef",
+            label = messages("Submission reference number : "),
+            isPageHeading = false,
         )
     }
 }

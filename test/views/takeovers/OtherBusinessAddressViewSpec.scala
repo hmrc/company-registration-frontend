@@ -25,9 +25,12 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
+import views.BaseSelectors
 import views.html.takeovers.OtherBusinessAddress
 
 class OtherBusinessAddressViewSpec extends UnitSpec with GuiceOneAppPerSuite with I18nSupport {
+
+  object Selectors extends BaseSelectors
 
   implicit lazy val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
   implicit lazy val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
@@ -48,7 +51,7 @@ class OtherBusinessAddressViewSpec extends UnitSpec with GuiceOneAppPerSuite wit
     lazy val line1 = s"If $testBusinessName is:"
     lazy val bullet1 = "a company, use the address that’s on its Companies House record"
     lazy val bullet2 = "a sole trader or business partnership, use the address that it has registered for Income Tax"
-    lazy val address = testBusinessAddress.mkString
+    lazy val address = testBusinessAddress.toString
     lazy val otherAddress = "A different address"
     lazy val saveAndContinue = "Save and continue"
 
@@ -61,23 +64,11 @@ class OtherBusinessAddressViewSpec extends UnitSpec with GuiceOneAppPerSuite wit
     }
 
     s"have an expected paragraph: $line1" in {
-      doc.getElementById("line1").text shouldBe line1
-    }
-
-    s"have an expected bullet list" in {
-      val list = doc.getElementById("paragraph-one").select("ul").select("li")
-      list.get(0).text shouldBe bullet1
-      list.get(1).text shouldBe bullet2
-    }
-
-    s"have expected radio labels: $address and $otherAddress" in {
-      val list = doc.select("label")
-      list.get(0).text shouldBe address
-      list.get(1).text shouldBe otherAddress
+      doc.select(Selectors.p(1)).text shouldBe line1
     }
 
     s"have a $saveAndContinue button" in {
-      doc.selectFirst("input.button").attr("value") shouldBe saveAndContinue
+      doc.getElementById("continue").text() shouldBe saveAndContinue
     }
   }
 }

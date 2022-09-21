@@ -15,76 +15,61 @@
  *@
 
 @import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
-@import views.helpers.TitleHelper.title
-@import views.html.helpers.inputRadioGroupHidden
-@import views.html.helpers.errorSummary
 
-@this(main_template: main_template,
-        errorSummary: errorSummary,
-        inputRadioGroupHidden: inputRadioGroupHidden,
+@this(layout: templates.layout,
+        errorSummary: components.errorSummary,
+        yesNoRadio: components.yesNoRadio,
+        h1: components.h1,
+        p: components.p,
+        bullets: components.bullets,
+        button: components.button,
         formWithCsrf: FormWithCSRF)
 
 @(tradingDetails: Form[TradingDetails])(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
 @falseHiddenContent = {
-    <div class="notice">
+@p{
     @Messages("page.reg.ct61.radioNoText")
-    </div>
+}
 }
 
 @trueHiddenContent = {
-    <div class="notice">
-    @Messages("page.reg.ct61.radioYesText")
-    </div>
+    @p{
+        @Messages("page.reg.ct61.radioYesText")
+    }
 }
 
-@main_template(title = title(Messages("page.reg.ct61.title"), tradingDetails), mainClass = None) {
+@layout(pageTitle = Some(Messages("page.reg.ct61.title"))) {
 
-    <a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
+    @errorSummary(tradingDetails.errors)
 
-    @errorSummary(
-        Messages("common.errorSummary.label"),
-        tradingDetails, dataJourney = Some("TradingDetails")
+    @h1(messages("page.reg.ct61.description"))
+
+    @p {
+        @messages("page.reg.ct61.situationText")
+        @messages("page.reg.ct61.lede")
+    }
+
+    @bullets(
+        messages("page.reg.ct61.bullet1"),
+        messages("page.reg.ct61.bullet2"),
+        messages("page.reg.ct61.bullet3")
     )
 
-
-        <h1 id="main-heading" class="heading-large">@Messages("page.reg.ct61.description")</h1>
-
-<div class="form-group">
-    <p>@Messages("page.reg.ct61.situationText")</p>
-</div>
-
-    <div class="form-group">
-        <p>@Messages("page.reg.ct61.lede")</p>
-    </div>
-
-    <div class="form-group">
-        <ul class="list list-bullet">
-            <li>@Messages("page.reg.ct61.bullet1")</li>
-            <li>@Messages("page.reg.ct61.bullet2")</li>
-            <li>@Messages("page.reg.ct61.bullet3")</li>
-        </ul>
-    </div>
-
     @formWithCsrf(action = controllers.reg.routes.TradingDetailsController.submit) {
-        <div class="form-group">
-        @inputRadioGroupHidden(
-            tradingDetails("regularPayments"),
-            Seq("true" -> Messages("page.reg.ct61.radioYesLabel"), "false" -> Messages("page.reg.ct61.radioNoLabel")),
-            Seq("true" -> trueHiddenContent,
-                "false" -> falseHiddenContent),
-            isHeading = false,
-            '_fieldsetId -> "regular-payments",
-            '_idHidden -> "regularPayments",
-            '_classHidden -> "panel panel-indent",
-            '_labelClass -> "block-label radio-label",
-            '_legend -> Messages("page.reg.ct61.description"),
-            '_legendClass -> "visually-hidden"
-        )
-        </div>
 
-        <div class="form-group">
-            <input class="button" type="submit" id="next" value="@Messages("common.button.save")">
-        </div>
+        @yesNoRadio(
+            form = tradingDetails,
+            id = "regularPayments",
+            headingKey = messages("page.reg.ct61.description"),
+            isPageHeading = false,
+            inline = false,
+            classes = "govuk-visually-hidden",
+            fieldName = "regularPayments",
+            hiddenYesContent = Some(trueHiddenContent),
+            hiddenNoContent = Some(falseHiddenContent)
+        )
+
+        @button(messages("common.button.save"))
     }
 }

@@ -92,7 +92,7 @@ class GroupService @Inject()(val keystoreConnector: KeystoreConnector,
 
   def dropOldFields(groups: Groups, address: NewAddress, registrationId: String)(implicit hc: HeaderCarrier): Future[Groups] = {
     groups.addressAndType match {
-      case Some(addressAndType) if addressAndType.address.mkString != address.mkString && addressAndType.addressType != "ALF" =>
+      case Some(addressAndType) if addressAndType.address.toString != address.toString && addressAndType.addressType != "ALF" =>
         compRegConnector.updateGroups(registrationId, groups.copy(addressAndType = None, groupUTR = None))
       case _ => Future.successful(groups)
     }
@@ -101,15 +101,15 @@ class GroupService @Inject()(val keystoreConnector: KeystoreConnector,
   def createAddressMap(optPrepopAddressAndType: Option[GroupsAddressAndType], address: NewAddress): Map[String, String] = {
     optPrepopAddressAndType match {
       case Some(prepopAddressAndType) =>
-        if (prepopAddressAndType.address.mkString == address.mkString) {
-          Map(prepopAddressAndType.addressType -> prepopAddressAndType.address.mkString)
+        if (prepopAddressAndType.address.toString == address.toString) {
+          Map(prepopAddressAndType.addressType -> prepopAddressAndType.address.toString, "Other" -> "A different address")
         }
         else {
-          Map(prepopAddressAndType.addressType -> prepopAddressAndType.address.mkString,
-            "TxAPI" -> address.mkString)
+          Map(prepopAddressAndType.addressType -> prepopAddressAndType.address.toString,
+            "TxAPI" -> address.toString, "Other" -> "A different address")
         }
       case _ =>
-        Map("TxAPI" -> address.mkString)
+        Map("TxAPI" -> address.toString, "Other" -> "A different address")
     }
   }
 
@@ -202,7 +202,7 @@ class GroupService @Inject()(val keystoreConnector: KeystoreConnector,
             compRegConnector.shareholderListValidationEndpoint(iiShareholders.map(_.corporate_name)).flatMap { validShareholders =>
               groups.nameOfCompany match {
                 case Some(nameAndType) if nameAndType.nameType.equals("Other") || validShareholders.contains(nameAndType.name) =>
-                  Future.successful(validShareholders.distinct.filterNot(shName => shName == nameAndType.name && !nameAndType.nameType.equals("Other")), groups)
+                  Future.successful(validShareholders, groups)
                 case _ =>
                   compRegConnector
                     .updateGroups(registrationId, Groups(groups.groupRelief, None, None, None))

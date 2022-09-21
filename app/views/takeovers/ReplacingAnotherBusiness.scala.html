@@ -14,62 +14,53 @@
  * limitations under the License.
  *@
 
-@import views.helpers.TitleHelper.title
-@import uk.gov.hmrc.play.views.html.helpers.InputRadioGroup
 @import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
-@import views.html.helpers.errorSummary
 
-@this(main_template: main_template,
-        inputRadioGroup: InputRadioGroup,
-        errorSummary: errorSummary,
-        formWithCSRF: FormWithCSRF)
+@this(layout: templates.layout,
+        yesNoRadio: components.yesNoRadio,
+        errorSummary: components.errorSummary,
+        formWithCSRF: FormWithCSRF,
+        p: components.p,
+        bullets: components.bullets,
+        hiddenDetails: components.hiddenDetails,
+        button: components.button,
+        h1: components.h1)
 
 @(replacingAnotherBusiness: Form[Boolean])(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
-@main_template(title = title(Messages("page.takeovers.replacingAnotherBusiness.title"),replacingAnotherBusiness), mainClass = None) {
+@hiddenDetailsContent = {
+@p { @messages("page.takeovers.replacingAnotherBusiness.dropdownText1") }
+@p { @messages("page.takeovers.replacingAnotherBusiness.dropdownText2") }
+}
 
-    <a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
+@layout(pageTitle = Some(messages("page.takeovers.replacingAnotherBusiness.title"))) {
 
-    @errorSummary(
-        Messages("common.errorSummary.label"),
-        replacingAnotherBusiness,
-        dataJourney = Some("TakeOvers")
+    @errorSummary(replacingAnotherBusiness.errors)
+
+    @h1(messages("page.takeovers.replacingAnotherBusiness.heading"))
+
+    @p {
+        @messages("page.takeovers.replacingAnotherBusiness.p1")
+    }
+
+    @bullets(
+        messages("page.takeovers.replacingAnotherBusiness.bullet1"),
+        messages("page.takeovers.replacingAnotherBusiness.bullet2")
     )
 
-    <h1 id="main-heading" class="heading-large">@messages("page.takeovers.replacingAnotherBusiness.heading")</h1>
-
-    <div id="paragraph-one" class="form-group">
-        <p>@Messages("page.takeovers.replacingAnotherBusiness.p1")</p>
-        <ul class="list-bullet">
-            <li>@Messages("page.takeovers.replacingAnotherBusiness.bullet1")</li>
-            <li>@Messages("page.takeovers.replacingAnotherBusiness.bullet2")</li>
-        </ul>
-    </div>
-
-    <div class="form-group">
-        <details>
-            <summary class="summary">@Messages("page.takeovers.replacingAnotherBusiness.dropdownTitle")</summary>
-            <div class="panel panel-border-narrow">
-                <p>@Messages("page.takeovers.replacingAnotherBusiness.dropdownText1")</p>
-                <p>@Messages("page.takeovers.replacingAnotherBusiness.dropdownText2")</p>
-            </div>
-        </details>
-    </div>
+    @hiddenDetails("tradingNameRules", messages("page.takeovers.replacingAnotherBusiness.dropdownTitle"), hiddenDetailsContent)
 
     @formWithCSRF(action = controllers.takeovers.routes.ReplacingAnotherBusinessController.submit) {
-        <div class="form-group">
-        @inputRadioGroup(
-            replacingAnotherBusiness("replacingAnotherBusiness"),
-            Seq("true" -> Messages("common.button.yes"), "false" -> Messages("common.button.no")),
-            '_labelClass -> "block-label radio-label",
-            '_legendClass -> "visually-hidden",
-            '_legend -> Messages("page.takeovers.replacingAnotherBusiness.title"),
-            '_groupClass -> "inline"
+        @yesNoRadio(
+            form = replacingAnotherBusiness,
+            id = "replacingAnotherBusiness",
+            headingKey = messages("page.takeovers.replacingAnotherBusiness.title"),
+            isPageHeading = false,
+            inline = false,
+            fieldName = "replacingAnotherBusiness",
+            classes = "govuk-visually-hidden"
         )
-        </div>
 
-        <div class="form-group">
-            <input class="button" type="submit" id="next" value="@Messages("common.button.save")">
-        </div>
+        @button(messages("common.button.save"))
     }
 }

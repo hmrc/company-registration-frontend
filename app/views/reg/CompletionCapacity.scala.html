@@ -15,57 +15,73 @@
  *@
 
 @import models.AboutYouChoiceForm
-@import views.html.helpers.{errorSummary, input}
-@import views.helpers.TitleHelper.title
-@import views.html.helpers.inputRadioGroupHidden
-@import views.html.main_template
 @import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
+@import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 
-@this(main_template: main_template,
-        errorSummary: errorSummary,
-        inputRadioGroupHidden: inputRadioGroupHidden,
+@this(layout: templates.layout,
+        errorSummary: components.errorSummary,
+        inputRadio: components.inputRadio,
+        inputText: components.inputText,
         formWithCsrf: FormWithCSRF,
-        input: input)
+        button: components.button,
+        input: components.inputText)
 
 @(aboutYou: Form[AboutYouChoiceForm])(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
 @otherHidden = {
-    @input(
-        aboutYou("completionCapacityOther"),
-        '_inputClass -> "form-control-1-2",
-        '_labelClass -> "form-label cascading",
-        '_label -> Messages("page.reg.AboutYou.radio4.more")
-    )
+
+@inputText(
+    form = aboutYou,
+    name = "completionCapacityOther",
+    id = "completionCapacityOther",
+    label = messages("page.reg.AboutYou.radio4.more"),
+    isPageHeading = false,
+)
 }
 
-@main_template(title = title(Messages("page.reg.AboutYou.description"),aboutYou)) {
+@layout(pageTitle = Some(Messages("page.reg.AboutYou.description"))) {
 
-    <a id="back" class="link-back" href="javascript:history.back()">@messages("common.button.back")</a>
-
-    @errorSummary(
-        Messages("common.errorSummary.label"),
-        aboutYou, dataJourney = Some("CompletionCapacity")
-    )
+    @errorSummary(aboutYou.errors)
 
     @formWithCsrf(action = controllers.reg.routes.CompletionCapacityController.submit) {
-        <div class="form-group">
-            @inputRadioGroupHidden(
-                aboutYou("completionCapacity"),
-                Seq("director"          -> Messages("page.reg.AboutYou.radio1"),
-                    "company secretary" -> Messages("page.reg.AboutYou.radio2"),
-                    "agent"             -> Messages("page.reg.AboutYou.radio3"),
-                    "other"             -> Messages("page.reg.AboutYou.radio4")),
-                Seq("other" -> otherHidden),
-                isHeading = true,
-                '_idHidden -> "other",
-                '_classHidden -> "panel panel-indent",
-                '_labelClass -> "block-label radio-label",
-                '_legend -> Messages("page.reg.AboutYou.description")
-            )
-        </div>
 
-        <div class="form-group">
-            <input class="button" type="submit" id="next" value="@Messages("common.button.snc")">
-        </div>
+        @inputRadio(
+            form = aboutYou,
+            fieldName = "completionCapacity",
+            inline = false,
+            legend = messages("page.reg.AboutYou.description"),
+            items = Seq(
+                RadioItem(
+                    id = Some("completionCapacity"),
+                    content = Text(messages("page.reg.AboutYou.radio1")),
+                    value = Some("director"),
+                    checked = aboutYou("completionCapacity").value.contains("director")
+                ),
+                RadioItem(
+                    id = Some("company secretary"),
+                    content = Text(messages("page.reg.AboutYou.radio2")),
+                    value = Some("company secretary"),
+                    checked = aboutYou("completionCapacity").value.contains("company secretary")
+                ),
+                RadioItem(
+                    id = Some("agent"),
+                    content = Text(messages("page.reg.AboutYou.radio3")),
+                    value = Some("agent"),
+                    checked = aboutYou("completionCapacity").value.contains("agent")
+                ),
+                RadioItem(
+                    id = Some("other"),
+                    content = Text(messages("page.reg.AboutYou.radio4")),
+                    value = Some("other"),
+                    checked = aboutYou("completionCapacity").value.contains("other"),
+                    conditionalHtml = Some(otherHidden)
+
+                ),
+            ),
+            legendAsHeading = true,
+        )
+
+        @button(messages("common.button.snc"))
     }
 }

@@ -14,26 +14,24 @@
  * limitations under the License.
  *@
 
-@import helpers.errorSummary
 @import models.Ticket
 
-@this(main_template: main_template,
-        errorSummary: errorSummary)
+@this(layout: templates.layout,
+        errorSummary: components.errorSummary,
+        h1: components.h1,
+        p: components.p)
 
 @(deskproForm: Form[Ticket])(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
-@main_template(title = Messages("errorPages.failedSubmission.description")) {
+@layout(Some(Messages("errorPages.failedSubmission.description"))) {
 
-    @errorSummary(
-        messages("common.errorSummary.label"), deskproForm
-    )
+    @errorSummary(deskproForm.errors)
 
-    <h1 id="submissionFailedReportAProblem" class="heading-large">@Messages("errorPages.failedSubmission.description")</h1>
+    @h1(messages("errorPages.failedSubmission.description"))
 
-    <div class="spaced-below">
-        <p>@Messages("errorPages.failedSubmission.p1")</p>
-
-        <p>@Messages("errorPages.failedSubmission.p2")</p>
-    </div>
+    @p {
+        @Messages("errorPages.failedSubmission.p1")
+        @Messages("errorPages.failedSubmission.p2")
+    }
 
 }

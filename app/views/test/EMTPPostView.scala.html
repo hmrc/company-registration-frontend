@@ -16,61 +16,62 @@
 
 @import models.test.ETMPNotification
 @import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
-@import helpers.{errorSummary, input}
 
-@this(main_template: main_template,
+@this(layout: templates.layout,
         formWithCsrf: FormWithCSRF,
-        input: input)
+        h1: components.h1,
+        button: components.button,
+        inputText: components.inputText)
 @(etmp : Form[ETMPNotification])(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
 
-@main_template(title = "ETMP/DES Data", mainClass = Some("full-width")) {
+@layout(Some("ETMP/DES Data")) {
 
-    <div class="grid-row">
-        <div class="column-one-third">
+    @h1(messages("ETMP/DES Data"))
 
-                <h1 class="form-title heading-large" id="main-heading">ETMP/DES Data</h1>
-
-        </div>
-    </br>
         @formWithCsrf(action = controllers.test.routes.ETMPNotificationTestController.submit) {
-    </div>
-            <div class="form-group">
-                @input(
-                    etmp("ackRef"),
-                    '_label -> "Acknowledgment Reference",
-                    '_labelClass -> "heading-small",
-                    '_inputClass -> "form-control form-control--block"
-                )
-                @input(
-                    etmp("timestamp"),
-                    '_label -> "Timestamp",
-                    '_labelClass -> "heading-small",
-                    '_inputClass -> "form-control form-control--block"
-                )
-                @input(
-                    etmp("regime"),
-                    '_label -> "Tax Regime",
-                    '_labelClass -> "heading-small",
-                    '_inputClass -> "form-control form-control--block"
-                )
-                @input(
-                    etmp("business-tax-identifier"),
-                    '_label -> "Business tax identifier",
-                    '_labelClass -> "heading-small",
-                    '_inputClass -> "form-control form-control--block"
-                )
-                @input(
-                    etmp("status"),
-                    '_label -> "ETMP Status",
-                    '_labelClass -> "heading-small",
-                    '_inputClass -> "form-control form-control--block"
-                )
-            </div>
 
-            <div class="form-group">
-                <input class="button" type="submit" id="next" value="@Messages("common.button.snc")">
-            </div>
+                @inputText(
+                    form = etmp,
+                    name = "ackRef",
+                    id = "ackRef",
+                    label = messages("Acknowledgment Reference"),
+                    isPageHeading = false,
+                )
+
+                @inputText(
+                    form = etmp,
+                    name = "timestamp",
+                    id = "timestamp",
+                    label = messages("Timestamp"),
+                    isPageHeading = false,
+                )
+
+                @inputText(
+                    form = etmp,
+                    name = "regime",
+                    id = "regime",
+                    label = messages("Tax Regime"),
+                    isPageHeading = false,
+                )
+
+                @inputText(
+                    form = etmp,
+                    name = "business-tax-identifier",
+                    id = "business-tax-identifier",
+                    label = messages("Business tax identifier"),
+                    isPageHeading = false,
+                )
+
+                @inputText(
+                    form = etmp,
+                    name = "status",
+                    id = "status",
+                    label = messages("ETMP Status"),
+                    isPageHeading = false,
+                )
+
+            @button(messages("common.button.snc"))
+
         }
-    </div>
 }

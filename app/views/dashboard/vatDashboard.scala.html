@@ -16,50 +16,71 @@
 
 @import views.html.dashboard.displayRegistrationStatus
 @import views.html.dashboard.displayRegistrationActions
+@import uk.gov.hmrc.govukfrontend.views.Aliases.Table
+@import uk.gov.hmrc.govukfrontend.views.Aliases.TableRow
+@import uk.gov.hmrc.govukfrontend.views.Aliases.Text
+@import uk.gov.hmrc.govukfrontend.views.Aliases.HtmlContent
+@import uk.gov.hmrc.govukfrontend.views.html.components.GovukTable
+@import uk.gov.hmrc.govukfrontend.views.html.components.GovukDetails
+@import uk.gov.hmrc.govukfrontend.views.Aliases.Details
+@import models.external.Statuses._
+@import uk.gov.hmrc.govukfrontend.views.Aliases.HeadCell
 
 @this(displayRegistrationStatus: displayRegistrationStatus,
-        displayRegistrationActions: displayRegistrationActions)
+        displayRegistrationActions: displayRegistrationActions,
+        h2: components.h2,
+        p: components.p,
+        bullets: components.bullets,
+        govukTable: GovukTable,
+        link: components.link,
+        govukDetails: GovukDetails,
+        panelIndent: components.panelIndent
+)
 
 @(vatDash: ServiceDashboard, vatFeatureFlag: Boolean)(implicit request: Request[_], messages: Messages)
-@import models.external.Statuses._
 
-<h2 class="heading-medium" id="vatSubheading">@messages("page.reg.Dashboard.VAT.title")</h2>
-<table class="check-your-answers">
-    <tbody>
-        @{if(vatFeatureFlag) scrsContent(vatDash) else otrsContent}
-    </tbody>
-</table>
+@h2(messages("page.reg.Dashboard.VAT.title"))
+
+@{if(vatFeatureFlag) scrsContent(vatDash) else otrsContent}
 
 @otrsContent = {
-    <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
-        <td>@messages("page.reg.Dashboard.status")</td>
-        <td id="legacyVATStatusText">
-            <a id="vatUrl" href="https://tax.service.gov.uk/register-for-vat" target="_blank">
-                @messages("page.reg.Dashboard.VAT.registerText")
-                <div class="visually-hidden">@messages("page.reg.Dashboard.hiddenOpenNewTab")</div>
-            </a>
-        </td>
-    </tr>
-    @doYouNeedToRegisterForVATHelp
+@govukTable(Table(
+    head = Some(Seq(
+        HeadCell(
+            content = Text(messages("page.reg.Dashboard.status")),
+            classes = "govuk-!-width-one-half"
+        ),
+        HeadCell(
+            content = HtmlContent(link(
+                "https://tax.service.gov.uk/register-for-vat",
+                messages("page.reg.Dashboard.VAT.registerText"),
+                isExternal = true
+            )), attributes = Map("id" -> "legacyVATStatusText"),
+            classes = "govuk-!-width-one-half"
+        ),
+    )),
+    captionClasses = "govuk-table__caption--m",
+    firstCellIsHeader = false
+))
+
+@govukDetails(Details(
+    summary = Text(messages("page.reg.Dashboard.VAT.helpLink")),
+    content = HtmlContent(doYouNeedToRegisterForVATHelp)
+))
 }
 
 @doYouNeedToRegisterForVATHelp = {
-    <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
-        <td colspan="2">
-            <details>
-                <summary><span class="summary">@Messages("page.reg.Dashboard.VAT.helpLink")</span></summary>
-                <div class="panel panel-indent">
-                    <span>@Messages("page.reg.Dashboard.VAT.helpTextParagraph1")</span>
-                    <ul class="list-bullet">
-                        <li id="vatThresholdLastYear">@Messages("page.reg.Dashboard.VAT.helpTextParagraph2", vatDash.thresholds.get("yearly"))</li>
-                        <li id="vatThresholdNext30Day">@Messages("page.reg.Dashboard.VAT.helpTextParagraph3", vatDash.thresholds.get("yearly"))</li>
-                    </ul>
-                    <span>@Messages("page.reg.Dashboard.VAT.helpTextParagraph4")</span>
-                    <span id="vatThresholdAnnually">@Messages("page.reg.Dashboard.VAT.helpTextParagraph5", vatDash.thresholds.get("yearly"))</span>
-                </div>
-            </details>
-        </td>
-    </tr>
+    @p {
+        @messages("page.reg.Dashboard.VAT.helpTextParagraph1")
+    }
+    @bullets(
+        messages("page.reg.Dashboard.VAT.helpTextParagraph2", vatDash.thresholds.get("yearly")),
+        messages("page.reg.Dashboard.VAT.helpTextParagraph3", vatDash.thresholds.get("yearly"))
+    )
+    @p {
+        @messages("page.reg.Dashboard.VAT.helpTextParagraph4")
+        @messages("page.reg.Dashboard.VAT.helpTextParagraph5", vatDash.thresholds.get("yearly"))
+    }
 }
 
 @scrsContent(dashboard: ServiceDashboard) = {
@@ -78,36 +99,54 @@
 }
 
 @displayHelpText = {
-    <tr class="tabular-data__cell--centred status--confirm-success" role="row">
-        <td colspan="2">
-            @messages("page.reg.Dashboard.VAT.helpTextListHeader")
-            <ul class="list-bullet">
-                <li>@messages("page.reg.Dashboard.VAT.helpTextBullet1")</li>
-                <li>@messages("page.reg.Dashboard.VAT.helpTextBullet2")</li>
-            </ul>
-            <p id="vatThreshold"><strong>@Messages("page.reg.Dashboard.VAT.helpTextThreshold", vatDash.thresholds.get("yearly")) </strong></p>
-            <p>@Messages("page.reg.Dashboard.VAT.helpTextParagraph1")</p>
-        </td>
-    </tr>
+@govukTable(Table(
+    head = Some(Seq(
+        HeadCell(
+            content = Text(messages("page.reg.Dashboard.VAT.helpTextListHeader")),
+            classes = "govuk-!-width-one-half"
+        ),
+        HeadCell(
+            content = HtmlContent(bullets(
+                messages("page.reg.Dashboard.VAT.helpTextBullet1"),
+                messages("page.reg.Dashboard.VAT.helpTextBullet2")
+            )),
+            classes = "govuk-!-width-one-half"
+        ),
+    )),
+    captionClasses = "govuk-table__caption--m",
+    firstCellIsHeader = false
+))
+
+    @p{
+        @messages("page.reg.Dashboard.VAT.helpTextThreshold", vatDash.thresholds.get("yearly"))
+        @Messages("page.reg.Dashboard.VAT.helpTextParagraph1")
+    }
 }
 
 @displaySubmissionText = {
-    <tr class="tabular-data__cell--centred status--confirm-success" role="row">
-        <td colspan="2">
-            @messages("page.reg.Dashboard.VAT.helpTextSubmittedHeader")
-            <ul class="list-bullet">
-                <li>@messages("page.reg.Dashboard.VAT.helpTextSubmittedBullet1")</li>
-                <li>@messages("page.reg.Dashboard.VAT.helpTextSubmittedBullet2")</li>
-                <li>@messages("page.reg.Dashboard.VAT.helpTextSubmittedBullet3")</li>
-            </ul>
-        </td>
-    </tr>
+
+@govukTable(Table(
+    head = Some(Seq(
+        HeadCell(
+            content = Text(messages("page.reg.Dashboard.VAT.helpTextSubmittedHeader")),
+            classes = "govuk-!-width-one-half"
+        ),
+        HeadCell(
+            content = HtmlContent(bullets(
+                messages("page.reg.Dashboard.VAT.helpTextSubmittedBullet1"),
+                messages("page.reg.Dashboard.VAT.helpTextSubmittedBullet2"),
+                messages("page.reg.Dashboard.VAT.helpTextSubmittedBullet3")
+            )),
+            classes = "govuk-!-width-one-half"
+        ),
+    )),
+    captionClasses = "govuk-table__caption--m",
+    firstCellIsHeader = false
+))
 }
 
 @cantProcessText = {
-    <tr class="tabular-data__cell--centred status--confirm-success" role="row">
-        <td colspan="2">
-            @messages("page.reg.Dashboard.VAT.pendingText")
-        </td>
-    </tr>
+    @p {
+        @messages("page.reg.Dashboard.VAT.pendingText")
+    }
 }

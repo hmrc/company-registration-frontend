@@ -14,40 +14,34 @@
  * limitations under the License.
  *@
 
-@import views.html.helpers.inputRadioGroup
 @import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
 
-@this(main_template: main_template,
+@this(layout: templates.layout,
+        p: components.p,
+        button: components.button,
         formWithCsrf: FormWithCSRF,
-        inputRadioGroup: inputRadioGroup)
+        yesNoRadio: components.yesNoRadio,
+        inputRadio: components.inputRadio)
 
 @(cancelSelection : Form[Boolean])(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
-@main_template(title = Messages("page.reg.cancelvat.description"), mainClass = None){
+@layout(pageTitle = Some(messages("page.reg.cancelvat.description"))){
 
-<a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
+    @p{
+        @messages("page.reg.cancelservice.warning")
+    }
 
-    <div class="notice">
-        <div class="important-notice">
-            @Messages("page.reg.cancelservice.warning")<br>
-            <BR>
-        </div>
-    </div>
     @formWithCsrf(action = controllers.dashboard.routes.CancelRegistrationController.submitCancelVAT) {
-        <div class="form-group">
-            @inputRadioGroup(
-                cancelSelection("cancelService"),
-                Seq(("true",Messages("page.reg.cancelservice.radioYesLabel")),("false",Messages("page.reg.cancelservice.radioNoLabel"))),
-                isHeading = true,
-                '_fieldsetId -> "cancel-vat",
-                '_groupClass -> "inline",
-                '_labelClass -> "block-label radio-label",
-                '_legend -> Messages("page.reg.cancelvat.description")
-            )
-        </div>
+        @yesNoRadio(
+            form = cancelSelection,
+            id = "cancelService",
+            headingKey = messages("page.reg.cancelvat.description"),
+            isPageHeading = false,
+            inline = true,
+            classes = "govuk-visually-hidden",
+            fieldName = "cancelService"
+        )
 
-        <div class="form-group">
-            <input class="button" type="submit" id="next" value="@Messages("common.button.save")">
-        </div>
+        @button(messages("common.button.save"))
     }
 }

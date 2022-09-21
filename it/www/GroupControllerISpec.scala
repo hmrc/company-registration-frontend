@@ -386,7 +386,7 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
         withHttpHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
         .get())
       val doc = Jsoup.parse(fResponse.body)
-      doc.getElementById("groupRelief-true").attr("checked") shouldBe "checked"
+      doc.getElementById("groupRelief").attr("value") shouldBe "true"
     }
   }
   "GroupNameGET" should {
@@ -433,14 +433,7 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
         .get())
       val doc = Jsoup.parse(fResponse.body)
 
-      doc.getElementById("groupName-othername").attr("checked") shouldBe "checked"
-      doc.getElementById("otherName").`val` shouldBe "foo"
-      doc.getElementById("groupName-wizz").attr("value") shouldBe "wizz"
-      doc.getElementById("groupName-wizz").attr("checked") shouldBe ""
-      doc.getElementById("groupName-bar_").attr("value") shouldBe "bar "
-      doc.getElementById("groupName-bar_").attr("checked") shouldBe ""
-      doc.getElementById("groupName-bar").attr("value") shouldBe "bar"
-      doc.getElementById("groupName-bar").attr("checked") shouldBe ""
+      doc.getElementById("Something else").attr("value") shouldBe "otherName"
     }
     "return 200 and pre populate page when CohoEntered is saved && shareholder name still in list of shareholders" in new Setup {
       val expected = Json.parse(
@@ -470,15 +463,9 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
         withHttpHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
         .get())
       val doc = Jsoup.parse(fResponse.body)
-      doc.getElementById("groupName-othername").attr("checked") shouldBe ""
-      doc.getElementById("otherName").`val` shouldBe ""
-      doc.getElementById("otherName-hidden").attr("style") shouldBe ""
-      doc.getElementById("groupName-foo_bar").attr("value") shouldBe "Foo Bar"
-      doc.getElementById("groupName-foo_bar").attr("checked") shouldBe "checked"
-      doc.getElementById("groupName-bar").attr("value") shouldBe "bar"
-
+      doc.getElementById("groupName").attr("value") shouldBe "Foo Bar"
     }
-    "return 200, dont pre populate page and drop group elelments from CR when CohoEntered is saved && shareholder name is NOT in the list of shareholders any more (changed shareholder)" in new Setup {
+    "return 200, dont pre populate page and drop group elements from CR when CohoEntered is saved && shareholder name is NOT in the list of shareholders any more (changed shareholder)" in new Setup {
       val expected = Json.parse(
         """{
           |   "groupRelief": true,
@@ -508,12 +495,7 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
         .get())
       val doc = Jsoup.parse(fResponse.body)
 
-      doc.getElementById("groupName-othername").attr("checked") shouldBe ""
-      doc.getElementById("otherName").`val` shouldBe ""
-      doc.getElementById("groupName-foo_bar").attr("value") shouldBe "Foo Bar"
-      doc.getElementById("groupName-foo_bar").attr("checked") shouldBe ""
-      doc.getElementById("groupName-bar").attr("value") shouldBe "bar"
-      doc.getElementById("groupName-bar").attr("checked") shouldBe ""
+      doc.getElementById("groupName").attr("value") shouldBe "Foo Bar"
       intercept[Exception](doc.getElementById("groupName-foo_bar_incorrect").`val`)
 
       getPUTRequestJsonBody(s"/company-registration/corporation-tax-registration/$regId/groups") shouldBe Json.parse("""{"groupRelief": true}""")
@@ -554,7 +536,7 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
         withHttpHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
         .get())
       val doc = Jsoup.parse(fResponse.body)
-      doc.getElementById("groupAddress-alf").`val` shouldBe "ALF"
+      doc.getElementById("groupAddress").`val` shouldBe "ALF"
       val label = doc.getElementsByTag("label").first()
       label.text shouldBe "1 abc, 2 abc, 3 abc, 4 abc, ZZ1 1ZZ, country A"
     }
@@ -756,9 +738,8 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
         .get())
 
       val doc = Jsoup.parse(fResponse.body)
-      doc.getElementById("groupUtr-utr").`val` shouldBe "utr"
+      doc.getElementById("groupUTR").`val` shouldBe "true"
       doc.getElementById("utr").`val` shouldBe "1234567890"
-      doc.getElementById("groupUtr-utr").attr("checked") shouldBe "checked"
     }
   }
   "GroupUTRSubmit" should {
@@ -795,7 +776,7 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
 
       val fResponse = buildClient(controllers.groups.routes.GroupUtrController.submit.url).
         withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
-        .post(Map("Csrf-Token" -> Seq("nocheck"), "groupUtr" -> Seq("utr"), "utr" -> Seq("123")))
+        .post(Map("Csrf-Token" -> Seq("nocheck"), "groupUTR" -> Seq("true"), "utr" -> Seq("123")))
 
       val res = await(fResponse)
       res.status shouldBe 303

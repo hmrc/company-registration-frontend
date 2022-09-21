@@ -88,7 +88,7 @@ class RegistrationEmailConfirmationControllerSpec extends SCRSSpec with GuiceOne
         result =>
           status(result) shouldBe OK
           val document = Jsoup.parse(contentAsString(result))
-          document.getElementById("confirmRegistrationEmail-true").attr("checked") shouldBe "checked"
+          document.getElementById("confirmRegistrationEmail").attr("value") shouldBe "true"
       }
     }
     "return a 200 with an authorised user where no data exists in keystore for this page" in new Setup {
@@ -103,8 +103,8 @@ class RegistrationEmailConfirmationControllerSpec extends SCRSSpec with GuiceOne
         result =>
           status(result) shouldBe OK
           val document = Jsoup.parse(contentAsString(result))
-          document.getElementById("confirmRegistrationEmail-true").attr("checked") shouldBe ""
-          document.getElementById("confirmRegistrationEmail-false").attr("checked") shouldBe ""
+          document.getElementById("confirmRegistrationEmail").attr("checked") shouldBe ""
+          document.getElementById("confirmRegistrationEmail-no").attr("checked") shouldBe ""
       }
     }
     "return a 303 redirect with an authorised user because RegistrationEmailModel in keystore is None" in new Setup {
@@ -194,8 +194,8 @@ class RegistrationEmailConfirmationControllerSpec extends SCRSSpec with GuiceOne
             result =>
               status(result) shouldBe BAD_REQUEST
               val document = Jsoup.parse(contentAsString(result))
-              document.getElementById("confirmRegistrationEmail-true").attr("checked") shouldBe ""
-              document.getElementById("confirmRegistrationEmail-false").attr("checked") shouldBe ""
+              document.getElementById("confirmRegistrationEmail").attr("checked") shouldBe ""
+              document.getElementById("confirmRegistrationEmail-no").attr("checked") shouldBe ""
           }
         }
       }

@@ -58,9 +58,9 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fix
 
       val document = Jsoup.parse(response.body)
       document.title should include("When will the company start trading?")
-      document.getElementById("businessStartDate-whenregistered").attr("checked") shouldBe ""
-      document.getElementById("businessStartDate-futuredate").attr("checked") shouldBe ""
-      document.getElementById("businessStartDate-notplanningtoyet").attr("checked") shouldBe ""
+      document.getElementById("businessStartDate").attr("checked") shouldBe ""
+      document.getElementById("futureDate").attr("checked") shouldBe ""
+      document.getElementById("notPlanningToYet").attr("checked") shouldBe ""
     }
 
     "Return an populated page if CR returns a response" in {
@@ -85,12 +85,10 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fix
 
       val document = Jsoup.parse(response.body)
       document.title should include("When will the company start trading?")
-      document.getElementById("businessStartDate-whenregistered").attr("checked") shouldBe ""
-      document.getElementById("businessStartDate-futuredate").attr("checked") shouldBe "checked"
-      document.getElementById("businessStartDate-notplanningtoyet").attr("checked") shouldBe ""
-      document.getElementById("businessStartDate-futureDate.day").`val` shouldBe "02"
-      document.getElementById("businessStartDate-futureDate.month").`val` shouldBe "01"
-      document.getElementById("businessStartDate-futureDate.year").`val` shouldBe "2018"
+      document.getElementById("futureDate").`val` shouldBe "futureDate"
+      document.getElementById("futureDate.Day").`val` shouldBe "02"
+      document.getElementById("futureDate.Month").`val` shouldBe "01"
+      document.getElementById("futureDate.Year").`val` shouldBe "2018"
     }
 
     "Redirect to dashboard if status is NOT draft" in {
@@ -136,9 +134,9 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fix
         post(Map(
           "csrfToken" -> Seq("xxx-ignored-xxx"),
           "businessStartDate" -> Seq("futureDate"),
-          "businessStartDate-futureDate.year" -> Seq(testYear.toString),
-          "businessStartDate-futureDate.month" -> Seq("1"),
-          "businessStartDate-futureDate.day" -> Seq("2")
+          "futureDate.Year" -> Seq(testYear.toString),
+          "futureDate.Month" -> Seq("1"),
+          "futureDate.Day" -> Seq("2")
         ))
 
       val response = await(fResponse)
@@ -163,16 +161,14 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fix
         post(Map(
           "csrfToken" -> Seq("xxx-ignored-xxx"),
           "businessStartDate" -> Seq("futureDate"),
-          "businessStartDate-futureDate.year" -> Seq("foo bar"),
-          "businessStartDate-futureDate.month" -> Seq("wizz bang"),
-          "businessStartDate-futureDate.day" -> Seq("buzz fuzzle")
+          "futureDate.year" -> Seq("foo bar"),
+          "futureDate.month" -> Seq("wizz bang"),
+          "futureDate.day" -> Seq("buzz fuzzle")
         )))
 
       response.status shouldBe 400
       val doc = Jsoup.parse(response.body)
-      Option(doc.getElementById("invalidDay-error-summary")).isDefined shouldBe true
-      Option(doc.getElementById("invalidMonth-error-summary")).isDefined shouldBe true
-      Option(doc.getElementById("invalidYear-error-summary")).isDefined shouldBe true
+      Option(doc.getElementById("futureDate.Day-error")).isDefined shouldBe true
     }
   }
 }

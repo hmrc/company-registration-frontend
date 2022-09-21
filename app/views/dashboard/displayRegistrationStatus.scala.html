@@ -14,42 +14,57 @@
  * limitations under the License.
  *@
 
-@this()
-@(dash: ServiceDashboard, prefixHtmlId: String)(implicit request: Request[_], messages: Messages)
 @import models.external.Statuses._
+@import uk.gov.hmrc.govukfrontend.views.html.components.GovukTable
+@import uk.gov.hmrc.govukfrontend.views.Aliases.Table
+@import uk.gov.hmrc.govukfrontend.views.Aliases.TableRow
+@import uk.gov.hmrc.govukfrontend.views.Aliases.HtmlContent
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.table.HeadCell
+@import uk.gov.hmrc.govukfrontend.views.Aliases.Text
+
+@this(govukTable : GovukTable,
+        links: components.link)
+
+
+@(dash: ServiceDashboard, prefixHtmlId: String)(implicit request: Request[_], messages: Messages)
 
 @notStartedText(id: String) = @{
-    <a id={id} href={dash.links.startURL}>
-        {
-            id match {
-                case "payeRegUrl" =>{Messages("page.reg.Dashboard.registerTextForPAYE")}
-                case "vatRegUrl" => {Messages("page.reg.Dashboard.registerText")}
-            }
-        }
-    </a>
+    links(dash.links.startURL, id match {
+        case "payeRegUrl" =>{"page.reg.Dashboard.registerTextForPAYE"}
+        case "vatRegUrl" => {"page.reg.Dashboard.registerText"}
+    }
+    )
 }
 
-<tr class="tabular-data__cell--centred status--confirm-success" role="row">
-
-    @if(dash.status != NOT_STARTED) @{
-        <td>{Messages("page.reg.Dashboard.status")}</td>
-    }
-
-    <td id="@{prefixHtmlId}StatusText">
-        @{
-            val htmlId = s"${prefixHtmlId}RegUrl"
-            dash.status match {
-                case NOT_ELIGIBLE => Messages("page.reg.Dashboard.PAYE.notEligible")
-                case NOT_STARTED => notStartedText(htmlId)
-                case "draft" | "locked" => Messages("page.reg.Dashboard.status.incomplete")
-                case "held" => Messages("page.reg.Dashboard.status.pending")
-                case "submitted" => Messages("page.reg.Dashboard.status.submitted")
-                case "acknowledged" => Messages("page.reg.Dashboard.status.acknowledged")
-                case "invalid" => Messages("page.reg.Dashboard.status.incomplete")
-                case "rejected" => Messages("page.reg.Dashboard.status.rejected")
-                case NOT_ENABLED => {""}
-                case UNAVAILABLE => Messages("page.reg.Dashboard.status.unavailable")
-            }
-        }
-    </td>
-</tr>
+@govukTable(Table(
+    head = Some(Seq(
+        HeadCell(
+            content = HtmlContent(
+                if(dash.status != NOT_STARTED) {
+                    messages("page.reg.Dashboard.status")
+                } else messages(notStartedText(s"${prefixHtmlId}RegUrl").toString())
+            ),
+            attributes = if(dash.status == NOT_STARTED) {Map("id" -> s"${prefixHtmlId}StatusText")} else Map(),
+            classes = "govuk-!-width-one-half"
+        ),
+        HeadCell(
+            content = HtmlContent(
+                dash.status match {
+                    case NOT_ELIGIBLE => Messages("page.reg.Dashboard.PAYE.notEligible")
+                    case NOT_STARTED => ""
+                    case "draft" | "locked" => Messages("page.reg.Dashboard.status.incomplete")
+                    case "held" => Messages("page.reg.Dashboard.status.pending")
+                    case "submitted" => Messages("page.reg.Dashboard.status.submitted")
+                    case "acknowledged" => Messages("page.reg.Dashboard.status.acknowledged")
+                    case "invalid" => Messages("page.reg.Dashboard.status.incomplete")
+                    case "rejected" => Messages("page.reg.Dashboard.status.rejected")
+                    case NOT_ENABLED => {""}
+                    case UNAVAILABLE => Messages("page.reg.Dashboard.status.unavailable")
+                }
+            ), classes = "govuk-!-width-one-half", attributes = Map("id" -> s"${prefixHtmlId}StatusText"))
+        )
+    ),
+    captionClasses = "govuk-table__caption--m",
+    firstCellIsHeader = false,
+    classes = "govuk-!-margin-0"
+))

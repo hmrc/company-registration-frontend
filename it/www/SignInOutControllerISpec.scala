@@ -463,9 +463,6 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with R
       val response = await(buildClient(s"/sign-out?continueUrl=${encodeURL(continueURL)}").get())
 
       response.status shouldBe 400
-      val document = Jsoup.parse(response.body)
-      document.title should include("Bad request - 400")
-      document.select("h1").text should include("Bad request")
     }
   }
 

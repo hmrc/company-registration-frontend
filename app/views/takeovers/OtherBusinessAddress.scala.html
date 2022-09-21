@@ -17,49 +17,54 @@
 @import config.AppConfig
 @import models.takeovers.AddressChoice
 @import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
-@import views.helpers.TitleHelper.title
-@import views.html.helpers.errorSummary
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
+@import uk.gov.hmrc.govukfrontend.views.Aliases.HtmlContent
 
-@this(main_template: main_template,
-        errorSummary: errorSummary,
-        inputRadioGroupAddresses: helpers.inputRadioGroupAddresses,
-        formWithCsrf: FormWithCSRF)
+@this(layout: templates.layout,
+        errorSummary: components.errorSummary,
+        h1: components.h1,
+        formWithCsrf: FormWithCSRF,
+        button: components.button,
+        p: components.p,
+        inputRadio: components.inputRadio,
+        bullets: components.bullets)
 
-@(otherBusinessAddressForm: Form[AddressChoice], previousOwnerName: String, addressSeq: Seq[NewAddress])(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
+@(otherBusinessAddressForm: Form[AddressChoice], previousOwnerName: String, addressMap: Seq[Any])(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
-@main_template(title = title(messages("page.takeovers.otherBusinessAddress.title", previousOwnerName),otherBusinessAddressForm)) {
+@layout(pageTitle = Some(messages("page.takeovers.otherBusinessAddress.title", previousOwnerName))) {
 
-    <a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
+    @errorSummary(otherBusinessAddressForm.errors)
 
-    @errorSummary(
-        Messages("common.errorSummary.label"),
-        otherBusinessAddressForm,
-        dataJourney = Some("TakeOvers")
+    @h1(messages("page.takeovers.otherBusinessAddress.heading", previousOwnerName))
+
+    @p {
+        @messages("page.takeovers.otherBusinessAddress.line1", previousOwnerName)
+    }
+
+    @bullets(
+        messages("page.takeovers.otherBusinessAddress.bullet1"),
+        messages("page.takeovers.otherBusinessAddress.bullet2")
     )
-    <h1 id="main-heading" class="heading-large">@messages("page.takeovers.otherBusinessAddress.heading", previousOwnerName)</h1>
-
-    <div id="paragraph-one" class="form-group">
-        <p id="line1">@messages("page.takeovers.otherBusinessAddress.line1", previousOwnerName)</p>
-        <ul class="list-bullet">
-            <li>@messages("page.takeovers.otherBusinessAddress.bullet1")</li>
-            <li>@messages("page.takeovers.otherBusinessAddress.bullet2")</li>
-        </ul>
-    </div>
 
     @formWithCsrf(action = controllers.takeovers.routes.OtherBusinessAddressController.submit) {
 
-        <div class="form-group">
-            @inputRadioGroupAddresses(
-                field = otherBusinessAddressForm("otherBusinessAddress"),
-                addresses = addressSeq,
-                legend = messages("page.takeovers.otherBusinessAddress.heading", previousOwnerName),
-                isHeading = false,
-                isHidden = true
-            )
-        </div>
+        @inputRadio(
+            form = otherBusinessAddressForm,
+            fieldName = "otherBusinessAddress",
+            legend = messages("page.takeovers.otherBusinessAddress.heading", previousOwnerName),
+            items = addressMap.toList.zipWithIndex.collect {
+                case ((address), idx) =>
+                    RadioItem(
+                        content = HtmlContent(address.toString),
+                        value = if(address == "A different address") { Some("Other") } else {Some(idx.toString)},
+                        checked = otherBusinessAddressForm(s"otherBusinessAddress").value.contains(if(address == "A different address") { Some("Other").toString } else { idx.toString}),
+                        id = if(idx == 0) { Some(s"${previousOwnerName}") } else Some(s"otherBusinessAddress-$idx")
+                    )
+            },
+            legendAsHeading = false,
+            classes = "govuk-visually-hidden"
+        )
 
-        <div class="form-group">
-            <input class="button" type="submit" id="next" value="@messages("common.button.snc")">
-        </div>
+        @button(messages("common.button.snc"))
     }
 }

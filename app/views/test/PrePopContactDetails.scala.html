@@ -14,19 +14,20 @@
  * limitations under the License.
  *@
 
-@this(main_template: main_template)
+@this(layout: templates.layout,
+        h1: components.h1,
+        p: components.p
+)
+
 @(contactDetails: CompanyContactDetailsApi)(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
-@main_template(title = "Feature switch", mainClass = Some("full-width")) {
+@layout(pageTitle = Some("Feature switch")) {
 
-<div class="grid-row">
-    <div class="column-one-third">
+    @h1(messages("Pre-pop company contact details"))
 
-            <h1 class="form-title heading-large" id="main-heading">Pre-pop company contact details</h1>
-
-    </div>
-    <p>telephone number : <span  id="tel-number">@contactDetails.contactDaytimeTelephoneNumber</span></p>
-    <p>mobile number : <span id="mobile-number">@contactDetails.contactMobileNumber</span></p>
-    <p>email : <span id="email">@contactDetails.contactEmail</span></p>
-</div>
+    @p {
+        @messages("telephone number: ") @contactDetails.contactDaytimeTelephoneNumber
+        @messages("mobile number: ") @contactDetails.contactMobileNumber
+        @messages("email: ") @contactDetails.contactEmail
+    }
 }

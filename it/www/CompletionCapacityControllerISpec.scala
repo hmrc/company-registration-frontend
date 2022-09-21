@@ -68,8 +68,7 @@ class CompletionCapacityControllerISpec extends IntegrationSpecBase with LoginSt
       response.status shouldBe 200
 
       val doc = Jsoup.parse(response.body)
-      doc.getElementById("completionCapacity-director").attr("checked") shouldBe "checked"
-      doc.getElementById("completionCapacityOther").`val` shouldBe ""
+      doc.getElementById("completionCapacity").attr("value") shouldBe "director"
     }
   }
 
@@ -105,7 +104,7 @@ class CompletionCapacityControllerISpec extends IntegrationSpecBase with LoginSt
 
       response.status shouldBe 400
       val doc = Jsoup.parse(response.body)
-      Option(doc.getElementById("completionCapacity-error-summary")).isDefined shouldBe true
+      Option(doc.getElementById("completionCapacity-error")).isDefined shouldBe true
     }
   }
 }

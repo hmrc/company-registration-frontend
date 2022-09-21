@@ -16,13 +16,15 @@
 
 @import models._
 @import uk.gov.hmrc.play.views.html.helpers.{FormWithCSRF}
-@import views.html.helpers.errorSummary
-@import views.html.helpers.input
 
-@this(main_template: main_template,
+@this(layout: templates.layout,
         formWithCSRF: FormWithCSRF,
-        input: input,
-        errorSummary: errorSummary)
+        h1: components.h1,
+        h2: components.h2,
+        h3: components.h3,
+        button: components.button,
+        inputText: components.inputText,
+        errorSummary: components.errorSummary)
 
 @(accountingDatesForm: Form[AccountingDatesModel],
   firstHandBackForm: Form[models.handoff.CompanyNameHandOffFormModel],
@@ -31,148 +33,246 @@
   tradingDetailsForm : Form[TradingDetails],
   applicantForm : Form[AboutYouChoice])(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
-@main_template(title = Messages("page.reg.Confirmation.description"), mainClass = Some("full-width")) {
+@layout(pageTitle = Some(messages("page.reg.Confirmation.description"))) {
 
-    @errorSummary(
-        Messages("common.errorSummary.label"),
-        applicantForm
-    )
+    @errorSummary(applicantForm.errors)
 
     @formWithCSRF(action = controllers.test.routes.TestEndpointController.postAllS4LEntries) {
-        <h1>Mongo</h1>
 
-        <h2>Applicant</h2>
-        @input(
-            applicantForm("completionCapacity"),
-            '_label -> "Applicant : "
-        )
+        @h1(messages("Mongo"))
+        @h2(messages("Applicant"))
 
-        <h2>Company details</h2>
-        @input(
-            companyDetailsForm("companyName"),
-            '_label -> "Company name : "
+        @inputText(
+            form = applicantForm,
+            name = "completionCapacity",
+            id = "completionCapacity",
+            label = messages("Applicant : "),
+            isPageHeading = false,
         )
 
-        <h3>CH RO Address</h3>
-        @input(
-        companyDetailsForm("chROAddress.premises"),
-        '_label -> "Premises : "
-        )
-        @input(
-        companyDetailsForm("chROAddress.address_line_1"),
-        '_label -> "Address line 1 : "
-        )
-        @input(
-        companyDetailsForm("chROAddress.address_line_2"),
-        '_label -> "Address line 2 : "
-        )
-        @input(
-        companyDetailsForm("chROAddress.country"),
-        '_label -> "Country : "
-        )
-        @input(
-        companyDetailsForm("chROAddress.locality"),
-        '_label -> "Locality : "
-        )
-        @input(
-        companyDetailsForm("chROAddress.po_box"),
-        '_label -> "PO box : "
-        )
-        @input(
-        companyDetailsForm("chROAddress.postal_code"),
-        '_label -> "Post code : "
-        )
-        @input(
-        companyDetailsForm("chROAddress.region"),
-        '_label -> "Region : "
+        @h2(messages("Company details"))
+
+        @inputText(
+            form = companyDetailsForm,
+            name = "companyName",
+            id = "companyName",
+            label = messages("Company name : "),
+            isPageHeading = false,
         )
 
-        <h2>Jurisdiction</h2>
-        @input(
-        companyDetailsForm("jurisdiction"),
-        '_label -> "Jurisdiction : "
+        @h3(messages("CH RO Address"))
+
+        @inputText(
+            form = companyDetailsForm,
+            name = "chROAddress.premises",
+            id = "chROAddress.premises",
+            label = messages("Premises : "),
+            isPageHeading = false,
         )
 
-        <h3>PPOB Address</h3>
-        @input(
-            companyDetailsForm("pPOBAddress.type"),
-            '_label -> "Type : "
-        )
-        @input(
-        companyDetailsForm("pPOBAddress.address.houseNameNumber"),
-        '_label -> "House Name Number : "
-        )
-        @input(
-        companyDetailsForm("pPOBAddress.address.addressLine1"),
-        '_label -> "Address line 1 : "
-        )
-        @input(
-        companyDetailsForm("pPOBAddress.address.addressLine2"),
-        '_label -> "Address line 2 : "
-        )
-        @input(
-        companyDetailsForm("pPOBAddress.address.addressLine3"),
-        '_label -> "Address line 3 : "
-        )
-        @input(
-            companyDetailsForm("pPOBAddress.address.addressLine4"),
-            '_label -> "Address line 4 : "
-        )
-        @input(
-            companyDetailsForm("pPOBAddress.address.postCode"),
-            '_label -> "Postcode : "
-        )
-        @input(
-            companyDetailsForm("pPOBAddress.address.country"),
-            '_label -> "Country : "
+        @inputText(
+            form = companyDetailsForm,
+            name = "chROAddress.address_line_1",
+            id = "chROAddress.address_line_1",
+            label = messages("Address line 1 : "),
+            isPageHeading = false,
         )
 
-        <h3>Company contact details </h3>
-        @input(
-            companyContactForm("contactEmail"),
-            '_label -> "Contact email : "
-        )
-        @input(
-            companyContactForm("contactDaytimeTelephoneNumber"),
-            '_label -> "Contact daytime phone number : "
-        )
-        @input(
-            companyContactForm("contactMobileNumber"),
-            '_label -> "Contact mobile number : "
-        )
-        <h3>Accounting dates</h3>
-        @input(
-            accountingDatesForm("businessStartDate"),
-            '_label -> "Business start date : "
-        )
-        @input(
-            accountingDatesForm("businessStartDate-futureDate.day"),
-            '_label -> "Accounting Dates : ",
-            '_labelClass -> "inline-block",
-            '_inputClass -> "input--xxsmall"
-        )
-        @input(
-            accountingDatesForm("businessStartDate-futureDate.month"),
-            '_labelClass -> "inline-block",
-            '_inputClass -> "input--xxsmall"
-        )
-        @input(
-            accountingDatesForm("businessStartDate-futureDate.year"),
-            '_labelClass -> "inline-block",
-            '_inputClass -> "input--small"
+        @inputText(
+            form = companyDetailsForm,
+            name = "chROAddress.address_line_2",
+            id = "chROAddress.address_line_2",
+            label = messages("Address line 2 : "),
+            isPageHeading = false,
         )
 
-        <h3>Trading details </h3>
-        @input(
-            tradingDetailsForm("regularPayments"),
-            '_label -> "Regular payment choice : "
+        @inputText(
+            form = companyDetailsForm,
+            name = "chROAddress.country",
+            id = "chROAddress.country",
+            label = messages("Country : "),
+            isPageHeading = false,
         )
 
-        <br>
+        @inputText(
+            form = companyDetailsForm,
+            name = "chROAddress.locality",
+            id = "chROAddress.locality",
+            label = messages("Locality : "),
+            isPageHeading = false,
+        )
 
-        <div class="form-group">
-            <input class="button" type="submit" id="next" value="@Messages("common.button.snc")">
-        </div>
+        @inputText(
+            form = companyDetailsForm,
+            name = "chROAddress.po_box",
+            id = "chROAddress.po_box",
+            label = messages("PO box : "),
+            isPageHeading = false,
+        )
+
+        @inputText(
+            form = companyDetailsForm,
+            name = "chROAddress.postal_code",
+            id = "chROAddress.postal_code",
+            label = messages("Post code : "),
+            isPageHeading = false,
+        )
+
+        @inputText(
+            form = companyDetailsForm,
+            name = "chROAddress.region",
+            id = "chROAddress.region",
+            label = messages("Region : "),
+            isPageHeading = false,
+        )
+
+        @h2(messages("Jurisdiction"))
+
+        @inputText(
+            form = companyDetailsForm,
+            name = "jurisdiction",
+            id = "jurisdiction",
+            label = messages("Jurisdiction : "),
+            isPageHeading = false,
+        )
+
+        @h3(messages("PPOB Address"))
+
+        @inputText(
+            form = companyDetailsForm,
+            name = "pPOBAddress.type",
+            id = "pPOBAddress.type",
+            label = messages("Type : "),
+            isPageHeading = false,
+        )
+
+        @inputText(
+            form = companyDetailsForm,
+            name = "pPOBAddress.address.houseNameNumber",
+            id = "pPOBAddress.address.houseNameNumber",
+            label = messages("House Name Number : "),
+            isPageHeading = false,
+        )
+
+        @inputText(
+            form = companyDetailsForm,
+            name = "pPOBAddress.address.addressLine1",
+            id = "pPOBAddress.address.addressLine1",
+            label = messages("Address line 1 : "),
+            isPageHeading = false,
+        )
+
+        @inputText(
+            form = companyDetailsForm,
+            name = "pPOBAddress.address.addressLine2",
+            id = "pPOBAddress.address.addressLine2",
+            label = messages("Address line 2 : "),
+            isPageHeading = false,
+        )
+
+        @inputText(
+            form = companyDetailsForm,
+            name = "pPOBAddress.address.addressLine3",
+            id = "pPOBAddress.address.addressLine3",
+            label = messages("Address line 3 : "),
+            isPageHeading = false,
+        )
+
+        @inputText(
+            form = companyDetailsForm,
+            name = "pPOBAddress.address.addressLine4",
+            id = "pPOBAddress.address.addressLine4",
+            label = messages("Address line 4 : "),
+            isPageHeading = false,
+        )
+
+        @inputText(
+            form = companyDetailsForm,
+            name = "pPOBAddress.address.postCode",
+            id = "pPOBAddress.address.postCode",
+            label = messages("Postcode : "),
+            isPageHeading = false,
+        )
+
+        @inputText(
+            form = companyDetailsForm,
+            name = "pPOBAddress.address.country",
+            id = "pPOBAddress.address.country",
+            label = messages("Country : "),
+            isPageHeading = false,
+        )
+
+        @h3(messages("Company contact details"))
+
+        @inputText(
+            form = companyContactForm,
+            name = "contactEmail",
+            id = "contactEmail",
+            label = messages("Contact email :"),
+            isPageHeading = false,
+        )
+
+        @inputText(
+            form = companyContactForm,
+            name = "contactDaytimeTelephoneNumber",
+            id = "contactDaytimeTelephoneNumber",
+            label = messages("Contact daytime phone number : "),
+            isPageHeading = false,
+        )
+
+        @inputText(
+            form = companyContactForm,
+            name = "contactMobileNumber",
+            id = "contactMobileNumber",
+            label = messages("Contact mobile number : "),
+            isPageHeading = false,
+        )
+
+        @h3(messages("Accounting dates"))
+
+        @inputText(
+            form = accountingDatesForm,
+            name = "businessStartDate",
+            id = "businessStartDate",
+            label = messages("Business start date : "),
+            isPageHeading = false,
+        )
+
+        @inputText(
+            form = accountingDatesForm,
+            name = "futureDate.day",
+            id = "futureDate.day",
+            label = messages("Accounting Dates : "),
+            isPageHeading = false,
+        )
+
+        @inputText(
+            form = accountingDatesForm,
+            name = "futureDate.month",
+            id = "futureDate.month",
+            label = messages(""),
+            isPageHeading = false,
+        )
+
+        @inputText(
+            form = accountingDatesForm,
+            name = "futureDate.year",
+            id = "futureDate.year",
+            label = messages(""),
+            isPageHeading = false,
+        )
+
+        @h3(messages("Trading details"))
+
+        @inputText(
+            form = tradingDetailsForm,
+            name = "regularPayments",
+            id = "regularPayments",
+            label = messages("Regular payment choice : "),
+            isPageHeading = false,
+        )
+
+        @button(messages("common.button.snc"))
     }
 
 }

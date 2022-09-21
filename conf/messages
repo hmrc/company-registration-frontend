@@ -3,6 +3,24 @@ global.error.title                                                  = Sorry, we�
 global.error.heading                                                = Sorry, we’re experiencing technical difficulties
 global.error.message                                                = You can try again by <a href={0}>restarting</a> your registration.
 
+service.name                                                    = Set up a limited company and register for Corporation Tax
+site.govuk                                                      = GOV.UK
+common.feedbackFirst                                            = This is a new service - your
+common.feedbackSecond                                           = feedback
+common.feedbackThird                                            = will help us to improve it.
+site.opensInNewTab                                              = (opens in new tab)
+app.common.yes                                                  = Yes
+app.common.no                                                   = No
+app.common.govuk.label                                          = GOV.UK
+app.getHelp                                                     = Is this page not working properly? (opens in new tab)
+site.back                                                       = Back
+date.day                                                        = Day
+date.month                                                      = Month
+date.year                                                       = Year
+app.common.errorSummaryLabel                                    = This page has errors
+app.common.titleError                                           = Error:
+app.common.change                                               = Change
+
 ## Common
 common.service.name                                                 = Set up a limited company and register for Corporation Tax
 common.govuk.label                                                  = GOV.UK
@@ -29,7 +47,7 @@ common.day                                                          = Day
 common.month                                                        = Month
 common.year                                                         = Year
 common.dateMessage                                                  = Enter the date in format dd mm yyyy
-common.dateExample                                                  = For example,
+common.dateExample                                                  = For example, {0}
 common.button.ConfirmAndContinue                                    = Confirm and continue
 common.period                                                       = .
 common.differentAddress                                             = A different address
@@ -182,7 +200,7 @@ page.reg.summary.startDate                                          = When will 
 page.reg.summary.startDate.change                                   = when you will start doing business
 page.reg.summary.accountPrepDate                                    = Accounting period end date
 page.reg.summary.heading.one.b                                      = Company contact
-page.reg.summary.companyContact                                     = Give us one or more ways to contact
+page.reg.summary.companyContact                                     = Give us one or more ways to contact {0}
 page.reg.summary.companyContact.change                              = the company’s contact for Corporation Tax
 
 page.reg.summary.companyContactMobileNumber.change                  = the mobile number of the company’s contact for Corporation Tax
@@ -296,7 +314,6 @@ page.reg.Dashboard.ref                                              = Reference 
 page.reg.Dashboard.paymentRef                                       = Payment reference:
 page.reg.Dashboard.crn                                              = Company registration number:
 page.reg.Dashboard.ctutr                                            = Unique Taxpayer Reference (UTR):
-page.reg.Dashboard.wycd                                             = What you can do:
 
 page.reg.Dashboard.status.submitted                                 = Pending
 page.reg.Dashboard.status.pending                                   = Pending
@@ -522,7 +539,7 @@ page.groups.groupUtr.yesLabel                                          = Yes
 page.groups.groupUtr.noLabel                                           = No
 page.groups.groupUtr.utrLabel                                          = Enter the UTR
 page.groups.groupUtr.helpText                                          = For example, 1234567890
-error.groupUtr.required                                                = Tell us whether you know the owning company’s UTR
+error.groupUTR.required                                                = Tell us whether you know the owning company’s UTR
 error.groupUtr.yesButNoUtr                                             = Enter the owning company’s UTR
 error.groupUtr.utrMoreThan10Chars                                      = Enter a UTR using 10 digits or less
 error.groupUtr.utrHasSymbols                                           = Enter a UTR using only numbers
@@ -545,7 +562,7 @@ page.takeovers.otherBusinessName.field                                 = Enter t
 error.otherBusinessName.required                                       = Tell us the name of the other business
 error.otherBusinessName.over100Characters                              = Enter the name using 100 characters or less
 error.otherBusinessName.invalidCharacter                               = Business name must not include {0}
-error.otherBusinessName.invalidCharacters                              = Business name must not include {0} and {1}
+error.otherBusinessName.invalidCharacters                              = Business name must not include ©, Æ and ф
 
 page.takeovers.otherBusinessAddress.title                              = What is {0}’s address?
 page.takeovers.otherBusinessAddress.heading                            = What is {0}’s address?

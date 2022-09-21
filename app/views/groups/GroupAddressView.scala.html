@@ -15,46 +15,47 @@
  *@
 
 @import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
-@import views.helpers.TitleHelper.title
-@import views.html.helpers.{errorSummary, inputRadioGroup}
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
+@import uk.gov.hmrc.govukfrontend.views.Aliases.HtmlContent
 
-@this(main: main_template,
-        errorSummary: errorSummary,
-        inputRadioGroup: inputRadioGroup,
+@this(  layout: templates.layout,
+        h1: components.h1,
+        p: components.p,
+        errorSummary: components.errorSummary,
+        inputRadio: components.inputRadio,
+        button: components.button,
         formWithCsrf: FormWithCSRF)
 
 @(groupAddress: Form[GroupAddressChoice], mapOfAddresses: Map[String, String], companyName: String)(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
-@main(title = title(Messages("page.groups.groupAddress.title", companyName), groupAddress), mainClass = None) {
+@layout(pageTitle = Some(Messages("page.groups.groupAddress.title", companyName))) {
 
-    <a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
+    @errorSummary(groupAddress.errors)
 
-    @errorSummary(
-        Messages("common.errorSummary.label"),
-        groupAddress, dataJourney = Some("GroupAddress")
-    )
+    @h1(messages("page.groups.groupAddress.heading", companyName))
 
-
-        <h1 id="main-heading" class="heading-large">@Messages("page.groups.groupAddress.heading", companyName)</h1>
-
-        <div id="paragraph-one" class="form-group">
-            <p>@Messages("page.groups.groupAddress.helpText")</p>
-        </div>
+    @p {
+        @messages("page.groups.groupAddress.helpText")
+    }
 
     @formWithCsrf(action = controllers.groups.routes.GroupAddressController.submit) {
-        <div class="form-group">
-        @inputRadioGroup(
-            groupAddress("groupAddress"),
-            mapOfAddresses.toSeq ++ Seq(("Other", messages("page.groups.groupAddress.differentAddress"))),
-            isHeading = false,
-            '_labelClass -> "block-label radio-label",
-            '_legend -> Messages("page.groups.groupAddress.heading", companyName),
-            '_legendClass -> "visually-hidden"
-            )
-        </div>
+        @inputRadio(
+            form = groupAddress,
+            fieldName = "groupAddress",
+            legend = messages("pages.correspondenceAddress.description"),
+            items = mapOfAddresses.toList.zipWithIndex.collect {
+                case ((id, desc), idx) =>
+                    RadioItem(
+                        content = HtmlContent(desc),
+                        value = Some(s"${id}"),
+                        checked = groupAddress(s"groupAddress").value.contains(s"${id}"),
+                        id = if(idx == 0) { Some("groupAddress") } else Some(s"${id}")
+                    )
+            },
+            legendAsHeading = false,
+            classes = "govuk-visually-hidden"
+        )
 
-        <div class="form-group">
-            <input class="button" type="submit" id="next" value="@Messages("common.button.save")">
-        </div>
+        @button("common.button.save")
     }
 }

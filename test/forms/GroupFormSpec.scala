@@ -26,51 +26,51 @@ class GroupFormSpec extends UnitSpec  {
 
   "formUTR" should {
     def fillForm(radioButtonValue: String, utrValue: Option[String]): Form[GroupUTR] = {
-      GroupUtrForm.form.bind(Map("groupUtr" -> radioButtonValue, "utr" -> utrValue.getOrElse("")))
+      GroupUtrForm.form.bind(Map("groupUTR" -> radioButtonValue, "utr" -> utrValue.getOrElse("")))
     }
     "have previously saved utr pre-popped in form 10 chars" in {
-      val result = fillForm("utr", Some("99999999"))
-      result.data("groupUtr") shouldBe "utr"
+      val result = fillForm("true", Some("99999999"))
+      result.data("groupUTR") shouldBe "true"
       result.get.UTR shouldBe Some("99999999")
     }
 
     "have previously saved utr pre-popped in form 1 char" in {
-      val result = fillForm("utr", Some("1"))
-      result.data("groupUtr") shouldBe "utr"
+      val result = fillForm("true", Some("1"))
+      result.data("groupUTR") shouldBe "true"
       result.get.UTR shouldBe Some("1")
     }
 
     "have previously saved no-utr answer" in {
-      val result = fillForm("noutr", None)
-      result.data("groupUtr") shouldBe "noutr"
+      val result = fillForm("false", None)
+      result.data("groupUTR") shouldBe "false"
     }
 
     "display an error when no answer is selected on the page" in {
       val result = fillForm("", Option(""))
-      result.errors.head.message shouldBe "error.groupUtr.required"
+      result.errors.head.message shouldBe "error.groupUTR.required"
     }
 
     "display an error when utr is blank" in {
-      val result = fillForm("utr", None)
-      result.data("groupUtr") shouldBe "utr"
+      val result = fillForm("true", None)
+      result.data("groupUTR") shouldBe "true"
       result.errors.head.message shouldBe "error.groupUtr.yesButNoUtr"
     }
 
     "display an error when utr is more than 10 chars" in {
-      val result = fillForm("utr", Some("09876543211"))
-      result.data("groupUtr") shouldBe "utr"
+      val result = fillForm("true", Some("09876543211"))
+      result.data("groupUTR") shouldBe "true"
       result.errors.head.message shouldBe "error.groupUtr.utrMoreThan10Chars"
     }
 
     "display an error when utr contains letters" in {
-      val result = fillForm("utr", Some("09876f"))
-      result.data("groupUtr") shouldBe "utr"
+      val result = fillForm("true", Some("09876f"))
+      result.data("groupUTR") shouldBe "true"
       result.errors.head.message shouldBe "error.groupUtr.utrHasSymbols"
     }
 
     "display an error when utr contains special chars" in {
-      val result = fillForm("utr", Some("1234567*!"))
-      result.data("groupUtr") shouldBe "utr"
+      val result = fillForm("true", Some("1234567*!"))
+      result.data("groupUTR") shouldBe "true"
       result.errors.head.message shouldBe "error.groupUtr.utrHasSymbols"
     }
 

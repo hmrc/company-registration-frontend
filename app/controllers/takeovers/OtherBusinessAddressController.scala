@@ -74,13 +74,13 @@ class OtherBusinessAddressController @Inject()(val authConnector: PlayAuthConnec
                     OtherBusinessAddressForm.form(businessName, addressSeq.length)
                 }
 
-                Ok(view(prepopulatedForm, businessName, addressSeq))
+                Ok(view(prepopulatedForm, businessName, addressSeq ++ Seq("A different address")))
                   .addingToSession(addressSeqKey -> Json.toJson(addressSeq).toString())
             }
           case Some(TakeoverDetails(_, Some(businessName), _, _, _)) =>
             addressPrepopulationService.retrieveAddresses(regId).map {
               addressSeq =>
-                Ok(view(OtherBusinessAddressForm.form(businessName, addressSeq.length), businessName, addressSeq))
+                Ok(view(OtherBusinessAddressForm.form(businessName, addressSeq.length), businessName, addressSeq ++ Seq("A different address")))
                   .addingToSession(addressSeqKey -> Json.toJson(addressSeq).toString())
             }
           case None =>
@@ -100,7 +100,7 @@ class OtherBusinessAddressController @Inject()(val authConnector: PlayAuthConnec
               (optTakeoverDetails, optAddressSeq) match {
                 case (Some(TakeoverDetails(_, Some(businessName), _, _, _)), Some(addressSeq)) => OtherBusinessAddressForm.form(businessName, addressSeq.length).bindFromRequest.fold(
                   formWithErrors =>
-                    Future.successful(BadRequest(view(formWithErrors, businessName, addressSeq))),
+                    Future.successful(BadRequest(view(formWithErrors, businessName, addressSeq ++ Seq("A different address") ))),
                   {
                     case OtherAddress =>
                       addressLookupFrontendService.initialiseAlfJourney(

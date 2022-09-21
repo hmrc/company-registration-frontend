@@ -23,9 +23,13 @@ import org.jsoup.Jsoup
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.test.FakeRequest
+import views.BaseSelectors
 import views.html.takeovers.ReplacingAnotherBusiness
 
 class ReplacingAnotherBusinessViewSpec extends UnitSpec with GuiceOneAppPerSuite with I18nSupport {
+
+  object Selectors extends BaseSelectors
+
   implicit lazy val messagesApi = app.injector.instanceOf[MessagesApi]
   implicit lazy val request = FakeRequest()
   implicit lazy val appConfig = app.injector.instanceOf[AppConfig]
@@ -41,72 +45,17 @@ class ReplacingAnotherBusinessViewSpec extends UnitSpec with GuiceOneAppPerSuite
       doc.title should include(expectedTitle)
     }
 
-    lazy val paragraph1 = doc.getElementById("paragraph-one")
     "have a section which" should {
-      val expectedP1 = "This includes if it’s:"
+      val expectedP1 = "This includes if it’s: A sole trader is someone who’s self-employed and is the only owner of their business."
       s"have a paragraph with '$expectedP1'" in {
-        paragraph1.selectFirst("p").text() shouldBe expectedP1
-      }
-
-      lazy val bulletList = paragraph1.select("ul")
-      s"have a bullet point list which " should {
-        val expectedBulletPointClass = "list-bullet"
-        s"have a class of $expectedBulletPointClass" in {
-          bulletList.attr("class") shouldBe expectedBulletPointClass
-        }
-
-        lazy val bulletPoints = bulletList.select("li")
-        val expectedBullet1 = "buying another company"
-        s"have a bullet with '$expectedBullet1'" in {
-          bulletPoints.get(0).text shouldBe expectedBullet1
-        }
-
-        val expectedBullet2 = "changing from a sole trader or business partnership to a limited company"
-        s"have a bullet with '$expectedBullet2'" in {
-          bulletPoints.get(1).text shouldBe expectedBullet2
-        }
+        doc.select(Selectors.p(1)).text() shouldBe expectedP1
       }
     }
 
-    lazy val accordion = doc.select("details")
-    "have an accordion which" should {
-      val expectedAccordionSummary = "What is a sole trader or business partnership?"
-      s"have a title of '$expectedAccordionSummary'" in {
-        accordion.select("summary").text shouldBe expectedAccordionSummary
-      }
-
-      val expectedAccordionP1 = "A sole trader is someone who’s self-employed and is the only owner of their business."
-      s"have a paragraph of '$expectedAccordionP1'" in {
-        accordion.select("p").get(0).text shouldBe expectedAccordionP1
-      }
-
-      val expectedAccordionP2 = "A business partnership is when two or more people agree to share the profits, costs and risks of running a business."
-      s"have a paragraph of '$expectedAccordionP2'" in {
-        accordion.select("p").get(1).text shouldBe expectedAccordionP2
-      }
-    }
-
-    lazy val radioForm = doc.select("fieldset")
-    val fieldsetInlineClass = "inline"
-    s"have a class of $fieldsetInlineClass" in {
-      radioForm.attr("class") shouldBe fieldsetInlineClass
-    }
-    "have a radio button form which" should {
-      val expectedYesOption = "Yes"
-      s"have a '$expectedYesOption' option" in {
-        radioForm.select("label").get(0).text shouldBe expectedYesOption
-      }
-
-      val expectedNoOption = "No"
-      s"have a '$expectedNoOption' option" in {
-        radioForm.select("label").get(1).text shouldBe expectedNoOption
-      }
-    }
-
-    lazy val saveAndContinue = doc.select("input.button")
+    lazy val saveAndContinue = doc.getElementById("continue")
     val expectedSaveAndContinueButton = "Save and continue"
     s"have a '$expectedSaveAndContinueButton' button'" in {
-      saveAndContinue.attr("value") shouldBe expectedSaveAndContinueButton
+      saveAndContinue.text() shouldBe expectedSaveAndContinueButton
     }
   }
 }

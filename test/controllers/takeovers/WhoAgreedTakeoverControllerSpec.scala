@@ -245,7 +245,7 @@ class WhoAgreedTakeoverControllerSpec extends SCRSSpec
 
           status(res) shouldBe BAD_REQUEST
           Jsoup.parse(bodyOf(res))
-            .getElementsByClass("error-notification").text shouldBe "Enter the name using only letters, numbers, spaces, hyphens and apostrophes"
+            .getElementById("whoAgreedTakeover-error").text shouldBe "Enter the name using only letters, numbers, spaces, hyphens and apostrophes"
         }
         "return a bad request and update the page with errors if the name is empty" in {
           mockAuthorisedUser(Future.successful({}))
@@ -268,7 +268,7 @@ class WhoAgreedTakeoverControllerSpec extends SCRSSpec
 
           status(res) shouldBe BAD_REQUEST
           Jsoup.parse(bodyOf(res))
-            .getElementsByClass("error-notification").text shouldBe "Tell us who agreed the takeover"
+            .getElementById("whoAgreedTakeover-error").text shouldBe "Tell us who agreed the takeover"
         }
 
         "return a bad request and update the page with errors if the name is too long" in {
@@ -292,7 +292,7 @@ class WhoAgreedTakeoverControllerSpec extends SCRSSpec
 
           status(res) shouldBe BAD_REQUEST
           Jsoup.parse(bodyOf(res))
-            .getElementsByClass("error-notification").text shouldBe "Enter the name using 100 characters or less"
+            .getElementById("whoAgreedTakeover-error").text shouldBe "Enter the name using 100 characters or less"
         }
       }
     }

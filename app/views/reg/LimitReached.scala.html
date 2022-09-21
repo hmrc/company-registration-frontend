@@ -14,23 +14,20 @@
  * limitations under the License.
  *@
 
-@this(main_template: main_template)
+@this(layout: templates.layout,
+        h1: components.h1,
+        p: components.p,
+        link: components.link)
 @(webincsUrl: String)(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
-@main_template(title = Messages("page.reg.limit-reached.description"), mainClass = None) {
+@layout(pageTitle = Some(messages("page.reg.limit-reached.description"))) {
 
-    <a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
+    @h1(messages("page.reg.limit-reached.description"))
 
-    <div class="form-group">
-        <h1 id="main-heading">@Messages("page.reg.limit-reached.description")</h1>
+    @p{
+        @Messages("page.reg.limit-reached.para.one")
+        @Messages("page.reg.limit-reached.para.two")
+    }
 
-        <div class="form-group">
-                <p id="para-one">@Messages("page.reg.limit-reached.para.one")</p>
-                <p id="para-two">@Messages("page.reg.limit-reached.para.two")</p>
-        </div>
-
-        <div class="form-group">
-            <a href="@webincsUrl">@Messages("page.reg.limit-reached.link")</a>
-        </div>
-    </div>
+    @link(webincsUrl, messages("page.reg.limit-reached.link"))
 }

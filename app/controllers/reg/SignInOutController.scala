@@ -136,7 +136,6 @@ class SignInOutController @Inject()(val authConnector: PlayAuthConnector,
                                                  (implicit hc: HeaderCarrier): Future[Result] = {
 
     def generateHandOffUrl(handOffID: String, payload: String): String = {
-      import controllers.handoff.routes._
       Map(
         "HO1b" -> controllers.handoff.routes.BasicCompanyDetailsController.returnToAboutYou(payload).url,
         "HO2" -> controllers.handoff.routes.CorporationTaxDetailsController.corporationTaxDetails(payload).url,

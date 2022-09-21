@@ -14,29 +14,32 @@
  * limitations under the License.
  *@
 
-@this(main_template: main_template)
+@import uk.gov.hmrc.govukfrontend.views.Aliases.WarningText
+@import uk.gov.hmrc.govukfrontend.views.Aliases.Text
+@import uk.gov.hmrc.govukfrontend.views.html.components.GovukWarningText
+
+@this(layout: templates.layout,
+        h1: components.h1,
+        p: components.p,
+        govukWarningText: GovukWarningText,
+        link: components.link,
+        button: components.button)
+
 @()(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
-@main_template(title = Messages("page.reg.incompleteReg.description"), mainClass = None) {
+@layout(pageTitle = Some(messages("page.reg.incompleteReg.description"))) {
 
-    <a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
+    @h1(messages("page.reg.incompleteReg.description"))
 
+    @govukWarningText(WarningText(
+        iconFallbackText = "Warning",
+        content = Text(messages("page.reg.incompleteReg.warning"))
+    ))
 
-        <h1 class="form-title heading-large" id="main-heading">@Messages("page.reg.incompleteReg.description")</h1>
+    @p {
+        @messages("page.reg.incompleteReg.description.one")
+        @messages("page.reg.incompleteReg.description.two")
+    }
 
-    <div class="notice">
-        <div class="important-notice">
-            @Messages("page.reg.incompleteReg.warning")<br>
-            <BR>
-        </div>
-    </div>
-    <div class="form-group">
-        <p id="description-one">@Messages("page.reg.incompleteReg.description.one")</p>
-
-        <p id="description-two">@Messages("page.reg.incompleteReg.description.two")</p>
-    </div>
-
-    <div class="form-group">
-        <a class="button--get-started" href="@controllers.reg.routes.CompletionCapacityController.show" role="button" id="next">@Messages("common.button.sign-in")</a>
-    </div>
+    @link(controllers.reg.routes.CompletionCapacityController.show.url, messages("common.button.sign-in") )
 }
