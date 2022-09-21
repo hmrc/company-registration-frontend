@@ -48,6 +48,7 @@ class SummaryController @Inject()(val authConnector: PlayAuthConnector,
                                   val jwe: JweCommon,
                                   val controllerComponents: MessagesControllerComponents,
                                   val controllerErrorHandler: ControllerErrorHandler,
+                                  summaryService: SummaryService,
                                   view: SummaryView)
                                  (implicit val appConfig: AppConfig, implicit val ec: ExecutionContext)
   extends AuthenticatedController with CommonService with SCRSExceptions
@@ -60,40 +61,13 @@ class SummaryController @Inject()(val authConnector: PlayAuthConnector,
       ctAuthorised {
         checkStatus { regID =>
           (for {
-            cc <- metaDataService.getApplicantData(regID)
-            accountingDates <- compRegConnector.retrieveAccountingDetails(regID)
-            ctContactDets <- compRegConnector.retrieveContactDetails(regID)
-            companyDetails <- compRegConnector.retrieveCompanyDetails(regID)
-            optTakeoverDetails <- takeoverService.getTakeoverDetails(regID)
-            Some(tradingDetails) <- compRegConnector.retrieveTradingDetails(regID)
-            cTRecord <- compRegConnector.retrieveCorporationTaxRegistration(regID)
+            accountingBlock <- summaryService.getAccountingDates(regID)
+            completionCapacity <- summaryService.getCompletionCapacity(regID)
+            contactDetails <- summaryService.getCompanyDetailsBlock(regID)
+            companyDetails <- summaryService.getContactDetailsBlock(regID)
+            takeoverDetails <- summaryService.getTakeoverBlock(regID)
           } yield {
-            companyDetails match {
-              case Some(details) =>
-                val ppobAddress = extractPPOB(details.pPOBAddress)
-                val rOAddress = details.cHROAddress
-                val ctContactDetails = extractContactDetails(ctContactDets)
-                val accountDates: AccountingDetails = accountingDates match {
-                  case AccountingDetailsSuccessResponse(response) => response
-                  case _ => throw new Exception("could not find company accounting details")
-                }
-                optTakeoverDetails match {
-                  case Some(TakeoverDetails(true, Some(_), Some(_), Some(_), Some(_))) =>
-                    Ok(view(details.companyName, details.jurisdiction, accountDates, ppobAddress, rOAddress, ctContactDetails, tradingDetails, optTakeoverDetails, cc))
-                  case Some(TakeoverDetails(true, _, _, _, _)) =>
-                    Redirect(controllers.takeovers.routes.TakeoverInformationNeededController.show)
-                  case None | Some(TakeoverDetails(false, None, None, None, None)) =>
-                    Ok(view(details.companyName, details.jurisdiction, accountDates, ppobAddress, rOAddress, ctContactDetails, tradingDetails, optTakeoverDetails, cc))
-                  case Some(TakeoverDetails(false, _, _, _, _)) =>
-                    Redirect(controllers.takeovers.routes.TakeoverInformationNeededController.show)
-                  case _ =>
-                    logger.error("[SummaryController] [show] Takeover details in unexpected state")
-                    InternalServerError(controllerErrorHandler.defaultErrorPage)
-                }
-              case _ =>
-                logger.error(s"[SummaryController] [show] Could not find company details for reg ID : $regID - suspected direct routing to summary page")
-                InternalServerError(controllerErrorHandler.defaultErrorPage)
-            }
+            Ok(view(accountingBlock, takeoverDetails, companyDetails, contactDetails, completionCapacity))
           }) recover {
             case ex: Throwable =>
               logger.error(s"[SummaryController] [show] Error occurred while loading the summary page - ${ex.getMessage}")

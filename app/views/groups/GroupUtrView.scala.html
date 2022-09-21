@@ -14,66 +14,57 @@
  * limitations under the License.
  *@
 
-@import views.helpers.TitleHelper.title
-@import views.html.helpers.inputRadioGroupHidden
 @import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
-@import views.html.helpers.input
-@import views.html.helpers.errorSummary
 
-@this(main_template: main_template,
-        errorSummary: errorSummary,
-        inputRadioGroupHidden: inputRadioGroupHidden,
+@this(
+        errorSummary: components.errorSummary,
+        yesNoRadio: components.yesNoRadio,
         formWithCsrf: FormWithCSRF,
-        Input: input)
+        layout: templates.layout,
+        h1: components.h1,
+        inputText: components.inputText,
+        p: components.p,
+        button: components.button
+)
 
 @(groupUTR: Form[GroupUTR], parentCompanyName: String)(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
 @differentHidden = {
-    @Input(
-        groupUTR("utr"),
-        '_inputClass -> "form-control-1-2",
-        '_labelClass -> "form-label cascading",
-        '_label -> Messages("page.groups.groupUtr.utrLabel"),
-        '_inputHint -> Messages("page.groups.groupUtr.helpText")
-    )
+@inputText(
+    form = groupUTR,
+    name = "utr",
+    id = "utr",
+    label = messages("page.groups.groupUtr.utrLabel"),
+    hint = Some(Html(messages("page.groups.groupUtr.helpText"))),
+    isPageHeading = false,
+)
 }
 
-@main_template(title = title(Messages("page.groups.groupUtr.title", parentCompanyName), groupUTR), mainClass = None) {
+@layout(pageTitle = Some(Messages("page.groups.groupUtr.title", parentCompanyName))) {
 
-    <a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
+    @errorSummary(groupUTR.errors)
 
-    @errorSummary(
-        Messages("common.errorSummary.label"),
-        groupUTR, dataJourney = Some("GroupUTR")
-    )
+        @h1(messages("page.groups.groupUtr.heading", parentCompanyName))
 
-    <div class="form-group">
-        <h1 id="main-heading">@Messages("page.groups.groupUtr.heading", parentCompanyName)</h1>
-
-        <div class="form-group">
-            <p id="para-one">@Messages("page.groups.groupUtr.p1")</p>
-        </div>
+        @p {
+            @messages("page.groups.groupUtr.p1")
+        }
 
         @formWithCsrf(action = controllers.groups.routes.GroupUtrController.submit) {
 
-            <div class="form-group">
-            @inputRadioGroupHidden(
-                groupUTR("groupUtr"),
-                Seq("utr" -> Messages("page.groups.groupUtr.yesLabel"), "noutr" -> Messages("page.groups.groupUtr.noLabel")),
-                Seq("utr" -> differentHidden),
-                isHeading = false,
-                '_fieldsetId -> "group-utr",
-                '_classHidden -> "panel panel-indent",
-                '_labelClass -> "block-label radio-label",
-                '_legend -> Messages("page.groups.groupUtr.heading", parentCompanyName),
-                '_legendClass -> "visually-hidden"
-            )
-            </div>
+            @yesNoRadio(
+                form = groupUTR,
+                id = "groupUTR",
+                headingKey = messages("page.groups.groupUtr.heading", parentCompanyName),
+                isPageHeading = false,
+                inline = false,
+                classes = "govuk-visually-hidden",
+                fieldName = "groupUTR",
+                hiddenYesContent = Some(differentHidden)
 
-            <div class="form-group">
-                <input class="button" type="submit" id="next" value="@Messages("common.button.snc")">
-            </div>
+            )
+
+            @button("common.button.snc")
         }
-     </div>
 
 }

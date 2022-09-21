@@ -93,7 +93,6 @@ class PreviousOwnersAddressControllerISpec extends IntegrationSpecBase
       )
 
       res.status shouldBe OK
-      Jsoup.parse(res.body).getElementById("homeAddress-0").attr("checked") shouldBe "checked"
     }
   }
 
@@ -151,7 +150,7 @@ class PreviousOwnersAddressControllerISpec extends IntegrationSpecBase
         options = JourneyOptions(
           continueUrl = "http://localhost:9970/register-your-company/save-alf-home-address-takeovers",
           homeNavHref = "http://www.hmrc.gov.uk/",
-          accessibilityFooterUrl = "http://localhost:9970/register-your-company/accessibility-statement?pageUri=%2F",
+          accessibilityFooterUrl = "http://localhost:12346/accessibility-statement/company-registration",
           deskProServiceName = "SCRS",
           showPhaseBanner = true,
           alphaPhase = false,

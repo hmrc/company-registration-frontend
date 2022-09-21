@@ -52,40 +52,21 @@ object Address {
     }
   }
 
-  private def canSquash(a: Address) = a.houseNameNumber.fold(true)(hNN => (hNN + a.addressLine1).trim.length + 1 < 27)
-
-  private def squash(a: Address): String = {
-    (a.houseNameNumber, a.addressLine1) match {
-      case (None, line1) => line1
-      case (Some(hNN), line1) => s"$hNN $line1"
-    }
-  }
 
   val prePopWrites = new Writes[Address] {
     import utils.RichJson._
 
     override def writes(a: Address): JsValue = {
 
-      val squashedAddress = if(canSquash(a)){
-        a.copy(addressLine1 = squash(a))
-      } else {
-        a.copy(
-          addressLine1 = a.houseNameNumber.get, //safe to get as def squash returns false if houseNameNumber exists and is too big
-          addressLine2 = a.addressLine1,
-          addressLine3 = Some(a.addressLine2),
-          addressLine4 = a.addressLine3
-        )
-      }
-
       Json.obj(
-        "addressLine1" -> squashedAddress.addressLine1,
-        "addressLine2" -> squashedAddress.addressLine2,
-        "addressLine3" -> squashedAddress.addressLine3,
-        "addressLine4" -> squashedAddress.addressLine4,
-        "postcode" -> squashedAddress.postCode,
-        "country" -> squashedAddress.country,
-        "txid" -> squashedAddress.txid,
-        "auditRef" -> squashedAddress.auditRef
+        "addressLine1" -> a.addressLine1,
+        "addressLine2" -> a.addressLine2,
+        "addressLine3" -> a.addressLine3,
+        "addressLine4" -> a.addressLine4,
+        "postcode" -> a.postCode,
+        "country" -> a.country,
+        "txid" -> a.txid,
+        "auditRef" -> a.auditRef
       ).purgeOpts
     }
   }
@@ -148,11 +129,8 @@ case class CHROAddress(premises : String,
                        postal_code : Option[String],
                        region : Option[String]) {
 
-  def mkString: String = {
-    s"""$premises $address_line_1${address_line_2.fold("")(l2 => s", $l2,")}
-      | $locality${region.fold("")(r => s", $r,")}
-      |${postal_code.fold("")(pc => s" $pc, ")}$country""".stripMargin
-  }
+  override def toString: String = Seq(Some(s"${premises} ${address_line_1}"), address_line_2, Some(locality), po_box, region, postal_code, Some(country)).flatten.mkString(", ")
+
 
 }
 

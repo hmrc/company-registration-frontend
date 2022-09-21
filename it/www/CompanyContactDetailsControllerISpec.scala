@@ -27,6 +27,8 @@ import play.api.libs.json.{JsObject, Json}
 
 class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with LoginStub with RequestsFinder {
 
+
+
   val userId = "/bar/foo"
   val csrfToken = UUID.randomUUID().toString
   val regId = "5"
@@ -105,7 +107,6 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
         .get())
       val doc = Jsoup.parse(fResponse.body)
       fResponse.status shouldBe 200
-      doc.getElementById("main-heading").html shouldBe "Give us one or more ways to contact fooBAR"
       doc.getElementById("contactDaytimeTelephoneNumber").`val` shouldBe "12345678"
       doc.getElementById("contactMobileNumber").`val` shouldBe "45678"
       doc.getElementById("contactEmail").`val` shouldBe "foo@foo.com"
@@ -160,8 +161,6 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
       )
 
       response.status shouldBe 400
-      val doc = Jsoup.parse(response.body)
-      doc.getElementById("main-heading").html shouldBe "Give us one or more ways to contact fooBAR"
     }
     "return 303 when minimum amount of fields are populated" in {
       val contactDetailsResp = Json.parse(

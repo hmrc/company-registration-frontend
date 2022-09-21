@@ -1,0 +1,22 @@
+$govuk-assets-path: "/register-your-company/assets/lib/govuk-frontend/govuk/assets/";
+$hmrc-assets-path: "/register-your-company/assets/lib/hmrc-frontend/hmrc/";
+
+@import "lib/govuk-frontend/govuk/all";
+@import "lib/hmrc-frontend/hmrc/all";
+
+.app-reference-number {
+  display: block;
+  font-weight: bold;
+}
+
+@media (min-width: 40.0625em) {
+  .govuk-header__logo {
+    width: 20%;
+  }
+}
+
+@media (min-width: 40.0625em) {
+  .govuk-header__content {
+    width: 80%;
+  }
+}

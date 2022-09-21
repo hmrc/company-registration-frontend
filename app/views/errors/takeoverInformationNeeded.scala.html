@@ -16,20 +16,23 @@
 
 @import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
 
-@this(main_template: main_template,
+@this(layout: templates.layout,
+        h1: components.h1,
+        p: components.p,
+        button: components.button,
         formWithCsrf: FormWithCSRF)
 
 @()(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
-@main_template(title = Messages("errorPages.takeoverInformationNeeded.title"), mainClass = None) {
+@layout(Some(Messages("errorPages.takeoverInformationNeeded.title"))) {
 
-    <h1 class="form-title heading-large" id="main-heading">@Messages("errorPages.takeoverInformationNeeded.header")</h1>
+    @h1(messages("errorPages.takeoverInformationNeeded.header"))
 
-    <p id="paragraph1">@Messages("errorPages.takeoverInformationNeeded.p1")</p>
+    @p {
+        @messages("errorPages.takeoverInformationNeeded.p1")
+    }
 
     @formWithCsrf(action = controllers.takeovers.routes.ReplacingAnotherBusinessController.show) {
-        <div class="form-group">
-            <input class="button" type="submit" id="next" value=@Messages("common.button.continue")>
-        </div>
+        @button("common.button.continue")
     }
 }

@@ -268,22 +268,22 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
 
     """ return of Map("ALF" -> address) - address matched, IS ALF""" in new Setup {
       val res: Map[String, String] = service.createAddressMap(groupsAddressAndTypeALF, address)
-      res shouldBe Map("ALF" -> address.mkString)
+      res shouldBe Map("ALF" -> address.toString, "Other" -> "A different address")
     }
 
     """ return of Map("ALF" -> address, "TxAPI" -> otherAddress) - address not matched, IS ALF TX Address exists""" in new Setup {
       val res: Map[String, String] = service.createAddressMap(groupsAddressAndTypeALF, otherAddress)
-      res shouldBe Map("ALF" -> address.mkString, "TxAPI" -> otherAddress.mkString)
+      res shouldBe Map("ALF" -> address.toString, "TxAPI" -> otherAddress.toString, "Other" -> "A different address")
     }
 
     """ return of  Map(addressType -> address) - address matched, not ALF""" in new Setup {
       val res: Map[String, String] = service.createAddressMap(groupsAddressAndTypeCoho, address)
-      res shouldBe Map("CohoEntered" -> address.mkString)
+      res shouldBe Map("CohoEntered" -> address.toString , "Other" -> "A different address")
     }
 
     """ return of Map("TxAPI" -> address) - No address in CR, tx address exists""" in new Setup {
       val res: Map[String, String] = service.createAddressMap(None, address)
-      res shouldBe Map("TxAPI" -> address.mkString)
+      res shouldBe Map("TxAPI" -> address.toString, "Other" -> "A different address")
     }
   }
 
@@ -533,40 +533,6 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
       verify(mockCompanyRegistrationConnector, times(0)).updateGroups(any(), any())(any())
     }
 
-    "return a future list removing duplicates if name not in list and IS other" in new Setup {
-      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any()))
-        .thenReturn(Future.successful(ConfirmationReferencesSuccessResponse(ConfirmationReferences("footxID", None, None, "foo"))))
-      when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(any()))
-        .thenReturn(Future.successful(Right(shareholders)))
-      when(mockCompanyRegistrationConnector.shareholderListValidationEndpoint(any())(any()))
-        .thenReturn(Future.successful(List("foo", "foo", "foo", "bar", "bar", "bar", "wiZZ 123")))
-
-      val res: (List[String], Groups) = await(service.returnValidShareholdersAndUpdateGroups(
-        Groups(groupRelief = true, Some(GroupCompanyName("foozbawl", "Other")), None, None),
-        "123"
-      ))
-
-      res._1 shouldBe List("foo", "bar", "wiZZ 123")
-      res._2 shouldBe Groups(groupRelief = true, Some(GroupCompanyName("foozbawl", "Other")), None, None)
-    }
-
-    "return a future list removing duplicates if name IS in list and IS NOT other" in new Setup {
-      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any()))
-        .thenReturn(Future.successful(ConfirmationReferencesSuccessResponse(ConfirmationReferences("footxID", None, None, "foo"))))
-      when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(any()))
-        .thenReturn(Future.successful(Right(shareholders)))
-      when(mockCompanyRegistrationConnector.shareholderListValidationEndpoint(any())(any()))
-        .thenReturn(Future.successful(List("foo", "foo", "foo", "bar", "bar", "bar", "wiZZ 123")))
-
-      val res: (List[String], Groups) = await(service.returnValidShareholdersAndUpdateGroups(
-        Groups(groupRelief = true, Some(GroupCompanyName("foo", "BarType")), None, None),
-        "123"
-      ))
-
-      res._1 shouldBe List("bar", "wiZZ 123")
-      res._2 shouldBe Groups(groupRelief = true, Some(GroupCompanyName("foo", "BarType")), None, None)
-    }
-
     "return a future list removing duplicates if groups name is empty" in new Setup {
       when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any()))
         .thenReturn(Future.successful(ConfirmationReferencesSuccessResponse(ConfirmationReferences("footxID", None, None, "foo"))))
@@ -619,7 +585,7 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
         "123"
       ))
 
-      res._1 shouldBe List("foo", "bar")
+      res._1 shouldBe List("foo", "bar", "wiZZ 123")
       res._2 shouldBe Groups(groupRelief = true, Some(GroupCompanyName("wiZZ 123", "CohoEntered")), None, None)
       verify(mockCompanyRegistrationConnector, times(0)).updateGroups(any(), any())(any())
     }

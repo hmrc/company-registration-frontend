@@ -14,57 +14,120 @@
  * limitations under the License.
  *@
 
-@this()
-@(dash: ServiceDashboard, prefixHtmlId: String)(implicit request: Request[_], messages: Messages)
+@import uk.gov.hmrc.govukfrontend.views.html.components.GovukTable
+@import uk.gov.hmrc.govukfrontend.views.Aliases.Table
+@import uk.gov.hmrc.govukfrontend.views.Aliases.TableRow
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 @import models.external.Statuses._
 
+@import uk.gov.hmrc.govukfrontend.views.Aliases.Text
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.table.HeadCell
+
+@this(govukTable: GovukTable,
+        link: components.link,
+        p: components.p)
+
+@(dash: ServiceDashboard, prefixHtmlId: String)(implicit request: Request[_], messages: Messages)
+
+@links = {
+        @link(
+            dash.links.startURL,
+            messages("page.reg.Dashboard.actions.continueRegistrationLink"),
+            isExternal = false
+        )
+    <br/>
+    @if(dash.links.cancelURL.isDefined) {
+            @link(
+                dash.links.cancelURL.get,
+                messages("page.reg.Dashboard.actions.cancelRegistrationLink"),
+                isExternal = false
+            )
+    }
+}
+
 @inProgressActions = {
-<tr class="tabular-data__cell--centred status--confirm-success">
-    <td>@Messages("page.reg.Dashboard.whatYouCanDo")</td>
-    <td>
-        <div><a id="@{prefixHtmlId}StartLink" href="@dash.links.startURL">@Messages("page.reg.Dashboard.actions.continueRegistrationLink")</a></div>
-        @if(dash.links.cancelURL.isDefined) {
-       <div>
-            <a id="@{prefixHtmlId}CancelLink" href="@dash.links.cancelURL">@Messages("page.reg.Dashboard.actions.cancelRegistrationLink")</a>
-       </div>
-        }
-    </td>
-</tr>
+@govukTable(Table(
+    rows = Seq(
+        Seq(
+            TableRow(content = Text(messages("page.reg.Dashboard.whatYouCanDo")), classes = "govuk-!-width-one-half"),
+            TableRow(content = HtmlContent(links), classes = "govuk-!-width-one-half"),
+        )
+    ),
+    captionClasses = "govuk-table__caption--m",
+    firstCellIsHeader = false
+))
 }
 
 @submittedDetails = {
-<tr class="tabular-data__cell--centred status--confirm-success">
-    <td>@Messages("page.reg.Dashboard.submissionDate")</td>
-    <td>
-
-    </td>
-</tr>
-<tr class="tabular-data__cell--centred status--confirm-success">
-    <td>@Messages("page.reg.Dashboard.ref")</td>
-    <td>
-        @dash.ackRef
-    </td>
-</tr>
+@govukTable(Table(
+    head = Some(Seq(
+        HeadCell(
+            content = Text(""),
+            classes = "govuk-!-width-one-half"
+        ),
+        HeadCell(
+            content = Text(""),
+            classes = "govuk-!-width-one-half"
+        ),
+    )),
+    rows = Seq(
+        Seq(
+            TableRow(content = Text(messages("page.reg.Dashboard.submissionDate")), classes = "govuk-!-width-one-half"),
+            TableRow(content = Text(dash.ackRef.get),
+            )
+        ),
+    ),
+    captionClasses = "govuk-table__caption--m",
+    firstCellIsHeader = false
+))
 }
 
 @heldDetails = {
-<tr class="tabular-data__cell--centred status--confirm-success">
-    <td>@Messages("page.reg.Dashboard.ref")</td>
-    <td>
-        @dash.ackRef
-    </td>
-</tr>
+@govukTable(Table(
+    head = Some(Seq(
+        HeadCell(
+            content = Text(""),
+            classes = "govuk-!-width-one-half"
+        ),
+        HeadCell(
+            content = Text(""),
+            classes = "govuk-!-width-one-half"
+        ),
+    )),
+    rows = Seq(
+        Seq(
+            TableRow(content = Text(messages("page.reg.Dashboard.ref"))),
+            TableRow(content = Text(dash.ackRef.get), attributes = Map("id" -> "incorpSubmissionDate"))
+        ),
+    ),
+    captionClasses = "govuk-table__caption--m",
+    firstCellIsHeader = false
+))
 }
 
 @rejectedActions = {
-<tr class="tabular-data__cell--centred status--confirm-success">
-    <td>@Messages("page.reg.Dashboard.whatYouCanDo")</td>
-    <td>
-        @if(dash.links.restartURL.isDefined) {
-        <a id="@{prefixHtmlId}Rej" href="@dash.links.restartURL">@Messages("page.reg.Dashboard.actions.unsuccessfulLink")</a>
-        }
-    </td>
-</tr>
+@govukTable(Table(
+    head = Some(Seq(
+        HeadCell(
+            content = Text(""),
+            classes = "govuk-!-width-one-half"
+        ),
+        HeadCell(
+            content = Text(""),
+            classes = "govuk-!-width-one-half"
+        ),
+    )),
+    rows = Seq(
+        Seq(
+            TableRow(content = Text(messages("page.reg.Dashboard.whatYouCanDo"))),
+            TableRow(content = HtmlContent(
+                link(dash.links.restartURL.get, messages("page.reg.Dashboard.actions.unsuccessfulLink"))
+            ), attributes = Map("id" -> "incorpSubmissionDate"))
+        ),
+    ),
+    captionClasses = "govuk-table__caption--m",
+    firstCellIsHeader = false
+))
 }
 
 @if(dash.status != NOT_STARTED) {

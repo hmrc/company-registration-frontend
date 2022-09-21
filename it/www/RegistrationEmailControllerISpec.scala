@@ -106,9 +106,7 @@ class RegistrationEmailControllerISpec extends IntegrationSpecBase with LoginStu
       res.status shouldBe 200
       val doc = Jsoup.parse(res.body)
       doc.body().toString.contains("test@test.com") shouldBe true
-      doc.getElementById("registrationEmail-currentemail").attr("checked") shouldBe ""
-      doc.getElementById("registrationEmail-differentemail").attr("checked") shouldBe "checked"
-      doc.getElementById("DifferentEmail").`val` shouldBe "sausage"
+      doc.getElementById("differentEmail").`val` shouldBe "differentEmail"
     }
     "return 200 when user is logged in and has a keystore entry for regId, email from auth should be populated on the page user has also been to page before" in new Setup {
 
@@ -140,9 +138,8 @@ class RegistrationEmailControllerISpec extends IntegrationSpecBase with LoginStu
       res.status shouldBe 200
       val doc = Jsoup.parse(res.body)
       doc.body().toString.contains("test@test.com") shouldBe true
-      doc.getElementById("registrationEmail-currentemail").attr("checked") shouldBe ""
-      doc.getElementById("registrationEmail-differentemail").attr("checked") shouldBe ""
-      doc.getElementById("DifferentEmail").`val` shouldBe ""
+      doc.getElementById("registrationEmail").attr("checked") shouldBe ""
+      doc.getElementById("differentEmail").attr("checked") shouldBe ""
     }
     "redirect to post sign in if verified flag is already true" in new Setup {
       stubAuthorisation()

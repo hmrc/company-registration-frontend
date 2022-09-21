@@ -15,44 +15,45 @@
  *@
 
 @import config.AppConfig
-@import views.html.helpers.errorSummary
 @import models.takeovers.AddressChoice
-@import views.helpers.TitleHelper.title
 @import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
+@import uk.gov.hmrc.govukfrontend.views.Aliases.RadioItem
+@import uk.gov.hmrc.govukfrontend.views.Aliases.HtmlContent
 
-@this(main_template: main_template,
-        errorSummary: errorSummary,
-        inputRadioGroupAddresses: helpers.inputRadioGroupAddresses,
-        formWithCSRF: FormWithCSRF)
+@this(layout: templates.layout,
+        errorSummary: components.errorSummary,
+        formWithCSRF: FormWithCSRF,
+        h1: components.h1,
+        inputRadio: components.inputRadio,
+        button: components.button)
 
-@(homeAddressForm: Form[AddressChoice], previousOwnerName: String, addressSeq: Seq[NewAddress])(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
+@(homeAddressForm: Form[AddressChoice], previousOwnerName: String, addressMap: Seq[Any])(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
-@main_template(title = title(messages("page.takeovers.homeAddress.title", previousOwnerName),homeAddressForm)) {
+@layout(pageTitle = Some(messages("page.takeovers.homeAddress.title", previousOwnerName))) {
 
-    <a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
+    @errorSummary(homeAddressForm.errors)
 
-    @errorSummary(
-        Messages("common.errorSummary.label"),
-        homeAddressForm,
-        dataJourney = Some("TakeOvers")
-    )
-
-    <h1 id="main-heading" class="heading-large">@messages("page.takeovers.homeAddress.heading", previousOwnerName)</h1>
+    @h1(messages("page.takeovers.homeAddress.heading", previousOwnerName))
 
     @formWithCSRF(action = controllers.takeovers.routes.PreviousOwnersAddressController.submit) {
 
-        <div class="form-group">
-            @inputRadioGroupAddresses(
-                field = homeAddressForm("homeAddress"),
-                addresses = addressSeq,
-                legend = messages("page.takeovers.homeAddress.heading", previousOwnerName),
-                isHeading = true,
-                isHidden = true
-            )
-        </div>
+        @inputRadio(
+            form = homeAddressForm,
+            fieldName = "homeAddress",
+            legend = messages("page.takeovers.homeAddress.heading", previousOwnerName),
+            items = addressMap.toList.zipWithIndex.collect {
+                case (address, idx) =>
+                    RadioItem(
+                        content = HtmlContent(address.toString),
+                        value = if(address == "A different address") { Some("Other") } else {Some(idx.toString)},
+                        checked = homeAddressForm(s"homeAddress").value.contains(if(address == "A different address") { "Other" } else { idx.toString}),
+                        id = if(idx == 0) { Some("homeAddress") } else Some(s"homeAddress-$idx")
+                    )
+            },
+            legendAsHeading = false,
+            classes = "govuk-visually-hidden"
+        )
 
-        <div class="form-group">
-            <input class="button" type="submit" id="next" value="@messages("common.button.snc")">
-        </div>
+    @button(messages("common.button.snc"))
     }
 }

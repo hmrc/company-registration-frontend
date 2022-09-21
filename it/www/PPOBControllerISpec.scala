@@ -46,7 +46,7 @@ class PPOBControllerISpec extends IntegrationSpecBase with LoginStub with Fixtur
     stubPost("/api/v2/init", 200, "{}", responseHeader = ("Location", "foo"))
     val fResponse = buildClient(controllers.reg.routes.PPOBController.submit.url)
       .withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
-      .post(Map("Csrf-Token" -> Seq("nocheck"), "addressChoice" -> Seq("Other")))
+      .post(Map("Csrf-Token" -> Seq("nocheck"), "addressChoice" -> Seq("OtherAddress")))
 
     await(fResponse).status shouldBe 303
     val result = getPOSTRequestJsonBody("/api/v2/init").as[AlfJourneyConfig]
@@ -55,7 +55,7 @@ class PPOBControllerISpec extends IntegrationSpecBase with LoginStub with Fixtur
       options = JourneyOptions(
         continueUrl = s"http://localhost:9970${controllers.reg.routes.PPOBController.saveALFAddress(None).url}",
         homeNavHref = "http://www.hmrc.gov.uk/",
-        accessibilityFooterUrl = "http://localhost:9970/register-your-company/accessibility-statement?pageUri=%2F",
+        accessibilityFooterUrl = "http://localhost:12346/accessibility-statement/company-registration",
         deskProServiceName = "SCRS",
         showPhaseBanner = true,
         alphaPhase = false,

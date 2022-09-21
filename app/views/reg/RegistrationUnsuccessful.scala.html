@@ -16,31 +16,33 @@
 
 @import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
 
-@this(main_template: main_template,
+@this(layout: templates.layout,
+        h1: components.h1,
+        p: components.p,
+        button: components.button,
         formWithCsrf: FormWithCSRF)
 
 @()(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
-@main_template(title = Messages("page.reg.registrationUnsuccessful.title"), mainClass = None) {
+@layout(pageTitle = Some(messages("page.reg.registrationUnsuccessful.title"))) {
 
-    <h1 class="form-title heading-large" id="main-heading">@Messages("page.reg.registrationUnsuccessful.header")</h1>
+    @h1(messages("page.reg.registrationUnsuccessful.header"))
 
-    <div class="form-group">
-        <p>@Messages("page.reg.registrationUnsuccessful.emailConfirmation")</p>
-    </div>
+    @p {
+        @messages("page.reg.registrationUnsuccessful.emailConfirmation")
+    }
 
-    <div class="form-group">
-        <p>@Messages("page.reg.registrationUnsuccessful.payments")</p>
-    </div>
+    @p {
+        @messages("page.reg.registrationUnsuccessful.payments")
+    }
 
-    <div class="form-group">
-         <p>@Messages("page.reg.registrationUnsuccessful.startAgain")</p>
-    </div>
+    @p {
+        @messages("page.reg.registrationUnsuccessful.startAgain")
+    }
 
 @formWithCsrf(action = controllers.reg.routes.RegistrationUnsuccessfulController.submit) {
-    <div class="form-group">
-      <input class="button" type="submit" id="next" value="@Messages("common.button.startAgain")">
-    </div>
+
+    @button(messages("common.button.startAgain"))
 }
 
 

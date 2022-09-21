@@ -36,9 +36,9 @@ trait AccountingDatesFormT extends EmptyStringValidator with SCRSValidatorsT {
   def form = Form(
     mapping(
       "businessStartDate" -> customErrorTextValidation,
-      "businessStartDate-futureDate.year" -> optional(text),
-      "businessStartDate-futureDate.month" -> optional(text),
-      "businessStartDate-futureDate.day" -> optional(text)
+      "futureDate.Year" -> optional(text),
+      "futureDate.Month" -> optional(text),
+      "futureDate.Day" -> optional(text)
     )(AccountingDatesModel.apply)(AccountingDatesModel.unapply).verifying(StopOnFirstFail(emptyDateConstraint, validateDate, accountingDateValidation))
   )
 }

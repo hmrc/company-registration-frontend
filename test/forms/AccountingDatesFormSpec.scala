@@ -42,39 +42,39 @@ class AccountingDatesFormSpec extends UnitSpec {
 
   val invalidBusinessStartDateData = Map(
     "businessStartDate" -> "",
-    "businessStartDate-futureDate.year" -> "",
-    "businessStartDate-futureDate.month" -> "",
-    "businessStartDate-futureDate.day" -> "")
+    "futureDate.year" -> "",
+    "futureDate.month" -> "",
+    "futureDate.day" -> "")
 
   val invalidDateData = Map(
     "businessStartDate" -> "futureDate",
-    "businessStartDate-futureDate.year" -> "2010",
-    "businessStartDate-futureDate.month" -> "99",
-    "businessStartDate-futureDate.day" -> "99")
+    "futureDate.year" -> "2010",
+    "futureDate.month" -> "99",
+    "futureDate.day" -> "99")
 
   val whenRegisteredData = Map(
     "businessStartDate" -> "whenRegistered",
-    "businessStartDate-futureDate.year" -> "",
-    "businessStartDate-futureDate.month" -> "",
-    "businessStartDate-futureDate.day" -> "")
+    "futureDate.year" -> "",
+    "futureDate.month" -> "",
+    "futureDate.day" -> "")
 
   val futureDateData = Map(
     "businessStartDate" -> "futureDate",
-    "businessStartDate-futureDate.year" -> futureYear,
-    "businessStartDate-futureDate.month" -> "03",
-    "businessStartDate-futureDate.day" -> "05")
+    "futureDate.Year" -> futureYear,
+    "futureDate.Month" -> "03",
+    "futureDate.Day" -> "05")
 
   val pastDateData = Map(
     "businessStartDate" -> "futureDate",
-    "businessStartDate-futureDate.year" -> pastYear,
-    "businessStartDate-futureDate.month" -> "03",
-    "businessStartDate-futureDate.day" -> "04")
+    "futureDate.year" -> pastYear,
+    "futureDate.month" -> "03",
+    "futureDate.day" -> "04")
 
   val notPlanningToYetdata = Map(
     "businessStartDate" -> "whenRegistered",
-    "businessStartDate-futureDate.year" -> "",
-    "businessStartDate-futureDate.month" -> "",
-    "businessStartDate-futureDate.day" -> "")
+    "futureDate.year" -> "",
+    "futureDate.month" -> "",
+    "futureDate.day" -> "")
 
   "Creating a form using an empty model" should {
     "return an empty string for amount" in {

@@ -33,12 +33,16 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name, ~}
 import uk.gov.hmrc.http.HeaderCarrier
+import views.BaseSelectors
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import views.html.verification.{CreateGGWAccount, CreateNewGGWAccount, createNewAccount, verifyYourEmail}
 
 
 class EmailVerificationControllerSpec extends SCRSSpec with CompanyRegistrationConnectorMock with MockitoSugar with SCRSMocks
   with GuiceOneAppPerSuite with KeystoreMock with AuthBuilder {
+
+  object Selectors extends BaseSelectors
 
   implicit val system = ActorSystem("test")
 
@@ -89,7 +93,7 @@ class EmailVerificationControllerSpec extends SCRSSpec with CompanyRegistrationC
 
 
     "display Confirm your email address page" in new Setup {
-      val email = "verified"
+      val email = "We are going to send a message to verified. Check your junk folder. If it’s not there, you’ll need to start again or we can resend it If we resend an email, any previous links will expire."
       mockKeystoreFetchAndGet[String]("registrationID", Some("regid"))
 
       when(mockEmailService.fetchEmailBlock(ArgumentMatchers.eq("regid"))(ArgumentMatchers.any[HeaderCarrier]())).
@@ -100,7 +104,7 @@ class EmailVerificationControllerSpec extends SCRSSpec with CompanyRegistrationC
           status(result) shouldBe 200
           val document = Jsoup.parse(contentAsString(result))
           document.title should include("Confirm your email address")
-          document.getElementById("description").text should include(email)
+          document.select(Selectors.p(1)).text shouldBe email
         }
       )
     }
@@ -141,7 +145,8 @@ class EmailVerificationControllerSpec extends SCRSSpec with CompanyRegistrationC
       status(result) shouldBe 200
       val document = Jsoup.parse(contentAsString(result))
       document.title should include("You need to create a new Government Gateway account")
-      document.getElementById("description-one").text should include("doesn’t have an email address linked")
+      document.select(Selectors.p(1)).text shouldBe "The Government Gateway account you signed in with doesn’t have an email address linked to it." +
+        " You need to create a new Government Gateway account including your email address to use this service."
     }
   }
 
@@ -150,8 +155,8 @@ class EmailVerificationControllerSpec extends SCRSSpec with CompanyRegistrationC
       val result = await(controller.createGGWAccountAffinityShow(FakeRequest()))
       val document = Jsoup.parse(contentAsString(result))
       document.title should include("You’ve signed in with the wrong type of account")
-      document.getElementById("main-heading").text shouldBe "You’ve signed in with the wrong type of account"
-      document.getElementById("para-one").text should include("This service only works with Government Gateway accounts that have been set up for organisations.")
+      document.selectFirst("h1").text shouldBe "You’ve signed in with the wrong type of account"
+      document.select(Selectors.p(1)).text should include("This service only works with Government Gateway accounts that have been set up for organisations.")
     }
   }
 
@@ -161,8 +166,8 @@ class EmailVerificationControllerSpec extends SCRSSpec with CompanyRegistrationC
       bodyOf(result) contains "Create a new Government Gateway account"
       val document = Jsoup.parse(contentAsString(result))
       document.title should include("You need to create a new Government Gateway account")
-      document.getElementById("main-heading").text shouldBe "You need to create a new Government Gateway account"
-      document.getElementById("para-one").text should include("already been used")
+      document.selectFirst("h1").text shouldBe "You need to create a new Government Gateway account"
+      document.select(Selectors.p(1)).text should include("already been used")
     }
   }
 

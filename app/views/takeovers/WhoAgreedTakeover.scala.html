@@ -14,51 +14,44 @@
  * limitations under the License.
  *@
 
-@import helpers.{errorSummary, input}
-@import models.TakeoverDetails
-@import views.helpers.TitleHelper.title
-@import uk.gov.hmrc.play.views.html.helpers.ErrorSummary
 @import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
 
-@this(main_template: main_template,
-        errorSummary: errorSummary,
-        input: input,
-        formWithCsrf: FormWithCSRF)
+@this(layout: templates.layout,
+        errorSummary: components.errorSummary,
+        inputText: components.inputText,
+        formWithCsrf: FormWithCSRF,
+        p: components.p,
+        bullets: components.bullets,
+        button: components.button,
+        h1: components.h1)
 
 @(whoAgreedTakeover: Form[String], businessName: String)(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
-@main_template(title = title(messages("page.takeovers.whoAgreedTakeover.title", businessName),whoAgreedTakeover)) {
+@layout(pageTitle = Some(messages("page.takeovers.whoAgreedTakeover.title", businessName))) {
 
-    <a id="back" class="link-back" href="javascript:history.back()">@messages("common.button.back")</a>
+    @errorSummary(whoAgreedTakeover.errors)
 
-    @errorSummary(
-        Messages("common.errorSummary.label"),
-        whoAgreedTakeover,
-        dataJourney = Some("TakeOvers")
+    @h1(messages("page.takeovers.whoAgreedTakeover.heading", businessName))
+
+    @p {
+        @messages("page.takeovers.whoAgreedTakeover.line1")
+    }
+
+    @bullets(
+        messages("page.takeovers.whoAgreedTakeover.bullet1"),
+        messages("page.takeovers.whoAgreedTakeover.bullet2")
     )
 
-    <h1 class="form-title heading-large" id="pageHeading">@messages("page.takeovers.whoAgreedTakeover.heading", businessName)</h1>
-
-    <div id="paragraph-one" class="form-group">
-        <p id="line1">@messages("page.takeovers.whoAgreedTakeover.line1")</p>
-        <ul class="list-bullet">
-            <li>@messages("page.takeovers.whoAgreedTakeover.bullet1")</li>
-            <li>@messages("page.takeovers.whoAgreedTakeover.bullet2")</li>
-        </ul>
-    </div>
-
     @formWithCsrf(action = controllers.takeovers.routes.WhoAgreedTakeoverController.submit) {
-        <div class ="form-group">
-            @input(
-            whoAgreedTakeover("whoAgreedTakeover"),
-            '_inputClass -> "form-control-1-2",
-            '_labelClass -> "form-label cascading",
-            '_label -> messages("page.takeovers.whoAgreedTakeover.field")
-            )
-        </div>
 
-        <div class="form-group">
-            <input class="button" type="submit" id="next" value="@messages("common.button.snc")">
-        </div>
+            @inputText(
+                form = whoAgreedTakeover,
+                name = "whoAgreedTakeover",
+                id = "whoAgreedTakeover",
+                label = messages("page.takeovers.whoAgreedTakeover.field"),
+                isPageHeading = false,
+            )
+
+        @button(messages("common.button.snc"))
     }
 }

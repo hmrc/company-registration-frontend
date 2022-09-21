@@ -14,30 +14,34 @@
  * limitations under the License.
  *@
 
-@import controllers.CRLanguageController
-@import play.api.Application
+@import uk.gov.hmrc.govukfrontend.views.Aliases.Button
+@import uk.gov.hmrc.govukfrontend.views.Aliases.Text
+@import uk.gov.hmrc.govukfrontend.views.html.components.GovukButton
 
-@this(main_template: main_template)
+@this(layout: templates.layout,
+        h1: components.h1,
+        p: components.p,
+        govukButton: GovukButton,
+        button: components.button)
+
 @(newAccountUrl:String)(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
-@main_template(title = Messages("page.verification.create-new-ggw-account.title"), mainClass = None) {
+@layout(pageTitle = Some(messages("page.verification.create-new-ggw-account.title"))) {
 
-<a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
+    @h1(messages("page.verification.create-new-ggw-account.main-title"))
 
-<div class="form-group">
-    <h1 class="form-title heading-large" id="main-heading">@Messages("page.verification.create-new-ggw-account.main-title")</h1>
+    @p {
+        @messages("page.verification.create-new-ggw-account.para.one")
+        @messages("page.verification.create-new-ggw-account.para.two")
+        @messages("page.verification.create-new-ggw-account.para.three")
+    }
 
-    <div class="form-group">
-        <p id="para-one">@Messages("page.verification.create-new-ggw-account.para.one")</p>
 
-        <p id="para-two">@Messages("page.verification.create-new-ggw-account.para.two")</p>
-
-        <p id="para-three">@Messages("page.verification.create-new-ggw-account.para.three")</p>
-    </div>
-
-    <div class="form-group">
-        <a class="button" id="continue" href=@newAccountUrl>@Messages("common.button.continue")</a>
-    </div>
-
-</div>
+    @govukButton(
+        Button(
+            content = Text(messages("common.button.continue")),
+            attributes = Map("id" -> "continue"),
+            href= Some(newAccountUrl),
+            preventDoubleClick = true
+        ))
 }

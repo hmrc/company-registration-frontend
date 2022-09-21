@@ -81,9 +81,6 @@ class ConfirmationSpec extends SCRSSpec with CompanyDetailsFixture with GuiceOne
           document.title should include("Application submitted")
 
           Map(
-            "heading-application-submitted" -> "Application submitted",
-            "ltd-ref" -> txId,
-            "ackref" -> ackref,
             "next-steps" -> "What happens next"
           ) foreach { case (element, message) =>
             document.getElementById(element).text() shouldBe message

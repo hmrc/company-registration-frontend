@@ -14,17 +14,14 @@
  * limitations under the License.
  *@
 
-@this(main_template: main_template)
+@this(layout: templates.layout,
+        h1: components.h1)
 @(addresses: Seq[Address])(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
-@main_template(title = "Feature switch", mainClass = Some("full-width")) {
+@layout(pageTitle = Some("Feature switch")) {
 
-<div class="grid-row">
-    <div class="column-one-third">
 
-            <h1 class="form-title heading-large" id="main-heading">Pre-pop addresses</h1>
-
-    </div>
+    @h1(messages("Pre-pop addresses"))
 
     @addresses.zipWithIndex.map{ address =>
         <h3>Address @{address._2 + 1}</h3>

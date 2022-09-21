@@ -14,65 +14,68 @@
  * limitations under the License.
  *@
 
-@import views.helpers.TitleHelper.title
-@import views.html.helpers.inputRadioGroupHidden
-@import views.html.helpers.errorSummary
-@import views.html.helpers.input
 @import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
+@import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 
-@this(main_template: main_template,
-        errorSummary: errorSummary,
-        inputRadioGroupHidden: inputRadioGroupHidden,
-        input: input,
+@this(layout: templates.layout,
+        errorSummary: components.errorSummary,
+        inputRadio: components.inputRadio,
+        inputText: components.inputText,
+        h1: components.h1,
+        p: components.p,
+        button: components.button,
         formWithCSRF: FormWithCSRF)
 
 @(registrationEmail: Form[RegistrationEmailModel], email: String)(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
 @differentHidden = {
-    @input(
-        registrationEmail("DifferentEmail"),
-        '_inputClass -> "form-control-1-2",
-        '_labelClass -> "form-label cascading",
-        '_label -> Messages("page.reg.registrationEmail.enterEmail")
-    )
+@inputText(
+    form = registrationEmail,
+    name = "DifferentEmail",
+    id = "DifferentEmail",
+    label = messages("page.reg.registrationEmail.enterEmail"),
+    isPageHeading = false,
+)
 }
 
-@main_template(title = title(Messages("page.reg.registrationEmail.title"), registrationEmail), mainClass = None) {
+@layout(pageTitle = Some(Messages("page.reg.registrationEmail.title"))) {
 
-    <a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
+    @errorSummary(registrationEmail.errors)
 
-    @errorSummary(
-        Messages("common.errorSummary.label"),
-        registrationEmail, dataJourney = Some("RegistrationEmailModel")
-    )
+        @h1(messages("page.reg.registrationEmail.heading"))
 
-    <div class="form-group">
-        <h1 id="main-heading">@Messages("page.reg.registrationEmail.heading")</h1>
-
-        <div class="form-group">
-            <p id="para-one">@Messages("page.reg.registrationEmail.description")</p>
-        </div>
+        @p {
+            @messages("page.reg.registrationEmail.description")
+        }
 
         @formWithCSRF(action = controllers.reg.routes.RegistrationEmailController.submit) {
 
-            <div class="form-group">
-            @inputRadioGroupHidden(
-                registrationEmail("registrationEmail"),
-                Seq("currentEmail" -> Messages("page.reg.registrationEmail.radio1", email), "differentEmail" -> Messages("page.reg.registrationEmail.radio2")),
-                Seq("differentEmail" -> differentHidden),
-                isHeading = false,
-                '_fieldsetId -> "registration-email",
-                '_classHidden -> "panel panel-indent",
-                '_labelClass -> "block-label radio-label",
-                '_legend -> Messages("page.reg.registrationEmail.heading"),
-                '_legendClass -> "visually-hidden"
-                )
-            </div>
+            @inputRadio(
+                form = registrationEmail,
+                fieldName = "registrationEmail",
+                inline = false,
+                legend = messages("page.reg.registrationEmail.heading"),
+                items = Seq(
+                    RadioItem(
+                        id = Some("registrationEmail"),
+                        content = Text(messages("page.reg.registrationEmail.radio1", email)),
+                        value = Some("currentEmail"),
+                        checked = registrationEmail("registrationEmail").value.contains("currentEmail")
+                    ),
+                    RadioItem(
+                        id = Some("differentEmail"),
+                        content = Text(messages("page.reg.registrationEmail.radio2")),
+                        value = Some("differentEmail"),
+                        checked = registrationEmail("registrationEmail").value.contains("differentEmail"),
+                        conditionalHtml = Some(differentHidden)
+                    ),
+                ),
+                legendAsHeading = false,
+                classes = "govuk-visually-hidden"
+            )
 
-            <div class="form-group">
-                <input class="button" type="submit" id="next" value="@Messages("common.button.continue")">
-            </div>
+            @button(messages("common.button.continue"))
         }
-    </div>
 
 }

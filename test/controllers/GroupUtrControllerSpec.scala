@@ -130,7 +130,7 @@ class GroupUtrControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Mock
       showWithAuthorisedUser(controller.show) {
         result =>
           status(result) shouldBe OK
-          Jsoup.parse(contentAsString(result)).getElementById("groupUtr-noutr").attr("checked") shouldBe "checked"
+          Jsoup.parse(contentAsString(result)).getElementById("groupUTR-no").attr("value") shouldBe "false"
       }
     }
 
@@ -148,7 +148,7 @@ class GroupUtrControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Mock
       showWithAuthorisedUser(controller.show) {
         result =>
           status(result) shouldBe OK
-          Jsoup.parse(contentAsString(result)).getElementById("groupUtr-utr").attr("checked") shouldBe "checked"
+          Jsoup.parse(contentAsString(result)).getElementById("groupUTR").attr("value") shouldBe "true"
           Jsoup.parse(contentAsString(result)).getElementById("utr").attr("value") shouldBe "1234567890"
       }
     }
@@ -219,9 +219,11 @@ class GroupUtrControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Mock
         .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
       when(mockGroupService.retrieveGroups(any())(any()))
         .thenReturn(Future.successful(Some(testGroups)))
+      when(mockGroupService.updateGroupUtr(any(), any(), any())(any()))
+        .thenReturn(Future.successful(testGroups.copy(groupUTR = Some(GroupUTR(Some("1234567890"))))))
 
       submitWithAuthorisedUser(controller.submit, FakeRequest().withFormUrlEncodedBody(
-        "groupUtr" -> "xxx",
+        "groupUTR" -> "xxx",
         "utr" -> "1234567890"
       )) {
         result =>
@@ -244,7 +246,7 @@ class GroupUtrControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Mock
         .thenReturn(Future.successful(testGroups.copy(groupUTR = Some(GroupUTR(Some("1234567890"))))))
 
       submitWithAuthorisedUser(controller.submit, FakeRequest().withFormUrlEncodedBody(
-        "groupUtr" -> "utr",
+        "groupUTR" -> "true",
         "utr" -> "1234567890"
       )) {
         result =>
@@ -267,7 +269,7 @@ class GroupUtrControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Mock
         .thenReturn(Future.successful(testGroups))
 
       submitWithAuthorisedUser(controller.submit, FakeRequest().withFormUrlEncodedBody(
-        "groupUtr" -> "noutr"
+        "groupUTR" -> "false"
       )) {
         result =>
           status(result) shouldBe SEE_OTHER

@@ -14,46 +14,38 @@
  * limitations under the License.
  *@
 
-@import helpers.{errorSummary, input}
-@import models.TakeoverDetails
-@import views.helpers.TitleHelper.title
-@import uk.gov.hmrc.play.views.html.helpers.ErrorSummary
 @import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
 
-@this(main_template: main_template,
-        errorSummary: errorSummary,
-        input: input,
+@this(layout: templates.layout,
+        errorSummary: components.errorSummary,
+        inputText: components.inputText,
+        h1: components.h1,
+        p: components.p,
+        button: components.button,
         formWithCsrf: FormWithCSRF)
 
 @(businessName: Form[String])(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
-@main_template(title = title(messages(s"page.takeovers.otherBusinessName.title"),businessName)) {
+@layout(pageTitle = Some(messages(s"page.takeovers.otherBusinessName.title"))) {
 
-    <a id="back" class="link-back" href="javascript:history.back()">@messages("common.button.back")</a>
+    @errorSummary(businessName.errors)
 
-    @errorSummary(
-        Messages("common.errorSummary.label"),
-        businessName,
-        dataJourney = Some("TakeOvers")
-    )
+    @h1(messages("page.takeovers.otherBusinessName.heading"))
 
-    <h1 class="form-title heading-large" id="pageHeading">@messages("page.takeovers.otherBusinessName.heading")</h1>
-
-    <p id="line1">@messages("page.takeovers.otherBusinessName.paragraph")</p>
+    @p {
+        @messages("page.takeovers.otherBusinessName.paragraph")
+    }
 
     @formWithCsrf(action = controllers.takeovers.routes.OtherBusinessNameController.submit) {
-        <div class ="form-group">
-            @input(
-                businessName("otherBusinessName"),
-                '_inputClass -> "form-control-1-2",
-                '_labelClass -> "form-label cascading",
-                '_label -> messages("page.takeovers.otherBusinessName.field")
-            )
-        </div>
+        @inputText(
+            form = businessName,
+            name = "otherBusinessName",
+            id = "otherBusinessName",
+            label = messages("page.takeovers.otherBusinessName.field"),
+            isPageHeading = false,
+        )
 
-        <div class="form-group">
-            <input class="button" type="submit" id="next" value="@messages("common.button.snc")">
-        </div>
+        @button(messages("common.button.snc"))
     }
 
 }

@@ -91,7 +91,7 @@ class OtherBusinessAddressControllerISpec extends IntegrationSpecBase
       )
 
       res.status shouldBe OK
-      Jsoup.parse(res.body).getElementById("otherBusinessAddress-0").attr("checked") shouldBe "checked"
+      Jsoup.parse(res.body).getElementById("test name").attr("value") shouldBe "0"
     }
   }
 
@@ -151,7 +151,7 @@ class OtherBusinessAddressControllerISpec extends IntegrationSpecBase
         options = JourneyOptions(
           continueUrl = "http://localhost:9970/register-your-company/save-alf-address-takeovers",
           homeNavHref = "http://www.hmrc.gov.uk/",
-          accessibilityFooterUrl = "http://localhost:9970/register-your-company/accessibility-statement?pageUri=%2F",
+          accessibilityFooterUrl = "http://localhost:12346/accessibility-statement/company-registration",
           deskProServiceName = "SCRS",
           showPhaseBanner = true,
           alphaPhase = false,

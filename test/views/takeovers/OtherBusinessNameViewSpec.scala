@@ -24,9 +24,12 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.{I18nSupport, Messages, MessagesApi}
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
+import views.BaseSelectors
 import views.html.takeovers.OtherBusinessName
 
 class OtherBusinessNameViewSpec extends UnitSpec with GuiceOneAppPerSuite with I18nSupport {
+
+  object Selectors extends BaseSelectors
 
   implicit lazy val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
   implicit lazy val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
@@ -49,11 +52,11 @@ class OtherBusinessNameViewSpec extends UnitSpec with GuiceOneAppPerSuite with I
     }
 
     s"have an expected heading: $heading" in {
-      doc.selectFirst("h1").text shouldBe heading
+      doc.select(Selectors.h1).text shouldBe heading
     }
 
     s"have an expected paragraph: $paragraph" in {
-      doc.getElementById("line1").text shouldBe paragraph
+      doc.select(Selectors.p(1)).text shouldBe paragraph
     }
 
     s"have an expected input form: $inputField" in {
@@ -61,7 +64,7 @@ class OtherBusinessNameViewSpec extends UnitSpec with GuiceOneAppPerSuite with I
     }
 
     s"have a $saveAndContinue button" in {
-      doc.selectFirst("input.button").attr("value") shouldBe saveAndContinue
+      doc.select(Selectors.button).text() shouldBe saveAndContinue
     }
   }
 }
