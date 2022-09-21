@@ -18,14 +18,14 @@ package models
 
 import helpers.UnitSpec
 import models.handoff.CompanyNameHandOffInformation
-import org.joda.time.{DateTime, DateTimeZone}
 import play.api.libs.json.{JsObject, Json}
+import java.time._
 
 class CompanyNameHandOffInformationSpec extends UnitSpec {
 
   class Setup {
-    val testModel = CompanyNameHandOffInformation("foo", new DateTime(0, DateTimeZone.UTC), JsObject(Seq("foo" -> Json.toJson("bar"))))
-    val json = """{"handoffType":"foo","handoffTime":"1970-01-01T00:00:00.000Z","data":{"foo":"bar"}}"""
+    val testModel = CompanyNameHandOffInformation("foo", LocalDateTime.of(1970,1,1,0,0,0,0), JsObject(Seq("foo" -> Json.toJson("bar"))))
+    val json = """{"handoffType":"foo","handoffTime":"1970-01-01T00:00:00","data":{"foo":"bar"}}"""
   }
 
   "CompanyNameHandoffInformation" should {

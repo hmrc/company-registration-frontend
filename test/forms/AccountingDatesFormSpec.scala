@@ -17,20 +17,21 @@
 package forms
 
 import helpers.UnitSpec
-import org.joda.time.{DateTime, LocalDate}
 import services.{BankHolidays, TimeService}
-import uk.gov.hmrc.time.workingdays.BankHolidaySet
+import java.time._
+
+import models.JavaTimeUtils.BankHolidaySet
 
 class AccountingDatesFormSpec extends UnitSpec {
 
-  val curDateTime = DateTime.parse("2022-02-28T08:00")
+  val curDateTime = LocalDateTime.parse("2022-02-28T08:00")
   val curLocalDate = LocalDate.parse("2022-02-28")
 
   def testForm(newnow : LocalDate = curLocalDate) = new AccountingDatesFormT {
     override val timeService: TimeService = new TimeService {
       override val bHS: BankHolidaySet = BankHolidays.bankHolidaySet
       override val dayEndHour: Int = 14
-      override def currentDateTime: DateTime = curDateTime
+      override def currentDateTime: LocalDateTime = curDateTime
       override def currentLocalDate: LocalDate = curLocalDate
     }
     override val now: LocalDate = newnow

@@ -17,7 +17,7 @@
 package fixtures
 
 import models.AccountingDatesModel
-import org.joda.time.LocalDate
+import java.time.LocalDate
 
 trait AccountingDatesFixture {
 

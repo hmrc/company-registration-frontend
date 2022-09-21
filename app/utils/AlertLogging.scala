@@ -16,10 +16,10 @@
 
 package utils
 
-import java.time.LocalTime
-import java.time.format.DateTimeFormatter
+import java.time.format.{DateTimeFormatter, TextStyle}
+import java.time.{LocalDate, LocalTime, ZoneOffset}
+import java.util.Locale
 
-import org.joda.time.{DateTime, DateTimeZone}
 import play.api.Logging
 
 object PagerDutyKeys extends Enumeration {
@@ -37,14 +37,10 @@ trait AlertLogging extends Logging {
 
   def inWorkingHours: Boolean = isLoggingDay && isBetweenLoggingTimes
 
-  private[utils] def today: String = {
-    DateTime
-      .now(DateTimeZone.UTC)
-      .dayOfWeek()
-      .getAsText()
-      .substring(0,3)
-      .toUpperCase
-  }
+  private[utils] def today: String = getTheDay(LocalDate.now(ZoneOffset.UTC))
+
+  def getTheDay(nowDateTime: LocalDate): String =
+    nowDateTime.getDayOfWeek.getDisplayName(TextStyle.SHORT, Locale.UK).toUpperCase
 
   private[utils] def now: LocalTime = getCurrentTime
 

@@ -17,9 +17,9 @@
 package utils
 
 import models._
-import org.joda.time.LocalDate
 import play.api.data.validation._
 import services.TimeService
+import java.time._
 
 import scala.util.{Failure, Success, Try}
 

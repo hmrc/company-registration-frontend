@@ -71,7 +71,7 @@ object AccountingDetailsRequest {
   implicit val formats = Json.format[AccountingDetailsRequest]
 
   def toRequest(accDates: AccountingDatesModel) : AccountingDetailsRequest = {
-      val formattedDate = TimeHelper.toDateTime(accDates.day, accDates.month, accDates.year).map(_.toString(TimeHelper.DATE_FORMAT))
+      val formattedDate = TimeHelper.toDateTime(accDates.day, accDates.month, accDates.year).map(_.toString())
       AccountingDetailsRequest(accDates.crnDate, formattedDate)
   }
 }

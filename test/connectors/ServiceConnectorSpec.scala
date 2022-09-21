@@ -19,12 +19,12 @@ package connectors
 import config.WSHttp
 import helpers.SCRSSpec
 import models.external.OtherRegStatus
-import org.joda.time.DateTime
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito._
 import play.api.http.Status._
 import uk.gov.hmrc.http._
+import java.time._
 
 import scala.concurrent.Future
 
@@ -47,7 +47,7 @@ class ServiceConnectorSpec extends SCRSSpec {
   "getStatus" should {
 
     val url = s"$baseUrl$baseUri/$regId/status"
-    val localDate = DateTime.now()
+    val localDate = LocalDateTime.now()
     val ackRef = "testAckRef"
     val status = OtherRegStatus("testStatus", Some(localDate), Some(ackRef), Some("foo"), Some("bar"))
 
@@ -81,7 +81,7 @@ class ServiceConnectorSpec extends SCRSSpec {
   }
 
   "canStatusBeCancelled" should {
-    val localDate = DateTime.now()
+    val localDate = LocalDateTime.now()
     val ackRef = "testAckRef"
     val status = OtherRegStatus("testStatus", Some(localDate), Some(ackRef), Some("foo"), None)
 
@@ -109,7 +109,7 @@ class ServiceConnectorSpec extends SCRSSpec {
   }
   "cancelReg" should {
 
-    val localDate = DateTime.now()
+    val localDate = LocalDateTime.now()
     val ackRef = "testAckRef"
     val status = OtherRegStatus("testStatus", Some(localDate), Some(ackRef), Some("foo"), None)
     "return Cancelled if user has cancelURL in paye status and delete is successful" in new Setup {

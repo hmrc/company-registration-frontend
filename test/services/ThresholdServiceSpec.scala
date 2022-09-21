@@ -21,9 +21,9 @@ import config.AppConfig
 import connectors.VatThresholdConnector
 import helpers.SCRSSpec
 import mocks.ServiceConnectorMock
-import org.joda.time.LocalDate
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import java.time._
 
 
 class ThresholdServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthBuilder with GuiceOneAppPerSuite {

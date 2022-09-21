@@ -18,8 +18,7 @@ package utils
 
 import javax.inject.Inject
 
-import org.joda.time.format.ISODateTimeFormat
-import org.joda.time.{DateTime, DateTimeZone}
+import java.time._
 
 
 sealed trait FeatureSwitch extends FeatureSwitchManager {
@@ -34,7 +33,7 @@ case class BooleanFeatureSwitch(name: String, enabled: Boolean) extends FeatureS
   override def value = ""
 }
 
-case class TimedFeatureSwitch(name: String, start: Option[DateTime], end: Option[DateTime], target: DateTime) extends FeatureSwitch {
+case class TimedFeatureSwitch(name: String, start: Option[Instant], end: Option[Instant], target: Instant) extends FeatureSwitch {
 
   override def enabled: Boolean = (start, end) match {
     case (Some(s), Some(e)) => !target.isBefore(s) && !target.isAfter(e)
@@ -57,14 +56,13 @@ trait FeatureSwitchManager {
 
   val DatesIntervalExtractor = """(\S+)_(\S+)""".r
   val UNSPECIFIED            = "X"
-  val dateFormat             = ISODateTimeFormat.dateTimeNoMillis()
 
   private[utils] def getProperty(name: String): FeatureSwitch = {
     val value = sys.props.get(systemPropertyName(name))
 
     value match {
       case Some("true")                                                => BooleanFeatureSwitch(name, enabled = true)
-      case Some(DatesIntervalExtractor(start, end))                    => TimedFeatureSwitch(name, toDate(start), toDate(end), DateTime.now(DateTimeZone.UTC))
+      case Some(DatesIntervalExtractor(start, end))                    => TimedFeatureSwitch(name, toDate(start), toDate(end), Instant.now())
       case Some("")                                                    => ValueSetFeatureSwitch(name, "time-clear")
       case Some(date) if date.matches(SCRSValidators.datePatternRegex) => ValueSetFeatureSwitch(name, date)
       case _                                                           => BooleanFeatureSwitch(name, enabled = false)
@@ -76,10 +74,10 @@ trait FeatureSwitchManager {
     getProperty(name)
   }
 
-  private[utils] def toDate(text: String) : Option[DateTime] = {
+  private[utils] def toDate(text: String) : Option[Instant] = {
     text match {
       case UNSPECIFIED => None
-      case _           => Some(dateFormat.parseDateTime(text))
+      case _           => Some(Instant.parse(text))
     }
   }
 

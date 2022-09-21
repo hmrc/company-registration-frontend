@@ -18,26 +18,29 @@ package models.external
 
 import java.time.ZonedDateTime
 
-import org.joda.time.DateTime
+import java.time._
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 
-case class OtherRegStatus(status: String, lastUpdate: Option[DateTime], ackRef: Option[String], cancelURL:Option[String], restartURL:Option[String])
+case class OtherRegStatus(status: String, lastUpdate: Option[LocalDateTime], ackRef: Option[String], cancelURL:Option[String], restartURL:Option[String])
 
 object OtherRegStatus {
 
+  implicit val format = Json.format[OtherRegStatus]
+
+
   implicit val reads = (
     (__ \ "status").read[String] and
-    (__ \ "lastUpdate").readNullable[DateTime](dateTimeReads) and
+    (__ \ "lastUpdate").readNullable[LocalDateTime](dateTimeReads) and
     (__ \ "ackRef").readNullable[String] and
     (__ \ "cancelURL").readNullable[String] and
     (__ \ "restartURL").readNullable[String]
   )(OtherRegStatus.apply _)
 
-  def dateTimeReads: Reads[DateTime] = new Reads[DateTime] {
-    override def reads(json: JsValue): JsResult[DateTime] = {
+  def dateTimeReads: Reads[LocalDateTime] = new Reads[LocalDateTime] {
+    override def reads(json: JsValue): JsResult[LocalDateTime] = {
       val dt = json.as[ZonedDateTime]
-      JsSuccess(DateTime.parse(dt.toString))
+      JsSuccess(LocalDateTime.parse(dt.toString))
     }
   }
 }

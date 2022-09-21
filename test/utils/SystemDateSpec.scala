@@ -16,9 +16,10 @@
 
 package utils
 
-import org.joda.time.LocalDate
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.play.PlaySpec
+import java.time.LocalDate
+
 
 class SystemDateSpec extends PlaySpec with BeforeAndAfterEach {
 
