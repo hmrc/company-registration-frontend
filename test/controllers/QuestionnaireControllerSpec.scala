@@ -32,6 +32,7 @@ import services.QuestionnaireService
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import utils.SCRSFeatureSwitches
 import views.html.reg.{Questionnaire => QuestionnaireView}
 
 import scala.concurrent.Future
@@ -43,7 +44,7 @@ class QuestionnaireControllerSpec extends UnitSpec with GuiceOneAppPerSuite with
   val mockQuestionnaireService = mock[QuestionnaireService]
   val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
   val mockQuestionnaireView = app.injector.instanceOf[QuestionnaireView]
-  implicit val appConfig: AppConfig = new AppConfig(mock[ServicesConfig]){
+  implicit val appConfig: AppConfig = new AppConfig(mock[ServicesConfig], mock[SCRSFeatureSwitches]){
     override lazy val assetsPrefix = ""
     override lazy val reportAProblemNonJSUrl = ""
     override lazy val contactFrontendPartialBaseUrl = ""
@@ -53,6 +54,7 @@ class QuestionnaireControllerSpec extends UnitSpec with GuiceOneAppPerSuite with
     override lazy val timeoutInSeconds = ""
     override lazy val timeoutDisplayLength = ""
     override lazy val govHostUrl: String = "govukurl"
+    override def languageTranslationEnabled = false
   }
 
     class Setup {

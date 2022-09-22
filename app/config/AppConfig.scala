@@ -17,12 +17,14 @@
 package config
 
 import controllers.reg.routes
+import play.api.i18n.Lang
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import utils.SCRSFeatureSwitches
 
 import java.net.URLEncoder
 import javax.inject.Inject
 
-class AppConfig @Inject()(val servicesConfig: ServicesConfig) {
+class AppConfig @Inject()(val servicesConfig: ServicesConfig, featureSwitch: SCRSFeatureSwitches) {
 
   private def loadConfig(key: String) = servicesConfig.getString(key)
 
@@ -122,4 +124,9 @@ class AppConfig @Inject()(val servicesConfig: ServicesConfig) {
   lazy val oldPayeMonthlyThreshold: Int = servicesConfig.getInt("paye.old-monthly-threshold")
   lazy val oldPayeAnnualThreshold: Int = servicesConfig.getInt("paye.old-annual-threshold")
 
+  def languageTranslationEnabled: Boolean = featureSwitch.welshLanguage.enabled
+
+  def languageMap: Map[String, Lang] = Map(
+    "english" -> Lang("en"),
+    "cymraeg" -> Lang("cy"))
 }
