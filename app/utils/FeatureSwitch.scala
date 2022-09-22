@@ -107,12 +107,14 @@ trait SCRSFeatureSwitches {
   def vat                       = featureSwitchManager.getProperty("vat")
   def legacyEnv                 = featureSwitchManager.getProperty(LEGACY_ENV)
   def systemDate                = featureSwitchManager.getProperty("system-date")
+  def welshLanguage             = featureSwitchManager.getProperty("toggle-welsh")
 
   def apply(name: String): Option[FeatureSwitch] = name match {
     case COHO                        => Some(cohoFirstHandOff)
     case "vat"                       => Some(vat)
     case LEGACY_ENV                  => Some(legacyEnv)
     case "system-date"               => Some(systemDate)
+    case "toggle-welsh"              => Some(welshLanguage)
     case _                           => None
   }
 }
