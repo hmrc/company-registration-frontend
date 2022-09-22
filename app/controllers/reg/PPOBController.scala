@@ -62,12 +62,12 @@ class PPOBController @Inject()(val authConnector: PlayAuthConnector,
         checkStatus { regId =>
           for {
             addresses <- pPOBService.fetchAddressesAndChoice(regId)
-            ro = addresses._1
-            ppob = addresses._2
             choice = addresses._3
             form = PPOBForm.aLFForm.fill(choice)
           } yield {
-            Ok(view(form, ro, ppob, choice))
+            val addressMap = pPOBService.getAddresses(addresses)
+              .collect { case (id, address) =>  id -> address.toString }
+            Ok(view(form, addressMap))
           }
         }
       }
@@ -102,16 +102,15 @@ class PPOBController @Inject()(val authConnector: PlayAuthConnector,
             errors => {
               for {
                 addresses <- pPOBService.fetchAddressesAndChoice(regId)
-                ro = addresses._1
-                ppob = addresses._2
-                choice = addresses._3
               } yield {
-                BadRequest(view(errors, ro, ppob, choice))
+                val addressMap = pPOBService.getAddresses(addresses)
+                  .collect { case (id, chAddress) =>  id -> chAddress.toString }
+                BadRequest(view(errors, addressMap))
               }
             },
             success => {
               success.choice match {
-                case "RO" =>
+                case "ROAddress" =>
                   for {
                     _ <- pPOBService.saveAddress(regId, "RO")
                     companyDetails <- pPOBService.retrieveCompanyDetails(regId)
@@ -119,9 +118,9 @@ class PPOBController @Inject()(val authConnector: PlayAuthConnector,
                   } yield {
                     Redirect(controllers.reg.routes.CompanyContactDetailsController.show)
                   }
-                case "PPOB" =>
+                case "PPOBAddress" =>
                   Future.successful(Redirect(controllers.reg.routes.CompanyContactDetailsController.show))
-                case "Other" =>
+                case "OtherAddress" =>
                   addressLookupFrontendService.initialiseAlfJourney(
                     handbackLocation = controllers.reg.routes.PPOBController.saveALFAddress(None),
                     specificJourneyKey = ppobKey,

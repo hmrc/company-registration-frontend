@@ -210,8 +210,8 @@ class GroupNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Moc
       .thenReturn(Future.successful(testGroups))
 
     submitWithAuthorisedUser(controller.submit, FakeRequest().withFormUrlEncodedBody(
-      "group-Name" -> "otherName",
-      "other-Name" -> "bob co"
+      "groupNames" -> "otherName",
+      "otherNames" -> "bob co"
     )) {
       result =>
         status(result) shouldBe BAD_REQUEST

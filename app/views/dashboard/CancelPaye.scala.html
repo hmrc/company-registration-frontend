@@ -15,36 +15,32 @@
  *@
 
 @import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
-@import views.html.helpers.inputRadioGroup
 
-@this(main_template: main_template,
+@this(layout: templates.layout,
+        p: components.p,
+        button: components.button,
         formWithCsrf: FormWithCSRF,
-        inputRadioGroup: inputRadioGroup)
+        yesNoRadio: components.yesNoRadio)
 
 @(cancelSelection : Form[Boolean])(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
-@main_template(title = Messages("page.reg.cancelpaye.description"), mainClass = None){
+@layout(pageTitle = Some(messages("page.reg.cancelpaye.description"))){
 
-<a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
-
-          <br>
-          <p>@Messages("page.reg.cancelpaye.p1")</p>
-          <br>
+    @p{
+        @messages("page.reg.cancelpaye.p1")
+    }
 
    @formWithCsrf(action = controllers.dashboard.routes.CancelRegistrationController.submitCancelPAYE) {
-        <div class="form-group">
-            @inputRadioGroup(
-                cancelSelection("cancelService"),
-                Seq(("true", Messages("page.reg.cancelservice.radioYesLabel")),("false", Messages("page.reg.cancelservice.radioNoLabel"))),
-                isHeading = true,
-                '_fieldsetId -> "cancel-paye",
-                '_groupClass -> "inline",
-                '_labelClass -> "block-label radio-label",
-                '_legend -> Messages("page.reg.cancelpaye.description")
-            )
-        </div>
-        <div class="form-group">
-            <input class="button" type="submit" id="next" value="@Messages("common.button.save")">
-        </div>
+
+       @yesNoRadio(
+           form = cancelSelection,
+           id = "cancelService",
+           headingKey = messages("page.reg.cancelpaye.description"),
+           isPageHeading = false,
+           inline = true,
+           fieldName = "cancelService"
+       )
+
+       @button(messages("common.button.save"))
     }
 }

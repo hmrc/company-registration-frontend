@@ -29,9 +29,7 @@ case class NewAddress(addressLine1: String,
                       country: Option[String],
                       auditRef: Option[String] = None) {
 
-  def mkString: String = {
-    s"$addressLine1, $addressLine2${addressLine3.fold("")(l3 => s", $l3")}${addressLine4.fold("")(l4 => s", $l4")}${postcode.fold("")(pc => s", $pc")}${country.fold("")(c => s", $c")}"
-  }
+  override def toString: String = Seq(Some(addressLine1), Some(addressLine2), addressLine3, addressLine4, postcode, country).flatten.mkString(", ")
 
   def isEqualTo(other: NewAddress): Boolean = {
     (addressLine1.toLowerCase == other.addressLine1.toLowerCase) && (

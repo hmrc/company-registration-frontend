@@ -107,7 +107,7 @@ class CompanyDetailsModelsSpec extends UnitSpec {
         val expected = Json.parse(
           """
             |{
-            |  "addressLine1":"15 line1",
+            |  "addressLine1":"line1",
             |  "postcode":"FX1 1ZZ",
             |  "txid":"test-txid",
             |  "country":"UK",
@@ -122,8 +122,8 @@ class CompanyDetailsModelsSpec extends UnitSpec {
 
       "line 1 and line 2 together are longer than 26 chars" in {
         val address = Address(
-          Some("1234567890123456"),
-          "abcdefghi27",
+          Some(""),
+          "1234567890123456abcdefghi27",
           "line2",
           Some("line3"),
           Some("line4"),
@@ -136,10 +136,10 @@ class CompanyDetailsModelsSpec extends UnitSpec {
         val expected = Json.parse(
           """
             |{
-            |  "addressLine1":"1234567890123456",
-            |  "addressLine2":"abcdefghi27",
-            |  "addressLine3":"line2",
-            |  "addressLine4":"line3",
+            |  "addressLine1":"1234567890123456abcdefghi27",
+            |  "addressLine2":"line2",
+            |  "addressLine3":"line3",
+            |  "addressLine4":"line4",
             |  "postcode":"FX1 1ZZ",
             |  "country":"UK",
             |  "txid":"test-txid"
@@ -153,8 +153,8 @@ class CompanyDetailsModelsSpec extends UnitSpec {
 
       "line 1 and line 2 together are shorter than 26 chars" in {
         val address = Address(
-          Some("1234567890123456"),
-          "abcdefg25",
+          Some(""),
+          "1234567890123456abcdefg25",
           "line2",
           Some("line3"),
           Some("line4"),
@@ -167,7 +167,7 @@ class CompanyDetailsModelsSpec extends UnitSpec {
         val expected = Json.parse(
           """
             |{
-            |  "addressLine1":"1234567890123456 abcdefg25",
+            |  "addressLine1":"1234567890123456abcdefg25",
             |  "addressLine2":"line2",
             |  "addressLine3":"line3",
             |  "addressLine4":"line4",

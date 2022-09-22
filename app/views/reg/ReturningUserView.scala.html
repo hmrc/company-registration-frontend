@@ -14,64 +14,50 @@
  * limitations under the License.
  *@
 
-@import views.helpers.TitleHelper.title
-@import views.html.helpers.inputRadioGroupHidden
-@import views.html.helpers.inputRadioGroup
-@import views.html.helpers.errorSummary
 @import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
 
-@this(main_template: main_template,
-        errorSummary: errorSummary,
-        inputRadioGroupHidden: inputRadioGroupHidden,
-        inputRadioGroup: inputRadioGroup,
+@this(layout: templates.layout,
+        errorSummary: components.errorSummary,
+        yesNoRadio: components.yesNoRadio,
+        p: components.p,
+        button: components.button,
         formWithCsrf: FormWithCSRF)
 
 @(returningUser: Form[models.ReturningUser], isUserLoggedin: Boolean)(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
 @yesHiddenContent = {
-    <div class="notice">
-        @Messages("page.reg.returningUser.radioYesHintText")
-    </div>
+    @p {
+        @messages("page.reg.returningUser.radioYesHintText")
+    }
 }
 
-@main_template(title = title(Messages("page.reg.returningUser.title"), returningUser), mainClass = None) {
+@layout(pageTitle = Some(Messages("page.reg.returningUser.title"))) {
 
-
-    <a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
-
-    @errorSummary(
-        Messages("common.errorSummary.label"),
-        returningUser, dataJourney = Some("ReturningUser")
-    )
+    @errorSummary(returningUser.errors)
 
     @formWithCsrf(action = controllers.reg.routes.ReturningUserController.submit) {
 
         @if(isUserLoggedin) {
-            @inputRadioGroupHidden(
-                returningUser("returningUser"),
-                Seq(("true", Messages("page.reg.returningUser.radioYesLabel")), ("false", Messages("page.reg.returningUser.radioNoLabel"))),
-                Seq("true" -> yesHiddenContent),
-                isHeading = true,
-                '_fieldsetId -> "returning-user",
-                '_idHidden -> "returning-user",
-                '_groupClass -> "form-group",
-                '_classHidden -> "panel panel-indent",
-                '_labelClass -> "block-label radio-label",
-                '_legend -> Messages("page.reg.returningUser.description")
+            @yesNoRadio(
+                form = returningUser,
+                id = "returningUser",
+                headingKey = messages("page.reg.returningUser.description"),
+                isPageHeading = false,
+                inline = false,
+                fieldName = "returningUser",
+                hiddenYesContent = Some(yesHiddenContent)
             )
         } else {
-            @inputRadioGroup(
-                returningUser("returningUser"),
-                Seq(("true", Messages("page.reg.returningUser.radioYesLabel")), ("false", Messages("page.reg.returningUser.radioNoLabel"))),
-                isHeading = true,
-                '_fieldsetId -> "returning-user",
-                '_groupClass -> "form-group",
-                '_labelClass -> "block-label radio-label",
-                '_legend -> Messages("page.reg.returningUser.description")
+            @yesNoRadio(
+                form = returningUser,
+                id = "returningUser",
+                headingKey = messages("page.reg.returningUser.description"),
+                isPageHeading = false,
+                inline = false,
+                fieldName = "returningUser"
             )
         }
-        <div class="form-group">
-            <input class="button" type="submit" id="next" value="@Messages("common.button.continue")">
-        </div>
+
+        @button(messages("common.button.continue"))
     }
 }

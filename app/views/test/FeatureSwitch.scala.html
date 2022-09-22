@@ -17,22 +17,23 @@
 @import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
 @import uk.gov.hmrc.play.views.html.helpers.InputRadioGroup
 
-@this(main_template: main_template,
+@this(layout: templates.layout,
+        h1: components.h1,
+        h2: components.h2,
         inputRadioGroup: InputRadioGroup,
+        button: components.button,
         formWithCsrf: FormWithCSRF)
 
 @(featureSwitchForm: Form[models.test.FeatureSwitch])(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
-@main_template(title = "Feature switch", mainClass = Some("full-width")) {
+@layout(pageTitle = Some("Feature switch")) {
 
-    <div class="grid-row">
-
-        <h1 class="form-title heading-large" id="main-heading">Feature switch</h1>
-
+        @h1(messages("Feature Switch"))
 
         @formWithCsrf(action = controllers.test.routes.TestEndpointController.updateFeatureSwitch) {
 
-            <h2>First hand off</h2>
+            @h2(messages("First hand off"))
+
             @inputRadioGroup(
                 featureSwitchForm("firstHandOff"),
                 Seq("true" -> "CoHo", "false" -> "Stub"),
@@ -40,7 +41,8 @@
                 '_groupClass -> "form-group inline"
             )
 
-            <h2>Legacy Env</h2>
+            @h2(messages("Legacy Env"))
+
             @inputRadioGroup(
                 featureSwitchForm("legacyEnv"),
                 Seq("true" -> "DCD (Legacy)", "false" -> "AWS"),
@@ -48,7 +50,8 @@
                 '_groupClass -> "form-group inline"
             )
 
-            <h2>Takeovers section</h2>
+            @h2(messages("Takeovers section"))
+
             @inputRadioGroup(
                 featureSwitchForm("takeovers"),
                 Seq("true" -> "Enabled", "false" -> "Disabled"),
@@ -56,10 +59,6 @@
                 '_groupClass -> "form-group inline"
             )
 
-            <div class="form-group">
-                <input class="button" type="submit" id="next" value="Submit">
-            </div>
+            @button(messages("app.common.continue"))
         }
-
-    </div>
 }

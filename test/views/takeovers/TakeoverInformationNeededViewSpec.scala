@@ -23,9 +23,12 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
+import views.BaseSelectors
 import views.html.errors.takeoverInformationNeeded
 
 class TakeoverInformationNeededViewSpec extends UnitSpec with GuiceOneAppPerSuite with I18nSupport {
+
+  object Selectors extends BaseSelectors
 
   implicit lazy val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
   implicit lazy val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
@@ -50,11 +53,11 @@ class TakeoverInformationNeededViewSpec extends UnitSpec with GuiceOneAppPerSuit
     }
 
     s"have an expected paragraph: $paragraph" in {
-      doc.getElementById("paragraph1").text shouldBe paragraph
+      doc.select(Selectors.p(1)).text shouldBe paragraph
     }
 
     s"have a $continue button" in {
-      doc.getElementById("next").attr("value") shouldBe continue
+      doc.getElementById("continue").text() shouldBe continue
     }
   }
 }

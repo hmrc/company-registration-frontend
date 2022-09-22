@@ -92,7 +92,7 @@ class RegistrationEmailControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
           status(result) shouldBe 200
           val document: Document = Jsoup.parse(contentAsString(result))
           document.title should include("Which email address do you want to use for this application?")
-          document.getElementById("registrationEmail-currentemail").attr("checked") shouldBe "checked"
+          document.getElementById("registrationEmail").attr("value") shouldBe "currentEmail"
         }
       )
     }
@@ -106,7 +106,7 @@ class RegistrationEmailControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
         result => {
           status(result) shouldBe 200
           val document: Document = Jsoup.parse(contentAsString(result))
-          document.getElementById("registrationEmail-currentemail").attr("checked") shouldBe ""
+          document.getElementById("registrationEmail").attr("value") shouldBe "currentEmail"
         }
       )
     }
@@ -149,7 +149,7 @@ class RegistrationEmailControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
         result =>
           status(result) shouldBe BAD_REQUEST
           val document = Jsoup.parse(contentAsString(result))
-          document.getElementById("registrationEmail-currentemail").attr("checked") shouldBe ""
+          document.getElementById("registrationEmail").attr("value") shouldBe "currentEmail"
       }
 
     }

@@ -25,9 +25,12 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
+import views.BaseSelectors
 import views.html.takeovers.HomeAddress
 
 class HomeAddressViewSpec extends UnitSpec with GuiceOneAppPerSuite with I18nSupport {
+
+  object Selectors extends BaseSelectors
 
   implicit lazy val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
   implicit lazy val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
@@ -45,7 +48,7 @@ class HomeAddressViewSpec extends UnitSpec with GuiceOneAppPerSuite with I18nSup
 
     lazy val title = s"What is $testPreviousOwnerName’s home address?"
     lazy val heading = s"What is $testPreviousOwnerName’s home address?"
-    lazy val address = testBusinessAddress.mkString
+    lazy val address = testBusinessAddress.toString
     lazy val otherAddress = "A different address"
     lazy val saveAndContinue = "Save and continue"
 
@@ -53,14 +56,8 @@ class HomeAddressViewSpec extends UnitSpec with GuiceOneAppPerSuite with I18nSup
       doc.title should include(title)
     }
 
-    s"have expected radio labels: $address and $otherAddress" in {
-      val list = doc.select("label")
-      list.get(0).text shouldBe address
-      list.get(1).text shouldBe otherAddress
-    }
-
     s"have a $saveAndContinue button" in {
-      doc.selectFirst("input.button").attr("value") shouldBe saveAndContinue
+      doc.getElementById("continue").text() shouldBe saveAndContinue
     }
   }
 }

@@ -14,45 +14,42 @@
  * limitations under the License.
  *@
 
-@this(main_template: main_template)
+@this(layout: templates.layout,
+        h1: components.h1,
+        p: components.p,
+        h3: components.h3)
 @(status: String, ctData: Seq[String], heldSubmission: Seq[String], ctRecord: String)(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
-@import controllers.reg.routes._
-@import views.html.helpers.inputRadioGroup
-@import config.AppConfig
-@import play.api.libs.json._
 @import play.twirl.api.Html
 
-@main_template(title = "Feature switch", mainClass = Some("full-width")) {
+@layout(Some("Feature switch")) {
 
-<div class="grid-row">
-    <div class="column-one-third">
+    @h1(messages("Submission status"))
 
-            <h1 class="form-title heading-large" id="main-heading">Submission status</h1>
+    @p {
+        @messages("Submission status:")
+        @status
+    }
 
-    </div>
+    @h3(messages("CT Data"))
 
-    <p>Submission status: <span id="submission-status">@status</span></p>
-
-    <h3>CT Data</h3>
-
-    <p id="ct-data">@if(ctData.isEmpty){ All CT data cleared } else {
+    @p {
+        @if(ctData.isEmpty){ All CT data cleared } else {
             @ctData.map{ str =>
                 @{str + " still exists "}
                 <br>
             }
         }
-    </p>
+    }
 
-        <p>
-            @{ Html(ctRecord) }
-        </p>
+    @p {
+        @{ Html(ctRecord) }
+    }
+    @h3(messages("Held data"))
 
-    <h3>Held data</h3>
-
-    <p id="held-data">@{if(heldSubmission.isEmpty){ "All held data cleared" } else { "Held submission still exists" }}</p>
+    @p {
+        @{if(heldSubmission.isEmpty){ "All held data cleared" } else { "Held submission still exists" }}
+    }
 
     @{ heldSubmission.map(Html(_)) }
-
-</div>
 }

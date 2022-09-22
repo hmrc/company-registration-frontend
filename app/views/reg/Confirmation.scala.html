@@ -15,47 +15,67 @@
  *@
 
 @import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
+@import uk.gov.hmrc.govukfrontend.views.Aliases.Panel
+@import uk.gov.hmrc.govukfrontend.views.Aliases.Text
+@import uk.gov.hmrc.govukfrontend.views.html.components.GovukPanel
 
-@this(main_template: main_template,
-        formWithCsrf: FormWithCSRF)
+@this(layout: templates.layout,
+        formWithCsrf: FormWithCSRF,
+        govukPanel: GovukPanel,
+        p: components.p,
+        bullets: components.bullets,
+        h1: components.h1,
+        h2: components.h2,
+        button: components.button,
+        link: components.link,
+        panel: components.panelIndent)
 
 @(confirmationRefs: models.connectors.ConfirmationReferences)(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
 
-@main_template(title = messages("page.reg.Confirmation.description"), mainClass = None) {
-    <div class="box-shaded-grey">
-        <h1 id="heading-application-submitted" class="heading-large">@messages("page.reg.Confirmation.description")</h1>
-    </div>
+@layout(pageTitle = Some(messages("page.reg.Confirmation.description"))) {
 
+    @govukPanel(Panel(
+        title = Text(messages("page.reg.Confirmation.description")),
+        headingLevel = 1
+    ))
 
-    <p>@messages("page.reg.Confirmation.application-refs")</p>
-    <ul class="list list-bullet">
+    @p {
+        @messages("page.reg.Confirmation.application-refs")
+    }
+
+    <ul class="govuk-list govuk-list--bullet">
         <li><strong style="font-weight: bold;" id="ltd-ref">@confirmationRefs.transactionId</strong> @messages("page.reg.Confirmation.your.limited")</li>
         <li><strong style="font-weight: bold;" id="ackref">@confirmationRefs.acknowledgementReference</strong> @messages("page.reg.Confirmation.your.refnumber")</li>
     </ul>
-    <p>@messages("page.reg.Confirmation.email")</p>
 
-    <h2 class="heading-medium" id="next-steps">@messages("page.reg.Confirmation.next-steps")</h2>
-
-    <p>@messages("page.reg.Confirmation.next-steps.receive")</p>
-    <ul class="list list-bullet">
-        <li>@messages("page.reg.Confirmation.next-steps.point1")</li>
-        <li>@messages("page.reg.Confirmation.next-steps.point2")</li>
-        <li>@messages("page.reg.Confirmation.next-steps.point3")</li>
-    </ul>
-
-    <div class="panel panel-border-wide">
-        <p>@messages("page.reg.Confirmation.keep-safe.text")</p>
-    </div>
-
-
-    <br>
-    @formWithCsrf(action = controllers.reg.routes.ConfirmationController.submit) {
-        <div class="form-group">
-            <input class="button" type="submit" id="next" value="@messages("page.reg.finish.btn")">
-        </div>
+    @p {
+        @messages("page.reg.Confirmation.email")
     }
-    <div class="form-group">
-        <a href="questionnaire">@messages("page.reg.Confirmation.questionnaire.link")</a><b> @messages("page.reg.Confirmation.questionnaire.time")</b>
-    </div>
+
+    <span id="next-steps">
+    @h2(messages("page.reg.Confirmation.next-steps"))
+    </span>
+
+    @p {
+        @messages("page.reg.Confirmation.next-steps.receive")
+    }
+
+    @bullets(
+        messages("page.reg.Confirmation.next-steps.point1"),
+        messages("page.reg.Confirmation.next-steps.point2"),
+        messages("page.reg.Confirmation.next-steps.point3")
+    )
+
+    @panel(Html(messages("page.reg.Confirmation.keep-safe.text")))
+
+    @formWithCsrf(action = controllers.reg.routes.ConfirmationController.submit) {
+
+        @button(messages("page.reg.finish.btn"))
+    }
+
+    @p {
+        @link("questionnaire", messages("page.reg.Confirmation.questionnaire.link"),id = Some("Questionnaire"), isExternal = true)
+        @messages("page.reg.Confirmation.questionnaire.time")
+    }
 }

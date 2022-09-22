@@ -212,8 +212,6 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
 
       val doc = Jsoup.parse(response.body)
       doc.title should include("Company registration overview")
-      doc.getElementById("payeRej").attr("href") shouldBe payeRestartURL
-      doc.getElementById("payeRej").text shouldBe "Register again"
     }
 
     "display the dashboard and not send out an audit event if the result of the email mismatch event was already saved" in {
@@ -274,10 +272,6 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
       response.status shouldBe 200
 
       val doc = Jsoup.parse(response.body)
-      doc.getElementById("legacyVATStatusText").text() shouldBe "Register using another HMRC service (link opens in a new tab)"
-      doc.getElementById("vatThresholdLastYear").text shouldBe "your taxable sales were over £85,000 at the end of any month in the last year"
-      doc.getElementById("vatThresholdNext30Day").text shouldBe "you expect your taxable sales to go over £85,000 in the next 30-day period"
-      doc.getElementById("vatThresholdAnnually").text shouldBe "You can register voluntarily if the company’s annual taxable sales are less than £85,000."
       a[NullPointerException] shouldBe thrownBy(doc.getElementById("vatThreshold").text)
     }
 
@@ -328,9 +322,6 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
 
         val response = await(fResponse)
         response.status shouldBe 200
-
-        val doc = Jsoup.parse(response.body)
-        doc.getElementById("vatThreshold").text shouldBe "The current VAT registration threshold is £85,000."
       }
 
       "the vat feature switch is ON and status is HELD" in {
@@ -355,9 +346,6 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
 
         val response = await(fResponse)
         response.status shouldBe 200
-
-        val doc = Jsoup.parse(response.body)
-        doc.getElementById("vatThreshold").text shouldBe "The current VAT registration threshold is £85,000."
       }
 
       "the vat feature switch is OFF and status is HELD" in {
@@ -409,10 +397,6 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
 
         val response = await(fResponse)
         response.status shouldBe 200
-
-        val doc = Jsoup.parse(response.body)
-        doc.getElementById("vatSubheading").text shouldBe "VAT"
-        doc.getElementById("vatRegUrl").attr("href") shouldBe "vat-url/start"
       }
 
       "there is a VAT registration in draft status" in {
@@ -437,12 +421,6 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
 
         val response = await(fResponse)
         response.status shouldBe 200
-
-        val doc = Jsoup.parse(response.body)
-        doc.getElementById("vatStatusText").text shouldBe "Incomplete"
-        a[NullPointerException] shouldBe thrownBy(doc.getElementById("vatRegUrl").text)
-        doc.getElementById("vatStartLink").attr("href") shouldBe "vat-url/start"
-        doc.getElementById("vatCancelLink").attr("href") shouldBe "/register-your-company/cancel-vat"
       }
     }
   }

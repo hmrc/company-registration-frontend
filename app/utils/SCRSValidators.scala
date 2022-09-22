@@ -134,7 +134,7 @@ object SCRSValidators {
           case (Some(_), _, _) => Valid
           case (_, Some(_), _) => Valid
           case (_, _, Some(_)) => Valid
-          case _ => Invalid(Seq(ValidationError("page.reg.company-contact-details.validation.chooseOne")))
+          case _ => Invalid(Seq(ValidationError("page.reg.company-contact-details.validation.chooseOne", "contactDaytimeTelephoneNumber")))
         }
     })
   }
@@ -174,9 +174,9 @@ trait SCRSValidatorsT {
                 if (timeService.isDateSomeWorkingDaysInFuture(date) && date.isBefore(now.plusYears(3).plusDays(1))) {
                   Valid
                 } else {
-                  Invalid(Seq(ValidationError("page.reg.accountingDates.date.future", "notFuture")))
+                  Invalid(Seq(ValidationError("page.reg.accountingDates.date.future", "futureDate.Day")))
                 }
-              case Failure(_) => Invalid(Seq(ValidationError("page.reg.accountingDates.date.invalid-date", "invalidDate")))
+              case Failure(_) => Invalid(Seq(ValidationError("page.reg.accountingDates.date.invalid-date", "futureDate.Day")))
             }
           case _ => Valid
         }
@@ -188,7 +188,7 @@ trait SCRSValidatorsT {
       model =>
         model.crnDate match {
           case "futureDate" if model.day.isEmpty && model.month.isEmpty && model.year.isEmpty =>
-            Invalid(Seq(ValidationError("page.reg.accountingDates.date.notFound", "dateNotFoundDay")))
+            Invalid(Seq(ValidationError("page.reg.accountingDates.date.notFound", "futureDate.Day")))
           case "futureDate" if Seq(model.day, model.month, model.year).flatten.length < 3 =>
             Invalid(dmyNotCompletedErrors(model))
           case _ => Valid
@@ -216,7 +216,7 @@ trait SCRSValidatorsT {
             val fieldErrors = validateDateFields(model.day.get, model.month.get, model.year.get)
             if (fieldErrors.nonEmpty) Invalid(fieldErrors) else {
               val date = s"${model.year.get}-${model.month.get}-${model.day.get}"
-              if (timeService.validate(date)) Valid else Invalid(Seq(ValidationError("page.reg.accountingDates.date.invalid-date", "invalidDate")))
+              if (timeService.validate(date)) Valid else Invalid(Seq(ValidationError("page.reg.accountingDates.date.invalid-date", "futureDate.Day")))
             }
           case _ => Valid
         }
@@ -231,7 +231,7 @@ trait SCRSValidatorsT {
 
     val validatedYear = Try(year.toInt) match {
       case Success(_) => None
-      case Failure(_) => Some(ValidationError("page.reg.accountingDates.date.invalid-year", "invalidYear"))
+      case Failure(_) => Some(ValidationError("page.reg.accountingDates.date.invalid-year", "futureDate.Year"))
     }
     Seq(
       validDateField("day", 31, day),

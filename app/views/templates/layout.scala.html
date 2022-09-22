@@ -39,7 +39,7 @@ standardBetaBanner: StandardBetaBanner
         timeout = Option(appConfig.timeoutInSecondsInt),
         countdown = Option(appConfig.timeoutDisplayLengthInt),
         keepAliveUrl = Some(controllers.reg.routes.SignInOutController.renewSession.url),
-        signOutUrl = Some(controllers.reg.routes.SignInOutController.destroySession.url)
+        signOutUrl = Some(controllers.reg.routes.SignInOutController.signOut(None).url)
         ))
     }
 }
@@ -65,12 +65,12 @@ standardBetaBanner: StandardBetaBanner
     pageTitle = pageTitle,
     serviceName = Some(messages("service.name")),
     additionalHeadBlock = Some(head),
-    signOutUrl = if (signOutLink) Some(controllers.reg.routes.SignInOutController.destroySession.url) else None,
-    serviceUrl = Some(""),
+    signOutUrl = if (signOutLink) Some(controllers.reg.routes.SignInOutController.signOut().url) else None,
+    serviceUrl = Some("/register-your-company"),
     phaseBanner = Some(standardBetaBanner(url = "")),
     backLinkUrl = if (backLink) Some("#") else None,
     displayHmrcBanner = false,
-    accessibilityStatementUrl = Some(appConfig.accessibilityStatementUrl(request.uri)),
+    accessibilityStatementUrl = Some(appConfig.accessibilityStatementUrl),
     nonce = CSPNonce.get,
     additionalScriptsBlock = Some(scripts)
 )(content)

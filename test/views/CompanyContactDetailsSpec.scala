@@ -40,6 +40,9 @@ class CompanyContactDetailsSpec extends SCRSSpec with CompanyContactDetailsFixtu
   lazy val mockCompanyContactDetailsView = app.injector.instanceOf[CompanyContactDetailsView]
 
   class Setup {
+
+    object Selectors extends BaseSelectors
+
     val controller = new CompanyContactDetailsController (
       mockAuthConnector,
       mockS4LConnector,
@@ -90,14 +93,9 @@ class CompanyContactDetailsSpec extends SCRSSpec with CompanyContactDetailsFixtu
           val document = Jsoup.parse(contentAsString(result))
 
           document.title should include("Give us one or more ways to contact testCompanyname1")
-          document.getElementById("main-heading").text() shouldBe "Give us one or more ways to contact testCompanyname1"
+          document.select(Selectors.h1).text() shouldBe "Give us one or more ways to contact testCompanyname1"
           intercept[Exception](document.getElementById("contactNameLabel").text())
-          document.getElementById("contactEmailLabel").text() shouldBe "Email address"
-          document.getElementById("contactEmail").attr("value") shouldBe "foo@bar.wibble"
-          document.getElementById("contactDaytimePhoneLabel").text() shouldBe "Contact number Give a mobile number, if you have one"
-          document.getElementById("contactMobileLabel").text() shouldBe "Other contact number"
-          document.getElementById("next").attr("value") shouldBe "Save and continue"
-          document.getElementById("helpMessage1").text() shouldBe "We will only do this if we have questions about the company’s Corporation Tax."
+          document.getElementById("continue").text() shouldBe "Save and continue"
       }
     }
   }

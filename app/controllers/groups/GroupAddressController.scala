@@ -26,12 +26,12 @@ import forms.GroupAddressForm
 import javax.inject.{Inject, Singleton}
 import models._
 import play.api.i18n.{Messages, MessagesProvider}
-import play.api.mvc.{Action, AnyContent, BaseController, MessagesControllerComponents, Result}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import services.{AddressLookupFrontendService, GroupService}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.http.{HeaderCarrier, InternalServerException}
 import utils.SessionRegistration
-import views.html.groups.{GroupAddressView, GroupNameView}
+import views.html.groups.{GroupAddressView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -55,7 +55,7 @@ class GroupAddressController @Inject()(val authConnector: PlayAuthConnector,
               case ("Other", Some(addressAndType)) =>
                 Future.successful(Ok(view(
                   GroupAddressForm.form.fill(GroupAddressChoice(addressAndType.addressType)),
-                  Map("ALF" -> addressAndType.address.mkString),
+                  Map("ALF" -> addressAndType.address.toString, "Other" -> "A different address"),
                   companyName.name))
                 )
               case ("Other", None) => alfRedirect(regID, groups)

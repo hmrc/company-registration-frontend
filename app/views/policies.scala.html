@@ -14,37 +14,48 @@
  * limitations under the License.
  *@
 
-@this(main_template: main_template)
+@this(layout: templates.layout,
+        h1: components.h1,
+        p: components.p,
+        h2: components.h2,
+        bullets: components.bullets,
+        link: components.link)
 
 @()(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
-@main_template(title = Messages("page.policy.title"), mainClass = None) {
+@layout(pageTitle = Some(messages("page.policy.title"))) {
 
+    @h1(messages("page.policy.heading"))
 
-        <h1 class="form-title heading-large" id="main-heading">@Messages("page.policy.heading")</h1>
+    @p {
+        @Messages("page.policy.p1")
+    }
 
+    @h2(messages("page.shared.h2"))
 
-    <p>@Messages("page.policy.p1")</p>
+    @p{
+        @messages("page.shared.p1")
+    }
 
-    <h2>@Messages("page.shared.h2")</h2>
-    <p>@Messages("page.shared.p1")</p>
+    @bullets(
+        Messages("page.shared.l1"),
+        Messages("page.shared.l2"),
+        Messages("page.shared.l3"),
+        Messages("page.shared.l4"),
+        Messages("page.shared.l5")
+    )
 
-    <ul class="list list-bullet">
-        <li>@Messages("page.shared.l1")</li>
-        <li>@Messages("page.shared.l2")</li>
-        <li>@Messages("page.shared.l3")</li>
-        <li>@Messages("page.shared.l4")</li>
-        <li>@Messages("page.shared.l5")</li>
-    </ul>
+    @p {
+        @messages("page.shared.p2")
+    }
 
-    <p>@Messages("page.shared.p2")</p>
+    @bullets(
+        messages("page.shared.l6")
+    )
 
-    <ul class="list list-bullet">
-        <li>@Messages("page.shared.l6")</li>
-    </ul>
+    @h2(messages("page.policy.cookies"))
 
-    <h2 class="heading-medium">@Messages("page.policy.cookies")</h2>
-    <ul>
+    <ul class="govuk-list govuk-list--bullet">
         <li>
             <a href="http://ewf.companieshouse.gov.uk/cookies" id="ch-cookies">@Messages("page.policy.cookies.li1")</a>
         </li>
@@ -53,9 +64,13 @@
         </li>
     </ul>
 
-    <h2 class="heading-medium">@Messages("page.policy.privacy")</h2>
-    <p>@Messages("page.shared.p3")</p>
-    <ul>
+    @h2(messages("page.policy.privacy"))
+
+    @p {
+        @messages("page.shared.p3")
+    }
+
+    <ul class="govuk-list govuk-list--bullet">
         <li>
             <a href="https://www.gov.uk/government/organisations/companies-house/about/personal-information-charter" id="ch-policy">@Messages("page.policy.privacy.li1")</a>
         </li>
@@ -64,8 +79,9 @@
         </li>
     </ul>
 
-    <h2 class="heading-medium">@Messages("page.policy.termsAndConditions")</h2>
-    <ul>
+    @h2(messages("page.policy.termsAndConditions"))
+
+    <ul class="govuk-list govuk-list--bullet">
         <li>
             <a href="http://resources.companieshouse.gov.uk/serviceInformation.shtml" id="ch-terms">@Messages("page.policy.termsAndConditions.li1")</a>
         </li>
@@ -73,7 +89,4 @@
             <a href="https://www.tax.service.gov.uk/help/terms-and-conditions" id="hmrc-terms">@Messages("page.policy.termsAndConditions.li2")</a>
         </li>
     </ul>
-
-    <br>
-
 }

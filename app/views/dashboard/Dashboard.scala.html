@@ -17,21 +17,37 @@
 @import views.html.dashboard.displayRegistrationActions
 @import views.html.dashboard.displayRegistrationStatus
 @import views.html.dashboard.vatDashboard
+@import uk.gov.hmrc.govukfrontend.views.html.components.GovukTable
+@import uk.gov.hmrc.govukfrontend.views.Aliases.Table
+@import uk.gov.hmrc.govukfrontend.views.Aliases.TableRow
+@import uk.gov.hmrc.govukfrontend.views.Aliases.Text
+@import play.twirl.api.HtmlFormat
+@import scala.collection.immutable.Seq
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
+@import uk.gov.hmrc.govukfrontend.views.Aliases.HeadCell
 
-@this(main_template: main_template,
-        view: displayRegistrationActions,
-        view2: displayRegistrationStatus,
-        view3: vatDashboard )
+@this(layout: templates.layout,
+        h1: components.h1,
+        h2: components.h2,
+        p: components.p,
+        govukTable : GovukTable,
+        registrationActions: displayRegistrationActions,
+        registrationStatus: displayRegistrationStatus,
+        bullets: components.bullets,
+        link: components.link,
+        vatDashboard: vatDashboard )
 
 @(dash: models.Dashboard, cohoSignIn: String)(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
-@import play.twirl.api.HtmlFormat
-@import scala.collection.immutable.Seq
 
 @incDashboardMessage = {
-    @Messages("page.reg.Dashboard.incSubmittedLineOne")
-<br>
-    @Messages("page.reg.Dashboard.incSubmittedLineTwo")
+    @p {
+        @messages("page.reg.Dashboard.incSubmittedLineOne")
+    }
+
+    @p {
+        @messages("page.reg.Dashboard.incSubmittedLineTwo")
+    }
 }
 @ctDashboardMessage = {
     @Messages("page.reg.Dashboard.CTSubmittedLineOne")
@@ -41,11 +57,10 @@
     @Messages("page.reg.Dashboard.CTPendingLineOne")
 }
 
-@ctRejected = @{dash.incDash.ackRefStatus.fold(false)(refStatus =>
-    refStatus match {
-        case "06" | "07" | "08" | "09" | "10" => true
-        case _ => false
-    })
+@ctRejected = @{dash.incDash.ackRefStatus.fold(false) {
+    case "06" | "07" | "08" | "09" | "10" => true
+    case _ => false
+}
 }
 
 @incorpStatus = {
@@ -68,72 +83,95 @@
 }
 
 @doYouNeedToRegisterHelp = {
-<tr class="tabular-data__cell--centred status--confirm-success" role ="row">
-    <td colspan="2">
-        <span>@Messages("page.reg.Dashboard.PAYE.employerHelpTextParagraph1")</span>
-        <ul class="list-bullet">
-            <li id="employer-help-thresholds">@Messages("page.reg.Dashboard.PAYE.employerHelpTextParagraph2", dash.payeDash.thresholds.get("weekly"), dash.payeDash.thresholds.get("monthly"), dash.payeDash.thresholds.get("annually"))</li>
-            <li>@Messages("page.reg.Dashboard.PAYE.employerHelpTextParagraph3")</li>
-            <li>@Messages("page.reg.Dashboard.PAYE.employerHelpTextParagraph4")</li>
-        </ul>
-    </td>
-</tr>
+    @p {
+        <span id="employer-help-thresholds">
+            @messages("page.reg.Dashboard.PAYE.employerHelpTextParagraph1")
+        </span>
+    }
+
+    @bullets(
+        Messages("page.reg.Dashboard.PAYE.employerHelpTextParagraph2", dash.payeDash.thresholds.get("weekly"), dash.payeDash.thresholds.get("monthly"), dash.payeDash.thresholds.get("annually")),
+        Messages("page.reg.Dashboard.PAYE.employerHelpTextParagraph3"),
+        Messages("page.reg.Dashboard.PAYE.employerHelpTextParagraph4")
+    )
 }
 
 @notEligiblePAYE = {
-<tr class="tabular-data__cell--centred status--confirm-success" role ="row">
-    <td colspan="2">
-        @Messages("page.reg.Dashboard.PAYE.notEligibleWords")
-        <a href=@dash.payeDash.links.otrsURL target="_blank">
-            @Messages("page.reg.Dashboard.PAYE.notEligibleLink")
-            <div class="visually-hidden">@Messages("page.reg.Dashboard.hiddenOpenNewTab")</div>
-        </a>
-    </td>
-</tr>
+    @p {
+        @messages("page.reg.Dashboard.PAYE.notEligibleWords")
+    }
+
+    @link(dash.payeDash.links.otrsURL,Messages("page.reg.Dashboard.PAYE.notEligibleLink"), isExternal = true )
 }
 
 @PAYERef = {
-<tr class="tabular-data__cell--centred status--confirm-success" role ="row">
-    <td>@Messages("page.reg.Dashboard.ref")</td>
-    <td><span id="PAYERef">@dash.payeDash.ackRef.fold("NONE")(ref => ref)</span></td>
-</tr>
+@govukTable(Table(
+    rows = Seq(
+        Seq(
+            TableRow(content = Text(messages("page.reg.Dashboard.ref"))),
+            TableRow(content = HtmlContent(dash.payeDash.ackRef.fold("NONE")(ref => ref)), attributes = Map("id" -> "PAYERef")),
+        ),
+    ),
+    captionClasses = "govuk-table__caption--m",
+    firstCellIsHeader = false
+))
 }
 
 @PAYEDate = {
-<tr class="tabular-data__cell--centred status--confirm-success" role ="row">
-    <td>@Messages("page.reg.Dashboard.submissionDate")</td>
-    <td><span id="PAYEDate">@dash.payeDash.lastUpdate.fold("NONE")(ref => ref)</span></td>
-</tr>
+@govukTable(Table(
+    head = Some(Seq(
+        HeadCell(
+            content = Text(messages("page.reg.Dashboard.submissionDate")),
+            classes = "govuk-!-width-one-half"
+        ),
+        HeadCell(
+            content = HtmlContent(dash.payeDash.lastUpdate.fold("NONE")(ref => ref)), attributes = Map("id" -> "PAYEDate"),
+            classes = "govuk-!-width-one-half"
+        ),
+    )),
+    captionClasses = "govuk-table__caption--m",
+    firstCellIsHeader = false
+))
 }
 
 @PAYEPending = {
-<tr class="tabular-data__cell--centred status--confirm-success" role ="row">
-    <td colspan="2">@Messages("page.reg.Dashboard.PAYE.pendingText")</td>
-</tr>
+@govukTable(Table(
+    rows = Seq(
+        Seq(
+            TableRow(content = Text(messages("page.reg.Dashboard.ref")), classes = "govuk-!-width-one-half"),
+            TableRow(content = HtmlContent(dash.payeDash.ackRef.fold("NONE")(ref => ref)), classes = "govuk-!-width-one-half", attributes = Map("id" -> "PAYERef")),
+        ),
+    ),
+    captionClasses = "govuk-table__caption--m",
+    firstCellIsHeader = false
+))
+
+    @p{
+        @messages("page.reg.Dashboard.PAYE.pendingText")
+    }
 }
 
 @PAYESubmitted = {
-<tr class="tabular-data__cell--centred status--confirm-success" role ="row">
-    <td colspan="2">
-        @Messages("page.reg.Dashboard.PAYE.submittedParagraph1")
-        <ul class="list-bullet">
-            <li>@Messages("page.reg.Dashboard.PAYE.submittedParagraph2")</li>
-            <li>@Messages("page.reg.Dashboard.PAYE.submittedParagraph3")</li>
-        </ul>
-    </td>
-</tr>
+    @p {
+        @messages("page.reg.Dashboard.PAYE.submittedParagraph1")
+    }
+
+    @bullets(
+        messages("page.reg.Dashboard.PAYE.submittedParagraph2"),
+        messages("page.reg.Dashboard.PAYE.submittedParagraph3")
+    )
 }
 
 @payeMap = {
     @{dash.payeDash.status match {
        case "notStarted"    => doYouNeedToRegisterHelp
        case "notEligible"   => notEligiblePAYE
-       case "draft"         => HtmlFormat.fill(Seq(view(dash.payeDash, "paye"), doYouNeedToRegisterHelp))
-       case "held"          => HtmlFormat.fill(Seq(PAYERef, PAYEPending))
+       case "draft"         => HtmlFormat.fill(Seq(registrationActions(dash.payeDash, "paye"), doYouNeedToRegisterHelp))
+       case "held"          => HtmlFormat.fill(Seq(PAYEPending))
        case "submitted"     => HtmlFormat.fill(Seq(PAYEDate, PAYERef, PAYESubmitted))
        case "acknowledged"  => {""}
-       case "invalid"       => HtmlFormat.fill(Seq(view(dash.payeDash, "paye"), doYouNeedToRegisterHelp))
-       case "rejected"      => HtmlFormat.fill(Seq(view(dash.payeDash, "paye"), doYouNeedToRegisterHelp))
+       case "invalid"       => HtmlFormat.fill(Seq(registrationActions(dash.payeDash, "paye"), doYouNeedToRegisterHelp))
+       case "rejected"      => HtmlFormat.fill(Seq(registrationActions(dash.payeDash, "paye"), doYouNeedToRegisterHelp))
        case "notEnabled"    => {""}
        case "unavailable"   => {""}
     }}
@@ -148,143 +186,237 @@
 }
 }
 
-@main_template(title = Messages("page.reg.Dashboard.description"), mainClass = Some("dashboard")) {
+@layout(pageTitle = Some(Messages("page.reg.Dashboard.description"))) {
 
-    <a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
+    @h1(messages("page.reg.Dashboard.description"))
 
-    <div class="form-group">
-        <h1 class="heading-large" id="main-heading">@Messages("page.reg.Dashboard.description")</h1>
+    @dash.companyName
 
-        <!--<h2 class="heading-medium">@dash.companyName</h2>-->
-        <h2 class="heading-medium" id="subheading">@Messages("page.reg.Dashboard.incorporation")</h2>
+            @if(dash.incDash.status == "held" || dash.incDash.status == "locked") {
+                @govukTable(Table(
+                    rows = Seq(
+                        Seq(
+                            TableRow(content = Text(messages("page.reg.Dashboard.submissionDate"))),
+                            TableRow(content = Text(dash.incDash.submissionDate match {
+                                case Some(value) => value
+                                case None => ""
+                            }), attributes = Map("id" -> "incorpSubmissionDate"))
+                        ),
+                        Seq(
+                            TableRow(content = Text(messages("page.reg.Dashboard.ref"))),
+                            TableRow(content = Text(dash.incDash.transId match {
+                                case Some(value) => value
+                                case None => ""
+                            }), attributes = Map("id" -> "incorpTransID" ))
+                        ),
+                                Seq(
+                                TableRow(
+                                    content = Text(messages("page.reg.Dashboard.paymentRef"))
+                                ),
+                                TableRow(
+                                    content = Text(dash.incDash.paymentRef match {
+                                        case Some(value) => value
+                                        case None => ""
+                                    }) , attributes = Map("id" -> "incorpPaymentReference")
+                                )
+                        )
+                    ),
+                    head = Some(Seq(
+                        HeadCell(
+                            content = Text(messages("page.reg.Dashboard.status")),
+                            classes = "govuk-!-width-one-half"
+                        ),
+                        HeadCell(
+                            content = HtmlContent(incorpStatus), attributes = Map("id" -> "incorpStatusText"),
+                            classes = "govuk-!-width-one-half"
+                        ),
+                    )),
+                    caption = Some(messages("page.reg.Dashboard.incorporation")),
+                    captionClasses = "govuk-table__caption--m",
+                    firstCellIsHeader = false
+                ))
 
-        <div class="form-group">
+                @p{
+                    <span id="incorpSubmittedText">
+                    @messages("page.reg.Dashboard.incSubmittedLineOne")
+                    </span>
+                }
+            } else {
+                @govukTable(Table(
+                    rows = Seq(
+                        Seq(
+                            TableRow(content = Text(messages("page.reg.Dashboard.crn"))),
+                            TableRow(content = Text(dash.incDash.crn match {
+                                case Some(value) => value
+                                case None => ""
+                            }), attributes = Map("id" -> "crn"))
+                        )
+                    ),
+                    head = Some(Seq(
+                        HeadCell(
+                            content = Text(messages("page.reg.Dashboard.status")),
+                            classes = "govuk-!-width-one-half"
+                        ),
+                        HeadCell(
+                            content = HtmlContent(incorpStatus), attributes = Map("id" -> "incorpStatusText"),
+                            classes = "govuk-!-width-one-half"
+                        ),
+                    )),
+                    captionClasses = "govuk-table__caption--m",
+                    firstCellIsHeader = false
+                ))
 
-            <table class="check-your-answers">
-                <tbody>
-                    <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
-                        <td class="check-your-answers">@Messages("page.reg.Dashboard.status")</td>
-                        <td id="incorpStatusText">@incorpStatus</td>
-                    </tr>
-                    @if(dash.incDash.status == "held" || dash.incDash.status == "locked") {
-                    @dash.incDash.submissionDate.map{date =>
-                        <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
-                            <td>@Messages("page.reg.Dashboard.submissionDate")</td>
-                            <td id="incorpSubmissionDate">@date</td>
+                @p{
+                    <span id="incorpRegisteredText">
+                        @messages("page.reg.Dashboard.incChangeDetailsPrefix")
+                        @link(cohoSignIn, messages("page.reg.Dashboard.incChangeDetailsLinkText"), isExternal = true)
+                    </span>
+                }
+        }
 
-                        </tr>
-                    }
-                        <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
-                            <td>@Messages("page.reg.Dashboard.ref")</td>
-                            <td id="incorpTransID">@dash.incDash.transId</td>
-
-                        </tr>
-                        <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
-                            <td>@Messages("page.reg.Dashboard.paymentRef")</td>
-                            <td id="incorpPaymentReference">@dash.incDash.paymentRef</td>
-                        </tr>
-                        <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
-                           <td id="incorpSubmittedText" colspan="2">@Messages("page.reg.Dashboard.incSubmittedLineOne")</td>
-                        </tr>
-
-                    } else {
-                        <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
-                            <td>@Messages("page.reg.Dashboard.crn")</td>
-                            <td id="crn">@dash.incDash.crn</td>
-                        </tr>
-                        <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
-                            <td id="incorpRegisteredText" colspan="2">@Messages("page.reg.Dashboard.incChangeDetailsPrefix")
-                                <a href="@cohoSignIn" target="_blank">
-                                    @Messages("page.reg.Dashboard.incChangeDetailsLinkText")
-                                    <div class="visually-hidden">@Messages("page.reg.Dashboard.hiddenOpenNewTab")</div>
-                                </a>
-                                @Messages("page.reg.Dashboard.incChangeDetailsSuffix")
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-
-
+            @h2(messages("page.reg.Dashboard.corporation"))
             <!--Corporation Block-->
-            <h2 class="heading-medium" id="corporationSubheading">@Messages("page.reg.Dashboard.corporation")</h2>
-            <table class="check-your-answers">
-                <tbody>
-                    <!-- CT Status -->
-                    <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
-                        <td>@Messages("page.reg.Dashboard.status")</td>
-                        <td  id="ctStatusText">@ctStatus</td>
-                    </tr>
-                    <!-- CT Status end -->
 
-                    @if(dash.incDash.status == "held" || dash.incDash.status == "locked") {
-                        <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
-                            <td>@Messages("page.reg.Dashboard.ref")</td>
-                            <td id="ackRef">@dash.incDash.ackRef</td>
+            @if(dash.incDash.status == "held" || dash.incDash.status == "locked") {
+                @govukTable(Table(
+                    head = Some(Seq(
+                        HeadCell(
+                            content = Text(messages("page.reg.Dashboard.status")),
+                            classes = "govuk-!-width-one-half"
+                        ),
+                        HeadCell(
+                            content = HtmlContent(ctStatus), attributes = Map("id"->"ctStatusText"),
+                            classes = "govuk-!-width-one-half"
+                        ),
+                    )),
+                    rows = Seq(
+                        Seq(
+                            TableRow(content = Text(messages("page.reg.Dashboard.ref"))),
+                            TableRow(content = Text(dash.incDash.ackRef match {
+                                case Some(value) => value
+                                case None => ""
+                            }), attributes = Map("id" -> "ackRef"))
+                        ),
+                    ),
+                    captionClasses = "govuk-table__caption--m",
+                    firstCellIsHeader = false
+                ))
 
-                        </tr>
-                        <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
-                            <td id="ctPendingText" colspan="2">@Messages("page.reg.Dashboard.CTPendingLineOne")</td>
-                        </tr>
-                    }
-                    @if(dash.incDash.status == "submitted"){
-                        <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
-                            <td>@Messages("page.reg.Dashboard.submissionDate")</td>
-                            <td id="ctSubmissionDate">@dash.incDash.ctSubmissionDate</td>
-                        </tr>
-                        <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
-                            <td>@Messages("page.reg.Dashboard.ref")</td>
-                            <td id="submittedAckRef">@dash.incDash.ackRef</td>
-                        </tr>
-                        <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
-                            <td colspan="2">
-                                <span id="CTifSuccess">@Messages("page.reg.Dashboard.CTSubmittedLineOne")</span>
-                                <ul class="list list-bullet">
-                                    <li>@Messages("page.reg.Dashboard.CTSubmittedLineTwo")</li>
-                                    <li>@Messages("page.reg.Dashboard.CTSubmittedLineThree")</li>
-                                </ul>
-                            </td>
-                        </tr>
-                    }
-                    @if(dash.incDash.status == "acknowledged" && dash.incDash.ctutr.isEmpty){
-                        <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
-                            <td colspan="2">
-                                <span id="noCTEnrolmentMessage">@Messages("page.reg.Dashboard.CTRegistered")</span>
-                            </td>
-                        </tr>
-                    }
-                     @if(dash.incDash.status == "acknowledged" && dash.incDash.ctutr.isDefined){
-                        <tr class="tabular-data__cell--centred status--confirm-success" role ="row">
-                            <td class="check-your-answers">@Messages("page.reg.Dashboard.ctutr")</td>
-                            <td id="ctutrText">@dash.incDash.ctutr.get</td>
-                        </tr>
-                        }
+                @p {
+                    <span id="ctPendingText">
+                        @messages("page.reg.Dashboard.CTPendingLineOne")
+                    </span>
+                }
+            }
 
-                </tbody>
-            </table>
+            @if(dash.incDash.status == "submitted") {
+                @govukTable(Table(
+                    head = Some(Seq(
+                        HeadCell(
+                            content = Text(messages("page.reg.Dashboard.status")),
+                            classes = "govuk-!-width-one-half"
+                        ),
+                        HeadCell(
+                            content = HtmlContent(ctStatus), attributes = Map("id"->"ctStatusText"),
+                            classes = "govuk-!-width-one-half"
+                        ),
+                    )),
+                    rows = Seq(
+                        Seq(
+                            TableRow(content = Text(messages("page.reg.Dashboard.submissionDate"))),
+                            TableRow(content = Text(dash.incDash.ctSubmissionDate match {
+                                case Some(value) => value
+                                case None => ""
+                            }))
+                        ),
+                        Seq(
+                            TableRow(content = Text(messages("page.reg.Dashboard.ref"))),
+                            TableRow(content = Text(dash.incDash.ackRef match {
+                                case Some(value) => value
+                                case None => ""
+                            }), attributes = Map("id" -> "submittedAckRef"))
+                        ),
+                    ),
+                    captionClasses = "govuk-table__caption--m",
+                    firstCellIsHeader = false
+                ))
+                @p {
+                    <span id="CTifSuccess">
+                    @Messages("page.reg.Dashboard.CTSubmittedLineOne")
+                    </span>
+                    @bullets(
+                     messages("page.reg.Dashboard.CTSubmittedLineTwo"),
+                     messages("page.reg.Dashboard.CTSubmittedLineThree")
+                    )
+                }
+            }
+
+            @if(dash.incDash.status == "acknowledged" && dash.incDash.ctutr.isEmpty) {
+                @govukTable(Table(
+                    head = Some(Seq(
+                        HeadCell(
+                            content = Text(messages("page.reg.Dashboard.status")),
+                            classes = "govuk-!-width-one-half"
+                        ),
+                        HeadCell(
+                            content = HtmlContent(ctStatus), attributes = Map("id"->"ctStatusText"),
+                            classes = "govuk-!-width-one-half"
+                        ),
+                    )),
+                    captionClasses = "govuk-table__caption--m",
+                    firstCellIsHeader = false
+                ))
+
+                @p {
+                    <span id="noCTEnrolmentMessage">
+                        @messages("page.reg.Dashboard.CTRegistered")
+                    </span>
+                }
+            }
+
+            @if(dash.incDash.status == "acknowledged" && dash.incDash.ctutr.isDefined) {
+                @govukTable(Table(
+                    head = Some(Seq(
+                        HeadCell(
+                            content = Text(messages("page.reg.Dashboard.status")),
+                            classes = "govuk-!-width-one-half"
+                        ),
+                        HeadCell(
+                            content = HtmlContent(ctStatus), attributes = Map("id"->"ctStatusText"),
+                            classes = "govuk-!-width-one-half"
+                        ),
+                    )),
+                    rows = Seq(
+                        Seq(
+                            TableRow(content = Text(messages("page.reg.Dashboard.ctutr"))),
+                            TableRow(content = HtmlContent(dash.incDash.ctutr match {
+                                case Some(value) => value
+                                case None => ""
+                            }), attributes = Map("id"-> "ctutrText"))
+                        ),
+                    ),
+                    captionClasses = "govuk-table__caption--m",
+                    firstCellIsHeader = false
+                ))
+            }
 
             @if(dash.payeDash.status != "notEnabled" && !ctRejected) {
-                <h2 class="heading-medium" id="payeSubheading">@Messages("page.reg.Dashboard.PAYE.subHeading")</h2>
-                <table class="check-your-answers">
-                    <tbody>
-                        @if(dash.payeDash.status == "notStarted"){
-                                @payeMap
-                                @view2(dash.payeDash, "paye")
-                        } else {
-                                @view2(dash.payeDash, "paye")
-                                @payeMap
-                        }
-                    </tbody>
-                </table>
+                @h2(messages("page.reg.Dashboard.PAYE.subHeading"))
+
+                @if(dash.payeDash.status == "notStarted"){
+                    @payeMap
+                    @registrationStatus(dash.payeDash, "paye")
+                } else {
+                    @registrationStatus(dash.payeDash, "paye")
+                    @payeMap
+                }
             }
+
+            <br/>
 
             @if(showVATBlock) @{
-                view3(dash.vatDash, dash.vatFeatureFlag)
+                vatDashboard(dash.vatDash, dash.vatFeatureFlag)
             }
-
-        </div>
-    </div>
-
 }
 
 

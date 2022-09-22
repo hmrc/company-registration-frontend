@@ -30,6 +30,8 @@ import views.html.policies
 
 class PolicySpec extends SCRSSpec with GuiceOneAppPerSuite {
 
+  object Selectors extends BaseSelectors
+
   val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
   val mockPolicies = app.injector.instanceOf[policies]
 
@@ -50,13 +52,7 @@ class PolicySpec extends SCRSSpec with GuiceOneAppPerSuite {
 
       document.title should include("Cookies, privacy and terms")
 
-      document.getElementById("main-heading").text() shouldBe "Cookies, privacy and terms"
-      document.getElementById("ch-cookies").attr("href") shouldBe "http://ewf.companieshouse.gov.uk/cookies"
-      document.getElementById("hmrc-cookies").attr("href") shouldBe "https://www.tax.service.gov.uk/help/cookies"
-      document.getElementById("ch-policy").attr("href") shouldBe "https://www.gov.uk/government/organisations/companies-house/about/personal-information-charter"
-      document.getElementById("hmrc-policy").attr("href") shouldBe "https://www.tax.service.gov.uk/help/privacy"
-      document.getElementById("ch-terms").attr("href") shouldBe "http://resources.companieshouse.gov.uk/serviceInformation.shtml"
-      document.getElementById("hmrc-terms").attr("href") shouldBe "https://www.tax.service.gov.uk/help/terms-and-conditions"
+      document.select(Selectors.h1).text() shouldBe "Cookies, privacy and terms"
     }
   }
 }

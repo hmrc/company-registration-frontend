@@ -30,39 +30,39 @@ trait AccountingDatesFixture {
 
   val invalidBusinessStartDateData = Map(
     "businessStartDate" -> "",
-    "businessStartDate-futureDate.year" -> "",
-    "businessStartDate-futureDate.month" -> "",
-    "businessStartDate-futureDate.day" -> "")
+    "futureDate.Year" -> "",
+    "futureDate.Month" -> "",
+    "futureDate.Day" -> "")
 
   val invalidDateData = Map(
     "businessStartDate" -> "futureDate",
-    "businessStartDate-futureDate.year" -> "2010",
-    "businessStartDate-futureDate.month" -> "99",
-    "businessStartDate-futureDate.day" -> "99")
+    "futureDate.Year" -> "2010",
+    "futureDate.Month" -> "99",
+    "futureDate.Day" -> "99")
 
   val whenRegisteredData = Map(
     "businessStartDate" -> "whenRegistered",
-    "businessStartDate-futureDate.year" -> "",
-    "businessStartDate-futureDate.month" -> "",
-    "businessStartDate-futureDate.day" -> "")
+    "futureDate.year" -> "",
+    "futureDate.month" -> "",
+    "futureDate.day" -> "")
 
   val futureDateData = Map(
     "businessStartDate" -> "futureDate",
-    "businessStartDate-futureDate.year" -> futureYear,
-    "businessStartDate-futureDate.month" -> "12",
-    "businessStartDate-futureDate.day" -> "23")
+    "futureDate.Year" -> futureYear,
+    "futureDate.Month" -> "12",
+    "futureDate.Day" -> "23")
 
   val pastDateData = Map(
     "businessStartDate" -> "futureDate",
-    "businessStartDate-futureDate.year" -> pastYear,
-    "businessStartDate-futureDate.month" -> "12",
-    "businessStartDate-futureDate.day" -> "23")
+    "futureDate.Year" -> pastYear,
+    "futureDate.Month" -> "12",
+    "futureDate.Day" -> "23")
 
   val notPlanningToYetdata = Map(
     "businessStartDate" -> "notPlanningToYet",
-    "businessStartDate-futureDate.year" -> "",
-    "businessStartDate-futureDate.month" -> "",
-    "businessStartDate-futureDate.day" -> "")
+    "futureDate.Year" -> "",
+    "futureDate.Month" -> "",
+    "futureDate.Day" -> "")
 
   lazy val validAccountingDatesFormDataCRN = Seq(
     "crnDate" -> "Yes",

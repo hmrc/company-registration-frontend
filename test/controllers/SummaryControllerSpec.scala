@@ -22,21 +22,25 @@ import controllers.reg.{ControllerErrorHandler, SummaryController}
 import fixtures.{AccountingDetailsFixture, CorporationTaxFixture, SCRSFixtures, TradingDetailsFixtures}
 import helpers.SCRSSpec
 import mocks.TakeoverServiceMock
+import models.SummaryListRowUtils.{optSummaryListRowSeq, optSummaryListRowString}
 import models._
 import models.handoff._
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.i18n.{Messages, MessagesApi}
 import play.api.libs.json.{JsObject, Json, Writes}
-import play.api.mvc.MessagesControllerComponents
+import play.api.mvc.{AnyContentAsEmpty, MessagesControllerComponents}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services.NavModelNotFoundException
+import services.{NavModelNotFoundException, SummaryService}
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.{SCRSFeatureSwitches, SCRSFeatureSwitchesImpl}
 
 import java.util.UUID
 import repositories.NavModelRepo
+import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{Key, SummaryList, SummaryListRow}
 import views.html.reg.{Summary => SummaryView}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -70,6 +74,7 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with GuiceOneAppP
   lazy val mockSummaryView = app.injector.instanceOf[SummaryView]
   lazy val mockNavModelRepoObj = app.injector.instanceOf[NavModelRepo]
   override lazy val mockSCRSFeatureSwitches = mock[SCRSFeatureSwitchesImpl]
+  lazy val mockSummaryService = mock[SummaryService]
 
 
 
@@ -87,6 +92,7 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with GuiceOneAppP
       mockJweCommon,
       mockControllerComponents,
       mockControllerErrorHandler,
+      mockSummaryService,
       mockSummaryView
     )(
       appConfig,
@@ -95,10 +101,50 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with GuiceOneAppP
 
   }
 
+  implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+  implicit val messages: Messages = app.injector.instanceOf[MessagesApi].preferred(request)
+
   lazy val regID = UUID.randomUUID.toString
 
   val corporationTaxModel = buildCorporationTaxModel()
   val testRegId = "12345"
+
+  val testCompletionBlock = Seq(
+    optSummaryListRowSeq(
+      messages("pages.summary.completionCapacity.question"),
+      Some(Seq("test")),
+      Some(controllers.reg.routes.CompletionCapacityController.show.url)
+    )
+  ).flatten
+
+  val testAccountingBlock = Seq(
+  optSummaryListRowString(
+    messages("page.reg.summary.tradingDetails"),
+    Some(messages("page.reg.ct61.radioYesLabel")),
+    Some(controllers.reg.routes.TradingDetailsController.show.url)
+  )).flatten
+
+  val testContactDetailsBlock = Seq(
+  optSummaryListRowSeq(
+    messages("page.reg.summary.companyContact", "TestName"),
+    Some(Seq()),
+    Some(controllers.reg.routes.CompanyContactDetailsController.show.url)
+  )).flatten
+
+  val testCompanyDetailsBlock = Seq(
+    optSummaryListRowString(
+    messages("page.reg.summary.companyNameText"),
+    Some("TestName"),
+    Some(controllers.reg.routes.SummaryController.summaryBackLink("company_name").url)
+  )).flatten
+
+  val testTakeoverBlock = Seq(
+    optSummaryListRowString(
+    messages("page.reg.summary.takeovers.otherBusinessName"),
+    Some("testName"),
+    Some(controllers.takeovers.routes.OtherBusinessNameController.show.url)
+  )).flatten
+
 
   "Sending a GET request to Summary Controller" should {
 
@@ -113,16 +159,25 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with GuiceOneAppP
     "return a 200 whilst authorised " in new Setup {
       mockS4LFetchAndGet("HandBackData", Some(validCompanyNameHandBack))
 
-      when(mockMetaDataService.getApplicantData(ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier]()))
-        .thenReturn(Future.successful(aboutYouData))
-
       mockKeystoreFetchAndGet("registrationID", Some(testRegId))
       mockGetTakeoverDetails(testRegId)(Future.successful(None))
       mockS4LFetchAndGet("CompanyContactDetails", Some(validCompanyContactDetailsModel))
-      CTRegistrationConnectorMocks.retrieveCompanyDetails(Some(validCompanyDetailsResponse))
-      CTRegistrationConnectorMocks.retrieveTradingDetails(Some(tradingDetailsTrue))
-      CTRegistrationConnectorMocks.retrieveContactDetails(CompanyContactDetailsSuccessResponse(validCompanyContactDetailsResponse))
-      CTRegistrationConnectorMocks.retrieveAccountingDetails(validAccountingResponse)
+
+      when(mockSummaryService.getCompanyDetailsBlock(ArgumentMatchers.eq(testRegId))(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any())).thenReturn(
+        Future.successful(SummaryList(testCompanyDetailsBlock))
+      )
+      when(mockSummaryService.getTakeoverBlock(ArgumentMatchers.eq(testRegId))(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any())).thenReturn(
+        Future.successful(SummaryList(testTakeoverBlock))
+      )
+      when(mockSummaryService.getContactDetailsBlock(ArgumentMatchers.eq(testRegId))(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any())).thenReturn(
+        Future.successful(SummaryList(testContactDetailsBlock))
+      )
+      when(mockSummaryService.getAccountingDates(ArgumentMatchers.eq(testRegId))(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any())).thenReturn(
+        Future.successful(SummaryList(testAccountingBlock))
+      )
+      when(mockSummaryService.getCompletionCapacity(ArgumentMatchers.eq(testRegId))(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any())).thenReturn(
+        Future.successful(SummaryList(testCompletionBlock))
+      )
 
       when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(corporationTaxModel))
@@ -130,30 +185,6 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with GuiceOneAppP
       showWithAuthorisedUser(controller.show) {
         result =>
           status(result) shouldBe OK
-      }
-    }
-
-    "return a 303 and redirect to the Takeover Information Needed page if Takeover information is missing but replacingAnotherBusiness is true" in new Setup {
-      mockS4LFetchAndGet("HandBackData", Some(validCompanyNameHandBack))
-
-      when(mockMetaDataService.getApplicantData(ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier]()))
-        .thenReturn(Future.successful(aboutYouData))
-
-      mockKeystoreFetchAndGet("registrationID", Some(testRegId))
-      mockGetTakeoverDetails(testRegId)(Future.successful(Some(TakeoverDetails(replacingAnotherBusiness = true))))
-      mockS4LFetchAndGet("CompanyContactDetails", Some(validCompanyContactDetailsModel))
-      CTRegistrationConnectorMocks.retrieveCompanyDetails(Some(validCompanyDetailsResponse))
-      CTRegistrationConnectorMocks.retrieveTradingDetails(Some(tradingDetailsTrue))
-      CTRegistrationConnectorMocks.retrieveContactDetails(CompanyContactDetailsSuccessResponse(validCompanyContactDetailsResponse))
-      CTRegistrationConnectorMocks.retrieveAccountingDetails(validAccountingResponse)
-
-      when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(ArgumentMatchers.any())(ArgumentMatchers.any()))
-        .thenReturn(Future.successful(corporationTaxModel))
-
-      showWithAuthorisedUser(controller.show) {
-        result =>
-          status(result) shouldBe 303
-          redirectLocation(result) shouldBe Some("/register-your-company/takeover-information-needed")
       }
     }
   }

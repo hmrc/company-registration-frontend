@@ -14,15 +14,19 @@
  * limitations under the License.
  *@
 
-@this(main_template: main_template)
+@this(layout: templates.layout,
+        h1: components.h1,
+        link: components.link,
+        p: components.p
+)
 @()(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
-@main_template(title = Messages("page.timeout.description")){
+@layout(pageTitle = Some(messages("page.timeout.description"))) {
 
+    @h1(messages("page.timeout.description"))
 
-        <h1 class="form-title heading-large" id="main-heading">@Messages("page.timeout.description")</h1>
-
-
-    <div class="form-group">@Messages("page.timeout.p2")
-        <a href="@{controllers.reg.routes.SignInOutController.postSignIn(None)}">@Messages("page.timeout.url")</a>.</div>
+    @p{
+        @messages("page.timeout.p2")
+        @link(controllers.reg.routes.SignInOutController.postSignIn(None).url, messages("page.timeout.url"), isExternal = true)
+    }
 }

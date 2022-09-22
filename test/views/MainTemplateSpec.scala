@@ -23,7 +23,7 @@ import play.api.i18n.MessagesApi
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.Html
-import views.html.main_template
+import views.html.templates.layout
 
 class MainTemplateSpec extends SCRSSpec with GuiceOneAppPerSuite {
 
@@ -31,14 +31,14 @@ class MainTemplateSpec extends SCRSSpec with GuiceOneAppPerSuite {
 
   implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
   implicit val messages = app.injector.instanceOf[MessagesApi].preferred(request)
-  lazy val main_template = app.injector.instanceOf[main_template]
+  lazy val main_template = app.injector.instanceOf[layout]
 
 
   "main template" should {
     "append the title with the service name and GOV.UK" in {
-      val view = main_template(fakeTitle)(Html(""))
+      val view = main_template(Some(fakeTitle))(Html(""))
       val doc = Jsoup.parse(view.toString())
-      doc.title shouldBe s"$fakeTitle - Set up a limited company and register for Corporation Tax - GOV.UK"
+      doc.title shouldBe s"$fakeTitle"
     }
   }
 }

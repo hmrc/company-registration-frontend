@@ -51,6 +51,30 @@ trait PPOBService extends SCRSExceptions {
     }
   }
 
+  def getAddresses(address:(Option[CHROAddress], Option[NewAddress], PPOBChoice))(implicit hc: HeaderCarrier): Map[String, Any]  = {
+    address match {
+      case (None, None, _) =>
+        Map("Other" -> "A different address")
+      case (None, Some(_), _) =>
+        Map("PPOB" -> address._2.getOrElse(throw new InternalError("Address not found2")),
+          "Other" -> "A different address")
+      case (Some(_), None, _) =>
+        Map("RO" -> address._1.getOrElse(throw new InternalError("Address not found1")),
+          "Other" -> "A different address")
+      case (Some(_), Some(_), _) =>
+        if(address._1.toString == address._2.toString) {
+          Map(
+            "RO" -> address._1.getOrElse(throw new InternalError("Address not found1")),
+            "Other" -> "A different address"
+          )
+        } else {
+          Map("RO" -> address._1.getOrElse(throw new InternalError("Address not found1")),
+            "PPOB" -> address._2.getOrElse(throw new InternalError("Address not found2")),
+            "Other" -> "A different address")
+        }
+    }
+  }
+
   def fetchAddressesAndChoice(regId: String)(implicit hc: HeaderCarrier): Future[(Option[CHROAddress], Option[NewAddress], PPOBChoice)] = {
     compRegConnector.retrieveCorporationTaxRegistration(regId) flatMap { ctReg =>
       val ro = (ctReg \\ "cHROAddress").head.as[CHROAddress]

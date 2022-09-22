@@ -16,27 +16,28 @@
 
 @import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
 
-@this(main_template: main_template,
+@this(layout: templates.layout,
+        h1: components.h1,
+        p: components.p,
+        button: components.button,
         formWithCsrf: FormWithCSRF)
 
 @()(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
 
-@main_template(title = Messages("page.verification.create-new-account.title"), mainClass = None) {
+@layout(pageTitle = Some(messages("page.verification.create-new-account.title"))) {
 
-<a id="back" class="link-back" href="javascript:history.back()">@Messages("common.button.back")</a>
+    @h1(messages("page.verification.create-new-account.title"))
 
-        <h1 class="form-title heading-large" id="main-heading">@Messages("page.verification.create-new-account.title")</h1>
+    @p {
+        @messages("page.verification.create-new-account.description.one")
+        @messages("page.verification.create-new-account.description.two")
+    }
 
-        <div class="form-group">
-            <p id="description-one">@Messages("page.verification.create-new-account.description.one")</p>
-        </div>
-        <div class="form-group">
-            <p id="description-two">@Messages("page.verification.create-new-account.description.two")</p>
-        </div>
+
         @formWithCsrf(action = controllers.verification.routes.EmailVerificationController.createSubmit) {
-        <div class="form-group">
-            <input class="button button--link" type="submit" value="@Messages("page.verification.create-new-account.bottomLink")">
-        </div>
+
+            @button(messages("page.verification.create-new-account.bottomLink"))
+
         }
 }
