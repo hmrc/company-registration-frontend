@@ -281,6 +281,18 @@ class FeatureSwitchSpec extends SCRSSpec with MockitoSugar {
       scrsFeatureSwitch.cohoFirstHandOff.enabled shouldBe true
     }
 
+    "return a disabled welsh feature when the associated system property is false" in new Setup {
+      when(mockFeatureSwitchManager.getProperty(ArgumentMatchers.any())).thenReturn(BooleanFeatureSwitch("toggle-welsh", false))
+      scrsFeatureSwitch.welshLanguage.enabled shouldBe false
+    }
+
+    "return an enabled welsh feature when the associated system property is true" in new Setup {
+      when(mockFeatureSwitchManager.getProperty(ArgumentMatchers.any())).thenReturn(BooleanFeatureSwitch("toggle-welsh", true))
+      fMan.enable(scrsFeatureSwitch.welshLanguage)
+
+      scrsFeatureSwitch.welshLanguage.enabled shouldBe true
+    }
+
     "return a cohoFirstHandOff SCRS feature if it exists" in new Setup {
       when(mockFeatureSwitchManager.getProperty(ArgumentMatchers.any())).thenReturn(BooleanFeatureSwitch("cohoFirstHandOff", true))
       System.setProperty("feature.sages", "true")
