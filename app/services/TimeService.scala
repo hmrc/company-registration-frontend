@@ -34,10 +34,10 @@ object TimeHelper {
   def splitDate(date: String): Array[String] = {
     for (i <- date.split("-")) yield i
   }
-  def toDateTime(d: Option[String], m: Option[String], y: Option[String]): Option[LocalDateTime] = {
+  def toDateTime(d: Option[String], m: Option[String], y: Option[String]): Option[LocalDate] = {
     if(d.isDefined && m.isDefined && y.isDefined) {
       val (iY, iM, iD) = (y.get.toInt, m.get.toInt, d.get.toInt)
-      Some(LocalDateTime.of(iY, iM, iD, 0, 0))
+      Some(LocalDate.of(iY, iM, iD))
     } else {
       None
     }

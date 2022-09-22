@@ -148,7 +148,7 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fix
       val captor = crPuts.get(0)
       val json = Json.parse(captor.getBodyAsString)
       (json \ "accountingDateStatus").as[String] shouldBe "FUTURE_DATE"
-      (json \ "startDateOfBusiness").as[String] shouldBe s"$testYear-01-02T00:00"
+      (json \ "startDateOfBusiness").as[String] shouldBe s"$testYear-01-02"
     }
     "return a 400 showing error messages to the user" in {
       stubAuthorisation()
