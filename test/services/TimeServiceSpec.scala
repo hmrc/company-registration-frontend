@@ -162,7 +162,7 @@ class TimeServiceSpec extends UnitSpec with MockitoSugar {
     val year = "2017"
 
     "return a valid datetime" in {
-      val expected = LocalDateTime.of(2017,11,10,0,0)
+      val expected = LocalDate.of(2017,11,10)
       TimeHelper.toDateTime(Some(day), Some(month), Some(year)).get shouldBe expected
     }
 
@@ -176,7 +176,7 @@ class TimeServiceSpec extends UnitSpec with MockitoSugar {
       TimeHelper.toDateTime(Some(day), Some(month), None) shouldBe None
     }
     "return a valid datetime on a day light savings date" in {
-      val expected = Some(LocalDateTime.of(2020,10,22,0,0))
+      val expected = Some(LocalDate.of(2020,10,22))
       TimeHelper.toDateTime(Some("22"), Some("10"), Some("2020")) shouldBe expected
     }
   }
