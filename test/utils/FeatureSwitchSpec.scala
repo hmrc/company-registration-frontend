@@ -16,8 +16,9 @@
 
 package utils
 
+import java.time.Instant
+
 import helpers.SCRSSpec
-import org.joda.time.DateTime
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
@@ -194,65 +195,65 @@ class FeatureSwitchSpec extends SCRSSpec with MockitoSugar {
 
     val START = "2000-01-23T14:00:00.00Z"
     val END = "2000-01-23T15:30:00.00Z"
-    val startDateTime = Some(new DateTime(START))
-    val endDatetime = Some(new DateTime(END))
+    val startDateTime = Some(Instant.parse(START))
+    val endDatetime = Some(Instant.parse(END))
 
     "be enabled when within the specified time range" in new SetupForFeatureManager {
-      val now = new DateTime("2000-01-23T14:30:00.00Z")
+      val now = Instant.parse("2000-01-23T14:30:00.00Z")
 
       TimedFeatureSwitch("test", startDateTime, endDatetime, now).enabled shouldBe true
     }
 
     "be enabled when current time is equal to the start time" in new SetupForFeatureManager {
-      val now = new DateTime(START)
+      val now = Instant.parse(START)
 
       TimedFeatureSwitch("test", startDateTime, endDatetime, now).enabled shouldBe true
     }
 
     "be enabled when current time is equal to the end time" in new SetupForFeatureManager {
-      val now = new DateTime(END)
+      val now = Instant.parse(END)
 
       TimedFeatureSwitch("test", startDateTime, endDatetime, now).enabled shouldBe true
     }
 
     "be disabled when current time is outside the specified time range" in new SetupForFeatureManager {
-      val now = new DateTime("1900-01-23T12:00:00Z")
+      val now = Instant.parse("1900-01-23T12:00:00Z")
 
       TimedFeatureSwitch("test", startDateTime, endDatetime, now).enabled shouldBe false
     }
 
     "be disabled when current time is in the future of the specified time range with an unspecified start" in new SetupForFeatureManager {
-      val now = new DateTime("2100-01-23T12:00:00Z")
+      val now = Instant.parse("2100-01-23T12:00:00Z")
 
       TimedFeatureSwitch("test", None, endDatetime, now).enabled shouldBe false
     }
 
     "be enabled when current time is in the past of the specified time range with an unspecified start" in new SetupForFeatureManager {
-      val now = new DateTime("1900-01-23T12:00:00Z")
+      val now = Instant.parse("1900-01-23T12:00:00Z")
 
       TimedFeatureSwitch("test", None, endDatetime, now).enabled shouldBe true
     }
 
     "be enabled when current time is in the range of the specified time range with an unspecified start" in new SetupForFeatureManager {
-      val now = new DateTime("2000-01-23T14:30:00.00Z")
+      val now = Instant.parse("2000-01-23T14:30:00.00Z")
 
       TimedFeatureSwitch("test", None, endDatetime, now).enabled shouldBe true
     }
 
     "be enabled when current time is in the future of the specified time range with an unspecified end" in new SetupForFeatureManager {
-      val now = new DateTime("2100-01-23T12:00:00Z")
+      val now = Instant.parse("2100-01-23T12:00:00Z")
 
       TimedFeatureSwitch("test", startDateTime, None, now).enabled shouldBe true
     }
 
     "be disabled when current time is in the past of the specified time range with an unspecified end" in new SetupForFeatureManager {
-      val now = new DateTime("1900-01-23T12:00:00Z")
+      val now = Instant.parse("1900-01-23T12:00:00Z")
 
       TimedFeatureSwitch("test", startDateTime, None, now).enabled shouldBe false
     }
 
     "be enabled when current time is in the range of the specified time range with an unspecified end" in new SetupForFeatureManager {
-      val now = new DateTime("2000-01-23T14:30:00.00Z")
+      val now = Instant.parse("2000-01-23T14:30:00.00Z")
 
       TimedFeatureSwitch("test", None, endDatetime, now).enabled shouldBe true
     }

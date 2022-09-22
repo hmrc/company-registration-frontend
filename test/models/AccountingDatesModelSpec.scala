@@ -49,7 +49,7 @@ class AccountingDatesModelSpec extends UnitSpec {
 
     "format an AccountingDatesModel into an AccountingDetailsRequest correctly" in {
       val model = AccountingDatesModel("test", Some(year), Some(month), Some(day))
-      val expected =  AccountingDetailsRequest("test", Some("2017-12-10"))
+      val expected =  AccountingDetailsRequest("test", Some("2017-12-10T00:00"))
       AccountingDetailsRequest.toRequest(model) shouldBe expected
     }
 
@@ -58,7 +58,7 @@ class AccountingDatesModelSpec extends UnitSpec {
       val m = "2"
 
       val model = AccountingDatesModel("test", Some(year), Some(m), Some(d))
-      val expected =  AccountingDetailsRequest("test", Some("2017-02-01"))
+      val expected =  AccountingDetailsRequest("test", Some("2017-02-01T00:00"))
       AccountingDetailsRequest.toRequest(model) shouldBe expected
     }
   }

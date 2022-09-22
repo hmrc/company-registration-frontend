@@ -20,7 +20,7 @@ import java.util.UUID
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import itutil.{IntegrationSpecBase, LoginStub}
-import org.joda.time.LocalDate
+import java.time.LocalDate
 import org.jsoup.Jsoup
 import play.api.http.HeaderNames
 import play.api.libs.crypto.DefaultCookieSigner

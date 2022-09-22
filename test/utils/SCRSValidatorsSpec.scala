@@ -18,19 +18,20 @@ package utils
 
 import forms.AccountingDatesFormT
 import helpers.UnitSpec
-import org.joda.time.{DateTime, LocalDate}
+import java.time.{LocalDate, LocalDateTime, LocalTime, ZonedDateTime}
+
+import models.JavaTimeUtils.BankHolidaySet
 import services.{BankHolidays, TimeService}
-import uk.gov.hmrc.time.workingdays.BankHolidaySet
 
 class SCRSValidatorsSpec extends UnitSpec {
 
-  class Setup(newnow : LocalDate = LocalDate.now(), dateTime : DateTime = DateTime.now()) {
+  class Setup(newnow : LocalDate = LocalDate.now(), dateTime : LocalDateTime = LocalDateTime.now()) {
     val testAccDatesForm = new AccountingDatesFormT {
       override lazy val bHS = BankHolidays.bankHolidaySet
       override val timeService: TimeService = new TimeService {
         override implicit val bHS: BankHolidaySet = BankHolidays.bankHolidaySet
         override val dayEndHour: Int = 14
-        override def currentDateTime: DateTime = dateTime
+        override def currentDateTime: LocalDateTime = dateTime
         override def currentLocalDate: LocalDate = newnow
       }
       override val now: LocalDate = newnow
@@ -179,10 +180,10 @@ class SCRSValidatorsSpec extends UnitSpec {
         "futureDate.Day" -> "1")
 
       val boundForm = testAccDatesForm.bind(data)
-      boundForm.errors.map(err => (err.args.head, err.message)) shouldBe List(("futureDate.Day", "page.reg.accountingDates.date.future"))
+      boundForm.errors.map(err => (err.args.head, err.message)) shouldBe List(("futureDate.Day","page.reg.accountingDates.date.invalid-date"))
     }
 
-    "return an error message if the day is just before 3 working days" in new Setup(LocalDate.parse("2018-02-09"), DateTime.parse("2018-02-09T15:00:00Z")) {
+    "return an error message if the day is just before 3 working days" in new Setup(LocalDate.of(18,2,9), LocalDateTime.of(18,2,9,15,0)) {
       val data: Map[String, String] = Map(
         "businessStartDate" -> "futureDate",
         "futureDate.Year" -> "2018",
@@ -196,17 +197,17 @@ class SCRSValidatorsSpec extends UnitSpec {
   }
 
   "Submitting a Accounting Dates form with valid data" should {
-    "bind successfully if the day is just before 3 years in the future" in new Setup {
+    "bind successfully if the day is just before 3 years in the future" in new Setup(LocalDate.of(2020,2,29), LocalDateTime.of(2020,2,29,15,0)) {
       val data: Map[String, String] = Map(
         "businessStartDate" -> "futureDate",
-        "futureDate.Year" -> (LocalDate.now().getYear + 3).toString,
-        "futureDate.Month" -> LocalDate.now().getMonthOfYear.toString,
-        "futureDate.Day" -> LocalDate.now().getDayOfMonth.toString)
+        "futureDate.Year" -> "2023",
+        "futureDate.Month" -> "02",
+        "futureDate.Day" -> "28")
       val boundForm = testAccDatesForm.bind(data)
       boundForm.hasErrors shouldBe false
     }
 
-    "bind successfully if the day is just after 3 working days" in new Setup(LocalDate.parse("2018-02-09"), DateTime.parse("2018-02-09T15:00:00Z")) {
+    "bind successfully if the day is just after 3 working days" in new Setup(LocalDate.of(2018, 2 ,9), LocalDateTime.of(2018,2,9,15,0)) {
       val data: Map[String, String] = Map(
         "businessStartDate" -> "futureDate",
         "futureDate.Year" -> "2018",
@@ -218,7 +219,7 @@ class SCRSValidatorsSpec extends UnitSpec {
       boundForm.hasErrors shouldBe false
     }
 
-    "bind successfully if the date is 28th Feb plus 3 years when todays date is 29th Feb" in new Setup(LocalDate.parse("2020-02-29"), DateTime.parse("2020-02-29T15:00:00Z")) {
+    "bind successfully if the date is 28th Feb plus 3 years when todays date is 29th Feb" in new Setup(LocalDate.of(2020,2,29), LocalDateTime.of(2020,2,29,15,0)) {
       val data: Map[String, String] = Map(
         "businessStartDate" -> "futureDate",
         "futureDate.Year" -> "2023",

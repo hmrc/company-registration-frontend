@@ -19,22 +19,21 @@ package models.handoff
 import java.util.TimeZone
 
 import org.apache.commons.lang3.time.FastDateFormat
-import org.joda.time.DateTime
+import java.time._
 import play.api.libs.json._
-import play.api.libs.json.JodaWrites._
-import play.api.libs.json.JodaReads._
+
 
 object DateWriter {
-  implicit def dateTimeWrites = new Writes[DateTime] {
+  implicit def dateTimeWrites = new Writes[LocalDate] {
     private val dateFormat = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss.SSSZ", TimeZone.getTimeZone("UTC"))
 
-    def writes(dt: DateTime): JsValue = JsString(dateFormat.format(dt.getMillis))
+    def writes(dt: LocalDate): JsValue = JsString(dateFormat.toString)
   }
 }
 
 
 
-case class CompanyNameHandOffInformation(handoffType : String, handoffTime : DateTime, data : JsObject)
+case class CompanyNameHandOffInformation(handoffType : String, handoffTime : LocalDateTime, data : JsObject)
 
 case class CompanyNameHandOffInformationReturned(handoffType : String, data : JsObject)
 

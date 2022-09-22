@@ -16,6 +16,8 @@
 
 package services
 
+import java.time.LocalDate
+
 import audit.events.EmailMismatchEvent
 import builders.AuthBuilder
 import config.AppConfig
@@ -26,7 +28,6 @@ import models._
 import models.auth.AuthDetails
 import models.connectors.ConfirmationReferences
 import models.external.{OtherRegStatus, Statuses}
-import org.joda.time.{DateTime, LocalDate}
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito._
 import org.mockito.{ArgumentCaptor, ArgumentMatchers}
@@ -39,8 +40,6 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.audit.http.connector.AuditResult.Success
 import utils.{BooleanFeatureSwitch, SCRSFeatureSwitches}
-import play.api.libs.json.JodaWrites._
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -232,7 +231,7 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
 
   "buildIncorpCTDashComponent" should {
 
-    val date = DateTime.parse("2017-10-10")
+    val date = LocalDate.parse("2017-10-10")
     val dateAsJson = Json.toJson(date)
 
     "return a correct IncorpAndCTDashboard when the status is held" in new Setup {
@@ -240,7 +239,7 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
       when(mockCompanyRegistrationConnector.fetchHeldSubmissionTime(eqTo(regId))(any())).thenReturn(Future.successful(Some(dateAsJson)))
 
       val res = await(service.buildIncorpCTDashComponent(regId, noEnrolments))
-      res shouldBe IncorpAndCTDashboard("held", Some("10 October 2017"), Some(transId), Some(payRef), None, None, Some(ackRef), None, None)
+      res shouldBe IncorpAndCTDashboard("held", Some("2017-10-10"), Some(transId), Some(payRef), None, None, Some(ackRef), None, None)
     }
     "return a correct IncorpAndCTDashboard when the status is locked" in new Setup {
       when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(eqTo(regId))(any())).thenReturn(Future.successful(ctRegJson("locked")))
@@ -391,10 +390,10 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
 
   "buildHeld" should {
     "return a IncorpAndCTDashboard where submission date is returned from cr" in new Setup {
-      val expected = IncorpAndCTDashboard("held", Some("10 October 2017"), Some(transId),
+      val expected = IncorpAndCTDashboard("held", Some("2017-10-10"), Some(transId),
         Some(payRef), None, None, Some(ackRef), None, None)
 
-      val date = DateTime.parse("2017-10-10")
+      val date = LocalDate.parse("2017-10-10")
       val dateAsJson = Json.toJson(date)
 
       when(mockCompanyRegistrationConnector.fetchHeldSubmissionTime(eqTo(regId))(any()))
@@ -418,10 +417,10 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
 
   "extractSubmissionDate" should {
     "convert a DateTime as Json and convert it into a dd MMMM yyyy format string" in new Setup {
-      val date = DateTime.parse("2017-10-10")
+      val date = LocalDate.parse("2017-10-10")
       val dateAsJson = Json.toJson(date)
 
-      service.extractSubmissionDate(dateAsJson) shouldBe "10 October 2017"
+      service.extractSubmissionDate(dateAsJson) shouldBe "2017-10-10"
     }
   }
 

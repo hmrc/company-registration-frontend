@@ -23,14 +23,14 @@ import config.AppConfig
 import models._
 import models.auth.AuthDetails
 import models.external.{OtherRegStatus, Statuses}
-import org.joda.time.{DateTime, LocalDate}
+import java.time._
 import play.api.libs.json.JsValue
 import play.api.mvc.{AnyContent, Call, Request}
 import uk.gov.hmrc.auth.core.Enrolments
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import utils._
-import play.api.libs.json.JodaReads._
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.control.NoStackTrace
@@ -88,7 +88,7 @@ trait DashboardService extends SCRSExceptions with AlertLogging with CommonServi
   def toDashboard(s: OtherRegStatus, thresholds: Option[Map[String, Int]])(implicit startURL: String, cancelURL: Call): ServiceDashboard = {
     ServiceDashboard(
       s.status,
-      s.lastUpdate.map(_.toString("d MMMM yyyy")),
+      s.lastUpdate.map(_.toString()),
       s.ackRef,
       ServiceLinks(
         startURL,
@@ -212,8 +212,8 @@ trait DashboardService extends SCRSExceptions with AlertLogging with CommonServi
   }
 
   private[services] def extractSubmissionDate(jsonDate: JsValue): String = {
-    val dgdt: DateTime = jsonDate.as[DateTime]
-    dgdt.toString("d MMMM yyyy")
+    val dgdt: LocalDate = jsonDate.as[LocalDate]
+    dgdt.toString
   }
 
   def checkForEmailMismatch(regID: String, authDetails: AuthDetails)(implicit hc: HeaderCarrier, req: Request[AnyContent]): Future[Boolean] = {

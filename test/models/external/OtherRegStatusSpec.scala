@@ -16,9 +16,10 @@
 
 package models.external
 
+import java.time._
+
 import helpers.UnitSpec
-import org.joda.time.DateTime
-import play.api.libs.json.{JsResultException, JsSuccess, Json}
+import play.api.libs.json.{JsObject, JsResultException, Json}
 
 
 class OtherRegStatusSpec extends UnitSpec {
@@ -27,46 +28,24 @@ class OtherRegStatusSpec extends UnitSpec {
 
     "return a JsSuccess" in {
 
-      val dateTime = "2017-05-16T16:01:55Z"
-      val dt = DateTime.parse(dateTime)
-      val json = Json.parse(
-        s"""
-          |{
-          | "status":"held",
-          | "lastUpdate":"$dateTime"
-          |}
-        """.stripMargin)
+      val json = """ {"status":"","lastUpdate":"1970-01-01T00:00:00","ackRef":"","cancelURL":"","restartURL":""}"""
+      val testModel = OtherRegStatus("", Some(LocalDateTime.of(1970, 1, 1, 0, 0, 0, 0)), Some(""), Some(""), Some(""))
 
-      json.validate[OtherRegStatus] shouldBe JsSuccess(OtherRegStatus("held", Some(dt), None, None, None))
+      Json.toJson[OtherRegStatus](testModel) shouldBe Json.parse(json)
     }
     "return a JsSuccess with a CancelRegUrl" in {
-      val dateTime = "2017-05-16T16:01:55Z"
-      val dt = DateTime.parse(dateTime)
-      val json = Json.parse(
-        s"""
-           |{
-           | "status":"foo",
-           | "lastUpdate":"$dateTime",
-           | "cancelURL": "foo"
-           |}
-        """.stripMargin)
+      val json = """ {"status":"","lastUpdate":"1970-01-01T00:00:00","ackRef":"","cancelURL":"foo","restartURL":""}"""
+      val testModel = OtherRegStatus("", Some(LocalDateTime.of(1970, 1, 1, 0, 0, 0, 0)), Some(""), Some("foo"), Some(""))
 
-      json.validate[OtherRegStatus] shouldBe JsSuccess(OtherRegStatus("foo", Some(dt), None, Some("foo"), None))
+      Json.toJson[OtherRegStatus](testModel) shouldBe Json.parse(json)
+
     }
 
     "return a JsSuccess with a restartURL" in {
-      val dateTime = "2017-05-16T16:01:55Z"
-      val dt = DateTime.parse(dateTime)
-      val json = Json.parse(
-        s"""
-           |{
-           | "status":"foo",
-           | "lastUpdate":"$dateTime",
-           | "restartURL": "bar"
-           |}
-        """.stripMargin)
+      val json = """ {"status":"","lastUpdate":"1970-01-01T00:00:00","ackRef":"","cancelURL":"","restartURL":"bar"}"""
+      val testModel = OtherRegStatus("", Some(LocalDateTime.of(1970, 1, 1, 0, 0, 0, 0)), Some(""), Some(""), Some("bar"))
 
-      json.validate[OtherRegStatus] shouldBe JsSuccess(OtherRegStatus("foo", Some(dt), None, None, Some("bar")))
+      Json.toJson[OtherRegStatus](testModel) shouldBe Json.parse(json)
     }
 
     "return a JsError when an non ISOFormat date is parsed" in {
@@ -77,10 +56,10 @@ class OtherRegStatusSpec extends UnitSpec {
            | "status":"held",
            | "lastUpdate":"$dateTime"
            |}
-        """.stripMargin)
+        """.stripMargin).as[JsObject]
 
-      val ex = intercept[JsResultException](json.validate[OtherRegStatus])
-      ex.errors.head._2.head.messages shouldBe Seq("error.expected.date.isoformat")
+      a[JsResultException] mustBe thrownBy(json.as[OtherRegStatus])
+
     }
   }
 }

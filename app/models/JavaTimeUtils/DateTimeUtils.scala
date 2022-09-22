@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-package utils
+package models.JavaTimeUtils
 
 import java.time._
 
+trait DateTimeUtils {
+  def now: LocalDate = LocalDate.now()
 
-object SystemDate {
-  def getSystemDate: LocalDate = Option(System.getProperty("feature.system-date")).fold(LocalDate.now()) {
-    case ""   => LocalDate.now()
-    case date => LocalDate.parse(date)
-  }
+  def isEqualOrAfter(date:LocalDate, laterDate:LocalDate):Boolean = date.isEqual(laterDate) || date.isBefore(laterDate)
 }
+
+object DateTimeUtils extends DateTimeUtils
+

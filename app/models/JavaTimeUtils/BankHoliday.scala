@@ -14,14 +14,11 @@
  * limitations under the License.
  */
 
-package utils
+package models.JavaTimeUtils
 
-import java.time._
+import java.time.LocalDate
 
+case class BankHolidaySet(division: String, events: List[BankHoliday])
 
-object SystemDate {
-  def getSystemDate: LocalDate = Option(System.getProperty("feature.system-date")).fold(LocalDate.now()) {
-    case ""   => LocalDate.now()
-    case date => LocalDate.parse(date)
-  }
-}
+case class BankHoliday(title: String, date: LocalDate)
+

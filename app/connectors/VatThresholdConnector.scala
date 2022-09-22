@@ -19,7 +19,7 @@ package connectors
 import javax.inject.Inject
 
 import config.{AppConfig, WSHttp}
-import org.joda.time.LocalDate
+import java.time._
 import play.api.Logging
 import play.api.libs.json.{JsNull, JsString}
 import uk.gov.hmrc.http._

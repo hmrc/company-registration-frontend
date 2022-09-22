@@ -16,9 +16,9 @@
 
 package models.handoff
 
-import org.joda.time.{DateTime, DateTimeZone}
+import java.time._
+
 import play.api.libs.json._
-import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
 
 case class NavLinks(forward: String,
                     reverse: String)
@@ -50,19 +50,22 @@ object HandOffNavModel {
   implicit val formatSender = Json.format[Sender]
   implicit val formats = Json.format[HandOffNavModel]
 
-  def now = DateTime.now(DateTimeZone.UTC)
+  def now: Instant = Instant.now()
 
   val mongoReads = new Reads[HandOffNavModel] {
     def reads(json: JsValue): JsResult[HandOffNavModel] = {
       (json \ "HandOffNavigation").validate[HandOffNavModel](HandOffNavModel.formats)
     }
   }
-  def mongoWrites(registrationID: String, dateTime: DateTime = now) = new OWrites[HandOffNavModel] {
+
+
+
+  def mongoWrites(registrationID: String, dateTime: Instant = now) = new OWrites[HandOffNavModel] {
 
     override def writes(hm: HandOffNavModel):JsObject = {
       Json.obj(
         "_id"               -> Json.toJsFieldJsValueWrapper(registrationID),
-        "lastUpdated"       -> Json.toJson(dateTime)(ReactiveMongoFormats.dateTimeWrite),
+        "lastUpdated"       -> Json.toJson(dateTime),
         "HandOffNavigation" -> Json.toJsFieldJsValueWrapper(hm)(formats)
       )
     }

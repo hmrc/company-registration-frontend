@@ -16,15 +16,15 @@
 
 package controllers
 
+import java.time._
+
 import builders.AuthBuilder
-import config.AppConfig
 import connectors._
 import controllers.dashboard.CancelRegistrationController
 import forms.CancelForm
 import helpers.SCRSSpec
 import mocks.ServiceConnectorMock
 import models.external.OtherRegStatus
-import org.joda.time.DateTime
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.http.Status._
@@ -32,8 +32,8 @@ import play.api.i18n.{Lang, Messages}
 import play.api.mvc.{AnyContent, MessagesControllerComponents, Request}
 import play.api.test.FakeRequest
 import uk.gov.hmrc.play.http.ws.WSHttp
-import views.html.dashboard.{CancelPaye => CancelPayeView}
-import views.html.dashboard.{CancelVat => CancelVatView}
+import views.html.dashboard.{CancelPaye => CancelPayeView, CancelVat => CancelVatView}
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -63,7 +63,7 @@ class CancelRegistrationControllerSpec extends SCRSSpec with MockitoSugar with G
     implicit val messagesApi: Messages = controller.messagesApi.preferred(Seq(Lang("en")))
   }
 
-  val localDate = DateTime.now()
+  val localDate = LocalDateTime.now()
   val testRegID = "1"
   val ackRef = "testAckRef"
   val validStatus = OtherRegStatus("testStatus", Some(localDate), Some(ackRef), Some("foo"), None)

@@ -16,7 +16,7 @@
 
 package www
 
-import java.time.LocalDate
+import java.time.{LocalDate, LocalDateTime}
 import java.util.UUID
 
 import com.github.tomakehurst.wiremock.client.WireMock._
@@ -135,8 +135,8 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fix
           "csrfToken" -> Seq("xxx-ignored-xxx"),
           "businessStartDate" -> Seq("futureDate"),
           "futureDate.Year" -> Seq(testYear.toString),
-          "futureDate.Month" -> Seq("1"),
-          "futureDate.Day" -> Seq("2")
+          "futureDate.Month" -> Seq("01"),
+          "futureDate.Day" -> Seq("02")
         ))
 
       val response = await(fResponse)
@@ -148,7 +148,7 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fix
       val captor = crPuts.get(0)
       val json = Json.parse(captor.getBodyAsString)
       (json \ "accountingDateStatus").as[String] shouldBe "FUTURE_DATE"
-      (json \ "startDateOfBusiness").as[String] shouldBe s"$testYear-01-02"
+      (json \ "startDateOfBusiness").as[String] shouldBe s"$testYear-01-02T00:00"
     }
     "return a 400 showing error messages to the user" in {
       stubAuthorisation()

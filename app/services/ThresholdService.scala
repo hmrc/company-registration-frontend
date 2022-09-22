@@ -20,8 +20,8 @@ import config.AppConfig
 
 import javax.inject.{Inject, Singleton}
 import connectors.VatThresholdConnector
-import org.joda.time.LocalDate
 import uk.gov.hmrc.http.HeaderCarrier
+import java.time._
 
 import scala.concurrent.Future
 
