@@ -64,6 +64,7 @@ standardBetaBanner: StandardBetaBanner
 @hmrcLayout(
     pageTitle = pageTitle,
     serviceName = Some(messages("service.name")),
+    isWelshTranslationAvailable = appConfig.languageTranslationEnabled,
     additionalHeadBlock = Some(head),
     signOutUrl = if (signOutLink) Some(controllers.reg.routes.SignInOutController.signOut().url) else None,
     serviceUrl = Some("/register-your-company"),

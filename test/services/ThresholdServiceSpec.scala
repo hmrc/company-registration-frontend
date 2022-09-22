@@ -23,6 +23,7 @@ import helpers.SCRSSpec
 import mocks.ServiceConnectorMock
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import utils.SCRSFeatureSwitches
 import java.time._
 
 
@@ -30,7 +31,7 @@ class ThresholdServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
 
   val mockVatThresholdConnector: VatThresholdConnector = mock[VatThresholdConnector]
 
-  object TestAppConfig extends AppConfig(mock[ServicesConfig]) {
+  object TestAppConfig extends AppConfig(mock[ServicesConfig], mock[SCRSFeatureSwitches]) {
     override lazy val taxYearStartDate: String = LocalDate.now().toString
     override lazy val currentPayeWeeklyThreshold: Int = 10
     override lazy val currentPayeMonthlyThreshold: Int = 20
