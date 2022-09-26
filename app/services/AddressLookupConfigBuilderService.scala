@@ -19,11 +19,15 @@ package services
 import config.AppConfig
 import javax.inject.{Inject, Singleton}
 import models._
-import play.api.i18n.{Messages, MessagesApi, MessagesProvider}
+import play.api.i18n.{Lang, MessagesApi, MessagesProvider}
 import play.api.mvc.Call
+import utils.MessageOption
 
 @Singleton
 class AddressLookupConfigBuilderService @Inject()(appConfig: AppConfig) {
+
+  val english = Lang("en")
+  val welsh = Lang("cy")
 
   lazy val companyRegistrationFrontendURL: String = appConfig.self
   lazy val timeoutLength: Int = appConfig.timeoutInSeconds.toInt
@@ -59,52 +63,67 @@ class AddressLookupConfigBuilderService @Inject()(appConfig: AppConfig) {
       selectPageConfig = selectPageConfig,
       confirmPageConfig = confirmPageConfig,
       timeoutConfig = timeoutConfig,
-      disableTranslations = true
+      disableTranslations = !appConfig.languageTranslationEnabled
     )
 
-    val appLevelLabels = AppLevelLabels(
-      navTitle = Messages("common.service.name"),
-      phaseBannerHtml = "This is a new service. Help us improve it - send your <a href='https://www.tax.service.gov.uk/register-for-paye/feedback'>feedback</a>."
-    )
+    def appLevelLabels(lang: Lang) = {
+      AppLevelLabels(
+        navTitle = MessageOption("common.service.name", lang)(messagesApi),
+        phaseBannerHtml = MessageOption("This is a new service. " +
+          "Help us improve it - send your" +
+          " <a href='https://www.tax.service.gov.uk/contact/beta-feedback?service=SCRS'>feedback</a>.", lang
+      )(messagesApi))
+    }
 
 
-    val lookupPageLabels = LookupPageLabels(
-      title = lookupPageHeading,
-      heading = lookupPageHeading,
-      filterLabel = Messages("page.addressLookup.lookup.filter"),
-      submitLabel = Messages("page.addressLookup.lookup.submit"),
-      manualAddressLinkText = Messages("page.addressLookup.lookup.manual")
-    )
-
-    val selectPageLabels = SelectPageLabels(
-      title = Messages("page.addressLookup.select.description"),
-      heading = Messages("page.addressLookup.select.description"),
-      searchAgainLinkText = Messages("page.addressLookup.select.searchAgain"),
-      editAddressLinkText = Messages("page.addressLookup.select.editAddress")
-    )
-
-    val editPageLabels = EditPageLabels(
-      title = Messages("page.addressLookup.edit.description"),
-      heading = Messages("page.addressLookup.edit.description"),
-      line1Label = Messages("page.addressLookup.edit.line1"),
-      line2Label = Messages("page.addressLookup.edit.line2"),
-      line3Label = Messages("page.addressLookup.edit.line3")
-    )
-
-    val confirmPageLabels = ConfirmPageLabels(
-      title = confirmPageHeading,
-      heading = confirmPageHeading,
-      submitLabel = Messages("page.addressLookup.confirm.continue"),
-      changeLinkText = Messages("page.addressLookup.confirm.change")
-    )
-
+    def lookupPageLabels(lang: Lang) = {
+      LookupPageLabels(
+        title = MessageOption(lookupPageHeading, lang)(messagesApi),
+        heading = MessageOption(lookupPageHeading, lang)(messagesApi),
+        filterLabel = MessageOption("page.addressLookup.lookup.filter", lang)(messagesApi),
+        submitLabel = MessageOption("page.addressLookup.lookup.submit", lang)(messagesApi),
+        manualAddressLinkText = MessageOption("page.addressLookup.lookup.manual", lang)(messagesApi)
+      )
+    }
+    def selectPageLabels(lang: Lang) = {
+      SelectPageLabels(
+        title = MessageOption("page.addressLookup.select.description", lang)(messagesApi),
+        heading = MessageOption("page.addressLookup.select.description", lang)(messagesApi),
+        searchAgainLinkText = MessageOption("page.addressLookup.select.searchAgain", lang)(messagesApi),
+        editAddressLinkText = MessageOption("page.addressLookup.select.editAddress", lang)(messagesApi)
+      )
+    }
+    def editPageLabels(lang: Lang) = {
+      EditPageLabels(
+        title = MessageOption("page.addressLookup.edit.description", lang)(messagesApi),
+        heading = MessageOption("page.addressLookup.edit.description", lang)(messagesApi),
+        line1Label = MessageOption("page.addressLookup.edit.line1", lang)(messagesApi),
+        line2Label = MessageOption("page.addressLookup.edit.line2", lang)(messagesApi),
+        line3Label = MessageOption("page.addressLookup.edit.line3", lang)(messagesApi)
+      )
+    }
+    def confirmPageLabels(lang: Lang) = {
+      ConfirmPageLabels(
+        title = MessageOption(confirmPageHeading, lang)(messagesApi),
+        heading = MessageOption(confirmPageHeading, lang)(messagesApi),
+        submitLabel = MessageOption("page.addressLookup.confirm.continue", lang)(messagesApi),
+        changeLinkText = MessageOption("page.addressLookup.confirm.change", lang)(messagesApi)
+      )
+    }
     val journeyLabels = JourneyLabels(
       en = LanguageLabels(
-        appLevelLabels,
-        selectPageLabels,
-        lookupPageLabels,
-        editPageLabels,
-        confirmPageLabels
+        appLevelLabels(english),
+        selectPageLabels(english),
+        lookupPageLabels(english),
+        editPageLabels(english),
+        confirmPageLabels(english)
+      ),
+      cy = LanguageLabels(
+        appLevelLabels(welsh),
+        selectPageLabels(welsh),
+        lookupPageLabels(welsh),
+        editPageLabels(welsh),
+        confirmPageLabels(welsh)
       )
     )
 
