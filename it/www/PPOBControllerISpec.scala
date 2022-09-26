@@ -81,36 +81,69 @@ class PPOBControllerISpec extends IntegrationSpecBase with LoginStub with Fixtur
       ),
       labels = JourneyLabels(en = LanguageLabels(
         appLevelLabels = AppLevelLabels(
-          navTitle = "Set up a limited company and register for Corporation Tax",
-          phaseBannerHtml = "This is a new service. Help us improve it - send your <a href='https://www.tax.service.gov.uk/register-for-paye/feedback'>feedback</a>."
+          navTitle = Some("Set up a limited company and register for Corporation Tax"),
+          phaseBannerHtml = None
         ),
 
         SelectPageLabels(
-          title = "Choose an address",
-          heading = "Choose an address",
-          searchAgainLinkText = "Search again",
-          editAddressLinkText = "The address is not on the list"
+          title = Some("Choose an address"),
+          heading = Some("Choose an address"),
+          searchAgainLinkText = Some("Search again"),
+          editAddressLinkText = Some("The address is not on the list")
         ),
 
         LookupPageLabels(
-          title = "Find the address where the company will carry out most of its business activities",
-          heading = "Find the address where the company will carry out most of its business activities",
-          filterLabel = "Property name or number",
-          submitLabel = "Find address",
-          manualAddressLinkText = "Enter address manually"
+          title = None,
+          heading = None,
+          filterLabel = Some("Property name or number"),
+          submitLabel = Some("Find address"),
+          manualAddressLinkText = Some("Enter address manually")
         ),
         EditPageLabels(
-          title = "Enter an address",
-          heading = "Enter an address",
-          line1Label = "Address line 1",
-          line2Label = "Address line 2",
-          line3Label = "Address line 3"
+          title = Some("Enter an address"),
+          heading = Some("Enter an address"),
+          line1Label = Some("Address line 1"),
+          line2Label = Some("Address line 2"),
+          line3Label = Some("Address line 3")
         ),
         ConfirmPageLabels(
-          title = "Confirm where the company will carry out most of its business activities",
-          heading = "Confirm where the company will carry out most of its business activities",
-          submitLabel = "Confirm and continue",
-          changeLinkText = "Change"
+          title = None,
+          heading = None,
+          submitLabel = Some("Confirm and continue"),
+          changeLinkText = Some("Change")
+        )
+      ), cy = LanguageLabels(
+        appLevelLabels = AppLevelLabels(
+          navTitle = Some("Sefydlu cwmni cofrestredig a chofrestru ar gyfer Treth Gorfforaeth"),
+          phaseBannerHtml = None
+        ),
+
+        SelectPageLabels(
+          title = Some("Dewiswch gyfeiriad"),
+          heading = Some("Dewiswch gyfeiriad"),
+          searchAgainLinkText = Some("Chwilio eto"),
+          editAddressLinkText = Some("Nid yw’r cyfeiriad ar y rhestr")
+        ),
+
+        LookupPageLabels(
+          title = None,
+          heading = None,
+          filterLabel = Some("Enw neu rif yr eiddo"),
+          submitLabel = Some("Dod o hyd i’r cyfeiriad"),
+          manualAddressLinkText = Some("Nodwch y cyfeiriad â llaw")
+        ),
+        EditPageLabels(
+          title = Some("Nodwch gyfeiriad"),
+          heading = Some("Nodwch gyfeiriad"),
+          line1Label = Some("Cyfeiriad - llinell 1"),
+          line2Label = Some("Cyfeiriad - llinell 2"),
+          line3Label = Some("Cyfeiriad - llinell 3")
+        ),
+        ConfirmPageLabels(
+          title = None,
+          heading = None,
+          submitLabel = Some("Cadarnhau ac yn eich blaen"),
+          changeLinkText = Some("Newid")
         )
       )
       )
