@@ -230,8 +230,8 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with R
         get()
 
       val response = await(fResponse)
-      response.status shouldBe 303
-      response.header(HeaderNames.LOCATION).get should include("/register-your-company/basic-company-details")
+      response.status mustBe 303
+      response.header(HeaderNames.LOCATION).get must include("/register-your-company/basic-company-details")
     }
 
     "redirect to ho1 if status is locked" in {
@@ -255,8 +255,8 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with R
         get()
 
       val response = await(fResponse)
-      response.status shouldBe 303
-      response.header(HeaderNames.LOCATION).get should include("/register-your-company/basic-company-details")
+      response.status mustBe 303
+      response.header(HeaderNames.LOCATION).get must include("/register-your-company/basic-company-details")
     }
     "redirect to completion capacity if status is draft and we have an SCRS verified email" in {
 
@@ -279,8 +279,8 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with R
         get()
 
       val response = await(fResponse)
-      response.status shouldBe 303
-      response.header(HeaderNames.LOCATION).get should include("/register-your-company/relationship-to-company")
+      response.status mustBe 303
+      response.header(HeaderNames.LOCATION).get must include("/register-your-company/relationship-to-company")
     }
 
     "redirect to the email verification screen if status is draft and we don't have an SCRS verified email" in {
@@ -304,8 +304,8 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with R
         get()
 
       val response = await(fResponse)
-      response.status shouldBe 303
-      response.header(HeaderNames.LOCATION).get should include("/register-your-company/registration-email")
+      response.status mustBe 303
+      response.header(HeaderNames.LOCATION).get must include("/register-your-company/registration-email")
     }
 
     "redirect to the email verification screen if status is draft and we don't have an SCRS verified email but we have sent an email link and the email is still not verified" in {
@@ -340,8 +340,8 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with R
         get()
 
       val response = await(fResponse)
-      response.status shouldBe 303
-      response.header(HeaderNames.LOCATION).get should include("/register-your-company/registration-email")
+      response.status mustBe 303
+      response.header(HeaderNames.LOCATION).get must include("/register-your-company/registration-email")
     }
 
     "redirect to the completion capacity screen if status is draft and we don't have an SCRS verified email but we have sent an email link and the email is now verified" in {
@@ -376,8 +376,8 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with R
         get()
 
       val response = await(fResponse)
-      response.status shouldBe 303
-      response.header(HeaderNames.LOCATION).get should include("/register-your-company/relationship-to-company")
+      response.status mustBe 303
+      response.header(HeaderNames.LOCATION).get must include("/register-your-company/relationship-to-company")
     }
 
     "redirect to the enter-your-details if status is draft and we don't have an SCRS verified email and there is no email address for the account" in {
@@ -401,8 +401,8 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with R
         get()
 
       val response = await(fResponse)
-      response.status shouldBe 303
-      response.header(HeaderNames.LOCATION).get should include("/register-your-company/enter-your-details")
+      response.status mustBe 303
+      response.header(HeaderNames.LOCATION).get must include("/register-your-company/enter-your-details")
     }
 
 
@@ -414,13 +414,13 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with R
 
       val response = await(buildClient("/sign-out").get())
 
-      response.status shouldBe 303
+      response.status mustBe 303
 
       val redirectTo = response.header(HeaderNames.LOCATION)
 
-      redirectTo shouldBe defined
+      redirectTo mustBe defined
       redirectTo map { r =>
-        r should include("/bas-gateway/sign-out")
+        r must include("/bas-gateway/sign-out")
       }
     }
 
@@ -430,13 +430,13 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with R
       val continueURL = "/foo/bar"
       val response = await(buildClient(s"/sign-out?continueUrl=${encodeURL(continueURL)}").get())
 
-      response.status shouldBe 303
+      response.status mustBe 303
       val redirectTo = response.header(HeaderNames.LOCATION)
 
-      redirectTo shouldBe defined
+      redirectTo mustBe defined
       redirectTo map { r =>
-        r should include("/bas-gateway/sign-out")
-        r should include(encodeURL(continueURL))
+        r must include("/bas-gateway/sign-out")
+        r must include(encodeURL(continueURL))
       }
     }
 
@@ -446,13 +446,13 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with R
       val continueURL = "http://foo.gov.uk/foo/bar"
       val response = await(buildClient(s"/sign-out?continueUrl=${encodeURL(continueURL)}").get())
 
-      response.status shouldBe 303
+      response.status mustBe 303
       val redirectTo = response.header(HeaderNames.LOCATION)
 
-      redirectTo shouldBe defined
+      redirectTo mustBe defined
       redirectTo map { r =>
-        r should include("/bas-gateway/sign-out")
-        r should include(encodeURL(continueURL))
+        r must include("/bas-gateway/sign-out")
+        r must include(encodeURL(continueURL))
       }
     }
 
@@ -462,7 +462,7 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with R
       val continueURL = "//foo.gov.uk/foo/bar"
       val response = await(buildClient(s"/sign-out?continueUrl=${encodeURL(continueURL)}").get())
 
-      response.status shouldBe 400
+      response.status mustBe 400
     }
   }
 
@@ -477,12 +477,12 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with R
         .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie)
         .get())
 
-      response.status shouldBe 200
-      response.header("Content-Type") shouldBe Some("image/jpeg")
-      response.header("Content-Disposition") shouldBe Some("""inline; filename="renewSession.jpg"""")
+      response.status mustBe 200
+      response.header("Content-Type") mustBe Some("image/jpeg")
+      response.header("Content-Disposition") mustBe Some("""inline; filename="renewSession.jpg"""")
 
       val request = getPUTRequestJsonBody(s"/keystore/company-registration-frontend/$SessionId/data/lastActionTimestamp")
-      request.as[String] shouldBe LocalDate.now.toString
+      request.as[String] mustBe LocalDate.now.toString
     }
 
     "throw an exception when keystore update fails and return a 500" in {
@@ -494,7 +494,7 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with R
         .withHeaders(HeaderNames.COOKIE -> sessionCookie)
         .get())
 
-      response.status shouldBe 500
+      response.status mustBe 500
     }
   }
 }

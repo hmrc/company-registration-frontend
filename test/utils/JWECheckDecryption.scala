@@ -39,7 +39,7 @@ class JWECheckDecryption extends SCRSSpec with JweFixture {
       val payload = "eyJhbGciOiJkaXIiLCJlbmMiOiJBMTI4Q0JDLUhTMjU2In0..QhASSFMKteeuTg8IVvjVRA.0DNqV8CAvixFFz13f9sP5g.VcM2dH86YeIhJjXUj1AA2A"
 
       testJwe.decrypt[JsObject](payload) match {
-        case Success(s) => s shouldBe Json.obj("foo" -> "bar")
+        case Success(s) => s mustBe Json.obj("foo" -> "bar")
         case unexpected => fail(s"Test failed with unexpected result - ${unexpected}")
       }
     }

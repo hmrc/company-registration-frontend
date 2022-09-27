@@ -47,8 +47,8 @@ class BusinessActivitiesModelSpec extends UnitSpec {
       )
 
       val result = Json.toJson[BusinessActivitiesModel](testModel1)
-      result.getClass shouldBe classOf[JsObject]
-      result shouldBe Json.parse(json1)
+      result.getClass mustBe classOf[JsObject]
+      result mustBe Json.parse(json1)
     }
 
     "Be able to parsed into JSON with PPOB" in {
@@ -83,8 +83,8 @@ class BusinessActivitiesModelSpec extends UnitSpec {
         )
 
       val result = Json.toJson[BusinessActivitiesModel](testModel2)
-      result.getClass shouldBe classOf[JsObject]
-      result shouldBe Json.parse(json2)
+      result.getClass mustBe classOf[JsObject]
+      result mustBe Json.parse(json2)
     }
 
     "Be able to parsed into JSON with PPOB having no L4 or country" in {
@@ -116,8 +116,8 @@ class BusinessActivitiesModelSpec extends UnitSpec {
        """.stripMargin
 
       val result = Json.toJson[BusinessActivitiesModel](testModel3)
-      result.getClass shouldBe classOf[JsObject]
-      result shouldBe Json.parse(json3)
+      result.getClass mustBe classOf[JsObject]
+      result mustBe Json.parse(json3)
     }
   }
 
@@ -125,31 +125,31 @@ class BusinessActivitiesModelSpec extends UnitSpec {
     "quick all field check" in {
       val core = PPOB("RO", Some(Address(Some("num"), "L1", "L2", Some("L3"), Some("L4"), Some("pc"), Some("uk"))))
       val handoff = HandoffPPOB("L1", "L2", Some("L3"), Some("L4"), Some("pc"), Some("uk"))
-      HandoffPPOB.fromCorePPOB(core) shouldBe handoff
+      HandoffPPOB.fromCorePPOB(core) mustBe handoff
     }
 
     "No premises" in {
       val core = PPOB("RO", Some(Address(Some(""), "L1", "L2", Some("L3"), Some("L4"), Some("pc"), Some("uk"))))
       val handoff = HandoffPPOB("L1", "L2", Some("L3"), Some("L4"), Some("pc"), Some("uk"))
-      HandoffPPOB.fromCorePPOB(core) shouldBe handoff
+      HandoffPPOB.fromCorePPOB(core) mustBe handoff
     }
 
     "Missing L4 & Postcode" in {
       val core = PPOB("RO", Some(Address(Some("num"), "L1", "L2", Some("L3"), None, None, Some("country"))))
       val handoff = HandoffPPOB("L1", "L2", Some("L3"), None, None, Some("country"))
-      HandoffPPOB.fromCorePPOB(core) shouldBe handoff
+      HandoffPPOB.fromCorePPOB(core) mustBe handoff
     }
 
     "Missing L3 & Country" in {
       val core = PPOB("RO", Some(Address(Some("num"), "L1", "L2", Some("L3"), Some("L4"), Some("pc"), None)))
       val handoff = HandoffPPOB("L1", "L2", Some("L3"), Some("L4"), Some("pc"), None)
-      HandoffPPOB.fromCorePPOB(core) shouldBe handoff
+      HandoffPPOB.fromCorePPOB(core) mustBe handoff
     }
 
     "Missing all optional fields" in {
       val core = PPOB("RO", Some(Address(Some("num"), "L1", "L2", None, None, None, None)))
       val handoff = HandoffPPOB("L1", "L2", None, None, None, None)
-      HandoffPPOB.fromCorePPOB(core) shouldBe handoff
+      HandoffPPOB.fromCorePPOB(core) mustBe handoff
     }
   }
 }

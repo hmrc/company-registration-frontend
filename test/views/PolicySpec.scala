@@ -50,9 +50,9 @@ class PolicySpec extends SCRSSpec with GuiceOneAppPerSuite {
       val result = controller.policyLinks()(FakeRequest())
       val document = Jsoup.parse(contentAsString(result))
 
-      document.title should include("Cookies, privacy and terms")
+      document.title must include("Cookies, privacy and terms")
 
-      document.select(Selectors.h1).text() shouldBe "Cookies, privacy and terms"
+      document.select(Selectors.h1).text() mustBe "Cookies, privacy and terms"
     }
   }
 }

@@ -71,10 +71,10 @@ class IncorpAndCTDashboardSpec extends UnitSpec {
           |}
         """.stripMargin).as[JsObject]
 
-      json.as[IncorpAndCTDashboard](IncorpAndCTDashboard.reads(None)) shouldBe expected
+      json.as[IncorpAndCTDashboard](IncorpAndCTDashboard.reads(None)) mustBe expected
 
       val res = json.as[JsObject]
-      res.value.exists(_._1 == "acknowledgementReferences") shouldBe true
+      res.value.exists(_._1 == "acknowledgementReferences") mustBe true
     }
 
     "read into a case class as expected when there are no acknowledgement references" in {
@@ -83,10 +83,10 @@ class IncorpAndCTDashboardSpec extends UnitSpec {
 
       val json = baseJson
 
-      json.as[IncorpAndCTDashboard](IncorpAndCTDashboard.reads(None)) shouldBe expected
+      json.as[IncorpAndCTDashboard](IncorpAndCTDashboard.reads(None)) mustBe expected
 
       val res = json.as[JsObject]
-      res.value.exists(_._1 == "acknowledgementReferences") shouldBe false
+      res.value.exists(_._1 == "acknowledgementReferences") mustBe false
     }
   }
 }

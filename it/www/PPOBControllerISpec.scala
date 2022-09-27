@@ -48,7 +48,7 @@ class PPOBControllerISpec extends IntegrationSpecBase with LoginStub with Fixtur
       .withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
       .post(Map("Csrf-Token" -> Seq("nocheck"), "addressChoice" -> Seq("OtherAddress")))
 
-    await(fResponse).status shouldBe 303
+    await(fResponse).status mustBe 303
     val result = getPOSTRequestJsonBody("/api/v2/init").as[AlfJourneyConfig]
     val expected = AlfJourneyConfig(
       version = AlfJourneyConfig.defaultConfigVersion,
@@ -150,7 +150,7 @@ class PPOBControllerISpec extends IntegrationSpecBase with LoginStub with Fixtur
 
     )
 
-    result shouldBe expected
+    result mustBe expected
   }
 
 }

@@ -38,24 +38,24 @@ class JWESpec extends SCRSSpec with JweFixture {
   "JWE Decryptor unpack" should {
     "produce a valid Wibble case class from sample JSON" in new Setup {
       val wibble = JweWithTestKey.unpack[JweTestModel](fooBarJson)
-      wibble shouldBe Success(JweTestModel("foo", "bar"))
+      wibble mustBe Success(JweTestModel("foo", "bar"))
     }
 
     "return a payload error when invalid Json is validated" in new Setup {
 
       val invalid = Json.toJson(JweTestModel("foo", "bar"))
-      JweWithTestKey.unpack[String](invalid.toString()) shouldBe Failure(PayloadError)
+      JweWithTestKey.unpack[String](invalid.toString()) mustBe Failure(PayloadError)
     }
 
     "produce a valid case class with extra JSON from relevant sample JSON" in {
       val wibble = JweWithTestKey.unpack[JweTestModelWithJson](  s"""{"x":"foo", "y":"bar", "json": { "a":"1", "b": 2 } }""" )
-      wibble shouldBe Success(JweTestModelWithJson("foo", "bar", Json.parse(s"""{ "a":"1", "b": 2 }""")))
+      wibble mustBe Success(JweTestModelWithJson("foo", "bar", Json.parse(s"""{ "a":"1", "b": 2 }""")))
     }
 
     "can unpack to JSON" in new Setup {
       val json = s"""{"x":"foo", "y":"bar", "json": { "a":"1", "b": 2 } }"""
       val wibble = JweWithTestKey.unpack[JsValue]( json )
-      wibble shouldBe Success(Json.parse(json))
+      wibble mustBe Success(Json.parse(json))
     }
   }
 
@@ -68,39 +68,39 @@ class JWESpec extends SCRSSpec with JweFixture {
 
       val token = jwe.encrypt[JweTestModel](JweTestModel("foo", "bar")).get
 
-      token should fullyMatch regex JwePattern
-      token should fullyMatch regex Base64chars
-      token shouldBe a[String]
+      token must fullyMatch regex JwePattern
+      token must fullyMatch regex Base64chars
+      token mustBe a[String]
 
       val JweGroupsExp(header, _, _, _, _) = token
-      header should startWith ("eyJhbG")
+      header must startWith ("eyJhbG")
 
       val json = Json.parse(base64decode(header))
 
-      (json \ "alg").asOpt[String].getOrElse("") shouldBe "dir"
-      (json \ "enc").asOpt[String].getOrElse("") shouldBe "A128CBC-HS256"
+      (json \ "alg").asOpt[String].getOrElse("") mustBe "dir"
+      (json \ "enc").asOpt[String].getOrElse("") mustBe "A128CBC-HS256"
     }
 
     "contain expected JSON payload" in {
       val payload = JweTestModel("foo", "bar")
       val token = JweWithTestKey.encrypt[JweTestModel](payload).get
 
-      token should fullyMatch regex JwePattern
+      token must fullyMatch regex JwePattern
 
-      JweWithTestKey.decryptRaw(token) shouldBe Success("""{"x":"foo","y":"bar"}""")
+      JweWithTestKey.decryptRaw(token) mustBe Success("""{"x":"foo","y":"bar"}""")
     }
 
     "give back the original payload from a Wibble case class instance" in {
       val payload = JweTestModel("foo", "bar")
       val token = JweWithTestKey.encrypt[JweTestModel](payload).get
 
-      token should fullyMatch regex JwePattern
+      token must fullyMatch regex JwePattern
 
-      JweWithTestKey.decrypt[JweTestModel](token) shouldBe Success(payload)
+      JweWithTestKey.decrypt[JweTestModel](token) mustBe Success(payload)
     }
 
     "return None when an exception is thrown - incorrect key" in new Setup {
-      jweWrongKey.encrypt(JweTestModel("foo", "bar")) shouldBe None
+      jweWrongKey.encrypt(JweTestModel("foo", "bar")) mustBe None
     }
   }
 
@@ -121,7 +121,7 @@ class JWESpec extends SCRSSpec with JweFixture {
       val jweToken = jwe.getCompactSerialization
 
       JweWithTestKey.decrypt[JweTestModel](jweToken) match {
-        case Success(s) => s shouldBe JweTestModel("foo", "bar")
+        case Success(s) => s mustBe JweTestModel("foo", "bar")
         case unexpected => fail(s"Test failed with unexpected result - ${unexpected}")
       }
     }
@@ -131,7 +131,7 @@ class JWESpec extends SCRSSpec with JweFixture {
       jwe.setPayload("""{xxx""")
       val jweToken = jwe.getCompactSerialization
 
-      JweWithTestKey.decrypt[JsValue](jweToken) shouldBe Failure(PayloadError)
+      JweWithTestKey.decrypt[JsValue](jweToken) mustBe Failure(PayloadError)
 
     }
 
@@ -140,7 +140,7 @@ class JWESpec extends SCRSSpec with JweFixture {
       jwe.setPayload("""{"a":"b"}""")
       val jweToken = jwe.getCompactSerialization
 
-      JweWithTestKey.decrypt[JweTestModel](jweToken) shouldBe Failure(PayloadError)
+      JweWithTestKey.decrypt[JweTestModel](jweToken) mustBe Failure(PayloadError)
     }
 
     "fail when decrypting a payload with the wrong key" in {
@@ -151,12 +151,12 @@ class JWESpec extends SCRSSpec with JweFixture {
 
       testJwe.encrypt(Json.parse("""{"x":"foo", "y":"bar"}"""))
 
-      JweWithTestKey.decrypt[JweTestModel]("") shouldBe Failure(DecryptionError)
+      JweWithTestKey.decrypt[JweTestModel]("") mustBe Failure(DecryptionError)
     }
 
     "fail when decrypting a payload with the right key" in {
 
-      JweWithTestKey.decrypt[JweTestModel]("test123") shouldBe Failure(DecryptionError)
+      JweWithTestKey.decrypt[JweTestModel]("test123") mustBe Failure(DecryptionError)
     }
   }
 }

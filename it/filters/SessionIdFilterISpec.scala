@@ -41,8 +41,8 @@ class SessionIdFilterISpec extends IntegrationSpecBase
         .withHeaders(HeaderNames.COOKIE -> getSessionCookie(sessionId = invalidSessionId))
         .get())
 
-      response.status shouldBe 303
-      response.header(HeaderNames.LOCATION) shouldBe Some(controllers.reg.routes.SignInOutController.postSignIn(None).url)
+      response.status mustBe 303
+      response.header(HeaderNames.LOCATION) mustBe Some(controllers.reg.routes.SignInOutController.postSignIn(None).url)
     }
 
     "successfully load the page when a valid session id exists" in {
@@ -52,10 +52,10 @@ class SessionIdFilterISpec extends IntegrationSpecBase
         .withHeaders(HeaderNames.COOKIE -> getSessionCookie())
         .get())
 
-      response.status shouldBe 200
+      response.status mustBe 200
 
       val document = Jsoup.parse(response.body)
-      document.title should include(messages("page.reg.returningUser.title"))
+      document.title must include(messages("page.reg.returningUser.title"))
     }
   }
 }

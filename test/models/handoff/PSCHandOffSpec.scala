@@ -25,22 +25,22 @@ class PSCHandOffSpec extends UnitSpec{
 
   "formatTaxRef" should {
     "handle Some(empty string)" in {
-      PSCHandOff.formatTaxRef(Some("")) shouldBe Some("")
+      PSCHandOff.formatTaxRef(Some("")) mustBe Some("")
     }
     "handle None" in {
-      PSCHandOff.formatTaxRef(None) shouldBe None
+      PSCHandOff.formatTaxRef(None) mustBe None
     }
     "handle exactly 3 chars and not hash them out" in {
-      PSCHandOff.formatTaxRef(Some("123")) shouldBe Some("123")
+      PSCHandOff.formatTaxRef(Some("123")) mustBe Some("123")
     }
     "handle  4 chars and not hash them out" in {
-      PSCHandOff.formatTaxRef(Some("1234")) shouldBe Some("*234")
+      PSCHandOff.formatTaxRef(Some("1234")) mustBe Some("*234")
     }
     "handle a random amount of chars and not hash them out" in {
-      PSCHandOff.formatTaxRef(Some("ABC12345678910")) shouldBe Some("***********910")
+      PSCHandOff.formatTaxRef(Some("ABC12345678910")) mustBe Some("***********910")
     }
     "handle spaces and not hash them out" in {
-      PSCHandOff.formatTaxRef(Some(" 123")) shouldBe Some("*123")
+      PSCHandOff.formatTaxRef(Some(" 123")) mustBe Some("*123")
     }
   }
   "writes of PSC handOff" should {
@@ -57,7 +57,7 @@ class PSCHandOffSpec extends UnitSpec{
       ),Some(JumpLinksForGroups("loss", Some("parentadd"),Some("parentname"),Some("parenttax"))))
 
       val res = Json.toJson(validfullModel)(PSCHandOff.writes)
-      res shouldBe Json.parse(
+      res mustBe Json.parse(
         """{"user_id":"foo","journey_id":"bar",
           |"hmrc":{"foo":"wizz"},
           |"another_company_own_shares":true,
@@ -77,7 +77,7 @@ class PSCHandOffSpec extends UnitSpec{
         None,
         None,
         None)
-      Json.toJson(validfullModel)(PSCHandOff.writes) shouldBe Json.parse(
+      Json.toJson(validfullModel)(PSCHandOff.writes) mustBe Json.parse(
         """{"user_id":"foo","journey_id":"bar","hmrc":{"foo":"wizz"},
           |"another_company_own_shares":false,"ch":{"ch":"bar"},"links":{"forward":"for","reverse":"rev"}} """.stripMargin)
     }
@@ -93,7 +93,7 @@ class PSCHandOffSpec extends UnitSpec{
         None,Some(JumpLinksForGroups("loss",None,None,None)))
 
       val res = Json.toJson(validfullModel)(PSCHandOff.writes)
-      res shouldBe Json.parse("""{"user_id":"foo","journey_id":"bar","hmrc":{"foo":"wizz"},"another_company_own_shares":true,"ch":{"ch":"bar"},"links":{"forward":"for","reverse":"rev","loss_relief_group":"loss"},"loss_relief_group":false}""")
+      res mustBe Json.parse("""{"user_id":"foo","journey_id":"bar","hmrc":{"foo":"wizz"},"another_company_own_shares":true,"ch":{"ch":"bar"},"links":{"forward":"for","reverse":"rev","loss_relief_group":"loss"},"loss_relief_group":false}""")
     }
     "write with no country or postcode in address and no tax reference" in {
       val validfullModel = PSCHandOff(
@@ -107,7 +107,7 @@ class PSCHandOffSpec extends UnitSpec{
         Some(ParentCompany("name",NewAddress("1","2",Some("3"),Some("4"),None,None,None),None)
         ),Some(JumpLinksForGroups("loss", Some("parentadd"),Some("parentname"),Some("parenttax"))))
 
-      Json.toJson(validfullModel)(PSCHandOff.writes) shouldBe Json.parse(
+      Json.toJson(validfullModel)(PSCHandOff.writes) mustBe Json.parse(
         """
           |{"user_id":"foo","journey_id":"bar",
           |"hmrc":{"foo":"wizz"},

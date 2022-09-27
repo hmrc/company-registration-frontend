@@ -36,7 +36,7 @@ class HealthCheckControllerSpec extends SCRSSpec with GuiceOneAppPerSuite {
   "calling any route" should {
     "return OK" when {
       "checking health" in new Setup() {
-        status(controller.checkHealth()(FakeRequest())) shouldBe 200
+        status(controller.checkHealth()(FakeRequest())) mustBe 200
       }
     }
   }

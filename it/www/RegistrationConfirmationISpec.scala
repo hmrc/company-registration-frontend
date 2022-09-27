@@ -16,22 +16,18 @@
 
 package www
 
-import java.util.UUID
-
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, stubFor, urlMatching}
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
-import config.AppConfig
 import itutil.{IntegrationSpecBase, LoginStub}
 import models.RegistrationConfirmationPayload
 import models.handoff.{HandOffNavModel, NavLinks, Receiver, Sender}
 import play.api.http.HeaderNames
 import play.api.libs.crypto.DefaultCookieSigner
 import play.api.libs.json.{JsObject, Json}
-import play.modules.reactivemongo.ReactiveMongoComponent
-import repositories.NavModelRepo
+import repositories.NavModelRepoImpl
 import utils.JweCommon
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import java.util.UUID
 
 class RegistrationConfirmationISpec extends IntegrationSpecBase with LoginStub {
 
@@ -42,12 +38,8 @@ class RegistrationConfirmationISpec extends IntegrationSpecBase with LoginStub {
   lazy val defaultCookieSigner: DefaultCookieSigner = app.injector.instanceOf[DefaultCookieSigner]
 
   class Setup {
-    val rc = app.injector.instanceOf[ReactiveMongoComponent]
-    val repo = new NavModelRepo {
-      override val mongo: ReactiveMongoComponent = rc
-      override val appConfig: AppConfig = app.injector.instanceOf[AppConfig]
-    }
-    await(repo.repository.ensureIndexes)
+    val repo = app.injector.instanceOf[NavModelRepoImpl].repository
+    await(repo.ensureIndexes)
   }
 
   def confirmationEncryptedRequest(encrypted: String) = s"/registration-confirmation?request=$encrypted"
@@ -162,7 +154,7 @@ class RegistrationConfirmationISpec extends IntegrationSpecBase with LoginStub {
       val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
 
       stubKeystore(SessionId, regId)
-      await(repo.repository.insertNavModel(regId, handOffNavModel))
+      await(repo.insertNavModel(regId, handOffNavModel))
 
       val crResponse =
         s"""
@@ -182,9 +174,9 @@ class RegistrationConfirmationISpec extends IntegrationSpecBase with LoginStub {
       val decryptedHandoffJson = app.injector.instanceOf[JweCommon].decrypt[JsObject](encryptedHandOffString).get
 
 
-      response.status shouldBe 303
-      response.header(HeaderNames.LOCATION).get should include("/link-to-before-you-pay-coho")
-      decryptedHandoffJson shouldBe forwardPayloadJson
+      response.status mustBe 303
+      response.header(HeaderNames.LOCATION).get must include("/link-to-before-you-pay-coho")
+      decryptedHandoffJson mustBe forwardPayloadJson
     }
 
     "redirect with the same ch data that was recieved" in new Setup {
@@ -212,7 +204,7 @@ class RegistrationConfirmationISpec extends IntegrationSpecBase with LoginStub {
       val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
 
       stubKeystore(SessionId, regId)
-      await(repo.repository.insertNavModel(regId, handOffNavModel))
+      await(repo.insertNavModel(regId, handOffNavModel))
 
       val crResponse =
         s"""
@@ -231,9 +223,9 @@ class RegistrationConfirmationISpec extends IntegrationSpecBase with LoginStub {
       val encryptedHandOffString = response.header(HeaderNames.LOCATION).get.split("request=").takeRight(1)(0)
       val decryptedHandoffJson = app.injector.instanceOf[JweCommon].decrypt[JsObject](encryptedHandOffString).get
 
-      response.status shouldBe 303
-      response.header(HeaderNames.LOCATION).get should include("/link-to-before-you-pay-coho")
-      decryptedHandoffJson shouldBe forwardPayloadWithChJson
+      response.status mustBe 303
+      response.header(HeaderNames.LOCATION).get must include("/link-to-before-you-pay-coho")
+      decryptedHandoffJson mustBe forwardPayloadWithChJson
     }
 
     "redirect to the forward url if there is a 502 on submission" in new Setup {
@@ -249,7 +241,7 @@ class RegistrationConfirmationISpec extends IntegrationSpecBase with LoginStub {
       val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
 
       stubKeystore(SessionId, regId)
-      await(repo.repository.insertNavModel(regId, handOffNavModel))
+      await(repo.insertNavModel(regId, handOffNavModel))
 
       val crResponse =
         s"""
@@ -268,9 +260,9 @@ class RegistrationConfirmationISpec extends IntegrationSpecBase with LoginStub {
       val encryptedHandOffString = response.header(HeaderNames.LOCATION).get.split("request=").takeRight(1)(0)
       val decryptedHandoffJson = app.injector.instanceOf[JweCommon].decrypt[JsObject](encryptedHandOffString).get
 
-      response.status shouldBe 303
-      response.header(HeaderNames.LOCATION).get should include("/link-to-before-you-pay-coho")
-      decryptedHandoffJson shouldBe forwardPayloadJson
+      response.status mustBe 303
+      response.header(HeaderNames.LOCATION).get must include("/link-to-before-you-pay-coho")
+      decryptedHandoffJson mustBe forwardPayloadJson
     }
 
     "redirect to the forward url if there is 403 on submission" in new Setup {
@@ -286,7 +278,7 @@ class RegistrationConfirmationISpec extends IntegrationSpecBase with LoginStub {
       val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
 
       stubKeystore(SessionId, regId)
-      await(repo.repository.insertNavModel(regId, handOffNavModel))
+      await(repo.insertNavModel(regId, handOffNavModel))
 
       val crResponse =
         s"""
@@ -305,9 +297,9 @@ class RegistrationConfirmationISpec extends IntegrationSpecBase with LoginStub {
       val encryptedHandOffString = response.header(HeaderNames.LOCATION).get.split("request=").takeRight(1)(0)
       val decryptedHandoffJson = app.injector.instanceOf[JweCommon].decrypt[JsObject](encryptedHandOffString).get
 
-      response.status shouldBe 303
-      response.header(HeaderNames.LOCATION).get should include("/link-to-before-you-pay-coho")
-      decryptedHandoffJson shouldBe forwardPayloadJson
+      response.status mustBe 303
+      response.header(HeaderNames.LOCATION).get must include("/link-to-before-you-pay-coho")
+      decryptedHandoffJson mustBe forwardPayloadJson
     }
   }
 
@@ -333,8 +325,8 @@ class RegistrationConfirmationISpec extends IntegrationSpecBase with LoginStub {
 
       val response = await(client("/registration-confirmation?request=xxx").get())
 
-      response.status shouldBe 303
-      response.header(HeaderNames.LOCATION).get should include("/sign-in-complete-application")
+      response.status mustBe 303
+      response.header(HeaderNames.LOCATION).get must include("/sign-in-complete-application")
     }
 
     "updating confirmation references successfully should return the application submitted page" in new Setup {
@@ -345,7 +337,7 @@ class RegistrationConfirmationISpec extends IntegrationSpecBase with LoginStub {
       val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
 
       stubKeystore(SessionId, regId)
-      await(repo.repository.insertNavModel(regId, handOffNavModel))
+      await(repo.insertNavModel(regId, handOffNavModel))
 
       val crResponse =
         s"""
@@ -362,8 +354,8 @@ class RegistrationConfirmationISpec extends IntegrationSpecBase with LoginStub {
         get()
 
       val response = await(fResponse)
-      response.status shouldBe 303
-      response.header(HeaderNames.LOCATION).get should include("/register-your-company/application-submitted")
+      response.status mustBe 303
+      response.header(HeaderNames.LOCATION).get must include("/register-your-company/application-submitted")
     }
 
     "updating confirmation references with 502 should return a retry page" in new Setup {
@@ -375,7 +367,7 @@ class RegistrationConfirmationISpec extends IntegrationSpecBase with LoginStub {
       val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
 
       stubKeystore(SessionId, regId)
-      await(repo.repository.insertNavModel(regId, handOffNavModel))
+      await(repo.insertNavModel(regId, handOffNavModel))
       stubPut(s"/company-registration/corporation-tax-registration/$regId/confirmation-references", 502, "")
 
       val fResponse = client(confirmationEncryptedRequest(encryptedPayload.get)).
@@ -383,8 +375,8 @@ class RegistrationConfirmationISpec extends IntegrationSpecBase with LoginStub {
         get()
 
       val response = await(fResponse)
-      response.status shouldBe 303
-      response.header(HeaderNames.LOCATION).get should include("/register-your-company/application-submitted")
+      response.status mustBe 303
+      response.header(HeaderNames.LOCATION).get must include("/register-your-company/application-submitted")
     }
 
     "updating confirmation references with 403 should return a deskpro page" in new Setup {
@@ -396,7 +388,7 @@ class RegistrationConfirmationISpec extends IntegrationSpecBase with LoginStub {
       val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
 
       stubKeystore(SessionId, regId)
-      await(repo.repository.insertNavModel(regId, handOffNavModel))
+      await(repo.insertNavModel(regId, handOffNavModel))
       stubPut(s"/company-registration/corporation-tax-registration/$regId/confirmation-references", 403, "")
 
       val fResponse = client(confirmationEncryptedRequest(encryptedPayload.get)).
@@ -404,8 +396,8 @@ class RegistrationConfirmationISpec extends IntegrationSpecBase with LoginStub {
         get()
 
       val response = await(fResponse)
-      response.status shouldBe 303
-      response.header(HeaderNames.LOCATION).get should include("/register-your-company/something-went-wrong")
+      response.status mustBe 303
+      response.header(HeaderNames.LOCATION).get must include("/register-your-company/something-went-wrong")
     }
   }
 }

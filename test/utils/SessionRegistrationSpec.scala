@@ -55,7 +55,7 @@ class SessionRegistrationSpec extends UnitSpec with CompanyRegistrationConnector
                 Future.successful(Results.Ok)
             }
             val response = await(result)
-            response.header.status shouldBe SEE_OTHER
+            response.header.status mustBe SEE_OTHER
         }
 
         "return an Ok status when there is a reg id in the session" in {
@@ -66,7 +66,7 @@ class SessionRegistrationSpec extends UnitSpec with CompanyRegistrationConnector
                 Future.successful(Results.Ok)
             }
             val response = await(result)
-            response.header.status shouldBe OK
+            response.header.status mustBe OK
         }
       "log an error if no reg id exists" in {
 
@@ -78,9 +78,9 @@ class SessionRegistrationSpec extends UnitSpec with CompanyRegistrationConnector
             Future.successful(Results.Ok)
           }
           val response = await(result)
-          response.header.status shouldBe SEE_OTHER
+          response.header.status mustBe SEE_OTHER
 
-           await(logEvents.filter(_.getLevel == Level.ERROR).loneElement.getMessage) should include(s"[SessionRegistration] [registered] returned None from keystore when fetching a registrationID")
+           await(logEvents.filter(_.getLevel == Level.ERROR).loneElement.getMessage) must include(s"[SessionRegistration] [registered] returned None from keystore when fetching a registrationID")
         }
       }
     }
@@ -93,7 +93,7 @@ class SessionRegistrationSpec extends UnitSpec with CompanyRegistrationConnector
             Future.successful(Results.Ok)}
 
         val response = await(result)
-        response.header.status shouldBe OK
+        response.header.status mustBe OK
 
     }
     "checkStatuses should return a 303 redirect to post sign in if status from ct matches seq of statuses" in {
@@ -104,7 +104,7 @@ class SessionRegistrationSpec extends UnitSpec with CompanyRegistrationConnector
             Future.successful(Results.Ok)}
 
         val response = await(result)
-        response.header.status shouldBe SEE_OTHER
+        response.header.status mustBe SEE_OTHER
 
     }
     "checkStatuses should return a 303 redirect to post sign in if status from ct matches seq of statuses passed in" in {
@@ -115,7 +115,7 @@ class SessionRegistrationSpec extends UnitSpec with CompanyRegistrationConnector
             Future.successful(Results.Ok), statuses = Seq("foo","bar"))
 
         val response = await(result)
-        response.header.status shouldBe SEE_OTHER
+        response.header.status mustBe SEE_OTHER
 
 
     }
@@ -127,7 +127,7 @@ class SessionRegistrationSpec extends UnitSpec with CompanyRegistrationConnector
             Future.successful(Results.Ok), statuses = Seq("foo","bar"))
 
         val response = await(result)
-        response.header.status shouldBe SEE_OTHER
+        response.header.status mustBe SEE_OTHER
 
 
     }
@@ -140,7 +140,7 @@ class SessionRegistrationSpec extends UnitSpec with CompanyRegistrationConnector
 
         val response = await(result)
 
-        response.header.status shouldBe OK
+        response.header.status mustBe OK
 
 
     }
@@ -150,8 +150,8 @@ class SessionRegistrationSpec extends UnitSpec with CompanyRegistrationConnector
         CTRegistrationConnectorMocks.retrieveCTRegistration(buildCorporationTaxModel(status = "foo"))
         val result = SessionRegistration.checkStatus(f = redirect =>
             Future.successful(Results.Ok))
-        status(result) shouldBe SEE_OTHER
-        redirectLocation(result) shouldBe Some(controllers.dashboard.routes.DashboardController.show.toString)
+        status(result) mustBe SEE_OTHER
+        redirectLocation(result) mustBe Some(controllers.dashboard.routes.DashboardController.show.toString)
     }
 
     "checkStatus should redirect to post-sign-in if status is locked" in {
@@ -160,7 +160,7 @@ class SessionRegistrationSpec extends UnitSpec with CompanyRegistrationConnector
         val result = SessionRegistration.checkStatus(f = redirect =>
             Future.successful(Results.Ok))
 
-        status(result) shouldBe SEE_OTHER
-        redirectLocation(result) shouldBe Some(controllers.reg.routes.SignInOutController.postSignIn(None).toString)
+        status(result) mustBe SEE_OTHER
+        redirectLocation(result) mustBe Some(controllers.reg.routes.SignInOutController.postSignIn(None).toString)
     }
 }

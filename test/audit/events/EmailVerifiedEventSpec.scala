@@ -52,8 +52,8 @@ class EmailVerifiedEventSpec extends UnitSpec {
           )
 
         val result = Json.toJson[EmailVerifiedEventDetail](testModel)
-        result.getClass shouldBe classOf[JsObject]
-        result shouldBe Json.parse(sample)
+        result.getClass mustBe classOf[JsObject]
+        result mustBe Json.parse(sample)
       }
     }
   }
@@ -78,9 +78,9 @@ class EmailVerifiedEventSpec extends UnitSpec {
         val auditEvent = new EmailVerifiedEvent(testModel)(hc, req)
 
         val result = Json.toJson[ExtendedDataEvent](auditEvent)
-        result.getClass shouldBe classOf[JsObject]
-        (result \ "auditSource").as[String] shouldBe "company-registration-frontend"
-        (result \ "auditType").as[String] shouldBe "emailVerified"
+        result.getClass mustBe classOf[JsObject]
+        (result \ "auditSource").as[String] mustBe "company-registration-frontend"
+        (result \ "auditType").as[String] mustBe "emailVerified"
       }
     }
   }

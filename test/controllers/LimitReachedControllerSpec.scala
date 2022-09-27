@@ -50,7 +50,7 @@ class LimitReachedControllerSpec extends UnitSpec with SCRSSpec with AuthBuilder
 
   "LimitReachedController" should {
     "use the correct coho Url" in new Setup {
-      controller.cohoUrl shouldBe "testGGUrl"
+      controller.cohoUrl mustBe "testGGUrl"
     }
   }
 
@@ -58,15 +58,15 @@ class LimitReachedControllerSpec extends UnitSpec with SCRSSpec with AuthBuilder
     "return a 200" in new Setup {
       showWithAuthorisedUser(controller.show) {
         result =>
-          status(result) shouldBe OK
+          status(result) mustBe OK
       }
     }
 
     "Sending a POST request to LimitReachedController" should {
       "return a 303" in new Setup {
         val result = controller.submit(FakeRequest())
-        status(result) shouldBe SEE_OTHER
-        redirectLocation(result) shouldBe Some(controller.cohoUrl)
+        status(result) mustBe SEE_OTHER
+        redirectLocation(result) mustBe Some(controller.cohoUrl)
       }
     }
   }

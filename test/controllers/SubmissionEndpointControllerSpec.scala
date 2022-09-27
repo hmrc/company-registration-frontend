@@ -59,7 +59,7 @@ class SubmissionEndpointControllerSpec extends SCRSSpec with SCRSFixtures with G
       showWithAuthorisedUserRetrieval(controller.getAllS4LEntries, internalID) {
 
         result =>
-          status(result) shouldBe OK
+          status(result) mustBe OK
       }
     }
     "Also return a 200 when handback contains no payload" in new Setup {
@@ -69,7 +69,7 @@ class SubmissionEndpointControllerSpec extends SCRSSpec with SCRSFixtures with G
       showWithAuthorisedUserRetrieval(controller.getAllS4LEntries, internalID) {
 
         result =>
-          status(result) shouldBe OK
+          status(result) mustBe OK
       }
     }
   }

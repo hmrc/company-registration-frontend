@@ -96,7 +96,7 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
 
       val result = await(service.buildBusinessActivitiesPayload(registrationID, externalID))
 
-      result.get._1 shouldBe "SIC codes"
+      result.get._1 mustBe "SIC codes"
 
       val address = HandoffPPOB.fromCorePPOB(validCompanyDetailsResponseDifferentAddresses.pPOBAddress)
       val model = BusinessActivitiesModel(
@@ -107,7 +107,7 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
         Json.parse("""{}""").as[JsObject],
         NavLinks("summary", "regularPayments"))
 
-      testJwe.decrypt[BusinessActivitiesModel](result.get._2).get shouldBe model
+      testJwe.decrypt[BusinessActivitiesModel](result.get._2).get mustBe model
     }
   }
 
@@ -126,9 +126,9 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
       when(mockSCRSFeatureSwitches.legacyEnv).thenReturn(BooleanFeatureSwitch("foo", false))
       when(mockSCRSFeatureSwitches.cohoFirstHandOff).thenReturn(BooleanFeatureSwitch("foo", false))
       val result = await(service.companyNamePayload("testRegID", "testemail", "testname", externalID))
-      result.get._1 shouldBe "http://localhost:9986/incorporation-frontend-stubs/basic-company-details"
+      result.get._1 mustBe "http://localhost:9986/incorporation-frontend-stubs/basic-company-details"
       val decrypted = testJwe.decrypt[BusinessActivitiesModel](result.get._2)
-      decrypted.get shouldBe BusinessActivitiesModel(
+      decrypted.get mustBe BusinessActivitiesModel(
         "testExternalID",
         "testRegID",
         None, None,
@@ -160,9 +160,9 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
       mockGetNavModel(Some(validNavModelForThisFunction))
 
       val result = await(service.buildPSCPayload("12345", "12", None))
-      result.get._1 shouldBe "PSCStubPage"
+      result.get._1 mustBe "PSCStubPage"
       val decrypted = testJwe.decrypt[JsObject](result.get._2)
-      decrypted.get shouldBe Json.parse(
+      decrypted.get mustBe Json.parse(
         """{
           |"user_id":"12","journey_id":"12345","hmrc":{},"another_company_own_shares":false,
           |"ch":{"foo":"bar"},
@@ -175,9 +175,9 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
       mockGetNavModel(Some(validNavModelForThisFunction))
 
       val result = await(service.buildPSCPayload("12345", "12", Some(groups)))
-      result.get._1 shouldBe "PSCStubPage"
+      result.get._1 mustBe "PSCStubPage"
       val decrypted = testJwe.decrypt[JsObject](result.get._2)
-      decrypted.get shouldBe Json.parse(
+      decrypted.get mustBe Json.parse(
         """
           |{"user_id":"12","journey_id":"12345","hmrc":{},"another_company_own_shares":true,"ch":{"foo":"bar"},"parent_company":{"name":"foo","address":{"address_line_1":"1 abc","address_line_2":"2 abc","address_line_3":"3 abc","address_line_4":"4 abc","country":"country A","postal_code":"ZZ1 1ZZ"},"tax_reference":"*******890"},"links":{"forward":"SenderUrlToSummary","reverse":"http://localhost:9970/register-your-company/groups-back-handback","loss_relief_group":"http://localhost:9970/register-your-company/group-relief","parent_address":"http://localhost:9970/register-your-company/owning-companys-address","parent_company_name":"http://localhost:9970/register-your-company/owning-companys-name","parent_tax_reference":"http://localhost:9970/register-your-company/owning-companys-utr"},"loss_relief_group":true} """.stripMargin)
     }
@@ -187,9 +187,9 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
       mockGetNavModel(Some(validNavModelForThisFunction))
 
       val result = await(service.buildPSCPayload("12345", "12", Some(Groups(false, None, None, None))))
-      result.get._1 shouldBe "PSCStubPage"
+      result.get._1 mustBe "PSCStubPage"
       val decrypted = testJwe.decrypt[JsObject](result.get._2)
-      decrypted.get shouldBe Json.parse(
+      decrypted.get mustBe Json.parse(
         """{"user_id":"12","journey_id":"12345","hmrc":{},"another_company_own_shares":true,"ch":{"foo":"bar"},"links":{"forward":"SenderUrlToSummary","reverse":"http://localhost:9970/register-your-company/groups-back-handback","loss_relief_group":"http://localhost:9970/register-your-company/group-relief"},"loss_relief_group":false}""".stripMargin)
     }
     "throw exception if groups block incomplete" in new Setup {
@@ -237,7 +237,7 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
 
   "renewSessionObject" should {
     "return a jsObject" in new Setup {
-      service.renewSessionObject shouldBe JsObject(Map(
+      service.renewSessionObject mustBe JsObject(Map(
         "timeout" -> Json.toJson(service.timeout - service.timeoutDisplayLength),
         "keepalive_url" -> Json.toJson(s"http://localhost:9970${controllers.reg.routes.SignInOutController.renewSession.url}"),
         "signedout_url" -> Json.toJson(s"http://localhost:9970${controllers.reg.routes.SignInOutController.destroySession.url}")))
@@ -257,16 +257,16 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
         "company_jurisdiction" -> testJump.company_jurisdiction
       )
 
-      testJsLinks.as[NavLinks] shouldBe testNav
+      testJsLinks.as[NavLinks] mustBe testNav
 
-      testJsLinks.as[NavLinks].forward shouldBe "testForward"
-      testJsLinks.as[NavLinks].reverse shouldBe "testBackward"
+      testJsLinks.as[NavLinks].forward mustBe "testForward"
+      testJsLinks.as[NavLinks].reverse mustBe "testBackward"
 
-      testJsLinks.as[JumpLinks] shouldBe testJump
+      testJsLinks.as[JumpLinks] mustBe testJump
 
-      testJsLinks.as[JumpLinks].company_name shouldBe "testCName"
-      testJsLinks.as[JumpLinks].company_address shouldBe "testCAddr"
-      testJsLinks.as[JumpLinks].company_jurisdiction shouldBe "testCJuri"
+      testJsLinks.as[JumpLinks].company_name mustBe "testCName"
+      testJsLinks.as[JumpLinks].company_address mustBe "testCAddr"
+      testJsLinks.as[JumpLinks].company_jurisdiction mustBe "testCJuri"
     }
   }
 
@@ -277,10 +277,10 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
 
       val result = service.buildLinksObject(testNav, None)
 
-      result shouldBe testNavObj
+      result mustBe testNavObj
 
-      result.as[NavLinks].forward shouldBe "testForward"
-      result.as[NavLinks].reverse shouldBe "testReverse"
+      result.as[NavLinks].forward mustBe "testForward"
+      result.as[NavLinks].reverse mustBe "testReverse"
     }
 
     "build a JSObject with both nav and jump links" in new Setup {
@@ -296,46 +296,46 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
 
       val result = service.buildLinksObject(testNav, Some(testJump))
 
-      result shouldBe testNavObj
+      result mustBe testNavObj
 
-      result.as[NavLinks].forward shouldBe "testForward"
-      result.as[NavLinks].reverse shouldBe "testReverse"
+      result.as[NavLinks].forward mustBe "testForward"
+      result.as[NavLinks].reverse mustBe "testReverse"
 
-      result.as[JumpLinks].company_name shouldBe "testCompanyName"
-      result.as[JumpLinks].company_address shouldBe "testCompanyAddress"
-      result.as[JumpLinks].company_jurisdiction shouldBe "testCompanyJurisdiction"
+      result.as[JumpLinks].company_name mustBe "testCompanyName"
+      result.as[JumpLinks].company_address mustBe "testCompanyAddress"
+      result.as[JumpLinks].company_jurisdiction mustBe "testCompanyJurisdiction"
     }
   }
 
   "buildHandOffUrl" should {
     "return a link that appends ?request=<PAYLOAD> if url doesn't contain ? OR &" in new Setup {
       val url = service.buildHandOffUrl("testUrl", "payload")
-      url shouldBe "testUrl?request=payload"
+      url mustBe "testUrl?request=payload"
     }
 
     "return a link that appends &request=<PAYLOAD> if url has ? AND does not end with &" in new Setup {
       val url = service.buildHandOffUrl("testUrl?query=parameter", "payload")
-      url shouldBe "testUrl?query=parameter&request=payload"
+      url mustBe "testUrl?query=parameter&request=payload"
     }
 
     "return a link that appends request=<PAYLOAD> if url contains ? AND ends with &" in new Setup {
       val url = service.buildHandOffUrl("testUrl?query=parameter&", "testPayload")
-      url shouldBe "testUrl?query=parameter&request=testPayload"
+      url mustBe "testUrl?query=parameter&request=testPayload"
     }
 
     "return a link appends request=<PAYLOAD> if the FINAL char is ?" in new Setup {
       val url = service.buildHandOffUrl("testUrl?", "payload")
-      url shouldBe "testUrl?request=payload"
+      url mustBe "testUrl?request=payload"
     }
 
     "return a link that appends only the payload if url ENDS with ?request=" in new Setup {
       val url = service.buildHandOffUrl("testUrl?request=", "payload")
-      url shouldBe "testUrl?request=payload"
+      url mustBe "testUrl?request=payload"
     }
 
     "return a link that appends only the payload if url has a param and ENDS with request=" in new Setup {
       val url = service.buildHandOffUrl("testUrl?query=param&request=", "payload")
-      url shouldBe "testUrl?query=param&request=payload"
+      url mustBe "testUrl?query=param&request=payload"
     }
   }
 
@@ -368,11 +368,11 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
 
       val result = await(service.buildBackHandOff(externalID))
 
-      result.user_id shouldBe "testExternalID"
-      result.journey_id shouldBe "12345"
-      result.ch shouldBe handOffNavModel.receiver.chData.get
-      result.hmrc shouldBe Json.obj()
-      result.links shouldBe Json.obj()
+      result.user_id mustBe "testExternalID"
+      result.journey_id mustBe "12345"
+      result.ch mustBe handOffNavModel.receiver.chData.get
+      result.hmrc mustBe Json.obj()
+      result.links mustBe Json.obj()
     }
   }
 
@@ -410,9 +410,9 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
 
       val result = await(service.summaryHandOff(externalID)).get
 
-      result._1 shouldBe "testForwardLinkFromReceiver4"
+      result._1 mustBe "testForwardLinkFromReceiver4"
       val decrypted = testJwe.decrypt[BusinessActivitiesModel](result._2)
-      decrypted.get shouldBe BusinessActivitiesModel(
+      decrypted.get mustBe BusinessActivitiesModel(
         "testExternalID",
         "12345",
         None,
@@ -424,13 +424,13 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
   "groupsCheckerForPSCHandOff" should {
     "return None if None passed in" in new Setup {
       val res = service.groupsCheckerForPSCHandOff(None)
-      res shouldBe None
+      res mustBe None
     }
     "return Some of groups if group relief is false and a random block exists" in new Setup {
       val res = service.groupsCheckerForPSCHandOff(Some(Groups(false, nameOfCompany = Some(GroupCompanyName("foo", "Other")),
         addressAndType = Some(GroupsAddressAndType("ALF", NewAddress("1 abc", "2 abc", Some("3 abc"), Some("4 abc"), Some("country A"), Some("ZZ1 1ZZ")))),
         groupUTR = Some(GroupUTR(Some("1234567890"))))))
-      res shouldBe Some(Groups(false, None, None, None))
+      res mustBe Some(Groups(false, None, None, None))
     }
     "return exception when of groups if group relief is true and a random blocks DONT exist" in new Setup {
       intercept[Exception](service.groupsCheckerForPSCHandOff(Some(Groups(true, None, None, Some(GroupUTR(Some("foooo")))))))
@@ -441,13 +441,13 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
         addressAndType = Some(GroupsAddressAndType("ALF", NewAddress("1 abc", "2 abc", Some("3 abc"), Some("4 abc"), Some("country A"), Some("ZZ1 1ZZ")))),
         groupUTR = Some(GroupUTR(Some("1234567890"))))
       val res = service.groupsCheckerForPSCHandOff(Some(goodGroups))
-      res.get shouldBe goodGroups
+      res.get mustBe goodGroups
     }
   }
   "buildTheStaticJumpLinksForGroupsBasedOnGroupsData" should {
     "return a list of jump links for Group block with true as loss relief" in new Setup {
       val res = service.buildTheStaticJumpLinksForGroupsBasedOnGroupsData(Some(Groups(true, None, None, None)))
-      res.get shouldBe JumpLinksForGroups(
+      res.get mustBe JumpLinksForGroups(
         "http://localhost:9970/register-your-company/group-relief",
         Some("http://localhost:9970/register-your-company/owning-companys-address"),
         Some("http://localhost:9970/register-your-company/owning-companys-name"),
@@ -455,7 +455,7 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
     }
     "return a 1 jump links for Group block with false as loss relief" in new Setup {
       val res = service.buildTheStaticJumpLinksForGroupsBasedOnGroupsData(Some(Groups(false, None, None, None)))
-      res.get shouldBe JumpLinksForGroups(
+      res.get mustBe JumpLinksForGroups(
         "http://localhost:9970/register-your-company/group-relief",
         None,
         None,
@@ -463,19 +463,19 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
     }
     "return None if None is passed in" in new Setup {
       val res = service.buildTheStaticJumpLinksForGroupsBasedOnGroupsData(None)
-      res shouldBe None
+      res mustBe None
     }
   }
   "buildParentCompanyNameOutOfGroups" should {
     "return None if group relief is false" in new Setup {
-      service.buildParentCompanyNameOutOfGroups(Some(Groups(false, None, None, None))) shouldBe None
+      service.buildParentCompanyNameOutOfGroups(Some(Groups(false, None, None, None))) mustBe None
     }
     "return ParentCompany name populated with groups data" in new Setup {
       val goodGroups = Groups(true,
         nameOfCompany = Some(GroupCompanyName("foo", "Other")),
         addressAndType = Some(GroupsAddressAndType("ALF", NewAddress("1 abc", "2 abc", Some("3 abc"), Some("4 abc"), Some("country A"), Some("ZZ1 1ZZ")))),
         groupUTR = Some(GroupUTR(Some("1234567890"))))
-      service.buildParentCompanyNameOutOfGroups(Some(goodGroups)) shouldBe Some(
+      service.buildParentCompanyNameOutOfGroups(Some(goodGroups)) mustBe Some(
         ParentCompany(
           "foo",
           NewAddress("1 abc", "2 abc", Some("3 abc"), Some("4 abc"), Some("country A"), Some("ZZ1 1ZZ")),

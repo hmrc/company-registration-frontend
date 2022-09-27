@@ -143,7 +143,7 @@ class AddressLookupConfigBuilderServiceSpec()(implicit messagesProvider: Message
         )
       )
 
-      result shouldBe expectedConfig
+      result mustBe expectedConfig
 
     }
   }

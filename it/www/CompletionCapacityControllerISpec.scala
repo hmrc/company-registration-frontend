@@ -65,10 +65,10 @@ class CompletionCapacityControllerISpec extends IntegrationSpecBase with LoginSt
       val response = await(buildClient(controllers.reg.routes.CompletionCapacityController.show.url)
         .withHeaders(HeaderNames.COOKIE -> sessionCookie)
         .get())
-      response.status shouldBe 200
+      response.status mustBe 200
 
       val doc = Jsoup.parse(response.body)
-      doc.getElementById("completionCapacity").attr("value") shouldBe "director"
+      doc.getElementById("completionCapacity").attr("value") mustBe "director"
     }
   }
 
@@ -86,8 +86,8 @@ class CompletionCapacityControllerISpec extends IntegrationSpecBase with LoginSt
         Map("csrfToken" -> Seq("xxx-ignored-xxx"), "completionCapacity" -> Seq("director"), "completionCapacityOther" -> Seq("")))
       )
 
-      response.status shouldBe 303
-      response.header(HeaderNames.LOCATION) shouldBe Some(controllers.handoff.routes.BasicCompanyDetailsController.basicCompanyDetails.url)
+      response.status mustBe 303
+      response.header(HeaderNames.LOCATION) mustBe Some(controllers.handoff.routes.BasicCompanyDetailsController.basicCompanyDetails.url)
     }
     "return 400 to the user and display the appropriate error messages" in {
       stubAuthorisation()
@@ -102,9 +102,9 @@ class CompletionCapacityControllerISpec extends IntegrationSpecBase with LoginSt
         Map("csrfToken" -> Seq("xxx-ignored-xxx"), "completionCapacity" -> Seq(""), "completionCapacityOther" -> Seq("bar")))
       )
 
-      response.status shouldBe 400
+      response.status mustBe 400
       val doc = Jsoup.parse(response.body)
-      Option(doc.getElementById("completionCapacity-error")).isDefined shouldBe true
+      Option(doc.getElementById("completionCapacity-error")).isDefined mustBe true
     }
   }
 }

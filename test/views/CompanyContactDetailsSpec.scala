@@ -92,10 +92,10 @@ class CompanyContactDetailsSpec extends SCRSSpec with CompanyContactDetailsFixtu
         result =>
           val document = Jsoup.parse(contentAsString(result))
 
-          document.title should include("Give us one or more ways to contact testCompanyname1")
-          document.select(Selectors.h1).text() shouldBe "Give us one or more ways to contact testCompanyname1"
+          document.title must include("Give us one or more ways to contact testCompanyname1")
+          document.select(Selectors.h1).text() mustBe "Give us one or more ways to contact testCompanyname1"
           intercept[Exception](document.getElementById("contactNameLabel").text())
-          document.getElementById("continue").text() shouldBe "Save and continue"
+          document.getElementById("continue").text() mustBe "Save and continue"
       }
     }
   }

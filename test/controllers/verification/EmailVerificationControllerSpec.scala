@@ -84,9 +84,9 @@ class EmailVerificationControllerSpec extends SCRSSpec with CompanyRegistrationC
     "redirect to sign-in when not logged in" in new Setup {
       showWithUnauthorisedUser(controller.verifyShow) {
         result =>
-          status(result) shouldBe 303
+          status(result) mustBe 303
           redirectLocation(result) map {
-            _ should include("/bas-gateway/sign-in")
+            _ must include("/bas-gateway/sign-in")
           }
       }
     }
@@ -101,10 +101,10 @@ class EmailVerificationControllerSpec extends SCRSSpec with CompanyRegistrationC
 
       showWithAuthorisedUser(controller.verifyShow)(
         result => {
-          status(result) shouldBe 200
+          status(result) mustBe 200
           val document = Jsoup.parse(contentAsString(result))
-          document.title should include("Confirm your email address")
-          document.select(Selectors.p(1)).text shouldBe email
+          document.title must include("Confirm your email address")
+          document.select(Selectors.p(1)).text mustBe email
         }
       )
     }
@@ -131,9 +131,9 @@ class EmailVerificationControllerSpec extends SCRSSpec with CompanyRegistrationC
 
       showWithAuthorisedUserRetrieval(controller.resendVerificationLink, authResult) {
         result =>
-          status(result) shouldBe 303
+          status(result) mustBe 303
           redirectLocation(result) map {
-            _ should include("/sent-an-email")
+            _ must include("/sent-an-email")
           }
       }
     }
@@ -142,10 +142,10 @@ class EmailVerificationControllerSpec extends SCRSSpec with CompanyRegistrationC
   "createShow" should {
     "go to create-account page" in new Setup {
       val result = await(controller.createShow(FakeRequest()))
-      status(result) shouldBe 200
+      status(result) mustBe 200
       val document = Jsoup.parse(contentAsString(result))
-      document.title should include("You need to create a new Government Gateway account")
-      document.select(Selectors.p(1)).text shouldBe "The Government Gateway account you signed in with doesn’t have an email address linked to it." +
+      document.title must include("You need to create a new Government Gateway account")
+      document.select(Selectors.p(1)).text mustBe "The Government Gateway account you signed in with doesn’t have an email address linked to it." +
         " You need to create a new Government Gateway account including your email address to use this service."
     }
   }
@@ -154,9 +154,9 @@ class EmailVerificationControllerSpec extends SCRSSpec with CompanyRegistrationC
     "go to incorrect-account-type page" in new Setup {
       val result = await(controller.createGGWAccountAffinityShow(FakeRequest()))
       val document = Jsoup.parse(contentAsString(result))
-      document.title should include("You’ve signed in with the wrong type of account")
-      document.selectFirst("h1").text shouldBe "You’ve signed in with the wrong type of account"
-      document.select(Selectors.p(1)).text should include("This service only works with Government Gateway accounts that have been set up for organisations.")
+      document.title must include("You’ve signed in with the wrong type of account")
+      document.selectFirst("h1").text mustBe "You’ve signed in with the wrong type of account"
+      document.select(Selectors.p(1)).text must include("This service only works with Government Gateway accounts that have been set up for organisations.")
     }
   }
 
@@ -165,24 +165,24 @@ class EmailVerificationControllerSpec extends SCRSSpec with CompanyRegistrationC
       val result = await(controller.createNewGGWAccountShow(FakeRequest()))
       bodyOf(result) contains "Create a new Government Gateway account"
       val document = Jsoup.parse(contentAsString(result))
-      document.title should include("You need to create a new Government Gateway account")
-      document.selectFirst("h1").text shouldBe "You need to create a new Government Gateway account"
-      document.select(Selectors.p(1)).text should include("already been used")
+      document.title must include("You need to create a new Government Gateway account")
+      document.selectFirst("h1").text mustBe "You need to create a new Government Gateway account"
+      document.select(Selectors.p(1)).text must include("already been used")
     }
   }
 
   "createSubmit" should {
     "redirect the user to the welcome page from create new account" in new Setup {
       val result = controller.createSubmit(FakeRequest())
-      status(result) shouldBe 303
-      redirectLocation(result) shouldBe Some("/register-your-company/setting-up-new-limited-company")
+      status(result) mustBe 303
+      redirectLocation(result) mustBe Some("/register-your-company/setting-up-new-limited-company")
     }
   }
 
   "createGGWAccountSubmit" should {
     "redirect the user to the sign-out page from create org account" in new Setup {
       val result = controller.createGGWAccountSubmit(FakeRequest())
-      redirectLocation(result) shouldBe Some("/register-your-company/sign-out")
+      redirectLocation(result) mustBe Some("/register-your-company/sign-out")
     }
   }
 

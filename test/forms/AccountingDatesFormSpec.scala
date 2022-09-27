@@ -79,7 +79,7 @@ class AccountingDatesFormSpec extends UnitSpec {
 
   "Creating a form using an empty model" should {
     "return an empty string for amount" in {
-      testForm().data.isEmpty shouldBe true
+      testForm().data.isEmpty mustBe true
     }
   }
 
@@ -87,7 +87,7 @@ class AccountingDatesFormSpec extends UnitSpec {
     "selecting when the CRN is received" should {
       val boundForm = testForm().bind(whenRegisteredData)
       "Have no errors" in {
-        boundForm.hasErrors shouldBe false
+        boundForm.hasErrors mustBe false
       }
     }
 
@@ -95,11 +95,11 @@ class AccountingDatesFormSpec extends UnitSpec {
 
       val boundForm = testForm().bind(futureDateData)
       "have no errors when a date further than 3 working days in the future is provided" in {
-        boundForm.hasErrors shouldBe false
+        boundForm.hasErrors mustBe false
       }
       val boundForm2 = testForm().bind(pastDateData)
       "have errors when a date less than than 3 working days in the future is provided" in {
-        boundForm2.hasErrors shouldBe true
+        boundForm2.hasErrors mustBe true
       }
     }
   }
@@ -108,14 +108,14 @@ class AccountingDatesFormSpec extends UnitSpec {
     "having no business start date flag" should {
       val boundForm = testForm().bind(invalidBusinessStartDateData)
       "have errors" in {
-        boundForm.errors.map(_.key) shouldBe List("businessStartDate")
+        boundForm.errors.map(_.key) mustBe List("businessStartDate")
       }
     }
 
     "entering an invalid date" should {
       val boundForm = testForm().bind(invalidDateData)
       "have errors" in {
-        boundForm.hasErrors shouldBe true
+        boundForm.hasErrors mustBe true
       }
     }
   }

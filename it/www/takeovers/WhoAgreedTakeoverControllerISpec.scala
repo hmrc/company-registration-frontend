@@ -57,7 +57,7 @@ class WhoAgreedTakeoverControllerISpec extends IntegrationSpecBase with LoginStu
         .withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
         .get())
 
-      res.status shouldBe OK
+      res.status mustBe OK
     }
     "display and prepop the page" in {
       stubAuthorisation()
@@ -69,8 +69,8 @@ class WhoAgreedTakeoverControllerISpec extends IntegrationSpecBase with LoginStu
         .withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
         .get())
 
-      res.status shouldBe OK
-      Jsoup.parse(res.body).getElementById("whoAgreedTakeover").attr("value") shouldBe testPreviousOwnersName
+      res.status mustBe OK
+      Jsoup.parse(res.body).getElementById("whoAgreedTakeover").attr("value") mustBe testPreviousOwnersName
     }
   }
 
@@ -87,8 +87,8 @@ class WhoAgreedTakeoverControllerISpec extends IntegrationSpecBase with LoginStu
         .post(Map(whoAgreedTakeoverKey -> Seq(testPreviousOwnersName)))
       )
 
-      res.status shouldBe SEE_OTHER
-      res.redirectLocation should contain(controllers.takeovers.routes.PreviousOwnersAddressController.show.url)
+      res.status mustBe SEE_OTHER
+      res.redirectLocation must contain(controllers.takeovers.routes.PreviousOwnersAddressController.show.url)
     }
   }
 }

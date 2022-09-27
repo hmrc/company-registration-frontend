@@ -48,23 +48,23 @@ class OtherBusinessNameViewSpec extends UnitSpec with GuiceOneAppPerSuite with I
     lazy val saveAndContinue = "Save and continue"
 
     s"have an expected title: $title" in {
-      doc.title should include(title)
+      doc.title must include(title)
     }
 
     s"have an expected heading: $heading" in {
-      doc.select(Selectors.h1).text shouldBe heading
+      doc.select(Selectors.h1).text mustBe heading
     }
 
     s"have an expected paragraph: $paragraph" in {
-      doc.select(Selectors.p(1)).text shouldBe paragraph
+      doc.select(Selectors.p(1)).text mustBe paragraph
     }
 
     s"have an expected input form: $inputField" in {
-      doc.selectFirst("label").text shouldBe inputField
+      doc.selectFirst("label").text mustBe inputField
     }
 
     s"have a $saveAndContinue button" in {
-      doc.select(Selectors.button).text() shouldBe saveAndContinue
+      doc.select(Selectors.button).text() mustBe saveAndContinue
     }
   }
 }

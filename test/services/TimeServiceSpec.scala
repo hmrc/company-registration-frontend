@@ -46,97 +46,97 @@ class TimeServiceSpec extends UnitSpec with MockitoSugar {
     // Before 2pm, no bank holiday
     "return true when a date 2 days away is supplied before 2pm and does not conflict with any bank holidays"in {
       val ts = timeServiceMock(LocalDateTime.of(2017, 1, 2, 12, 0), 14, List(bhDud))
-      ts.isDateSomeWorkingDaysInFuture(LocalDate.of(2017, 1, 5))(ts.bHS) shouldBe true
+      ts.isDateSomeWorkingDaysInFuture(LocalDate.of(2017, 1, 5))(ts.bHS) mustBe true
 
     }
 
     "return false when a date 1 day away is supplied before 2pm and does not conflict with any bank holidays"in {
       val ts = timeServiceMock(LocalDateTime.of(2017, 1, 2, 12, 0), 14, List(bhDud))
-        ts.isDateSomeWorkingDaysInFuture(LocalDate.of(2017, 1, 3))(ts.bHS) shouldBe false
+        ts.isDateSomeWorkingDaysInFuture(LocalDate.of(2017, 1, 3))(ts.bHS) mustBe false
     }
 
 
     // After 2pm, no bank holiday
     "return true when a date 3 days away is supplied after 2pm and does not conflict with any bank holidays"in {
       val ts = timeServiceMock(LocalDateTime.of(2017, 1, 2, 15, 0), 14, List(bhDud))
-        ts.isDateSomeWorkingDaysInFuture(LocalDate.of(2017, 1, 5))(ts.bHS) shouldBe true
+        ts.isDateSomeWorkingDaysInFuture(LocalDate.of(2017, 1, 5))(ts.bHS) mustBe true
     }
 
     "return false when a date 1 day away is supplied after 2pm and does not conflict with any bank holidays"in {
       val ts = timeServiceMock(LocalDateTime.of(2017, 1, 2, 15, 0), 14, List(bhDud))
-        ts.isDateSomeWorkingDaysInFuture(LocalDate.of(2017, 1, 3))(ts.bHS) shouldBe false
+        ts.isDateSomeWorkingDaysInFuture(LocalDate.of(2017, 1, 3))(ts.bHS) mustBe false
     }
 
 
     // Before 2pm, bank holiday
     "return true when a date 3 days away is supplied before 2pm and conflicts with one bank holiday" in {
       val ts = timeServiceMock(LocalDateTime.of(2017, 1, 2, 12, 0), 14, List(bh9th))
-        ts.isDateSomeWorkingDaysInFuture(LocalDate.of(2017, 1, 5))(ts.bHS) shouldBe true
+        ts.isDateSomeWorkingDaysInFuture(LocalDate.of(2017, 1, 5))(ts.bHS) mustBe true
     }
 
     "return false when a date 2 days away is supplied before 2pm and conflicts with one bank holiday" in {
       val ts = timeServiceMock(LocalDateTime.of(2017, 1, 2, 12, 0), 14, List(bh3rd))
-        ts.isDateSomeWorkingDaysInFuture(LocalDate.of(2017, 1, 4))(ts.bHS) shouldBe false
+        ts.isDateSomeWorkingDaysInFuture(LocalDate.of(2017, 1, 4))(ts.bHS) mustBe false
     }
 
 
     // Weekend, no bank holiday
     "return true when a date is a saturday and the date entered is a wednesday and no bank holiday" in {
       val ts = timeServiceMock(LocalDateTime.of(2017, 1, 7, 12, 0), 14, List(bhDud))
-        ts.isDateSomeWorkingDaysInFuture(LocalDate.of(2017, 1, 11))(ts.bHS) shouldBe true
+        ts.isDateSomeWorkingDaysInFuture(LocalDate.of(2017, 1, 11))(ts.bHS) mustBe true
     }
 
     "return true when a date is a saturday and it is submitted before 2pm and the date entered is a tuesday and no bank holiday" in {
       val ts = timeServiceMock(LocalDateTime.of(2017, 1, 7, 12, 0), 14, List(bhDud))
-        ts.isDateSomeWorkingDaysInFuture(LocalDate.of(2017, 1, 10))(ts.bHS) shouldBe true
+        ts.isDateSomeWorkingDaysInFuture(LocalDate.of(2017, 1, 10))(ts.bHS) mustBe true
     }
 
 
     // Weekend, bank holiday monday
     "return true when a date is a saturday and the date entered is a thursday with a bank holiday monday" in {
       val ts = timeServiceMock(LocalDateTime.of(2017, 1, 7, 12, 0), 14, List(bh9th))
-        ts.isDateSomeWorkingDaysInFuture(LocalDate.of(2017, 1, 12))(ts.bHS) shouldBe true
+        ts.isDateSomeWorkingDaysInFuture(LocalDate.of(2017, 1, 12))(ts.bHS) mustBe true
     }
 
     "return true when a date is a saturday and it is submitted after 2pm and the date entered is a wednesday with a bank holiday monday" in {
       val ts = timeServiceMock(LocalDateTime.of(2017, 1, 7, 15, 0), 14, List(bh9th))
-        ts.isDateSomeWorkingDaysInFuture(LocalDate.of(2017, 1, 11))(ts.bHS) shouldBe true
+        ts.isDateSomeWorkingDaysInFuture(LocalDate.of(2017, 1, 11))(ts.bHS) mustBe true
     }
 
 
     // Weekend, bank holiday monday, after 2pm
     "return true when a date is a saturday and it is submitted after 2pm and the date entered is a thursday with a bank holiday monday" in {
       val ts = timeServiceMock(LocalDateTime.of(2017, 1, 7, 15, 0), 14, List(bh9th))
-        ts.isDateSomeWorkingDaysInFuture(LocalDate.of(2017, 1, 12))(ts.bHS) shouldBe true
+        ts.isDateSomeWorkingDaysInFuture(LocalDate.of(2017, 1, 12))(ts.bHS) mustBe true
     }
 
     "return false when a date is a saturday and it is submitted after 2pm and the date entered is a wednesday with a bank holiday monday" in {
       val ts = timeServiceMock(LocalDateTime.of(2017, 1, 14, 15, 0), 14, List(bh9th))
-        ts.isDateSomeWorkingDaysInFuture(LocalDate.of(2017, 1, 11))(ts.bHS) shouldBe false
+        ts.isDateSomeWorkingDaysInFuture(LocalDate.of(2017, 1, 11))(ts.bHS) mustBe false
     }
 
 
     // Thursday, bank holiday friday, bank holiday monday, after 2pm
     "return true when a date is a thursday and it is submitted after 2pm and the date entered is the next thursday with a bank holiday friday and monday" in {
       val ts = timeServiceMock(LocalDateTime.of(2017, 1, 5, 15, 0), 14, List(bh6th, bh9th))
-      ts.isDateSomeWorkingDaysInFuture(LocalDate.of(2017, 1, 12))(ts.bHS) shouldBe true
+      ts.isDateSomeWorkingDaysInFuture(LocalDate.of(2017, 1, 12))(ts.bHS) mustBe true
     }
 
     "return false when a date is a thursday and it is submitted after 2pm and the date entered is the next wednesday with a bank holiday friday and monday" in {
       val ts = timeServiceMock(LocalDateTime.of(2017, 1, 12, 15, 0), 14, List(bh6th, bh9th))
-      ts.isDateSomeWorkingDaysInFuture(LocalDate.of(2017, 1, 11))(ts.bHS) shouldBe false
+      ts.isDateSomeWorkingDaysInFuture(LocalDate.of(2017, 1, 11))(ts.bHS) mustBe false
     }
 
 
     //Test the future dates
     "return a future date " in {
-      timeServiceMock().futureWorkingDate(LocalDate.parse("2016-12-13"), 60)(bHSTest) shouldBe "11 02 2017"
+      timeServiceMock().futureWorkingDate(LocalDate.parse("2016-12-13"), 60)(bHSTest) mustBe "11 02 2017"
     }
     "return a future date ignoring bank holidays" in {
-      timeServiceMock().futureWorkingDate(LocalDate.parse("2019-08-26"), 1)(bHSTest) shouldBe "27 08 2019"
+      timeServiceMock().futureWorkingDate(LocalDate.parse("2019-08-26"), 1)(bHSTest) mustBe "27 08 2019"
     }
     "return a future date ignoring bank holidays 2 working days in the future" in {
-      timeServiceMock().futureWorkingDate(LocalDate.parse("2019-12-24"), 2)(bHSTest) shouldBe "28 12 2019"
+      timeServiceMock().futureWorkingDate(LocalDate.parse("2019-12-24"), 2)(bHSTest) mustBe "28 12 2019"
     }
   }
 
@@ -145,13 +145,13 @@ class TimeServiceSpec extends UnitSpec with MockitoSugar {
     "return true when a leap year date is validated" in {
       val leapYearDate = "2016-02-29"
 
-      timeServiceMock().validate(leapYearDate) shouldBe true
+      timeServiceMock().validate(leapYearDate) mustBe true
     }
 
     "return false when a non-leap year date is validated" in {
       val leapYearDate = "2017-02-29"
 
-      timeServiceMock().validate(leapYearDate) shouldBe false
+      timeServiceMock().validate(leapYearDate) mustBe false
     }
   }
 
@@ -163,21 +163,21 @@ class TimeServiceSpec extends UnitSpec with MockitoSugar {
 
     "return a valid datetime" in {
       val expected = LocalDate.of(2017,11,10)
-      TimeHelper.toDateTime(Some(day), Some(month), Some(year)).get shouldBe expected
+      TimeHelper.toDateTime(Some(day), Some(month), Some(year)).get mustBe expected
     }
 
     "return a None when empty dates are supplied" in {
-      TimeHelper.toDateTime(None, None, None) shouldBe None
+      TimeHelper.toDateTime(None, None, None) mustBe None
     }
 
     "return None when any of the date fields supplied is empty" in {
-      TimeHelper.toDateTime(None, Some(month), Some(year)) shouldBe None
-      TimeHelper.toDateTime(Some(day), None, Some(year)) shouldBe None
-      TimeHelper.toDateTime(Some(day), Some(month), None) shouldBe None
+      TimeHelper.toDateTime(None, Some(month), Some(year)) mustBe None
+      TimeHelper.toDateTime(Some(day), None, Some(year)) mustBe None
+      TimeHelper.toDateTime(Some(day), Some(month), None) mustBe None
     }
     "return a valid datetime on a day light savings date" in {
       val expected = Some(LocalDate.of(2020,10,22))
-      TimeHelper.toDateTime(Some("22"), Some("10"), Some("2020")) shouldBe expected
+      TimeHelper.toDateTime(Some("22"), Some("10"), Some("2020")) mustBe expected
     }
   }
 }

@@ -57,7 +57,7 @@ class NewAddressSpec extends UnitSpec with CorporationTaxFixture with JsonValida
     "return an address handling options" in {
       val address = NewAddress("10 Test Street", "Testtown", Some("testshire"), Some("testlevania"), None, None)
 
-      address.toString shouldBe "10 Test Street, Testtown, testshire, testlevania"
+      address.toString mustBe "10 Test Street, Testtown, testshire, testlevania"
     }
   }
 
@@ -148,7 +148,7 @@ class NewAddressSpec extends UnitSpec with CorporationTaxFixture with JsonValida
 
         val expected = NewAddress("Address Line 1", "Testford", Some("Testley"), Some("Testshire"), Some("FX1 1ZZ"), None, Some("tstAuditRef"))
 
-        result.get shouldBe expected
+        result.get mustBe expected
       }
 
       "three lines are defined" in {
@@ -170,7 +170,7 @@ class NewAddressSpec extends UnitSpec with CorporationTaxFixture with JsonValida
 
         val res = NewAddress("Address Line 1", "Testford", Some("Testley"), None, Some("FX1 1ZZ"), None, None)
 
-        Json.fromJson(json)(NewAddress.addressLookupReads).get shouldBe res
+        Json.fromJson(json)(NewAddress.addressLookupReads).get mustBe res
       }
 
       "two lines are defined" in {
@@ -191,7 +191,7 @@ class NewAddressSpec extends UnitSpec with CorporationTaxFixture with JsonValida
 
         val res = NewAddress("Address Line 1", "Testford", None, None, Some("FX1 1ZZ"), None, None)
 
-        Json.fromJson(json)(NewAddress.addressLookupReads).get shouldBe res
+        Json.fromJson(json)(NewAddress.addressLookupReads).get mustBe res
       }
 
       "the postcode is not provided but a country is" in {
@@ -211,7 +211,7 @@ class NewAddressSpec extends UnitSpec with CorporationTaxFixture with JsonValida
 
         val res = NewAddress("Address Line 1", "Testford", None, None, None, Some("United Kingdom"), None)
 
-        Json.fromJson(json)(NewAddress.addressLookupReads).get shouldBe res
+        Json.fromJson(json)(NewAddress.addressLookupReads).get mustBe res
       }
 
       "the country is not provided but a postcode is" in {
@@ -228,7 +228,7 @@ class NewAddressSpec extends UnitSpec with CorporationTaxFixture with JsonValida
 
         val res = NewAddress("Address Line 1", "Testford", None, None, Some("FX1 1ZZ"), None, None)
 
-        Json.fromJson(json)(NewAddress.addressLookupReads).get shouldBe res
+        Json.fromJson(json)(NewAddress.addressLookupReads).get mustBe res
       }
 
       "a postcode is invalid but country is provided" in {
@@ -249,7 +249,7 @@ class NewAddressSpec extends UnitSpec with CorporationTaxFixture with JsonValida
 
         val res = NewAddress("Address Line 1", "Testford", None, None, None, Some("United Kingdom"), None)
 
-        Json.fromJson(json)(NewAddress.addressLookupReads).get shouldBe res
+        Json.fromJson(json)(NewAddress.addressLookupReads).get mustBe res
       }
 
       "lines 1-4 are too long and are there trimmed" in {
@@ -281,7 +281,7 @@ class NewAddressSpec extends UnitSpec with CorporationTaxFixture with JsonValida
           country = None
         )
 
-        Json.fromJson(json)(NewAddress.addressLookupReads).get shouldBe expected
+        Json.fromJson(json)(NewAddress.addressLookupReads).get mustBe expected
       }
     }
 
@@ -394,7 +394,7 @@ class NewAddressSpec extends UnitSpec with CorporationTaxFixture with JsonValida
 
         val expected = "RO"
 
-        result.get shouldBe expected
+        result.get mustBe expected
       }
 
     }

@@ -52,10 +52,10 @@ class EmailVerificationConnectorSpec extends SCRSSpec with UnitSpec with Mockito
   "Email Verification Connector" should {
 
     "use the correct sendVerificationEmailURL" in new Setup {
-      connector.sendVerificationEmailURL shouldBe "test sendVerificationEmailURL"
+      connector.sendVerificationEmailURL mustBe "test sendVerificationEmailURL"
     }
     "use the correct checkVerifiedEmailURL" in new Setup {
-      connector.checkVerifiedEmailURL shouldBe "test checkVerifiedEmailURL"
+      connector.checkVerifiedEmailURL mustBe "test checkVerifiedEmailURL"
     }
   }
 
@@ -64,7 +64,7 @@ class EmailVerificationConnectorSpec extends SCRSSpec with UnitSpec with Mockito
     "Return a true when passed an email that has been verified" in new Setup {
       mockHttpPOST(connector.checkVerifiedEmailURL, HttpResponse(OK))
 
-      await(connector.checkVerifiedEmail(verifiedEmail)) shouldBe true
+      await(connector.checkVerifiedEmail(verifiedEmail)) mustBe true
     }
 
     "Return a false when passed an email that exists but has not been found or not been verified" in new Setup {
@@ -72,7 +72,7 @@ class EmailVerificationConnectorSpec extends SCRSSpec with UnitSpec with Mockito
         (ArgumentMatchers.any(),ArgumentMatchers.any(),ArgumentMatchers.any(),ArgumentMatchers.any[ExecutionContext]()))
         .thenReturn(Future.failed(new NotFoundException("error")))
 
-      await(connector.checkVerifiedEmail(verifiedEmail)) shouldBe false
+      await(connector.checkVerifiedEmail(verifiedEmail)) mustBe false
     }
 
     "Return a false when passed an email but met an unexpected error" in new Setup {
@@ -80,7 +80,7 @@ class EmailVerificationConnectorSpec extends SCRSSpec with UnitSpec with Mockito
         (ArgumentMatchers.any(),ArgumentMatchers.any(),ArgumentMatchers.any(),ArgumentMatchers.any[ExecutionContext]()))
         .thenReturn(Future.failed(new InternalServerException("error")))
 
-      await(connector.checkVerifiedEmail(verifiedEmail)) shouldBe false
+      await(connector.checkVerifiedEmail(verifiedEmail)) mustBe false
     }
 
     "Return a false when passed an email but encountered an upstream service error" in new Setup {
@@ -88,7 +88,7 @@ class EmailVerificationConnectorSpec extends SCRSSpec with UnitSpec with Mockito
         (ArgumentMatchers.any(),ArgumentMatchers.any(),ArgumentMatchers.any(),ArgumentMatchers.any[ExecutionContext]()))
         .thenReturn(Future.failed(new BadGatewayException("error")))
 
-      await(connector.checkVerifiedEmail(verifiedEmail)) shouldBe false
+      await(connector.checkVerifiedEmail(verifiedEmail)) mustBe false
     }
 
   }
@@ -99,7 +99,7 @@ class EmailVerificationConnectorSpec extends SCRSSpec with UnitSpec with Mockito
     "Return a false when a new email verification request is successful to indicate the email was NOT verified before" in new Setup {
       mockHttpPOST(connector.sendVerificationEmailURL, HttpResponse(CREATED))
 
-      await(connector.requestVerificationEmailReturnVerifiedEmailStatus(verificationRequest)) shouldBe false
+      await(connector.requestVerificationEmailReturnVerifiedEmailStatus(verificationRequest)) mustBe false
     }
 
 
@@ -107,7 +107,7 @@ class EmailVerificationConnectorSpec extends SCRSSpec with UnitSpec with Mockito
       when(mockWSHttp.POST[JsValue, HttpResponse](ArgumentMatchers.anyString(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any[ExecutionContext]))
         .thenReturn(Future.successful(HttpResponse(409)))
 
-      await(connector.requestVerificationEmailReturnVerifiedEmailStatus(verificationRequest)) shouldBe true
+      await(connector.requestVerificationEmailReturnVerifiedEmailStatus(verificationRequest)) mustBe true
     }
 
     "Fail the future when the service cannot be found" in new Setup {
@@ -144,12 +144,12 @@ class EmailVerificationConnectorSpec extends SCRSSpec with UnitSpec with Mockito
     "return a 200" in new Setup {
       val expected = HttpResponse(OK)
       val result = connector.customRead("test", "test", expected)
-      result.status shouldBe expected.status
+      result.status mustBe expected.status
     }
     "return a 409" in new Setup {
       val expected = HttpResponse(CONFLICT)
       val result = connector.customRead("test", "test", HttpResponse(CONFLICT))
-      result.status shouldBe expected.status
+      result.status mustBe expected.status
     }
     "return a BadRequestException" in new Setup {
       val response = HttpResponse(BAD_REQUEST)

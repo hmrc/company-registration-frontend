@@ -89,8 +89,8 @@ class OtherBusinessAddressControllerSpec(implicit lang: Lang) extends SCRSSpec
 
           val res: Result = TestOtherBusinessAddressController.show(request)
 
-          status(res) shouldBe SEE_OTHER
-          redirectLocation(res) should contain(controllers.takeovers.routes.ReplacingAnotherBusinessController.show.url)
+          status(res) mustBe SEE_OTHER
+          redirectLocation(res) must contain(controllers.takeovers.routes.ReplacingAnotherBusinessController.show.url)
         }
       }
 
@@ -105,8 +105,8 @@ class OtherBusinessAddressControllerSpec(implicit lang: Lang) extends SCRSSpec
 
           val res: Result = TestOtherBusinessAddressController.show(request)
 
-          status(res) shouldBe SEE_OTHER
-          redirectLocation(res) should contain(controllers.reg.routes.AccountingDatesController.show.url)
+          status(res) mustBe SEE_OTHER
+          redirectLocation(res) must contain(controllers.reg.routes.AccountingDatesController.show.url)
         }
       }
 
@@ -122,8 +122,8 @@ class OtherBusinessAddressControllerSpec(implicit lang: Lang) extends SCRSSpec
 
           val res: Result = TestOtherBusinessAddressController.show(request)
 
-          status(res) shouldBe SEE_OTHER
-          redirectLocation(res) should contain(controllers.takeovers.routes.OtherBusinessNameController.show.url)
+          status(res) mustBe SEE_OTHER
+          redirectLocation(res) must contain(controllers.takeovers.routes.OtherBusinessNameController.show.url)
         }
       }
 
@@ -144,9 +144,9 @@ class OtherBusinessAddressControllerSpec(implicit lang: Lang) extends SCRSSpec
 
           val res: Result = TestOtherBusinessAddressController.show(request)
 
-          status(res) shouldBe OK
-          bodyOf(res) shouldBe page(OtherBusinessAddressForm.form(testBusinessName, 1), testBusinessName, Seq(testBusinessAddress)).body
-          session(res).get(addressSeqKey) should contain(Json.toJson(Seq(testBusinessAddress)).toString())
+          status(res) mustBe OK
+          bodyOf(res) mustBe page(OtherBusinessAddressForm.form(testBusinessName, 1), testBusinessName, Seq(testBusinessAddress)).body
+          session(res).get(addressSeqKey) must contain(Json.toJson(Seq(testBusinessAddress)).toString())
         }
       }
 
@@ -169,13 +169,13 @@ class OtherBusinessAddressControllerSpec(implicit lang: Lang) extends SCRSSpec
 
           val res: Result = TestOtherBusinessAddressController.show(request)
 
-          status(res) shouldBe OK
-          bodyOf(res) shouldBe page(
+          status(res) mustBe OK
+          bodyOf(res) mustBe page(
             OtherBusinessAddressForm.form(testBusinessName, 2).fill(PreselectedAddress(1)),
             testBusinessName,
             Seq(testBusinessAddress, testOldBusinessAddress)
           ).body
-          session(res).get(addressSeqKey) should contain(Json.toJson(Seq(testBusinessAddress, testOldBusinessAddress)).toString())
+          session(res).get(addressSeqKey) must contain(Json.toJson(Seq(testBusinessAddress, testOldBusinessAddress)).toString())
         }
       }
       "the user has previously submitted a business address which is not in the same format as the stored address" should {
@@ -200,13 +200,13 @@ class OtherBusinessAddressControllerSpec(implicit lang: Lang) extends SCRSSpec
 
           val res: Result = TestOtherBusinessAddressController.show(request)
 
-          status(res) shouldBe OK
-          bodyOf(res) shouldBe page(
+          status(res) mustBe OK
+          bodyOf(res) mustBe page(
             OtherBusinessAddressForm.form(testBusinessName, 2).fill(PreselectedAddress(1)),
             testBusinessName,
             Seq(testBusinessAddress, testOldBusinessAddress)
           ).body
-          session(res).get(addressSeqKey) should contain(Json.toJson(Seq(testBusinessAddress, testOldBusinessAddress)).toString())
+          session(res).get(addressSeqKey) must contain(Json.toJson(Seq(testBusinessAddress, testOldBusinessAddress)).toString())
         }
       }
     }
@@ -233,9 +233,9 @@ class OtherBusinessAddressControllerSpec(implicit lang: Lang) extends SCRSSpec
 
           val res: Result = TestOtherBusinessAddressController.submit(request)
 
-          status(res) shouldBe SEE_OTHER
-          redirectLocation(res) should contain(controllers.takeovers.routes.WhoAgreedTakeoverController.show.url)
-          session(res).get(addressSeqKey) shouldBe None
+          status(res) mustBe SEE_OTHER
+          redirectLocation(res) must contain(controllers.takeovers.routes.WhoAgreedTakeoverController.show.url)
+          session(res).get(addressSeqKey) mustBe None
         }
       }
       "the form contains valid data" should {
@@ -257,8 +257,8 @@ class OtherBusinessAddressControllerSpec(implicit lang: Lang) extends SCRSSpec
 
           val res: Result = TestOtherBusinessAddressController.submit(request)
 
-          status(res) shouldBe SEE_OTHER
-          redirectLocation(res) should contain("TEST/redirectUrl")
+          status(res) mustBe SEE_OTHER
+          redirectLocation(res) must contain("TEST/redirectUrl")
         }
       }
       "the form contains invalid data" should {
@@ -274,9 +274,9 @@ class OtherBusinessAddressControllerSpec(implicit lang: Lang) extends SCRSSpec
 
           val res: Result = TestOtherBusinessAddressController.submit(request)
 
-          status(res) shouldBe BAD_REQUEST
+          status(res) mustBe BAD_REQUEST
           Jsoup.parse(bodyOf(res))
-            .getElementById("otherBusinessAddress-error-summary").text shouldBe s"Tell us $testBusinessName’s address"
+            .getElementById("otherBusinessAddress-error-summary").text mustBe s"Tell us $testBusinessName’s address"
         }
       }
     }
@@ -308,9 +308,9 @@ class OtherBusinessAddressControllerSpec(implicit lang: Lang) extends SCRSSpec
 
           val res: Result = TestOtherBusinessAddressController.handbackFromALF(Some(testAlfId))(request)
 
-          status(res) shouldBe SEE_OTHER
-          redirectLocation(res) should contain(controllers.takeovers.routes.WhoAgreedTakeoverController.show.url)
-          session(res).get(addressSeqKey) shouldBe None
+          status(res) mustBe SEE_OTHER
+          redirectLocation(res) must contain(controllers.takeovers.routes.WhoAgreedTakeoverController.show.url)
+          session(res).get(addressSeqKey) mustBe None
         }
       }
     }

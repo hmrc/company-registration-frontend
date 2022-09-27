@@ -78,8 +78,8 @@ class ReplacingAnotherBusinessControllerSpec extends SCRSSpec with GuiceOneAppPe
 
           val res: Result = await(TestReplacingAnotherBusinessController.show(request))
 
-          status(res) shouldBe OK
-          bodyOf(res) shouldBe page(ReplacingAnotherBusinessForm.form).body
+          status(res) mustBe OK
+          bodyOf(res) mustBe page(ReplacingAnotherBusinessForm.form).body
 
         }
       }
@@ -96,8 +96,8 @@ class ReplacingAnotherBusinessControllerSpec extends SCRSSpec with GuiceOneAppPe
 
           val res: Result = await(TestReplacingAnotherBusinessController.show(request))
 
-          status(res) shouldBe OK
-          bodyOf(res) shouldBe page(ReplacingAnotherBusinessForm.form.fill(testTakeoverDetails.replacingAnotherBusiness)).body
+          status(res) mustBe OK
+          bodyOf(res) mustBe page(ReplacingAnotherBusinessForm.form.fill(testTakeoverDetails.replacingAnotherBusiness)).body
 
         }
       }
@@ -119,8 +119,8 @@ class ReplacingAnotherBusinessControllerSpec extends SCRSSpec with GuiceOneAppPe
 
           val res: Result = await(TestReplacingAnotherBusinessController.submit(request))
 
-          status(res) shouldBe SEE_OTHER
-          redirectLocation(res) should contain(controllers.reg.routes.AccountingDatesController.show.url)
+          status(res) mustBe SEE_OTHER
+          redirectLocation(res) must contain(controllers.reg.routes.AccountingDatesController.show.url)
         }
         "store the selected answer and redirect the user to the next Takeover Page" in new Setup {
           override implicit val request: Request[AnyContentAsFormUrlEncoded] =
@@ -135,8 +135,8 @@ class ReplacingAnotherBusinessControllerSpec extends SCRSSpec with GuiceOneAppPe
 
           val res: Result = await(TestReplacingAnotherBusinessController.submit(request))
 
-          status(res) shouldBe SEE_OTHER
-          redirectLocation(res) should contain(controllers.takeovers.routes.OtherBusinessNameController.show.url)
+          status(res) mustBe SEE_OTHER
+          redirectLocation(res) must contain(controllers.takeovers.routes.OtherBusinessNameController.show.url)
         }
       }
     }

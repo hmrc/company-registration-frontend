@@ -46,7 +46,7 @@ class mockHttpPOSTIncorpInfoConnectorSpec extends SCRSSpec {
     "return a Json object" in new Setup {
       mockHttpGet(companyProfileUrl, Future.successful(json))
       val res = await(connector.getCompanyProfile(transId))
-      res shouldBe json
+      res mustBe json
     }
   }
 
@@ -57,7 +57,7 @@ class mockHttpPOSTIncorpInfoConnectorSpec extends SCRSSpec {
     "return a company name from the fetched json" in new Setup {
       mockHttpGet(companyProfileUrl, Future.successful(json))
       val res = await(connector.getCompanyName(transId))
-      res shouldBe "testCompanyName"
+      res mustBe "testCompanyName"
     }
   }
 
@@ -65,17 +65,17 @@ class mockHttpPOSTIncorpInfoConnectorSpec extends SCRSSpec {
     "set up a successful incorporation update" in new Setup {
       mockHttpGet(s"$iiUrl/test-only/add-incorp-update/?txId=$transId&date=2018-1-1&crn=12345678&success=true", Future.successful(HttpResponse(200)))
       val res = await(connector.injectTestIncorporationUpdate(transId, isSuccess = true))
-      res shouldBe true
+      res mustBe true
     }
     "set up a rejected incorporation update" in new Setup {
       mockHttpGet(s"$iiUrl/test-only/add-incorp-update/?txId=$transId&date=2018-1-1&success=false", Future.successful(HttpResponse(200)))
       val res = await(connector.injectTestIncorporationUpdate(transId, isSuccess = false))
-      res shouldBe true
+      res mustBe true
     }
     "recover any exceptions returned by II" in new Setup {
       mockHttpGet(s"$iiUrl/test-only/add-incorp-update/?txId=$transId&date=2018-1-1&success=false", Future.failed(new NotFoundException("404")))
       val res = await(connector.injectTestIncorporationUpdate(transId, isSuccess = false))
-      res shouldBe false
+      res mustBe false
     }
   }
 
@@ -83,12 +83,12 @@ class mockHttpPOSTIncorpInfoConnectorSpec extends SCRSSpec {
     "trigger subscriptions to be fired" in new Setup {
       mockHttpGet(s"$iiUrl/test-only/manual-trigger/fireSubs", Future.successful(HttpResponse(200)))
       val res = await(connector.manuallyTriggerIncorporationUpdate)
-      res shouldBe true
+      res mustBe true
     }
     "persist any exceptions returned by II" in new Setup {
       mockHttpGet(s"$iiUrl/test-only/manual-trigger/fireSubs", Future.failed(new Upstream5xxResponse("502", 502, 502)))
       val res = await(connector.manuallyTriggerIncorporationUpdate)
-      res shouldBe false
+      res mustBe false
     }
   }
   "returnListOfShareholdersFromTxApi" should {
@@ -146,7 +146,7 @@ class mockHttpPOSTIncorpInfoConnectorSpec extends SCRSSpec {
           HttpResponse(200,Some(listOfShareHoldersFromII))))
 
       val res = await(connector.returnListOfShareholdersFromTxApi(transId))
-      res.right.get shouldBe listOfShareholders
+      res.right.get mustBe listOfShareholders
 
     }
     "return an empty list for a 204" in new Setup {
@@ -155,7 +155,7 @@ class mockHttpPOSTIncorpInfoConnectorSpec extends SCRSSpec {
           HttpResponse(204,Some(listOfShareHoldersFromII))))
 
       val res = await(connector.returnListOfShareholdersFromTxApi(transId))
-      res.right.get shouldBe List.empty[Shareholder]
+      res.right.get mustBe List.empty[Shareholder]
     }
     "return empty list if json is unparsable as a list of shareholders" in new Setup {
       mockHttpGet(s"$iiUrl/shareholders/$transId",
@@ -163,7 +163,7 @@ class mockHttpPOSTIncorpInfoConnectorSpec extends SCRSSpec {
           HttpResponse(200,Some(Json.obj("foo" -> "bar")))))
 
       val res = await(connector.returnListOfShareholdersFromTxApi(transId))
-      res.right.get shouldBe List.empty[Shareholder]
+      res.right.get mustBe List.empty[Shareholder]
     }
     "return a left if txapi returns a exception" in new Setup {
       val ex = new Exception("foo")
@@ -171,7 +171,7 @@ class mockHttpPOSTIncorpInfoConnectorSpec extends SCRSSpec {
         Future.failed(ex))
 
       val res = await(connector.returnListOfShareholdersFromTxApi(transId))
-      res.left.get shouldBe ex
+      res.left.get mustBe ex
     }
   }
 }

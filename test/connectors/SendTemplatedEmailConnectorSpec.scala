@@ -56,7 +56,7 @@ class SendTemplatedEmailConnectorSpec extends SCRSSpec with UnitSpec with Mockit
     "Return a true when a request to send a new templated email is successful" in new Setup {
       mockHttpPOST(connector.sendTemplatedEmailURL, HttpResponse(ACCEPTED))
 
-      await(connector.requestTemplatedEmail(emailRequest)) shouldBe true
+      await(connector.requestTemplatedEmail(emailRequest)) mustBe true
     }
 
     "Fail the future when the service cannot be found" in new Setup {
@@ -93,12 +93,12 @@ class SendTemplatedEmailConnectorSpec extends SCRSSpec with UnitSpec with Mockit
     "return a 200" in new Setup {
       val expected = HttpResponse(OK)
       val result = connector.customRead("test","test", expected)
-      result.status shouldBe expected.status
+      result.status mustBe expected.status
     }
     "return a 409" in new Setup {
       val expected = HttpResponse(CONFLICT)
       val result = connector.customRead("test","test", HttpResponse(CONFLICT))
-      result.status shouldBe expected.status
+      result.status mustBe expected.status
     }
     "return a BadRequestException" in new Setup {
       val response = HttpResponse(BAD_REQUEST)

@@ -67,7 +67,7 @@ class BusinessActivitiesControllerSpec extends SCRSSpec with PayloadFixture with
     "return a 303 if accessing without authorisation" in new Setup {
       showWithUnauthorisedUser(controller.businessActivities) {
         result =>
-          status(result) shouldBe SEE_OTHER
+          status(result) mustBe SEE_OTHER
       }
     }
     "return a 303 when keystore returns none but has authorisation" in new Setup {
@@ -78,7 +78,7 @@ class BusinessActivitiesControllerSpec extends SCRSSpec with PayloadFixture with
 
       showWithAuthorisedUserRetrieval(controller.businessActivities, externalID) {
         result =>
-          status(result) shouldBe SEE_OTHER
+          status(result) mustBe SEE_OTHER
       }
     }
 
@@ -97,7 +97,7 @@ class BusinessActivitiesControllerSpec extends SCRSSpec with PayloadFixture with
 
       showWithAuthorisedUserRetrieval(controller.businessActivities, externalID) {
         result =>
-          status(result) shouldBe SEE_OTHER
+          status(result) mustBe SEE_OTHER
       }
     }
 
@@ -109,7 +109,7 @@ class BusinessActivitiesControllerSpec extends SCRSSpec with PayloadFixture with
 
       showWithAuthorisedUserRetrieval(controller.businessActivities, externalID) {
         result =>
-          status(result) shouldBe BAD_REQUEST
+          status(result) mustBe BAD_REQUEST
       }
     }
   }
@@ -120,9 +120,9 @@ class BusinessActivitiesControllerSpec extends SCRSSpec with PayloadFixture with
       val payload = validEncryptedBusinessActivities(jweInstance())
       showWithUnauthorisedUser(controller.businessActivitiesBack(payload)) {
         result =>
-          status(result) shouldBe SEE_OTHER
+          status(result) mustBe SEE_OTHER
           val url = authUrl("HO3b", payload)
-          redirectLocation(result) shouldBe Some(url)
+          redirectLocation(result) mustBe Some(url)
       }
     }
 
@@ -134,8 +134,8 @@ class BusinessActivitiesControllerSpec extends SCRSSpec with PayloadFixture with
 
       showWithAuthorisedUser(controller.businessActivitiesBack("")) {
         result =>
-          status(result) shouldBe BAD_REQUEST
-          redirectLocation(result) shouldBe None
+          status(result) mustBe BAD_REQUEST
+          redirectLocation(result) mustBe None
       }
     }
 
@@ -147,8 +147,8 @@ class BusinessActivitiesControllerSpec extends SCRSSpec with PayloadFixture with
 
       showWithAuthorisedUser(controller.businessActivitiesBack(payload)) {
         result =>
-          status(result) shouldBe BAD_REQUEST
-          redirectLocation(result) shouldBe None
+          status(result) mustBe BAD_REQUEST
+          redirectLocation(result) mustBe None
       }
     }
 
@@ -160,8 +160,8 @@ class BusinessActivitiesControllerSpec extends SCRSSpec with PayloadFixture with
 
       showWithAuthorisedUser(controller.businessActivitiesBack(payload)) {
         result =>
-          status(result) shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result) mustBe
             Some("/register-your-company/loan-payments-dividends")
       }
     }
@@ -173,8 +173,8 @@ class BusinessActivitiesControllerSpec extends SCRSSpec with PayloadFixture with
 
       showWithAuthorisedUser(controller.businessActivitiesBack(payload)) {
         result =>
-          status(result) shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe Some(s"/register-your-company/post-sign-in?handOffID=HO3b&payload=${payload}")
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result) mustBe Some(s"/register-your-company/post-sign-in?handOffID=HO3b&payload=${payload}")
       }
     }
   }

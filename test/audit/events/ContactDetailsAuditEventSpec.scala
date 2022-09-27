@@ -54,7 +54,7 @@ class ContactDetailsAuditEventSpec extends UnitSpec {
       )
 
       val json = Json.toJson(detail)(ContactDetailsAuditEvent.auditWrites)
-      json shouldBe expected
+      json mustBe expected
     }
 
     "output json in the correct format when only email is supplied" in {
@@ -81,7 +81,7 @@ class ContactDetailsAuditEventSpec extends UnitSpec {
       )
 
       val json = Json.toJson(detail)(ContactDetailsAuditEvent.auditWrites)
-      json shouldBe expected
+      json mustBe expected
     }
     "output json when email is not supplied by the user" in {
       val expected =
@@ -106,7 +106,7 @@ class ContactDetailsAuditEventSpec extends UnitSpec {
       )
 
       val json = Json.toJson(detail)(ContactDetailsAuditEvent.auditWrites)
-      json shouldBe expected
+      json mustBe expected
     }
   }
 }

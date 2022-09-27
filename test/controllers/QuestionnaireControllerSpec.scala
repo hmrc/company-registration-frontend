@@ -69,7 +69,7 @@ class QuestionnaireControllerSpec extends UnitSpec with GuiceOneAppPerSuite with
     "show" should {
       "display the questionnaire page" in new Setup {
         val result = await(controller.show(FakeRequest()))
-        status(result) shouldBe 200
+        status(result) mustBe 200
       }
     }
 
@@ -93,8 +93,8 @@ class QuestionnaireControllerSpec extends UnitSpec with GuiceOneAppPerSuite with
         val request = FakeRequest().withFormUrlEncodedBody(form.toSeq: _*)
 
         val result = await(controller.submit(request))
-        status(result) shouldBe 303
-        redirectLocation(result) shouldBe Some("govukurl")
+        status(result) mustBe 303
+        redirectLocation(result) mustBe Some("govukurl")
       }
 
       "return a bad request on an unsuccessful form submission" in new Setup {
@@ -115,7 +115,7 @@ class QuestionnaireControllerSpec extends UnitSpec with GuiceOneAppPerSuite with
         val request = FakeRequest().withFormUrlEncodedBody(form.toSeq: _*)
 
         val result = await(controller.submit(request))
-        status(result) shouldBe 400
+        status(result) mustBe 400
       }
 
       "not be affected by a failed audit event" in new Setup {
@@ -137,7 +137,7 @@ class QuestionnaireControllerSpec extends UnitSpec with GuiceOneAppPerSuite with
         val request = FakeRequest().withFormUrlEncodedBody(form.toSeq: _*)
 
         val result = await(controller.submit(request))
-        status(result) shouldBe 303
+        status(result) mustBe 303
       }
 
     }

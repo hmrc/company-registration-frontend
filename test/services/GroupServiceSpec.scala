@@ -48,7 +48,7 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
         .thenReturn(Some(Groups(groupRelief = true, None, None, None)))
 
       val res: Option[Groups] = await(service.retrieveGroups("foo"))
-      res shouldBe Some(Groups(groupRelief = true, None, None, None))
+      res mustBe Some(Groups(groupRelief = true, None, None, None))
     }
   }
 
@@ -68,7 +68,7 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
         .thenReturn(Future.successful(defaultGroups))
 
       val res: Groups = await(service.updateGroupRelief(groupRelief = false, "foo"))
-      res shouldBe defaultGroups
+      res mustBe defaultGroups
       verify(mockCompanyRegistrationConnector, times(1)).updateGroups(any(), any())(any())
     }
 
@@ -79,7 +79,7 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
         .thenReturn(Future.successful(defaultGroups))
 
       val res: Groups = await(service.updateGroupRelief(groupRelief = false, "foo"))
-      res shouldBe defaultGroups
+      res mustBe defaultGroups
       verify(mockCompanyRegistrationConnector, times(1)).updateGroups(any(), any())(any())
     }
 
@@ -90,7 +90,7 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
         .thenReturn(Future.successful(defaultGroups.copy(groupRelief = true)))
 
       val res: Groups = await(service.updateGroupRelief(groupRelief = true, "foo"))
-      res shouldBe defaultGroups.copy(groupRelief = true)
+      res mustBe defaultGroups.copy(groupRelief = true)
       verify(mockCompanyRegistrationConnector, times(1)).updateGroups(any(), any())(any())
     }
 
@@ -101,7 +101,7 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
         .thenReturn(Future.successful(groups))
 
       val res: Groups = await(service.updateGroupRelief(groupRelief = true, "foo"))
-      res shouldBe groups
+      res mustBe groups
       verify(mockCompanyRegistrationConnector, times(1)).updateGroups(any(), any())(any())
     }
   }
@@ -134,7 +134,7 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
         registrationId = "reg1"
       ))
 
-      res shouldBe completeGroupsBlock
+      res mustBe completeGroupsBlock
       verify(mockCompanyRegistrationConnector, times(1)).updateGroups(any(), any())(any())
     }
 
@@ -152,7 +152,7 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
         registrationId = "reg1"
       ))
 
-      res shouldBe groups
+      res mustBe groups
       verify(mockCompanyRegistrationConnector, times(1)).updateGroups(any(), any())(any())
     }
   }
@@ -171,7 +171,7 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
         .thenReturn(Future.successful(updatedGroups))
 
       val res: Groups = await(service.updateGroupUtr(GroupUTR(Some("1ABC")), groups, "bar"))
-      res shouldBe updatedGroups
+      res mustBe updatedGroups
 
       verify(mockCompanyRegistrationConnector, times(1)).updateGroups(any(), any())(any())
     }
@@ -182,7 +182,7 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
         .thenReturn(Future.successful(updatedGroups))
 
       val res: Groups = await(service.updateGroupUtr(GroupUTR(None), groups, "bar"))
-      res shouldBe updatedGroups
+      res mustBe updatedGroups
 
       verify(mockCompanyRegistrationConnector, times(1)).updateGroups(any(), any())(any())
     }
@@ -194,7 +194,7 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
         .thenReturn(Future.successful(ConfirmationReferencesSuccessResponse(ConfirmationReferences("foo", None, None, ""))))
 
       val res: String = await(service.fetchTxID("bar"))
-      res shouldBe "foo"
+      res mustBe "foo"
     }
     "return exception if call to compRegConnector isnt successful" in new Setup {
       when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any()))
@@ -220,7 +220,7 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
         .thenReturn(Future.successful(Right(listOfShareholders)))
 
       val res: Either[Exception, List[Shareholder]] = await(service.returnListOfShareholders("foo"))
-      res shouldBe Right(expected)
+      res mustBe Right(expected)
     }
 
     "return a list of shareholders from coho and filter out shareholders with voting right < 75" in new Setup {
@@ -240,7 +240,7 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
         .thenReturn(Future.successful(Right(listOfShareholdersLowerThan75)))
 
       val res: Either[Exception, List[Shareholder]] = await(service.returnListOfShareholders("foo"))
-      res shouldBe Right(expectedFiltered)
+      res mustBe Right(expectedFiltered)
     }
 
     "return an empty list if ii returns an empty list" in new Setup {
@@ -248,7 +248,7 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
         Future.successful(Right(List.empty[Shareholder])))
 
       val res: Either[Exception, List[Shareholder]] = await(service.returnListOfShareholders("foo"))
-      res shouldBe Right(List.empty[Shareholder])
+      res mustBe Right(List.empty[Shareholder])
     }
 
     "if II returns Left exception failed. this returns a Left exception" in new Setup {
@@ -256,7 +256,7 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
       when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(any()))
         .thenReturn(Future.successful(Left(ex)))
 
-      await(service.returnListOfShareholders("foo")).left.get shouldBe ex
+      await(service.returnListOfShareholders("foo")).left.get mustBe ex
     }
   }
 
@@ -268,22 +268,22 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
 
     """ return of Map("ALF" -> address) - address matched, IS ALF""" in new Setup {
       val res: Map[String, String] = service.createAddressMap(groupsAddressAndTypeALF, address)
-      res shouldBe Map("ALF" -> address.toString, "Other" -> "A different address")
+      res mustBe Map("ALF" -> address.toString, "Other" -> "A different address")
     }
 
     """ return of Map("ALF" -> address, "TxAPI" -> otherAddress) - address not matched, IS ALF TX Address exists""" in new Setup {
       val res: Map[String, String] = service.createAddressMap(groupsAddressAndTypeALF, otherAddress)
-      res shouldBe Map("ALF" -> address.toString, "TxAPI" -> otherAddress.toString, "Other" -> "A different address")
+      res mustBe Map("ALF" -> address.toString, "TxAPI" -> otherAddress.toString, "Other" -> "A different address")
     }
 
     """ return of  Map(addressType -> address) - address matched, not ALF""" in new Setup {
       val res: Map[String, String] = service.createAddressMap(groupsAddressAndTypeCoho, address)
-      res shouldBe Map("CohoEntered" -> address.toString , "Other" -> "A different address")
+      res mustBe Map("CohoEntered" -> address.toString , "Other" -> "A different address")
     }
 
     """ return of Map("TxAPI" -> address) - No address in CR, tx address exists""" in new Setup {
       val res: Map[String, String] = service.createAddressMap(None, address)
-      res shouldBe Map("TxAPI" -> address.toString, "Other" -> "A different address")
+      res mustBe Map("TxAPI" -> address.toString, "Other" -> "A different address")
     }
   }
 
@@ -303,7 +303,7 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
         .thenReturn(Future.successful(Right(listOfShareholders)))
 
       val res: Either[Exception, Option[CHROAddress]] = await(service.returnAddressFromTxAPI(groupCompanyName, "foo"))
-      res.right.get shouldBe Some(CHROAddress("11", "Add L1", Some("Add L2"), "London", "United Kingdom", None, Some("ZZ1 1ZZ"), None))
+      res.right.get mustBe Some(CHROAddress("11", "Add L1", Some("Add L2"), "London", "United Kingdom", None, Some("ZZ1 1ZZ"), None))
 
     }
 
@@ -324,7 +324,7 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
         .thenReturn(Future.successful(Right(identical)))
 
       val res: Either[Exception, Option[CHROAddress]] = await(service.returnAddressFromTxAPI(groupCompanyName, "foo"))
-      res.right.get shouldBe Some(CHROAddress("11", "Add L1", Some("Add L2"), "London", "United Kingdom", None, Some("ZZ1 1ZZ"), None))
+      res.right.get mustBe Some(CHROAddress("11", "Add L1", Some("Add L2"), "London", "United Kingdom", None, Some("ZZ1 1ZZ"), None))
     }
 
     "return None if returnListOfShareholdersFromTxApi returns right and name of company IS NOT in list" in new Setup {
@@ -335,7 +335,7 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
         .thenReturn(Future.successful(Right(listOfShareholders)))
 
       val res: Either[Exception, Option[CHROAddress]] = await(service.returnAddressFromTxAPI(groupCompanyNameDoesntMatch, "foo"))
-      res.right.get shouldBe None
+      res.right.get mustBe None
     }
 
     "return None if returnListOfShareholdersFromTxApi returns right and list is empty" in new Setup {
@@ -346,7 +346,7 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
         .thenReturn(Future.successful(Right(List.empty)))
 
       val res: Either[Exception, Option[CHROAddress]] = await(service.returnAddressFromTxAPI(groupCompanyName, "foo"))
-      res.right.get shouldBe None
+      res.right.get mustBe None
     }
 
     "return left exception if returnListOfShareholdersFromTxApi returns exception" in new Setup {
@@ -357,7 +357,7 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
         .thenReturn(Future.successful(Left(ex)))
 
       val res: Either[Exception, Option[CHROAddress]] = await(service.returnAddressFromTxAPI(groupCompanyName, "foo"))
-      res.left.get shouldBe ex
+      res.left.get mustBe ex
     }
 
     "return exception if fetch confirmation references returns exception" in new Setup {
@@ -385,7 +385,7 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
         .thenReturn(Future.successful(Left(new Exception(""))))
 
       val res: InternalServerException = intercept[InternalServerException](service.retreiveValidatedTxApiAddress(Groups(groupRelief = false, None, None, None), "foo"))
-      res.message shouldBe "[GroupService] [retreiveTxApiAddress] attempted to find txApi address without prerequesite data"
+      res.message mustBe "[GroupService] [retreiveTxApiAddress] attempted to find txApi address without prerequesite data"
     }
 
     "return address when address is valid" in new Setup {
@@ -404,7 +404,7 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
           Some(GroupsAddressAndType("CohoEntered", address)),
           None
         ), ""))
-      res shouldBe Some(address)
+      res mustBe Some(address)
     }
 
     "return no address when address invalid" in new Setup {
@@ -423,7 +423,7 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
           Some(GroupsAddressAndType("CohoEntered", address)),
           None
         ), ""))
-      res shouldBe None
+      res mustBe None
     }
   }
 
@@ -449,7 +449,7 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
         .thenReturn(Future.successful(Groups(groupRelief = true, None, None, None)))
 
       val res: Groups = await(service.dropOldFields(groups, address, "foo"))
-      res shouldBe Groups(groupRelief = true, None, None, None)
+      res mustBe Groups(groupRelief = true, None, None, None)
       verify(mockCompanyRegistrationConnector, times(1)).updateGroups(any(), any())(any())
 
     }
@@ -460,7 +460,7 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
         .thenReturn(Future.successful(Some(address)))
 
       val res: Groups = await(service.dropOldFields(groupsWithSameAddress, address, "foo"))
-      res shouldBe groupsWithSameAddress
+      res mustBe groupsWithSameAddress
       verify(mockCompanyRegistrationConnector, times(0)).updateGroups(any(), any())(any())
     }
 
@@ -488,7 +488,7 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
         Groups(groupRelief = true, Some(GroupCompanyName("big company", "CohoEntered")), None, None),
         registrationID = ""
       ))
-      res.left.get.getMessage shouldBe "[GroupService] [saveTxShareHolderAddress] Attempted to save TxApiAddress but none was found"
+      res.left.get.getMessage mustBe "[GroupService] [saveTxShareHolderAddress] Attempted to save TxApiAddress but none was found"
     }
 
     "return a  right updated group block, and update groups if returns address after validation" in new Setup {
@@ -505,7 +505,7 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
         Groups(groupRelief = true, Some(GroupCompanyName("big company", "CohoEntered")), None, None),
         registrationID = ""
       ))
-      res.right.get shouldBe Groups(groupRelief = false, None, None, None)
+      res.right.get mustBe Groups(groupRelief = false, None, None, None)
     }
   }
 
@@ -528,8 +528,8 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
         "123"
       ))
 
-      res._1 shouldBe List("foo", "bar", "wiZZ 123")
-      res._2 shouldBe Groups(groupRelief = true, Some(GroupCompanyName("wiZZ 123", "Other")), None, None)
+      res._1 mustBe List("foo", "bar", "wiZZ 123")
+      res._2 mustBe Groups(groupRelief = true, Some(GroupCompanyName("wiZZ 123", "Other")), None, None)
       verify(mockCompanyRegistrationConnector, times(0)).updateGroups(any(), any())(any())
     }
 
@@ -548,8 +548,8 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
         "123"
       ))
 
-      res._1 shouldBe List("foo", "bar", "wiZZ 123")
-      res._2 shouldBe Groups(groupRelief = false, None, None, None)
+      res._1 mustBe List("foo", "bar", "wiZZ 123")
+      res._2 mustBe Groups(groupRelief = false, None, None, None)
     }
 
     "return future list of string and group where name does not exist - a drop takes place of all other fields" in new Setup {
@@ -567,8 +567,8 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
         "123"
       ))
 
-      res._1 shouldBe List("foo", "bar", "wiZZ 123")
-      res._2 shouldBe Groups(groupRelief = false, None, None, None)
+      res._1 mustBe List("foo", "bar", "wiZZ 123")
+      res._2 mustBe Groups(groupRelief = false, None, None, None)
       verify(mockCompanyRegistrationConnector, times(1)).updateGroups(any(), any())(any())
     }
 
@@ -585,8 +585,8 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
         "123"
       ))
 
-      res._1 shouldBe List("foo", "bar", "wiZZ 123")
-      res._2 shouldBe Groups(groupRelief = true, Some(GroupCompanyName("wiZZ 123", "CohoEntered")), None, None)
+      res._1 mustBe List("foo", "bar", "wiZZ 123")
+      res._2 mustBe Groups(groupRelief = true, Some(GroupCompanyName("wiZZ 123", "CohoEntered")), None, None)
       verify(mockCompanyRegistrationConnector, times(0)).updateGroups(any(), any())(any())
     }
 
@@ -605,8 +605,8 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
         "123"
       ))
 
-      res._1 shouldBe List("foo", "bar", "wiZZ 123")
-      res._2 shouldBe Groups(groupRelief = true, None, None, None)
+      res._1 mustBe List("foo", "bar", "wiZZ 123")
+      res._2 mustBe Groups(groupRelief = true, None, None, None)
       verify(mockCompanyRegistrationConnector, times(1)).updateGroups(any(), any())(any())
     }
 
@@ -621,8 +621,8 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
         "123"
       ))
 
-      res._1 shouldBe List.empty
-      res._2 shouldBe Groups(groupRelief = true, Some(GroupCompanyName("wiZZ 123 1", "CohoEntered")), None, None)
+      res._1 mustBe List.empty
+      res._2 mustBe Groups(groupRelief = true, Some(GroupCompanyName("wiZZ 123 1", "CohoEntered")), None, None)
       verify(mockCompanyRegistrationConnector, times(0)).updateGroups(any(), any())(any())
     }
 
@@ -649,7 +649,7 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
       when(mockCompanyRegistrationConnector.deleteGroups(any())(any())).thenReturn(Future.successful(true))
 
       val res: List[Shareholder] = await(service.dropOldGroups(Right(List.empty), "123"))
-      res shouldBe List.empty
+      res mustBe List.empty
     }
 
     "drop groups if groups block does not exist because name is not in list" in new Setup {
@@ -659,7 +659,7 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
         .shareholderListValidationEndpoint(any())(any())).thenReturn(Future.successful(List("foo")))
 
       val res: List[Shareholder] = await(service.dropOldGroups(Right(listOfShareholders), "foo"))
-      res shouldBe listOfShareholders
+      res mustBe listOfShareholders
       verify(mockCompanyRegistrationConnector, times(0)).deleteGroups(any())(any())
     }
 
@@ -677,7 +677,7 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
         .thenReturn(Future.successful(true))
 
       val res: List[Shareholder] = await(service.dropOldGroups(Right(listOfShareholders), "foo"))
-      res shouldBe listOfShareholders
+      res mustBe listOfShareholders
       verify(mockCompanyRegistrationConnector, times(1)).deleteGroups(any())(any())
     }
 
@@ -693,7 +693,7 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
         .thenReturn(Future.successful(List("foo")))
 
       val res: List[Shareholder] = await(service.dropOldGroups(Right(listOfShareholders), "foo"))
-      res shouldBe listOfShareholders
+      res mustBe listOfShareholders
       verify(mockCompanyRegistrationConnector, times(0)).deleteGroups(any())(any())
     }
 
@@ -709,7 +709,7 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
         .thenReturn(Future.successful(List("foo")))
 
       val res: List[Shareholder] = await(service.dropOldGroups(Right(listOfShareholders), "foo"))
-      res shouldBe listOfShareholders
+      res mustBe listOfShareholders
       verify(mockCompanyRegistrationConnector, times(0)).deleteGroups(any())(any())
     }
 
@@ -725,7 +725,7 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
         .thenReturn(Future.successful(List("foo")))
 
       val res: List[Shareholder] = await(service.dropOldGroups(Right(listOfShareholders), "bar"))
-      res shouldBe listOfShareholders
+      res mustBe listOfShareholders
       verify(mockCompanyRegistrationConnector, times(0)).deleteGroups(any())(any())
     }
   }

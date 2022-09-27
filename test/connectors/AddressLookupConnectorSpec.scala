@@ -38,7 +38,7 @@ class AddressLookupConnectorSpec extends SCRSSpec {
 
   "AddressLookupConnector" should {
     "use the correct addressLookupFrontendURL" in new Setup {
-      connector.addressLookupFrontendURL shouldBe "testAddressLookupUrl"
+      connector.addressLookupFrontendURL mustBe "testAddressLookupUrl"
     }
   }
 
@@ -46,7 +46,7 @@ class AddressLookupConnectorSpec extends SCRSSpec {
     "return an address response" in new Setup {
       mockHttpGet[JsObject]("testUrl", testAddress)
 
-      await(connector.getAddress("123")) shouldBe testAddress
+      await(connector.getAddress("123")) mustBe testAddress
     }
     "return a Not found response" in new Setup {
       when(mockWSHttp.GET[JsObject](ArgumentMatchers.anyString(),ArgumentMatchers.any(),ArgumentMatchers.any())

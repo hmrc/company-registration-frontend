@@ -32,7 +32,7 @@ class ALFFormSpec extends UnitSpec with PPOBFixture {
       lazy val boundForm = form.bind(data)
 
       "Have no errors" in {
-        boundForm.hasErrors shouldBe false
+        boundForm.hasErrors mustBe false
       }
     }
   }
@@ -45,7 +45,7 @@ class ALFFormSpec extends UnitSpec with PPOBFixture {
       lazy val boundForm = form.bind(data)
 
       "Have no errors" in {
-        boundForm.hasErrors shouldBe true
+        boundForm.hasErrors mustBe true
       }
     }
   }

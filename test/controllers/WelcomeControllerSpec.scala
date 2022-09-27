@@ -43,8 +43,8 @@ class WelcomeControllerSpec extends SCRSSpec with GuiceOneAppPerSuite {
       "they show the page" in new Setup {
         val result = TestController.show(FakeRequest())
 
-        status(result) shouldBe PERMANENT_REDIRECT
-        await(result).header.headers.get(LOCATION) shouldBe Some("/register-your-company/setting-up-new-limited-company")
+        status(result) mustBe PERMANENT_REDIRECT
+        await(result).header.headers.get(LOCATION) mustBe Some("/register-your-company/setting-up-new-limited-company")
       }
     }
   }
@@ -53,8 +53,8 @@ class WelcomeControllerSpec extends SCRSSpec with GuiceOneAppPerSuite {
     "return a 303 and send user to set up new limited company page when not signed in." in new Setup {
       val result = TestController.submit(FakeRequest())
 
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/register-your-company/setting-up-new-limited-company")
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some("/register-your-company/setting-up-new-limited-company")
     }
   }
 }

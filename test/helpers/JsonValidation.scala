@@ -21,9 +21,9 @@ import play.api.libs.json.{JsError, JsPath, JsResult, JsSuccess, JsonValidationE
 trait JsonValidation {
   this: UnitSpec =>
 
-  def shouldBeSuccess[T](expected: T, result: JsResult[T]) = {
+  def mustBeSuccess[T](expected: T, result: JsResult[T]) = {
     result match {
-      case JsSuccess(v, path) => v shouldBe expected
+      case JsSuccess(v, path) => v mustBe expected
       case JsError(errors) => fail(s"Test produced errors - $errors")
     }
   }
@@ -40,13 +40,13 @@ trait JsonValidation {
     result match {
       case JsSuccess(v, path) => fail(s"read should have failed and didn't - produced $v")
       case JsError(errors) =>
-        errors.length shouldBe expectedErrors.keySet.toSeq.length
+        errors.length mustBe expectedErrors.keySet.toSeq.length
 
         for (error <- errors) {
           error match {
             case (path, valErrs) =>
-              expectedErrors.keySet should contain(path)
-              expectedErrors(path) shouldBe valErrs
+              expectedErrors.keySet must contain(path)
+              expectedErrors(path) mustBe valErrs
           }
         }
     }

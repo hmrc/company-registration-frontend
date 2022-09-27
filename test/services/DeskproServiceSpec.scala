@@ -46,7 +46,7 @@ class DeskproServiceSpec extends SCRSSpec {
 
   "getSessionId" should {
     "return a session Id" in new Setup {
-      service.getSessionId shouldBe sessionId
+      service.getSessionId mustBe sessionId
     }
   }
 
@@ -72,7 +72,7 @@ class DeskproServiceSpec extends SCRSSpec {
 
   "buildTicket" should {
     "return a new ticket" in new Setup {
-      await(service.buildTicket(regId, providedInfo, mockAuthId)) shouldBe ticket
+      await(service.buildTicket(regId, providedInfo, mockAuthId)) mustBe ticket
     }
   }
 
@@ -84,7 +84,7 @@ class DeskproServiceSpec extends SCRSSpec {
       when(mockdeskproConnector.submitTicket(ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(ticketResponse))
 
-      await(service.submitTicket(regId, providedInfo, mockAuthId)) shouldBe ticketResponse
+      await(service.submitTicket(regId, providedInfo, mockAuthId)) mustBe ticketResponse
     }
   }
 

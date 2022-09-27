@@ -109,7 +109,7 @@ class GroupReliefControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with M
       showWithUnauthorisedUser(controller.show) {
         result => {
           val response = await(result)
-          status(response) shouldBe SEE_OTHER
+          status(response) mustBe SEE_OTHER
         }
       }
     }
@@ -126,8 +126,8 @@ class GroupReliefControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with M
       showWithAuthorisedUser(controller.show) {
         result => {
           val response = await(result)
-          status(response) shouldBe SEE_OTHER
-          response.header.headers("Location") shouldBe "/register-your-company/post-sign-in"
+          status(response) mustBe SEE_OTHER
+          response.header.headers("Location") mustBe "/register-your-company/post-sign-in"
         }
       }
     }
@@ -145,8 +145,8 @@ class GroupReliefControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with M
 
         result => {
           val response = await(result)
-          status(response) shouldBe SEE_OTHER
-          response.header.headers("Location") shouldBe "/register-your-company/post-sign-in"
+          status(response) mustBe SEE_OTHER
+          response.header.headers("Location") mustBe "/register-your-company/post-sign-in"
         }
       }
     }
@@ -165,7 +165,7 @@ class GroupReliefControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with M
 
         result => {
           val response = await(result)
-          status(response) shouldBe OK
+          status(response) mustBe OK
         }
       }
     }
@@ -183,7 +183,7 @@ class GroupReliefControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with M
 
         result => {
           val response = await(result)
-          status(response) shouldBe OK
+          status(response) mustBe OK
         }
       }
     }
@@ -201,8 +201,8 @@ class GroupReliefControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with M
 
       submitWithAuthorisedUser(controller.submit, FakeRequest().withFormUrlEncodedBody("groupRelief" -> "true")) {
         result =>
-          status(result) shouldBe SEE_OTHER
-          result.header.headers("Location") shouldBe "/register-your-company/owning-companys-name"
+          status(result) mustBe SEE_OTHER
+          result.header.headers("Location") mustBe "/register-your-company/owning-companys-name"
       }
     }
 
@@ -219,8 +219,8 @@ class GroupReliefControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with M
 
       submitWithAuthorisedUser(controller.submit, FakeRequest().withFormUrlEncodedBody("groupRelief" -> "false")) {
         result =>
-          status(result) shouldBe SEE_OTHER
-          result.header.headers("Location") shouldBe "/register-your-company/psc-handoff"
+          status(result) mustBe SEE_OTHER
+          result.header.headers("Location") mustBe "/register-your-company/psc-handoff"
       }
     }
 
@@ -237,7 +237,7 @@ class GroupReliefControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with M
 
       submitWithAuthorisedUser(controller.submit, FakeRequest().withFormUrlEncodedBody("groupRelief" -> "maybe")) {
         result =>
-          status(result) shouldBe BAD_REQUEST
+          status(result) mustBe BAD_REQUEST
 
       }
     }

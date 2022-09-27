@@ -54,8 +54,8 @@ class TestIncorporateControllerSpec extends UnitSpec with MockitoSugar with Guic
         .thenReturn(Future.successful(true))
 
       val result = await(controller.incorporate(transId, false)(FakeRequest()))
-      status(result) shouldBe 200
-      bodyOf(result) shouldBe s"[SUCCESS] incorporating $transId"
+      status(result) mustBe 200
+      bodyOf(result) mustBe s"[SUCCESS] incorporating $transId"
     }
 
     "return a 500 when the endpoints have returned unsuccessfully" in new Setup {

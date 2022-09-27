@@ -107,7 +107,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
       showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
-          document.title should include("Company registration overview")
+          document.title must include("Company registration overview")
 
           Map(
             "incorpStatusText" -> "Pending",
@@ -119,7 +119,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
             "ackRef" -> "ack-12345",
             "ctPendingText" -> "We’ve received your application but can’t process it until we’ve set up the limited company."
           ) foreach { case (element, message) =>
-            document.getElementById(element).text() shouldBe message
+            document.getElementById(element).text() mustBe message
           }
       }
     }
@@ -147,7 +147,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
       showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
-          document.title should include("Company registration overview")
+          document.title must include("Company registration overview")
 
           Map(
             "incorpStatusText" -> "Pending",
@@ -159,7 +159,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
             "ctPendingText" -> "We’ve received your application but can’t process it until we’ve set up the limited company.",
             "incorpSubmissionDate" -> ""
           ) foreach { case (element, message) =>
-            document.getElementById(element).text() shouldBe message
+            document.getElementById(element).text() mustBe message
           }
       }
     }
@@ -187,7 +187,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
       showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
-          document.title should include("Company registration overview")
+          document.title must include("Company registration overview")
 
           Map(
             "incorpStatusText" -> "Registered",
@@ -196,7 +196,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
             "submittedAckRef" -> "ack-12345",
             "CTifSuccess" -> "If your application is successful we’ll send you:"
           ) foreach { case (element, message) =>
-            document.getElementById(element).text() shouldBe message
+            document.getElementById(element).text() mustBe message
           }
       }
     }
@@ -224,14 +224,14 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
       showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
-          document.title should include("Company registration overview")
+          document.title must include("Company registration overview")
 
           Map(
             "incorpStatusText" -> "Registered",
             "crn" -> "crn123",
             "ctStatusText" -> "Registered"
           ) foreach { case (element, message) =>
-            document.getElementById(element).text() shouldBe message
+            document.getElementById(element).text() mustBe message
           }
 
       }
@@ -263,13 +263,13 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
         showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
           result =>
             val document = Jsoup.parse(contentAsString(result))
-            document.title should include("Company registration overview")
+            document.title must include("Company registration overview")
             Map(
               "incorpStatusText" -> "Registered",
               "crn" -> "crn123",
               "ctStatusText" -> "Registered"
             ) foreach { case (element, message) =>
-              document.getElementById(element).text() shouldBe message
+              document.getElementById(element).text() mustBe message
             }
         }
       }
@@ -301,7 +301,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
         showWithAuthorisedUserRetrieval(controller.show, authDetails(Set(Enrolment("IR-CT", Seq(EnrolmentIdentifier("UTR", "exampleUTR")), "activated")))) {
           result =>
             val document = Jsoup.parse(contentAsString(result))
-            document.title should include("Company registration overview")
+            document.title must include("Company registration overview")
 
             Map(
               "incorpStatusText" -> "Registered",
@@ -309,7 +309,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
               "ctStatusText" -> "Registered",
               "ctutrText" -> "exampleUTR"
             ) foreach { case (element, message) =>
-              document.getElementById(element).text() shouldBe message
+              document.getElementById(element).text() mustBe message
             }
         }
       }
@@ -340,17 +340,17 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
         showWithAuthorisedUserRetrieval(controller.show, authDetails(Set(Enrolment("IR-CT", Seq(EnrolmentIdentifier("UTR", "exampleUTR")), "activated")))) {
           result =>
             val document = Jsoup.parse(contentAsString(result))
-            document.title should include("Company registration overview")
+            document.title must include("Company registration overview")
 
             Map(
               "incorpStatusText" -> "Registered",
               "crn" -> "crn123",
               "ctStatusText" -> "Registered"
             ) foreach { case (element, message) =>
-              document.getElementById(element).text() shouldBe message
+              document.getElementById(element).text() mustBe message
             }
 
-            document.getElementById("ctutrText") shouldBe null
+            document.getElementById("ctutrText") mustBe null
         }
       }
     }
@@ -380,17 +380,17 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
         showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
           result =>
             val document = Jsoup.parse(contentAsString(result))
-            document.title should include("Company registration overview")
+            document.title must include("Company registration overview")
 
             Map(
               "incorpStatusText" -> "Registered",
               "crn" -> "crn123",
               "noCTEnrolmentMessage" -> "We’ve sent you an activation code in the post. Use this to activate your Corporation Tax enrolment so you can manage Corporation Tax online."
             ) foreach { case (element, message) =>
-              document.getElementById(element).text() shouldBe message
+              document.getElementById(element).text() mustBe message
             }
 
-            document.getElementById("ctutrText") shouldBe null
+            document.getElementById("ctutrText") mustBe null
 
         }
       }
@@ -419,8 +419,8 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
       showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
-          document.title should include("Company registration overview")
-          document.getElementById("payeStatusText").text() shouldBe "Not eligible"
+          document.title must include("Company registration overview")
+          document.getElementById("payeStatusText").text() mustBe "Not eligible"
       }
     }
 
@@ -447,8 +447,8 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
       showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
-          document.title should include("Company registration overview")
-          document.getElementById("payeStatusText").text() shouldBe "Temporarily unavailable"
+          document.title must include("Company registration overview")
+          document.getElementById("payeStatusText").text() mustBe "Temporarily unavailable"
       }
     }
 
@@ -475,8 +475,8 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
       showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
-          document.title should include("Company registration overview")
-          document.getElementById("payeStatusText").text() shouldBe "Register for PAYE"
+          document.title must include("Company registration overview")
+          document.getElementById("payeStatusText").text() mustBe "Register for PAYE"
       }
     }
 
@@ -503,8 +503,8 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
       showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
-          document.title should include("Company registration overview")
-          document.getElementById("payeStatusText").text() shouldBe "Incomplete"
+          document.title must include("Company registration overview")
+          document.getElementById("payeStatusText").text() mustBe "Incomplete"
 
       }
     }
@@ -532,13 +532,13 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
       showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
-          document.title should include("Company registration overview")
+          document.title must include("Company registration overview")
 
           Map(
             "payeStatusText" -> "Pending",
             "PAYERef" -> "ABCD12345678901"
           ) foreach { case (element, message) =>
-            document.getElementById(element).text() shouldBe message
+            document.getElementById(element).text() mustBe message
           }
       }
     }
@@ -566,14 +566,14 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
       showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
-          document.title should include("Company registration overview")
+          document.title must include("Company registration overview")
 
           Map(
             "payeStatusText" -> "Pending",
             "PAYERef" -> "ABCD12345678901",
             "PAYEDate" -> "15 May 2017"
           ) foreach { case (element, message) =>
-            document.getElementById(element).text() shouldBe message
+            document.getElementById(element).text() mustBe message
           }
       }
     }
@@ -601,8 +601,8 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
       showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
-          document.title should include("Company registration overview")
-          document.getElementById("payeStatusText").text() shouldBe "Registered"
+          document.title must include("Company registration overview")
+          document.getElementById("payeStatusText").text() mustBe "Registered"
       }
     }
 
@@ -632,7 +632,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
         showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
           result =>
             val document = Jsoup.parse(contentAsString(result))
-            document.title should include("Company registration overview")
+            document.title must include("Company registration overview")
             intercept[NullPointerException](document.getElementById("payeStatusText").text())
         }
       }
@@ -661,8 +661,8 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
       showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
-          document.title should include("Company registration overview")
-          document.getElementById("payeStatusText").text() shouldBe "Incomplete"
+          document.title must include("Company registration overview")
+          document.getElementById("payeStatusText").text() mustBe "Incomplete"
 
 
       }
@@ -691,8 +691,8 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
       showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
-          document.title should include("Company registration overview")
-          document.getElementById("payeStatusText").text() shouldBe "Unsuccessful"
+          document.title must include("Company registration overview")
+          document.getElementById("payeStatusText").text() mustBe "Unsuccessful"
       }
     }
 
@@ -719,8 +719,8 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
       showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
-          document.title should include("Company registration overview")
-          document.getElementById("legacyVATStatusText").text() shouldBe "Register using another HMRC service (opens in new tab)"
+          document.title must include("Company registration overview")
+          document.getElementById("legacyVATStatusText").text() mustBe "Register using another HMRC service (opens in new tab)"
       }
     }
 
@@ -750,7 +750,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
         showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
           result =>
             val document = Jsoup.parse(contentAsString(result))
-            document.title should include("Company registration overview")
+            document.title must include("Company registration overview")
             intercept[NullPointerException](document.getElementById("legacyVATStatusText").text())
         }
       }
@@ -779,8 +779,8 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
       showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
-          document.title should include("Company registration overview")
-          document.getElementById("legacyVATStatusText").text() shouldBe "Register using another HMRC service (opens in new tab)"
+          document.title must include("Company registration overview")
+          document.getElementById("legacyVATStatusText").text() mustBe "Register using another HMRC service (opens in new tab)"
       }
     }
 
@@ -807,9 +807,9 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
       showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
-          document.title should include("Company registration overview")
-          document.getElementById("vatStatusText") shouldBe null
-          document.getElementById("vatUrl") shouldBe null
+          document.title must include("Company registration overview")
+          document.getElementById("vatStatusText") mustBe null
+          document.getElementById("vatUrl") mustBe null
       }
     }
 
@@ -836,9 +836,9 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
       showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
-          document.title should include("Company registration overview")
-          document.getElementById("vatStatusText") shouldBe null
-          document.getElementById("vatUrl") shouldBe null
+          document.title must include("Company registration overview")
+          document.getElementById("vatStatusText") mustBe null
+          document.getElementById("vatUrl") mustBe null
 
       }
     }
@@ -865,8 +865,8 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
       showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
-          document.title should include("Company registration overview")
-          document.getElementById("payeStatusText").text() shouldBe "Incomplete"
+          document.title must include("Company registration overview")
+          document.getElementById("payeStatusText").text() mustBe "Incomplete"
       }
     }
 
@@ -892,8 +892,8 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
       showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
-          document.title should include("Company registration overview")
-          document.getElementById("payeStatusText").text() shouldBe "Incomplete"
+          document.title must include("Company registration overview")
+          document.getElementById("payeStatusText").text() mustBe "Incomplete"
       }
     }
   }
@@ -922,7 +922,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
       showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
-          document.getElementById("employer-help-thresholds").text() shouldBe "Use this service to register a company if it will do either of the following in the next 2 months:"
+          document.getElementById("employer-help-thresholds").text() mustBe "Use this service to register a company if it will do either of the following in the next 2 months:"
       }
     }
 
@@ -948,7 +948,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
       showWithAuthorisedUserRetrieval(controller.show, authDetails()) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
-          document.getElementById("employer-help-thresholds").text() shouldBe "Use this service to register a company if it will do either of the following in the next 2 months:"
+          document.getElementById("employer-help-thresholds").text() mustBe "Use this service to register a company if it will do either of the following in the next 2 months:"
       }
     }
   }

@@ -150,27 +150,27 @@ class HandOffNavModelSpec extends UnitSpec {
 
     "be able to write to json" in {
       val modelToJson = Json.toJson(handOffNavModel)
-      modelToJson shouldBe modelAsJson
+      modelToJson mustBe modelAsJson
     }
 
     "be able to read from json" in {
       val modelFromJson = Json.fromJson[HandOffNavModel](modelAsJson)
-      modelFromJson.get shouldBe handOffNavModel
+      modelFromJson.get mustBe handOffNavModel
     }
 
     "be able to read from json when jump links and ch data are non existent" in {
       val modelFromJson = Json.fromJson[HandOffNavModel](modelAsJsonWithoutOptions)
-      modelFromJson.get shouldBe handOffNavModelWithoutOptions
+      modelFromJson.get mustBe handOffNavModelWithoutOptions
     }
 
     "save CH data as json" in {
       val modelFromJson = Json.fromJson[HandOffNavModel](modelAsJson)
-      modelFromJson.get.receiver.chData.get.getClass shouldBe classOf[JsObject]
+      modelFromJson.get.receiver.chData.get.getClass mustBe classOf[JsObject]
     }
 
     "make sure json in CH data is the same when read from json" in {
       val modelFromJson = Json.fromJson[HandOffNavModel](modelAsJson)
-      modelFromJson.get.receiver.chData.get shouldBe Json.parse("""{"testCHBagKey": "testValue"}""")
+      modelFromJson.get.receiver.chData.get mustBe Json.parse("""{"testCHBagKey": "testValue"}""")
     }
 
   }

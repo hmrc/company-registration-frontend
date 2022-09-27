@@ -82,9 +82,9 @@ class GroupReliefSpec extends SCRSSpec with UserDetailsFixture with AuthBuilder 
       showWithAuthorisedUser(controller.show) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
-          document.title should include("For Corporation Tax, will testCompanyname1 be in the same group for group relief purposes as the company that owns it?")
-          document.select(Selectors.h1).text() shouldBe "For Corporation Tax, will testCompanyname1 be in the same group for group relief purposes as the company that owns it?"
-          document.select(Selectors.p(1)).text() shouldBe "This can be the parent company if it is in the same group as testCompanyname1."
+          document.title must include("For Corporation Tax, will testCompanyname1 be in the same group for group relief purposes as the company that owns it?")
+          document.select(Selectors.h1).text() mustBe "For Corporation Tax, will testCompanyname1 be in the same group for group relief purposes as the company that owns it?"
+          document.select(Selectors.p(1)).text() mustBe "This can be the parent company if it is in the same group as testCompanyname1."
 
       }
     }

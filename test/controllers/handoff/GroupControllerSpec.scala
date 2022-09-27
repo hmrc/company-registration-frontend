@@ -72,8 +72,8 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
     "return 303 when missing bearer token" in new Setup {
       showWithUnauthorisedUser(testController.groupHandBack("foo")) {
         result =>
-          status(result) shouldBe 303
-          redirectLocation(result).get shouldBe authUrl("HO3-1", "foo")
+          status(result) mustBe 303
+          redirectLocation(result).get mustBe authUrl("HO3-1", "foo")
       }
     }
 
@@ -82,8 +82,8 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
 
       showWithAuthorisedUser(testController.groupHandBack("")) {
         result =>
-          status(result) shouldBe 303
-          redirectLocation(result).get shouldBe "/register-your-company/post-sign-in?handOffID=HO3-1&payload="
+          status(result) mustBe 303
+          redirectLocation(result).get mustBe "/register-your-company/post-sign-in?handOffID=HO3-1&payload="
       }
     }
 
@@ -94,7 +94,7 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
 
       showWithAuthorisedUser(testController.groupHandBack("fooBarNotDecryptable")) {
         result =>
-          status(result) shouldBe 400
+          status(result) mustBe 400
       }
     }
   }
@@ -120,8 +120,8 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
 
     showWithAuthorisedUser(testController.groupHandBack("fooBar")) {
       result =>
-        status(result) shouldBe 303
-        redirectLocation(result).get shouldBe controllers.handoff.routes.GroupController.PSCGroupHandOff.url
+        status(result) mustBe 303
+        redirectLocation(result).get mustBe controllers.handoff.routes.GroupController.PSCGroupHandOff.url
     }
   }
 
@@ -147,8 +147,8 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
 
     showWithAuthorisedUser(testController.groupHandBack("fooBar")) {
       result =>
-        status(result) shouldBe 303
-        redirectLocation(result).get shouldBe controllers.groups.routes.GroupReliefController.show.url
+        status(result) mustBe 303
+        redirectLocation(result).get mustBe controllers.groups.routes.GroupReliefController.show.url
     }
   }
 
@@ -167,7 +167,7 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
 
     showWithAuthorisedUser(testController.groupHandBack("fooBar")) {
       result =>
-        status(result) shouldBe 400
+        status(result) mustBe 400
     }
   }
 
@@ -185,8 +185,8 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
     "return 303 when missing bearer token" in new Setup {
       showWithUnauthorisedUser(testController.PSCGroupHandOff()) {
         result =>
-          status(result) shouldBe 303
-          redirectLocation(result).get shouldBe authUrl
+          status(result) mustBe 303
+          redirectLocation(result).get mustBe authUrl
       }
     }
 
@@ -194,8 +194,8 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
       mockKeystoreFetchAndGet("registrationID", None)
       showWithAuthorisedUserRetrieval(testController.PSCGroupHandOff(), Some("extID")) {
         result =>
-          status(result) shouldBe 303
-          redirectLocation(result).get shouldBe controllers.reg.routes.SignInOutController.postSignIn(None, None, None).url
+          status(result) mustBe 303
+          redirectLocation(result).get mustBe controllers.reg.routes.SignInOutController.postSignIn(None, None, None).url
       }
     }
 
@@ -207,7 +207,7 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
         .thenReturn(Future.successful(None))
 
       showWithAuthorisedUserRetrieval(testController.PSCGroupHandOff(), Some("extID")) {
-        result => status(result) shouldBe 400
+        result => status(result) mustBe 400
       }
     }
 
@@ -222,8 +222,8 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
 
       showWithAuthorisedUserRetrieval(testController.PSCGroupHandOff(), Some("extID")) {
         result =>
-          status(result) shouldBe 303
-          redirectLocation(result).get shouldBe "foo/bar/wizz/3-2"
+          status(result) mustBe 303
+          redirectLocation(result).get mustBe "foo/bar/wizz/3-2"
       }
     }
 
@@ -241,8 +241,8 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
 
       showWithAuthorisedUserRetrieval(testController.PSCGroupHandOff(), Some("extID")) {
         result =>
-          status(result) shouldBe 303
-          redirectLocation(result).get shouldBe "foo/bar/wizz/3-2"
+          status(result) mustBe 303
+          redirectLocation(result).get mustBe "foo/bar/wizz/3-2"
       }
     }
 
@@ -256,8 +256,8 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
 
       showWithAuthorisedUserRetrieval(testController.PSCGroupHandOff(), Some("extID")) {
         result =>
-          status(result) shouldBe 303
-          redirectLocation(result).get shouldBe controllers.reg.routes.SignInOutController.postSignIn(None).url
+          status(result) mustBe 303
+          redirectLocation(result).get mustBe controllers.reg.routes.SignInOutController.postSignIn(None).url
       }
     }
 
@@ -301,8 +301,8 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
 
       showWithAuthorisedUserRetrieval(testController.back, Some("extID")) {
         res =>
-          status(res) shouldBe 303
-          redirectLocation(res) shouldBe Some("/register-your-company/post-sign-in")
+          status(res) mustBe 303
+          redirectLocation(res) mustBe Some("/register-your-company/post-sign-in")
       }
     }
 
@@ -317,8 +317,8 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
 
       submitWithAuthorisedUserRetrieval(testController.back, request, Some("extID")) {
         result =>
-          status(result) shouldBe 303
-          redirectLocation(result) shouldBe Some("foo")
+          status(result) mustBe 303
+          redirectLocation(result) mustBe Some("foo")
       }
     }
   }

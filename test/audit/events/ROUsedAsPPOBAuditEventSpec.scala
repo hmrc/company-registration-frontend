@@ -62,7 +62,7 @@ class ROUsedAsPPOBAuditEventSpec extends UnitSpec {
       )
 
       val result = Json.toJson(model)
-      result shouldBe expected
+      result mustBe expected
     }
 
     "leave out optional fields" in {
@@ -93,7 +93,7 @@ class ROUsedAsPPOBAuditEventSpec extends UnitSpec {
       )
 
       val result = Json.toJson(model)
-      result shouldBe expected
+      result mustBe expected
     }
   }
 
@@ -119,8 +119,8 @@ class ROUsedAsPPOBAuditEventSpec extends UnitSpec {
       val auditEvent = new ROUsedAsPPOBAuditEvent(detail)(HeaderCarrier(), req)
       val result = Json.toJson[ExtendedDataEvent](auditEvent)
 
-      (result \ "auditType").as[String] shouldBe "registeredOfficeUsedAsPrincipalPlaceOfBusiness"
-      (result \ "detail") shouldBe JsDefined(Json.toJson(detail))
+      (result \ "auditType").as[String] mustBe "registeredOfficeUsedAsPrincipalPlaceOfBusiness"
+      (result \ "detail") mustBe JsDefined(Json.toJson(detail))
     }
   }
 }

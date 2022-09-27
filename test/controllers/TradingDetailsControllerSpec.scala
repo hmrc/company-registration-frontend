@@ -85,13 +85,13 @@ class TradingDetailsControllerSpec extends SCRSSpec with GuiceOneAppPerSuite wit
 
       showWithAuthorisedUser(testController.show) {
         result =>
-          status(result) shouldBe OK
+          status(result) mustBe OK
       }
     }
 
     "return a 303 whilst requesting a with an unauthorised user" in new Setup {
       showWithUnauthorisedUser(testController.show) {
-        result => status(result) shouldBe SEE_OTHER
+        result => status(result) mustBe SEE_OTHER
       }
     }
   }
@@ -112,8 +112,8 @@ class TradingDetailsControllerSpec extends SCRSSpec with GuiceOneAppPerSuite wit
         mockKeystoreFetchAndGet("registrationID", Some(regID))
         submitWithAuthorisedUser(testController.submit, FakeRequest().withFormUrlEncodedBody("regularPayments" -> "true")) {
           result =>
-            status(result) shouldBe SEE_OTHER
-            redirectLocation(result) shouldBe Some("/register-your-company/business-activities")
+            status(result) mustBe SEE_OTHER
+            redirectLocation(result) mustBe Some("/register-your-company/business-activities")
         }
       }
     }
@@ -122,8 +122,8 @@ class TradingDetailsControllerSpec extends SCRSSpec with GuiceOneAppPerSuite wit
       mockKeystoreFetchAndGet("registrationID", None)
       submitWithAuthorisedUser(testController.submit, FakeRequest().withFormUrlEncodedBody("regularPayments" -> "true")) {
         result =>
-          status(result) shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe Some("/register-your-company/post-sign-in")
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result) mustBe Some("/register-your-company/post-sign-in")
       }
     }
 
@@ -142,7 +142,7 @@ class TradingDetailsControllerSpec extends SCRSSpec with GuiceOneAppPerSuite wit
         mockKeystoreFetchAndGet("registrationID", Some(regID))
         submitWithAuthorisedUser(testController.submit, FakeRequest().withFormUrlEncodedBody("regularPayments" -> "true")) {
           result =>
-            status(result) shouldBe BAD_REQUEST
+            status(result) mustBe BAD_REQUEST
         }
       }
 
@@ -160,7 +160,7 @@ class TradingDetailsControllerSpec extends SCRSSpec with GuiceOneAppPerSuite wit
         mockKeystoreFetchAndGet("registrationID", Some(regID))
         submitWithAuthorisedUser(testController.submit, FakeRequest().withFormUrlEncodedBody("regularPayments" -> "true")) {
           result =>
-            status(result) shouldBe BAD_REQUEST
+            status(result) mustBe BAD_REQUEST
         }
       }
 
@@ -178,7 +178,7 @@ class TradingDetailsControllerSpec extends SCRSSpec with GuiceOneAppPerSuite wit
         mockKeystoreFetchAndGet("registrationID", Some(regID))
         submitWithAuthorisedUser(testController.submit, FakeRequest().withFormUrlEncodedBody("regularPayments" -> "true")) {
           result =>
-            status(result) shouldBe BAD_REQUEST
+            status(result) mustBe BAD_REQUEST
         }
       }
 
@@ -186,7 +186,7 @@ class TradingDetailsControllerSpec extends SCRSSpec with GuiceOneAppPerSuite wit
         mockKeystoreFetchAndGet("registrationID", Some("foo"))
         submitWithAuthorisedUser(testController.submit, FakeRequest().withFormUrlEncodedBody("regularPayments" -> "")) {
           result =>
-            status(result) shouldBe BAD_REQUEST
+            status(result) mustBe BAD_REQUEST
         }
       }
     }

@@ -51,16 +51,16 @@ class QuestionnaireFormSpec extends UnitSpec with FormTestHelpers {
 
     "contain errors when a blank ableToAchieve rating is provided" in {
 
-      bindFromRequestWithErrors(questionnaireMap(ableToAchieve = "").toList, form).map(x => (x.key, x.message)) shouldBe
+      bindFromRequestWithErrors(questionnaireMap(ableToAchieve = "").toList, form).map(x => (x.key, x.message)) mustBe
         List(("ableToAchieve", "error.required"))
     }
 
     "contain errors when invalid meetNeeds is provided " in {
-      bindFromRequestWithErrors(questionnaireMap(meetNeeds = "0").toList, form).map(x => (x.key, x.message)) shouldBe
+      bindFromRequestWithErrors(questionnaireMap(meetNeeds = "0").toList, form).map(x => (x.key, x.message)) mustBe
         List(("meetNeeds", "error.min"))
     }
     "contain errors when blank tryingToDo is provided " in {
-      bindFromRequestWithErrors(questionnaireMap(tryingToDo = "").toList, form).map(x => (x.key, x.message)) shouldBe
+      bindFromRequestWithErrors(questionnaireMap(tryingToDo = "").toList, form).map(x => (x.key, x.message)) mustBe
         List(("tryingToDo", "error.required"))
     }
     "contain errors when blank satisfaction is provided " in {

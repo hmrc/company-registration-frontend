@@ -49,7 +49,7 @@ class TakeoverInformationNeededControllerISpec extends IntegrationSpecBase with 
         .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie)
         .get())
 
-      res.status shouldBe OK
+      res.status mustBe OK
     }
   }
 }

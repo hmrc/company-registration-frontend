@@ -38,8 +38,8 @@ class EditSessionControllerSpec extends UnitSpec with MockitoSugar with GuiceOne
       val requestWithSession = FakeRequest().withSession(SessionKeys.sessionId -> sessionId)
       val result = controller.editSession(newSessionId)(requestWithSession)
 
-      session(result).get(SessionKeys.sessionId) shouldBe Some(newSessionId)
-      status(result) shouldBe OK
+      session(result).get(SessionKeys.sessionId) mustBe Some(newSessionId)
+      status(result) mustBe OK
     }
   }
 }

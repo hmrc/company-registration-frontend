@@ -63,7 +63,7 @@ class RegistrationUnsuccessfulControllerSpec extends SCRSSpec with GuiceOneAppPe
 
       showWithAuthorisedUser(controller.show) {
         result =>
-          status(result) shouldBe OK
+          status(result) mustBe OK
       }
     }
   }
@@ -78,8 +78,8 @@ class RegistrationUnsuccessfulControllerSpec extends SCRSSpec with GuiceOneAppPe
 
       submitWithAuthorisedUser(controller.submit, FakeRequest().withFormUrlEncodedBody(Nil: _*)) {
         result =>
-          status(result) shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe Some("/register-your-company/post-sign-in")
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result) mustBe Some("/register-your-company/post-sign-in")
       }
     }
   }
@@ -88,7 +88,7 @@ class RegistrationUnsuccessfulControllerSpec extends SCRSSpec with GuiceOneAppPe
     "return 200" in new Setup {
       showWithAuthorisedUser(controller.rejectionShow) {
         result =>
-          status(result) shouldBe OK
+          status(result) mustBe OK
       }
     }
   }
@@ -102,8 +102,8 @@ class RegistrationUnsuccessfulControllerSpec extends SCRSSpec with GuiceOneAppPe
 
       submitWithAuthorisedUser(controller.rejectionSubmit, FakeRequest().withFormUrlEncodedBody(Nil: _*)) {
         result =>
-          status(result) shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe Some(registerCompanyGOVUKLink)
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result) mustBe Some(registerCompanyGOVUKLink)
       }
     }
     "return a 500 if delete submission returns false" in new Setup {
@@ -113,7 +113,7 @@ class RegistrationUnsuccessfulControllerSpec extends SCRSSpec with GuiceOneAppPe
 
       submitWithAuthorisedUser(controller.rejectionSubmit, FakeRequest().withFormUrlEncodedBody(Nil: _*)) {
         result =>
-          status(result) shouldBe 500
+          status(result) mustBe 500
       }
     }
     "return a exception if delete submission returns an exception" in new Setup {
@@ -122,7 +122,7 @@ class RegistrationUnsuccessfulControllerSpec extends SCRSSpec with GuiceOneAppPe
         .thenReturn(Future.failed(new Exception("")))
 
       intercept[Exception](submitWithAuthorisedUser(controller.rejectionSubmit, FakeRequest().withFormUrlEncodedBody(Nil: _*)) {
-        result => 1 shouldBe 0
+        result => 1 mustBe 0
 
       })
     }

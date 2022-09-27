@@ -69,11 +69,11 @@ class VerifyYourEmailISpec extends IntegrationSpecBase with LoginStub {
         get()
 
       val response = await(fResponse)(FiniteDuration(10, "seconds"))
-      response.status shouldBe 200
+      response.status mustBe 200
 
       val document = Jsoup.parse(response.body)
-      document.title should include("Confirm your email address")
-      document.select("p").text should include(email)
+      document.title must include("Confirm your email address")
+      document.select("p").text must include(email)
     }
 
     "redirect to sign-in when not logged in" in {
@@ -81,14 +81,14 @@ class VerifyYourEmailISpec extends IntegrationSpecBase with LoginStub {
 
       val response = await(buildClient("/sent-an-email").get())
 
-      response.status shouldBe 303
+      response.status mustBe 303
 
       val redirectTo = response.header(HeaderNames.LOCATION)
 
-      redirectTo shouldBe defined
+      redirectTo mustBe defined
       redirectTo map { r =>
-        r should include("/bas-gateway/sign-in")
-        r should include("register-your-company%2Fpost-sign-in")
+        r must include("/bas-gateway/sign-in")
+        r must include("register-your-company%2Fpost-sign-in")
       }
     }
   }

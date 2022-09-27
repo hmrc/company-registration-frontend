@@ -53,7 +53,7 @@ class OtherBusinessNameControllerISpec extends IntegrationSpecBase with LoginStu
         .withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
         .get())
 
-      res.status shouldBe OK
+      res.status mustBe OK
     }
 
     "display and prepop the page" in new Setup {
@@ -67,8 +67,8 @@ class OtherBusinessNameControllerISpec extends IntegrationSpecBase with LoginStu
         .withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
         .get())
 
-      res.status shouldBe OK
-      Jsoup.parse(res.body).getElementById("otherBusinessName").attr("value") shouldBe testPrepopBusinessName
+      res.status mustBe OK
+      Jsoup.parse(res.body).getElementById("otherBusinessName").attr("value") mustBe testPrepopBusinessName
     }
   }
 
@@ -85,8 +85,8 @@ class OtherBusinessNameControllerISpec extends IntegrationSpecBase with LoginStu
         .post(Map(otherBusinessNameKey -> Seq(testBusinessName)))
       )
 
-      res.status shouldBe SEE_OTHER
-      res.redirectLocation should contain(controllers.takeovers.routes.OtherBusinessAddressController.show.url)
+      res.status mustBe SEE_OTHER
+      res.redirectLocation must contain(controllers.takeovers.routes.OtherBusinessAddressController.show.url)
     }
   }
 }

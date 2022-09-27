@@ -83,8 +83,8 @@ class WhoAgreedTakeoverControllerSpec extends SCRSSpec
 
           val res: Result = TestWhoAgreedTakeoverController.show(request)
 
-          status(res) shouldBe SEE_OTHER
-          redirectLocation(res) should contain(controllers.takeovers.routes.ReplacingAnotherBusinessController.show.url)
+          status(res) mustBe SEE_OTHER
+          redirectLocation(res) must contain(controllers.takeovers.routes.ReplacingAnotherBusinessController.show.url)
         }
       }
 
@@ -99,8 +99,8 @@ class WhoAgreedTakeoverControllerSpec extends SCRSSpec
 
           val res: Result = TestWhoAgreedTakeoverController.show(request)
 
-          status(res) shouldBe SEE_OTHER
-          redirectLocation(res) should contain(controllers.reg.routes.AccountingDatesController.show.url)
+          status(res) mustBe SEE_OTHER
+          redirectLocation(res) must contain(controllers.reg.routes.AccountingDatesController.show.url)
         }
       }
 
@@ -115,8 +115,8 @@ class WhoAgreedTakeoverControllerSpec extends SCRSSpec
 
           val res: Result = TestWhoAgreedTakeoverController.show(request)
 
-          status(res) shouldBe SEE_OTHER
-          redirectLocation(res) should contain(controllers.takeovers.routes.OtherBusinessNameController.show.url)
+          status(res) mustBe SEE_OTHER
+          redirectLocation(res) must contain(controllers.takeovers.routes.OtherBusinessNameController.show.url)
         }
       }
 
@@ -136,8 +136,8 @@ class WhoAgreedTakeoverControllerSpec extends SCRSSpec
 
           val res: Result = TestWhoAgreedTakeoverController.show(request)
 
-          status(res) shouldBe SEE_OTHER
-          redirectLocation(res) should contain(controllers.takeovers.routes.OtherBusinessAddressController.show.url)
+          status(res) mustBe SEE_OTHER
+          redirectLocation(res) must contain(controllers.takeovers.routes.OtherBusinessAddressController.show.url)
         }
       }
 
@@ -158,8 +158,8 @@ class WhoAgreedTakeoverControllerSpec extends SCRSSpec
 
           val res: Result = TestWhoAgreedTakeoverController.show(request)
 
-          status(res) shouldBe OK
-          bodyOf(res) shouldBe page(WhoAgreedTakeoverForm.form, testBusinessName).body
+          status(res) mustBe OK
+          bodyOf(res) mustBe page(WhoAgreedTakeoverForm.form, testBusinessName).body
         }
       }
 
@@ -181,8 +181,8 @@ class WhoAgreedTakeoverControllerSpec extends SCRSSpec
 
           val res: Result = TestWhoAgreedTakeoverController.show(request)
 
-          status(res) shouldBe OK
-          bodyOf(res) shouldBe page(WhoAgreedTakeoverForm.form.fill(testPreviousOwnersName), testBusinessName).body
+          status(res) mustBe OK
+          bodyOf(res) mustBe page(WhoAgreedTakeoverForm.form.fill(testPreviousOwnersName), testBusinessName).body
         }
       }
     }
@@ -218,8 +218,8 @@ class WhoAgreedTakeoverControllerSpec extends SCRSSpec
 
           val res: Result = TestWhoAgreedTakeoverController.submit(request)
 
-          status(res) shouldBe SEE_OTHER
-          redirectLocation(res) should contain(controllers.takeovers.routes.PreviousOwnersAddressController.show.url)
+          status(res) mustBe SEE_OTHER
+          redirectLocation(res) must contain(controllers.takeovers.routes.PreviousOwnersAddressController.show.url)
         }
       }
 
@@ -243,9 +243,9 @@ class WhoAgreedTakeoverControllerSpec extends SCRSSpec
 
           val res: Result = TestWhoAgreedTakeoverController.submit(request)
 
-          status(res) shouldBe BAD_REQUEST
+          status(res) mustBe BAD_REQUEST
           Jsoup.parse(bodyOf(res))
-            .getElementById("whoAgreedTakeover-error").text shouldBe "Enter the name using only letters, numbers, spaces, hyphens and apostrophes"
+            .getElementById("whoAgreedTakeover-error").text mustBe "Enter the name using only letters, numbers, spaces, hyphens and apostrophes"
         }
         "return a bad request and update the page with errors if the name is empty" in {
           mockAuthorisedUser(Future.successful({}))
@@ -266,9 +266,9 @@ class WhoAgreedTakeoverControllerSpec extends SCRSSpec
 
           val res: Result = TestWhoAgreedTakeoverController.submit(request)
 
-          status(res) shouldBe BAD_REQUEST
+          status(res) mustBe BAD_REQUEST
           Jsoup.parse(bodyOf(res))
-            .getElementById("whoAgreedTakeover-error").text shouldBe "Tell us who agreed the takeover"
+            .getElementById("whoAgreedTakeover-error").text mustBe "Tell us who agreed the takeover"
         }
 
         "return a bad request and update the page with errors if the name is too long" in {
@@ -290,9 +290,9 @@ class WhoAgreedTakeoverControllerSpec extends SCRSSpec
 
           val res: Result = TestWhoAgreedTakeoverController.submit(request)
 
-          status(res) shouldBe BAD_REQUEST
+          status(res) mustBe BAD_REQUEST
           Jsoup.parse(bodyOf(res))
-            .getElementById("whoAgreedTakeover-error").text shouldBe "Enter the name using 100 characters or less"
+            .getElementById("whoAgreedTakeover-error").text mustBe "Enter the name using 100 characters or less"
         }
       }
     }

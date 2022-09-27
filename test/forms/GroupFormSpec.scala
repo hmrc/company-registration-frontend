@@ -30,48 +30,48 @@ class GroupFormSpec extends UnitSpec  {
     }
     "have previously saved utr pre-popped in form 10 chars" in {
       val result = fillForm("true", Some("99999999"))
-      result.data("groupUTR") shouldBe "true"
-      result.get.UTR shouldBe Some("99999999")
+      result.data("groupUTR") mustBe "true"
+      result.get.UTR mustBe Some("99999999")
     }
 
     "have previously saved utr pre-popped in form 1 char" in {
       val result = fillForm("true", Some("1"))
-      result.data("groupUTR") shouldBe "true"
-      result.get.UTR shouldBe Some("1")
+      result.data("groupUTR") mustBe "true"
+      result.get.UTR mustBe Some("1")
     }
 
     "have previously saved no-utr answer" in {
       val result = fillForm("false", None)
-      result.data("groupUTR") shouldBe "false"
+      result.data("groupUTR") mustBe "false"
     }
 
     "display an error when no answer is selected on the page" in {
       val result = fillForm("", Option(""))
-      result.errors.head.message shouldBe "error.groupUTR.required"
+      result.errors.head.message mustBe "error.groupUTR.required"
     }
 
     "display an error when utr is blank" in {
       val result = fillForm("true", None)
-      result.data("groupUTR") shouldBe "true"
-      result.errors.head.message shouldBe "error.groupUtr.yesButNoUtr"
+      result.data("groupUTR") mustBe "true"
+      result.errors.head.message mustBe "error.groupUtr.yesButNoUtr"
     }
 
     "display an error when utr is more than 10 chars" in {
       val result = fillForm("true", Some("09876543211"))
-      result.data("groupUTR") shouldBe "true"
-      result.errors.head.message shouldBe "error.groupUtr.utrMoreThan10Chars"
+      result.data("groupUTR") mustBe "true"
+      result.errors.head.message mustBe "error.groupUtr.utrMoreThan10Chars"
     }
 
     "display an error when utr contains letters" in {
       val result = fillForm("true", Some("09876f"))
-      result.data("groupUTR") shouldBe "true"
-      result.errors.head.message shouldBe "error.groupUtr.utrHasSymbols"
+      result.data("groupUTR") mustBe "true"
+      result.errors.head.message mustBe "error.groupUtr.utrHasSymbols"
     }
 
     "display an error when utr contains special chars" in {
       val result = fillForm("true", Some("1234567*!"))
-      result.data("groupUTR") shouldBe "true"
-      result.errors.head.message shouldBe "error.groupUtr.utrHasSymbols"
+      result.data("groupUTR") mustBe "true"
+      result.errors.head.message mustBe "error.groupUtr.utrHasSymbols"
     }
 
   }
@@ -82,21 +82,21 @@ class GroupFormSpec extends UnitSpec  {
     }
     "should return no errors for valid boolean" in {
       val result = fillForm("true")
-      result.data("groupRelief") shouldBe "true"
-      result.errors.isEmpty shouldBe true
+      result.data("groupRelief") mustBe "true"
+      result.errors.isEmpty mustBe true
     }
     "return error when empty" in {
       val result = fillForm("")
-      result.data("groupRelief") shouldBe ""
-      result.errors.isEmpty shouldBe false
-      result.errors.head.message shouldBe "error.groupRelief.required"
+      result.data("groupRelief") mustBe ""
+      result.errors.isEmpty mustBe false
+      result.errors.head.message mustBe "error.groupRelief.required"
 
     }
     "return error for non boolean value" in {
       val result = fillForm("foo")
-      result.data("groupRelief") shouldBe "foo"
-      result.errors.isEmpty shouldBe false
-      result.errors.head.message shouldBe "error.groupRelief.required"
+      result.data("groupRelief") mustBe "foo"
+      result.errors.isEmpty mustBe false
+      result.errors.head.message mustBe "error.groupRelief.required"
     }
   }
   "formGroupName" should {
@@ -108,50 +108,50 @@ class GroupFormSpec extends UnitSpec  {
     }
     "return no errors when radio button submitted with valid value (not other), and field Other blank" in {
       val result = fillForm("company 1",None)
-      result.data("groupName") shouldBe "company 1"
-      result.data("otherName") shouldBe ""
-      result.errors.isEmpty shouldBe true
+      result.data("groupName") mustBe "company 1"
+      result.data("otherName") mustBe ""
+      result.errors.isEmpty mustBe true
     }
     "return no errors when radio button submitted with valid value of other with field other populated with valid name" in {
       val result = fillForm("company 1",Some("company 1"))
-      result.data("groupName") shouldBe "company 1"
-      result.data("otherName") shouldBe "company 1"
-      result.errors.isEmpty shouldBe true
+      result.data("groupName") mustBe "company 1"
+      result.data("otherName") mustBe "company 1"
+      result.errors.isEmpty mustBe true
     }
     "return errors for empty form - nothing populated" in {
       val result = fillForm("",None)
-      result.data("groupName") shouldBe ""
-      result.data("otherName") shouldBe ""
-      result.errors.isEmpty shouldBe false
-      result.errors.head.message shouldBe "error.groupName.required"
+      result.data("groupName") mustBe ""
+      result.data("otherName") mustBe ""
+      result.errors.isEmpty mustBe false
+      result.errors.head.message mustBe "error.groupName.required"
     }
     "return errors for other radio button selected but empty text box" in {
       val result = fillForm("otherName",Some(""))
-      result.data("groupName") shouldBe "otherName"
-      result.data("otherName") shouldBe ""
-      result.errors.isEmpty shouldBe false
-      result.errors.head.message shouldBe "page.groups.groupName.noCompanyNameEntered"
+      result.data("groupName") mustBe "otherName"
+      result.data("otherName") mustBe ""
+      result.errors.isEmpty mustBe false
+      result.errors.head.message mustBe "page.groups.groupName.noCompanyNameEntered"
     }
     "return errors for other radio button selected but just spaces in text box" in {
       val result = fillForm("otherName",Some("      "))
-      result.data("groupName") shouldBe "otherName"
-      result.data("otherName") shouldBe "      "
-      result.errors.isEmpty shouldBe false
-      result.errors.head.message shouldBe "page.groups.groupName.noCompanyNameEntered"
+      result.data("groupName") mustBe "otherName"
+      result.data("otherName") mustBe "      "
+      result.errors.isEmpty mustBe false
+      result.errors.head.message mustBe "page.groups.groupName.noCompanyNameEntered"
     }
     "return errors for invalid name entered > 20 chars with trailing spaces" in {
       val result = fillForm("otherName",Some("Company Name that is longer than 20 chars"))
-      result.data("groupName") shouldBe "otherName"
-      result.data("otherName") shouldBe "Company Name that is longer than 20 chars"
-      result.errors.isEmpty shouldBe false
-      result.errors.head.message shouldBe "page.groups.groupName.20CharsOrLess"
+      result.data("groupName") mustBe "otherName"
+      result.data("otherName") mustBe "Company Name that is longer than 20 chars"
+      result.errors.isEmpty mustBe false
+      result.errors.head.message mustBe "page.groups.groupName.20CharsOrLess"
     }
     "return errors for name with dodgy characters (doesnt pass des regex)" in {
       val result = fillForm("otherName",Some("Name invalid$"))
-      result.data("groupName") shouldBe "otherName"
-      result.data("otherName") shouldBe "Name invalid$"
-      result.errors.isEmpty shouldBe false
-      result.errors.head.message shouldBe "page.groups.groupName.invalidFormat"
+      result.data("groupName") mustBe "otherName"
+      result.data("otherName") mustBe "Name invalid$"
+      result.errors.isEmpty mustBe false
+      result.errors.head.message mustBe "page.groups.groupName.invalidFormat"
     }
   }
   "formGroupAddress" should {

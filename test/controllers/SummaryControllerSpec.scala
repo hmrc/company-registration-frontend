@@ -151,8 +151,8 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with GuiceOneAppP
     "return a 303 and redirect to the sign in page for an unauthorised user" in new Setup {
       showWithUnauthorisedUser(controller.show) {
         result =>
-          status(result) shouldBe 303
-          redirectLocation(result) shouldBe Some(authUrl)
+          status(result) mustBe 303
+          redirectLocation(result) mustBe Some(authUrl)
       }
     }
 
@@ -184,7 +184,7 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with GuiceOneAppP
 
       showWithAuthorisedUser(controller.show) {
         result =>
-          status(result) shouldBe OK
+          status(result) mustBe OK
       }
     }
   }
@@ -194,8 +194,8 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with GuiceOneAppP
       val request = FakeRequest().withFormUrlEncodedBody()
       submitWithAuthorisedUser(controller.submit, request) {
         result =>
-          status(result) shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe Some("/register-your-company/incorporation-summary")
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result) mustBe Some("/register-your-company/incorporation-summary")
       }
     }
   }
@@ -207,8 +207,8 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with GuiceOneAppP
       when(mockHandOffService.fetchNavModel(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.failed(new NavModelNotFoundException))
       showWithAuthorisedUserRetrieval(controller.back, Some("extID")) {
         res =>
-          status(res) shouldBe SEE_OTHER
-          redirectLocation(res) shouldBe Some("/register-your-company/post-sign-in")
+          status(res) mustBe SEE_OTHER
+          redirectLocation(res) mustBe Some("/register-your-company/post-sign-in")
       }
     }
     "redirect to the previous stub page" in new Setup {
@@ -228,7 +228,7 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with GuiceOneAppP
 
       submitWithAuthorisedUserRetrieval(controller.back, request, Some("extID")) {
         result =>
-          status(result) shouldBe SEE_OTHER
+          status(result) mustBe SEE_OTHER
       }
     }
   }
@@ -255,7 +255,7 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with GuiceOneAppP
 
       showWithAuthorisedUserRetrieval(controller.summaryBackLink("testJumpKey"), Some("extID")) {
         res =>
-          status(res) shouldBe SEE_OTHER
+          status(res) mustBe SEE_OTHER
       }
     }
 
@@ -271,8 +271,8 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with GuiceOneAppP
       when(mockHandOffService.fetchNavModel(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(handOffNavModel))
       showWithAuthorisedUserRetrieval(controller.summaryBackLink("foo"), Some("extID")) {
         res =>
-          val ex = intercept[NoSuchElementException](status(res) shouldBe SEE_OTHER)
-          ex.getMessage shouldBe "key not found: foo"
+          val ex = intercept[NoSuchElementException](status(res) mustBe SEE_OTHER)
+          ex.getMessage mustBe "key not found: foo"
       }
     }
   }

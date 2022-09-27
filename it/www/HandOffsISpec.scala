@@ -87,9 +87,9 @@ class HandOffsISpec extends IntegrationSpecBase with LoginStub with HandOffFixtu
         .get())
 
       And("The request is redirected to /post-sign-in")
-      response.status shouldBe 303
+      response.status mustBe 303
       val redirect = response.header(HeaderNames.LOCATION).get
-      redirect shouldBe s"/register-your-company/post-sign-in?handOffID=$num&payload=$payload"
+      redirect mustBe s"/register-your-company/post-sign-in?handOffID=$num&payload=$payload"
 
       And("A new keystore entry is created")
       stubKeystoreSave(SessionId, regId, 200)
@@ -101,8 +101,8 @@ class HandOffsISpec extends IntegrationSpecBase with LoginStub with HandOffFixtu
         .withHttpHeaders(HeaderNames.COOKIE -> getSessionCookie(userId = userId))
         .get())
 
-      responseBack.status shouldBe 303
-      responseBack.header(HeaderNames.LOCATION).get shouldBe s"http://localhost:9970/register-your-company$url?request=$payload"
+      responseBack.status mustBe 303
+      responseBack.header(HeaderNames.LOCATION).get mustBe s"http://localhost:9970/register-your-company$url?request=$payload"
     }
   }
 }

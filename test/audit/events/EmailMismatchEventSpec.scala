@@ -46,8 +46,8 @@ class EmailMismatchEventSpec extends UnitSpec {
           )
 
         val result = Json.toJson[EmailMismatchEventDetail](testModel)
-        result.getClass shouldBe classOf[JsObject]
-        result shouldBe Json.parse(sample)
+        result.getClass mustBe classOf[JsObject]
+        result mustBe Json.parse(sample)
       }
     }
   }
@@ -69,9 +69,9 @@ class EmailMismatchEventSpec extends UnitSpec {
         val auditEvent = new EmailMismatchEvent(testModel)(hc, req)
 
         val result = Json.toJson[ExtendedDataEvent](auditEvent)
-        result.getClass shouldBe classOf[JsObject]
-        (result \ "auditSource").as[String] shouldBe "company-registration-frontend"
-        (result \ "auditType").as[String] shouldBe "emailMismatch"
+        result.getClass mustBe classOf[JsObject]
+        (result \ "auditSource").as[String] mustBe "company-registration-frontend"
+        (result \ "auditType").as[String] mustBe "emailMismatch"
       }
     }
   }

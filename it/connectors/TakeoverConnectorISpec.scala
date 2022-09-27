@@ -45,7 +45,7 @@ class TakeoverConnectorISpec extends IntegrationSpecBase with TakeoverStub {
 
         val res = await(takeoverConnector.getTakeoverDetails(testRegistrationId))
 
-        res should contain(testTakeoverDetails)
+        res must contain(testTakeoverDetails)
       }
     }
     "return None" when {
@@ -54,14 +54,14 @@ class TakeoverConnectorISpec extends IntegrationSpecBase with TakeoverStub {
 
         val res = await(takeoverConnector.getTakeoverDetails(testRegistrationId))
 
-        res shouldBe empty
+        res mustBe empty
       }
       "company registration returns invalid JSON" in {
         stubGetTakeoverDetails(testRegistrationId, OK)
 
         val res = await(takeoverConnector.getTakeoverDetails(testRegistrationId))
 
-        res shouldBe empty
+        res mustBe empty
       }
     }
   }
@@ -73,7 +73,7 @@ class TakeoverConnectorISpec extends IntegrationSpecBase with TakeoverStub {
 
         val res = await(takeoverConnector.updateTakeoverDetails(testRegistrationId, testTakeoverDetails))
 
-        res shouldBe testTakeoverDetails
+        res mustBe testTakeoverDetails
       }
     }
     "throw an exception" when {

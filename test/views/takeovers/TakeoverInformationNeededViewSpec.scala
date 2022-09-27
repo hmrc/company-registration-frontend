@@ -45,19 +45,19 @@ class TakeoverInformationNeededViewSpec extends UnitSpec with GuiceOneAppPerSuit
     lazy val continue = "Continue"
 
     s"have an expected title: $title" in {
-      doc.title should include(title)
+      doc.title must include(title)
     }
 
     s"have an expected heading: $heading" in {
-      doc.selectFirst("h1").text shouldBe heading
+      doc.selectFirst("h1").text mustBe heading
     }
 
     s"have an expected paragraph: $paragraph" in {
-      doc.select(Selectors.p(1)).text shouldBe paragraph
+      doc.select(Selectors.p(1)).text mustBe paragraph
     }
 
     s"have a $continue button" in {
-      doc.getElementById("continue").text() shouldBe continue
+      doc.getElementById("continue").text() mustBe continue
     }
   }
 }

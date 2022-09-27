@@ -125,7 +125,7 @@ class EmailVerificationServiceSpec extends UnitSpec with SCRSSpec with UserDetai
       when(mockHandOffService.cacheRegistrationID(ArgumentMatchers.eq(regId))(ArgumentMatchers.any()))
         .thenReturn(Future.successful(CacheMap("x", Map())))
 
-      await(stubbedService.checkEmailStatus(regId, Some(testVerifiedEmail), authDetails)) shouldBe expected
+      await(stubbedService.checkEmailStatus(regId, Some(testVerifiedEmail), authDetails)) mustBe expected
 
 
     }
@@ -136,7 +136,7 @@ class EmailVerificationServiceSpec extends UnitSpec with SCRSSpec with UserDetai
       when(mockHandOffService.cacheRegistrationID(ArgumentMatchers.eq(regId))(ArgumentMatchers.any()))
         .thenReturn(Future.successful(CacheMap("x", Map())))
 
-      await(stubbedService.checkEmailStatus(regId, Some(testUnverifiedEmail), authDetails)) shouldBe expected
+      await(stubbedService.checkEmailStatus(regId, Some(testUnverifiedEmail), authDetails)) mustBe expected
 
 
     }
@@ -176,7 +176,7 @@ class EmailVerificationServiceSpec extends UnitSpec with SCRSSpec with UserDetai
       when(mockAuditConnector.sendExtendedEvent(ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(Success))
 
-      await(emailService.verifyEmailAddressAndSaveEmailBlockWithFlag("testEmail", regId,"provId", "extId")) shouldBe Some(true)
+      await(emailService.verifyEmailAddressAndSaveEmailBlockWithFlag("testEmail", regId,"provId", "extId")) mustBe Some(true)
     }
     "return false when email is unverified" in new Setup {
       when(mockEmailConnector.checkVerifiedEmail(ArgumentMatchers.anyString())(ArgumentMatchers.any()))
@@ -191,7 +191,7 @@ class EmailVerificationServiceSpec extends UnitSpec with SCRSSpec with UserDetai
       when(mockAuditConnector.sendExtendedEvent(ArgumentMatchers.any[EmailVerifiedEvent]())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(Success))
 
-      await(emailService.verifyEmailAddressAndSaveEmailBlockWithFlag("testEmail", regId,"provId", "extId")) shouldBe Some(false)
+      await(emailService.verifyEmailAddressAndSaveEmailBlockWithFlag("testEmail", regId,"provId", "extId")) mustBe Some(false)
     }
   }
 
@@ -207,7 +207,7 @@ class EmailVerificationServiceSpec extends UnitSpec with SCRSSpec with UserDetai
         .thenReturn(Future.successful(None))
       when(mockAuditConnector.sendExtendedEvent(ArgumentMatchers.any())(ArgumentMatchers.any(),ArgumentMatchers.any())).thenReturn(Future.successful(AuditResult.Success))
 
-      await(emailService.sendVerificationLink("testEmail", regId, "authProvId", "extId")) shouldBe Some(true)
+      await(emailService.sendVerificationLink("testEmail", regId, "authProvId", "extId")) mustBe Some(true)
     }
     "should return true when a link has not been sent due to a conflict, no audit event sent" in new Setup {
 
@@ -225,7 +225,7 @@ class EmailVerificationServiceSpec extends UnitSpec with SCRSSpec with UserDetai
       when(mockAuditConnector.sendExtendedEvent(captor.capture())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(Success))
 
-      await(emailService.sendVerificationLink("testEmail", regId, "authProvId", "extId")) shouldBe Some(false)
+      await(emailService.sendVerificationLink("testEmail", regId, "authProvId", "extId")) mustBe Some(false)
     }
   }
 
@@ -241,7 +241,7 @@ class EmailVerificationServiceSpec extends UnitSpec with SCRSSpec with UserDetai
     )
 
     "return a verificationRequest with the correct email " in new Setup {
-      stubbedService.generateEmailRequest(testEmail) shouldBe testRequest
+      stubbedService.generateEmailRequest(testEmail) mustBe testRequest
     }
   }
 
@@ -263,7 +263,7 @@ class EmailVerificationServiceSpec extends UnitSpec with SCRSSpec with UserDetai
          """.stripMargin
       }
 
-      resultAsJson shouldBe expectedJson
+      resultAsJson mustBe expectedJson
     }
   }
 }

@@ -63,7 +63,7 @@ class GroupUtrControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Mock
         showWithUnauthorisedUser(controller.show) {
           result => {
             val response = await(result)
-            status(response) shouldBe SEE_OTHER
+            status(response) mustBe SEE_OTHER
           }
         }
       }
@@ -76,8 +76,8 @@ class GroupUtrControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Mock
       showWithAuthorisedUser(controller.show) {
         result => {
           val response = await(result)
-          status(response) shouldBe SEE_OTHER
-          response.header.headers("Location") shouldBe "/register-your-company/post-sign-in"
+          status(response) mustBe SEE_OTHER
+          response.header.headers("Location") mustBe "/register-your-company/post-sign-in"
         }
       }
     }
@@ -93,8 +93,8 @@ class GroupUtrControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Mock
 
         result => {
           val response = await(result)
-          status(response) shouldBe SEE_OTHER
-          response.header.headers("Location") shouldBe "/register-your-company/post-sign-in"
+          status(response) mustBe SEE_OTHER
+          response.header.headers("Location") mustBe "/register-your-company/post-sign-in"
         }
       }
     }
@@ -112,7 +112,7 @@ class GroupUtrControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Mock
 
       showWithAuthorisedUser(controller.show) {
         result =>
-          status(result) shouldBe OK
+          status(result) mustBe OK
       }
     }
 
@@ -129,8 +129,8 @@ class GroupUtrControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Mock
 
       showWithAuthorisedUser(controller.show) {
         result =>
-          status(result) shouldBe OK
-          Jsoup.parse(contentAsString(result)).getElementById("groupUTR-no").attr("value") shouldBe "false"
+          status(result) mustBe OK
+          Jsoup.parse(contentAsString(result)).getElementById("groupUTR-no").attr("value") mustBe "false"
       }
     }
 
@@ -147,9 +147,9 @@ class GroupUtrControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Mock
 
       showWithAuthorisedUser(controller.show) {
         result =>
-          status(result) shouldBe OK
-          Jsoup.parse(contentAsString(result)).getElementById("groupUTR").attr("value") shouldBe "true"
-          Jsoup.parse(contentAsString(result)).getElementById("utr").attr("value") shouldBe "1234567890"
+          status(result) mustBe OK
+          Jsoup.parse(contentAsString(result)).getElementById("groupUTR").attr("value") mustBe "true"
+          Jsoup.parse(contentAsString(result)).getElementById("utr").attr("value") mustBe "1234567890"
       }
     }
 
@@ -166,8 +166,8 @@ class GroupUtrControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Mock
 
       showWithAuthorisedUser(controller.show) {
         result =>
-          status(result) shouldBe SEE_OTHER
-          redirectLocation(result) should contain(controllers.groups.routes.GroupAddressController.show.url)
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result) must contain(controllers.groups.routes.GroupAddressController.show.url)
       }
     }
 
@@ -184,8 +184,8 @@ class GroupUtrControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Mock
 
       showWithAuthorisedUser(controller.show) {
         result =>
-          status(result) shouldBe SEE_OTHER
-          redirectLocation(result) should contain(controllers.groups.routes.GroupNameController.show.url)
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result) must contain(controllers.groups.routes.GroupNameController.show.url)
       }
     }
 
@@ -202,8 +202,8 @@ class GroupUtrControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Mock
 
       showWithAuthorisedUser(controller.show) {
         result =>
-          status(result) shouldBe SEE_OTHER
-          redirectLocation(result) should contain(controllers.reg.routes.SignInOutController.postSignIn().url)
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result) must contain(controllers.reg.routes.SignInOutController.postSignIn().url)
       }
     }
   }
@@ -227,7 +227,7 @@ class GroupUtrControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Mock
         "utr" -> "1234567890"
       )) {
         result =>
-          status(result) shouldBe BAD_REQUEST
+          status(result) mustBe BAD_REQUEST
       }
     }
 
@@ -250,8 +250,8 @@ class GroupUtrControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Mock
         "utr" -> "1234567890"
       )) {
         result =>
-          status(result) shouldBe SEE_OTHER
-          result.header.headers("Location") shouldBe "/register-your-company/psc-handoff"
+          status(result) mustBe SEE_OTHER
+          result.header.headers("Location") mustBe "/register-your-company/psc-handoff"
       }
     }
 
@@ -272,8 +272,8 @@ class GroupUtrControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Mock
         "groupUTR" -> "false"
       )) {
         result =>
-          status(result) shouldBe SEE_OTHER
-          result.header.headers("Location") shouldBe "/register-your-company/psc-handoff"
+          status(result) mustBe SEE_OTHER
+          result.header.headers("Location") mustBe "/register-your-company/psc-handoff"
       }
     }
   }

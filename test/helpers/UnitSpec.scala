@@ -16,21 +16,18 @@
 
 package helpers
 
-import org.scalatest.WordSpec
+import akka.stream.Materializer
+import akka.util.ByteString
+import org.scalatestplus.play.PlaySpec
+import play.api.libs.json.{JsValue, Json}
+import play.api.mvc.Result
 
+import java.nio.charset.Charset
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
 
-import java.nio.charset.Charset
-
-import akka.stream.Materializer
-import akka.util.ByteString
-import org.scalatest.Matchers
-import play.api.libs.json.{JsValue, Json}
-import play.api.mvc.Result
-import scala.concurrent.ExecutionContext.Implicits.global
-
-trait UnitSpec extends WordSpec with Matchers {
+trait UnitSpec extends PlaySpec {
 
   implicit val defaultTimeout: FiniteDuration = 5 seconds
 

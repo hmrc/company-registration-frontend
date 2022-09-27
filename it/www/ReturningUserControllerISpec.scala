@@ -48,13 +48,13 @@ class ReturningUserControllerISpec extends IntegrationSpecBase with LoginStub {
         .post(map)
       val response = await(post)
 
-      response.status shouldBe 303
+      response.status mustBe 303
 
       val redirectTo = response.header(HeaderNames.LOCATION)
 
-      redirectTo shouldBe defined
+      redirectTo mustBe defined
       redirectTo map { r =>
-        r should include("/eligibility-for-setting-up-company")
+        r must include("/eligibility-for-setting-up-company")
       }
     }
   }

@@ -52,14 +52,14 @@ class ReturningUserSpec extends SCRSSpec with AuthBuilder with GuiceOneAppPerSui
     "return a 200 and show the page if you are logged in" in new Setup {
       showWithAuthorisedUser(testController.show) {
         result =>
-          status(result) shouldBe OK
+          status(result) mustBe OK
       }
     }
 
     "return a 200 and show the page if you are not logged in" in new Setup {
       showWithUnauthorisedUser(testController.show) {
         result =>
-          status(result) shouldBe OK
+          status(result) mustBe OK
       }
     }
 
@@ -67,15 +67,15 @@ class ReturningUserSpec extends SCRSSpec with AuthBuilder with GuiceOneAppPerSui
       "return a 303 and send user to company registration eligibility when they start a new registration" in new Setup {
 
         val result = testController.submit(FakeRequest().withFormUrlEncodedBody("returningUser" -> "true"))
-        status(result) shouldBe SEE_OTHER
-        redirectLocation(result).get should include("EligURL")
-        redirectLocation(result).get should include("/eligibility-for-setting-up-company")
+        status(result) mustBe SEE_OTHER
+        redirectLocation(result).get must include("EligURL")
+        redirectLocation(result).get must include("/eligibility-for-setting-up-company")
       }
       "return a 303 and send user to sign-in page when they are not starting a new registration" in new Setup {
 
         val result = testController.submit(FakeRequest().withFormUrlEncodedBody("returningUser" -> "false"))
-        status(result) shouldBe SEE_OTHER
-        redirectLocation(result) shouldBe Some("/register-your-company/post-sign-in")
+        status(result) mustBe SEE_OTHER
+        redirectLocation(result) mustBe Some("/register-your-company/post-sign-in")
       }
     }
   }

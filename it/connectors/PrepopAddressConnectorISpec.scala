@@ -51,14 +51,14 @@ class PrepopAddressConnectorISpec extends IntegrationSpecBase with BusinessRegis
 
         val result = await(connector.getPrepopAddresses(testRegId)(headerCarrier))
 
-        result shouldBe addressSeq
+        result mustBe addressSeq
       }
       "there aren't any addresses for the specified registration ID" in new PrepopAddressTest {
         stubGetPrepopAddresses(testRegId, NOT_FOUND, Nil)
 
         val result = await(connector.getPrepopAddresses(testRegId)(headerCarrier))
 
-        result shouldBe empty
+        result mustBe empty
       }
     }
     "return None" when {
@@ -67,14 +67,14 @@ class PrepopAddressConnectorISpec extends IntegrationSpecBase with BusinessRegis
 
         val result = await(connector.getPrepopAddresses(testRegId)(headerCarrier))
 
-        result shouldBe empty
+        result mustBe empty
       }
       "an unexpected error occurs" in {
         stubGetPrepopAddresses(testRegId, INTERNAL_SERVER_ERROR, Nil)
 
         val result = await(connector.getPrepopAddresses(testRegId)(headerCarrier))
 
-        result shouldBe empty
+        result mustBe empty
       }
       "the json is invalid" in new PrepopAddressTest {
         val addressJson = Json.obj()
@@ -82,7 +82,7 @@ class PrepopAddressConnectorISpec extends IntegrationSpecBase with BusinessRegis
 
         val result = await(connector.getPrepopAddresses(testRegId)(headerCarrier))
 
-        result shouldBe empty
+        result mustBe empty
       }
     }
   }
@@ -95,7 +95,7 @@ class PrepopAddressConnectorISpec extends IntegrationSpecBase with BusinessRegis
       val postData = NewAddress(addrLine1, addrLine2, addrLine3, addrLine4, postcode, country)
       val result = await(connector.updatePrepopAddress(testRegId, postData))
 
-      result shouldBe true
+      result mustBe true
     }
     "return false on a failure" in new PrepopAddressTest {
       stubPrepopAddressPostResponse(testRegId, INTERNAL_SERVER_ERROR)
@@ -103,7 +103,7 @@ class PrepopAddressConnectorISpec extends IntegrationSpecBase with BusinessRegis
       val postData = NewAddress(addrLine1, addrLine2, addrLine3, addrLine4, postcode, country)
       val result = await(connector.updatePrepopAddress(testRegId, postData))
 
-      result shouldBe false
+      result mustBe false
     }
   }
 

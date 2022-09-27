@@ -88,9 +88,9 @@ class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture wit
 
         showWithAuthorisedUserRetrieval(testController.basicCompanyDetails, authDetails) {
           result =>
-            status(result) shouldBe SEE_OTHER
+            status(result) mustBe SEE_OTHER
 
-            redirectLocation(result).get shouldBe "testUrl/basic-company-details?request=testEncryptedPayload"
+            redirectLocation(result).get mustBe "testUrl/basic-company-details?request=testEncryptedPayload"
         }
       }
     }
@@ -110,9 +110,9 @@ class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture wit
 
       showWithAuthorisedUserRetrieval(testController.basicCompanyDetails, authDetails) {
         result =>
-          status(result) shouldBe SEE_OTHER
+          status(result) mustBe SEE_OTHER
           val encryptedPayload = redirectLocation(result).get.split("request=")(1)
-          jweInstance().decrypt[CompanyNameHandOffIncoming](encryptedPayload) shouldBe Success(validCompanyNameHandBack)
+          jweInstance().decrypt[CompanyNameHandOffIncoming](encryptedPayload) mustBe Success(validCompanyNameHandBack)
       }
     }
 
@@ -125,7 +125,7 @@ class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture wit
 
       showWithAuthorisedUserRetrieval(testController.basicCompanyDetails, authDetails) {
         result =>
-          status(result) shouldBe BAD_REQUEST
+          status(result) mustBe BAD_REQUEST
       }
     }
     "return a Redirect to post sign in if email block is None" in new Setup {
@@ -134,8 +134,8 @@ class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture wit
       when(mockCompanyRegistrationConnector.retrieveEmail(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
       showWithAuthorisedUserRetrieval(testController.basicCompanyDetails, authDetails) {
         result =>
-          status(result) shouldBe 303
-          redirectLocation(result).get shouldBe controllers.reg.routes.SignInOutController.postSignIn().url
+          status(result) mustBe 303
+          redirectLocation(result).get mustBe controllers.reg.routes.SignInOutController.postSignIn().url
       }
     }
   }
@@ -157,7 +157,7 @@ class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture wit
 
       showWithAuthorisedUser(testController.returnToAboutYou(encryptedPayload)) {
         result =>
-          status(result) shouldBe SEE_OTHER
+          status(result) mustBe SEE_OTHER
       }
     }
 
@@ -169,8 +169,8 @@ class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture wit
 
       showWithAuthorisedUser(testController.returnToAboutYou(encryptedPayload)) {
         result =>
-          status(result) shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe Some(s"/register-your-company/post-sign-in?handOffID=HO1b&payload=$encryptedPayload")
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result) mustBe Some(s"/register-your-company/post-sign-in?handOffID=HO1b&payload=$encryptedPayload")
       }
     }
 
@@ -183,7 +183,7 @@ class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture wit
 
       showWithAuthorisedUser(testController.returnToAboutYou(encryptedPayload)) {
         result =>
-          status(result) shouldBe BAD_REQUEST
+          status(result) mustBe BAD_REQUEST
       }
     }
 
@@ -196,7 +196,7 @@ class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture wit
 
       showWithAuthorisedUser(testController.returnToAboutYou(encryptedPayload)) {
         result =>
-          status(result) shouldBe BAD_REQUEST
+          status(result) mustBe BAD_REQUEST
       }
     }
   }

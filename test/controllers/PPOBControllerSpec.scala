@@ -100,8 +100,8 @@ class PPOBControllerSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixtur
 
       showWithAuthorisedUserRetrieval(controller.back, extID) {
         result =>
-          status(result) shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe Some("/register-your-company/post-sign-in")
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result) mustBe Some("/register-your-company/post-sign-in")
       }
     }
 
@@ -125,7 +125,7 @@ class PPOBControllerSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixtur
 
       showWithAuthorisedUserRetrieval(controller.back, extID) {
         result =>
-          status(result) shouldBe SEE_OTHER
+          status(result) mustBe SEE_OTHER
       }
     }
   }
@@ -138,7 +138,7 @@ class PPOBControllerSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixtur
         .thenReturn(Future.successful(Some(CHROAddress("38", "line 1", None, "Telford", "UK", None, None, None)), Some(NewAddress("line 1", "line 2", None, None, None, None, None)), PPOBChoice("")))
       showWithAuthorisedUser(controller.show) {
         result =>
-          status(result) shouldBe OK
+          status(result) mustBe OK
       }
     }
 
@@ -147,7 +147,7 @@ class PPOBControllerSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixtur
 
       showWithAuthorisedUser(controller.show) {
         result =>
-          status(result) shouldBe SEE_OTHER
+          status(result) mustBe SEE_OTHER
       }
     }
   }
@@ -162,8 +162,8 @@ class PPOBControllerSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixtur
       mockCheckStatus()
       submitWithAuthorisedUserRetrieval(controller.submit, submission("PPOB"), credID) {
         result =>
-          status(result) shouldBe 303
-          redirectLocation(result).get shouldBe controllers.reg.routes.CompanyContactDetailsController.show.url
+          status(result) mustBe 303
+          redirectLocation(result).get mustBe controllers.reg.routes.CompanyContactDetailsController.show.url
       }
     }
 
@@ -180,8 +180,8 @@ class PPOBControllerSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixtur
 
       submitWithAuthorisedUserRetrieval(controller.submit, submission("RO"), credID) {
         result =>
-          status(result) shouldBe 303
-          redirectLocation(result).get shouldBe controllers.reg.routes.CompanyContactDetailsController.show.url
+          status(result) mustBe 303
+          redirectLocation(result).get mustBe controllers.reg.routes.CompanyContactDetailsController.show.url
       }
     }
 
@@ -192,8 +192,8 @@ class PPOBControllerSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixtur
 
       submitWithAuthorisedUserRetrieval(controller.submit, submission("Other"), credID) {
         result =>
-          status(result) shouldBe 303
-          redirectLocation(result).get shouldBe "TEST/redirectUrl"
+          status(result) mustBe 303
+          redirectLocation(result).get mustBe "TEST/redirectUrl"
       }
     }
 
@@ -208,7 +208,7 @@ class PPOBControllerSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixtur
 
       submitWithAuthorisedUserRetrieval(controller.submit, FakeRequest().withFormUrlEncodedBody("whoops" -> "not good"), credID) {
         result =>
-          status(result) shouldBe 400
+          status(result) mustBe 400
       }
     }
 
@@ -219,7 +219,7 @@ class PPOBControllerSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixtur
 
       submitWithAuthorisedUserRetrieval(controller.submit, submission("Bad"), credID) {
         result =>
-          status(result) shouldBe 400
+          status(result) mustBe 400
       }
     }
   }
@@ -244,8 +244,8 @@ class PPOBControllerSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixtur
 
       showWithAuthorisedUser(controller.saveALFAddress(Some(alfId))) {
         result =>
-          status(result) shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe Some(controllers.reg.routes.CompanyContactDetailsController.show.url)
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result) mustBe Some(controllers.reg.routes.CompanyContactDetailsController.show.url)
       }
 
     }

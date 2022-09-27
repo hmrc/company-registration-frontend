@@ -81,7 +81,7 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
         .withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
         .get())
       val doc = Jsoup.parse(fResponse.body)
-      fResponse.status shouldBe 200
+      fResponse.status mustBe 200
     }
     "return 200 with data from backend " in {
       val contactDetailsResp = Json.parse(
@@ -106,10 +106,10 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
         .withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
         .get())
       val doc = Jsoup.parse(fResponse.body)
-      fResponse.status shouldBe 200
-      doc.getElementById("contactDaytimeTelephoneNumber").`val` shouldBe "12345678"
-      doc.getElementById("contactMobileNumber").`val` shouldBe "45678"
-      doc.getElementById("contactEmail").`val` shouldBe "foo@foo.com"
+      fResponse.status mustBe 200
+      doc.getElementById("contactDaytimeTelephoneNumber").`val` mustBe "12345678"
+      doc.getElementById("contactMobileNumber").`val` mustBe "45678"
+      doc.getElementById("contactEmail").`val` mustBe "foo@foo.com"
     }
   }
   "submit" should {
@@ -139,12 +139,12 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
           "contactMobileNumber" -> Seq("1234567891011"),
           "contactEmail" -> Seq("foo@foo.com")))
       )
-      response.status shouldBe 303
-      response.header(HeaderNames.LOCATION).get shouldBe controllers.takeovers.routes.ReplacingAnotherBusinessController.show.url
+      response.status mustBe 303
+      response.header(HeaderNames.LOCATION).get mustBe controllers.takeovers.routes.ReplacingAnotherBusinessController.show.url
       val audit = Json.parse(getRequestBody("post", "/write/audit")).as[JsObject] \ "detail" \ "businessContactDetails"
-      audit.get shouldBe Json.obj("originalEmail" -> "test@test.com", "submittedEmail" -> "foo@foo.com")
+      audit.get mustBe Json.obj("originalEmail" -> "test@test.com", "submittedEmail" -> "foo@foo.com")
       val prePop = Json.parse(getRequestBody("post", s"/business-registration/$regId/contact-details")).as[JsObject]
-      prePop shouldBe Json.obj("telephoneNumber" -> "12345678910", "mobileNumber" -> "1234567891011", "email" -> "foo@foo.com")
+      prePop mustBe Json.obj("telephoneNumber" -> "12345678910", "mobileNumber" -> "1234567891011", "email" -> "foo@foo.com")
     }
     "return 400 data is invalid" in {
       stubAuthorisation()
@@ -160,7 +160,7 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
           "contactEmail" -> Seq("foo@foo.com")))
       )
 
-      response.status shouldBe 400
+      response.status mustBe 400
     }
     "return 303 when minimum amount of fields are populated" in {
       val contactDetailsResp = Json.parse(
@@ -186,10 +186,10 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
           "contactEmail" -> Seq("")))
       )
 
-      response.status shouldBe 303
-      response.header(HeaderNames.LOCATION).get shouldBe controllers.takeovers.routes.ReplacingAnotherBusinessController.show.url
+      response.status mustBe 303
+      response.header(HeaderNames.LOCATION).get mustBe controllers.takeovers.routes.ReplacingAnotherBusinessController.show.url
       val audit = Json.parse(getRequestBody("post", "/write/audit")).as[JsObject] \ "detail" \ "businessContactDetails"
-      audit.get shouldBe Json.obj("originalEmail" -> "test@test.com")
+      audit.get mustBe Json.obj("originalEmail" -> "test@test.com")
     }
     "return 303, when name is submitted and email is the same as auth email, no audit event should be sent" in {
       val contactDetailsResp = Json.parse(
@@ -218,11 +218,11 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
           "contactEmail" -> Seq("test@test.com")))
       )
 
-      response.status shouldBe 303
-      response.header(HeaderNames.LOCATION).get shouldBe controllers.takeovers.routes.ReplacingAnotherBusinessController.show.url
+      response.status mustBe 303
+      response.header(HeaderNames.LOCATION).get mustBe controllers.takeovers.routes.ReplacingAnotherBusinessController.show.url
       intercept[Exception]((Json.parse(getRequestBody("post", "/write/audit")).as[JsObject] \ "detail" \ "businessContactDetails").get)
 
-      findAll(postRequestedFor(urlMatching("/write/audit"))).size() shouldBe 1
+      findAll(postRequestedFor(urlMatching("/write/audit"))).size() mustBe 1
     }
   }
 }

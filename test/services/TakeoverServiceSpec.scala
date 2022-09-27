@@ -50,7 +50,7 @@ class TakeoverServiceSpec extends UnitSpec {
           val expectedTakeoverDetails: TakeoverDetails = TakeoverDetails(replacingAnotherBusiness = true)
           mockUpdateTakeoverDetails(testRegistrationId, expectedTakeoverDetails)(Future.successful(expectedTakeoverDetails))
 
-          await(TestTakeoverService.updateReplacingAnotherBusiness(testRegistrationId, replacingAnotherBusiness = true)) shouldBe expectedTakeoverDetails
+          await(TestTakeoverService.updateReplacingAnotherBusiness(testRegistrationId, replacingAnotherBusiness = true)) mustBe expectedTakeoverDetails
         }
       }
       "the user has previously entered identical takeover information" should {
@@ -58,7 +58,7 @@ class TakeoverServiceSpec extends UnitSpec {
           val existingTakeoverDetails: TakeoverDetails = TakeoverDetails(replacingAnotherBusiness = true, Some(testBusinessName))
           mockGetTakeoverDetails(testRegistrationId)(Future.successful(Some(existingTakeoverDetails)))
 
-          await(TestTakeoverService.updateReplacingAnotherBusiness(testRegistrationId, replacingAnotherBusiness = true)) shouldBe existingTakeoverDetails
+          await(TestTakeoverService.updateReplacingAnotherBusiness(testRegistrationId, replacingAnotherBusiness = true)) mustBe existingTakeoverDetails
         }
       }
       "the user has previously entered different takeover information" should {
@@ -69,7 +69,7 @@ class TakeoverServiceSpec extends UnitSpec {
           val expectedTakeoverDetails: TakeoverDetails = TakeoverDetails(replacingAnotherBusiness = true, Some(testBusinessName))
           mockUpdateTakeoverDetails(testRegistrationId, expectedTakeoverDetails)(Future.successful(expectedTakeoverDetails))
 
-          await(TestTakeoverService.updateReplacingAnotherBusiness(testRegistrationId, replacingAnotherBusiness = true)) shouldBe expectedTakeoverDetails
+          await(TestTakeoverService.updateReplacingAnotherBusiness(testRegistrationId, replacingAnotherBusiness = true)) mustBe expectedTakeoverDetails
         }
       }
     }
@@ -78,7 +78,7 @@ class TakeoverServiceSpec extends UnitSpec {
         val expectedTakeoverDetails: TakeoverDetails = TakeoverDetails(replacingAnotherBusiness = false)
         mockUpdateTakeoverDetails(testRegistrationId, expectedTakeoverDetails)(Future.successful(expectedTakeoverDetails))
 
-        await(TestTakeoverService.updateReplacingAnotherBusiness(testRegistrationId, replacingAnotherBusiness = false)) shouldBe expectedTakeoverDetails
+        await(TestTakeoverService.updateReplacingAnotherBusiness(testRegistrationId, replacingAnotherBusiness = false)) mustBe expectedTakeoverDetails
       }
     }
   }
@@ -91,7 +91,7 @@ class TakeoverServiceSpec extends UnitSpec {
         val expectedTakeoverDetails: TakeoverDetails = TakeoverDetails(replacingAnotherBusiness = true, businessName = Some(testBusinessName))
         mockUpdateTakeoverDetails(testRegistrationId, expectedTakeoverDetails)(Future.successful(expectedTakeoverDetails))
 
-        await(TestTakeoverService.updateBusinessName(testRegistrationId, testBusinessName)) shouldBe expectedTakeoverDetails
+        await(TestTakeoverService.updateBusinessName(testRegistrationId, testBusinessName)) mustBe expectedTakeoverDetails
       }
 
       "update the details with a new businessName if the form already had one" in new Setup {
@@ -101,7 +101,7 @@ class TakeoverServiceSpec extends UnitSpec {
         val expectedTakeoverDetails: TakeoverDetails = TakeoverDetails(replacingAnotherBusiness = true, businessName = Some(testBusinessName))
         mockUpdateTakeoverDetails(testRegistrationId, expectedTakeoverDetails)(Future.successful(expectedTakeoverDetails))
 
-        await(TestTakeoverService.updateBusinessName(testRegistrationId, testBusinessName)) shouldBe expectedTakeoverDetails
+        await(TestTakeoverService.updateBusinessName(testRegistrationId, testBusinessName)) mustBe expectedTakeoverDetails
       }
     }
 
@@ -139,7 +139,7 @@ class TakeoverServiceSpec extends UnitSpec {
         )
         mockUpdateTakeoverDetails(testRegistrationId, expectedTakeoverDetails)(Future.successful(expectedTakeoverDetails))
 
-        await(TestTakeoverService.updateBusinessAddress(testRegistrationId, testBusinessAddress)) shouldBe expectedTakeoverDetails
+        await(TestTakeoverService.updateBusinessAddress(testRegistrationId, testBusinessAddress)) mustBe expectedTakeoverDetails
       }
 
       "update the details with a new address if the form already had one" in new Setup {
@@ -158,7 +158,7 @@ class TakeoverServiceSpec extends UnitSpec {
         )
         mockUpdateTakeoverDetails(testRegistrationId, expectedTakeoverDetails)(Future.successful(expectedTakeoverDetails))
 
-        await(TestTakeoverService.updateBusinessAddress(testRegistrationId, testBusinessAddress)) shouldBe expectedTakeoverDetails
+        await(TestTakeoverService.updateBusinessAddress(testRegistrationId, testBusinessAddress)) mustBe expectedTakeoverDetails
       }
     }
 
@@ -211,7 +211,7 @@ class TakeoverServiceSpec extends UnitSpec {
         )
         mockUpdateTakeoverDetails(testRegistrationId, expectedTakeoverDetails)(Future.successful(expectedTakeoverDetails))
 
-        await(TestTakeoverService.updatePreviousOwnersName(testRegistrationId, testPreviousOwnersName)) shouldBe expectedTakeoverDetails
+        await(TestTakeoverService.updatePreviousOwnersName(testRegistrationId, testPreviousOwnersName)) mustBe expectedTakeoverDetails
       }
 
       "update the details with a new owners name if the form already had one" in new Setup {
@@ -232,7 +232,7 @@ class TakeoverServiceSpec extends UnitSpec {
         )
         mockUpdateTakeoverDetails(testRegistrationId, expectedTakeoverDetails)(Future.successful(expectedTakeoverDetails))
 
-        await(TestTakeoverService.updatePreviousOwnersName(testRegistrationId, testPreviousOwnersName)) shouldBe expectedTakeoverDetails
+        await(TestTakeoverService.updatePreviousOwnersName(testRegistrationId, testPreviousOwnersName)) mustBe expectedTakeoverDetails
       }
     }
 
@@ -300,7 +300,7 @@ class TakeoverServiceSpec extends UnitSpec {
         )
         mockUpdateTakeoverDetails(testRegistrationId, expectedTakeoverDetails)(Future.successful(expectedTakeoverDetails))
 
-        await(TestTakeoverService.updatePreviousOwnersAddress(testRegistrationId, testBusinessAddress)) shouldBe expectedTakeoverDetails
+        await(TestTakeoverService.updatePreviousOwnersAddress(testRegistrationId, testBusinessAddress)) mustBe expectedTakeoverDetails
       }
 
       "update the details with a new previous owner's address if the form already had one" in new Setup {
@@ -323,7 +323,7 @@ class TakeoverServiceSpec extends UnitSpec {
         )
         mockUpdateTakeoverDetails(testRegistrationId, expectedTakeoverDetails)(Future.successful(expectedTakeoverDetails))
 
-        await(TestTakeoverService.updatePreviousOwnersAddress(testRegistrationId, testBusinessAddress)) shouldBe expectedTakeoverDetails
+        await(TestTakeoverService.updatePreviousOwnersAddress(testRegistrationId, testBusinessAddress)) mustBe expectedTakeoverDetails
       }
     }
 

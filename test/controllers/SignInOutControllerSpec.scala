@@ -93,7 +93,7 @@ class SignInOutControllerSpec extends SCRSSpec
 
     "return a 303 if accessing without authorisation" in new Setup {
       showWithUnauthorisedUser(controller.postSignIn(None)) {
-        result => status(result) shouldBe SEE_OTHER
+        result => status(result) mustBe SEE_OTHER
       }
     }
 
@@ -117,8 +117,8 @@ class SignInOutControllerSpec extends SCRSSpec
 
       showWithAuthorisedUserRetrieval(controller.postSignIn(None), authDetails) {
         result =>
-          status(result) shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe Some("/register-your-company/relationship-to-company")
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result) mustBe Some("/register-your-company/relationship-to-company")
       }
     }
     "return a 303 to 'no email' page if email does not exist in auth" in new Setup {
@@ -135,8 +135,8 @@ class SignInOutControllerSpec extends SCRSSpec
 
       showWithAuthorisedUserRetrieval(controller.postSignIn(None), authDetailsNoEmail) {
         result =>
-          status(result) shouldBe SEE_OTHER
-          redirectLocation(result).get shouldBe controllers.verification.routes.EmailVerificationController.createShow.url
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result).get mustBe controllers.verification.routes.EmailVerificationController.createShow.url
       }
 
     }
@@ -154,7 +154,7 @@ class SignInOutControllerSpec extends SCRSSpec
 
       showWithAuthorisedUserRetrieval(controller.postSignIn(None), authDetailsNoEmailAndNoOrgType) {
         result =>
-          status(result) shouldBe 500
+          status(result) mustBe 500
       }
     }
 
@@ -175,8 +175,8 @@ class SignInOutControllerSpec extends SCRSSpec
 
       showWithAuthorisedUserRetrieval(controller.postSignIn(None), authDetails) {
         result =>
-          status(result) shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe Some("/register-your-company/relationship-to-company")
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result) mustBe Some("/register-your-company/relationship-to-company")
       }
     }
 
@@ -201,8 +201,8 @@ class SignInOutControllerSpec extends SCRSSpec
 
       showWithAuthorisedUserRetrieval(controller.postSignIn(None), authDetails) {
         result =>
-          status(result) shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe Some("/register-your-company/basic-company-details")
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result) mustBe Some("/register-your-company/basic-company-details")
       }
     }
 
@@ -223,8 +223,8 @@ class SignInOutControllerSpec extends SCRSSpec
 
       showWithAuthorisedUserRetrieval(controller.postSignIn(None), authDetails) {
         result =>
-          status(result) shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe Some("/register-your-company/basic-company-details")
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result) mustBe Some("/register-your-company/basic-company-details")
       }
     }
 
@@ -245,8 +245,8 @@ class SignInOutControllerSpec extends SCRSSpec
 
       showWithAuthorisedUserRetrieval(controller.postSignIn(None), authDetails) {
         result =>
-          status(result) shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe Some("/register-your-company/basic-company-details")
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result) mustBe Some("/register-your-company/basic-company-details")
       }
     }
 
@@ -264,8 +264,8 @@ class SignInOutControllerSpec extends SCRSSpec
 
       showWithAuthorisedUserRetrieval(controller.postSignIn(None), authDetails) {
         result =>
-          status(result) shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe Some("/register-your-company/company-registration-overview")
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result) mustBe Some("/register-your-company/company-registration-overview")
       }
     }
 
@@ -289,8 +289,8 @@ class SignInOutControllerSpec extends SCRSSpec
 
       showWithAuthorisedUserRetrieval(controller.postSignIn(None), authDetails) {
         result =>
-          status(result) shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe Some("/register-your-company/incorrect-service")
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result) mustBe Some("/register-your-company/incorrect-service")
       }
     }
 
@@ -299,7 +299,7 @@ class SignInOutControllerSpec extends SCRSSpec
         .thenReturn(Future.successful(FootprintTooManyRequestsResponse))
 
       showWithAuthorisedUserRetrieval(controller.postSignIn(None), authDetails) {
-        result => status(result) shouldBe SEE_OTHER
+        result => status(result) mustBe SEE_OTHER
       }
     }
 
@@ -311,7 +311,7 @@ class SignInOutControllerSpec extends SCRSSpec
         .thenReturn(Future.successful(FootprintForbiddenResponse))
 
       showWithAuthorisedUserRetrieval(controller.postSignIn(None), authDetails) {
-        result => status(result) shouldBe FORBIDDEN
+        result => status(result) mustBe FORBIDDEN
       }
     }
 
@@ -323,7 +323,7 @@ class SignInOutControllerSpec extends SCRSSpec
         .thenReturn(Future.successful(FootprintErrorResponse(new Exception("Stuff happened"))))
 
       showWithAuthorisedUserRetrieval(controller.postSignIn(None), authDetails) {
-        result => status(result) shouldBe INTERNAL_SERVER_ERROR
+        result => status(result) mustBe INTERNAL_SERVER_ERROR
       }
     }
 
@@ -334,22 +334,22 @@ class SignInOutControllerSpec extends SCRSSpec
 
     "redirect to the gg sign out url with a continue query string pointing to the questionnaire page" in new Setup {
       val result = controller.signOut()(FakeRequest())
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("http://localhost:9553/bas-gateway/sign-out-without-state?continue=test-base-url%2Fregister-your-company%2Fquestionnaire")
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some("http://localhost:9553/bas-gateway/sign-out-without-state?continue=test-base-url%2Fregister-your-company%2Fquestionnaire")
     }
 
     "redirect to the gg sign out url with a continue query string pointing to the specified relative page" in new Setup {
       val continueUrl = "/wibble"
       val result = controller.signOut(Some(ContinueUrl(continueUrl)))(FakeRequest())
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some(s"http://localhost:9553/bas-gateway/sign-out-without-state?continue=${encodeURL(continueUrl)}")
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some(s"http://localhost:9553/bas-gateway/sign-out-without-state?continue=${encodeURL(continueUrl)}")
     }
 
     "redirect to the gg sign out url with a continue query string pointing to the specified absolute page" in new Setup {
       val continueUrl = "https://foo.gov.uk/wibble"
       val result = controller.signOut(Some(ContinueUrl(continueUrl)))(FakeRequest())
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some(s"http://localhost:9553/bas-gateway/sign-out-without-state?continue=${encodeURL(continueUrl)}")
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some(s"http://localhost:9553/bas-gateway/sign-out-without-state?continue=${encodeURL(continueUrl)}")
     }
 
     "NOT redirect if the url starts with //" in new Setup {
@@ -370,81 +370,81 @@ class SignInOutControllerSpec extends SCRSSpec
       mockCacheRegistrationID(regId, mockKeystoreConnector)
       val handOffID = "HO1b"
       val result = await(controller.processDeferredHandoff(Some(handOffID), Some(payload), throttleResponse)(Future.successful(Results.Ok)))
-      status(result) shouldBe 303
-      redirectLocation(result) shouldBe Some(s"http://localhost:9970/register-your-company/return-to-about-you?request=$payload")
+      status(result) mustBe 303
+      redirectLocation(result) mustBe Some(s"http://localhost:9970/register-your-company/return-to-about-you?request=$payload")
     }
 
     "process a deferred hand off 2" in new Setup {
       mockCacheRegistrationID(regId, mockKeystoreConnector)
       val handOffID = "HO2"
       val result = await(controller.processDeferredHandoff(Some(handOffID), Some(payload), throttleResponse)(Future.successful(Results.Ok)))
-      status(result) shouldBe 303
-      redirectLocation(result) shouldBe Some(s"http://localhost:9970/register-your-company/corporation-tax-details?request=$payload")
+      status(result) mustBe 303
+      redirectLocation(result) mustBe Some(s"http://localhost:9970/register-your-company/corporation-tax-details?request=$payload")
     }
 
     "process a deferred hand off 3 back" in new Setup {
       mockCacheRegistrationID(regId, mockKeystoreConnector)
       val handOffID = "HO3b"
       val result = await(controller.processDeferredHandoff(Some(handOffID), Some(payload), throttleResponse)(Future.successful(Results.Ok)))
-      status(result) shouldBe 303
-      redirectLocation(result) shouldBe Some(s"http://localhost:9970/register-your-company/business-activities-back?request=$payload")
+      status(result) mustBe 303
+      redirectLocation(result) mustBe Some(s"http://localhost:9970/register-your-company/business-activities-back?request=$payload")
     }
 
     "process a deferred hand off 3-1" in new Setup {
       mockCacheRegistrationID(regId, mockKeystoreConnector)
       val handOffID = "HO3-1"
       val result = await(controller.processDeferredHandoff(Some(handOffID), Some(payload), throttleResponse)(Future.successful(Results.Ok)))
-      status(result) shouldBe 303
-      redirectLocation(result) shouldBe Some(s"http://localhost:9970/register-your-company/groups-handback?request=$payload")
+      status(result) mustBe 303
+      redirectLocation(result) mustBe Some(s"http://localhost:9970/register-your-company/groups-handback?request=$payload")
     }
     "process a deferred hand off 3b-1" in new Setup {
       mockCacheRegistrationID(regId, mockKeystoreConnector)
       val handOffID = "HO3b-1"
       val result = await(controller.processDeferredHandoff(Some(handOffID), Some(payload), throttleResponse)(Future.successful(Results.Ok)))
-      status(result) shouldBe 303
-      redirectLocation(result) shouldBe Some(s"http://localhost:9970/register-your-company/groups-back-handback?request=$payload")
+      status(result) mustBe 303
+      redirectLocation(result) mustBe Some(s"http://localhost:9970/register-your-company/groups-back-handback?request=$payload")
     }
 
     "process a deferred hand off 4" in new Setup {
       mockCacheRegistrationID(regId, mockKeystoreConnector)
       val handOffID = "HO4"
       val result = await(controller.processDeferredHandoff(Some(handOffID), Some(payload), throttleResponse)(Future.successful(Results.Ok)))
-      status(result) shouldBe 303
-      redirectLocation(result) shouldBe Some(s"http://localhost:9970/register-your-company/corporation-tax-summary?request=$payload")
+      status(result) mustBe 303
+      redirectLocation(result) mustBe Some(s"http://localhost:9970/register-your-company/corporation-tax-summary?request=$payload")
     }
 
     "process a deferred hand off 5 back" in new Setup {
       mockCacheRegistrationID(regId, mockKeystoreConnector)
       val handOffID = "HO5b"
       val result = await(controller.processDeferredHandoff(Some(handOffID), Some(payload), throttleResponse)(Future.successful(Results.Ok)))
-      status(result) shouldBe 303
-      redirectLocation(result) shouldBe Some(s"http://localhost:9970/register-your-company/return-to-corporation-tax-summary?request=$payload")
+      status(result) mustBe 303
+      redirectLocation(result) mustBe Some(s"http://localhost:9970/register-your-company/return-to-corporation-tax-summary?request=$payload")
     }
 
     "execute the call by name parameter if a handOffID and payload are both not present" in new Setup {
       mockCacheRegistrationID(regId, mockKeystoreConnector)
       val result = await(controller.processDeferredHandoff(None, None, throttleResponse)(Future.successful(Results.Ok)))
-      status(result) shouldBe OK
+      status(result) mustBe OK
     }
 
     "execute the call by name parameter if a handOffID is not present" in new Setup {
       mockCacheRegistrationID(regId, mockKeystoreConnector)
       val result = await(controller.processDeferredHandoff(None, Some(payload), throttleResponse)(Future.successful(Results.Ok)))
-      status(result) shouldBe OK
+      status(result) mustBe OK
     }
 
     "execute the call by name parameter if a payload is not present" in new Setup {
       mockCacheRegistrationID(regId, mockKeystoreConnector)
       val handOffID = "HO1b"
       val result = await(controller.processDeferredHandoff(Some(handOffID), None, throttleResponse)(Future.successful(Results.Ok)))
-      status(result) shouldBe OK
+      status(result) mustBe OK
     }
 
     "NoSuchElementException if the handOffID is missing from the map" in new Setup {
       mockCacheRegistrationID(regId, mockKeystoreConnector)
       val handOffID = "xxx"
       val ex = intercept[NoSuchElementException](await(controller.processDeferredHandoff(Some(handOffID), Some(payload), throttleResponse)(Future.successful(Results.Ok))))
-      ex.getMessage shouldBe s"key not found: $handOffID"
+      ex.getMessage mustBe s"key not found: $handOffID"
     }
   }
 
@@ -454,11 +454,11 @@ class SignInOutControllerSpec extends SCRSSpec
         .thenReturn(Future.successful(cacheMap))
 
       showWithAuthorisedUser(controller.renewSession()) { a =>
-        status(a) shouldBe 200
-        contentType(a) shouldBe Some("image/jpeg")
-        await(a).header.headers.toString().contains("""renewSession.jpg""") shouldBe true
-        header("Access-Control-Allow-Origin", a) shouldBe None
-        header("Access-Control-Allow-Credentials", a) shouldBe None
+        status(a) mustBe 200
+        contentType(a) mustBe Some("image/jpeg")
+        await(a).header.headers.toString().contains("""renewSession.jpg""") mustBe true
+        header("Access-Control-Allow-Origin", a) mustBe None
+        header("Access-Control-Allow-Credentials", a) mustBe None
       }
     }
 
@@ -467,9 +467,9 @@ class SignInOutControllerSpec extends SCRSSpec
         .thenReturn(Future.successful(cacheMap))
 
       showWithAuthorisedUser(controller.renewSession()) { a =>
-        status(a) shouldBe 200
-        header("Access-Control-Allow-Origin", a) shouldBe Some("http://localhost:12345")
-        header("Access-Control-Allow-Credentials", a) shouldBe Some("true")
+        status(a) mustBe 200
+        header("Access-Control-Allow-Origin", a) mustBe Some("http://localhost:12345")
+        header("Access-Control-Allow-Credentials", a) mustBe Some("true")
       }
     }
   }
@@ -478,16 +478,16 @@ class SignInOutControllerSpec extends SCRSSpec
     "return redirect to timeout show and get rid of headers" in new Setup {
       val fr = FakeRequest().withHeaders(("playFoo", "no more"))
       val res = await(controller.destroySession()(fr))
-      status(res) shouldBe 303
-      headers(res).contains("playFoo") shouldBe false
+      status(res) mustBe 303
+      headers(res).contains("playFoo") mustBe false
 
-      redirectLocation(res) shouldBe Some(controllers.reg.routes.SignInOutController.timeoutShow.url)
+      redirectLocation(res) mustBe Some(controllers.reg.routes.SignInOutController.timeoutShow.url)
     }
   }
   "timeoutShow" should {
     "return 200" in new Setup {
       val res = await(controller.timeoutShow()(FakeRequest()))
-      status(res) shouldBe 200
+      status(res) mustBe 200
     }
   }
 }

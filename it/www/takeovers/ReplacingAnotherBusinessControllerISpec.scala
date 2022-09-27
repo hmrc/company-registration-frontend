@@ -52,7 +52,7 @@ class ReplacingAnotherBusinessControllerISpec extends IntegrationSpecBase with L
         .withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
         .get())
 
-      res.status shouldBe OK
+      res.status mustBe OK
     }
   }
 
@@ -70,8 +70,8 @@ class ReplacingAnotherBusinessControllerISpec extends IntegrationSpecBase with L
           .post(Map(replacingAnotherBusinessKey -> Seq(false.toString)))
       )
 
-      res.status shouldBe SEE_OTHER
-      res.redirectLocation should contain(controllers.reg.routes.AccountingDatesController.show.url)
+      res.status mustBe SEE_OTHER
+      res.redirectLocation must contain(controllers.reg.routes.AccountingDatesController.show.url)
     }
 
     "update the data on the backend and redirect to new page when ready" in new Setup {
@@ -87,8 +87,8 @@ class ReplacingAnotherBusinessControllerISpec extends IntegrationSpecBase with L
           .post(Map(replacingAnotherBusinessKey -> Seq(true.toString)))
       )
 
-      res.status shouldBe SEE_OTHER
-      res.redirectLocation should contain(controllers.takeovers.routes.OtherBusinessNameController.show.url)
+      res.status mustBe SEE_OTHER
+      res.redirectLocation must contain(controllers.takeovers.routes.OtherBusinessNameController.show.url)
     }
   }
 }

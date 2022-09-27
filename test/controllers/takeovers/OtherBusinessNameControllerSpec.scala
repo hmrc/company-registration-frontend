@@ -80,8 +80,8 @@ class OtherBusinessNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
 
           val res: Result = await(TestOtherBusinessNameController.show(request))
 
-          status(res) shouldBe SEE_OTHER
-          redirectLocation(res) should contain(controllers.takeovers.routes.ReplacingAnotherBusinessController.show.url)
+          status(res) mustBe SEE_OTHER
+          redirectLocation(res) must contain(controllers.takeovers.routes.ReplacingAnotherBusinessController.show.url)
         }
       }
 
@@ -97,8 +97,8 @@ class OtherBusinessNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
 
           val res: Result = await(TestOtherBusinessNameController.show(request))
 
-          status(res) shouldBe SEE_OTHER
-          redirectLocation(res) should contain(controllers.reg.routes.AccountingDatesController.show.url)
+          status(res) mustBe SEE_OTHER
+          redirectLocation(res) must contain(controllers.reg.routes.AccountingDatesController.show.url)
         }
       }
 
@@ -114,8 +114,8 @@ class OtherBusinessNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
 
           val res: Result = await(TestOtherBusinessNameController.show(request))
 
-          status(res) shouldBe OK
-          bodyOf(res) shouldBe page(OtherBusinessNameForm.form).body
+          status(res) mustBe OK
+          bodyOf(res) mustBe page(OtherBusinessNameForm.form).body
         }
       }
 
@@ -131,8 +131,8 @@ class OtherBusinessNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
 
           val res: Result = await(TestOtherBusinessNameController.show(request))
 
-          status(res) shouldBe OK
-          bodyOf(res) shouldBe page(OtherBusinessNameForm.form.fill(testBusinessName)).body
+          status(res) mustBe OK
+          bodyOf(res) mustBe page(OtherBusinessNameForm.form.fill(testBusinessName)).body
         }
       }
     }
@@ -155,8 +155,8 @@ class OtherBusinessNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
 
           val res: Result = await(TestOtherBusinessNameController.submit(request))
 
-          status(res) shouldBe SEE_OTHER
-          redirectLocation(res) should contain(controllers.takeovers.routes.OtherBusinessAddressController.show.url)
+          status(res) mustBe SEE_OTHER
+          redirectLocation(res) must contain(controllers.takeovers.routes.OtherBusinessAddressController.show.url)
         }
       }
 
@@ -173,9 +173,9 @@ class OtherBusinessNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
 
           val res: Result = await(TestOtherBusinessNameController.submit(request))
 
-          status(res) shouldBe BAD_REQUEST
+          status(res) mustBe BAD_REQUEST
           Jsoup.parse(bodyOf(res))
-            .getElementById("otherBusinessName-error").text shouldBe "Tell us the name of the other business"
+            .getElementById("otherBusinessName-error").text mustBe "Tell us the name of the other business"
         }
 
         "return a bad request and update the page with errors if name is invalid" in new Setup {
@@ -190,9 +190,9 @@ class OtherBusinessNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
 
           val res: Result = await(TestOtherBusinessNameController.submit(request))
 
-          status(res) shouldBe BAD_REQUEST
+          status(res) mustBe BAD_REQUEST
           Jsoup.parse(bodyOf(res))
-            .getElementById("otherBusinessName-error").text shouldBe "Business name must not include ©, Æ and ф"
+            .getElementById("otherBusinessName-error").text mustBe "Business name must not include ©, Æ and ф"
         }
 
         "return a bad request and update the page with errors if name is too long" in new Setup {
@@ -207,9 +207,9 @@ class OtherBusinessNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
 
           val res: Result = await(TestOtherBusinessNameController.submit(request))
 
-          status(res) shouldBe BAD_REQUEST
+          status(res) mustBe BAD_REQUEST
           Jsoup.parse(bodyOf(res))
-            .getElementById("otherBusinessName-error").text shouldBe "Enter the name using 100 characters or less"
+            .getElementById("otherBusinessName-error").text mustBe "Enter the name using 100 characters or less"
         }
       }
     }

@@ -41,7 +41,7 @@ class BusinessRegistrationConnectorSpec extends SCRSSpec with BusinessRegistrati
 
   "BusinessRegistrationConnector" should {
     "use the correct businessRegUrl" in new Setup {
-      connector.businessRegUrl shouldBe "testBusinessRegUrl"
+      connector.businessRegUrl mustBe "testBusinessRegUrl"
     }
   }
 
@@ -49,7 +49,7 @@ class BusinessRegistrationConnectorSpec extends SCRSSpec with BusinessRegistrati
     "make a http POST request to business registration micro-service to create a metadata entry" in new Setup {
       mockHttpPOST[JsValue, BusinessRegistration](connector.businessRegUrl, validBusinessRegistrationResponse)
 
-      await(connector.createMetadataEntry) shouldBe validBusinessRegistrationResponse
+      await(connector.createMetadataEntry) mustBe validBusinessRegistrationResponse
     }
   }
 
@@ -57,7 +57,7 @@ class BusinessRegistrationConnectorSpec extends SCRSSpec with BusinessRegistrati
     "return a a metadata response if one is found in business registration micro-service" in new Setup {
       mockHttpGet[BusinessRegistration]("testUrl", validBusinessRegistrationResponse)
 
-      await(connector.retrieveMetadata(registrationId)) shouldBe BusinessRegistrationSuccessResponse(validBusinessRegistrationResponse)
+      await(connector.retrieveMetadata(registrationId)) mustBe BusinessRegistrationSuccessResponse(validBusinessRegistrationResponse)
     }
 
     "return a Not Found response when a metadata record can not be found" in new Setup {
@@ -65,7 +65,7 @@ class BusinessRegistrationConnectorSpec extends SCRSSpec with BusinessRegistrati
         (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any[ExecutionContext]))
         .thenReturn(Future.failed(new NotFoundException("Bad request")))
 
-      await(connector.retrieveMetadata(registrationId)) shouldBe BusinessRegistrationNotFoundResponse
+      await(connector.retrieveMetadata(registrationId)) mustBe BusinessRegistrationNotFoundResponse
     }
 
     "return a Forbidden response when a metadata record can not be accessed by the user" in new Setup {
@@ -73,7 +73,7 @@ class BusinessRegistrationConnectorSpec extends SCRSSpec with BusinessRegistrati
         (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any[ExecutionContext]))
         .thenReturn(Future.failed(new ForbiddenException("Forbidden")))
 
-      await(connector.retrieveMetadata(registrationId)) shouldBe BusinessRegistrationForbiddenResponse
+      await(connector.retrieveMetadata(registrationId)) mustBe BusinessRegistrationForbiddenResponse
     }
 
     "return an Exception response when an unspecified error has occurred" in new Setup {
@@ -81,7 +81,7 @@ class BusinessRegistrationConnectorSpec extends SCRSSpec with BusinessRegistrati
         (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any[ExecutionContext]))
         .thenReturn(Future.failed(new Exception("exception")))
 
-      await(connector.retrieveMetadata(registrationId)).getClass shouldBe BusinessRegistrationErrorResponse(new Exception).getClass
+      await(connector.retrieveMetadata(registrationId)).getClass mustBe BusinessRegistrationErrorResponse(new Exception).getClass
     }
   }
 
@@ -89,7 +89,7 @@ class BusinessRegistrationConnectorSpec extends SCRSSpec with BusinessRegistrati
     "return a a metadata response if one is found in business registration micro-service" in new Setup {
       mockHttpGet[BusinessRegistration]("testUrl", validBusinessRegistrationResponse)
 
-      await(connector.retrieveMetadata) shouldBe BusinessRegistrationSuccessResponse(validBusinessRegistrationResponse)
+      await(connector.retrieveMetadata) mustBe BusinessRegistrationSuccessResponse(validBusinessRegistrationResponse)
     }
 
     "return a Not Found response when a metadata record can not be found" in new Setup {
@@ -97,7 +97,7 @@ class BusinessRegistrationConnectorSpec extends SCRSSpec with BusinessRegistrati
         (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any[ExecutionContext]))
         .thenReturn(Future.failed(new NotFoundException("Bad request")))
 
-      await(connector.retrieveMetadata) shouldBe BusinessRegistrationNotFoundResponse
+      await(connector.retrieveMetadata) mustBe BusinessRegistrationNotFoundResponse
     }
 
     "return a Forbidden response when a metadata record can not be accessed by the user" in new Setup {
@@ -105,7 +105,7 @@ class BusinessRegistrationConnectorSpec extends SCRSSpec with BusinessRegistrati
         (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any[ExecutionContext]))
         .thenReturn(Future.failed(new ForbiddenException("Forbidden")))
 
-      await(connector.retrieveMetadata) shouldBe BusinessRegistrationForbiddenResponse
+      await(connector.retrieveMetadata) mustBe BusinessRegistrationForbiddenResponse
     }
 
     "return an Exception response when an unspecified error has occurred" in new Setup {
@@ -113,7 +113,7 @@ class BusinessRegistrationConnectorSpec extends SCRSSpec with BusinessRegistrati
         (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any[ExecutionContext]))
         .thenReturn(Future.failed(new Exception("exception")))
 
-      await(connector.retrieveMetadata).getClass shouldBe BusinessRegistrationErrorResponse(new Exception).getClass
+      await(connector.retrieveMetadata).getClass mustBe BusinessRegistrationErrorResponse(new Exception).getClass
     }
   }
 
@@ -126,7 +126,7 @@ class BusinessRegistrationConnectorSpec extends SCRSSpec with BusinessRegistrati
 
       mockHttpPOST[JsValue, BusinessRegistration](connector.businessRegUrl, validBusinessRegistrationResponse)
 
-      await(connector.retrieveAndUpdateCompletionCapacity("","")) shouldBe validBusinessRegistrationResponse
+      await(connector.retrieveAndUpdateCompletionCapacity("","")) mustBe validBusinessRegistrationResponse
     }
   }
 
@@ -145,7 +145,7 @@ class BusinessRegistrationConnectorSpec extends SCRSSpec with BusinessRegistrati
 
       val result = await(connector.updatePrePopContactDetails(registrationId, companyDetails))
 
-      result shouldBe true
+      result mustBe true
     }
 
     "return false when any 4xx response is returned from BR" in new Setup {
@@ -155,7 +155,7 @@ class BusinessRegistrationConnectorSpec extends SCRSSpec with BusinessRegistrati
 
       val result = await(connector.updatePrePopContactDetails(registrationId, companyDetails))
 
-      result shouldBe false
+      result mustBe false
     }
   }
 
@@ -178,7 +178,7 @@ class BusinessRegistrationConnectorSpec extends SCRSSpec with BusinessRegistrati
 
       val result = await(connector.updatePrePopAddress(registrationId, address))
 
-      result shouldBe true
+      result mustBe true
     }
 
     "return false when any 4xx response is returned from BR" in new Setup {
@@ -188,7 +188,7 @@ class BusinessRegistrationConnectorSpec extends SCRSSpec with BusinessRegistrati
 
       val result = await(connector.updatePrePopAddress(registrationId, address))
 
-      result shouldBe false
+      result mustBe false
     }
   }
 }
