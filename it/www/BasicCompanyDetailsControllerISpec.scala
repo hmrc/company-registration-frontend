@@ -16,21 +16,17 @@
 
 package www
 
-import java.util.UUID
-
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, stubFor, urlMatching}
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
-import config.AppConfig
 import itutil.{IntegrationSpecBase, LoginStub}
 import models.handoff._
 import play.api.http.HeaderNames
 import play.api.libs.crypto.DefaultCookieSigner
 import play.api.libs.json.{JsObject, Json}
-import play.modules.reactivemongo.ReactiveMongoComponent
-import repositories.NavModelRepo
+import repositories.NavModelRepoImpl
 import utils.JweCommon
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import java.util.UUID
 
 class BasicCompanyDetailsControllerISpec extends IntegrationSpecBase with LoginStub {
 
@@ -40,12 +36,8 @@ class BasicCompanyDetailsControllerISpec extends IntegrationSpecBase with LoginS
   val regId = "regId5"
 
   class Setup {
-    val rc = app.injector.instanceOf[ReactiveMongoComponent]
-    val repo = new NavModelRepo {
-      override val mongo: ReactiveMongoComponent = rc
-      override val appConfig: AppConfig = app.injector.instanceOf[AppConfig]
-    }
-    await(repo.repository.ensureIndexes)
+    val repo = app.injector.instanceOf[NavModelRepoImpl].repository
+    await(repo.ensureIndexes)
   }
 
   def returnEncryptedRequest(encrypted: String) = s"/return-to-about-you?request=$encrypted"
@@ -179,7 +171,7 @@ class BasicCompanyDetailsControllerISpec extends IntegrationSpecBase with LoginS
       val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
       stubGet(s"/company-registration/corporation-tax-registration/$regId/retrieve-email", 200, emailResponseFromCr)
       stubKeystore(SessionId, regId)
-      await(repo.repository.insertNavModel(regId, handOffNavModel))
+      await(repo.insertNavModel(regId, handOffNavModel))
 
       stubGetUserDetails(userId)
 
@@ -191,9 +183,9 @@ class BasicCompanyDetailsControllerISpec extends IntegrationSpecBase with LoginS
       val encryptedHandOffString = response.header(HeaderNames.LOCATION).get.split("request=").takeRight(1)(0)
       val decryptedHandoffJson = app.injector.instanceOf[JweCommon].decrypt[JsObject](encryptedHandOffString).get
 
-      response.status shouldBe 303
-      response.header(HeaderNames.LOCATION).get should include("/initial-coho-link")
-      decryptedHandoffJson shouldBe forwardPayloadJson
+      response.status mustBe 303
+      response.header(HeaderNames.LOCATION).get must include("/initial-coho-link")
+      decryptedHandoffJson mustBe forwardPayloadJson
     }
   }
 
@@ -215,8 +207,8 @@ class BasicCompanyDetailsControllerISpec extends IntegrationSpecBase with LoginS
 
       val response = await(fResponse)
 
-      response.status shouldBe 303
-      response.header(HeaderNames.LOCATION).get should include("/relationship-to-company")
+      response.status mustBe 303
+      response.header(HeaderNames.LOCATION).get must include("/relationship-to-company")
     }
 
     "return a bad request if there is an incorrect request" in new Setup {
@@ -235,7 +227,7 @@ class BasicCompanyDetailsControllerISpec extends IntegrationSpecBase with LoginS
 
       val response = await(fResponse)
 
-      response.status shouldBe 400
+      response.status mustBe 400
     }
   }
 }

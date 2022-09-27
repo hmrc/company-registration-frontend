@@ -63,7 +63,7 @@ trait FormTestHelpers {
   def assertFormError(form: Form[_], data: Map[String, String], expectedErrors: Seq[FormError]) = {
     form.bind(data).fold(
       formWithErrors => {
-        formWithErrors.errors shouldBe expectedErrors
+        formWithErrors.errors mustBe expectedErrors
       },
       _ => fail("Expected a validation error when binding the form, but it was bound successfully.")
     )

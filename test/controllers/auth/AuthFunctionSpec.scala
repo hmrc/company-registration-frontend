@@ -85,8 +85,8 @@ class AuthFunctionSpec extends SCRSSpec with PayloadFixture with GuiceOneAppPerS
       showWithAuthorisedUserRetrieval(fudgeControllerActionctAuthorisedBasicCompanyDetails, authDetails) {
         res =>
           val awaitedRes = await(res)
-          awaitedRes.header.status shouldBe 200
-          contentAsString(awaitedRes) shouldBe "foo"
+          awaitedRes.header.status mustBe 200
+          contentAsString(awaitedRes) mustBe "foo"
       }
     }
     "redirect to no email page if no email is returned from auth" in new Setup {
@@ -94,8 +94,8 @@ class AuthFunctionSpec extends SCRSSpec with PayloadFixture with GuiceOneAppPerS
       val authDetailsNoEmail = new ~(new ~(Name(Some("myFirstName"), Some("myLastName")), None), Some("extID"))
       showWithAuthorisedUserRetrieval(fudgeControllerActionctAuthorisedBasicCompanyDetails, authDetailsNoEmail) { res =>
         val awaitedRes = await(res)
-        awaitedRes.header.status shouldBe 303
-        awaitedRes.header.headers(HeaderNames.LOCATION) shouldBe controllers.verification.routes.EmailVerificationController.createShow.url
+        awaitedRes.header.status mustBe 303
+        awaitedRes.header.headers(HeaderNames.LOCATION) mustBe controllers.verification.routes.EmailVerificationController.createShow.url
       }
     }
     "return 500 if auth returns incorrect deets" in new Setup {
@@ -103,7 +103,7 @@ class AuthFunctionSpec extends SCRSSpec with PayloadFixture with GuiceOneAppPerS
       val authDetailsInvalid = new ~(new ~(Name(Some("myFirstName"), Some("myLastName")), None), None)
       showWithAuthorisedUserRetrieval(fudgeControllerActionctAuthorisedBasicCompanyDetails, authDetailsInvalid) { res =>
         val awaitedRes = await(res)
-        awaitedRes.header.status shouldBe 500
+        awaitedRes.header.status mustBe 500
       }
     }
   }
@@ -114,8 +114,8 @@ class AuthFunctionSpec extends SCRSSpec with PayloadFixture with GuiceOneAppPerS
       showWithAuthorisedUserRetrieval(fudgeControllerActionctAuthorisedCompanyContact, authDetails) {
         res =>
           val awaitedRes = await(res)
-          awaitedRes.header.status shouldBe 200
-          contentAsString(awaitedRes) shouldBe "foo"
+          awaitedRes.header.status mustBe 200
+          contentAsString(awaitedRes) mustBe "foo"
       }
     }
     "redirect to no email page if no email is returned from auth" in new Setup {
@@ -123,8 +123,8 @@ class AuthFunctionSpec extends SCRSSpec with PayloadFixture with GuiceOneAppPerS
       val authDetailsNoEmail = new ~(Name(Some("myFirstName"), Some("myLastName")), None)
       showWithAuthorisedUserRetrieval(fudgeControllerActionctAuthorisedCompanyContact, authDetailsNoEmail) { res =>
         val awaitedRes = await(res)
-        awaitedRes.header.status shouldBe 303
-        awaitedRes.header.headers(HeaderNames.LOCATION) shouldBe controllers.verification.routes.EmailVerificationController.createShow.url
+        awaitedRes.header.status mustBe 303
+        awaitedRes.header.headers(HeaderNames.LOCATION) mustBe controllers.verification.routes.EmailVerificationController.createShow.url
       }
     }
     "return 303 to no email page if auth returns incorrect deets" in new Setup {
@@ -132,8 +132,8 @@ class AuthFunctionSpec extends SCRSSpec with PayloadFixture with GuiceOneAppPerS
       val authDetailsInvalid = new ~(Name(None, None), None)
       showWithAuthorisedUserRetrieval(fudgeControllerActionctAuthorisedCompanyContact, authDetailsInvalid) { res =>
         val awaitedRes = await(res)
-        awaitedRes.header.status shouldBe 303
-        awaitedRes.header.headers(HeaderNames.LOCATION) shouldBe controllers.verification.routes.EmailVerificationController.createShow.url
+        awaitedRes.header.status mustBe 303
+        awaitedRes.header.headers(HeaderNames.LOCATION) mustBe controllers.verification.routes.EmailVerificationController.createShow.url
       }
     }
   }
@@ -153,8 +153,8 @@ class AuthFunctionSpec extends SCRSSpec with PayloadFixture with GuiceOneAppPerS
       showWithAuthorisedUserRetrieval(fudgeControllerActionctAuthorisedCompanyContactAmend, authDetails) {
         res =>
           val awaitedRes = await(res)
-          awaitedRes.header.status shouldBe 200
-          contentAsString(awaitedRes) shouldBe "foo"
+          awaitedRes.header.status mustBe 200
+          contentAsString(awaitedRes) mustBe "foo"
       }
     }
     "redirect to no email page if no email is returned from auth" in new Setup {
@@ -169,8 +169,8 @@ class AuthFunctionSpec extends SCRSSpec with PayloadFixture with GuiceOneAppPerS
       )
       showWithAuthorisedUserRetrieval(fudgeControllerActionctAuthorisedCompanyContactAmend, authDetailsNoEmail) { res =>
         val awaitedRes = await(res)
-        awaitedRes.header.status shouldBe 303
-        awaitedRes.header.headers(HeaderNames.LOCATION) shouldBe controllers.verification.routes.EmailVerificationController.createShow.url
+        awaitedRes.header.status mustBe 303
+        awaitedRes.header.headers(HeaderNames.LOCATION) mustBe controllers.verification.routes.EmailVerificationController.createShow.url
       }
     }
     "return 500 if auth returns incorrect deets" in new Setup {
@@ -185,7 +185,7 @@ class AuthFunctionSpec extends SCRSSpec with PayloadFixture with GuiceOneAppPerS
       )
       showWithAuthorisedUserRetrieval(fudgeControllerActionctAuthorisedCompanyContactAmend, authDetailsInvalid) { res =>
         val awaitedRes = await(res)
-        awaitedRes.header.status shouldBe 500
+        awaitedRes.header.status mustBe 500
       }
     }
   }
@@ -205,8 +205,8 @@ class AuthFunctionSpec extends SCRSSpec with PayloadFixture with GuiceOneAppPerS
       showWithAuthorisedUserRetrieval(fudgeControllerActionctAuthorisedPostSignIn, authDetails) {
         res =>
           val awaitedRes = await(res)
-          awaitedRes.header.status shouldBe 200
-          contentAsString(awaitedRes) shouldBe "foo"
+          awaitedRes.header.status mustBe 200
+          contentAsString(awaitedRes) mustBe "foo"
       }
     }
     "redirect to no email page if no email is returned from auth" in new Setup {
@@ -223,8 +223,8 @@ class AuthFunctionSpec extends SCRSSpec with PayloadFixture with GuiceOneAppPerS
       )
       showWithAuthorisedUserRetrieval(fudgeControllerActionctAuthorisedPostSignIn, authDetailsNoEmail) { res =>
         val awaitedRes = await(res)
-        awaitedRes.header.status shouldBe 303
-        awaitedRes.header.headers(HeaderNames.LOCATION) shouldBe controllers.verification.routes.EmailVerificationController.createShow.url
+        awaitedRes.header.status mustBe 303
+        awaitedRes.header.headers(HeaderNames.LOCATION) mustBe controllers.verification.routes.EmailVerificationController.createShow.url
       }
     }
     "return 500 if auth returns incorrect deets" in new Setup {
@@ -241,7 +241,7 @@ class AuthFunctionSpec extends SCRSSpec with PayloadFixture with GuiceOneAppPerS
       )
       showWithAuthorisedUserRetrieval(fudgeControllerActionctAuthorisedPostSignIn, authDetailsInvalid) { res =>
         val awaitedRes = await(res)
-        awaitedRes.header.status shouldBe 500
+        awaitedRes.header.status mustBe 500
       }
     }
   }
@@ -254,7 +254,7 @@ class AuthFunctionSpec extends SCRSSpec with PayloadFixture with GuiceOneAppPerS
       val res = authFunc.scpVerifiedEmail
       val awaitedFuture: Boolean = await(res)
 
-      awaitedFuture shouldBe true
+      awaitedFuture mustBe true
     }
 
 
@@ -265,7 +265,7 @@ class AuthFunctionSpec extends SCRSSpec with PayloadFixture with GuiceOneAppPerS
       val res = authFunc.scpVerifiedEmail
       val awaitedFuture: Boolean = await(res)
 
-      awaitedFuture shouldBe false
+      awaitedFuture mustBe false
     }
 
     "Return a false if the email is missing and SCP feature flag is true" in new Setup {
@@ -275,7 +275,7 @@ class AuthFunctionSpec extends SCRSSpec with PayloadFixture with GuiceOneAppPerS
       val res = authFunc.scpVerifiedEmail
       val awaitedFuture: Boolean = await(res)
 
-      awaitedFuture shouldBe false
+      awaitedFuture mustBe false
     }
 
     "Return a false if an error is returned from the SCP verified email function and SCP feature flag is true" in new Setup {
@@ -284,7 +284,7 @@ class AuthFunctionSpec extends SCRSSpec with PayloadFixture with GuiceOneAppPerS
       val res = authFunc.scpVerifiedEmail
       val awaitedFuture: Boolean = await(res)
 
-      awaitedFuture shouldBe false
+      awaitedFuture mustBe false
     }
   }
   "authErrorHandling" should {
@@ -299,13 +299,13 @@ class AuthFunctionSpec extends SCRSSpec with PayloadFixture with GuiceOneAppPerS
         s"$test redirect to incorrect account type page if auth returns $ex" in new Setup {
           override val controllerComponents = app.injector.instanceOf[ControllerComponents]
           Try(throw AuthorisationException.fromString(ex))
-            .recover(authFunc.authErrorHandling()).get.header.headers(HeaderNames.LOCATION) shouldBe controllers.verification.routes.EmailVerificationController.createGGWAccountAffinityShow.url
+            .recover(authFunc.authErrorHandling()).get.header.headers(HeaderNames.LOCATION) mustBe controllers.verification.routes.EmailVerificationController.createGGWAccountAffinityShow.url
         }
     }
     "internal server error if auth returns non matching string exception" in new Setup {
       override val controllerComponents = app.injector.instanceOf[ControllerComponents]
       Try(throw AuthorisationException.fromString("fudge"))
-        .recover(authFunc.authErrorHandling()).get shouldBe Results.InternalServerError
+        .recover(authFunc.authErrorHandling()).get mustBe Results.InternalServerError
     }
     Map("case 5" -> "BearerTokenExpired",
       "case 6" -> "MissingBearerToken",
@@ -316,7 +316,7 @@ class AuthFunctionSpec extends SCRSSpec with PayloadFixture with GuiceOneAppPerS
         s"$test redirect to sign in  with postsignin as continue url for $ex" in new Setup {
           override val controllerComponents = app.injector.instanceOf[ControllerComponents]
           Try(throw AuthorisationException.fromString(ex))
-            .recover(authFunc.authErrorHandling()).get.header.headers(HeaderNames.LOCATION) shouldBe "http://localhost:9553/bas-gateway/sign-in?continue_url=http%3A%2F%2Flocalhost%3A9970%2Fregister-your-company%2Fpost-sign-in&origin=company-registration-frontend"
+            .recover(authFunc.authErrorHandling()).get.header.headers(HeaderNames.LOCATION) mustBe "http://localhost:9553/bas-gateway/sign-in?continue_url=http%3A%2F%2Flocalhost%3A9970%2Fregister-your-company%2Fpost-sign-in&origin=company-registration-frontend"
         }
     }
   }
@@ -332,13 +332,13 @@ class AuthFunctionSpec extends SCRSSpec with PayloadFixture with GuiceOneAppPerS
         s"$test redirect to incorrect account type page if auth returns $ex" in new Setup {
           override val controllerComponents = app.injector.instanceOf[ControllerComponents]
           Try(throw AuthorisationException.fromString(ex))
-            .recover(authFunc.authErrorHandlingIncomplete).get.header.headers(HeaderNames.LOCATION) shouldBe controllers.verification.routes.EmailVerificationController.createGGWAccountAffinityShow.url
+            .recover(authFunc.authErrorHandlingIncomplete).get.header.headers(HeaderNames.LOCATION) mustBe controllers.verification.routes.EmailVerificationController.createGGWAccountAffinityShow.url
         }
     }
     "internal server error if auth returns non matching string exception" in new Setup {
       override val controllerComponents = app.injector.instanceOf[ControllerComponents]
       Try(throw AuthorisationException.fromString("fudge"))
-        .recover(authFunc.authErrorHandlingIncomplete).get shouldBe Results.InternalServerError
+        .recover(authFunc.authErrorHandlingIncomplete).get mustBe Results.InternalServerError
     }
     Map("case 5" -> "BearerTokenExpired",
       "case 6" -> "MissingBearerToken",
@@ -349,7 +349,7 @@ class AuthFunctionSpec extends SCRSSpec with PayloadFixture with GuiceOneAppPerS
         s"$test redirect to sign in  with postsignin as continue url for $ex" in new Setup {
           override val controllerComponents = app.injector.instanceOf[ControllerComponents]
           Try(throw AuthorisationException.fromString(ex))
-            .recover(authFunc.authErrorHandlingIncomplete).get.header.headers(HeaderNames.LOCATION) shouldBe controllers.reg.routes.IncompleteRegistrationController.show.url
+            .recover(authFunc.authErrorHandlingIncomplete).get.header.headers(HeaderNames.LOCATION) mustBe controllers.reg.routes.IncompleteRegistrationController.show.url
         }
     }
   }
@@ -362,7 +362,7 @@ class AuthFunctionSpec extends SCRSSpec with PayloadFixture with GuiceOneAppPerS
       val result = authFunc.ctAuthorised(Results.Ok)
 
       val response = await(result)
-      response.header.status shouldBe 200
+      response.header.status mustBe 200
     }
 
     "return to post-sign-in if the person is not signed in" in new Setup {
@@ -371,8 +371,8 @@ class AuthFunctionSpec extends SCRSSpec with PayloadFixture with GuiceOneAppPerS
       val result = authFunc.ctAuthorised(Results.Ok)
 
       val response = await(result)
-      response.header.status shouldBe 303
-      redirectLocation(result) shouldBe Some(authUrl)
+      response.header.status mustBe 303
+      redirectLocation(result) mustBe Some(authUrl)
     }
 
     "redirect to Incorrect account type server error if an auth error occurs" in new Setup {
@@ -381,7 +381,7 @@ class AuthFunctionSpec extends SCRSSpec with PayloadFixture with GuiceOneAppPerS
       val result = authFunc.ctAuthorised(Results.Ok)
 
       val response = await(result)
-      response.header.headers(HeaderNames.LOCATION) shouldBe controllers.verification.routes.EmailVerificationController.createGGWAccountAffinityShow.url
+      response.header.headers(HeaderNames.LOCATION) mustBe controllers.verification.routes.EmailVerificationController.createGGWAccountAffinityShow.url
     }
   }
 
@@ -392,7 +392,7 @@ class AuthFunctionSpec extends SCRSSpec with PayloadFixture with GuiceOneAppPerS
       val result = authFunc.ctAuthorisedHandoff("h", "p")(Results.Ok)
 
       val response = await(result)
-      response.header.status shouldBe 200
+      response.header.status mustBe 200
     }
 
     "return to post-sign-in with a continue to a handoff if the person is not signed in" in new Setup {
@@ -401,8 +401,8 @@ class AuthFunctionSpec extends SCRSSpec with PayloadFixture with GuiceOneAppPerS
       val result = authFunc.ctAuthorisedHandoff("h", "p")(Results.Ok)
 
       val response = await(result)
-      response.header.status shouldBe 303
-      redirectLocation(result) shouldBe Some(authUrl("h", "p"))
+      response.header.status mustBe 303
+      redirectLocation(result) mustBe Some(authUrl("h", "p"))
     }
   }
   "ctAuthorisedOptStr" should {
@@ -411,16 +411,16 @@ class AuthFunctionSpec extends SCRSSpec with PayloadFixture with GuiceOneAppPerS
       mockAuthorisedUser(Future.successful(Some("foo")))
       val result = authFunc.ctAuthorisedOptStr(Retrievals.externalId)((s: String) => Future.successful(Results.Ok(s"$s")))
       val response = await(result)
-      response.header.status shouldBe 200
-      contentAsString(response) shouldBe "foo"
+      response.header.status mustBe 200
+      contentAsString(response) mustBe "foo"
     }
     "return an internal server error if auth does not return something expected in the retrieval passed in" in new Setup {
       override val controllerComponents = app.injector.instanceOf[ControllerComponents]
       mockAuthorisedUser(Future.successful(None))
       val result = authFunc.ctAuthorisedOptStr(Retrievals.externalId)((s: String) => Future.successful(Results.Ok(s"$s")))
       val response = await(result)
-      response.header.status shouldBe 500
-      contentAsString(response) shouldBe ""
+      response.header.status mustBe 500
+      contentAsString(response) mustBe ""
     }
   }
 }

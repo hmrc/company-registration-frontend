@@ -42,20 +42,20 @@ class ReplacingAnotherBusinessViewSpec extends UnitSpec with GuiceOneAppPerSuite
 
     val expectedTitle = "Is the new company replacing another business?"
     s"have a title of '$expectedTitle'" in {
-      doc.title should include(expectedTitle)
+      doc.title must include(expectedTitle)
     }
 
     "have a section which" should {
       val expectedP1 = "This includes if it’s: A sole trader is someone who’s self-employed and is the only owner of their business."
       s"have a paragraph with '$expectedP1'" in {
-        doc.select(Selectors.p(1)).text() shouldBe expectedP1
+        doc.select(Selectors.p(1)).text() mustBe expectedP1
       }
     }
 
     lazy val saveAndContinue = doc.getElementById("continue")
     val expectedSaveAndContinueButton = "Save and continue"
     s"have a '$expectedSaveAndContinueButton' button'" in {
-      saveAndContinue.text() shouldBe expectedSaveAndContinueButton
+      saveAndContinue.text() mustBe expectedSaveAndContinueButton
     }
   }
 }

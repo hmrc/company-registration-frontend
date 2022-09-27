@@ -59,7 +59,7 @@ class S4LConnectorSpec extends UnitSpec with MockitoSugar with GuiceOneAppPerSui
         .thenReturn(Future.successful(Option(model)))
 
       val result = S4LConnectorTest.fetchAndGet[AccountingDatesModel]("", "")
-      await(result) shouldBe Some(model)
+      await(result) mustBe Some(model)
     }
   }
 
@@ -72,7 +72,7 @@ class S4LConnectorSpec extends UnitSpec with MockitoSugar with GuiceOneAppPerSui
         .thenReturn(Future.successful(returnCacheMap))
 
       val result = S4LConnectorTest.saveForm[AccountingDatesModel]("", "", model)
-      await(result) shouldBe returnCacheMap
+      await(result) mustBe returnCacheMap
     }
   }
 
@@ -82,7 +82,7 @@ class S4LConnectorSpec extends UnitSpec with MockitoSugar with GuiceOneAppPerSui
         .thenReturn(Future.successful(HttpResponse(OK)))
 
       val result = S4LConnectorTest.clear("test")
-      await(result).status shouldBe HttpResponse(OK).status
+      await(result).status mustBe HttpResponse(OK).status
     }
   }
 
@@ -92,7 +92,7 @@ class S4LConnectorSpec extends UnitSpec with MockitoSugar with GuiceOneAppPerSui
         .thenReturn(Future.successful(Some(cacheMap)))
 
       val result = S4LConnectorTest.fetchAll("testUserId")
-      await(result).get shouldBe cacheMap
+      await(result).get mustBe cacheMap
     }
   }
 }

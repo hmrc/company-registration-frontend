@@ -83,7 +83,7 @@ class CompanyContactDetailsControllerSpec extends SCRSSpec with UserDetailsFixtu
 
       showWithAuthorisedUser(controller.show) {
         result =>
-          status(result) shouldBe OK
+          status(result) mustBe OK
       }
     }
 
@@ -95,7 +95,7 @@ class CompanyContactDetailsControllerSpec extends SCRSSpec with UserDetailsFixtu
 
       showWithAuthorisedUser(controller.show) {
         result =>
-          status(result) shouldBe OK
+          status(result) mustBe OK
       }
     }
     "return exception if name is missing even though it is not used on the page anymore" in new Setup {
@@ -105,7 +105,7 @@ class CompanyContactDetailsControllerSpec extends SCRSSpec with UserDetailsFixtu
       )
       intercept[Exception](showWithAuthorisedUserRetrieval(controller.show, AuthDetailsNoName) {
         result =>
-          status(result) shouldBe OK
+          status(result) mustBe OK
       })
     }
   }
@@ -124,8 +124,8 @@ class CompanyContactDetailsControllerSpec extends SCRSSpec with UserDetailsFixtu
 
       submitWithAuthorisedUserRetrieval(controller.submit, request, authDetailsAmend) {
         result =>
-          status(result) shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe Some(controllers.takeovers.routes.ReplacingAnotherBusinessController.show.url)
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result) mustBe Some(controllers.takeovers.routes.ReplacingAnotherBusinessController.show.url)
       }
     }
 
@@ -141,7 +141,7 @@ class CompanyContactDetailsControllerSpec extends SCRSSpec with UserDetailsFixtu
 
       submitWithAuthorisedUserRetrieval(controller.submit, request, authDetailsAmend) {
         result =>
-          status(result) shouldBe BAD_REQUEST
+          status(result) mustBe BAD_REQUEST
       }
     }
     "return exception if name is missing even though it is not used on the page anymore" in new Setup {
@@ -155,7 +155,7 @@ class CompanyContactDetailsControllerSpec extends SCRSSpec with UserDetailsFixtu
       )
       intercept[Exception](submitWithAuthorisedUserRetrieval(controller.submit, FakeRequest().withFormUrlEncodedBody(invalidCompanyContactDetailsNameFormData: _*), authDetailsAmendNoName) {
         result =>
-          status(result) shouldBe BAD_REQUEST
+          status(result) mustBe BAD_REQUEST
       })
     }
   }

@@ -45,7 +45,7 @@ class PolicyControllerSpec extends SCRSSpec with GuiceOneAppPerSuite {
   "Sending a GET request to the PolicyController" should {
     "return a 200 when user is unauthenticated" in new Setup {
       val result = controller.policyLinks()(FakeRequest())
-      status(result) shouldBe OK
+      status(result) mustBe OK
     }
   }
 }

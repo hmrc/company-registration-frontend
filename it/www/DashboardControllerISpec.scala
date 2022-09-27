@@ -204,14 +204,14 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
         get()
 
       val response = await(fResponse)
-      response.status shouldBe 200
+      response.status mustBe 200
       val mdtpCookieData = getCookieData(response.cookie("mdtp").get)
-      mdtpCookieData("csrfToken") shouldNot be("")
-      mdtpCookieData("sessionId") shouldBe SessionId
-      mdtpCookieData("userId") shouldBe userId
+      mdtpCookieData("csrfToken") mustNot be("")
+      mdtpCookieData("sessionId") mustBe SessionId
+      mdtpCookieData("userId") mustBe userId
 
       val doc = Jsoup.parse(response.body)
-      doc.title should include("Company registration overview")
+      doc.title must include("Company registration overview")
     }
 
     "display the dashboard and not send out an audit event if the result of the email mismatch event was already saved" in {
@@ -241,14 +241,14 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
         get()
 
       val response = await(fResponse)
-      response.status shouldBe 200
+      response.status mustBe 200
       val mdtpCookieData = getCookieData(response.cookie("mdtp").get)
-      mdtpCookieData("csrfToken") shouldNot be("")
-      mdtpCookieData("sessionId") shouldBe SessionId
-      mdtpCookieData("userId") shouldBe userId
+      mdtpCookieData("csrfToken") mustNot be("")
+      mdtpCookieData("sessionId") mustBe SessionId
+      mdtpCookieData("userId") mustBe userId
 
       val doc = Jsoup.parse(response.body)
-      doc.title should include("Company registration overview")
+      doc.title must include("Company registration overview")
     }
 
     "not display the VAT block when the vat feature switch is OFF" in {
@@ -269,10 +269,10 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
         get()
 
       val response = await(fResponse)
-      response.status shouldBe 200
+      response.status mustBe 200
 
       val doc = Jsoup.parse(response.body)
-      a[NullPointerException] shouldBe thrownBy(doc.getElementById("vatThreshold").text)
+      a[NullPointerException] mustBe thrownBy(doc.getElementById("vatThreshold").text)
     }
 
 
@@ -294,7 +294,7 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
         get()
 
       val response = await(fResponse)
-      response.status shouldBe 500
+      response.status mustBe 500
 
     }
 
@@ -321,7 +321,7 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
           get()
 
         val response = await(fResponse)
-        response.status shouldBe 200
+        response.status mustBe 200
       }
 
       "the vat feature switch is ON and status is HELD" in {
@@ -345,7 +345,7 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
           get()
 
         val response = await(fResponse)
-        response.status shouldBe 200
+        response.status mustBe 200
       }
 
       "the vat feature switch is OFF and status is HELD" in {
@@ -369,10 +369,10 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
           get()
 
         val response = await(fResponse)
-        response.status shouldBe 200
+        response.status mustBe 200
 
         val doc = Jsoup.parse(response.body)
-        a[NullPointerException] shouldBe thrownBy(doc.getElementById("vatThreshold").text)
+        a[NullPointerException] mustBe thrownBy(doc.getElementById("vatThreshold").text)
       }
 
       "there is no VAT registration" in {
@@ -396,7 +396,7 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
           get()
 
         val response = await(fResponse)
-        response.status shouldBe 200
+        response.status mustBe 200
       }
 
       "there is a VAT registration in draft status" in {
@@ -420,7 +420,7 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
           get()
 
         val response = await(fResponse)
-        response.status shouldBe 200
+        response.status mustBe 200
       }
     }
   }

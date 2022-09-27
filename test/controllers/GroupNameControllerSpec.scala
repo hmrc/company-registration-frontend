@@ -111,7 +111,7 @@ class GroupNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Moc
       showWithUnauthorisedUser(controller.show) {
         result => {
           val response = await(result)
-          status(response) shouldBe SEE_OTHER
+          status(response) mustBe SEE_OTHER
         }
       }
     }
@@ -124,8 +124,8 @@ class GroupNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Moc
     showWithAuthorisedUser(controller.show) {
       result => {
         val response = await(result)
-        status(response) shouldBe SEE_OTHER
-        response.header.headers("Location") shouldBe "/register-your-company/post-sign-in"
+        status(response) mustBe SEE_OTHER
+        response.header.headers("Location") mustBe "/register-your-company/post-sign-in"
       }
     }
   }
@@ -141,8 +141,8 @@ class GroupNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Moc
 
       result => {
         val response = await(result)
-        status(response) shouldBe SEE_OTHER
-        response.header.headers("Location") shouldBe "/register-your-company/post-sign-in"
+        status(response) mustBe SEE_OTHER
+        response.header.headers("Location") mustBe "/register-your-company/post-sign-in"
       }
     }
   }
@@ -165,7 +165,7 @@ class GroupNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Moc
 
     showWithAuthorisedUser(controller.show) {
       result =>
-        status(result) shouldBe OK
+        status(result) mustBe OK
     }
   }
 
@@ -187,7 +187,7 @@ class GroupNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Moc
 
     showWithAuthorisedUser(controller.show) {
       result =>
-        status(result) shouldBe OK
+        status(result) mustBe OK
     }
   }
 
@@ -214,7 +214,7 @@ class GroupNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Moc
       "otherNames" -> "bob co"
     )) {
       result =>
-        status(result) shouldBe BAD_REQUEST
+        status(result) mustBe BAD_REQUEST
     }
   }
 
@@ -242,8 +242,8 @@ class GroupNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Moc
       "otherName" -> "bob co"
     )) {
       result =>
-        status(result) shouldBe SEE_OTHER
-        result.header.headers("Location") shouldBe "/register-your-company/owning-companys-address"
+        status(result) mustBe SEE_OTHER
+        result.header.headers("Location") mustBe "/register-your-company/owning-companys-address"
     }
   }
 
@@ -271,8 +271,8 @@ class GroupNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Moc
       "otherName" -> ""
     )) {
       result =>
-        status(result) shouldBe SEE_OTHER
-        result.header.headers("Location") shouldBe "/register-your-company/owning-companys-address"
+        status(result) mustBe SEE_OTHER
+        result.header.headers("Location") mustBe "/register-your-company/owning-companys-address"
     }
   }
 }

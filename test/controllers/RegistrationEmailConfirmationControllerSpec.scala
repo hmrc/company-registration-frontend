@@ -86,9 +86,9 @@ class RegistrationEmailConfirmationControllerSpec extends SCRSSpec with GuiceOne
 
       showWithAuthorisedUser(TestController.show) {
         result =>
-          status(result) shouldBe OK
+          status(result) mustBe OK
           val document = Jsoup.parse(contentAsString(result))
-          document.getElementById("confirmRegistrationEmail").attr("value") shouldBe "true"
+          document.getElementById("confirmRegistrationEmail").attr("value") mustBe "true"
       }
     }
     "return a 200 with an authorised user where no data exists in keystore for this page" in new Setup {
@@ -101,10 +101,10 @@ class RegistrationEmailConfirmationControllerSpec extends SCRSSpec with GuiceOne
         when(mockEmailService.emailVerifiedStatusInSCRS(ArgumentMatchers.any(), ArgumentMatchers.argThat(funcMatcher(mockOfFunction)))(ArgumentMatchers.any())).thenReturn(Future.successful(awaitedFun))
 
         result =>
-          status(result) shouldBe OK
+          status(result) mustBe OK
           val document = Jsoup.parse(contentAsString(result))
-          document.getElementById("confirmRegistrationEmail").attr("checked") shouldBe ""
-          document.getElementById("confirmRegistrationEmail-no").attr("checked") shouldBe ""
+          document.getElementById("confirmRegistrationEmail").attr("checked") mustBe ""
+          document.getElementById("confirmRegistrationEmail-no").attr("checked") mustBe ""
       }
     }
     "return a 303 redirect with an authorised user because RegistrationEmailModel in keystore is None" in new Setup {
@@ -117,16 +117,16 @@ class RegistrationEmailConfirmationControllerSpec extends SCRSSpec with GuiceOne
 
         when(mockEmailService.emailVerifiedStatusInSCRS(ArgumentMatchers.any(), ArgumentMatchers.argThat(funcMatcher(mockOfFunction)))(ArgumentMatchers.any())).thenReturn(Future.successful(awaitedFun))
         result =>
-          status(result) shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe Some("/register-your-company/post-sign-in")
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result) mustBe Some("/register-your-company/post-sign-in")
 
       }
     }
     "return a 303 to sign in whilst requesting with an unauthorised user" in new Setup {
       showWithUnauthorisedUser(TestController.show) {
         result =>
-          status(result) shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe Some("http://localhost:9553/bas-gateway/sign-in?continue_url=http%3A%2F%2Flocalhost%3A9970%2Fregister-your-company%2Fpost-sign-in&origin=company-registration-frontend")
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result) mustBe Some("http://localhost:9553/bas-gateway/sign-in?continue_url=http%3A%2F%2Flocalhost%3A9970%2Fregister-your-company%2Fpost-sign-in&origin=company-registration-frontend")
       }
     }
   }
@@ -152,8 +152,8 @@ class RegistrationEmailConfirmationControllerSpec extends SCRSSpec with GuiceOne
 
         submitWithAuthorisedUserRetrieval(TestController.submit, requestForTest, authResult) {
           result =>
-            status(result) shouldBe SEE_OTHER
-            redirectLocation(result) shouldBe Some("/register-your-company/relationship-to-company")
+            status(result) mustBe SEE_OTHER
+            redirectLocation(result) mustBe Some("/register-your-company/relationship-to-company")
         }
       }
       "posting with valid data - NO and redirects and first page of email" in new Setup {
@@ -165,8 +165,8 @@ class RegistrationEmailConfirmationControllerSpec extends SCRSSpec with GuiceOne
 
         submitWithAuthorisedUserRetrieval(TestController.submit, requestForTest, authResult) {
           result =>
-            status(result) shouldBe SEE_OTHER
-            redirectLocation(result) shouldBe Some("/register-your-company/registration-email")
+            status(result) mustBe SEE_OTHER
+            redirectLocation(result) mustBe Some("/register-your-company/registration-email")
         }
       }
       "posting with missing data from previous page" in new Setup {
@@ -178,8 +178,8 @@ class RegistrationEmailConfirmationControllerSpec extends SCRSSpec with GuiceOne
 
         submitWithAuthorisedUserRetrieval(TestController.submit, requestForTest, authResult) {
           result =>
-            status(result) shouldBe SEE_OTHER
-            redirectLocation(result) shouldBe Some("/register-your-company/post-sign-in")
+            status(result) mustBe SEE_OTHER
+            redirectLocation(result) mustBe Some("/register-your-company/post-sign-in")
         }
       }
       "return a 400" when {
@@ -192,10 +192,10 @@ class RegistrationEmailConfirmationControllerSpec extends SCRSSpec with GuiceOne
 
           submitWithAuthorisedUserRetrieval(TestController.submit, requestForTest, authResult) {
             result =>
-              status(result) shouldBe BAD_REQUEST
+              status(result) mustBe BAD_REQUEST
               val document = Jsoup.parse(contentAsString(result))
-              document.getElementById("confirmRegistrationEmail").attr("checked") shouldBe ""
-              document.getElementById("confirmRegistrationEmail-no").attr("checked") shouldBe ""
+              document.getElementById("confirmRegistrationEmail").attr("checked") mustBe ""
+              document.getElementById("confirmRegistrationEmail-no").attr("checked") mustBe ""
           }
         }
       }

@@ -45,15 +45,15 @@ class IncompleteRegistrationControllerSpec extends UnitSpec with GuiceOneAppPerS
   "Sending a GET request to IncompleteRegistrationController" should {
     "return a 200" in new Setup {
       val result = TestController.show(FakeRequest())
-      status(result) shouldBe OK
+      status(result) mustBe OK
     }
   }
 
   "Sending a POST request to IncompleteRegistrationController" should {
     "return a 303" in new Setup {
       val result = TestController.submit(FakeRequest())
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/register-your-company/relationship-to-company")
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some("/register-your-company/relationship-to-company")
     }
   }
 }

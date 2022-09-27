@@ -31,11 +31,11 @@ class QuestionnaireAuditEventSpec extends UnitSpec {
       val h = HeaderCarrier()
       val event = new QuestionnaireAuditEvent(QuestionnaireModel("able", Some("why"), "trying", "satisfaction", 1, "recommend", Some("imp")))(h, f)
 
-      event.detail shouldBe Json.parse("""{"ableToAchieve":"able","whyNotAchieve":"why","tryingToDo":"trying","satisfaction":"satisfaction","meetNeeds":1,"recommendation":"recommend","improvements":"imp"}""")
+      event.detail mustBe Json.parse("""{"ableToAchieve":"able","whyNotAchieve":"why","tryingToDo":"trying","satisfaction":"satisfaction","meetNeeds":1,"recommendation":"recommend","improvements":"imp"}""")
 
-      event.auditType shouldBe "Questionnaire"
-      event.auditSource shouldBe "company-registration-frontend"
-      event.tags shouldBe Map("clientIP" -> "-", "path" -> "/", "X-Session-ID" -> "-", "X-Request-ID" -> "-", "deviceID" -> "-", "clientPort" -> "-", "Authorization" -> "-", "transactionName" -> "Questionnaire")
+      event.auditType mustBe "Questionnaire"
+      event.auditSource mustBe "company-registration-frontend"
+      event.tags mustBe Map("clientIP" -> "-", "path" -> "/", "X-Session-ID" -> "-", "X-Request-ID" -> "-", "deviceID" -> "-", "clientPort" -> "-", "Authorization" -> "-", "transactionName" -> "Questionnaire")
 
     }
     "return a valid fully populated audit event with a populated HeaderCarrier" in {
@@ -50,7 +50,7 @@ class QuestionnaireAuditEventSpec extends UnitSpec {
 
       val anotherEvent = new QuestionnaireAuditEvent(QuestionnaireModel("able", Some("why"), "trying", "satisfaction", 1, "recommend", Some("imp")))(head, fake)
 
-      anotherEvent.tags shouldBe Map("clientIP" -> "foo2", "path" -> "pathhere", "X-Session-ID" -> "foo", "X-Request-ID" -> "foo1", "deviceID" -> "foo3", "clientPort" -> "foo4", "Authorization" -> "foo5", "transactionName" -> "Questionnaire")
+      anotherEvent.tags mustBe Map("clientIP" -> "foo2", "path" -> "pathhere", "X-Session-ID" -> "foo", "X-Request-ID" -> "foo1", "deviceID" -> "foo3", "clientPort" -> "foo4", "Authorization" -> "foo5", "transactionName" -> "Questionnaire")
 
     }
 

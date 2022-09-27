@@ -68,14 +68,14 @@ class VatThresholdConnectorSpec extends SCRSSpec with UnitSpec with LogCapturing
   "getVATThreshold" should {
 
     def found(logs: List[ILoggingEvent])(count: Int, msg: String, level: Level) = {
-      logs.size shouldBe count
-      logs.head.getMessage shouldBe msg
-      logs.head.getLevel shouldBe level
+      logs.size mustBe count
+      logs.head.getMessage mustBe msg
+      logs.head.getLevel mustBe level
     }
 
     "use the correct url" in new Setup {
-      connector.serviceBaseUrl shouldBe "test vatBaseURL"
-      connector.serviceUri shouldBe "test vatserviceUri"
+      connector.serviceBaseUrl mustBe "test vatBaseURL"
+      connector.serviceUri mustBe "test vatserviceUri"
     }
     "returns a threshold amount with a successful call" in new Setup {
 
@@ -84,7 +84,7 @@ class VatThresholdConnectorSpec extends SCRSSpec with UnitSpec with LogCapturing
       when(mockWSHttp.GET[HttpResponse](ArgumentMatchers.anyString(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any[ExecutionContext]))
         .thenReturn(Future.successful(HttpResponse(200, Some(returnJson))))
 
-      await(connector.getVATThreshold(todayDate)) shouldBe thresholdAmount
+      await(connector.getVATThreshold(todayDate)) mustBe thresholdAmount
     }
 
     "returns a particular log entry when the taxable-threshold key is missing from the returned JSON from the VR Threshold service" in new Setup {
@@ -98,7 +98,7 @@ class VatThresholdConnectorSpec extends SCRSSpec with UnitSpec with LogCapturing
       withCaptureOfLoggingFrom(Logger(connector.getClass)) { logs =>
         connector.getVATThreshold(todayDate)
         eventually {
-          logs.size shouldBe 1
+          logs.size mustBe 1
         }
         found(logs)(1, "[getVATThreshold] taxable-threshold key not found", Level.ERROR)
       }
@@ -114,7 +114,7 @@ class VatThresholdConnectorSpec extends SCRSSpec with UnitSpec with LogCapturing
       withCaptureOfLoggingFrom(Logger(connector.getClass)) { logs =>
         connector.getVATThreshold(todayDate)
         eventually {
-          logs.size shouldBe 1
+          logs.size mustBe 1
         }
         found(logs)(1, "[getVATThreshold] taxable-threshold is not a string", Level.ERROR)
       }
@@ -131,7 +131,7 @@ class VatThresholdConnectorSpec extends SCRSSpec with UnitSpec with LogCapturing
       withCaptureOfLoggingFrom(Logger(connector.getClass)) { logs =>
         connector.getVATThreshold(todayDate)
         eventually {
-          logs.size shouldBe 1
+          logs.size mustBe 1
         }
         found(logs)(1, s"[getVATThreshold] taxable-threshold for $todayDate not found", Level.ERROR)
       }
@@ -145,7 +145,7 @@ class VatThresholdConnectorSpec extends SCRSSpec with UnitSpec with LogCapturing
       withCaptureOfLoggingFrom(Logger(connector.getClass)) { logs =>
         connector.getVATThreshold(todayDate)
         eventually {
-          logs.size shouldBe 1
+          logs.size mustBe 1
         }
         found(logs)(1, "[VATThresholdConnector] [getVATThreshold] uk.gov.hmrc.http.NotFoundException: NOTFOUND", Level.ERROR)
       }
@@ -159,7 +159,7 @@ class VatThresholdConnectorSpec extends SCRSSpec with UnitSpec with LogCapturing
       withCaptureOfLoggingFrom(Logger(connector.getClass)) { logs =>
         connector.getVATThreshold(todayDate)
         eventually {
-          logs.size shouldBe 1
+          logs.size mustBe 1
         }
         found(logs)(1, "[VATThresholdConnector] [getVATThreshold] uk.gov.hmrc.http.InternalServerException: INTERNALSERVERERROR", Level.ERROR)
       }
@@ -173,7 +173,7 @@ class VatThresholdConnectorSpec extends SCRSSpec with UnitSpec with LogCapturing
       withCaptureOfLoggingFrom(Logger(connector.getClass)) { logs =>
         connector.getVATThreshold(todayDate)
         eventually {
-          logs.size shouldBe 1
+          logs.size mustBe 1
         }
         found(logs)(1, "[VATThresholdConnector] [getVATThreshold] uk.gov.hmrc.http.BadGatewayException: BADGATEWAYERROR", Level.ERROR)
       }

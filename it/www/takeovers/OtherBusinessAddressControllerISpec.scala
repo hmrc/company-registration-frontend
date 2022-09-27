@@ -73,7 +73,7 @@ class OtherBusinessAddressControllerISpec extends IntegrationSpecBase
         .get()
       )
 
-      res.status shouldBe OK
+      res.status mustBe OK
     }
 
     "display and prepop the page" in {
@@ -90,8 +90,8 @@ class OtherBusinessAddressControllerISpec extends IntegrationSpecBase
         .get()
       )
 
-      res.status shouldBe OK
-      Jsoup.parse(res.body).getElementById("test name").attr("value") shouldBe "0"
+      res.status mustBe OK
+      Jsoup.parse(res.body).getElementById("test name").attr("value") mustBe "0"
     }
   }
 
@@ -115,8 +115,8 @@ class OtherBusinessAddressControllerISpec extends IntegrationSpecBase
         ).post(Map(otherBusinessAddressKey -> Seq("0")))
       )
 
-      res.status shouldBe SEE_OTHER
-      res.redirectLocation should contain(controllers.takeovers.routes.WhoAgreedTakeoverController.show.url)
+      res.status mustBe SEE_OTHER
+      res.redirectLocation must contain(controllers.takeovers.routes.WhoAgreedTakeoverController.show.url)
     }
 
     "redirect to ALF" in {
@@ -141,8 +141,8 @@ class OtherBusinessAddressControllerISpec extends IntegrationSpecBase
       )
 
 
-      res.status shouldBe SEE_OTHER
-      res.redirectLocation should contain("/test")
+      res.status mustBe SEE_OTHER
+      res.redirectLocation must contain("/test")
 
       val onRampConfig: AlfJourneyConfig = getPOSTRequestJsonBody("/api/v2/init").as[AlfJourneyConfig]
 
@@ -244,7 +244,7 @@ class OtherBusinessAddressControllerISpec extends IntegrationSpecBase
         )
         )
       )
-      onRampConfig shouldBe expectedConfig
+      onRampConfig mustBe expectedConfig
     }
   }
 
@@ -294,8 +294,8 @@ class OtherBusinessAddressControllerISpec extends IntegrationSpecBase
         ).get()
       )
 
-      res.status shouldBe SEE_OTHER
-      res.redirectLocation should contain(controllers.takeovers.routes.WhoAgreedTakeoverController.show.url)
+      res.status mustBe SEE_OTHER
+      res.redirectLocation must contain(controllers.takeovers.routes.WhoAgreedTakeoverController.show.url)
     }
   }
 }

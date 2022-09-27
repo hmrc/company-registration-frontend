@@ -31,13 +31,13 @@ class OtherRegStatusSpec extends UnitSpec {
       val json = """ {"status":"","lastUpdate":"1970-01-01T00:00:00","ackRef":"","cancelURL":"","restartURL":""}"""
       val testModel = OtherRegStatus("", Some(LocalDateTime.of(1970, 1, 1, 0, 0, 0, 0)), Some(""), Some(""), Some(""))
 
-      Json.toJson[OtherRegStatus](testModel) shouldBe Json.parse(json)
+      Json.toJson[OtherRegStatus](testModel) mustBe Json.parse(json)
     }
     "return a JsSuccess with a CancelRegUrl" in {
       val json = """ {"status":"","lastUpdate":"1970-01-01T00:00:00","ackRef":"","cancelURL":"foo","restartURL":""}"""
       val testModel = OtherRegStatus("", Some(LocalDateTime.of(1970, 1, 1, 0, 0, 0, 0)), Some(""), Some("foo"), Some(""))
 
-      Json.toJson[OtherRegStatus](testModel) shouldBe Json.parse(json)
+      Json.toJson[OtherRegStatus](testModel) mustBe Json.parse(json)
 
     }
 
@@ -45,7 +45,7 @@ class OtherRegStatusSpec extends UnitSpec {
       val json = """ {"status":"","lastUpdate":"1970-01-01T00:00:00","ackRef":"","cancelURL":"","restartURL":"bar"}"""
       val testModel = OtherRegStatus("", Some(LocalDateTime.of(1970, 1, 1, 0, 0, 0, 0)), Some(""), Some(""), Some("bar"))
 
-      Json.toJson[OtherRegStatus](testModel) shouldBe Json.parse(json)
+      Json.toJson[OtherRegStatus](testModel) mustBe Json.parse(json)
     }
 
     "return a JsError when an non ISOFormat date is parsed" in {

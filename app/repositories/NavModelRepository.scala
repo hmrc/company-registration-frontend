@@ -16,79 +16,58 @@
 
 package repositories
 
-import javax.inject.Inject
 import config.AppConfig
 import models.handoff.HandOffNavModel
-import play.api.Logging
-import play.api.libs.json.JsObject
-import play.modules.reactivemongo.ReactiveMongoComponent
-import reactivemongo.api.DB
-import reactivemongo.bson.{BSONArray, BSONDocument, BSONObjectID}
-import reactivemongo.play.json.ImplicitBSONHandlers._
-import uk.gov.hmrc.mongo.ReactiveRepository
+import org.mongodb.scala.model.Filters.equal
+import org.mongodb.scala.model.Indexes.ascending
+import org.mongodb.scala.model.{FindOneAndReplaceOptions, IndexModel, IndexOptions, ReturnDocument}
+import uk.gov.hmrc.mongo.MongoComponent
+import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 
+import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 
-class NavModelRepoImpl @Inject()(val mongo: ReactiveMongoComponent,
+class NavModelRepoImpl @Inject()(val mongo: MongoComponent,
                                  val appConfig: AppConfig) extends NavModelRepo
 
 trait NavModelRepo {
-  val mongo: ReactiveMongoComponent
+  val mongo: MongoComponent
   val appConfig: AppConfig
 
   lazy val expireAfterSeconds: Long = appConfig.servicesConfig.getConfInt("navModel-time-to-live.ttl", throw new Exception("could not find config key navModel-time-to-live.ttl"))
-  lazy val repository: NavModelRepoMongo = new NavModelRepoMongo(mongo.mongoConnector.db, expireAfterSeconds)
+  lazy val repository: NavModelRepoMongo = new NavModelRepoMongo(mongo, expireAfterSeconds)
 }
 trait NavModelRepository {
   def getNavModel(registrationID:String):Future[Option[HandOffNavModel]]
   def insertNavModel(registrationID: String,hm:HandOffNavModel): Future[Option[HandOffNavModel]]
 }
 
-class NavModelRepoMongo(mongo: () => DB, expireSeconds: Long) extends ReactiveRepository[HandOffNavModel, BSONObjectID]("NavModel", mongo,HandOffNavModel.formats)
-  with NavModelRepository
-  with TTLIndexing[HandOffNavModel, BSONObjectID] {
-
-  override lazy val expireAfterSeconds: Long = expireSeconds
-
-  indexEnsurer("nav-model-repo")
-
-  def indexEnsurer(name: String): Unit = {
-    ensureIndexes map {
-      r => {
-        logger.info( s"Ensure Indexes for ${name} returned ${r}" )
-        logger.info( s"Repo ${name} has ${indexes.size} indexes" )
-        indexes map { index =>
-          val name = index.name.getOrElse("<no-name>")
-          logger.info(s"Repo:${name} Index:${name} Details:${index}")
-        }
-      }
-    }
-  }
-
-  //TODO: Remove $or statements after 25th August to use selecting on ONLY '_id'
-  override def getNavModel(registrationID: String): Future[Option[HandOffNavModel]] = {
-    val selector = BSONDocument(
-      "$or" -> BSONArray(
-        BSONDocument("registrationID" -> registrationID),
-        BSONDocument("_id"            -> registrationID)
-      )
+class NavModelRepoMongo(mongo: MongoComponent, expireSeconds: Long) extends PlayMongoRepository[HandOffNavModel](
+  mongoComponent = mongo,
+  collectionName = "NavModel",
+  domainFormat = HandOffNavModel.formats,
+  indexes = Seq(
+    IndexModel(
+      ascending("lastUpdated"),
+      IndexOptions()
+        .name("lastUpdatedIndex")
+        .expireAfter(expireSeconds, TimeUnit.SECONDS)
     )
-    collection.find(selector).one[HandOffNavModel](HandOffNavModel.mongoReads, implicitly[ExecutionContext])
-  }
+  )
+) with NavModelRepository {
 
-  override def insertNavModel(registrationID: String, hm : HandOffNavModel): Future[Option[HandOffNavModel]] = {
-    val selector = BSONDocument(
-      "$or" -> BSONArray(
-        BSONDocument("registrationID" -> registrationID),
-        BSONDocument("_id"            -> registrationID)
-      )
-    )
-    val js: JsObject = HandOffNavModel.mongoWrites(registrationID).writes(hm)
+  override def getNavModel(registrationID: String): Future[Option[HandOffNavModel]] =
+    collection.find(equal("_id", registrationID)).headOption()
 
-    collection.findAndUpdate(selector, js, upsert = true, fetchNewObject = true).map{
-      s => s.result[HandOffNavModel](HandOffNavModel.mongoReads)
-    }
-  }
+  override def insertNavModel(registrationID: String, hm : HandOffNavModel): Future[Option[HandOffNavModel]] =
+    collection.findOneAndReplace(
+      filter = equal("_id", registrationID),
+      replacement = hm,
+      options = FindOneAndReplaceOptions()
+        .upsert(true)
+        .returnDocument(ReturnDocument.AFTER)
+    ).headOption()
 }

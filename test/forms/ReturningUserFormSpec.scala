@@ -28,8 +28,8 @@ class ReturningUserFormSpec extends UnitSpec with PPOBFixture {
       "returningUser" -> "")
     lazy val boundForm = form.bind(data)
     "have errors" in {
-      boundForm.errors.map(_.key) shouldBe List("returningUser")
-      boundForm.errors.map(_.message) shouldBe List("error.returningUser.required")
+      boundForm.errors.map(_.key) mustBe List("returningUser")
+      boundForm.errors.map(_.message) mustBe List("error.returningUser.required")
     }
   }
 }

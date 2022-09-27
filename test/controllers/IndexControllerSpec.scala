@@ -33,7 +33,7 @@ class IndexControllerSpec extends UnitSpec with GuiceOneAppPerSuite {
   "IndexController.show" should {
     "Return a 303" in new Setup {
       val result = controller.index()(FakeRequest())
-      status(result) shouldBe SEE_OTHER
+      status(result) mustBe SEE_OTHER
     }
   }
 }

@@ -47,14 +47,14 @@ class CompanyContactDetailsServiceSpec extends SCRSSpec with CompanyContactDetai
       CTRegistrationConnectorMocks.retrieveContactDetails(CompanyContactDetailsSuccessResponse(validCompanyContactDetailsResponse))
       when(mockCompanyRegistrationConnector.retrieveEmail(any())(any())).thenReturn(Future.successful(Some(Email("verified@email", "GG", true, true, true))))
 
-      await(service.fetchContactDetails) shouldBe validCompanyContactDetailsModel
+      await(service.fetchContactDetails) mustBe validCompanyContactDetailsModel
     }
 
     "return a generated company contact model when no contact details record exists but user details retrieves a record" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
       CTRegistrationConnectorMocks.retrieveContactDetails(CompanyContactDetailsNotFoundResponse)
       when(mockCompanyRegistrationConnector.retrieveEmail(any())(any())).thenReturn(Future.successful(Some(Email("verified@email", "GG", true, true, true))))
-      await(service.fetchContactDetails) shouldBe companyContactModelFromUserDetails
+      await(service.fetchContactDetails) mustBe companyContactModelFromUserDetails
     }
 
     "return a company contact model with no email when a record is retrieved from user details with a DES invalid email" in new Setup {
@@ -62,7 +62,7 @@ class CompanyContactDetailsServiceSpec extends SCRSSpec with CompanyContactDetai
       CTRegistrationConnectorMocks.retrieveContactDetails(CompanyContactDetailsNotFoundResponse)
       when(mockCompanyRegistrationConnector.retrieveEmail(any())(any())).thenReturn(Future.successful(Some(Email("invalid+des@email.com", "GG", true, true, true))))
 
-      await(service.fetchContactDetails) shouldBe CompanyContactDetailsApi(None, None, None)
+      await(service.fetchContactDetails) mustBe CompanyContactDetailsApi(None, None, None)
     }
 
     "return a company contact model when  email when a record is retrieved from user details with an email over 70 characters" in new Setup {
@@ -74,7 +74,7 @@ class CompanyContactDetailsServiceSpec extends SCRSSpec with CompanyContactDetai
       when(mockCompanyRegistrationConnector.retrieveEmail(any())(any())).thenReturn(Future.successful(Some(Email(email71chars, "GG", true, true, true))))
 
 
-      await(service.fetchContactDetails) shouldBe CompanyContactDetailsApi(None, None, None)
+      await(service.fetchContactDetails) mustBe CompanyContactDetailsApi(None, None, None)
     }
 
 
@@ -95,7 +95,7 @@ class CompanyContactDetailsServiceSpec extends SCRSSpec with CompanyContactDetai
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
       CTRegistrationConnectorMocks.updateContactDetails(CompanyContactDetailsSuccessResponse(validCompanyContactDetailsResponse))
 
-      await(service.updateContactDetails(validCompanyContactDetailsModel)) shouldBe CompanyContactDetailsSuccessResponse(validCompanyContactDetailsResponse)
+      await(service.updateContactDetails(validCompanyContactDetailsModel)) mustBe CompanyContactDetailsSuccessResponse(validCompanyContactDetailsResponse)
     }
   }
 
@@ -109,14 +109,14 @@ class CompanyContactDetailsServiceSpec extends SCRSSpec with CompanyContactDetai
 
     "return true if email is different" in new Setup {
       val email = "test"
-      service.isContactDetailsAmended(Some("foo"),"bar") shouldBe true
+      service.isContactDetailsAmended(Some("foo"),"bar") mustBe true
     }
 
     "return false if email is provided but not different" in new Setup {
-      service.isContactDetailsAmended(Some("foo"), "foo") shouldBe false
+      service.isContactDetailsAmended(Some("foo"), "foo") mustBe false
     }
     "return true if email is NOT provided" in new Setup {
-      service.isContactDetailsAmended(None, "foo") shouldBe true
+      service.isContactDetailsAmended(None, "foo") mustBe true
     }
   }
 }

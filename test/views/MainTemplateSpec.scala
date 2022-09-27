@@ -38,7 +38,7 @@ class MainTemplateSpec extends SCRSSpec with GuiceOneAppPerSuite {
     "append the title with the service name and GOV.UK" in {
       val view = main_template(Some(fakeTitle))(Html(""))
       val doc = Jsoup.parse(view.toString())
-      doc.title shouldBe s"$fakeTitle"
+      doc.title mustBe s"$fakeTitle"
     }
   }
 }

@@ -43,7 +43,7 @@ class PostSignInModelsSpec extends UnitSpec {
           paymentRefs = false
         )
 
-      Json.parse(json).as[ThrottleResponse] shouldBe expected
+      Json.parse(json).as[ThrottleResponse] mustBe expected
     }
 
     "With email, be able to be parsed into JSON" in {
@@ -68,7 +68,7 @@ class PostSignInModelsSpec extends UnitSpec {
           emailData = Some(Email("a@a.a", "GG", true, false, false))
         )
 
-      Json.parse(json).as[ThrottleResponse] shouldBe expected
+      Json.parse(json).as[ThrottleResponse] mustBe expected
     }
   }
 
@@ -96,8 +96,8 @@ class PostSignInModelsSpec extends UnitSpec {
         )
 
       val result = Json.toJson[EmailVerificationRequest](expected)
-      result.getClass shouldBe classOf[JsObject]
-      result shouldBe Json.parse(json)
+      result.getClass mustBe classOf[JsObject]
+      result mustBe Json.parse(json)
     }
 
     "Create a valid email verification request with some parameters" in {
@@ -123,8 +123,8 @@ class PostSignInModelsSpec extends UnitSpec {
         )
 
       val result = Json.toJson[EmailVerificationRequest](expected)
-      result.getClass shouldBe classOf[JsObject]
-      result shouldBe Json.parse(json)
+      result.getClass mustBe classOf[JsObject]
+      result mustBe Json.parse(json)
     }
   }
 }

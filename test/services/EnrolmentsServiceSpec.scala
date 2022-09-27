@@ -40,14 +40,14 @@ class EnrolmentsServiceSpec extends UnitSpec with GuiceOneAppPerSuite with Mocki
         val result = TestService.hasBannedRegimes(
           Enrolments(Set(Enrolment("IR-SA-TRUST-ORG", Seq(EnrolmentIdentifier("test-paye-identifier", "test-paye-value")), "testState")))
         )
-        result shouldBe true
+        result mustBe true
       }
     }
 
     "return a false" when {
       "no restricted enrolments are found in the enrolments record" in new Setup {
         val result = TestService.hasBannedRegimes(Enrolments(Set()))
-        result shouldBe false
+        result mustBe false
       }
     }
   }

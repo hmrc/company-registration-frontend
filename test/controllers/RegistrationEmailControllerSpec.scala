@@ -89,10 +89,10 @@ class RegistrationEmailControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
       when(mockEmailService.emailVerifiedStatusInSCRS(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(awaitedFun))
       showWithAuthorisedUserRetrieval(TestController.show, authResult)(
         result => {
-          status(result) shouldBe 200
+          status(result) mustBe 200
           val document: Document = Jsoup.parse(contentAsString(result))
-          document.title should include("Which email address do you want to use for this application?")
-          document.getElementById("registrationEmail").attr("value") shouldBe "currentEmail"
+          document.title must include("Which email address do you want to use for this application?")
+          document.getElementById("registrationEmail").attr("value") mustBe "currentEmail"
         }
       )
     }
@@ -104,9 +104,9 @@ class RegistrationEmailControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
       when(mockEmailService.emailVerifiedStatusInSCRS(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(awaitedFun))
       showWithAuthorisedUserRetrieval(TestController.show, authResult)(
         result => {
-          status(result) shouldBe 200
+          status(result) mustBe 200
           val document: Document = Jsoup.parse(contentAsString(result))
-          document.getElementById("registrationEmail").attr("value") shouldBe "currentEmail"
+          document.getElementById("registrationEmail").attr("value") mustBe "currentEmail"
         }
       )
     }
@@ -147,9 +147,9 @@ class RegistrationEmailControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
 
       submitWithAuthorisedUserRetrieval(TestController.submit, req, authResult) {
         result =>
-          status(result) shouldBe BAD_REQUEST
+          status(result) mustBe BAD_REQUEST
           val document = Jsoup.parse(contentAsString(result))
-          document.getElementById("registrationEmail").attr("value") shouldBe "currentEmail"
+          document.getElementById("registrationEmail").attr("value") mustBe "currentEmail"
       }
 
     }
@@ -178,8 +178,8 @@ class RegistrationEmailControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
 
       submitWithAuthorisedUserRetrieval(TestController.submit, req, authResult) {
         result =>
-          status(result) shouldBe SEE_OTHER
-          redirectLocation(result).get shouldBe controllers.reg.routes.CompletionCapacityController.show.url
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result).get mustBe controllers.reg.routes.CompletionCapacityController.show.url
       }
     }
 
@@ -206,8 +206,8 @@ class RegistrationEmailControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
 
       submitWithAuthorisedUserRetrieval(TestController.submit, req, authResult) {
         result =>
-          status(result) shouldBe SEE_OTHER
-          redirectLocation(result).get shouldBe controllers.reg.routes.CompletionCapacityController.show.url
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result).get mustBe controllers.reg.routes.CompletionCapacityController.show.url
       }
     }
 
@@ -233,8 +233,8 @@ class RegistrationEmailControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
 
       submitWithAuthorisedUserRetrieval(TestController.submit, req, authResult) {
         result =>
-          status(result) shouldBe SEE_OTHER
-          redirectLocation(result).get shouldBe controllers.verification.routes.EmailVerificationController.verifyShow.url
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result).get mustBe controllers.verification.routes.EmailVerificationController.verifyShow.url
       }
     }
 
@@ -260,8 +260,8 @@ class RegistrationEmailControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
 
       submitWithAuthorisedUserRetrieval(TestController.submit, req, authResult) {
         result =>
-          status(result) shouldBe SEE_OTHER
-          redirectLocation(result).get shouldBe controllers.reg.routes.CompletionCapacityController.show.url
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result).get mustBe controllers.reg.routes.CompletionCapacityController.show.url
       }
     }
 
@@ -289,8 +289,8 @@ class RegistrationEmailControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
 
       submitWithAuthorisedUserRetrieval(TestController.submit, req, authResult) {
         result =>
-          status(result) shouldBe SEE_OTHER
-          redirectLocation(result).get shouldBe controllers.reg.routes.CompletionCapacityController.show.url
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result).get mustBe controllers.reg.routes.CompletionCapacityController.show.url
       }
     }
 
@@ -316,8 +316,8 @@ class RegistrationEmailControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
 
       submitWithAuthorisedUserRetrieval(TestController.submit, req, authResult) {
         result =>
-          status(result) shouldBe SEE_OTHER
-          redirectLocation(result).get shouldBe controllers.reg.routes.RegistrationEmailConfirmationController.show.url
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result).get mustBe controllers.reg.routes.RegistrationEmailConfirmationController.show.url
 
       }
     }

@@ -78,9 +78,9 @@ class CorporationTaxDetailsControllerSpec extends SCRSSpec with PayloadFixture w
       val payload = firstHandBackEncrypted(jweInstance())
       showWithUnauthorisedUser(testController.corporationTaxDetails(payload.get)) {
         result =>
-          status(result) shouldBe SEE_OTHER
+          status(result) mustBe SEE_OTHER
           val url = authUrl("HO2", payload.get)
-          redirectLocation(result) shouldBe Some(url)
+          redirectLocation(result) mustBe Some(url)
       }
     }
 
@@ -91,8 +91,8 @@ class CorporationTaxDetailsControllerSpec extends SCRSSpec with PayloadFixture w
 
       showWithAuthorisedUser(testController.corporationTaxDetails("")) {
         result =>
-          status(result) shouldBe BAD_REQUEST
-          redirectLocation(result) shouldBe None
+          status(result) mustBe BAD_REQUEST
+          redirectLocation(result) mustBe None
       }
     }
 
@@ -103,8 +103,8 @@ class CorporationTaxDetailsControllerSpec extends SCRSSpec with PayloadFixture w
 
       showWithAuthorisedUser(testController.corporationTaxDetails(payloadEncrypted.get)) {
         result =>
-          status(result) shouldBe BAD_REQUEST
-          redirectLocation(result) shouldBe None
+          status(result) mustBe BAD_REQUEST
+          redirectLocation(result) mustBe None
       }
     }
 
@@ -115,8 +115,8 @@ class CorporationTaxDetailsControllerSpec extends SCRSSpec with PayloadFixture w
 
       showWithAuthorisedUser(testController.corporationTaxDetails(payloadEncrypted.get)) {
         result =>
-          status(result) shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result) mustBe
             Some("/register-your-company/principal-place-of-business")
       }
     }
@@ -128,8 +128,8 @@ class CorporationTaxDetailsControllerSpec extends SCRSSpec with PayloadFixture w
 
       showWithAuthorisedUser(testController.corporationTaxDetails(payloadEncrypted.get)) {
         result =>
-          status(result) shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe Some(s"/register-your-company/post-sign-in?handOffID=HO2&payload=${payloadEncrypted.get}")
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result) mustBe Some(s"/register-your-company/post-sign-in?handOffID=HO2&payload=${payloadEncrypted.get}")
       }
     }
   }

@@ -92,8 +92,8 @@ class PreviousOwnersAddressControllerSpec()(implicit val lang: Lang) extends SCR
 
           val res: Result = TestPreviousOwnersAddressController.show(request)
 
-          status(res) shouldBe SEE_OTHER
-          redirectLocation(res) should contain(controllers.takeovers.routes.ReplacingAnotherBusinessController.show.url)
+          status(res) mustBe SEE_OTHER
+          redirectLocation(res) must contain(controllers.takeovers.routes.ReplacingAnotherBusinessController.show.url)
         }
       }
 
@@ -108,8 +108,8 @@ class PreviousOwnersAddressControllerSpec()(implicit val lang: Lang) extends SCR
 
           val res: Result = TestPreviousOwnersAddressController.show(request)
 
-          status(res) shouldBe SEE_OTHER
-          redirectLocation(res) should contain(controllers.reg.routes.AccountingDatesController.show.url)
+          status(res) mustBe SEE_OTHER
+          redirectLocation(res) must contain(controllers.reg.routes.AccountingDatesController.show.url)
         }
       }
 
@@ -125,8 +125,8 @@ class PreviousOwnersAddressControllerSpec()(implicit val lang: Lang) extends SCR
 
           val res: Result = TestPreviousOwnersAddressController.show(request)
 
-          status(res) shouldBe SEE_OTHER
-          redirectLocation(res) should contain(controllers.takeovers.routes.OtherBusinessNameController.show.url)
+          status(res) mustBe SEE_OTHER
+          redirectLocation(res) must contain(controllers.takeovers.routes.OtherBusinessNameController.show.url)
         }
       }
 
@@ -147,8 +147,8 @@ class PreviousOwnersAddressControllerSpec()(implicit val lang: Lang) extends SCR
 
           val res: Result = TestPreviousOwnersAddressController.show(request)
 
-          status(res) shouldBe SEE_OTHER
-          redirectLocation(res) should contain(controllers.takeovers.routes.OtherBusinessAddressController.show.url)
+          status(res) mustBe SEE_OTHER
+          redirectLocation(res) must contain(controllers.takeovers.routes.OtherBusinessAddressController.show.url)
         }
       }
 
@@ -170,8 +170,8 @@ class PreviousOwnersAddressControllerSpec()(implicit val lang: Lang) extends SCR
 
           val res: Result = TestPreviousOwnersAddressController.show(request)
 
-          status(res) shouldBe SEE_OTHER
-          redirectLocation(res) should contain(controllers.takeovers.routes.WhoAgreedTakeoverController.show.url)
+          status(res) mustBe SEE_OTHER
+          redirectLocation(res) must contain(controllers.takeovers.routes.WhoAgreedTakeoverController.show.url)
         }
       }
 
@@ -196,13 +196,13 @@ class PreviousOwnersAddressControllerSpec()(implicit val lang: Lang) extends SCR
 
           val res: Result = TestPreviousOwnersAddressController.show(request)
 
-          status(res) shouldBe OK
-          bodyOf(res) shouldBe page(
+          status(res) mustBe OK
+          bodyOf(res) mustBe page(
             HomeAddressForm.form(2).fill(PreselectedAddress(1)),
             testPreviousOwnersName,
             Seq(testBusinessAddress, testOldPreviousOwnersAddress)
           ).body
-          session(res).get(addressSeqKey) should contain(Json.toJson(Seq(testBusinessAddress, testOldPreviousOwnersAddress)).toString())
+          session(res).get(addressSeqKey) must contain(Json.toJson(Seq(testBusinessAddress, testOldPreviousOwnersAddress)).toString())
         }
       }
 
@@ -230,13 +230,13 @@ class PreviousOwnersAddressControllerSpec()(implicit val lang: Lang) extends SCR
 
           val res: Result = TestPreviousOwnersAddressController.show(request)
 
-          status(res) shouldBe OK
-          bodyOf(res) shouldBe page(
+          status(res) mustBe OK
+          bodyOf(res) mustBe page(
             HomeAddressForm.form(2).fill(PreselectedAddress(1)),
             testPreviousOwnersName,
             Seq(testBusinessAddress, testOldPreviousOwnersAddress)
           ).body
-          session(res).get(addressSeqKey) should contain(Json.toJson(Seq(testBusinessAddress, testOldPreviousOwnersAddress)).toString())
+          session(res).get(addressSeqKey) must contain(Json.toJson(Seq(testBusinessAddress, testOldPreviousOwnersAddress)).toString())
         }
       }
     }
@@ -265,9 +265,9 @@ class PreviousOwnersAddressControllerSpec()(implicit val lang: Lang) extends SCR
 
           val res: Result = TestPreviousOwnersAddressController.submit(request)
 
-          status(res) shouldBe SEE_OTHER
-          redirectLocation(res) should contain(controllers.reg.routes.AccountingDatesController.show.url)
-          session(res).get(addressSeqKey) shouldBe None
+          status(res) mustBe SEE_OTHER
+          redirectLocation(res) must contain(controllers.reg.routes.AccountingDatesController.show.url)
+          session(res).get(addressSeqKey) mustBe None
         }
       }
 
@@ -290,8 +290,8 @@ class PreviousOwnersAddressControllerSpec()(implicit val lang: Lang) extends SCR
 
           val res: Result = TestPreviousOwnersAddressController.submit(request)
 
-          status(res) shouldBe SEE_OTHER
-          redirectLocation(res) should contain("TEST/redirectUrl")
+          status(res) mustBe SEE_OTHER
+          redirectLocation(res) must contain("TEST/redirectUrl")
         }
       }
 
@@ -308,8 +308,8 @@ class PreviousOwnersAddressControllerSpec()(implicit val lang: Lang) extends SCR
 
           val res: Result = TestPreviousOwnersAddressController.submit(request)
 
-          status(res) shouldBe BAD_REQUEST
-          Jsoup.parse(bodyOf(res)).getElementById("homeAddress-error-summary").text shouldBe "Tell us their home address"
+          status(res) mustBe BAD_REQUEST
+          Jsoup.parse(bodyOf(res)).getElementById("homeAddress-error-summary").text mustBe "Tell us their home address"
         }
       }
     }
@@ -342,9 +342,9 @@ class PreviousOwnersAddressControllerSpec()(implicit val lang: Lang) extends SCR
 
           val res: Result = TestPreviousOwnersAddressController.handbackFromALF(Some(testAlfId))(request)
 
-          status(res) shouldBe SEE_OTHER
-          redirectLocation(res) should contain(controllers.reg.routes.AccountingDatesController.show.url)
-          session(res).get(addressSeqKey) shouldBe None
+          status(res) mustBe SEE_OTHER
+          redirectLocation(res) must contain(controllers.reg.routes.AccountingDatesController.show.url)
+          session(res).get(addressSeqKey) mustBe None
         }
       }
     }

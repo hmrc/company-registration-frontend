@@ -44,9 +44,9 @@ class AddressPrepopulationServiceSpec extends SCRSSpec with AddressFixture with 
 
           val res: Seq[NewAddress] = await(AddressPrepopulationService.retrieveAddresses(testRegistrationId))
 
-          res should contain(validNewAddress)
-          res should contain(validNewAddress2)
-          res should contain(validNewAddress3)
+          res must contain(validNewAddress)
+          res must contain(validNewAddress2)
+          res must contain(validNewAddress3)
         }
       }
       "the user has provided no other addresses" should {
@@ -59,7 +59,7 @@ class AddressPrepopulationServiceSpec extends SCRSSpec with AddressFixture with 
 
           val res: Seq[NewAddress] = await(AddressPrepopulationService.retrieveAddresses(testRegistrationId))
 
-          res should contain(validNewAddress)
+          res must contain(validNewAddress)
         }
       }
     }

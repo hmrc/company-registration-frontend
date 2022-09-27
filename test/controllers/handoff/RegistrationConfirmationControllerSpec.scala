@@ -69,8 +69,8 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
     "return a SEE_OTHER if submitting without authorisation" in new Setup {
       showWithUnauthorisedUser(testController.registrationConfirmation("requestData")) {
         result =>
-          status(result) shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe Some("/register-your-company/sign-in-complete-application")
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result) mustBe Some("/register-your-company/sign-in-complete-application")
       }
     }
 
@@ -88,8 +88,8 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
 
       showWithAuthorisedUserRetrieval(testController.registrationConfirmation(payloadEncr), externalID) {
         result =>
-          status(result) shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe Some("/register-your-company/application-submitted")
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result) mustBe Some("/register-your-company/application-submitted")
       }
     }
 
@@ -111,8 +111,8 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
 
       showWithAuthorisedUserRetrieval(testController.registrationConfirmation(payloadEncr), externalID) {
         result =>
-          status(result) shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe Some("coho-url?request=encrypted-payload")
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result) mustBe Some("coho-url?request=encrypted-payload")
       }
     }
 
@@ -124,8 +124,8 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
 
       showWithAuthorisedUserRetrieval(testController.registrationConfirmation(payloadEncr), externalID) {
         result =>
-          status(result) shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe Some("/register-your-company/post-sign-in")
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result) mustBe Some("/register-your-company/post-sign-in")
       }
     }
 
@@ -145,7 +145,7 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
 
       showWithAuthorisedUserRetrieval(testController.registrationConfirmation(payloadEncr), externalID) {
         result =>
-          status(result) shouldBe BAD_REQUEST
+          status(result) mustBe BAD_REQUEST
       }
     }
 
@@ -160,8 +160,8 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
 
       showWithAuthorisedUserRetrieval(testController.registrationConfirmation(payloadEncr), externalID) {
         result =>
-          status(result) shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe Some("/register-your-company/something-went-wrong")
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result) mustBe Some("/register-your-company/something-went-wrong")
       }
     }
 
@@ -176,8 +176,8 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
 
       showWithAuthorisedUserRetrieval(testController.registrationConfirmation(payloadEncr), externalID) {
         result =>
-          status(result) shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe Some("/register-your-company/application-submitted")
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result) mustBe Some("/register-your-company/application-submitted")
       }
     }
 
@@ -189,8 +189,8 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
 
       showWithAuthorisedUserRetrieval(testController.registrationConfirmation(payloadEncr), externalID) {
         result =>
-          status(result) shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe Some("/register-your-company/post-sign-in")
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result) mustBe Some("/register-your-company/post-sign-in")
       }
     }
 
@@ -201,8 +201,8 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
 
       showWithAuthorisedUserRetrieval(testController.registrationConfirmation(""), externalID) {
         result =>
-          status(result) shouldBe BAD_REQUEST
-          redirectLocation(result) shouldBe None
+          status(result) mustBe BAD_REQUEST
+          redirectLocation(result) mustBe None
       }
     }
   }
@@ -222,8 +222,8 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
 
       showWithAuthorisedUserRetrieval(testController.paymentConfirmation(payloadEncr), externalID) {
         result =>
-          status(result) shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe Some("/register-your-company/application-submitted")
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result) mustBe Some("/register-your-company/application-submitted")
       }
     }
   }

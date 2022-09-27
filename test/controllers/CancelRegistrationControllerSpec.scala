@@ -81,28 +81,28 @@ class CancelRegistrationControllerSpec extends SCRSSpec with MockitoSugar with G
       val view = cancelPayeView(form)
 
       val res = await(controller.showCancelService(mockServiceConnector, view))
-      status(res) shouldBe 200
+      status(res) mustBe 200
     }
 
     "not display the page and should redirect if the user is logged in and does not have a registration id " in new Setup(r = FakeRequest()) {
       mockKeystoreFetchAndGet("registrationID", None)
 
       val res = await(controller.showCancelService(mockServiceConnector, cancelPayeView(CancelForm.form.fill(false))))
-      status(res) shouldBe SEE_OTHER
+      status(res) mustBe SEE_OTHER
     }
     "not display the page if user:logged in, has regID,regID is draft" in new Setup(r = FakeRequest()) {
       mockKeystoreFetchAndGet("registrationID", Some(testRegID))
       CTRegistrationConnectorMocks.retrieveCTRegistration()
 
       val res = await(controller.showCancelService(mockServiceConnector, cancelPayeView(CancelForm.form.fill(false))))
-      status(res) shouldBe SEE_OTHER
+      status(res) mustBe SEE_OTHER
     }
     "not display the page if user:logged in, has regID,regID is rejected" in new Setup(r = FakeRequest()) {
       mockKeystoreFetchAndGet("registrationID", Some(testRegID))
       CTRegistrationConnectorMocks.retrieveCTRegistration(buildCorporationTaxModel(status = "rejected"))
 
       val res = await(controller.showCancelService(mockServiceConnector, cancelPayeView(CancelForm.form.fill(false))))
-      status(res) shouldBe SEE_OTHER
+      status(res) mustBe SEE_OTHER
     }
     "not display the page if user:logged in, has regID,regID is not draft / rejected, no cancelURL is returned" in new Setup(r = FakeRequest()) {
       mockKeystoreFetchAndGet("registrationID", Some(testRegID))
@@ -111,7 +111,7 @@ class CancelRegistrationControllerSpec extends SCRSSpec with MockitoSugar with G
       canStatusBeCancelledMock(testRegID)(Future.failed(cantCancel))
 
       val res = await(controller.showCancelService(mockServiceConnector, cancelPayeView(CancelForm.form.fill(false))))
-      status(res) shouldBe SEE_OTHER
+      status(res) mustBe SEE_OTHER
     }
   }
   "showCancelPaye" should {
@@ -124,7 +124,7 @@ class CancelRegistrationControllerSpec extends SCRSSpec with MockitoSugar with G
 
       showWithAuthorisedUser(controller.showCancelPAYE) {
         result =>
-          status(result) shouldBe OK
+          status(result) mustBe OK
       }
     }
   }
@@ -138,7 +138,7 @@ class CancelRegistrationControllerSpec extends SCRSSpec with MockitoSugar with G
 
       showWithAuthorisedUser(controller.showCancelVAT) {
         result =>
-          status(result) shouldBe OK
+          status(result) mustBe OK
       }
     }
   }
@@ -152,7 +152,7 @@ class CancelRegistrationControllerSpec extends SCRSSpec with MockitoSugar with G
       cancelRegMock(testRegID)(NotCancelled)
 
       val res = await(controller.submitCancelService(mockServiceConnector, _ => cancelVatView(CancelForm.form.fill(true))))
-      status(res) shouldBe SEE_OTHER
+      status(res) mustBe SEE_OTHER
     }
 
     "redirect to dashboard if cancelURL does exist, the registration is cancelled successfully, " +
@@ -163,7 +163,7 @@ class CancelRegistrationControllerSpec extends SCRSSpec with MockitoSugar with G
       cancelRegMock(testRegID)(Cancelled)
 
       val res = await(controller.submitCancelService(mockServiceConnector, _ => cancelVatView(CancelForm.form.fill(true))))
-      status(res) shouldBe SEE_OTHER
+      status(res) mustBe SEE_OTHER
     }
     "redirect to dashboard where user has reg id in draft state/cancelURL exists" in new Setup(r = FakeRequest().withFormUrlEncodedBody("cancelService" -> "true")) {
       mockKeystoreFetchAndGet("registrationID", Some(testRegID))
@@ -172,7 +172,7 @@ class CancelRegistrationControllerSpec extends SCRSSpec with MockitoSugar with G
       cancelRegMock(testRegID)(Cancelled)
 
       val res = await(controller.submitCancelService(mockServiceConnector, _ => cancelVatView(CancelForm.form.fill(true))))
-      status(res) shouldBe SEE_OTHER
+      status(res) mustBe SEE_OTHER
     }
     "return redirect when all conditions are met to cancel a service, but user selects false" in new Setup(r = FakeRequest().withFormUrlEncodedBody("cancelService" -> "true")) {
       mockKeystoreFetchAndGet("registrationID", Some(testRegID))
@@ -180,7 +180,7 @@ class CancelRegistrationControllerSpec extends SCRSSpec with MockitoSugar with G
       getStatusMock(testRegID)(SuccessfulResponse(OtherRegStatus("", None, None, Some("foo"), None)))
 
       val res = await(controller.submitCancelService(mockServiceConnector, _ => cancelVatView(CancelForm.form.fill(false))))
-      status(res) shouldBe SEE_OTHER
+      status(res) mustBe SEE_OTHER
     }
   }
   "submitCancelPaye" should {
@@ -192,7 +192,7 @@ class CancelRegistrationControllerSpec extends SCRSSpec with MockitoSugar with G
 
       submitWithAuthorisedUser(controller.submitCancelPAYE, FakeRequest().withFormUrlEncodedBody("cancelService" -> "true")) {
         result =>
-          status(result) shouldBe SEE_OTHER
+          status(result) mustBe SEE_OTHER
       }
     }
   }
@@ -205,7 +205,7 @@ class CancelRegistrationControllerSpec extends SCRSSpec with MockitoSugar with G
 
       submitWithAuthorisedUser(controller.submitCancelVAT, FakeRequest().withFormUrlEncodedBody("cancelService" -> "true")) {
         result =>
-          status(result) shouldBe SEE_OTHER
+          status(result) mustBe SEE_OTHER
       }
     }
   }

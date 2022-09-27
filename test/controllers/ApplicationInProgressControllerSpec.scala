@@ -32,8 +32,8 @@ class ApplicationInProgressControllerSpec extends SCRSSpec with GuiceOneAppPerSu
   "Sending a REDIRECT request to ApplicationInProgressController" should {
     "return a 303" in new Setup {
       val result = controller.redirect()(FakeRequest())
-      status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some("/register-your-company/sign-in-complete-application")
+      status(result) mustBe SEE_OTHER
+      redirectLocation(result) mustBe Some("/register-your-company/sign-in-complete-application")
     }
   }
 }

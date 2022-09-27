@@ -53,8 +53,8 @@ class FeatureSwitchControllerSpec extends SCRSSpec with GuiceOneAppPerSuite {
       when(mockSCRSFeatureSwitches.apply(ArgumentMatchers.any[String])).thenReturn(Some(BooleanFeatureSwitch("cohoFirstHandOff", false)))
       when(mockFeatureSwitchManager.disable(ArgumentMatchers.any())).thenReturn(BooleanFeatureSwitch("cohoFirstHandOff", false))
       val result = controller.handOffFeatureSwitch(featureName, featureState)(FakeRequest())
-      status(result) shouldBe OK
-      bodyOf(await(result)) shouldBe "BooleanFeatureSwitch(cohoFirstHandOff,false)"
+      status(result) mustBe OK
+      bodyOf(await(result)) mustBe "BooleanFeatureSwitch(cohoFirstHandOff,false)"
     }
 
     "return a first handoff feature state set to true when we specify coho" in new Setup {
@@ -64,8 +64,8 @@ class FeatureSwitchControllerSpec extends SCRSSpec with GuiceOneAppPerSuite {
       when(mockFeatureSwitchManager.enable(ArgumentMatchers.any())).thenReturn(BooleanFeatureSwitch("cohoFirstHandOff", true))
 
       val result = controller.handOffFeatureSwitch(featureName, featureState)(FakeRequest())
-      status(result) shouldBe OK
-      bodyOf(await(result)) shouldBe "BooleanFeatureSwitch(cohoFirstHandOff,true)"
+      status(result) mustBe OK
+      bodyOf(await(result)) mustBe "BooleanFeatureSwitch(cohoFirstHandOff,true)"
     }
 
     "return a first handoff feature state set to false as a default when we specify xxxx" in new Setup {
@@ -75,8 +75,8 @@ class FeatureSwitchControllerSpec extends SCRSSpec with GuiceOneAppPerSuite {
       when(mockFeatureSwitchManager.disable(ArgumentMatchers.any())).thenReturn(BooleanFeatureSwitch("cohoFirstHandOff", false))
       val result = controller.handOffFeatureSwitch(featureName, featureState)(FakeRequest())
 
-      status(result) shouldBe OK
-      bodyOf(await(result)) shouldBe "BooleanFeatureSwitch(cohoFirstHandOff,false)"
+      status(result) mustBe OK
+      bodyOf(await(result)) mustBe "BooleanFeatureSwitch(cohoFirstHandOff,false)"
     }
 
 
@@ -86,7 +86,7 @@ class FeatureSwitchControllerSpec extends SCRSSpec with GuiceOneAppPerSuite {
       when(mockSCRSFeatureSwitches.apply(ArgumentMatchers.any[String])).thenReturn(None)
       val result = controller.handOffFeatureSwitch(featureName, featureState)(FakeRequest())
 
-      status(result) shouldBe BAD_REQUEST
+      status(result) mustBe BAD_REQUEST
     }
   }
 }

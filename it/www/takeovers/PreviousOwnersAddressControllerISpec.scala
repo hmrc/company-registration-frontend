@@ -75,7 +75,7 @@ class PreviousOwnersAddressControllerISpec extends IntegrationSpecBase
         .get()
       )
 
-      res.status shouldBe OK
+      res.status mustBe OK
     }
 
     "display and prepop the page" in {
@@ -92,7 +92,7 @@ class PreviousOwnersAddressControllerISpec extends IntegrationSpecBase
         .get()
       )
 
-      res.status shouldBe OK
+      res.status mustBe OK
     }
   }
 
@@ -116,8 +116,8 @@ class PreviousOwnersAddressControllerISpec extends IntegrationSpecBase
         ).post(Map(homeAddressKey -> Seq("0")))
       )
 
-      res.status shouldBe SEE_OTHER
-      res.redirectLocation should contain(controllers.reg.routes.AccountingDatesController.show.url)
+      res.status mustBe SEE_OTHER
+      res.redirectLocation must contain(controllers.reg.routes.AccountingDatesController.show.url)
     }
 
     "redirect to ALF" in {
@@ -140,8 +140,8 @@ class PreviousOwnersAddressControllerISpec extends IntegrationSpecBase
       )
 
 
-      res.status shouldBe SEE_OTHER
-      res.redirectLocation should contain("/test")
+      res.status mustBe SEE_OTHER
+      res.redirectLocation must contain("/test")
 
       val onRampConfig: AlfJourneyConfig = getPOSTRequestJsonBody("/api/v2/init").as[AlfJourneyConfig]
 
@@ -245,7 +245,7 @@ class PreviousOwnersAddressControllerISpec extends IntegrationSpecBase
       )
 
 
-      onRampConfig shouldBe expectedConfig
+      onRampConfig mustBe expectedConfig
     }
   }
 
@@ -295,8 +295,8 @@ class PreviousOwnersAddressControllerISpec extends IntegrationSpecBase
         ).get()
       )
 
-      res.status shouldBe SEE_OTHER
-      res.redirectLocation should contain(controllers.reg.routes.AccountingDatesController.show.url)
+      res.status mustBe SEE_OTHER
+      res.redirectLocation must contain(controllers.reg.routes.AccountingDatesController.show.url)
     }
   }
 }

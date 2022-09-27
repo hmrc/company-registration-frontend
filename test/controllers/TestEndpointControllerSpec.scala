@@ -120,13 +120,13 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
 
   "TestEndpointController" should {
     "use the correct AuthConnector" in new Setup {
-      controller.authConnector shouldBe a[AuthConnector]
+      controller.authConnector mustBe a[AuthConnector]
     }
     "use the correct S4LConnector" in new Setup {
-      controller.s4LConnector shouldBe a[S4LConnector]
+      controller.s4LConnector mustBe a[S4LConnector]
     }
     "use the correct company registration connector" in new Setup {
-      controller.compRegConnector shouldBe a[CompanyRegistrationConnector]
+      controller.compRegConnector mustBe a[CompanyRegistrationConnector]
     }
   }
 
@@ -150,7 +150,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
       showWithAuthorisedUserRetrieval(controller.getAllS4LEntries, internalID) {
 
         result =>
-          status(result) shouldBe OK
+          status(result) mustBe OK
       }
     }
 
@@ -169,7 +169,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
 
       showWithAuthorisedUserRetrieval(controller.getAllS4LEntries, internalID) {
         result =>
-          status(result) shouldBe OK
+          status(result) mustBe OK
       }
     }
   }
@@ -179,7 +179,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
       mockS4LClear()
       showWithAuthorisedUserRetrieval(controller.clearAllS4LEntries, internalID) {
         result =>
-          status(result) shouldBe OK
+          status(result) mustBe OK
       }
     }
   }
@@ -208,7 +208,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
 
       submitWithAuthorisedUser(controller.postAllS4LEntries, request) {
         result =>
-          status(result) shouldBe SEE_OTHER
+          status(result) mustBe SEE_OTHER
       }
     }
   }
@@ -219,7 +219,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
 
       showWithAuthorisedUserRetrieval(controller.clearKeystore, internalID) {
         result =>
-          status(result) shouldBe OK
+          status(result) mustBe OK
       }
     }
   }
@@ -234,7 +234,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
 
       val result = controller.showFeatureSwitch(FakeRequest())
 
-      status(result) shouldBe OK
+      status(result) mustBe OK
     }
 
     "render the feature switch page when the system property for 'cohoFirstHandOff' is false" in new Setup {
@@ -242,14 +242,14 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
 
       val result = controller.showFeatureSwitch(FakeRequest())
 
-      status(result) shouldBe OK
+      status(result) mustBe OK
     }
 
     "render the feature switch page when the system property for 'cohoFirstHandOff' is not found" in new Setup {
       when(mockSCRSFeatureSwitches(ArgumentMatchers.contains("cohoFirstHandOff"))).thenReturn(None)
       val result = controller.showFeatureSwitch(FakeRequest())
 
-      status(result) shouldBe OK
+      status(result) mustBe OK
     }
   }
 
@@ -259,14 +259,14 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
       val request = FakeRequest().withFormUrlEncodedBody("firstHandOff" -> "true", "legacyEnv" -> "true", "takeovers" -> "true")
       val result = controller.updateFeatureSwitch()(request)
 
-      status(result) shouldBe OK
+      status(result) mustBe OK
     }
 
     "render the feature switch view with errors when the form data cannot be bound" in new Setup {
       val request = FakeRequest().withFormUrlEncodedBody("firstHandOff" -> "")
       val result = controller.updateFeatureSwitch()(request)
 
-      status(result) shouldBe BAD_REQUEST
+      status(result) mustBe BAD_REQUEST
     }
   }
 
@@ -288,7 +288,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
     "cache a fully formed nav model for use in acceptance tests" in new Setup {
       when(mockHandOffService.cacheNavModel(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(navModel)))
       val result = controller.setupTestNavModel(FakeRequest())
-      status(result) shouldBe OK
+      status(result) mustBe OK
     }
   }
 
@@ -301,7 +301,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
         .thenReturn(Future.successful(HttpResponse(200)))
 
       val result = await(controller.simulateDesPost(ackRef)(FakeRequest()))
-      status(result) shouldBe OK
+      status(result) mustBe OK
     }
   }
 
@@ -329,8 +329,8 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
 
       showWithAuthorisedUser(controller.verifyEmail(true)) {
         result =>
-          status(result) shouldBe OK
-          contentAsJson(await(result)) shouldBe json
+          status(result) mustBe OK
+          contentAsJson(await(result)) mustBe json
       }
     }
 
@@ -343,8 +343,8 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
 
       showWithAuthorisedUser(controller.verifyEmail(true)) {
         result =>
-          status(result) shouldBe OK
-          contentAsJson(await(result)) shouldBe Json.parse("""{"message":"could not find an email for the current logged in user"}""")
+          status(result) mustBe OK
+          contentAsJson(await(result)) mustBe Json.parse("""{"message":"could not find an email for the current logged in user"}""")
       }
     }
   }
@@ -353,7 +353,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
 
     "return a 200" in new Setup {
       val result = controller.testEndpointSummary(FakeRequest())
-      status(result) shouldBe OK
+      status(result) mustBe OK
     }
   }
 
@@ -363,22 +363,22 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
         .thenReturn(Map("weekly" -> 1, "monthly" -> 1, "annually" -> 1))
 
       val result = await(controller.dashboardStubbed()(FakeRequest()))
-      status(result) shouldBe 200
+      status(result) mustBe 200
     }
     "return the dashboard when parameters are passed in" in new Setup {
       when(mockDashboardService.getCurrentPayeThresholds)
         .thenReturn(Map("weekly" -> 1, "monthly" -> 1, "annually" -> 1))
 
       val result = await(controller.dashboardStubbed("draft", "held", "true", "true", "draft", "true", "ackrefstatuses")(FakeRequest()))
-      status(result) shouldBe 200
+      status(result) mustBe 200
     }
   }
   "links" should {
     "return links when true true is passed in" in new Setup {
-      controller.links(true, true) shouldBe ServiceLinks("regURL", "otrsURL", Some("restartUrl"), Some("cancelUrl"))
+      controller.links(true, true) mustBe ServiceLinks("regURL", "otrsURL", Some("restartUrl"), Some("cancelUrl"))
     }
     "return no links when false false is passed in" in new Setup {
-      controller.links(false, false) shouldBe ServiceLinks("regURL", "otrsURL", None, None)
+      controller.links(false, false) mustBe ServiceLinks("regURL", "otrsURL", None, None)
     }
   }
 
@@ -397,7 +397,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
 
       showWithAuthorisedUser(controller.handOff6(Some(transId))) {
         result =>
-          status(result) shouldBe 200
+          status(result) mustBe 200
       }
     }
 
@@ -412,7 +412,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
 
       showWithAuthorisedUser(controller.handOff6(Some(transId))) {
         result =>
-          status(result) shouldBe 400
+          status(result) mustBe 400
       }
     }
   }
@@ -420,11 +420,11 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
   "generateTxId" should {
     "Return the given transaction ID if supplied " in new Setup {
       val result = controller.generateTxId(Some("a_txid"), "regid")
-      result shouldBe "a_txid"
+      result mustBe "a_txid"
     }
     "Return generate a transaction ID based on the regid if no txid is supplied " in new Setup {
       val result = controller.generateTxId(None, "regid")
-      result shouldBe "TRANS-ID-regid"
+      result mustBe "TRANS-ID-regid"
     }
   }
 }

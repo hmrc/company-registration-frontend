@@ -208,7 +208,7 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
 
       mockVatFeature(false)
       val res = await(service.buildDashboard(regId, noEnrolments))
-      res shouldBe CouldNotBuild
+      res mustBe CouldNotBuild
     }
 
     "return a RejectedIncorp DashboardStatus when the status of the registration is rejected" in new SetupWithDash(rejectedDash) {
@@ -216,7 +216,7 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
 
       mockVatFeature(false)
       val res = await(service.buildDashboard(regId, noEnrolments))
-      res shouldBe RejectedIncorp
+      res mustBe RejectedIncorp
     }
 
     "return a DashboardBuilt DashboardStatus when the status of the registration is any other status" in new SetupWithDash(heldDash) {
@@ -225,7 +225,7 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
 
       mockVatFeature(false)
       val res = await(service.buildDashboard(regId, vatEnrolment))
-      res shouldBe DashboardBuilt(Dashboard("", heldDash, payeDash, vatDashOTRS, hasVATCred = true))
+      res mustBe DashboardBuilt(Dashboard("", heldDash, payeDash, vatDashOTRS, hasVATCred = true))
     }
   }
 
@@ -239,14 +239,14 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
       when(mockCompanyRegistrationConnector.fetchHeldSubmissionTime(eqTo(regId))(any())).thenReturn(Future.successful(Some(dateAsJson)))
 
       val res = await(service.buildIncorpCTDashComponent(regId, noEnrolments))
-      res shouldBe IncorpAndCTDashboard("held", Some("2017-10-10"), Some(transId), Some(payRef), None, None, Some(ackRef), None, None)
+      res mustBe IncorpAndCTDashboard("held", Some("2017-10-10"), Some(transId), Some(payRef), None, None, Some(ackRef), None, None)
     }
     "return a correct IncorpAndCTDashboard when the status is locked" in new Setup {
       when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(eqTo(regId))(any())).thenReturn(Future.successful(ctRegJson("locked")))
       when(mockCompanyRegistrationConnector.fetchHeldSubmissionTime(eqTo(regId))(any())).thenReturn(Future.successful(None))
 
       val res = await(service.buildIncorpCTDashComponent(regId, noEnrolments))
-      res shouldBe IncorpAndCTDashboard("locked", None, Some(transId), Some(payRef), None, None, Some(ackRef), None, None)
+      res mustBe IncorpAndCTDashboard("locked", None, Some(transId), Some(payRef), None, None, Some(ackRef), None, None)
     }
 
     "return a correct IncorpAndCTDashboard when the status is submitted" in new Setup {
@@ -254,14 +254,14 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
         .thenReturn(Future.successful(ctRegJson("submitted")))
 
       val res = await(service.buildIncorpCTDashComponent(regId, noEnrolments))
-      res shouldBe IncorpAndCTDashboard("submitted", None, Some(transId), Some(payRef), None, None, Some(ackRef), None, None)
+      res mustBe IncorpAndCTDashboard("submitted", None, Some(transId), Some(payRef), None, None, Some(ackRef), None, None)
     }
 
     "return a correct IncorpAndCTDashboard when the status is acknowledged and enrolment has no CTUTR" in new Setup {
       when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(eqTo(regId))(any())).thenReturn(Future.successful(ctRegJson("acknowledged")))
 
       val res = await(service.buildIncorpCTDashComponent(regId, noEnrolments))
-      res shouldBe IncorpAndCTDashboard("acknowledged", None, Some(transId), Some(payRef), None, None, Some(ackRef), Some("04"), None)
+      res mustBe IncorpAndCTDashboard("acknowledged", None, Some(transId), Some(payRef), None, None, Some(ackRef), Some("04"), None)
     }
 
     def acknowledgedDashboard(ctutr: Option[String]) = IncorpAndCTDashboard("acknowledged", None, Some(transId), Some(payRef), None, None, Some(ackRef), Some("04"), ctutr)
@@ -270,21 +270,21 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
       when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(eqTo(regId))(any())).thenReturn(Future.successful(ctRegJson("acknowledged")))
 
       val res = await(service.buildIncorpCTDashComponent(regId, ctEnrolment("CTUTR", active = true)))
-      res shouldBe acknowledgedDashboard(Some("CTUTR"))
+      res mustBe acknowledgedDashboard(Some("CTUTR"))
     }
 
     "return a correct IncorpAndCTDashboard when the status is acknowledged but there is an inactive enrolment" in new Setup {
       when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(eqTo(regId))(any())).thenReturn(Future.successful(ctRegJson("acknowledged")))
 
       val res = await(service.buildIncorpCTDashComponent(regId, ctEnrolment("CTUTR", active = false)))
-      res shouldBe acknowledgedDashboard(None)
+      res mustBe acknowledgedDashboard(None)
     }
 
     "ignore UTR in IncorpAndCTDashboard when the status is acknowledged and our CTUTR doesn't match an active enrolment" in new Setup {
       when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(eqTo(regId))(any())).thenReturn(Future.successful(ctRegJson("acknowledged")))
 
       val res = await(service.buildIncorpCTDashComponent(regId, ctEnrolment("mismatched UTR", active = true)))
-      res shouldBe acknowledgedDashboard(None)
+      res mustBe acknowledgedDashboard(None)
     }
   }
 
@@ -299,7 +299,7 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
       when(mockThresholdService.fetchCurrentPayeThresholds()).thenReturn(Map("weekly" -> 120, "monthly" -> 520, "annually" -> 6240))
 
       val result = await(service.buildPAYEDashComponent(regId, payeEnrolment))
-      result shouldBe payeDash
+      result mustBe payeDash
     }
 
     "return a Status when one is fetched from paye-registration with restartURL" in new Setup {
@@ -309,7 +309,7 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
       when(mockThresholdService.fetchCurrentPayeThresholds()).thenReturn(Map("weekly" -> 120, "monthly" -> 520, "annually" -> 6240))
 
       val result = await(service.buildPAYEDashComponent(regId, payeEnrolment))
-      result shouldBe payeDash
+      result mustBe payeDash
     }
 
     "return an ineligible Status when nothing is fetched from paye-registration and the user already has a PAYE enrolment" in new Setup {
@@ -318,7 +318,7 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
       when(mockThresholdService.fetchCurrentPayeThresholds()).thenReturn(Map("weekly" -> 120, "monthly" -> 520, "annually" -> 6240))
 
       val result = await(service.buildPAYEDashComponent(regId, payeEnrolment))
-      result shouldBe payeDash
+      result mustBe payeDash
     }
 
     "return a not started Status when nothing is fetched from paye-registration and the user does not have a PAYE enrolment" in new Setup {
@@ -327,7 +327,7 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
       when(mockThresholdService.fetchCurrentPayeThresholds()).thenReturn(Map("weekly" -> 120, "monthly" -> 520, "annually" -> 6240))
 
       val result = await(service.buildPAYEDashComponent(regId, noEnrolments))
-      result shouldBe payeDash
+      result mustBe payeDash
     }
 
     "return a not started Status when nothing is fetched from paye-registration and the user does not have a PAYE enrolment but has a IR-CT enrolement" in new Setup {
@@ -336,7 +336,7 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
       when(mockThresholdService.fetchCurrentPayeThresholds()).thenReturn(Map("weekly" -> 120, "monthly" -> 520, "annually" -> 6240))
 
       val result = await(service.buildPAYEDashComponent(regId, ctEnrolment("1234567890", true)))
-      result shouldBe payeDash
+      result mustBe payeDash
     }
   }
 
@@ -344,23 +344,23 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
 
     "return true when an enrolment already exists for the user" in new Setup {
       val result = await(service.hasEnrolment(payeEnrolment, List("IR-PAYE")))
-      result shouldBe true
+      result mustBe true
     }
 
     "return false" when {
 
       "enrolments are fetched but does not contain one for PAYE" in new Setup {
         val result = await(service.hasEnrolment(noEnrolments, List("IR-PAYE")))
-        result shouldBe false
+        result mustBe false
       }
 
       "there is an auth IR-CT enrolment is present when IR-PAYE is not allowsed" in new Setup {
         val result = await(service.hasEnrolment(ctEnrolment("1234567890", true), List("IR-PAYE")))
-        result shouldBe false
+        result mustBe false
       }
       "there is an auth IR-CT and VAT enrolment and IR-PAYE is not allowsed" in new Setup {
         val result = await(service.hasEnrolment(ctAndVatEnrolment, List("IR-PAYE")))
-        result shouldBe false
+        result mustBe false
       }
 
     }
@@ -377,7 +377,7 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
       when(mockIncorpInfoConnector.getCompanyName(eqTo(transId))(any())).thenReturn(Future.successful(companyName))
 
       val res = await(service.getCompanyName(regId))
-      res shouldBe companyName
+      res mustBe companyName
 
     }
 
@@ -400,7 +400,7 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
         .thenReturn(Future.successful(Some(dateAsJson)))
 
       val result = await(service.buildHeld(regId, ctRegJson("held")))
-      result shouldBe expected
+      result mustBe expected
     }
     "return a IncorpAndCTDashboard where submission date is NOT returned from cr" in new Setup {
       val expected = IncorpAndCTDashboard("locked", None, Some(transId),
@@ -410,7 +410,7 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
         .thenReturn(Future.successful(None))
 
       val result = await(service.buildHeld(regId, ctRegJson("locked")))
-      result shouldBe expected
+      result mustBe expected
     }
 
   }
@@ -420,7 +420,7 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
       val date = LocalDate.parse("2017-10-10")
       val dateAsJson = Json.toJson(date)
 
-      service.extractSubmissionDate(dateAsJson) shouldBe "2017-10-10"
+      service.extractSubmissionDate(dateAsJson) mustBe "2017-10-10"
     }
   }
 
@@ -453,7 +453,7 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
         when(mockKeystoreConnector.cache(eqTo("emailMismatchAudit"), any())(any(), any()))
           .thenReturn(Future.successful(CacheMap("x", Map())))
 
-        await(service.checkForEmailMismatch(regId, authDetails)) shouldBe true
+        await(service.checkForEmailMismatch(regId, authDetails)) mustBe true
       }
     }
 
@@ -470,7 +470,7 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
         when(mockKeystoreConnector.cache(eqTo("emailMismatchAudit"), any())(any(), any()))
           .thenReturn(Future.successful(CacheMap("x", Map())))
 
-        await(service.checkForEmailMismatch(regId, authDetails.copy(email = matchingEmail))) shouldBe false
+        await(service.checkForEmailMismatch(regId, authDetails.copy(email = matchingEmail))) mustBe false
 
         verify(mockAuditConnector, times(0)).sendExtendedEvent(ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]())
       }
@@ -482,7 +482,7 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
         when(mockCompanyRegistrationConnector.retrieveEmail(any())(any()))
           .thenReturn(Future.successful(None))
 
-        await(service.checkForEmailMismatch(regId, authDetails)) shouldBe false
+        await(service.checkForEmailMismatch(regId, authDetails)) mustBe false
 
         verify(mockAuditConnector, times(0)).sendExtendedEvent(ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]())
       }
@@ -491,14 +491,14 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
         when(mockKeystoreConnector.fetchAndGet[Boolean](eqTo("emailMismatchAudit"))(any(), any()))
           .thenReturn(Future.successful(Some(true)))
 
-        await(service.checkForEmailMismatch(regId, authDetails)) shouldBe true
+        await(service.checkForEmailMismatch(regId, authDetails)) mustBe true
       }
 
       "there has been an email mismatch audit event sent in the session, and it did not mismatch" in new Setup {
         when(mockKeystoreConnector.fetchAndGet[Boolean](eqTo("emailMismatchAudit"))(any(), any()))
           .thenReturn(Future.successful(Some(false)))
 
-        await(service.checkForEmailMismatch(regId, authDetails)) shouldBe false
+        await(service.checkForEmailMismatch(regId, authDetails)) mustBe false
       }
     }
   }

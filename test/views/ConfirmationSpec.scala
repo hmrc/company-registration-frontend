@@ -78,12 +78,12 @@ class ConfirmationSpec extends SCRSSpec with CompanyDetailsFixture with GuiceOne
         result =>
           val document = Jsoup.parse(contentAsString(result))
 
-          document.title should include("Application submitted")
+          document.title must include("Application submitted")
 
           Map(
             "next-steps" -> "What happens next"
           ) foreach { case (element, message) =>
-            document.getElementById(element).text() shouldBe message
+            document.getElementById(element).text() mustBe message
           }
       }
     }

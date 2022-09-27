@@ -66,7 +66,7 @@ class AddressLookupFrontendServiceSpec()(implicit messagesProvider: MessagesProv
 
       val result: NewAddress = await(TestService.getAddress(id)(hc))
 
-      result shouldBe address
+      result mustBe address
     }
   }
 
@@ -191,7 +191,7 @@ class AddressLookupFrontendServiceSpec()(implicit messagesProvider: MessagesProv
         confirmPageHeading = Messages("page.addressLookup.takeovers.otherBusinessAddress.confirm.description", "testBusinessName")
       ))
 
-      res shouldBe url
+      res mustBe url
     }
   }
 

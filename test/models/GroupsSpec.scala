@@ -49,20 +49,20 @@ class GroupsSpec extends UnitSpec {
         nameOfCompany = Some(GroupCompanyName("foo","Other")),
         addressAndType = Some(GroupsAddressAndType("ALF",NewAddress("1 abc", "2 abc",Some("3 abc"), Some("4 abc"),Some("ZZ1 1ZZ"),Some("country A")))),
         groupUTR = Some(GroupUTR(Some("1234567890"))))
-      Json.fromJson[Groups](jsonToBeParsed).get shouldBe expected
+      Json.fromJson[Groups](jsonToBeParsed).get mustBe expected
     }
     "reads with minimal data" in {
       val jsonToBeParsed = Json.parse("""{
                                         |   "groupRelief": true
                                         |}""".stripMargin)
-      Json.fromJson[Groups](jsonToBeParsed).get shouldBe Groups(true,None,None,None)
+      Json.fromJson[Groups](jsonToBeParsed).get mustBe Groups(true,None,None,None)
 
     }
     "reads unsuccessfully where json is invalid" in {
       val jsonToBeParsed = Json.parse("""{
                                         |   "groupRelief": "foo"
                                         |}""".stripMargin)
-      Json.fromJson[Groups](jsonToBeParsed).isError shouldBe true
+      Json.fromJson[Groups](jsonToBeParsed).isError mustBe true
     }
   }
   "groups writes" should {
@@ -93,14 +93,14 @@ class GroupsSpec extends UnitSpec {
         addressAndType = Some(GroupsAddressAndType("ALF",NewAddress("1 abc", "2 abc",Some("3 abc"), Some("4 abc"),Some("ZZ1 1ZZ"),Some("country A")))),
         groupUTR = Some(GroupUTR(Some("1234567890"))))
 
-      Json.toJson[Groups](groups) shouldBe jsonToBeOutput
+      Json.toJson[Groups](groups) mustBe jsonToBeOutput
     }
     "write minimal json" in {
       val groups  = Groups(true,None,None,None)
       val jsonOutput = Json.parse("""{
                                         |   "groupRelief": true
                                         |}""".stripMargin)
-      Json.toJson[Groups](groups) shouldBe jsonOutput
+      Json.toJson[Groups](groups) mustBe jsonOutput
     }
   }
 
@@ -153,12 +153,12 @@ class GroupsSpec extends UnitSpec {
         Shareholder("big company",Some(75.0),Some(75.0),Some(75.0),CHROAddress("11","Add L1",Some("Add L2"),"London","United Kingdom",None,Some("ZZ1 1ZZ"),None)),
         Shareholder("big company 1",Some(74.3),Some(75.0),Some(75.0),CHROAddress("11 FOO","Add L1 1",Some("Add L2 2"),"London 1","United Kingdom 1",None,Some("ZZ1 1ZZ 1"),None))
       )
-      Json.fromJson[List[Shareholder]](listOfShareHoldersFromII).get shouldBe listOfShareholders
+      Json.fromJson[List[Shareholder]](listOfShareHoldersFromII).get mustBe listOfShareholders
 
     }
     "read successfully with empty json" in {
       val listOfShareHoldersFromII = Json.parse("""[]""")
-      Json.fromJson[List[Shareholder]](listOfShareHoldersFromII).get shouldBe List.empty
+      Json.fromJson[List[Shareholder]](listOfShareHoldersFromII).get mustBe List.empty
     }
     "read successfully where there is no corporate shareholders" in {
       val listOfShareHoldersFromII = Json.parse("""[{
@@ -178,7 +178,7 @@ class GroupsSpec extends UnitSpec {
                                                   |    }
                                                   |]""".stripMargin)
 
-      Json.fromJson[List[Shareholder]](listOfShareHoldersFromII).get shouldBe List.empty
+      Json.fromJson[List[Shareholder]](listOfShareHoldersFromII).get mustBe List.empty
     }
   }
   "shareholder writes" should {
@@ -187,11 +187,11 @@ class GroupsSpec extends UnitSpec {
         Shareholder("big company",Some(75.0),Some(75.0),Some(75.0),CHROAddress("11","Add L1",Some("Add L2"),"London","United Kingdom",None,Some("ZZ1 1ZZ"),None)),
         Shareholder("big company 1",Some(74.3),Some(75.0),Some(75.0),CHROAddress("11 FOO","Add L1 1",Some("Add L2 2"),"London 1","United Kingdom 1",None,Some("ZZ1 1ZZ 1"),None))
       )
-      Json.toJson[List[Shareholder]](listOfShareholders) shouldBe Json.parse("""["big company","big company 1"]""")
+      Json.toJson[List[Shareholder]](listOfShareholders) mustBe Json.parse("""["big company","big company 1"]""")
     }
     "write an empty list of shareholders to an empty array" in {
       val listOfShareholders = List.empty[Shareholder]
-      Json.toJson[List[Shareholder]](listOfShareholders) shouldBe Json.parse("""[]""")
+      Json.toJson[List[Shareholder]](listOfShareholders) mustBe Json.parse("""[]""")
     }
   }
 }

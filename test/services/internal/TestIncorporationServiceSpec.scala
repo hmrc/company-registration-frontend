@@ -65,7 +65,7 @@ class TestIncorporationServiceSpec extends UnitSpec with MockitoSugar {
       when(mockIncorpInfoConnector.manuallyTriggerIncorporationUpdate(any[HeaderCarrier]()))
         .thenReturn(Future.successful(true))
 
-      await(service.incorporateTransactionId(transId, isSuccess = false)) shouldBe true
+      await(service.incorporateTransactionId(transId, isSuccess = false)) mustBe true
     }
   }
 }

@@ -23,15 +23,15 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.{Application, Environment, Mode}
 import utils.{FeatureSwitch, FeatureSwitchManager, SCRSFeatureSwitches}
 import WiremockHelper._
+import org.scalatestplus.play.PlaySpec
 import play.api.libs.ws.WSResponse
-import play.api.test.{DefaultAwaitTimeout,FutureAwaits}
+import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
 
 
-trait IntegrationSpecBase extends WordSpec
+trait IntegrationSpecBase extends PlaySpec
   with GivenWhenThen
   with GuiceOneServerPerSuite
   with ScalaFutures
-  with Matchers
   with WiremockHelper
   with BeforeAndAfterEach
   with BeforeAndAfterAll

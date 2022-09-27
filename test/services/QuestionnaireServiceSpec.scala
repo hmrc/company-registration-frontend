@@ -50,14 +50,14 @@ class QuestionnaireServiceSpec extends UnitSpec with MockitoSugar {
       when(mockAuditConnector.sendExtendedEvent(ArgumentMatchers.any[ExtendedDataEvent]())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
         .thenReturn(Future.successful(expected))
 
-      await(service.sendAuditEventOnSuccessfulSubmission(minimum)(hc, FakeRequest())) shouldBe expected
+      await(service.sendAuditEventOnSuccessfulSubmission(minimum)(hc, FakeRequest())) mustBe expected
     }
 
     "successfully send a audit event with min data" in new Setup {
       when(mockAuditConnector.sendExtendedEvent(ArgumentMatchers.any[ExtendedDataEvent]())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
         .thenReturn(Future.successful(expected))
 
-      await(service.sendAuditEventOnSuccessfulSubmission(maximum)(hc, FakeRequest())) shouldBe expected
+      await(service.sendAuditEventOnSuccessfulSubmission(maximum)(hc, FakeRequest())) mustBe expected
     }
   }
 }

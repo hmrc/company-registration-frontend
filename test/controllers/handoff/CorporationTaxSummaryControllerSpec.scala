@@ -76,9 +76,9 @@ class CorporationTaxSummaryControllerSpec extends SCRSSpec with LoginFixture wit
 
       showWithUnauthorisedUser(testController.corporationTaxSummary(encryptedPayload.get)) {
         result =>
-          status(result) shouldBe SEE_OTHER
+          status(result) mustBe SEE_OTHER
           val url = authUrl("HO4", encryptedPayload.get)
-          redirectLocation(result) shouldBe Some(url)
+          redirectLocation(result) mustBe Some(url)
       }
     }
 
@@ -89,8 +89,8 @@ class CorporationTaxSummaryControllerSpec extends SCRSSpec with LoginFixture wit
 
       showWithAuthorisedUser(testController.corporationTaxSummary("")) {
         result =>
-          status(result) shouldBe BAD_REQUEST
-          redirectLocation(result) shouldBe None
+          status(result) mustBe BAD_REQUEST
+          redirectLocation(result) mustBe None
       }
     }
 
@@ -103,8 +103,8 @@ class CorporationTaxSummaryControllerSpec extends SCRSSpec with LoginFixture wit
 
       showWithAuthorisedUser(testController.corporationTaxSummary(encryptedPayload)) {
         result =>
-          status(result) shouldBe BAD_REQUEST
-          redirectLocation(result) shouldBe None
+          status(result) mustBe BAD_REQUEST
+          redirectLocation(result) mustBe None
       }
     }
 
@@ -117,8 +117,8 @@ class CorporationTaxSummaryControllerSpec extends SCRSSpec with LoginFixture wit
 
       showWithAuthorisedUser(testController.corporationTaxSummary(encryptedPayload)) {
         result =>
-          status(result) shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result) mustBe
             Some("/register-your-company/check-confirm-answers")
       }
     }
@@ -131,8 +131,8 @@ class CorporationTaxSummaryControllerSpec extends SCRSSpec with LoginFixture wit
 
       showWithAuthorisedUser(testController.corporationTaxSummary(encryptedPayload)) {
         result =>
-          status(result) shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe Some(s"/register-your-company/post-sign-in?handOffID=HO4&payload=$encryptedPayload")
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result) mustBe Some(s"/register-your-company/post-sign-in?handOffID=HO4&payload=$encryptedPayload")
       }
     }
   }

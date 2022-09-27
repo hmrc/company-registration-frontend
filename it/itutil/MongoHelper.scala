@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,14 @@
  * limitations under the License.
  */
 
-package forms
+package itutil
 
-import helpers.UnitSpec
+import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
 
-class CancelFormSpec extends UnitSpec{
+trait MongoHelper {
 
-  val form = CancelForm.form
-
-  "valid form" should {
-    "return no errors" in {
-      val data = Map("cancelService" -> "true")
-      form.bind(data).hasErrors mustBe(false)
+    implicit class RepoExtensions[A](repo: PlayMongoRepository[A]) {
+        def drop = repo.collection.drop().toFuture()
+        def count = repo.collection.countDocuments().toFuture()
     }
-  }
-  "invalid form" should {
-    "return errors" in {
-      val data = Map("cancelService" -> "foo")
-    form.bind(data).hasErrors mustBe(true)
-    }
-  }
 }

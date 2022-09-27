@@ -48,14 +48,14 @@ class ThresholdServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
       }
 
       val result = TestService.fetchCurrentPayeThresholds()
-      result shouldBe Map("weekly" -> 5, "monthly" -> 10, "annually" -> 15)
+      result mustBe Map("weekly" -> 5, "monthly" -> 10, "annually" -> 15)
     }
 
     "return the new tax years thresholds if the date is on the tax year start date" in {
       object TestService extends ThresholdService(mockVatThresholdConnector)(TestAppConfig)
 
       val result = TestService.fetchCurrentPayeThresholds()
-      result shouldBe Map("weekly" -> 10, "monthly" -> 20, "annually" -> 30)
+      result mustBe Map("weekly" -> 10, "monthly" -> 20, "annually" -> 30)
     }
 
     "return the new tax years thresholds if the date is after the tax year start date" in {
@@ -64,7 +64,7 @@ class ThresholdServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
       }
 
       val result = TestService.fetchCurrentPayeThresholds()
-      result shouldBe Map("weekly" -> 10, "monthly" -> 20, "annually" -> 30)
+      result mustBe Map("weekly" -> 10, "monthly" -> 20, "annually" -> 30)
     }
   }
 

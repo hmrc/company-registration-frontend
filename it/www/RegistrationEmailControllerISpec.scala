@@ -17,13 +17,12 @@
 package www
 
 import java.util.UUID
-
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import controllers.reg.routes
 import itutil.{IntegrationSpecBase, LoginStub, RequestsFinder}
 import org.jsoup.Jsoup
-import org.scalatest.mockito.MockitoSugar
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.HeaderNames
 import play.api.libs.crypto.DefaultCookieSigner
 import play.api.libs.json.{JsObject, Json}
@@ -103,10 +102,10 @@ class RegistrationEmailControllerISpec extends IntegrationSpecBase with LoginStu
         .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
         .get())
 
-      res.status shouldBe 200
+      res.status mustBe 200
       val doc = Jsoup.parse(res.body)
-      doc.body().toString.contains("test@test.com") shouldBe true
-      doc.getElementById("differentEmail").`val` shouldBe "differentEmail"
+      doc.body().toString.contains("test@test.com") mustBe true
+      doc.getElementById("differentEmail").`val` mustBe "differentEmail"
     }
     "return 200 when user is logged in and has a keystore entry for regId, email from auth should be populated on the page user has also been to page before" in new Setup {
 
@@ -135,11 +134,11 @@ class RegistrationEmailControllerISpec extends IntegrationSpecBase with LoginStu
         .withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
         .get())
 
-      res.status shouldBe 200
+      res.status mustBe 200
       val doc = Jsoup.parse(res.body)
-      doc.body().toString.contains("test@test.com") shouldBe true
-      doc.getElementById("registrationEmail").attr("checked") shouldBe ""
-      doc.getElementById("differentEmail").attr("checked") shouldBe ""
+      doc.body().toString.contains("test@test.com") mustBe true
+      doc.getElementById("registrationEmail").attr("checked") mustBe ""
+      doc.getElementById("differentEmail").attr("checked") mustBe ""
     }
     "redirect to post sign in if verified flag is already true" in new Setup {
       stubAuthorisation()
@@ -166,8 +165,8 @@ class RegistrationEmailControllerISpec extends IntegrationSpecBase with LoginStu
         .withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
         .get())
 
-      res.status shouldBe 303
-      res.header(HeaderNames.LOCATION).get shouldBe controllers.reg.routes.SignInOutController.postSignIn().url
+      res.status mustBe 303
+      res.header(HeaderNames.LOCATION).get mustBe controllers.reg.routes.SignInOutController.postSignIn().url
     }
   }
   s"${controllers.reg.routes.RegistrationEmailController.submit.url}" should {
@@ -209,8 +208,8 @@ class RegistrationEmailControllerISpec extends IntegrationSpecBase with LoginStu
           "registrationEmail" -> Seq("currentEmail")
         )))
 
-      res.status shouldBe 303
-      res.header(HeaderNames.LOCATION).get shouldBe controllers.verification.routes.EmailVerificationController.verifyShow.url
+      res.status mustBe 303
+      res.header(HeaderNames.LOCATION).get mustBe controllers.verification.routes.EmailVerificationController.verifyShow.url
     }
     "return 303 to completion capacity when user submits valid data of currentEmail & email verify returns true" in new Setup {
       stubAuthorisation()
@@ -250,10 +249,10 @@ class RegistrationEmailControllerISpec extends IntegrationSpecBase with LoginStu
           "registrationEmail" -> Seq("currentEmail")
         )))
       val audit = Json.parse(getRequestBody("post", "/write/audit")).as[JsObject] \ "detail"
-      audit.get shouldBe Json.parse("""{"externalUserId":"fooBarWizz1","authProviderId":"12345-credId","journeyId":"test","emailAddress":"test@test.com","isVerifiedEmailAddress":true,"previouslyVerified":true}""")
+      audit.get mustBe Json.parse("""{"externalUserId":"fooBarWizz1","authProviderId":"12345-credId","journeyId":"test","emailAddress":"test@test.com","isVerifiedEmailAddress":true,"previouslyVerified":true}""")
 
-      res.status shouldBe 303
-      res.header(HeaderNames.LOCATION).get shouldBe controllers.reg.routes.CompletionCapacityController.show.url
+      res.status mustBe 303
+      res.header(HeaderNames.LOCATION).get mustBe controllers.reg.routes.CompletionCapacityController.show.url
     }
     "return 303 to email confirmation controller when user enters different email" in new Setup {
       stubAuthorisation()
@@ -286,8 +285,8 @@ class RegistrationEmailControllerISpec extends IntegrationSpecBase with LoginStu
         )))
 
 
-      res.status shouldBe 303
-      res.header(HeaderNames.LOCATION).get shouldBe routes.RegistrationEmailConfirmationController.show.url
+      res.status mustBe 303
+      res.header(HeaderNames.LOCATION).get mustBe routes.RegistrationEmailConfirmationController.show.url
     }
     "return 303 to post sign in if user is already verified in CR backend" in new Setup {
       stubAuthorisation()
@@ -319,8 +318,8 @@ class RegistrationEmailControllerISpec extends IntegrationSpecBase with LoginStu
           "DifferentEmail" -> Seq("foobar@wizz.com")
         )))
 
-      res.status shouldBe 303
-      res.header(HeaderNames.LOCATION).get shouldBe routes.SignInOutController.postSignIn().url
+      res.status mustBe 303
+      res.header(HeaderNames.LOCATION).get mustBe routes.SignInOutController.postSignIn().url
     }
 
 
@@ -365,8 +364,8 @@ class RegistrationEmailControllerISpec extends IntegrationSpecBase with LoginStu
           "registrationEmail" -> Seq("currentEmail")
         )))
 
-      res.status shouldBe 303
-      res.header(HeaderNames.LOCATION).get shouldBe controllers.reg.routes.CompletionCapacityController.show.url
+      res.status mustBe 303
+      res.header(HeaderNames.LOCATION).get mustBe controllers.reg.routes.CompletionCapacityController.show.url
     }
   }
 }

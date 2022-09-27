@@ -30,7 +30,7 @@ class CompanyNameHandOffInformationSpec extends UnitSpec {
 
   "CompanyNameHandoffInformation" should {
     "be able to be parsed into a JSON structure" in new Setup {
-      Json.toJson[CompanyNameHandOffInformation](testModel) shouldBe Json.parse(json)
+      Json.toJson[CompanyNameHandOffInformation](testModel) mustBe Json.parse(json)
     }
   }
 }

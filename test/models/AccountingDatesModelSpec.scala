@@ -23,21 +23,21 @@ class AccountingDatesModelSpec extends UnitSpec {
   "Checking simple conversion from API model to UI form model" should {
     "explicitly work" in {
       val x: AccountingDatesModel = AccountingDatesModel.toModel(AccountingDetails("1", Some("1-2-3"), Links(None, None)))
-      x shouldBe AccountingDatesModel("1", Some("1"), Some("2"), Some("3"))
+      x mustBe AccountingDatesModel("1", Some("1"), Some("2"), Some("3"))
     }
     "implicitly work" in {
       val x: AccountingDatesModel = AccountingDetails("1", Some("1-2-3"), Links(None, None))
-      x shouldBe AccountingDatesModel("1", Some("1"), Some("2"), Some("3"))
+      x mustBe AccountingDatesModel("1", Some("1"), Some("2"), Some("3"))
     }
     "implicitly work with no start date" in {
       val x: AccountingDatesModel = AccountingDetails("1", None, Links(None, None))
-      x shouldBe AccountingDatesModel("1", None, None, None)
+      x mustBe AccountingDatesModel("1", None, None, None)
     }
   }
 
   "empty" should {
     "create an empty AccountingDatesModel" in {
-      AccountingDatesModel.empty shouldBe AccountingDatesModel("", None, None, None)
+      AccountingDatesModel.empty mustBe AccountingDatesModel("", None, None, None)
     }
   }
 
@@ -50,7 +50,7 @@ class AccountingDatesModelSpec extends UnitSpec {
     "format an AccountingDatesModel into an AccountingDetailsRequest correctly" in {
       val model = AccountingDatesModel("test", Some(year), Some(month), Some(day))
       val expected =  AccountingDetailsRequest("test", Some("2017-12-10"))
-      AccountingDetailsRequest.toRequest(model) shouldBe expected
+      AccountingDetailsRequest.toRequest(model) mustBe expected
     }
 
     "format an AccountingDatesModel contains single digit dates into an AccountingDetailsRequest correctly" in {
@@ -59,7 +59,7 @@ class AccountingDatesModelSpec extends UnitSpec {
 
       val model = AccountingDatesModel("test", Some(year), Some(m), Some(d))
       val expected =  AccountingDetailsRequest("test", Some("2017-02-01"))
-      AccountingDetailsRequest.toRequest(model) shouldBe expected
+      AccountingDetailsRequest.toRequest(model) mustBe expected
     }
   }
 

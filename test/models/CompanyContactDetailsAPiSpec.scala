@@ -25,7 +25,7 @@ class CompanyContactDetailsAPiSpec extends UnitSpec {
     "return an api model" in {
       val expected: CompanyContactDetailsApi =
         CompanyContactDetailsApi(Some("foo"),Some("bar"),Some("wizz"))
-     CompanyContactDetails.toApiModel(CompanyContactDetails(Some("foo"),Some("bar"), Some("wizz"),Links(Some("sausages"),None))) shouldBe expected
+     CompanyContactDetails.toApiModel(CompanyContactDetails(Some("foo"),Some("bar"), Some("wizz"),Links(Some("sausages"),None))) mustBe expected
     }
   }
 
@@ -48,7 +48,7 @@ class CompanyContactDetailsAPiSpec extends UnitSpec {
         """.stripMargin)
 
       val companyDetailsPrepPopJson = Json.toJson(companyDetails)(CompanyContactDetailsApi.prePopWrites)
-      companyDetailsPrepPopJson shouldBe expectedJson
+      companyDetailsPrepPopJson mustBe expectedJson
     }
   }
 }

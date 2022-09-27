@@ -118,7 +118,7 @@ class HandOffNavigatorSpec extends SCRSSpec with MockitoSugar with GuiceOneAppPe
     "return the nav model found in Nav Model Repo" in new SetupWithMongoRepo {
       mockGetNavModel(handOffNavModel = Some(handOffNavModel))
       val res = await(navigator.fetchNavModel())
-      res shouldBe handOffNavModel
+      res mustBe handOffNavModel
     }
 
     "return a new initialised nav model when a nav model cannot be found in keystore OR Mongo" in new SetupWithMongoRepo {
@@ -130,7 +130,7 @@ class HandOffNavigatorSpec extends SCRSSpec with MockitoSugar with GuiceOneAppPe
       mockInsertNavModel()
 
       val res = await(navigator.fetchNavModel(canCreate = true))
-      res shouldBe initNavModel
+      res mustBe initNavModel
     }
   }
 
@@ -142,7 +142,7 @@ class HandOffNavigatorSpec extends SCRSSpec with MockitoSugar with GuiceOneAppPe
       mockInsertNavModel()
       mockGetNavModel()
       val result = await(navigator.cacheNavModel(handOffNavModel, hc))
-      result.get shouldBe handOffNavModel
+      result.get mustBe handOffNavModel
     }
   }
 
@@ -150,31 +150,31 @@ class HandOffNavigatorSpec extends SCRSSpec with MockitoSugar with GuiceOneAppPe
 
     "return a forward link from the previous receiver" in new Setup {
       val result = await(navigator.forwardTo(1)(handOffNavModel, hc))
-      result shouldBe "testForwardLinkFromReceiver0"
+      result mustBe "testForwardLinkFromReceiver0"
     }
 
     "return a forward link from the previous receiver if a string is passed in" in new Setup {
       val result = await(navigator.forwardTo("1")(handOffNavModel, hc))
-      result shouldBe "testForwardLinkFromReceiver0"
+      result mustBe "testForwardLinkFromReceiver0"
     }
 
     "return a forward link from receiver 5-1 if 5-2 is passed in" in new Setup {
       val result = await(navigator.forwardTo("5-2")(handOffNavModel, hc))
-      result shouldBe "testForwardLinkFromReceiver5.1"
+      result mustBe "testForwardLinkFromReceiver5.1"
     }
 
     "return a NoSuchElementException if an unknown key is passed" in new Setup {
       val ex = intercept[NoSuchElementException](await(navigator.forwardTo(-1)(handOffNavModel, hc)))
-      ex.getMessage shouldBe "key not found: -2"
+      ex.getMessage mustBe "key not found: -2"
     }
 
     "return a HandOffNavModel with a forward and reverse link if a string is passed in" in new Setup {
       val result = await(navigator.hmrcLinks("1")(handOffNavModel, hc))
-      result shouldBe NavLinks("testForwardLinkFromSender1", "testReverseLinkFromSender1")
+      result mustBe NavLinks("testForwardLinkFromSender1", "testReverseLinkFromSender1")
     }
     "return the HO5.2 links if '5.2' is passed in" in new Setup {
       val result = await(navigator.hmrcLinks("5-2")(initNavModel, hc))
-      result shouldBe NavLinks("http://localhost:9970/register-your-company/payment-complete", "")
+      result mustBe NavLinks("http://localhost:9970/register-your-company/payment-complete", "")
     }
   }
 
@@ -182,17 +182,17 @@ class HandOffNavigatorSpec extends SCRSSpec with MockitoSugar with GuiceOneAppPe
     "return a stub url when the feature is disabled" in new Setup {
       when(mockSCRSFeatureSwitches.cohoFirstHandOff).thenReturn(BooleanFeatureSwitch("", false))
 
-      navigator.firstHandoffURL shouldBe "http://localhost:9986/incorporation-frontend-stubs/basic-company-details"
+      navigator.firstHandoffURL mustBe "http://localhost:9986/incorporation-frontend-stubs/basic-company-details"
     }
 
     "return a coho url when the feature is enabled" in new Setup {
       when(mockSCRSFeatureSwitches.cohoFirstHandOff).thenReturn(BooleanFeatureSwitch("", true))
-      navigator.firstHandoffURL shouldBe "https://ewfgonzo.companieshouse.gov.uk/incorporation"
+      navigator.firstHandoffURL mustBe "https://ewfgonzo.companieshouse.gov.uk/incorporation"
     }
 
     "return a stub url when the feature doesn't exist" in new Setup {
       when(mockSCRSFeatureSwitches.cohoFirstHandOff).thenReturn(BooleanFeatureSwitch("", false))
-      navigator.firstHandoffURL shouldBe "http://localhost:9986/incorporation-frontend-stubs/basic-company-details"
+      navigator.firstHandoffURL mustBe "http://localhost:9986/incorporation-frontend-stubs/basic-company-details"
     }
   }
 }

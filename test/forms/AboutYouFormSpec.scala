@@ -30,36 +30,36 @@ class AboutYouFormSpec extends UnitSpec {
     "have director and empty" in {
       val result = AboutYouForm.populateForm("director")
 
-      result.get.completionCapacity shouldBe "director"
-      result.get.completionCapacityOther shouldBe ""
+      result.get.completionCapacity mustBe "director"
+      result.get.completionCapacityOther mustBe ""
     }
 
     "have agent and empty" in {
       val result = AboutYouForm.populateForm("agent")
 
-      result.get.completionCapacity shouldBe "agent"
-      result.get.completionCapacityOther shouldBe ""
+      result.get.completionCapacity mustBe "agent"
+      result.get.completionCapacityOther mustBe ""
     }
 
     "have secretary and empty" in {
       val result = AboutYouForm.populateForm("company secretary")
 
-      result.get.completionCapacity shouldBe "company secretary"
-      result.get.completionCapacityOther shouldBe ""
+      result.get.completionCapacity mustBe "company secretary"
+      result.get.completionCapacityOther mustBe ""
     }
 
     "have empty and empty" in {
       val result = AboutYouForm.populateForm("")
 
-      result.get.completionCapacity shouldBe ""
-      result.get.completionCapacityOther shouldBe ""
+      result.get.completionCapacity mustBe ""
+      result.get.completionCapacityOther mustBe ""
     }
 
     "have other and Other capacity" in {
       val result = AboutYouForm.populateForm("Other capacity")
 
-      result.get.completionCapacity shouldBe "other"
-      result.get.completionCapacityOther shouldBe "Other capacity"
+      result.get.completionCapacity mustBe "other"
+      result.get.completionCapacityOther mustBe "Other capacity"
     }
   }
 }

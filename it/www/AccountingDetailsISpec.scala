@@ -50,17 +50,17 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fix
 
       val response = await(fResponse)
 
-      response.status shouldBe 200
+      response.status mustBe 200
       val mdtpCookieData = getCookieData(response.cookie("mdtp").get)
-      mdtpCookieData("csrfToken") shouldNot be("")
-      mdtpCookieData("sessionId") shouldBe SessionId
-      mdtpCookieData("userId") shouldBe userId
+      mdtpCookieData("csrfToken") mustNot be("")
+      mdtpCookieData("sessionId") mustBe SessionId
+      mdtpCookieData("userId") mustBe userId
 
       val document = Jsoup.parse(response.body)
-      document.title should include("When will the company start trading?")
-      document.getElementById("businessStartDate").attr("checked") shouldBe ""
-      document.getElementById("futureDate").attr("checked") shouldBe ""
-      document.getElementById("notPlanningToYet").attr("checked") shouldBe ""
+      document.title must include("When will the company start trading?")
+      document.getElementById("businessStartDate").attr("checked") mustBe ""
+      document.getElementById("futureDate").attr("checked") mustBe ""
+      document.getElementById("notPlanningToYet").attr("checked") mustBe ""
     }
 
     "Return an populated page if CR returns a response" in {
@@ -81,14 +81,14 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fix
 
       val response = await(fResponse)
 
-      response.status shouldBe 200
+      response.status mustBe 200
 
       val document = Jsoup.parse(response.body)
-      document.title should include("When will the company start trading?")
-      document.getElementById("futureDate").`val` shouldBe "futureDate"
-      document.getElementById("futureDate.Day").`val` shouldBe "02"
-      document.getElementById("futureDate.Month").`val` shouldBe "01"
-      document.getElementById("futureDate.Year").`val` shouldBe "2018"
+      document.title must include("When will the company start trading?")
+      document.getElementById("futureDate").`val` mustBe "futureDate"
+      document.getElementById("futureDate.Day").`val` mustBe "02"
+      document.getElementById("futureDate.Month").`val` mustBe "01"
+      document.getElementById("futureDate.Year").`val` mustBe "2018"
     }
 
     "Redirect to dashboard if status is NOT draft" in {
@@ -110,8 +110,8 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fix
 
       val response = await(fResponse)
 
-      response.status shouldBe 303
-      response.allHeaders("Location") shouldBe Seq("/register-your-company/company-registration-overview")
+      response.status mustBe 303
+      response.allHeaders("Location") mustBe Seq("/register-your-company/company-registration-overview")
     }
   }
 
@@ -141,14 +141,14 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fix
 
       val response = await(fResponse)
 
-      response.status shouldBe 303
-      response.header(HeaderNames.LOCATION) shouldBe Some("/register-your-company/loan-payments-dividends")
+      response.status mustBe 303
+      response.header(HeaderNames.LOCATION) mustBe Some("/register-your-company/loan-payments-dividends")
 
       val crPuts = findAll(putRequestedFor(urlMatching("/company-registration/corporation-tax-registration/5/accounting-details")))
       val captor = crPuts.get(0)
       val json = Json.parse(captor.getBodyAsString)
-      (json \ "accountingDateStatus").as[String] shouldBe "FUTURE_DATE"
-      (json \ "startDateOfBusiness").as[String] shouldBe s"$testYear-01-02"
+      (json \ "accountingDateStatus").as[String] mustBe "FUTURE_DATE"
+      (json \ "startDateOfBusiness").as[String] mustBe s"$testYear-01-02"
     }
     "return a 400 showing error messages to the user" in {
       stubAuthorisation()
@@ -166,9 +166,9 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fix
           "futureDate.day" -> Seq("buzz fuzzle")
         )))
 
-      response.status shouldBe 400
+      response.status mustBe 400
       val doc = Jsoup.parse(response.body)
-      Option(doc.getElementById("futureDate.Day-error")).isDefined shouldBe true
+      Option(doc.getElementById("futureDate.Day-error")).isDefined mustBe true
     }
   }
 }

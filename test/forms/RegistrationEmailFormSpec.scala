@@ -30,50 +30,50 @@ class RegistrationEmailFormSpec extends UnitSpec {
     "have currentEmail as registrationEmail and transform DifferentEmail to NONE" in {
       val result = fillForm("currentEmail", Option("addw,awdwa@e,c"))
 
-      result.get.currentEmail shouldBe "currentEmail"
-      result.get.differentEmail shouldBe None
+      result.get.currentEmail mustBe "currentEmail"
+      result.get.differentEmail mustBe None
     }
     "bind successfully with differentEmail as registrationEmail and check the value" in {
       val result = fillForm("differentEmail", Option("abc@def.co.uk"))
 
-      result.get.currentEmail shouldBe "differentEmail"
-      result.get.differentEmail shouldBe Option("abc@def.co.uk")
+      result.get.currentEmail mustBe "differentEmail"
+      result.get.differentEmail mustBe Option("abc@def.co.uk")
     }
     "return form error with differentEmail with no value entered " in {
       val result = fillForm("differentEmail", Option(""))
 
-      result.errors.head.message shouldBe "error.DifferentEmail.required"
+      result.errors.head.message mustBe "error.DifferentEmail.required"
     }
     "return form error with differentEmail invalid special chars " in {
       val result = fillForm("differentEmail", Option("abc^@def.co.uk"))
 
-      result.data("registrationEmail") shouldBe "differentEmail"
-      result.data("DifferentEmail") shouldBe "abc^@def.co.uk"
-      result.errors.head.key shouldBe "DifferentEmail"
-      result.errors.head.message shouldBe "validation.email"
+      result.data("registrationEmail") mustBe "differentEmail"
+      result.data("DifferentEmail") mustBe "abc^@def.co.uk"
+      result.errors.head.key mustBe "DifferentEmail"
+      result.errors.head.message mustBe "validation.email"
     }
     "return form error with DifferentEmail length over 70 characters " in {
       val result = fillForm("differentEmail", Option("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.co.uk"))
 
-      result.data("registrationEmail") shouldBe "differentEmail"
-      result.data("DifferentEmail") shouldBe "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.co.uk"
-      result.errors.head.key shouldBe "DifferentEmail"
-      result.errors.head.message shouldBe "validation.emailtoolong"
+      result.data("registrationEmail") mustBe "differentEmail"
+      result.data("DifferentEmail") mustBe "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.co.uk"
+      result.errors.head.key mustBe "DifferentEmail"
+      result.errors.head.message mustBe "validation.emailtoolong"
     }
     "return form error with no radio button selected " in {
       val result = fillForm("", Option(""))
 
-      result.errors.head.message shouldBe "error.registrationEmail.required"
+      result.errors.head.message mustBe "error.registrationEmail.required"
     }
     "return form error with no radio button selected with text in DifferentEmail text box " in {
       val result = fillForm("", Option("a@b.com"))
 
-      result.errors.head.message shouldBe "error.registrationEmail.required"
+      result.errors.head.message mustBe "error.registrationEmail.required"
     }
     "return form error with invalid name for radio button " in {
       val result = fillForm("RadioButtonOne", Option("a@b.com"))
 
-      result.errors.head.message shouldBe "error.registrationEmail.required"
+      result.errors.head.message mustBe "error.registrationEmail.required"
     }
   }
 }

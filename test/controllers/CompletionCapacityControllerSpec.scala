@@ -67,7 +67,7 @@ class CompletionCapacityControllerSpec extends SCRSSpec with GuiceOneAppPerSuite
       showWithUnauthorisedUser(controller.show) {
         result => {
           val response = await(result)
-          status(response) shouldBe SEE_OTHER
+          status(response) mustBe SEE_OTHER
         }
       }
     }
@@ -80,8 +80,8 @@ class CompletionCapacityControllerSpec extends SCRSSpec with GuiceOneAppPerSuite
       showWithAuthorisedUser(controller.show) {
         result => {
           val response = await(result)
-          status(response) shouldBe SEE_OTHER
-          response.header.headers("Location") shouldBe "/register-your-company/post-sign-in"
+          status(response) mustBe SEE_OTHER
+          response.header.headers("Location") mustBe "/register-your-company/post-sign-in"
         }
       }
     }
@@ -94,7 +94,7 @@ class CompletionCapacityControllerSpec extends SCRSSpec with GuiceOneAppPerSuite
 
       showWithAuthorisedUser(controller.show) {
         result =>
-          status(result) shouldBe OK
+          status(result) mustBe OK
       }
     }
 
@@ -108,7 +108,7 @@ class CompletionCapacityControllerSpec extends SCRSSpec with GuiceOneAppPerSuite
         "completionCapacityOther" -> ""
       )) {
         result =>
-          status(result) shouldBe SEE_OTHER
+          status(result) mustBe SEE_OTHER
       }
     }
 
@@ -123,7 +123,7 @@ class CompletionCapacityControllerSpec extends SCRSSpec with GuiceOneAppPerSuite
         "completionCapacityOther" -> ""
       )) {
         result =>
-          status(result) shouldBe SEE_OTHER
+          status(result) mustBe SEE_OTHER
       }
     }
     "return a 400 if the user has entered invalid data" in new Setup {
@@ -132,7 +132,7 @@ class CompletionCapacityControllerSpec extends SCRSSpec with GuiceOneAppPerSuite
         "complete" -> "director"
       )) {
         result =>
-          status(result) shouldBe BAD_REQUEST
+          status(result) mustBe BAD_REQUEST
       }
     }
   }
@@ -143,7 +143,7 @@ class CompletionCapacityControllerSpec extends SCRSSpec with GuiceOneAppPerSuite
       "completionCapacityOther" -> "`"
     )) {
       result =>
-        status(result) shouldBe BAD_REQUEST
+        status(result) mustBe BAD_REQUEST
     }
   }
 }

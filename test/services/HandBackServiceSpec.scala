@@ -100,7 +100,7 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
       mockCrRetrieve(registrationID, Some(ho2CompanyDetailsResponse))
       mockCrUpdate(registrationID, ho2UpdatedRequest)
 
-      await(service.updateCompanyDetails(registrationID, validCompanyNameHandOffIncoming)) shouldBe ho2UpdatedRequest
+      await(service.updateCompanyDetails(registrationID, validCompanyNameHandOffIncoming)) mustBe ho2UpdatedRequest
 
       val captor = ArgumentCaptor.forClass(classOf[CompanyDetails])
       val hcCaptor = ArgumentCaptor.forClass(classOf[HeaderCarrier])
@@ -138,13 +138,13 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
     ))
 
     "return a DecryptionError if the encrypted payload is empty" in new Setup {
-      await(service.processCompanyDetailsHandBack("")) shouldBe Failure(DecryptionError)
+      await(service.processCompanyDetailsHandBack("")) mustBe Failure(DecryptionError)
     }
 
     "return a PayloadError if the decrypted payload is empty" in new Setup {
       val payload = testJwe.encrypt[String]("")
-      payload shouldBe defined
-      await(service.processCompanyDetailsHandBack(payload.get)) shouldBe Failure(PayloadError)
+      payload mustBe defined
+      await(service.processCompanyDetailsHandBack(payload.get)) mustBe Failure(PayloadError)
     }
 
     "Decrypt and store the CH payload" in new Setup {
@@ -167,10 +167,10 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
       when(mockCompanyRegistrationConnector.saveTXIDAfterHO2(testRegId,"testTxId"))
         .thenReturn(Future.successful(Some(HttpResponse(200))))
 
-      encryptedRequest shouldBe defined
+      encryptedRequest mustBe defined
 
       val result = await(service.processCompanyDetailsHandBack(encryptedRequest.get))
-      result shouldBe Success(Json.fromJson[CompanyNameHandOffIncoming](r).get)
+      result mustBe Success(Json.fromJson[CompanyNameHandOffIncoming](r).get)
 
       val captor = ArgumentCaptor.forClass(classOf[CompanyDetails])
       val hcCaptor = ArgumentCaptor.forClass(classOf[HeaderCarrier])
@@ -178,7 +178,7 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
       verify(mockCompanyRegistrationConnector).updateCompanyDetails(ArgumentMatchers.eq(registrationID), captor.capture())(hcCaptor.capture())
 
       val details = captor.getValue
-      details.companyName shouldBe name
+      details.companyName mustBe name
     }
 
     Map(
@@ -199,7 +199,7 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
           val r = simpleRequest() ++ companyDetails("Url Name") ++ links
           val encryptedRequest = testJwe.encrypt[JsValue](r)
 
-          encryptedRequest shouldBe defined
+          encryptedRequest mustBe defined
 
           intercept[IllegalArgumentException] {
             await(service.processCompanyDetailsHandBack(encryptedRequest.get))
@@ -210,13 +210,13 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
 
   "summary Page 1 hand back" should {
     "return a DecryptionError if the encrypted payload is empty" in new Setup {
-      await(service.processSummaryPage1HandBack("")) shouldBe Failure(DecryptionError)
+      await(service.processSummaryPage1HandBack("")) mustBe Failure(DecryptionError)
     }
 
     "return a PayloadError if the decrypted payload is empty" in new Setup {
       val payload = testJwe.encrypt[String]("")
-      payload shouldBe defined
-      await(service.processSummaryPage1HandBack(payload.get)) shouldBe Failure(PayloadError)
+      payload mustBe defined
+      await(service.processSummaryPage1HandBack(payload.get)) mustBe Failure(PayloadError)
     }
 
     "Decrypt and store the CH payload" in new Setup {
@@ -228,9 +228,9 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
       val r = simpleRequest()
       val encryptedRequest = testJwe.encrypt[JsValue](r)
 
-      encryptedRequest shouldBe defined
+      encryptedRequest mustBe defined
 
-      await(service.processSummaryPage1HandBack(encryptedRequest.get)) shouldBe Success(Json.fromJson[SummaryPage1HandOffIncoming](r).get)
+      await(service.processSummaryPage1HandBack(encryptedRequest.get)) mustBe Success(Json.fromJson[SummaryPage1HandOffIncoming](r).get)
     }
 
     Map(
@@ -246,7 +246,7 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
 
           val encryptedRequest = testJwe.encrypt[JsValue](request)
 
-          encryptedRequest shouldBe defined
+          encryptedRequest mustBe defined
 
           intercept[IllegalArgumentException] {
             await(service.processSummaryPage1HandBack(encryptedRequest.get))
@@ -256,13 +256,13 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
   }
   "processGroupsHandBack" should {
   "return an error if the decryption payload is empty" in new Setup {
-    await(service.processGroupsHandBack("")) shouldBe Failure(DecryptionError)
+    await(service.processGroupsHandBack("")) mustBe Failure(DecryptionError)
   }
 
    "return a PayloadError if the decrypted payload is empty" in new Setup {
      val payload = testJwe.encrypt[String]("")
-     payload shouldBe defined
-     await(service.processGroupsHandBack(payload.get)) shouldBe Failure(PayloadError)
+     payload mustBe defined
+     await(service.processGroupsHandBack(payload.get)) mustBe Failure(PayloadError)
    }
 
     "return groupHandOffModel when corporate shareholders flag is not present" in new Setup {
@@ -275,7 +275,7 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
         None
       )
       val encryptedGroupModel = testJwe.encrypt[GroupHandBackModel](groupModel)
-      await(service.processGroupsHandBack(encryptedGroupModel.get)) shouldBe Success(groupModel)
+      await(service.processGroupsHandBack(encryptedGroupModel.get)) mustBe Success(groupModel)
     }
 
     "return groupHandOffModel when corporate shareholders flag is present" in new Setup {
@@ -292,7 +292,7 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
       mockNavRepoInsert("12345", testNavModel)
 
       val encryptedGroupModel = testJwe.encrypt[GroupHandBackModel](groupModel)
-      await(service.processGroupsHandBack(encryptedGroupModel.get)) shouldBe Success(groupModel)
+      await(service.processGroupsHandBack(encryptedGroupModel.get)) mustBe Success(groupModel)
     }
     "throw IllegalArgumentException if one of the navLinks is invalid" in new Setup {
       val groupModel = GroupHandBackModel(
@@ -322,7 +322,7 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
       when(mockNavModelRepo.insertNavModel(ArgumentMatchers.any(), ArgumentMatchers.any[HandOffNavModel]))
         .thenReturn(Future.successful(None))
       val encryptedGroupModel = testJwe.encrypt[GroupHandBackModel](groupModel)
-      await(service.processGroupsHandBack(encryptedGroupModel.get)).isFailure shouldBe true
+      await(service.processGroupsHandBack(encryptedGroupModel.get)).isFailure mustBe true
     }
 
     "return an exception when fetchNavModel returns an exception" in new Setup {
@@ -350,7 +350,7 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
 
       val result = await(service.processCompanyNameReverseHandBack(encryptedPayload))
 
-      result shouldBe Success(payload)
+      result mustBe Success(payload)
     }
   }
 
@@ -360,10 +360,10 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
       val encryptedPayloadString = testJwe.encrypt[RegistrationConfirmationPayload](registrationConfirmationPayload).get
 
       val result = await(service.decryptConfirmationHandback(encryptedPayloadString)(hc)).get
-      result shouldBe registrationConfirmationPayload
-      result.links shouldBe Json.obj()
-      result.payment_reference.isDefined shouldBe true
-      result.payment_amount.isDefined shouldBe true
+      result mustBe registrationConfirmationPayload
+      result.links mustBe Json.obj()
+      result.payment_reference.isDefined mustBe true
+      result.payment_amount.isDefined mustBe true
     }
 
     "return a RegistrationConfirmationPayload with a link and no payment reference and amount if it is a HO5.1" in new Setup {
@@ -374,28 +374,28 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
       val encryptedPayloadString = testJwe.encrypt[RegistrationConfirmationPayload](confirmationHandoffPayload).get
 
       val result = await(service.decryptConfirmationHandback(encryptedPayloadString)(hc)).get
-      result shouldBe confirmationHandoffPayload
-      result.links shouldBe Json.obj("forward" -> "/redirect-url")
-      result.payment_reference.isDefined shouldBe false
-      result.payment_amount.isDefined shouldBe false
+      result mustBe confirmationHandoffPayload
+      result.links mustBe Json.obj("forward" -> "/redirect-url")
+      result.payment_reference.isDefined mustBe false
+      result.payment_amount.isDefined mustBe false
     }
   }
 
   "getNextUrl" should {
     "return an optional string if a next url is present in the payload" in new Setup {
-      await(service.getForwardUrl(confirmationHandoffPayload)) shouldBe Some("/redirect-url")
+      await(service.getForwardUrl(confirmationHandoffPayload)) mustBe Some("/redirect-url")
     }
     "return None if a next url is not present in the payload" in new Setup {
-      await(service.getForwardUrl(registrationConfirmationPayload)) shouldBe None
+      await(service.getForwardUrl(registrationConfirmationPayload)) mustBe None
     }
   }
 
   "payloadHasForwardLinkAndNoPaymentRefs" should {
     "return true if there is a forward link and no payment refernce and amount" in new Setup {
-      await(service.payloadHasForwardLinkAndNoPaymentRefs(confirmationHandoffPayload)) shouldBe true
+      await(service.payloadHasForwardLinkAndNoPaymentRefs(confirmationHandoffPayload)) mustBe true
     }
     "return false if there is no forward link and a payment refernce and amount" in new Setup {
-      await(service.payloadHasForwardLinkAndNoPaymentRefs(registrationConfirmationPayload)) shouldBe false
+      await(service.payloadHasForwardLinkAndNoPaymentRefs(registrationConfirmationPayload)) mustBe false
     }
   }
 }

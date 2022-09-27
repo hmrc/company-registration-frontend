@@ -17,31 +17,13 @@
 package repositories
 
 import fixtures.HandOffFixtures
-import itutil.IntegrationSpecBase
+import itutil.{IntegrationSpecBase, MongoHelper}
 import org.scalatest.concurrent.{Eventually, ScalaFutures}
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.modules.reactivemongo.ReactiveMongoComponent
-import reactivemongo.api.indexes.{Index, IndexType}
 
-import scala.concurrent.ExecutionContext.Implicits.global
-
-class NavModelRepositorySpec extends IntegrationSpecBase with ScalaFutures with Eventually with HandOffFixtures {
+class NavModelRepositorySpec extends IntegrationSpecBase with ScalaFutures with Eventually with HandOffFixtures with MongoHelper {
 
   class Setup {
-    val rc = app.injector.instanceOf[ReactiveMongoComponent]
-    val repo = new NavModelRepoMongo(rc.mongoConnector.db,100)
-
-    await(repo.drop)
-    await(repo.ensureIndexes)
-
-    def count = await(repo.count)
-  }
-
-  class SetupWithIndexes(indexList: List[Index]) {
-    val rc = app.injector.instanceOf[ReactiveMongoComponent]
-    val repo = new NavModelRepoMongo(rc.mongoConnector.db,100){
-      override def additionalIndexes: List[Index] = indexList
-    }
+    val repo = app.injector.instanceOf[NavModelRepoImpl].repository
 
     await(repo.drop)
     await(repo.ensureIndexes)
@@ -56,74 +38,54 @@ class NavModelRepositorySpec extends IntegrationSpecBase with ScalaFutures with 
 
     "successfully insert a record in the correct format" in new Setup {
       await(repo.insertNavModel(regId, handOffNavModelDataUpTo3))
-      await(repo.count) shouldBe 1
+      await(repo.count) mustBe 1
     }
 
     "successfully return the same handOffModelInserted" in new Setup {
       await(repo.insertNavModel(regId,handOffNavModelDataUpTo3))
       val navModelReturn = await(repo.getNavModel(regId))
-      navModelReturn.get shouldBe handOffNavModelDataUpTo3
+      navModelReturn.get mustBe handOffNavModelDataUpTo3
 
     }
     "successfully update a record when data changes" in new Setup {
       await(repo.insertNavModel(regId, handOffNavModelDataUpTo3))
       await(repo.insertNavModel(regId, handOffNavModelUpdatedUpTo3))
-      await(repo.count) shouldBe 1
+      await(repo.count) mustBe 1
       val navModelReturn = await(repo.getNavModel(regId))
-      navModelReturn.get shouldBe handOffNavModelUpdatedUpTo3
+      navModelReturn.get mustBe handOffNavModelUpdatedUpTo3
 
     }
     "return the handOffModel after insertion" in new Setup {
       await(repo.insertNavModel(regId,handOffNavModelDataUpTo3))
       val res = await(repo.insertNavModel(regId,handOffNavModelDataUpTo3))
-      res.get shouldBe handOffNavModelDataUpTo3
+      res.get mustBe handOffNavModelDataUpTo3
     }
   }
 
   "successfully return the same handOffModelInserted" in new Setup {
     await(repo.insertNavModel(regId,handOffNavModelDataUpTo3))
     val navModelReturn = await(repo.getNavModel(regId))
-    navModelReturn.get shouldBe handOffNavModelDataUpTo3
+    navModelReturn.get mustBe handOffNavModelDataUpTo3
   }
 
   "successfully update a record when data changes" in new Setup {
     await(repo.insertNavModel(regId, handOffNavModelDataUpTo3))
     await(repo.insertNavModel(regId, handOffNavModelUpdatedUpTo3))
-    await(repo.count) shouldBe 1
+    await(repo.count) mustBe 1
     val navModelReturn = await(repo.getNavModel(regId))
-    navModelReturn.get shouldBe handOffNavModelUpdatedUpTo3
+    navModelReturn.get mustBe handOffNavModelUpdatedUpTo3
   }
 
-  "Indexes" ignore {
-
-    val additionalIndex = List(Index(
-      key = Seq("test" -> IndexType.Ascending),
-      name = Some("testIndex")
-    ))
+  "Indexes" must {
 
     "be applied when the collection is created" in new Setup {
 
-      val indexList: List[Index] = await(repo.collection.indexesManager.list())
-
+      val indexList: Seq[String] = await(repo.collection.listIndexes().toFuture()).map(_.toString())
       val containsIndexes: Boolean = eventually {
-        indexList.map(_.name).filter(_.isDefined).contains(Some("lastUpdatedIndex")) &&
-          indexList.map(_.name).filter(_.isDefined).contains(Some("_id_"))
+        indexList.exists(_ contains "lastUpdatedIndex") && indexList.exists(_ contains "_id_")
       }
 
-      containsIndexes shouldBe true
-    }
-
-    "be applied when the collection is created along with any additional indexes" in new SetupWithIndexes(additionalIndex) {
-
-      val indexList: List[Index] = await(repo.collection.indexesManager.list())
-
-      val containsIndexes: Boolean = eventually {
-        indexList.map(_.name).filter(_.isDefined).contains(Some("lastUpdatedIndex")) &&
-          indexList.map(_.name).filter(_.isDefined).contains(Some("testIndex")) &&
-            indexList.map(_.name).filter(_.isDefined).contains(Some("_id_"))
-      }
-
-      containsIndexes shouldBe true
+      containsIndexes mustBe true
     }
   }
 }

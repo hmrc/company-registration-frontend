@@ -36,9 +36,9 @@ class AccessibilityStatementControllerSpec extends SCRSSpec with GuiceOneAppPerS
   "show" should {
     "return OK" in {
       val result = TestAccessibilityStatementController.show("test")(testGetRequest)
-      status(result) shouldBe Status.OK
-      contentType(result) shouldBe Some("text/html")
-      charset(result) shouldBe Some("utf-8")
+      status(result) mustBe Status.OK
+      contentType(result) mustBe Some("text/html")
+      charset(result) mustBe Some("utf-8")
     }
   }
 

@@ -58,7 +58,7 @@ class DeskproConnectorSpec extends SCRSSpec with SCRSMocks {
     "return a ticket number" in new Setup {
       mockHttpPOST[Ticket, JsObject](s"${connector.deskProUrl}/deskpro/ticket", Future.successful(response))
 
-      await(connector.submitTicket(ticket)) shouldBe ticketNum
+      await(connector.submitTicket(ticket)) mustBe ticketNum
     }
 
     "throw a bad request exception" in new Setup {

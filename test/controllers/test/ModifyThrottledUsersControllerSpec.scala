@@ -54,7 +54,7 @@ class ModifyThrottledUsersControllerSpec extends UnitSpec with MockitoSugar with
 
       val result = controller.modifyThrottledUsers(5)(FakeRequest())
 
-      status(result) shouldBe OK
+      status(result) mustBe OK
     }
   }
 }

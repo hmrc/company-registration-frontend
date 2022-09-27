@@ -82,7 +82,7 @@ class PPOBServiceSpec extends SCRSSpec with CompanyDetailsFixture with SCRSExcep
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
       CTRegistrationConnectorMocks.retrieveCompanyDetails(Some(validCompanyDetailsResponse))
 
-      await(service.retrieveCompanyDetails("12345")) shouldBe validCompanyDetailsResponse
+      await(service.retrieveCompanyDetails("12345")) mustBe validCompanyDetailsResponse
     }
 
     "throw a NotFound exception if there is no data" in new Setup {
@@ -105,25 +105,25 @@ class PPOBServiceSpec extends SCRSSpec with CompanyDetailsFixture with SCRSExcep
     "return a PPOBChoice with a value of RO if the ctReg supplied ppob option is defined with RO" in new Setup {
       val result = service.addressChoice(ppobDefined, ctRegWithRO)
 
-      result shouldBe PPOBChoice("RO")
+      result mustBe PPOBChoice("RO")
     }
 
     "return a PPOBChoice with a value of PPOB if the ctReg supplied ppob option is defined with PPOB" in new Setup {
       val result = service.addressChoice(ppobDefined, ctRegWithPPOB)
 
-      result shouldBe PPOBChoice("PPOB")
+      result mustBe PPOBChoice("PPOB")
     }
 
     "return a PPOBChoice with a value of RO if the supplied ppob option is undefined and the addressType on the ctReg is RO" in new Setup {
       val result = service.addressChoice(ppobUndefined, ctRegWithRO)
 
-      result shouldBe PPOBChoice("RO")
+      result mustBe PPOBChoice("RO")
     }
 
     "return a PPOBChoice with a blank value if the supplied ppob option is undefined and the addressType on the ctReg is not RO" in new Setup {
       val result = service.addressChoice(ppobUndefined, ctReg)
 
-      result shouldBe PPOBChoice("")
+      result mustBe PPOBChoice("")
     }
   }
 
@@ -137,7 +137,7 @@ class PPOBServiceSpec extends SCRSSpec with CompanyDetailsFixture with SCRSExcep
 
       val result = await(service.fetchAddressesAndChoice("123456789"))
 
-      result shouldBe (Some(CHROAddress("14","test road",Some("test town"),"Foo","UK",None,Some("FX1 1ZZ"),None)),
+      result mustBe (Some(CHROAddress("14","test road",Some("test town"),"Foo","UK",None,Some("FX1 1ZZ"),None)),
         Some(NewAddress("10 Test Street","Testtown",None,None,Some("FX1 1ZZ"),Some("United Kingdom"),None)),
         PPOBChoice("RO"))
 
@@ -152,7 +152,7 @@ class PPOBServiceSpec extends SCRSSpec with CompanyDetailsFixture with SCRSExcep
 
       val result = await(service.fetchAddressesAndChoice("123456789"))
 
-      result shouldBe (None,
+      result mustBe (None,
         Some(NewAddress("10 Test Street","Testtown",None,None,Some("FX1 1ZZ"),Some("United Kingdom"),None)),
         PPOBChoice("PPOB"))
     }
@@ -175,7 +175,7 @@ class PPOBServiceSpec extends SCRSSpec with CompanyDetailsFixture with SCRSExcep
         validCompanyDetailsRequest.jurisdiction
       )
 
-      result.toString shouldBe expected.toString
+      result.toString mustBe expected.toString
     }
 
     "return a Company details case class with a PPOB address from the supplied Address if the supplied address type is PPOB" in new Setup {
@@ -199,7 +199,7 @@ class PPOBServiceSpec extends SCRSSpec with CompanyDetailsFixture with SCRSExcep
         validCompanyDetailsRequest.jurisdiction
       )
 
-      result.toString shouldBe expected.toString
+      result.toString mustBe expected.toString
     }
   }
 
@@ -227,7 +227,7 @@ class PPOBServiceSpec extends SCRSSpec with CompanyDetailsFixture with SCRSExcep
 
       val result = await(service.saveAddress(registrationID, "RO", None))
 
-      result.toString shouldBe companyDetails.toString
+      result.toString mustBe companyDetails.toString
     }
 
     "be able to build a Company details case class when the supplied address type is PPOB and save it" in new Setup {
@@ -258,7 +258,7 @@ class PPOBServiceSpec extends SCRSSpec with CompanyDetailsFixture with SCRSExcep
 
       val result = await(service.saveAddress(registrationID, "PPOB", Some(validNewAddress)))
 
-      result.toString shouldBe companyDetails.toString
+      result.toString mustBe companyDetails.toString
     }
   }
 }

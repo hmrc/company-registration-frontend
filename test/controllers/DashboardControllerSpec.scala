@@ -103,10 +103,10 @@ class DashboardControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Aut
         showWithAuthorisedUserRetrieval(controller.show, authDetails) {
           fRes =>
             val res = await(fRes)
-            status(res) shouldBe 200
+            status(res) mustBe 200
 
             val document: Document = Jsoup.parse(contentAsString(res))
-            document.title should include("Company registration overview")
+            document.title must include("Company registration overview")
         }
 
         verify(mockDashboardService, times(1)).checkForEmailMismatch(any(), any())(any(), any())
@@ -124,10 +124,10 @@ class DashboardControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Aut
         showWithAuthorisedUserRetrieval(controller.show, authDetails) {
           fRes =>
             val res = await(fRes)
-            status(res) shouldBe 200
+            status(res) mustBe 200
 
             val document: Document = Jsoup.parse(contentAsString(res))
-            document.title should include("Your company registration was unsuccessful")
+            document.title must include("Your company registration was unsuccessful")
         }
 
         verify(mockDashboardService, times(1)).checkForEmailMismatch(any(), any())(any(), any())
@@ -145,8 +145,8 @@ class DashboardControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Aut
         showWithAuthorisedUserRetrieval(controller.show, authDetails) {
           fRes =>
             val res = await(fRes)
-            status(res) shouldBe 303
-            redirectLocation(res) shouldBe Some("/register-your-company/basic-company-details")
+            status(res) mustBe 303
+            redirectLocation(res) mustBe Some("/register-your-company/basic-company-details")
         }
 
         verify(mockDashboardService, times(1)).checkForEmailMismatch(any(), any())(any(), any())
@@ -164,7 +164,7 @@ class DashboardControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Aut
         showWithAuthorisedUserRetrieval(controller.show, authDetails) {
           fRes =>
             val res = await(fRes)
-            status(res) shouldBe 500
+            status(res) mustBe 500
         }
 
         verify(mockDashboardService, times(1)).checkForEmailMismatch(any(), any())(any(), any())
@@ -176,7 +176,7 @@ class DashboardControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Aut
 
     "redirect to post sign in" in new Setup {
       val res = await(controller.submit(FakeRequest()))
-      status(res) shouldBe 303
+      status(res) mustBe 303
     }
   }
 }

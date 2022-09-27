@@ -16,22 +16,18 @@
 
 package www
 
-import java.util.UUID
-
-import config.AppConfig
 import fixtures.HandOffFixtures
-import itutil.{IntegrationSpecBase, LoginStub}
+import itutil.{IntegrationSpecBase, LoginStub, MongoHelper}
 import models.{CHROAddress, CompanyDetails, PPOB}
 import play.api.http.HeaderNames
 import play.api.libs.crypto.DefaultCookieSigner
 import play.api.libs.json.Json
-import play.modules.reactivemongo.ReactiveMongoComponent
-import repositories.NavModelRepo
+import repositories.NavModelRepoImpl
 import utils.JweCommon
 
-import scala.concurrent.ExecutionContext.Implicits.global
+import java.util.UUID
 
-class CorporationTaxDetailsControllerISpec extends IntegrationSpecBase with LoginStub with HandOffFixtures {
+class CorporationTaxDetailsControllerISpec extends IntegrationSpecBase with LoginStub with HandOffFixtures with MongoHelper {
 
   val userId = "test-user-id"
   val regId = "12345"
@@ -70,10 +66,7 @@ class CorporationTaxDetailsControllerISpec extends IntegrationSpecBase with Logi
 
   val companyDetails = Json.toJson(CompanyDetails("CompanyName", CHROAddress("premises", "line1", Some("line2"), "locality", "UK", None, None, None), PPOB("", None), "ENGLAND_AND_WALES")).toString
 
-  val repo = new NavModelRepo {
-    override val mongo: ReactiveMongoComponent = app.injector.instanceOf[ReactiveMongoComponent]
-    override val appConfig: AppConfig = app.injector.instanceOf[AppConfig]
-  }
+  val repo = app.injector.instanceOf[NavModelRepoImpl].repository
 
   val jweDecryptor = app.injector.instanceOf[JweCommon]
 
@@ -82,45 +75,45 @@ class CorporationTaxDetailsControllerISpec extends IntegrationSpecBase with Logi
       stubSuccessfulLogin(userId = userId)
       stubFootprint(200, footprintResponse)
       stubKeystore(SessionId, regId)
-      await(repo.repository.drop)
-      await(repo.repository.insertNavModel(regId, handOffNavModelDataUpTo1))
-      await(repo.repository.count) shouldBe 1
+      await(repo.drop)
+      await(repo.insertNavModel(regId, handOffNavModelDataUpTo1))
+      await(repo.count) mustBe 1
       val csrfToken = UUID.randomUUID().toString
       val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
       stubRetrieveCRCompanyDetails(regId, 200, companyDetails)
       stubUpdateCRCompanyDetails(regId, 200, companyDetails)
       stubHandOffReference(regId, 200)
 
-      await(repo.repository.getNavModel(regId)).get shouldBe handOffNavModelDataUpTo1
+      await(repo.getNavModel(regId)).get mustBe handOffNavModelDataUpTo1
       val fResponse = buildClient(controllers.handoff.routes.CorporationTaxDetailsController.corporationTaxDetails(HO2_PAYLOAD).url)
         .withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
         .get()
 
       val response = await(fResponse)
-      response.status shouldBe 303
-      response.header(HeaderNames.LOCATION).get shouldBe controllers.reg.routes.PPOBController.show.url
+      response.status mustBe 303
+      response.header(HeaderNames.LOCATION).get mustBe controllers.reg.routes.PPOBController.show.url
     }
 
     "return 400 when payload contains invalid data" in {
       stubSuccessfulLogin(userId = userId)
       stubFootprint(200, footprintResponse)
       stubKeystore(SessionId, regId)
-      await(repo.repository.drop)
-      await(repo.repository.insertNavModel(regId, handOffNavModelDataUpTo1))
-      await(repo.repository.count) shouldBe 1
+      await(repo.drop)
+      await(repo.insertNavModel(regId, handOffNavModelDataUpTo1))
+      await(repo.count) mustBe 1
       val csrfToken = UUID.randomUUID().toString
       val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
       stubRetrieveCRCompanyDetails(regId, 200, companyDetails)
       stubUpdateCRCompanyDetails(regId, 200, companyDetails)
       stubHandOffReference(regId, 200)
 
-      await(repo.repository.getNavModel(regId)).get shouldBe handOffNavModelDataUpTo1
+      await(repo.getNavModel(regId)).get mustBe handOffNavModelDataUpTo1
       val fResponse = buildClient(controllers.handoff.routes.CorporationTaxDetailsController.corporationTaxDetails("").url)
         .withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
         .get()
 
       val response = await(fResponse)
-      response.status shouldBe 400
+      response.status mustBe 400
     }
   }
 }

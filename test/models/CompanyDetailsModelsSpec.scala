@@ -28,7 +28,7 @@ class CompanyDetailsModelsSpec extends UnitSpec {
       val current = CompanyDetails("TestName", simpleRoAddress, PPOB.empty, "")
       val updated = CompanyDetails.updateFromHandoff(current, "New Name For Test", ch, "new")
 
-      updated shouldBe CompanyDetails("New Name For Test", ch, PPOB.empty, "new")
+      updated mustBe CompanyDetails("New Name For Test", ch, PPOB.empty, "new")
     }
   }
 
@@ -59,7 +59,7 @@ class CompanyDetailsModelsSpec extends UnitSpec {
           | "region":"testRegion"
           | }""".stripMargin)
 
-      Json.toJson(chAddressComplete) shouldBe jsonComplete
+      Json.toJson(chAddressComplete) mustBe jsonComplete
     }
 
     "read from json when option fields are missing" in {
@@ -83,7 +83,7 @@ class CompanyDetailsModelsSpec extends UnitSpec {
         None
       )
 
-      Json.fromJson[CHROAddress](jsonPartial).get shouldBe chAddressPartial
+      Json.fromJson[CHROAddress](jsonPartial).get mustBe chAddressPartial
     }
   }
 
@@ -117,7 +117,7 @@ class CompanyDetailsModelsSpec extends UnitSpec {
 
         val prePopAddressJson = Json.toJson(address)(Address.prePopWrites)
 
-        prePopAddressJson shouldBe expected
+        prePopAddressJson mustBe expected
       }
 
       "line 1 and line 2 together are longer than 26 chars" in {
@@ -148,7 +148,7 @@ class CompanyDetailsModelsSpec extends UnitSpec {
 
         val prePopAddressJson = Json.toJson(address)(Address.prePopWrites)
 
-        prePopAddressJson shouldBe expected
+        prePopAddressJson mustBe expected
       }
 
       "line 1 and line 2 together are shorter than 26 chars" in {
@@ -179,7 +179,7 @@ class CompanyDetailsModelsSpec extends UnitSpec {
 
         val prePopAddressJson = Json.toJson(address)(Address.prePopWrites)
 
-        prePopAddressJson shouldBe expected
+        prePopAddressJson mustBe expected
       }
     }
   }

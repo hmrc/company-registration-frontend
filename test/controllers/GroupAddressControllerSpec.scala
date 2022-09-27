@@ -83,9 +83,9 @@ class GroupAddressControllerSpec()(implicit lang: Lang) extends SCRSSpec with Gu
 
       showWithAuthorisedUser(controller.show) {
         result =>
-          status(result) shouldBe 200
+          status(result) mustBe 200
           val doc = Jsoup.parse(contentAsString(result))
-          doc.getElementById("groupAddress-alf").attr("checked") shouldBe "checked"
+          doc.getElementById("groupAddress-alf").attr("checked") mustBe "checked"
       }
     }
 
@@ -101,8 +101,8 @@ class GroupAddressControllerSpec()(implicit lang: Lang) extends SCRSSpec with Gu
         .thenReturn(Future.successful(Some(testGroups)))
       showWithAuthorisedUser(controller.show) {
         result =>
-          status(result) shouldBe 303
-          redirectLocation(result).get shouldBe controllers.groups.routes.GroupNameController.show.url
+          status(result) mustBe 303
+          redirectLocation(result).get mustBe controllers.groups.routes.GroupNameController.show.url
       }
     }
 
@@ -120,8 +120,8 @@ class GroupAddressControllerSpec()(implicit lang: Lang) extends SCRSSpec with Gu
         .thenReturn(Future.successful("foo"))
       showWithAuthorisedUser(controller.show) {
         result =>
-          status(result) shouldBe 303
-          redirectLocation(result).get shouldBe "foo"
+          status(result) mustBe 303
+          redirectLocation(result).get mustBe "foo"
       }
     }
 
@@ -141,8 +141,8 @@ class GroupAddressControllerSpec()(implicit lang: Lang) extends SCRSSpec with Gu
         .thenReturn(Future.successful("foo"))
       showWithAuthorisedUser(controller.show) {
         result =>
-          status(result) shouldBe 303
-          redirectLocation(result).get shouldBe "foo"
+          status(result) mustBe 303
+          redirectLocation(result).get mustBe "foo"
       }
     }
 
@@ -164,13 +164,13 @@ class GroupAddressControllerSpec()(implicit lang: Lang) extends SCRSSpec with Gu
         .thenReturn(Map("foo" -> "bar"))
       showWithAuthorisedUser(controller.show) {
         result =>
-          status(result) shouldBe 200
+          status(result) mustBe 200
           val doc = Jsoup.parse(contentAsString(result))
-          doc.getElementById("groupAddress-foo").attr("checked") shouldBe ""
+          doc.getElementById("groupAddress-foo").attr("checked") mustBe ""
           val label = await(doc.getElementsByTag("label")
             .filter { e: Elements => !e.attr("for", "groupAddress-foo").isEmpty }).first()
-          label.text shouldBe "bar"
-          doc.getElementById("groupAddress-other").attr("checked") shouldBe ""
+          label.text mustBe "bar"
+          doc.getElementById("groupAddress-other").attr("checked") mustBe ""
       }
     }
 
@@ -192,13 +192,13 @@ class GroupAddressControllerSpec()(implicit lang: Lang) extends SCRSSpec with Gu
         .thenReturn(Map("foo" -> "bar"))
       showWithAuthorisedUser(controller.show) {
         result =>
-          status(result) shouldBe 200
+          status(result) mustBe 200
           val doc = Jsoup.parse(contentAsString(result))
-          doc.getElementById("groupAddress-foo").attr("checked") shouldBe "checked"
+          doc.getElementById("groupAddress-foo").attr("checked") mustBe "checked"
           val label = await(doc.getElementsByTag("label")
             .filter { e: Elements => !e.attr("for", "groupAddress-foo").isEmpty }).first()
-          label.text shouldBe "bar"
-          doc.getElementById("groupAddress-other").attr("checked") shouldBe ""
+          label.text mustBe "bar"
+          doc.getElementById("groupAddress-other").attr("checked") mustBe ""
       }
     }
   }
@@ -220,7 +220,7 @@ class GroupAddressControllerSpec()(implicit lang: Lang) extends SCRSSpec with Gu
         .thenReturn(Map("foo" -> "bar"))
       submitWithAuthorisedUser(controller.submit, FakeRequest().withFormUrlEncodedBody("groupAddress" -> "WALLS")) {
         result =>
-          status(result) shouldBe BAD_REQUEST
+          status(result) mustBe BAD_REQUEST
       }
     }
 
@@ -234,8 +234,8 @@ class GroupAddressControllerSpec()(implicit lang: Lang) extends SCRSSpec with Gu
       when(mockGroupService.saveTxShareHolderAddress(any(), any())(any())).thenReturn(Future.successful(Right(testGroups)))
       submitWithAuthorisedUser(controller.submit, FakeRequest().withFormUrlEncodedBody("groupAddress" -> "TxAPI")) {
         result =>
-          status(result) shouldBe 303
-          redirectLocation(result).get shouldBe controllers.groups.routes.GroupUtrController.show.url
+          status(result) mustBe 303
+          redirectLocation(result).get mustBe controllers.groups.routes.GroupUtrController.show.url
       }
     }
 
@@ -250,8 +250,8 @@ class GroupAddressControllerSpec()(implicit lang: Lang) extends SCRSSpec with Gu
       when(mockGroupService.saveTxShareHolderAddress(any(), any())(any())).thenReturn(Future.successful(Left(new Exception(""))))
       submitWithAuthorisedUser(controller.submit, FakeRequest().withFormUrlEncodedBody("groupAddress" -> "TxAPI")) {
         result =>
-          status(result) shouldBe 303
-          redirectLocation(result).get shouldBe "foo"
+          status(result) mustBe 303
+          redirectLocation(result).get mustBe "foo"
       }
     }
 
@@ -264,8 +264,8 @@ class GroupAddressControllerSpec()(implicit lang: Lang) extends SCRSSpec with Gu
         .thenReturn(Future.successful(Some(testGroups)))
       submitWithAuthorisedUser(controller.submit, FakeRequest().withFormUrlEncodedBody("groupAddress" -> "ALF")) {
         result =>
-          status(result) shouldBe 303
-          redirectLocation(result).get shouldBe controllers.groups.routes.GroupUtrController.show.url
+          status(result) mustBe 303
+          redirectLocation(result).get mustBe controllers.groups.routes.GroupUtrController.show.url
       }
     }
 
@@ -279,8 +279,8 @@ class GroupAddressControllerSpec()(implicit lang: Lang) extends SCRSSpec with Gu
       when(mockAddressLookupService.initialiseAlfJourney(any(), any(), any(), any())(any[HeaderCarrier], any[MessagesProvider])).thenReturn(Future.successful("foo"))
       submitWithAuthorisedUser(controller.submit, FakeRequest().withFormUrlEncodedBody("groupAddress" -> "Other")) {
         result =>
-          status(result) shouldBe 303
-          redirectLocation(result).get shouldBe "foo"
+          status(result) mustBe 303
+          redirectLocation(result).get mustBe "foo"
       }
     }
 
@@ -293,8 +293,8 @@ class GroupAddressControllerSpec()(implicit lang: Lang) extends SCRSSpec with Gu
         .thenReturn(Future.successful(Some(testGroups)))
       submitWithAuthorisedUser(controller.submit, FakeRequest().withFormUrlEncodedBody("groupAddress" -> "CohoEntered")) {
         result =>
-          status(result) shouldBe 303
-          redirectLocation(result).get shouldBe controllers.groups.routes.GroupUtrController.show.url
+          status(result) mustBe 303
+          redirectLocation(result).get mustBe controllers.groups.routes.GroupUtrController.show.url
       }
     }
   }
@@ -321,8 +321,8 @@ class GroupAddressControllerSpec()(implicit lang: Lang) extends SCRSSpec with Gu
 
       showWithAuthorisedUser(controller.handbackFromALF(Some(alfId))) {
         result =>
-          status(result) shouldBe 303
-          redirectLocation(result).get shouldBe controllers.groups.routes.GroupUtrController.show.url
+          status(result) mustBe 303
+          redirectLocation(result).get mustBe controllers.groups.routes.GroupUtrController.show.url
       }
     }
   }

@@ -76,7 +76,7 @@ class CompanyNameHOIncomingSpec extends UnitSpec with JsonFormatValidation {
 
       val result = Json.parse(json).validate[CompanyNameHandOffIncoming]
 
-      shouldBeSuccess(expected, result)
+      mustBeSuccess(expected, result)
     }
 
     "accept a company name that contains special characters" in {
@@ -89,7 +89,7 @@ class CompanyNameHOIncomingSpec extends UnitSpec with JsonFormatValidation {
 
       val result = Json.parse(json).validate[CompanyNameHandOffIncoming]
 
-      shouldBeSuccess(expected, result)
+      mustBeSuccess(expected, result)
     }
 
     "CHROAddress Model" should {
@@ -100,7 +100,7 @@ class CompanyNameHOIncomingSpec extends UnitSpec with JsonFormatValidation {
 
         val result = Json.parse(json).validate[CHROAddress]
 
-        shouldBeSuccess(expected, result)
+        mustBeSuccess(expected, result)
       }
 
       "parse as UK for missing Country" in {
@@ -110,7 +110,7 @@ class CompanyNameHOIncomingSpec extends UnitSpec with JsonFormatValidation {
 
         val result = Json.parse(json).validate[CHROAddress]
 
-        shouldBeSuccess(expected, result)
+        mustBeSuccess(expected, result)
       }
 
       "Be able to be parsed with a line 2" in {
@@ -120,7 +120,7 @@ class CompanyNameHOIncomingSpec extends UnitSpec with JsonFormatValidation {
 
         val result = Json.parse(json).validate[CHROAddress]
 
-        shouldBeSuccess(expected, result)
+        mustBeSuccess(expected, result)
       }
 
       "fail to be read from JSON if is empty string" in {

@@ -61,7 +61,7 @@ class AccountingDatesControllerSpec extends SCRSSpec with GuiceOneAppPerSuite wi
 
   "The AccountingDatesController" should {
     "be using the correct save4later connector" in new Setup {
-      controller.accountingService shouldBe a[AccountingService]
+      controller.accountingService mustBe a[AccountingService]
     }
   }
 
@@ -69,8 +69,8 @@ class AccountingDatesControllerSpec extends SCRSSpec with GuiceOneAppPerSuite wi
     "return a 303 and redirect to the sign in page if unauthenticated" in new Setup {
       showWithUnauthorisedUser(controller.show) {
         result =>
-          status(result) shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result) mustBe
             Some(authUrl)
       }
     }
@@ -81,7 +81,7 @@ class AccountingDatesControllerSpec extends SCRSSpec with GuiceOneAppPerSuite wi
       AccountingServiceMocks.fetchAccountingDetails(validAccountingDetailsModel)
       showWithAuthorisedUser(controller.show) {
         result =>
-          status(result) shouldBe OK
+          status(result) mustBe OK
       }
     }
   }
@@ -90,8 +90,8 @@ class AccountingDatesControllerSpec extends SCRSSpec with GuiceOneAppPerSuite wi
     "return a 303" in new Setup {
       submitWithUnauthorisedUser(controller.show, FakeRequest().withFormUrlEncodedBody()) {
         result =>
-          status(result) shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result) mustBe
             Some(authUrl)
       }
     }
@@ -101,8 +101,8 @@ class AccountingDatesControllerSpec extends SCRSSpec with GuiceOneAppPerSuite wi
       val request = FakeRequest().withFormUrlEncodedBody(whenRegisteredData.toSeq: _*)
       submitWithAuthorisedUser(controller.submit, request)(
         result => {
-          status(result) shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe Some("/register-your-company/loan-payments-dividends")
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result) mustBe Some("/register-your-company/loan-payments-dividends")
         }
       )
     }
@@ -112,8 +112,8 @@ class AccountingDatesControllerSpec extends SCRSSpec with GuiceOneAppPerSuite wi
       val request = FakeRequest().withFormUrlEncodedBody(futureDateData.toSeq: _*)
       submitWithAuthorisedUser(controller.submit, request)(
         result => {
-          status(result) shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe Some("/register-your-company/loan-payments-dividends")
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result) mustBe Some("/register-your-company/loan-payments-dividends")
         }
       )
     }
@@ -123,8 +123,8 @@ class AccountingDatesControllerSpec extends SCRSSpec with GuiceOneAppPerSuite wi
       val request = FakeRequest().withFormUrlEncodedBody(notPlanningToYetdata.toSeq: _*)
       submitWithAuthorisedUser(controller.submit, request)(
         result => {
-          status(result) shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe Some("/register-your-company/loan-payments-dividends")
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result) mustBe Some("/register-your-company/loan-payments-dividends")
         }
       )
     }
@@ -133,7 +133,7 @@ class AccountingDatesControllerSpec extends SCRSSpec with GuiceOneAppPerSuite wi
       val request = FakeRequest().withFormUrlEncodedBody(invalidDateData.toSeq: _*)
       submitWithAuthorisedUser(controller.submit, request) {
         result =>
-          status(result) shouldBe BAD_REQUEST
+          status(result) mustBe BAD_REQUEST
       }
     }
 
@@ -142,7 +142,7 @@ class AccountingDatesControllerSpec extends SCRSSpec with GuiceOneAppPerSuite wi
       val request = FakeRequest().withFormUrlEncodedBody(whenRegisteredData.toSeq: _*)
       submitWithAuthorisedUser(controller.submit, request) {
         result =>
-          status(result) shouldBe NOT_FOUND
+          status(result) mustBe NOT_FOUND
       }
     }
 
@@ -151,7 +151,7 @@ class AccountingDatesControllerSpec extends SCRSSpec with GuiceOneAppPerSuite wi
       val request = FakeRequest().withFormUrlEncodedBody(notPlanningToYetdata.toSeq: _*)
       submitWithAuthorisedUser(controller.submit, request) {
         result =>
-          status(result) shouldBe BAD_REQUEST
+          status(result) mustBe BAD_REQUEST
       }
     }
   }

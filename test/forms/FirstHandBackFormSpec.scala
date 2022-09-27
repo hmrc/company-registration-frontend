@@ -29,7 +29,7 @@ class FirstHandBackFormSpec extends SCRSSpec with PayloadFixture {
 
     "have no errors" in {
 
-      form.bind(handBackFormData.toMap).get shouldBe CompanyNameHandOffFormModel(
+      form.bind(handBackFormData.toMap).get mustBe CompanyNameHandOffFormModel(
         Some("testID"),
         "testID",
         "testCompanyName",

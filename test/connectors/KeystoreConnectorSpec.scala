@@ -48,7 +48,7 @@ class KeystoreConnectorSpec extends SCRSSpec {
         .thenReturn(Future.successful(returnCacheMap))
 
       val result = connector.cache[TestModel]("testKey", testModel)
-      await(result) shouldBe returnCacheMap
+      await(result) mustBe returnCacheMap
     }
   }
 
@@ -61,7 +61,7 @@ class KeystoreConnectorSpec extends SCRSSpec {
         .thenReturn(Future.successful(Some(list)))
 
       val result = connector.fetchAndGet[List[TestModel]]("testKey")
-      await(result) shouldBe Some(list)
+      await(result) mustBe Some(list)
     }
   }
 
@@ -75,7 +75,7 @@ class KeystoreConnectorSpec extends SCRSSpec {
         .thenReturn(Future.successful(Some(returnCacheMap)))
 
       val result = connector.fetch()
-      await(result) shouldBe Some(returnCacheMap)
+      await(result) mustBe Some(returnCacheMap)
     }
   }
 
@@ -85,7 +85,7 @@ class KeystoreConnectorSpec extends SCRSSpec {
         .thenReturn(Future.successful(HttpResponse(OK)))
 
       val result = connector.remove()
-      await(result).status shouldBe HttpResponse(OK).status
+      await(result).status mustBe HttpResponse(OK).status
     }
   }
 }

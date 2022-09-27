@@ -53,7 +53,7 @@ class TradingDetailsServiceSpec extends SCRSSpec with SCRSMocks with TradingDeta
       val result = TestService.updateCompanyInformation(tradingDetailsTrue)
       val returned = await(result)
 
-      returned shouldBe tradingDetailsSuccessResponseTrue
+      returned mustBe tradingDetailsSuccessResponseTrue
     }
   }
 
@@ -69,7 +69,7 @@ class TradingDetailsServiceSpec extends SCRSSpec with SCRSMocks with TradingDeta
 
       val returned = await(result)
 
-      returned shouldBe tradingDetailsTrue
+      returned mustBe tradingDetailsTrue
     }
 
     "return an 'empty' TradingDetailsModel" in new Setup {
@@ -83,7 +83,7 @@ class TradingDetailsServiceSpec extends SCRSSpec with SCRSMocks with TradingDeta
 
       val returned = await(result)
 
-      returned shouldBe TradingDetails()
+      returned mustBe TradingDetails()
     }
   }
 }

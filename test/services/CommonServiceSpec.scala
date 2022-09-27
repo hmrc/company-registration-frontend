@@ -43,7 +43,7 @@ class CommonServiceSpec extends SCRSSpec {
     "return a registrationID if one exists in keystore" in new Setup {
       mockKeystoreFetchAndGet[String]("registrationID", Some("12345"))
 
-      await(service.fetchRegistrationID) shouldBe "12345"
+      await(service.fetchRegistrationID) mustBe "12345"
     }
 
     "throw a Not Found Exception when a registrationID does not exist in keystore" in new Setup {
@@ -53,7 +53,7 @@ class CommonServiceSpec extends SCRSSpec {
         await(service.fetchRegistrationID)
       }
 
-      exception.message shouldBe "Could not find a company details record - suspected direct routing before a registration ID could be created"
+      exception.message mustBe "Could not find a company details record - suspected direct routing before a registration ID could be created"
     }
   }
 
@@ -61,7 +61,7 @@ class CommonServiceSpec extends SCRSSpec {
     "cache the passed registrationID in keystore" in new Setup {
       mockKeystoreCache("registrationID", "12345", cacheMap)
 
-      await(service.cacheRegistrationID("12345")) shouldBe cacheMap
+      await(service.cacheRegistrationID("12345")) mustBe cacheMap
     }
   }
 
@@ -72,7 +72,7 @@ class CommonServiceSpec extends SCRSSpec {
       when(mockKeystoreConnector.cache(ArgumentMatchers.contains("lastActionTimestamp"), ArgumentMatchers.any[LocalDate]())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
         .thenReturn(Future.successful(timestampCacheMap))
 
-      await(service.updateLastActionTimestamp()) shouldBe timestampCacheMap
+      await(service.updateLastActionTimestamp()) mustBe timestampCacheMap
     }
   }
 }

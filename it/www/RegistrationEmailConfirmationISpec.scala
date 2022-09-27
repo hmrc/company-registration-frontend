@@ -76,7 +76,7 @@ class RegistrationEmailConfirmationISpec extends IntegrationSpecBase with LoginS
         withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck").
         get()
       val awaitedFuture = await(fResponse)
-      awaitedFuture.status shouldBe 200
+      awaitedFuture.status mustBe 200
     }
   }
   val nameJson = Json.parse(
@@ -126,14 +126,14 @@ class RegistrationEmailConfirmationISpec extends IntegrationSpecBase with LoginS
           "confirmRegistrationEmail" -> Seq("true")
         ))
       val awaitedFuture = await(fResponse)
-      awaitedFuture.status shouldBe 303
-      awaitedFuture.header(HeaderNames.LOCATION) shouldBe Some("/register-your-company/relationship-to-company")
+      awaitedFuture.status mustBe 303
+      awaitedFuture.header(HeaderNames.LOCATION) mustBe Some("/register-your-company/relationship-to-company")
       val audit = (Json.parse(
         findAll(
           postRequestedFor(urlMatching("/write/audit")).withRequestBody(containing(testExternalId))
         ).get(0).getBodyAsString
       ).as[JsObject] \ "detail").toOption
-      audit shouldBe Some(Json.parse("""{"externalUserId":"testId","authProviderId":"12345-credId","journeyId":"test","emailAddress":"foo","isVerifiedEmailAddress":true,"previouslyVerified":true}"""))
+      audit mustBe Some(Json.parse("""{"externalUserId":"testId","authProviderId":"12345-credId","journeyId":"test","emailAddress":"foo","isVerifiedEmailAddress":true,"previouslyVerified":true}"""))
     }
 
     "POST for submit should return 303 and redirect to Email verification if YES is selected AND email is NOT verified" in {
@@ -177,8 +177,8 @@ class RegistrationEmailConfirmationISpec extends IntegrationSpecBase with LoginS
           "confirmRegistrationEmail" -> Seq("true")
         ))
       val awaitedFuture = await(fResponse)
-      awaitedFuture.status shouldBe 303
-      awaitedFuture.header(HeaderNames.LOCATION) shouldBe Some("/register-your-company/sent-an-email")
+      awaitedFuture.status mustBe 303
+      awaitedFuture.header(HeaderNames.LOCATION) mustBe Some("/register-your-company/sent-an-email")
     }
 
     "POST for submit should return 303 and redirect to Email verification if YES is selected AND email is NOT verified, but link was sent prior" in {
@@ -222,8 +222,8 @@ class RegistrationEmailConfirmationISpec extends IntegrationSpecBase with LoginS
           "confirmRegistrationEmail" -> Seq("true")
         ))
       val awaitedFuture = await(fResponse)
-      awaitedFuture.status shouldBe 303
-      awaitedFuture.header(HeaderNames.LOCATION) shouldBe Some("/register-your-company/sent-an-email")
+      awaitedFuture.status mustBe 303
+      awaitedFuture.header(HeaderNames.LOCATION) mustBe Some("/register-your-company/sent-an-email")
     }
 
     "POST for submit should return 303 and redirect to Registration Email if NO is selected" in {
@@ -266,8 +266,8 @@ class RegistrationEmailConfirmationISpec extends IntegrationSpecBase with LoginS
           "confirmRegistrationEmail" -> Seq("false")
         ))
       val awaitedFuture = await(fResponse)
-      awaitedFuture.status shouldBe 303
-      awaitedFuture.header(HeaderNames.LOCATION) shouldBe Some("/register-your-company/registration-email")
+      awaitedFuture.status mustBe 303
+      awaitedFuture.header(HeaderNames.LOCATION) mustBe Some("/register-your-company/registration-email")
     }
 
     "POST for submit should return 303 and redirect to Post Sign In if no data is available from the previous page" in {
@@ -295,8 +295,8 @@ class RegistrationEmailConfirmationISpec extends IntegrationSpecBase with LoginS
           "confirmRegistrationEmail" -> Seq("false")
         ))
       val awaitedFuture = await(fResponse)
-      awaitedFuture.status shouldBe 303
-      awaitedFuture.header(HeaderNames.LOCATION) shouldBe Some("/register-your-company/post-sign-in")
+      awaitedFuture.status mustBe 303
+      awaitedFuture.header(HeaderNames.LOCATION) mustBe Some("/register-your-company/post-sign-in")
     }
 
     "POST for submit should return 400 if bad data is submitted" in {
@@ -332,7 +332,7 @@ class RegistrationEmailConfirmationISpec extends IntegrationSpecBase with LoginS
           "confirmRegistrationEmail" -> Seq("fffff")
         ))
       val awaitedFuture = await(fResponse)
-      awaitedFuture.status shouldBe 400
+      awaitedFuture.status mustBe 400
     }
   }
 }

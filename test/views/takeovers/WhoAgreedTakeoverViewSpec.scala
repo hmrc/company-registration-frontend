@@ -51,23 +51,23 @@ class WhoAgreedTakeoverViewSpec extends UnitSpec with GuiceOneAppPerSuite with I
     lazy val saveAndContinue = "Save and continue"
 
     s"have an expected title: $title" in {
-      doc.title should include(title)
+      doc.title must include(title)
     }
 
     s"have an expected heading: $heading" in {
-      doc.selectFirst("h1").text shouldBe heading
+      doc.selectFirst("h1").text mustBe heading
     }
 
     s"have an expected paragraph: $line1" in {
-      doc.select(Selectors.p(1)).text shouldBe line1
+      doc.select(Selectors.p(1)).text mustBe line1
     }
 
     s"have an expected input form: $field" in {
-      doc.selectFirst("label").text shouldBe field
+      doc.selectFirst("label").text mustBe field
     }
 
     s"have a $saveAndContinue button" in {
-      doc.getElementById("continue").text() shouldBe saveAndContinue
+      doc.getElementById("continue").text() mustBe saveAndContinue
     }
   }
 }

@@ -48,8 +48,8 @@ class SummaryPage1HandOffIncomingSpec extends UnitSpec {
       )
 
       val result = Json.parse(json1).as[SummaryPage1HandOffIncoming]
-      result.getClass shouldBe classOf[SummaryPage1HandOffIncoming]
-      result shouldBe testModel1
+      result.getClass mustBe classOf[SummaryPage1HandOffIncoming]
+      result mustBe testModel1
     }
   }
 }

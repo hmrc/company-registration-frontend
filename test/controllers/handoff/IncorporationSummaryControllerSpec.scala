@@ -63,7 +63,7 @@ class IncorporationSummaryControllerSpec extends SCRSSpec with PayloadFixture wi
 
   "HMRC CT Summary hand off " should {
     "send the correct Json" in new Setup {
-      Json.toJson(summaryHandOffModelPayload).toString() shouldBe summaryHandOffJson
+      Json.toJson(summaryHandOffModelPayload).toString() mustBe summaryHandOffJson
     }
 
     "return a 303 if user details are retrieved" in new Setup {
@@ -77,11 +77,11 @@ class IncorporationSummaryControllerSpec extends SCRSSpec with PayloadFixture wi
 
       showWithAuthorisedUserRetrieval(testController.incorporationSummary, extID) {
         result =>
-          status(result) shouldBe SEE_OTHER
+          status(result) mustBe SEE_OTHER
 
           val redirect = redirectLocation(result).get
 
-          jweInstance().decrypt[SummaryHandOff](redirect.split("request=").apply(1)).get.journey_id shouldBe "testJourneyID"
+          jweInstance().decrypt[SummaryHandOff](redirect.split("request=").apply(1)).get.journey_id mustBe "testJourneyID"
       }
     }
 
@@ -92,7 +92,7 @@ class IncorporationSummaryControllerSpec extends SCRSSpec with PayloadFixture wi
 
       showWithAuthorisedUserRetrieval(testController.incorporationSummary, extID) {
         result =>
-          status(result) shouldBe BAD_REQUEST
+          status(result) mustBe BAD_REQUEST
       }
     }
   }
@@ -115,7 +115,7 @@ class IncorporationSummaryControllerSpec extends SCRSSpec with PayloadFixture wi
 
       showWithAuthorisedUser(testController.returnToCorporationTaxSummary(encryptedPayload)) {
         result =>
-          status(result) shouldBe SEE_OTHER
+          status(result) mustBe SEE_OTHER
       }
     }
 
@@ -128,7 +128,7 @@ class IncorporationSummaryControllerSpec extends SCRSSpec with PayloadFixture wi
 
       showWithAuthorisedUser(testController.returnToCorporationTaxSummary(encryptedPayload)) {
         result =>
-          status(result) shouldBe BAD_REQUEST
+          status(result) mustBe BAD_REQUEST
       }
     }
 
@@ -141,7 +141,7 @@ class IncorporationSummaryControllerSpec extends SCRSSpec with PayloadFixture wi
 
       showWithAuthorisedUser(testController.returnToCorporationTaxSummary(encryptedPayload)) {
         result =>
-          status(result) shouldBe BAD_REQUEST
+          status(result) mustBe BAD_REQUEST
       }
     }
     "return a 303 when request is made with auth but keystore does not exist" in new Setup {
@@ -153,8 +153,8 @@ class IncorporationSummaryControllerSpec extends SCRSSpec with PayloadFixture wi
 
       showWithAuthorisedUser(testController.returnToCorporationTaxSummary(encryptedPayload)) {
         result =>
-          status(result) shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe Some(s"/register-your-company/post-sign-in?handOffID=HO5b&payload=$encryptedPayload")
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result) mustBe Some(s"/register-your-company/post-sign-in?handOffID=HO5b&payload=$encryptedPayload")
       }
     }
   }

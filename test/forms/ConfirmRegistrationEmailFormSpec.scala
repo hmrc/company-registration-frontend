@@ -31,20 +31,20 @@ class ConfirmRegistrationEmailFormSpec extends UnitSpec {
 
   "Creating a form using an empty model" should {
     "return an empty value" in new Setup {
-      testForm.data.isEmpty shouldBe true
+      testForm.data.isEmpty mustBe true
     }
   }
 
   "Creating a form with a valid post" when {
     "selecting yes" should {
       "have no errors" in new Setup {
-        testForm.bind(trueData).hasErrors shouldBe false
+        testForm.bind(trueData).hasErrors mustBe false
       }
     }
 
     "selecting no" should {
       "have no errors" in new Setup {
-        testForm.bind(falseData).hasErrors shouldBe false
+        testForm.bind(falseData).hasErrors mustBe false
       }
     }
   }
@@ -52,7 +52,7 @@ class ConfirmRegistrationEmailFormSpec extends UnitSpec {
   "Creating a form with an invalid post" when {
     "no confirm email option is selected" should {
       "have errors" in new Setup {
-        testForm.bind(invalidData).errors.map(_.key) shouldBe List("confirmRegistrationEmail")
+        testForm.bind(invalidData).errors.map(_.key) mustBe List("confirmRegistrationEmail")
 
       }
     }

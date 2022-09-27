@@ -78,7 +78,7 @@ class ConfirmationControllerSpec(implicit val messages: Messages) extends SCRSSp
 
       showWithAuthorisedUser(controller.show) {
         result =>
-          status(result) shouldBe OK
+          status(result) mustBe OK
       }
     }
   }
@@ -93,7 +93,7 @@ class ConfirmationControllerSpec(implicit val messages: Messages) extends SCRSSp
 
       submitWithAuthorisedUserRetrieval(controller.submitTicket, request, testUri) {
         result =>
-          status(result) shouldBe BAD_REQUEST
+          status(result) mustBe BAD_REQUEST
       }
     }
 
@@ -108,7 +108,7 @@ class ConfirmationControllerSpec(implicit val messages: Messages) extends SCRSSp
 
       submitWithAuthorisedUserRetrieval(controller.submitTicket, request, testUri) {
         result =>
-          status(result) shouldBe BAD_REQUEST
+          status(result) mustBe BAD_REQUEST
       }
     }
 
@@ -126,8 +126,8 @@ class ConfirmationControllerSpec(implicit val messages: Messages) extends SCRSSp
 
       submitWithAuthorisedUserRetrieval(controller.submitTicket, request, testUri) {
         result =>
-          status(result) shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe Some("/register-your-company/ticket-submitted")
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result) mustBe Some("/register-your-company/ticket-submitted")
       }
     }
   }
@@ -136,9 +136,9 @@ class ConfirmationControllerSpec(implicit val messages: Messages) extends SCRSSp
     "return 200" in new Setup {
       showWithAuthorisedUser(controller.submittedTicket) {
         (result: Future[Result]) =>
-          status(result) shouldBe Status.OK
-          contentType(result) shouldBe Some("text/html")
-          charset(result) shouldBe Some("utf-8")
+          status(result) mustBe Status.OK
+          contentType(result) mustBe Some("text/html")
+          charset(result) mustBe Some("utf-8")
       }
     }
   }
@@ -148,8 +148,8 @@ class ConfirmationControllerSpec(implicit val messages: Messages) extends SCRSSp
 
       submitWithAuthorisedUser(controller.submit, FakeRequest().withFormUrlEncodedBody(Nil: _*)) {
         result =>
-          status(result) shouldBe SEE_OTHER
-          redirectLocation(result) shouldBe Some("/register-your-company/company-registration-overview")
+          status(result) mustBe SEE_OTHER
+          redirectLocation(result) mustBe Some("/register-your-company/company-registration-overview")
       }
     }
   }
@@ -159,8 +159,8 @@ class ConfirmationControllerSpec(implicit val messages: Messages) extends SCRSSp
       pendingUntilFixed {
         submitWithAuthorisedUser(controller.deskproPage, FakeRequest().withFormUrlEncodedBody(Nil: _*)) {
           result =>
-            status(result) shouldBe OK
-            contentAsString(result) should include(messages("errorPages.failedSubmission.header"))
+            status(result) mustBe OK
+            contentAsString(result) must include(messages("errorPages.failedSubmission.header"))
         }
       }
     }
