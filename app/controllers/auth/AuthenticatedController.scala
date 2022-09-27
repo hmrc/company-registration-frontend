@@ -21,7 +21,7 @@ import models.auth.{AuthDetails, BasicCompanyAuthDetails}
 import play.api.Logging
 import play.api.mvc._
 import uk.gov.hmrc.auth.core.AuthProvider.GovernmentGateway
-import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.{credentials, emailVerified,name, _}
+import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.{credentials, emailVerified, name, _}
 import uk.gov.hmrc.auth.core.retrieve.{Retrieval, ~}
 import uk.gov.hmrc.auth.core.{AuthorisedFunctions, _}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -89,12 +89,16 @@ trait AuthenticatedController extends FrontendBaseController with AuthorisedFunc
   }
 
   def ctAuthorisedCredID(body: => String => Future[Result])(implicit request: Request[AnyContent]): Future[Result] = {
-    baseFunction.retrieve(credentials)(cr => body(cr.get.providerId)) recover authErrorHandling()
+    baseFunction.retrieve(credentials) {
+      case Some(cr) => body(cr.providerId)
+      case _ => Future.failed(InternalError("ctAuthorisedCredID auth response was incorrect to what we expected when we were extracting Retrievals"))
+    } recover authErrorHandling()
   }
+
 
   def ctAuthorisedPostSignIn(body: => (AuthDetails) => Future[Result])(implicit request: Request[AnyContent]): Future[Result] = {
     baseFunction.retrieve(affinityGroup and allEnrolments and email and internalId and credentials) {
-      case Some(ag) ~ ae ~ Some(em) ~ Some(ii) ~ api => body(AuthDetails(ag, ae, em, ii, api.get.providerId))
+      case Some(ag) ~ ae ~ Some(em) ~ Some(ii) ~ Some(api) => body(AuthDetails(ag, ae, em, ii, api.providerId))
       case Some(ag) ~ ae ~ None ~ Some(ii) ~ api => {
         logger.info("ctAuthorisedPostSignIn user does not have email on gg record (call from auth)")
         Future.successful(Redirect(controllers.verification.routes.EmailVerificationController.createShow))
@@ -128,7 +132,7 @@ trait AuthenticatedController extends FrontendBaseController with AuthorisedFunc
   def authErrorHandling(hoID: Option[String] = None, payload: Option[String] = None)
                        (implicit request: Request[AnyContent]): PartialFunction[Throwable, Result] = {
     case e: NoActiveSession => {
-      logger.info(s"[AuthenticatedController][authErrorHandling] Reason for NoActiveSession: ${e.reason} HO was ${hoID.fold("None")(ho=>ho)} Payload was ${payload.fold("None")(pl=>pl)}")
+      logger.info(s"[AuthenticatedController][authErrorHandling] Reason for NoActiveSession: ${e.reason} HO was ${hoID.fold("None")(ho => ho)} Payload was ${payload.fold("None")(pl => pl)}")
       Redirect(appConfig.loginURL, loginParams(hoID, payload))
     }
     case InternalError(e) =>

@@ -81,7 +81,7 @@ class EmailVerificationController @Inject()(val authConnector: PlayAuthConnector
               emailBlockv => emailBlockv.fold[Future[Result]](
                 Future.successful(Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))))
                 (email =>
-                  emailVerificationService.sendVerificationLink(email.address, rId, "", extId).map { _ => Redirect(controllers.verification.routes.EmailVerificationController.verifyShow) }))
+                  emailVerificationService.sendVerificationLink(email.address, rId, creds, extId).map { _ => Redirect(controllers.verification.routes.EmailVerificationController.verifyShow) }))
           }
         }
       }
