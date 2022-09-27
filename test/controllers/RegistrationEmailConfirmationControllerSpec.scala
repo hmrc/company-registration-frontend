@@ -137,7 +137,7 @@ class RegistrationEmailConfirmationControllerSpec extends SCRSSpec with GuiceOne
         new ~(
           Name(None, None),
           Some("fakeEmail")
-        ), Credentials("provId", "provType")
+        ), Some(Credentials("provId", "provType"))
       ), Some("extID")
     )
     "return a 303" when {

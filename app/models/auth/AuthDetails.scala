@@ -16,7 +16,6 @@
 
 package models.auth
 
-import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolments}
 
 case class AuthDetails(
@@ -24,7 +23,7 @@ case class AuthDetails(
                         enrolments : Enrolments,
                         email : String,
                         externalId : String,
-                        authProviderId: Credentials
+                        authProviderId: String
                       )
 
 case class BasicCompanyAuthDetails(name: String,

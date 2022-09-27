@@ -94,7 +94,7 @@ trait LoginStub extends SessionCookieBaker {
                                  |      "currentLogin": "2014-06-09T14:57:09.522Z",
                                  |      "previousLogin": "2014-06-09T14:48:24.841Z"
                                  |    },
-                                 |    "credentials": {
+                                 |    "optionalCredentials": {
                                  |      "providerId": "12345-credId",
                                  |      "providerType": "GovernmmentGateway"
                                  |    },

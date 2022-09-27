@@ -79,7 +79,7 @@ class AuthFunctionSpec extends SCRSSpec with PayloadFixture with GuiceOneAppPerS
 
 
   "ctAuthorisedBasicCompanyDetails" must {
-    val authDetails = new ~(new ~(Name(Some("myFirstName"), Some("myLastName")), Some("fakeEmail")), Some("extID"))
+    val authDetails = new ~(new ~(Some(Name(Some("myFirstName"), Some("myLastName"))), Some("fakeEmail")), Some("extID"))
     "redirect to future passed in if auth returns correct deets" in new Setup {
       override val controllerComponents = app.injector.instanceOf[ControllerComponents]
       showWithAuthorisedUserRetrieval(fudgeControllerActionctAuthorisedBasicCompanyDetails, authDetails) {
@@ -91,7 +91,7 @@ class AuthFunctionSpec extends SCRSSpec with PayloadFixture with GuiceOneAppPerS
     }
     "redirect to no email page if no email is returned from auth" in new Setup {
       override val controllerComponents = app.injector.instanceOf[ControllerComponents]
-      val authDetailsNoEmail = new ~(new ~(Name(Some("myFirstName"), Some("myLastName")), None), Some("extID"))
+      val authDetailsNoEmail = new ~(new ~(Some(Name(Some("myFirstName"), Some("myLastName"))), None), Some("extID"))
       showWithAuthorisedUserRetrieval(fudgeControllerActionctAuthorisedBasicCompanyDetails, authDetailsNoEmail) { res =>
         val awaitedRes = await(res)
         awaitedRes.header.status shouldBe 303
@@ -100,7 +100,7 @@ class AuthFunctionSpec extends SCRSSpec with PayloadFixture with GuiceOneAppPerS
     }
     "return 500 if auth returns incorrect deets" in new Setup {
       override val controllerComponents = app.injector.instanceOf[ControllerComponents]
-      val authDetailsInvalid = new ~(new ~(Name(Some("myFirstName"), Some("myLastName")), None), None)
+      val authDetailsInvalid = new ~(new ~(Some(Name(Some("myFirstName"), Some("myLastName"))), None), None)
       showWithAuthorisedUserRetrieval(fudgeControllerActionctAuthorisedBasicCompanyDetails, authDetailsInvalid) { res =>
         val awaitedRes = await(res)
         awaitedRes.header.status shouldBe 500
@@ -144,7 +144,7 @@ class AuthFunctionSpec extends SCRSSpec with PayloadFixture with GuiceOneAppPerS
         new ~(
           Name(Some("myFirstName"), Some("myLastName")),
           Some("fakeEmail")
-        ), Credentials("credID", "provID")
+        ), Some(Credentials("credID", "provID"))
       ), Some("extID")
     )
 
@@ -164,7 +164,7 @@ class AuthFunctionSpec extends SCRSSpec with PayloadFixture with GuiceOneAppPerS
           new ~(
             Name(Some("myFirstName"), Some("myLastName")),
             None
-          ), Credentials("credID", "provID")
+          ), Some(Credentials("credID", "provID"))
         ), Some("extID")
       )
       showWithAuthorisedUserRetrieval(fudgeControllerActionctAuthorisedCompanyContactAmend, authDetailsNoEmail) { res =>
@@ -180,7 +180,7 @@ class AuthFunctionSpec extends SCRSSpec with PayloadFixture with GuiceOneAppPerS
           new ~(
             Name(Some("myFirstName"), Some("myLastName")),
             None
-          ), Credentials("credID", "provID")
+          ), Some(Credentials("credID", "provID"))
         ), None
       )
       showWithAuthorisedUserRetrieval(fudgeControllerActionctAuthorisedCompanyContactAmend, authDetailsInvalid) { res =>
@@ -198,7 +198,7 @@ class AuthFunctionSpec extends SCRSSpec with PayloadFixture with GuiceOneAppPerS
             Enrolments(Set())
           ), Some("test")
         ), Some("test")
-      ), Credentials("test", "test")
+      ), Some(Credentials("test", "test"))
     )
     "redirect to future passed in if auth returns correct deets" in new Setup {
       override val controllerComponents = app.injector.instanceOf[ControllerComponents]
@@ -219,7 +219,7 @@ class AuthFunctionSpec extends SCRSSpec with PayloadFixture with GuiceOneAppPerS
               Enrolments(Set())
             ), None
           ), Some("test")
-        ), Credentials("test", "test")
+        ), Some(Credentials("test", "test"))
       )
       showWithAuthorisedUserRetrieval(fudgeControllerActionctAuthorisedPostSignIn, authDetailsNoEmail) { res =>
         val awaitedRes = await(res)
@@ -237,7 +237,7 @@ class AuthFunctionSpec extends SCRSSpec with PayloadFixture with GuiceOneAppPerS
               Enrolments(Set())
             ), None
           ), Some("foo")
-        ), Credentials("test", "test")
+        ), Some(Credentials("test", "test"))
       )
       showWithAuthorisedUserRetrieval(fudgeControllerActionctAuthorisedPostSignIn, authDetailsInvalid) { res =>
         val awaitedRes = await(res)

@@ -20,13 +20,12 @@ import config.AppConfig
 import connectors.S4LConnector
 import controllers.auth.AuthenticatedController
 import forms.SubmissionForm
-
 import javax.inject.{Inject, Singleton}
 import models.SubmissionModel
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
-import uk.gov.hmrc.auth.core.retrieve.Retrievals
+import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import views.html.reg.SubmissionEndpoint
 
 import scala.concurrent.ExecutionContext

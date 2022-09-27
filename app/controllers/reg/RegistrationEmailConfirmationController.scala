@@ -53,7 +53,7 @@ class RegistrationEmailConfirmationController @Inject()(val emailVerificationSer
   val submit: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorisedEmailCredsExtId { (email, creds, extId) =>
       registered { regId =>
-        emailVerificationService.emailVerifiedStatusInSCRS(regId, () => submitLogic(regId, creds.providerId, extId))
+        emailVerificationService.emailVerifiedStatusInSCRS(regId, () => submitLogic(regId, creds, extId))
       }
     }
   }

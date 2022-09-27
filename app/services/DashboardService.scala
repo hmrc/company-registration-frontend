@@ -228,7 +228,7 @@ trait DashboardService extends SCRSExceptions with AlertLogging with CommonServi
                 new EmailMismatchEvent(
                   EmailMismatchEventDetail(
                     authDetails.externalId,
-                    authDetails.authProviderId.providerId,
+                    authDetails.authProviderId,
                     regID
                   )
                 )

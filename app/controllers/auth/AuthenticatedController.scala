@@ -21,9 +21,8 @@ import models.auth.{AuthDetails, BasicCompanyAuthDetails}
 import play.api.Logging
 import play.api.mvc._
 import uk.gov.hmrc.auth.core.AuthProvider.GovernmentGateway
-import uk.gov.hmrc.auth.core.retrieve.Retrievals._
-import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.emailVerified
-import uk.gov.hmrc.auth.core.retrieve.{Credentials, Retrieval, ~}
+import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.{credentials, emailVerified,name, _}
+import uk.gov.hmrc.auth.core.retrieve.{Retrieval, ~}
 import uk.gov.hmrc.auth.core.{AuthorisedFunctions, _}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
@@ -56,7 +55,7 @@ trait AuthenticatedController extends FrontendBaseController with AuthorisedFunc
 
   def ctAuthorisedBasicCompanyDetails(body: => (BasicCompanyAuthDetails) => Future[Result])(implicit request: Request[AnyContent]): Future[Result] = {
     baseFunction.retrieve(name and email and externalId) {
-      case nm ~ Some(em) ~ Some(ei) => body(BasicCompanyAuthDetails(nm.name.get, em, ei))
+      case Some(nm) ~ Some(em) ~ Some(ei) => body(BasicCompanyAuthDetails(nm.name.get, em, ei))
       case nm ~ None ~ Some(ei) => {
         logger.info("ctAuthorisedBasicCompanyDetails user does not have email on gg record (call from auth)")
         Future.successful(Redirect(controllers.verification.routes.EmailVerificationController.createShow))
@@ -77,10 +76,10 @@ trait AuthenticatedController extends FrontendBaseController with AuthorisedFunc
   }
 
 
-  def ctAuthorisedEmailCredsExtId(body: => (String, Credentials, String) => Future[Result])
+  def ctAuthorisedEmailCredsExtId(body: => (String, String, String) => Future[Result])
                                  (implicit request: Request[AnyContent]): Future[Result] = {
     baseFunction.retrieve(name and email and credentials and externalId) {
-      case nm ~ Some(em) ~ cr ~ Some(ei) => body(em, cr, ei)
+      case nm ~ Some(em) ~ Some(cr) ~ Some(ei) => body(em, cr.providerId, ei)
       case nm ~ None ~ cr ~ Some(ei) => {
         logger.info("ctAuthorisedEmailCredsExtId user does not have email on gg record (call from auth)")
         Future.successful(Redirect(controllers.verification.routes.EmailVerificationController.createShow))
@@ -90,12 +89,12 @@ trait AuthenticatedController extends FrontendBaseController with AuthorisedFunc
   }
 
   def ctAuthorisedCredID(body: => String => Future[Result])(implicit request: Request[AnyContent]): Future[Result] = {
-    baseFunction.retrieve(credentials)(cr => body(cr.providerId)) recover authErrorHandling()
+    baseFunction.retrieve(credentials)(cr => body(cr.get.providerId)) recover authErrorHandling()
   }
 
   def ctAuthorisedPostSignIn(body: => (AuthDetails) => Future[Result])(implicit request: Request[AnyContent]): Future[Result] = {
     baseFunction.retrieve(affinityGroup and allEnrolments and email and internalId and credentials) {
-      case Some(ag) ~ ae ~ Some(em) ~ Some(ii) ~ api => body(AuthDetails(ag, ae, em, ii, api))
+      case Some(ag) ~ ae ~ Some(em) ~ Some(ii) ~ api => body(AuthDetails(ag, ae, em, ii, api.get.providerId))
       case Some(ag) ~ ae ~ None ~ Some(ii) ~ api => {
         logger.info("ctAuthorisedPostSignIn user does not have email on gg record (call from auth)")
         Future.successful(Redirect(controllers.verification.routes.EmailVerificationController.createShow))

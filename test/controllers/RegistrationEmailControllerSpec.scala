@@ -23,28 +23,28 @@ import helpers.SCRSSpec
 import models.{Email, RegistrationEmailModel}
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
-import org.mockito.{ArgumentMatcher, ArgumentMatchers}
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.i18n.MessagesApi
 import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, _}
-import services.EmailVerificationService
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name, ~}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.cache.client.CacheMap
+import views.html.reg.{RegistrationEmail => RegistrationEmailView}
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{ExecutionContext, Future}
-import views.html.reg.{RegistrationEmail => RegistrationEmailView}
+import scala.concurrent.Future
 
 
 class RegistrationEmailControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with MockitoSugar with AuthBuilder {
   lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
   lazy val mockRegistrationEmailView = app.injector.instanceOf[RegistrationEmailView]
   lazy val appConfig: AppConfig = app.injector.instanceOf[AppConfig]
+
+  val name: Name = Name(None, None)
 
   class Setup {
     object TestController extends RegistrationEmailController(
@@ -75,7 +75,7 @@ class RegistrationEmailControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
   "show" should {
 
     val authResult = new ~(
-      Name(None, None),
+      name,
       Some("fakeEmail")
     )
 
@@ -132,9 +132,9 @@ class RegistrationEmailControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
       val authResult = new ~(
         new ~(
           new ~(
-            Name(None, None),
+            name,
             Some("fakeEmail")
-          ), Credentials("provId", "provType")
+          ), Some(Credentials("provId", "provType"))
         ), Some("extID")
       )
       val req = FakeRequest().withFormUrlEncodedBody("registrationEmail" -> "a@b.com")
@@ -159,9 +159,9 @@ class RegistrationEmailControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
       val authResult = new ~(
         new ~(
           new ~(
-            Name(None, None),
+            name,
             Some("fakeEmail")
-          ), Credentials("provId", "provType")
+          ), Some(Credentials("provId", "provType"))
         ), Some("extID")
       )
 
@@ -188,9 +188,9 @@ class RegistrationEmailControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
       val authResult = new ~(
         new ~(
           new ~(
-            Name(None, None),
+            name,
             Some("fakeEmail")
-          ), Credentials("provId", "provType")
+          ), Some(Credentials("provId", "provType"))
         ), Some("extID")
       )
 
@@ -216,9 +216,9 @@ class RegistrationEmailControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
       val authResult = new ~(
         new ~(
           new ~(
-            Name(None, None),
+            name,
             Some("fakeEmail")
-          ), Credentials("provId", "provType")
+          ), Some(Credentials("provId", "provType"))
         ), Some("extID")
       )
 
@@ -243,9 +243,9 @@ class RegistrationEmailControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
       val authResult = new ~(
         new ~(
           new ~(
-            Name(None, None),
+            name,
             Some("fakeEmail")
-          ), Credentials("provId", "provType")
+          ), Some(Credentials("provId", "provType"))
         ), Some("extID")
       )
 
@@ -271,9 +271,9 @@ class RegistrationEmailControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
       val authResult = new ~(
         new ~(
           new ~(
-            Name(None, None),
+            name,
             Some("fakeEmail")
-          ), Credentials("provId", "provType")
+          ), Some(Credentials("provId", "provType"))
         ), Some("extID")
       )
 
@@ -298,9 +298,9 @@ class RegistrationEmailControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
       val authResult = new ~(
         new ~(
           new ~(
-            Name(None, None),
+            name,
             Some("fakeEmail")
-          ), Credentials("provId", "provType")
+          ), Some(Credentials("provId", "provType"))
         ), Some("extID")
       )
 
