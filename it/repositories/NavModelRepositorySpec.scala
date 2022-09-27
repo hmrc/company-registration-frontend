@@ -18,7 +18,9 @@ package repositories
 
 import fixtures.HandOffFixtures
 import itutil.{IntegrationSpecBase, MongoHelper}
+import org.mongodb.scala.MongoCommandException
 import org.scalatest.concurrent.{Eventually, ScalaFutures}
+import uk.gov.hmrc.mongo.MongoComponent
 
 class NavModelRepositorySpec extends IntegrationSpecBase with ScalaFutures with Eventually with HandOffFixtures with MongoHelper {
 
@@ -82,10 +84,52 @@ class NavModelRepositorySpec extends IntegrationSpecBase with ScalaFutures with 
 
       val indexList: Seq[String] = await(repo.collection.listIndexes().toFuture()).map(_.toString())
       val containsIndexes: Boolean = eventually {
-        indexList.exists(_ contains "lastUpdatedIndex") && indexList.exists(_ contains "_id_")
+        indexList.exists(_ contains "lastUpdatedIndex") &&
+          indexList.exists(_ contains "5400") &&
+          indexList.exists(_ contains "_id_")
       }
 
       containsIndexes mustBe true
+    }
+
+    "when allowReplaceIndexes is false" must {
+
+      "NOT allow index to be replaced" in {
+
+        val repo = app.injector.instanceOf[NavModelRepoImpl].repository
+        await(repo.ensureIndexes)
+
+        val indexListBefore: Seq[String] = await(repo.collection.listIndexes().toFuture()).map(_.toString())
+
+        indexListBefore.exists(_ contains "lastUpdatedIndex") && indexListBefore.exists(_ contains "5400") mustBe true
+
+        intercept[MongoCommandException](new NavModelRepoMongo(app.injector.instanceOf[MongoComponent], 12345, false))
+          .getCode mustBe 85 //Existing Index Exists with Different Options
+
+        await(repo.drop)
+      }
+    }
+
+    "when allowReplaceIndexes is true" must {
+
+      "allow index to be replaced with a different for the TTL" in {
+
+        val repo = app.injector.instanceOf[NavModelRepoImpl].repository
+        await(repo.ensureIndexes)
+
+        val indexListBefore: Seq[String] = await(repo.collection.listIndexes().toFuture()).map(_.toString())
+
+        indexListBefore.exists(_ contains "lastUpdatedIndex") && indexListBefore.exists(_ contains "5400") mustBe true
+
+        val secondRepoInstance = new NavModelRepoMongo(app.injector.instanceOf[MongoComponent], 12345, true)
+        await(secondRepoInstance.ensureIndexes)
+
+        val indexListAfter: Seq[String] = await(secondRepoInstance.collection.listIndexes().toFuture()).map(_.toString())
+
+        indexListAfter.exists(_ contains "lastUpdatedIndex") && indexListAfter.exists(_ contains "12345") mustBe true
+
+        await(secondRepoInstance.drop)
+      }
     }
   }
 }

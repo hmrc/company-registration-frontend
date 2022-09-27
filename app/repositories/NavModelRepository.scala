@@ -37,15 +37,16 @@ trait NavModelRepo {
   val mongo: MongoComponent
   val appConfig: AppConfig
 
+  lazy val allowReplaceIndexes: Boolean = appConfig.servicesConfig.getString("mongodb.allowReplaceIndexes").toBoolean
   lazy val expireAfterSeconds: Long = appConfig.servicesConfig.getConfInt("navModel-time-to-live.ttl", throw new Exception("could not find config key navModel-time-to-live.ttl"))
-  lazy val repository: NavModelRepoMongo = new NavModelRepoMongo(mongo, expireAfterSeconds)
+  lazy val repository: NavModelRepoMongo = new NavModelRepoMongo(mongo, expireAfterSeconds, allowReplaceIndexes)
 }
 trait NavModelRepository {
   def getNavModel(registrationID:String):Future[Option[HandOffNavModel]]
   def insertNavModel(registrationID: String,hm:HandOffNavModel): Future[Option[HandOffNavModel]]
 }
 
-class NavModelRepoMongo(mongo: MongoComponent, expireSeconds: Long) extends PlayMongoRepository[HandOffNavModel](
+class NavModelRepoMongo(mongo: MongoComponent, expireSeconds: Long, allowReplaceIndexes: Boolean) extends PlayMongoRepository[HandOffNavModel](
   mongoComponent = mongo,
   collectionName = "NavModel",
   domainFormat = HandOffNavModel.formats,
@@ -56,7 +57,8 @@ class NavModelRepoMongo(mongo: MongoComponent, expireSeconds: Long) extends Play
         .name("lastUpdatedIndex")
         .expireAfter(expireSeconds, TimeUnit.SECONDS)
     )
-  )
+  ),
+  replaceIndexes = allowReplaceIndexes
 ) with NavModelRepository {
 
   override def getNavModel(registrationID: String): Future[Option[HandOffNavModel]] =
