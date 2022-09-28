@@ -31,6 +31,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import utils._
 
+import java.time.format.DateTimeFormatter
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.control.NoStackTrace
@@ -88,7 +89,10 @@ trait DashboardService extends SCRSExceptions with AlertLogging with CommonServi
   def toDashboard(s: OtherRegStatus, thresholds: Option[Map[String, Int]])(implicit startURL: String, cancelURL: Call): ServiceDashboard = {
     ServiceDashboard(
       s.status,
-      s.lastUpdate.map(_.toString()),
+      s.lastUpdate.map(lastUpdateTime =>
+        DateTimeFormatter.ofPattern("dd MMMM yyyy")
+          .format(lastUpdateTime.atOffset(ZoneOffset.UTC).toLocalDate)
+      ),
       s.ackRef,
       ServiceLinks(
         startURL,
@@ -213,7 +217,7 @@ trait DashboardService extends SCRSExceptions with AlertLogging with CommonServi
 
   private[services] def extractSubmissionDate(jsonDate: JsValue): String = {
     val dgdt: LocalDate = jsonDate.as[LocalDate]
-    dgdt.toString
+    DateTimeFormatter.ofPattern("dd MMMM yyyy").format(dgdt)
   }
 
   def checkForEmailMismatch(regID: String, authDetails: AuthDetails)(implicit hc: HeaderCarrier, req: Request[AnyContent]): Future[Boolean] = {

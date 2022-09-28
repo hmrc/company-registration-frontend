@@ -18,7 +18,9 @@ package models
 
 import play.api.libs.functional.syntax._
 import play.api.libs.json.{Json, _}
-import java.time.LocalDate
+import java.time.{Instant, ZoneOffset}
+import java.time.format.DateTimeFormatter
+
 
 case class Dashboard(companyName: String,
                      incDash: IncorpAndCTDashboard,
@@ -46,7 +48,7 @@ object IncorpAndCTDashboard {
     (__ \ "confirmationReferences" \ "transaction-id").readNullable[String].orElse(Reads.pure(None)) and
     (__ \ "confirmationReferences" \ "payment-reference").readNullable[String].orElse(Reads.pure(None)) and
     (__ \ "crn").readNullable[String] and
-    (__ \ "submissionTimestamp").readNullable[String].map(_.map(LocalDate.parse(_).toString())) and
+    (__ \ "submissionTimestamp").readNullable[String].map(_.map(timeStamp => resolveInstantToDate(Instant.parse(timeStamp)))) and
     (__ \ "confirmationReferences" \ "acknowledgement-reference").readNullable[String].orElse(Reads.pure(None)) and
     (__ \ "acknowledgementReferences" \ "status").readNullable[String].orElse(Reads.pure(None)) and
     (__ \ "acknowledgementReferences" \ "ctUtr").readNullable[String].orElse(Reads.pure(None))
@@ -57,6 +59,10 @@ object IncorpAndCTDashboard {
       val fullJson = date.fold(json.as[JsObject])(d => json.as[JsObject] ++ JsObject(Seq("submissionDate" -> JsString(d))))
       fullJson.validate[IncorpAndCTDashboard](rds)
     }
+  }
+
+  def resolveInstantToDate(instant: Instant): String = {
+    DateTimeFormatter.ofPattern("dd MMMM yyyy").format(instant.atOffset(ZoneOffset.UTC).toLocalDate)
   }
 }
 

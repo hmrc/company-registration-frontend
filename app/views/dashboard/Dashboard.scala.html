@@ -119,18 +119,15 @@
 
 @PAYEDate = {
 @govukTable(Table(
-    head = Some(Seq(
-        HeadCell(
-            content = Text(messages("page.reg.Dashboard.submissionDate")),
-            classes = "govuk-!-width-one-half"
+    rows = Seq(
+        Seq(
+            TableRow(content = Text(messages("page.reg.Dashboard.submissionDate")), classes = "govuk-!-width-one-half"),
+            TableRow(content = HtmlContent(dash.payeDash.lastUpdate.fold("NONE")(ref => ref)), attributes = Map("id" -> "PAYEDate"), classes = "govuk-!-width-one-half"),
         ),
-        HeadCell(
-            content = HtmlContent(dash.payeDash.lastUpdate.fold("NONE")(ref => ref)), attributes = Map("id" -> "PAYEDate"),
-            classes = "govuk-!-width-one-half"
-        ),
-    )),
+    ),
     captionClasses = "govuk-table__caption--m",
-    firstCellIsHeader = false
+    firstCellIsHeader = false,
+    classes = "govuk-!-margin-0"
 ))
 }
 
