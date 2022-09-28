@@ -84,7 +84,7 @@ class SignInOutControllerSpec extends SCRSSpec
           Enrolments(Set())
         ), Some("test")
       ), Some("test")
-    ), Credentials("test", "test")
+    ), Some(Credentials("provId", "provType"))
   )
 
   "postSignIn" should {
@@ -130,7 +130,7 @@ class SignInOutControllerSpec extends SCRSSpec
               Enrolments(Set())
             ), None
           ), Some("foo")
-        ), Credentials("test", "test")
+        ), Some(Credentials("provId", "provType"))
       )
 
       showWithAuthorisedUserRetrieval(controller.postSignIn(None), authDetailsNoEmail) {
@@ -149,7 +149,7 @@ class SignInOutControllerSpec extends SCRSSpec
               Enrolments(Set())
             ), Some("test")
           ), None
-        ), Credentials("test", "test")
+        ), Some(Credentials("provId", "provType"))
       )
 
       showWithAuthorisedUserRetrieval(controller.postSignIn(None), authDetailsNoEmailAndNoOrgType) {

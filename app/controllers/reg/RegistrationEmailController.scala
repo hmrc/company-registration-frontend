@@ -65,7 +65,7 @@ class RegistrationEmailController @Inject()(val authConnector: PlayAuthConnector
     ctAuthorisedEmailCredsExtId {
       (emailFromAuth, creds, extId) =>
         registered { regID =>
-          emailVerification.emailVerifiedStatusInSCRS(regID, () => submitLogic(regID, emailFromAuth, creds.providerId, extId))
+          emailVerification.emailVerifiedStatusInSCRS(regID, () => submitLogic(regID, emailFromAuth, creds, extId))
         }
     }
   }
@@ -100,7 +100,8 @@ class RegistrationEmailController @Inject()(val authConnector: PlayAuthConnector
     )
   }
 
-  protected def updateEmailBlockForSCPUsers(regId: String, authEmail: String, authProviderId: String, externalId: String)(implicit hc: HeaderCarrier, request: Request[AnyContent]): Future[Option[Email]] = {
+  protected def updateEmailBlockForSCPUsers(regId: String, authEmail: String, authProviderId: String, externalId: String)
+                                           (implicit hc: HeaderCarrier, request: Request[AnyContent]): Future[Option[Email]] = {
     emailVerification.saveEmailBlock(regId, Email(authEmail, SCP, false, true, false), authProviderId, externalId)
   }
 }

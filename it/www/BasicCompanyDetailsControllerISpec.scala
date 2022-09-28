@@ -161,7 +161,7 @@ class BasicCompanyDetailsControllerISpec extends IntegrationSpecBase with LoginS
       stubAuthorisation(resp = Some(
         s"""
            |{
-           |  "name": { "name": "name"},
+           |  "optionalName": { "name": "name"},
            |  "email": "test@me.com",
            |  "externalId": "Ext-xxx"
            |}

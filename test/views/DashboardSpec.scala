@@ -75,7 +75,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
           Enrolments(enrolments)
         ), Some("test")
       ), Some("test")
-    ), Credentials("test", "test")
+    ), Some(Credentials("test", "test"))
   )
 
   val payeThresholds = Map("weekly" -> 113, "monthly" -> 490, "annually" -> 5876)

@@ -116,7 +116,7 @@ class EmailVerificationControllerSpec extends SCRSSpec with CompanyRegistrationC
         new ~(
           Name(None, None),
           Some("fakeEmail")
-        ), Credentials("provId", "provType")
+        ), Some(Credentials("provId", "provType"))
       ), Some("extID")
     )
     "redirect to email verification page when resend is link is clicked" in new Setup {

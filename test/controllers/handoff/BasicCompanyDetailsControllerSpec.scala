@@ -67,7 +67,7 @@ class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture wit
 
   val authDetails = new ~(
     new ~(
-      Name(Some("firstName"), Some("lastName")),
+      Some(Name(Some("firstName"), Some("lastName"))),
       Some("email")
     ), Some("test")
   )

@@ -74,7 +74,7 @@ trait EmailVerificationService {
 }
   private def noEmailBlock(regId:String, authDetails: AuthDetails)(implicit hc: HeaderCarrier,req: Request[AnyContent]) = {
     val email = Email(authDetails.email, "GG", linkSent = false, verified = false, returnLinkEmailSent = false)
-    saveEmailBlock(regId, email,authDetails.authProviderId.providerId, authDetails.externalId) map { x =>
+    saveEmailBlock(regId, email,authDetails.authProviderId, authDetails.externalId) map { x =>
       email
     }
   }
@@ -90,7 +90,7 @@ trait EmailVerificationService {
         case Some(Email(address, _, _, scrsVerified@true, _)) => cacheReg(VerifiedEmail())
 
         case Some(Email(address, _, linkSent@true, _, _)) =>
-          verifyEmailAddressAndSaveEmailBlockWithFlag(address, rId, authDetails.authProviderId.providerId,authDetails.externalId) flatMap  {
+          verifyEmailAddressAndSaveEmailBlockWithFlag(address, rId, authDetails.authProviderId,authDetails.externalId) flatMap  {
             case Some(true) => cacheReg(VerifiedEmail())
             case _ => cacheReg(NotVerifiedEmail())
         }

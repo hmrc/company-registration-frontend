@@ -91,12 +91,12 @@ trait CompanyContactDetailsService extends CommonService with SCRSExceptions wit
     }
   }
 
-  def checkIfAmendedDetails(email: String, cred : Credentials, externalID: String, userContactDetails: CompanyContactDetails)
+  def checkIfAmendedDetails(email: String, cred: String, externalID: String, userContactDetails: CompanyContactDetails)
                            (implicit hc: HeaderCarrier, req: Request[AnyContent]): Future[Boolean] = {
     if (isContactDetailsAmended(userContactDetails.contactEmail, email)) {
       for {
         regId <- fetchRegistrationID
-        _ = auditChangeInContactDetails(externalID, cred.providerId, regId, email, userContactDetails)
+        _ = auditChangeInContactDetails(externalID, cred, regId, email, userContactDetails)
       } yield true
     } else {
       Future.successful(false)

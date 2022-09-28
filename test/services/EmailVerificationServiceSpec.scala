@@ -115,7 +115,7 @@ class EmailVerificationServiceSpec extends UnitSpec with SCRSSpec with UserDetai
     Enrolments(Set()),
     "testEmail",
     "extID",
-    Credentials("proid", "protyp")
+    "authProviderId"
   )
 
   "checkEmailStatus" should {

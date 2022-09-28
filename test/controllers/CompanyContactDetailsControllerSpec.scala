@@ -70,7 +70,7 @@ class CompanyContactDetailsControllerSpec extends SCRSSpec with UserDetailsFixtu
       new ~(
         Name(Some("myFirstName"), Some("myLastName")),
         Some("fakeEmail")
-      ), Credentials("credID", "provID")
+      ), Some(Credentials("credID", "provID"))
     ), Some("extID")
   )
 

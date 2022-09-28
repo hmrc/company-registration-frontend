@@ -34,7 +34,7 @@ import org.mockito.{ArgumentCaptor, ArgumentMatchers}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.{JsObject, JsValue, Json}
 import play.api.test.FakeRequest
-import uk.gov.hmrc.auth.core.retrieve.Credentials
+import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolment, EnrolmentIdentifier, Enrolments}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.cache.client.CacheMap
@@ -429,7 +429,7 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
     Enrolments(Set()),
     "||||anyemail@fakemail.fake",
     "extID",
-    Credentials("proid", "protyp")
+    "authProviderId"
   )
 
   implicit val req = FakeRequest("GET", "/test-path")

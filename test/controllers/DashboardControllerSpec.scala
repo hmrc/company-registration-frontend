@@ -76,7 +76,7 @@ class DashboardControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Aut
           Enrolments(Set())
         ), Some("test")
       ), Some("test")
-    ), Credentials("test", "test")
+    ), Some(Credentials("provId", "provType"))
   )
 
   "show" should {
