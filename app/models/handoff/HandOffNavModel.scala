@@ -16,9 +16,13 @@
 
 package models.handoff
 
-import java.time._
-
+import models.handoff.HandOffNavModel.formats
+import play.api.libs.functional.syntax._
+import play.api.libs.json.Reads._
 import play.api.libs.json._
+import uk.gov.hmrc.mongo.play.json.formats.MongoJavatimeFormats
+
+import java.time._
 
 case class NavLinks(forward: String,
                     reverse: String)
@@ -49,25 +53,27 @@ object HandOffNavModel {
   implicit val formatReceiver = Json.format[Receiver]
   implicit val formatSender = Json.format[Sender]
   implicit val formats = Json.format[HandOffNavModel]
+}
 
-  def now: Instant = Instant.now()
+case class MongoHandOffNavModel(registrationID: String,
+                                handOffNavigation: HandOffNavModel,
+                                lastUpdated: Instant = Instant.now())
 
-  val mongoReads = new Reads[HandOffNavModel] {
-    def reads(json: JsValue): JsResult[HandOffNavModel] = {
-      (json \ "HandOffNavigation").validate[HandOffNavModel](HandOffNavModel.formats)
-    }
+object MongoHandOffNavModel {
+
+  val mongoReads: Reads[MongoHandOffNavModel] = (
+    (__ \ "_id").read[String] and
+      (__ \ "HandOffNavigation").read[HandOffNavModel] and
+      (__ \ "lastUpdated").read[Instant](MongoJavatimeFormats.instantReads)
+    )(MongoHandOffNavModel.apply _)
+
+  val mongoWrites = Writes[MongoHandOffNavModel] { model =>
+    Json.obj(
+      "_id"        -> JsString(model.registrationID),
+      "lastUpdated"       -> Json.toJson(model.lastUpdated)(MongoJavatimeFormats.instantWrites),
+      "HandOffNavigation" -> Json.toJson(model.handOffNavigation)(formats)
+    )
   }
 
-
-
-  def mongoWrites(registrationID: String, dateTime: Instant = now) = new OWrites[HandOffNavModel] {
-
-    override def writes(hm: HandOffNavModel):JsObject = {
-      Json.obj(
-        "_id"               -> Json.toJsFieldJsValueWrapper(registrationID),
-        "lastUpdated"       -> Json.toJson(dateTime),
-        "HandOffNavigation" -> Json.toJsFieldJsValueWrapper(hm)(formats)
-      )
-    }
-  }
+  implicit val format = Format(mongoReads, mongoWrites)
 }

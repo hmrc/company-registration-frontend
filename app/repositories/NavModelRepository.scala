@@ -17,7 +17,7 @@
 package repositories
 
 import config.AppConfig
-import models.handoff.HandOffNavModel
+import models.handoff.{HandOffNavModel, MongoHandOffNavModel}
 import org.mongodb.scala.model.Filters.equal
 import org.mongodb.scala.model.Indexes.ascending
 import org.mongodb.scala.model.{FindOneAndReplaceOptions, IndexModel, IndexOptions, ReturnDocument}
@@ -46,10 +46,10 @@ trait NavModelRepository {
   def insertNavModel(registrationID: String,hm:HandOffNavModel): Future[Option[HandOffNavModel]]
 }
 
-class NavModelRepoMongo(mongo: MongoComponent, expireSeconds: Long, allowReplaceIndexes: Boolean) extends PlayMongoRepository[HandOffNavModel](
+class NavModelRepoMongo(mongo: MongoComponent, expireSeconds: Long, allowReplaceIndexes: Boolean) extends PlayMongoRepository[MongoHandOffNavModel](
   mongoComponent = mongo,
   collectionName = "NavModel",
-  domainFormat = HandOffNavModel.formats,
+  domainFormat = MongoHandOffNavModel.format,
   indexes = Seq(
     IndexModel(
       ascending("lastUpdated"),
@@ -62,14 +62,14 @@ class NavModelRepoMongo(mongo: MongoComponent, expireSeconds: Long, allowReplace
 ) with NavModelRepository {
 
   override def getNavModel(registrationID: String): Future[Option[HandOffNavModel]] =
-    collection.find(equal("_id", registrationID)).headOption()
+    collection.find(equal("_id", registrationID)).map(_.handOffNavigation).headOption()
 
   override def insertNavModel(registrationID: String, hm : HandOffNavModel): Future[Option[HandOffNavModel]] =
     collection.findOneAndReplace(
       filter = equal("_id", registrationID),
-      replacement = hm,
+      replacement = MongoHandOffNavModel(registrationID, hm),
       options = FindOneAndReplaceOptions()
         .upsert(true)
         .returnDocument(ReturnDocument.AFTER)
-    ).headOption()
+    ).map(_.handOffNavigation).headOption()
 }
