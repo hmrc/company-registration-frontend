@@ -63,17 +63,17 @@ class mockHttpPOSTIncorpInfoConnectorSpec extends SCRSSpec {
 
   "injectTestIncorporationUpdate" should {
     "set up a successful incorporation update" in new Setup {
-      mockHttpGet(s"$iiUrl/test-only/add-incorp-update/?txId=$transId&date=2018-1-1&crn=12345678&success=true", Future.successful(HttpResponse(200)))
+      mockHttpGet(s"$iiUrl/test-only/add-incorp-update/?txId=$transId&date=2018-01-01&crn=12345678&success=true", Future.successful(HttpResponse(200)))
       val res = await(connector.injectTestIncorporationUpdate(transId, isSuccess = true))
       res mustBe true
     }
     "set up a rejected incorporation update" in new Setup {
-      mockHttpGet(s"$iiUrl/test-only/add-incorp-update/?txId=$transId&date=2018-1-1&success=false", Future.successful(HttpResponse(200)))
+      mockHttpGet(s"$iiUrl/test-only/add-incorp-update/?txId=$transId&date=2018-01-01&success=false", Future.successful(HttpResponse(200)))
       val res = await(connector.injectTestIncorporationUpdate(transId, isSuccess = false))
       res mustBe true
     }
     "recover any exceptions returned by II" in new Setup {
-      mockHttpGet(s"$iiUrl/test-only/add-incorp-update/?txId=$transId&date=2018-1-1&success=false", Future.failed(new NotFoundException("404")))
+      mockHttpGet(s"$iiUrl/test-only/add-incorp-update/?txId=$transId&date=2018-01-01&success=false", Future.failed(new NotFoundException("404")))
       val res = await(connector.injectTestIncorporationUpdate(transId, isSuccess = false))
       res mustBe false
     }

@@ -76,7 +76,7 @@ trait IncorpInfoConnector extends Logging {
   }
 
   def injectTestIncorporationUpdate(transId: String, isSuccess: Boolean)(implicit hc: HeaderCarrier): Future[Boolean] = {
-    val queryString = s"txId=$transId&date=2018-1-1${if(isSuccess) "&crn=12345678" else ""}&success=$isSuccess"
+    val queryString = s"txId=$transId&date=2018-01-01${if(isSuccess) "&crn=12345678" else ""}&success=$isSuccess"
 
     wSHttp.GET[HttpResponse](s"$incorpInfoUrl/test-only/add-incorp-update/?$queryString") map (_ => true) recover { case _ =>
         logger.error(s"[IncorpInfoConnector] [injectTestIncorporationUpdate] Failed to inject a test incorporation update into II for $transId")
