@@ -19,36 +19,39 @@ package models.handoff
 import helpers.UnitSpec
 import play.api.libs.json.{JsObject, Json}
 
+import java.time.Instant
+import java.time.temporal.ChronoUnit
+
 class HandOffNavModelSpec extends UnitSpec {
 
-    val handOffNavModel = HandOffNavModel(
-      Sender(
-        Map(
-          "1" -> NavLinks(
-            "testForwardLinkFromSender1",
-            "testReverseLinkFromSender1"
-          ),
-          "3" -> NavLinks(
-            "testForwardLinkFromSender3",
-            "testReverseLinkFromSender3"
-          )
+  val handOffNavModel = HandOffNavModel(
+    Sender(
+      Map(
+        "1" -> NavLinks(
+          "testForwardLinkFromSender1",
+          "testReverseLinkFromSender1"
+        ),
+        "3" -> NavLinks(
+          "testForwardLinkFromSender3",
+          "testReverseLinkFromSender3"
+        )
+      )
+    ),
+    Receiver(
+      Map(
+        "0" -> NavLinks(
+          "testForwardLinkFromReceiver0",
+          "testReverseLinkFromReceiver0"
+        ),
+        "2" -> NavLinks(
+          "testForwardLinkFromReceiver2",
+          "testReverseLinkFromReceiver2"
         )
       ),
-      Receiver(
-        Map(
-          "0" -> NavLinks(
-            "testForwardLinkFromReceiver0",
-            "testReverseLinkFromReceiver0"
-          ),
-          "2" -> NavLinks(
-            "testForwardLinkFromReceiver2",
-            "testReverseLinkFromReceiver2"
-          )
-        ),
-        Map("testJumpKey" -> "testJumpLink"),
-        Some(Json.parse("""{"testCHBagKey": "testValue"}""").as[JsObject])
-      )
+      Map("testJumpKey" -> "testJumpLink"),
+      Some(Json.parse("""{"testCHBagKey": "testValue"}""").as[JsObject])
     )
+  )
 
   val handOffNavModelWithoutOptions = HandOffNavModel(
     Sender(
@@ -70,39 +73,39 @@ class HandOffNavModelSpec extends UnitSpec {
     )
   )
 
-    val modelAsJson = Json.parse(
-      """{
-        |"sender":{
-        | "nav":{
-        |  "1":{
-        |   "forward":"testForwardLinkFromSender1",
-        |   "reverse":"testReverseLinkFromSender1"
-        |  },
-        |  "3":{
-        |   "forward":"testForwardLinkFromSender3",
-        |   "reverse":"testReverseLinkFromSender3"
-        |  }
-        | }
-        |},
-        |"receiver":{
-        | "nav":{
-        |  "0":{
-        |   "forward":"testForwardLinkFromReceiver0",
-        |   "reverse":"testReverseLinkFromReceiver0"
-        |  },
-        |  "2":{
-        |   "forward":"testForwardLinkFromReceiver2",
-        |   "reverse":"testReverseLinkFromReceiver2"
-        |  }
-        | },
-        | "jump":{
-        |  "testJumpKey":"testJumpLink"
-        | },
-        | "chData":{
-        |  "testCHBagKey":"testValue"
-        | }
-        |}
-        |}
+  val modelAsJson = Json.parse(
+    """{
+      |"sender":{
+      | "nav":{
+      |  "1":{
+      |   "forward":"testForwardLinkFromSender1",
+      |   "reverse":"testReverseLinkFromSender1"
+      |  },
+      |  "3":{
+      |   "forward":"testForwardLinkFromSender3",
+      |   "reverse":"testReverseLinkFromSender3"
+      |  }
+      | }
+      |},
+      |"receiver":{
+      | "nav":{
+      |  "0":{
+      |   "forward":"testForwardLinkFromReceiver0",
+      |   "reverse":"testReverseLinkFromReceiver0"
+      |  },
+      |  "2":{
+      |   "forward":"testForwardLinkFromReceiver2",
+      |   "reverse":"testReverseLinkFromReceiver2"
+      |  }
+      | },
+      | "jump":{
+      |  "testJumpKey":"testJumpLink"
+      | },
+      | "chData":{
+      |  "testCHBagKey":"testValue"
+      | }
+      |}
+      |}
       """.stripMargin)
 
   val modelAsJsonWithMissingField = Json.parse(
@@ -172,6 +175,31 @@ class HandOffNavModelSpec extends UnitSpec {
       val modelFromJson = Json.fromJson[HandOffNavModel](modelAsJson)
       modelFromJson.get.receiver.chData.get mustBe Json.parse("""{"testCHBagKey": "testValue"}""")
     }
+  }
 
+  "MongoHandOffNavModel" should {
+
+    val regId = "ABCD1234"
+    val now = Instant.now().truncatedTo(ChronoUnit.MILLIS)
+
+    val mongoHandOffNavModel = MongoHandOffNavModel(regId, handOffNavModel, now)
+
+    val mongoModelAsJson = Json.obj(
+      "_id" -> regId,
+      "HandOffNavigation" -> modelAsJson,
+      "lastUpdated" -> Json.obj(
+        "$date" -> Json.obj(
+          "$numberLong" -> now.toEpochMilli.toString
+        )
+      )
+    )
+
+    "be able to serialize to json" in {
+      Json.toJson(mongoHandOffNavModel) mustBe mongoModelAsJson
+    }
+
+    "be able to deserialize from json" in {
+      mongoModelAsJson.as[MongoHandOffNavModel] mustBe mongoHandOffNavModel
+    }
   }
 }
