@@ -16,16 +16,24 @@
 
 package repositories
 
+import config.AppConfig
 import fixtures.HandOffFixtures
 import itutil.{IntegrationSpecBase, MongoHelper}
 import org.mongodb.scala.MongoCommandException
+import org.mongodb.scala.model.{Filters, Updates}
 import org.scalatest.concurrent.{Eventually, ScalaFutures}
 import uk.gov.hmrc.mongo.MongoComponent
 
 class NavModelRepositorySpec extends IntegrationSpecBase with ScalaFutures with Eventually with HandOffFixtures with MongoHelper {
 
-  class Setup {
-    val repo = app.injector.instanceOf[NavModelRepoImpl].repository
+  class Setup(teardownRecords: Boolean = false) {
+    val servicesConfig = app.injector.instanceOf[AppConfig].servicesConfig
+    val repo = new NavModelRepoMongo(
+      app.injector.instanceOf[MongoComponent],
+      servicesConfig.getConfInt("navModel-time-to-live.ttl", throw new Exception("could not find config key navModel-time-to-live.ttl")),
+      servicesConfig.getString("mongodb.allowReplaceIndexes").toBoolean,
+      teardownRecords
+    )
 
     await(repo.drop)
     await(repo.ensureIndexes)
@@ -103,7 +111,7 @@ class NavModelRepositorySpec extends IntegrationSpecBase with ScalaFutures with 
 
         indexListBefore.exists(_ contains "lastUpdatedIndex") && indexListBefore.exists(_ contains "5400") mustBe true
 
-        intercept[MongoCommandException](new NavModelRepoMongo(app.injector.instanceOf[MongoComponent], 12345, false))
+        intercept[MongoCommandException](new NavModelRepoMongo(app.injector.instanceOf[MongoComponent], 12345, false, false))
           .getCode mustBe 85 //Existing Index Exists with Different Options
 
         await(repo.drop)
@@ -121,7 +129,7 @@ class NavModelRepositorySpec extends IntegrationSpecBase with ScalaFutures with 
 
         indexListBefore.exists(_ contains "lastUpdatedIndex") && indexListBefore.exists(_ contains "5400") mustBe true
 
-        val secondRepoInstance = new NavModelRepoMongo(app.injector.instanceOf[MongoComponent], 12345, true)
+        val secondRepoInstance = new NavModelRepoMongo(app.injector.instanceOf[MongoComponent], 12345, true, false)
         await(secondRepoInstance.ensureIndexes)
 
         val indexListAfter: Seq[String] = await(secondRepoInstance.collection.listIndexes().toFuture()).map(_.toString())
@@ -130,6 +138,60 @@ class NavModelRepositorySpec extends IntegrationSpecBase with ScalaFutures with 
 
         await(secondRepoInstance.drop)
       }
+    }
+  }
+
+  "StartupTeardown" must {
+
+    "NOT remove records when disabled" in new Setup {
+
+      //Insert 4 NavModels
+      await(repo.insertNavModel("reg1", handOffNavModelDataUpTo3))
+      await(repo.insertNavModel("reg2", handOffNavModelDataUpTo3))
+      await(repo.insertNavModel("reg3", handOffNavModelDataUpTo3))
+      await(repo.insertNavModel("reg4", handOffNavModelDataUpTo3))
+
+      await(repo.count) mustBe 4
+
+      //Unset the two fields, so that only the _id exists
+      await(repo.collection.updateOne(
+        Filters.or(Filters.eq("_id", "reg1"), Filters.eq("_id", "reg3")),
+        Updates.combine(Updates.unset("lastUpdated"), Updates.unset("HandOffNavigation"))
+      ).toFuture())
+
+      //Wait for 8 seconds, to allow the delayedScheduleOnce job to run and finish
+      Thread.sleep(8000)
+
+      //Check that no documents have been deleted
+      await(repo.count) mustBe 4
+    }
+
+    "remove records which don't have a `lastUpdatedField` when enabled" in new Setup(teardownRecords = true) {
+
+      //Insert 4 NavModels
+      await(repo.insertNavModel("reg1", handOffNavModelDataUpTo3))
+      await(repo.insertNavModel("reg2", handOffNavModelDataUpTo3))
+      await(repo.insertNavModel("reg3", handOffNavModelDataUpTo3))
+      await(repo.insertNavModel("reg4", handOffNavModelDataUpTo3))
+
+      await(repo.count) mustBe 4
+
+      //Unset the two fields, so that only the _id exists
+      await(repo.collection.updateMany(
+        Filters.or(Filters.eq("_id", "reg1"), Filters.eq("_id", "reg3")),
+        Updates.combine(Updates.unset("lastUpdated"), Updates.unset("HandOffNavigation"))
+      ).toFuture())
+
+      //Wait for 8 seconds, to allow the delayedScheduleOnce job to run and finish
+      Thread.sleep(8000)
+
+      //Check that only two documents remain
+      await(repo.count) mustBe 2
+
+      await(repo.getNavModel("reg1")) mustBe None
+      await(repo.getNavModel("reg2")) mustBe Some(handOffNavModelDataUpTo3)
+      await(repo.getNavModel("reg3")) mustBe None
+      await(repo.getNavModel("reg4")) mustBe Some(handOffNavModelDataUpTo3)
     }
   }
 }
