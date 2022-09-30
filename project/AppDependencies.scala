@@ -23,8 +23,8 @@ private object AppDependencies {
     "commons-validator"       %   "commons-validator"               %  "1.6",
     "uk.gov.hmrc"             %%  "play-language"                   % s"5.1.0$playVersion",
     "uk.gov.hmrc"             %%  "govuk-template"                  % s"5.78.0$playVersion",
-    "uk.gov.hmrc"             %%  "play-ui"                         % s"9.10.0$playVersion",
-    "uk.gov.hmrc"             %%  "play-frontend-hmrc"              % s"3.22.0$playVersion",
+    "uk.gov.hmrc"             %%  "play-ui"                         % s"9.11.0$playVersion",
+    "uk.gov.hmrc"             %%  "play-frontend-hmrc"              % s"3.28.0$playVersion",
     "uk.gov.hmrc"             %%  "play-frontend-govuk"             % s"2.0.0$playVersion"
   )
 
@@ -35,7 +35,7 @@ private object AppDependencies {
     "org.scalatestplus.play"  %%  "scalatestplus-play"              %  "5.1.0"                  % "test, it",
     "com.vladsch.flexmark"    %   "flexmark-all"                    %  "0.62.2"                 % "test, it",
     "org.scalatestplus"       %%  "mockito-4-5"                     %  s"$scalaTestVersion.0"   % "test, it",
-    "org.jsoup"               %   "jsoup"                           %  "1.13.1"                 % "test, it",
+    "org.jsoup"               %   "jsoup"                           %  "1.15.3"                 % "test, it",
     "com.typesafe.play"       %%  "play-test"                       %  PlayVersion.current      % "test, it",
     "com.github.tomakehurst"  %   "wiremock-jre8"                   %  "2.27.2"                 % "it"
   )
