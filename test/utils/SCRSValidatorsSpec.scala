@@ -172,7 +172,7 @@ class SCRSValidatorsSpec extends UnitSpec {
       boundForm.errors.map(err => (err.args.head, err.message)) mustBe List(("futureDate.Day", "page.reg.accountingDates.date.future"))
     }
 
-    "return an error message if the date is 1st March plus 3 years when todays date is 29th Feb" in new Setup(LocalDate.parse("2020-02-29")) {
+    "return an error message if the date over 3 years in the future when today's date is 29th Feb" in new Setup(LocalDate.of(2020, 2, 29)) {
       val data: Map[String, String] = Map(
         "businessStartDate" -> "futureDate",
         "futureDate.Year" -> "2023",
@@ -180,7 +180,7 @@ class SCRSValidatorsSpec extends UnitSpec {
         "futureDate.Day" -> "1")
 
       val boundForm = testAccDatesForm.bind(data)
-      boundForm.errors.map(err => (err.args.head, err.message)) mustBe List(("futureDate.Day","page.reg.accountingDates.date.invalid-date"))
+      boundForm.errors.map(err => (err.args.head, err.message)) mustBe List(("futureDate.Day","page.reg.accountingDates.date.future"))
     }
 
     "return an error message if the day is just before 3 working days" in new Setup(LocalDate.of(18,2,9), LocalDateTime.of(18,2,9,15,0)) {

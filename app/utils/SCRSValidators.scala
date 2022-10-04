@@ -168,7 +168,7 @@ trait SCRSValidatorsT {
         model.crnDate match {
           case "futureDate" =>
             Try[LocalDate] {
-              LocalDate.parse(s"${model.year.get}-${model.month.get}-${model.day.get}")
+              LocalDate.of(model.year.get.toInt, model.month.get.toInt, model.day.get.toInt)
             } match {
               case Success(date) =>
                 if (timeService.isDateSomeWorkingDaysInFuture(date) && date.isBefore(now.plusYears(3).plusDays(1))) {
@@ -176,7 +176,9 @@ trait SCRSValidatorsT {
                 } else {
                   Invalid(Seq(ValidationError("page.reg.accountingDates.date.future", "futureDate.Day")))
                 }
-              case Failure(_) => Invalid(Seq(ValidationError("page.reg.accountingDates.date.invalid-date", "futureDate.Day")))
+              case Failure(_) => {
+                Invalid(Seq(ValidationError("page.reg.accountingDates.date.invalid-date", "futureDate.Day")))
+              }
             }
           case _ => Valid
         }
@@ -216,9 +218,15 @@ trait SCRSValidatorsT {
             val fieldErrors = validateDateFields(model.day.get, model.month.get, model.year.get)
             if (fieldErrors.nonEmpty) Invalid(fieldErrors) else {
               val date = s"${model.year.get}-${model.month.get}-${model.day.get}"
-              if (timeService.validate(date)) Valid else Invalid(Seq(ValidationError("page.reg.accountingDates.date.invalid-date", "futureDate.Day")))
+              if (timeService.validate(date)) {
+                Valid
+              } else {
+                Invalid(Seq(ValidationError("page.reg.accountingDates.date.invalid-date", "futureDate.Day")))
+              }
             }
-          case _ => Valid
+          case _ => {
+            Valid
+          }
         }
     })
   }
