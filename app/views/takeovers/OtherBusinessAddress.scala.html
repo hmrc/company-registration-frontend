@@ -58,7 +58,7 @@
                         content = HtmlContent(address.toString),
                         value = if(address == "A different address") { Some("Other") } else {Some(idx.toString)},
                         checked = otherBusinessAddressForm(s"otherBusinessAddress").value.contains(if(address == "A different address") { Some("Other").toString } else { idx.toString}),
-                        id = if(idx == 0) { Some(s"${previousOwnerName}") } else Some(s"otherBusinessAddress-$idx")
+                        id = Some(s"otherBusinessAddress-$idx")
                     )
             },
             legendAsHeading = false,

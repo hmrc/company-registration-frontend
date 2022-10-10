@@ -425,7 +425,7 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
         .get())
       val doc = Jsoup.parse(fResponse.body)
 
-      doc.getElementById("Something else").attr("value") mustBe "otherName"
+      doc.getElementById("otherName").attr("value") mustBe "otherName"
     }
     "return 200 and pre populate page when CohoEntered is saved && shareholder name still in list of shareholders" in new Setup {
       val expected = Json.parse(
@@ -455,7 +455,7 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
         withHttpHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
         .get())
       val doc = Jsoup.parse(fResponse.body)
-      doc.getElementById("groupName").attr("value") mustBe "Foo Bar"
+      doc.getElementById("groupName-0").attr("value") mustBe "Foo Bar"
     }
     "return 200, dont pre populate page and drop group elements from CR when CohoEntered is saved && shareholder name is NOT in the list of shareholders any more (changed shareholder)" in new Setup {
       val expected = Json.parse(
@@ -487,8 +487,7 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
         .get())
       val doc = Jsoup.parse(fResponse.body)
 
-      doc.getElementById("groupName").attr("value") mustBe "Foo Bar"
-      intercept[Exception](doc.getElementById("groupName-foo_bar_incorrect").`val`)
+      doc.getElementById("groupName-0").attr("value") mustBe "Foo Bar"
 
       getPUTRequestJsonBody(s"/company-registration/corporation-tax-registration/$regId/groups") mustBe Json.parse("""{"groupRelief": true}""")
     }
