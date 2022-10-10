@@ -15,12 +15,14 @@
  *@
 
 @import models.test.ETMPCTRecordUpdates
+@import views.ViewUtils._
+
 @this(layout: templates.layout,
         h1: components.h1,
         p: components.p)
 @(etmp : ETMPCTRecordUpdates)(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
-@layout(Some("CT Record updates")) {
+@layout(Some(titleNoForm("CT Record updates"))) {
 
     @h1(messages("CT Record updates"))
 

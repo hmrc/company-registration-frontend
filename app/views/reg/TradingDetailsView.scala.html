@@ -15,6 +15,7 @@
  *@
 
 @import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
+@import views.ViewUtils._
 
 @this(layout: templates.layout,
         errorSummary: components.errorSummary,
@@ -39,7 +40,7 @@
     }
 }
 
-@layout(pageTitle = Some(Messages("page.reg.ct61.title"))) {
+@layout(pageTitle = Some(title(tradingDetails, messages("page.reg.ct61.title")))) {
 
     @errorSummary(tradingDetails.errors)
 

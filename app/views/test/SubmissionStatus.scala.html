@@ -14,15 +14,16 @@
  * limitations under the License.
  *@
 
+@import play.twirl.api.Html
+@import views.ViewUtils._
+
 @this(layout: templates.layout,
         h1: components.h1,
         p: components.p,
         h3: components.h3)
 @(status: String, ctData: Seq[String], heldSubmission: Seq[String], ctRecord: String)(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
-@import play.twirl.api.Html
-
-@layout(Some("Feature switch")) {
+@layout(Some(titleNoForm("Submission status"))) {
 
     @h1(messages("Submission status"))
 

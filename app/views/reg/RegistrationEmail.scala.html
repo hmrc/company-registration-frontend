@@ -17,6 +17,7 @@
 @import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 @import uk.gov.hmrc.govukfrontend.views.Aliases.Text
+@import views.ViewUtils._
 
 @this(layout: templates.layout,
         errorSummary: components.errorSummary,
@@ -39,7 +40,7 @@
 )
 }
 
-@layout(pageTitle = Some(Messages("page.reg.registrationEmail.title"))) {
+@layout(pageTitle = Some(title(registrationEmail, messages("page.reg.registrationEmail.title")))) {
 
     @errorSummary(registrationEmail.errors)
 

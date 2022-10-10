@@ -15,6 +15,7 @@
  *@
 
 @import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
+@import views.ViewUtils._
 
 @this(layout: templates.layout,
         errorSummary: components.errorSummary,
@@ -27,7 +28,7 @@
 
 @(whoAgreedTakeover: Form[String], businessName: String)(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
-@layout(pageTitle = Some(messages("page.takeovers.whoAgreedTakeover.title", businessName))) {
+@layout(pageTitle = Some(title(whoAgreedTakeover, messages("page.takeovers.whoAgreedTakeover.title", businessName)))) {
 
     @errorSummary(whoAgreedTakeover.errors)
 

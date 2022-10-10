@@ -15,6 +15,7 @@
  *@
 
 @import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
+@import views.ViewUtils.title
 
 @this(layout: templates.layout,
         errorSummary: components.errorSummary,
@@ -30,8 +31,7 @@
         @messages("page.reg.returningUser.radioYesHintText")
     }
 }
-
-@layout(pageTitle = Some(Messages("page.reg.returningUser.title"))) {
+@layout(pageTitle = Some(title(returningUser, messages("page.reg.returningUser.title")))) {
 
     @errorSummary(returningUser.errors)
 

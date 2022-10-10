@@ -16,6 +16,7 @@
 
 @import models._
 @import uk.gov.hmrc.play.views.html.helpers.{FormWithCSRF}
+@import views.ViewUtils._
 
 @this(layout: templates.layout,
         formWithCSRF: FormWithCSRF,
@@ -33,7 +34,7 @@
   tradingDetailsForm : Form[TradingDetails],
   applicantForm : Form[AboutYouChoice])(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
-@layout(pageTitle = Some(messages("page.reg.Confirmation.description"))) {
+@layout(pageTitle = Some(titleNoForm(messages("page.reg.Confirmation.description")))) {
 
     @errorSummary(applicantForm.errors)
 

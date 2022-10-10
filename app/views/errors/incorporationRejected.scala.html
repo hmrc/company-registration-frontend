@@ -14,6 +14,8 @@
  * limitations under the License.
  *@
 
+@import views.ViewUtils._
+
 @this(layout: templates.layout,
         h1:components.h1,
         p: components.p,
@@ -21,7 +23,7 @@
 
 @()(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
-@layout(Some(Messages("errorPages.incorporationRejected.title"))) {
+@layout(Some(titleNoForm(Messages("errorPages.incorporationRejected.title")))) {
 
     @h1(messages("errorPages.incorporationRejected.header"))
 

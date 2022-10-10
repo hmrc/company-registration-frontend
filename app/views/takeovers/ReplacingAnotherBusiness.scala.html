@@ -15,6 +15,7 @@
  *@
 
 @import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
+@import views.ViewUtils._
 
 @this(layout: templates.layout,
         yesNoRadio: components.yesNoRadio,
@@ -33,7 +34,7 @@
 @p { @messages("page.takeovers.replacingAnotherBusiness.dropdownText2") }
 }
 
-@layout(pageTitle = Some(messages("page.takeovers.replacingAnotherBusiness.title"))) {
+@layout(pageTitle = Some(title(replacingAnotherBusiness, messages("page.takeovers.replacingAnotherBusiness.title")))) {
 
     @errorSummary(replacingAnotherBusiness.errors)
 

@@ -17,6 +17,7 @@
 @import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 @import uk.gov.hmrc.govukfrontend.views.Aliases.HtmlContent
+@import views.ViewUtils._
 
 @this(  layout: templates.layout,
         h1: components.h1,
@@ -28,7 +29,7 @@
 
 @(groupAddress: Form[GroupAddressChoice], mapOfAddresses: Map[String, String], companyName: String)(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
-@layout(pageTitle = Some(Messages("page.groups.groupAddress.title", companyName))) {
+@layout(pageTitle = Some(title(groupAddress, messages("page.groups.groupAddress.title", companyName)))) {
 
     @errorSummary(groupAddress.errors)
 

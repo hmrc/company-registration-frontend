@@ -15,16 +15,12 @@
  *@
 
 @import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
-@import uk.gov.hmrc.govukfrontend.views.html.components.GovukPanel
-@import views.html.reg.inputRadioGroup
-@import uk.gov.hmrc.govukfrontend.views.viewmodels.panel.Panel
-@import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 @import uk.gov.hmrc.govukfrontend.views.Aliases.RadioItem
 @import uk.gov.hmrc.govukfrontend.views.Aliases.HtmlContent
+@import views.ViewUtils._
 
 @this(layout: templates.layout,
         errorSummary: components.errorSummary,
-        inputRadioGroup: inputRadioGroup,
         hiddenDetails: components.hiddenDetails,
         h1: components.h1,
         p: components.p,
@@ -35,7 +31,7 @@
 
 @(ppobForm: Form[PPOBChoice], addressMap: Map[String, String])(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
-@layout(pageTitle = Some(messages("page.reg.ppob.description"))) {
+@layout(pageTitle = Some(title(ppobForm, messages("page.reg.ppob.description")))) {
 
     @errorSummary(ppobForm.errors)
 

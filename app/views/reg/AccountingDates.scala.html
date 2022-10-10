@@ -19,6 +19,7 @@
 @import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
 @import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 @import uk.gov.hmrc.govukfrontend.views.Aliases.RadioItem
+@import views.ViewUtils.title
 
 @this(layout: templates.layout,
         errorSummary: components.errorSummary,
@@ -58,7 +59,7 @@
     }
 }
 
-@layout(pageTitle = Some(messages("page.reg.accountingDates.description"))) {
+@layout(pageTitle = Some(title(accountingDatesForm, messages("page.reg.accountingDates.description")))) {
 
     <script src=@controllers.routes.Assets.at("javascripts/AccountingDates.js") type="text/javascript"></script>
 

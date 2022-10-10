@@ -19,6 +19,7 @@
 @import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 @import uk.gov.hmrc.govukfrontend.views.Aliases.HtmlContent
+@import views.ViewUtils._
 
 @this(layout: templates.layout,
         errorSummary: components.errorSummary,
@@ -31,7 +32,7 @@
 
 @(otherBusinessAddressForm: Form[AddressChoice], previousOwnerName: String, addressMap: Seq[Any])(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
-@layout(pageTitle = Some(messages("page.takeovers.otherBusinessAddress.title", previousOwnerName))) {
+@layout(pageTitle = Some(title(otherBusinessAddressForm, messages("page.takeovers.otherBusinessAddress.title", previousOwnerName)))) {
 
     @errorSummary(otherBusinessAddressForm.errors)
 

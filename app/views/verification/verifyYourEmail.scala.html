@@ -14,6 +14,8 @@
  * limitations under the License.
  *@
 
+@import views.ViewUtils._
+
 @this(layout: templates.layout,
         h1: components.h1,
         p: components.p,
@@ -35,7 +37,7 @@
 }
 }
 
-@layout(pageTitle = Some(Messages("page.verification.verify-your-email.title")), timeout = false) {
+@layout(pageTitle = Some(titleNoForm(Messages("page.verification.verify-your-email.title"))), timeout = false) {
 
     @h1(messages("page.verification.verify-your-email.title"))
 
