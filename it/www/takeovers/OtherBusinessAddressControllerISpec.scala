@@ -91,7 +91,7 @@ class OtherBusinessAddressControllerISpec extends IntegrationSpecBase
       )
 
       res.status mustBe OK
-      Jsoup.parse(res.body).getElementById("test name").attr("value") mustBe "0"
+      Jsoup.parse(res.body).getElementById("otherBusinessAddress-0").attr("value") mustBe "0"
     }
   }
 
