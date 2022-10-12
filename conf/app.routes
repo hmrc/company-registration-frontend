@@ -1,4 +1,4 @@
-->          /hmrc-frontend                                    hmrcfrontend.Routes
+->         /hmrc-frontend                           hmrcfrontend.Routes
 
 GET        /assets/*file                            controllers.Assets.at(path="/public", file)
 
@@ -8,20 +8,43 @@ GET        /                                        controllers.reg.IndexControl
 
 GET        /renew-session                           controllers.reg.SignInOutController.renewSession
 
+## Error pages
 GET        /error/destroy-session                   controllers.reg.SignInOutController.destroySession
 GET        /error/timeout                           controllers.reg.SignInOutController.timeoutShow
 
 GET        /cant-continue                           controllers.reg.RegistrationUnsuccessfulController.rejectionShow
 GET        /cant-continue-submit                    controllers.reg.RegistrationUnsuccessfulController.rejectionSubmit
 
+GET        /something-went-wrong                    controllers.reg.ConfirmationController.deskproPage
+POST       /something-went-wrong                    controllers.reg.ConfirmationController.submitTicket
+
+GET        /reached-maximum-users                   controllers.reg.LimitReachedController.show
+POST       /reached-maximum-users                   controllers.reg.LimitReachedController.submit
+
+GET        /incorrect-account-type                  controllers.verification.EmailVerificationController.createGGWAccountAffinityShow
+POST       /incorrect-account-type                  controllers.verification.EmailVerificationController.createGGWAccountSubmit
+
+GET        /incorrect-service                       controllers.verification.EmailVerificationController.createNewGGWAccountShow
+POST       /incorrect-service                       controllers.verification.EmailVerificationController.createGGWAccountSubmit
+
+GET        /registration-unsuccessful               controllers.reg.RegistrationUnsuccessfulController.show
+POST       /registration-unsuccessful               controllers.reg.RegistrationUnsuccessfulController.submit
+
+GET        /takeover-information-needed             controllers.takeovers.TakeoverInformationNeededController.show
+
+GET        /start-again                             controllers.verification.EmailVerificationController.startAgain
+GET        /resend-verification                     controllers.verification.EmailVerificationController.resendVerificationLink
+
+## Journey pages
+GET        /post-sign-in                            controllers.reg.SignInOutController.postSignIn(resend: Option[Boolean] ?= None, handOffID: Option[String] ?= None, payload: Option[String] ?= None)
+POST       /post-sign-in                            controllers.reg.SignInOutController.postSignIn(resend: Option[Boolean] ?= None, handOffID: Option[String] ?= None, payload: Option[String] ?= None)
+
+GET        /sign-out                                controllers.reg.SignInOutController.signOut(continueUrl: Option[ContinueUrl] ?= None)
+
+GET        /ticket-submitted                        controllers.reg.ConfirmationController.submittedTicket
+
 GET        /register                                controllers.reg.WelcomeController.show
 POST       /register                                controllers.reg.WelcomeController.submit
-
-GET       /registration-email                       controllers.reg.RegistrationEmailController.show
-POST      /registration-email                       controllers.reg.RegistrationEmailController.submit
-
-GET       /companies-house-email-confirm            controllers.reg.RegistrationEmailConfirmationController.show
-POST      /companies-house-email-confirm            controllers.reg.RegistrationEmailConfirmationController.submit
 
 GET        /relationship-to-company                 controllers.reg.CompletionCapacityController.show
 POST       /relationship-to-company                 controllers.reg.CompletionCapacityController.submit
@@ -31,11 +54,6 @@ POST       /when-start-business                     controllers.reg.AccountingDa
 
 GET        /application-submitted                   controllers.reg.ConfirmationController.show
 POST       /application-submitted                   controllers.reg.ConfirmationController.submit
-
-GET        /something-went-wrong                    controllers.reg.ConfirmationController.deskproPage
-POST       /something-went-wrong                    controllers.reg.ConfirmationController.submitTicket
-
-GET        /ticket-submitted                        controllers.reg.ConfirmationController.submittedTicket
 
 GET        /contact-about-corporation-tax           controllers.reg.CompanyContactDetailsController.show
 POST       /contact-about-corporation-tax           controllers.reg.CompanyContactDetailsController.submit
@@ -53,44 +71,21 @@ POST       /check-confirm-answers                   controllers.reg.SummaryContr
 GET        /return-to-business-activities           controllers.reg.SummaryController.back
 GET        /summary-jump-back/:jumpKey              controllers.reg.SummaryController.summaryBackLink(jumpKey: String)
 
-GET        /reached-maximum-users                   controllers.reg.LimitReachedController.show
-POST       /reached-maximum-users                   controllers.reg.LimitReachedController.submit
-
-GET        /post-sign-in                            controllers.reg.SignInOutController.postSignIn(resend: Option[Boolean] ?= None, handOffID: Option[String] ?= None, payload: Option[String] ?= None)
-
-POST       /post-sign-in                            controllers.reg.SignInOutController.postSignIn(resend: Option[Boolean] ?= None, handOffID: Option[String] ?= None, payload: Option[String] ?= None)
-
-GET        /sign-out                                controllers.reg.SignInOutController.signOut(continueUrl: Option[ContinueUrl] ?= None)
-
 GET        /sent-an-email                           controllers.verification.EmailVerificationController.verifyShow
 POST       /sent-an-email                           controllers.verification.EmailVerificationController.verifySubmit
 
-
-GET       /registration-email                       controllers.reg.RegistrationEmailController.show
-POST      /registration-email                       controllers.reg.RegistrationEmailController.submit
-GET       /companies-house-email-confirm            controllers.reg.RegistrationEmailConfirmationController.show
-POST      /companies-house-email-confirm            controllers.reg.RegistrationEmailConfirmationController.submit
-GET        /resend-verification                     controllers.verification.EmailVerificationController.resendVerificationLink
+GET        /registration-email                      controllers.reg.RegistrationEmailController.show
+POST       /registration-email                      controllers.reg.RegistrationEmailController.submit
+GET        /companies-house-email-confirm           controllers.reg.RegistrationEmailConfirmationController.show
+POST       /companies-house-email-confirm           controllers.reg.RegistrationEmailConfirmationController.submit
 GET        /enter-your-details                      controllers.verification.EmailVerificationController.createShow
 POST       /enter-your-details                      controllers.verification.EmailVerificationController.createSubmit
-
-GET        /start-again                             controllers.verification.EmailVerificationController.startAgain
-GET        /resend-verification                     controllers.verification.EmailVerificationController.resendVerificationLink
-
-GET        /incorrect-account-type                  controllers.verification.EmailVerificationController.createGGWAccountAffinityShow
-POST       /incorrect-account-type                  controllers.verification.EmailVerificationController.createGGWAccountSubmit
-
-GET        /incorrect-service                       controllers.verification.EmailVerificationController.createNewGGWAccountShow
-POST       /incorrect-service                       controllers.verification.EmailVerificationController.createGGWAccountSubmit
 
 GET        /questionnaire                           controllers.reg.QuestionnaireController.show
 POST       /questionnaire                           controllers.reg.QuestionnaireController.submit
 
 GET        /sign-in-complete-application            controllers.reg.IncompleteRegistrationController.show
 POST       /sign-in-complete-application            controllers.reg.IncompleteRegistrationController.submit
-
-GET        /registration-unsuccessful               controllers.reg.RegistrationUnsuccessfulController.show
-POST       /registration-unsuccessful               controllers.reg.RegistrationUnsuccessfulController.submit
 
 GET        /cookies-privacy-terms                   controllers.PolicyController.policyLinks
 
@@ -172,8 +167,6 @@ POST       /who-agreed-takeover                     controllers.takeovers.WhoAgr
 GET        /home-address                            controllers.takeovers.PreviousOwnersAddressController.show
 POST       /home-address                            controllers.takeovers.PreviousOwnersAddressController.submit
 GET        /save-alf-home-address-takeovers         controllers.takeovers.PreviousOwnersAddressController.handbackFromALF(id: Option[String])
-
-GET         /takeover-information-needed            controllers.takeovers.TakeoverInformationNeededController.show
 
 ## DEPRECATED
 
