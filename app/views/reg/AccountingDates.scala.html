@@ -37,13 +37,13 @@
         @messages("page.reg.accountingDates.help")
     }
 
-@inputDate(
-    form = accountingDatesForm,
-    id = "futureDate",
-    legendContent = "",
-    legendAsPageHeading = false,
-    hintText = Some(messages("common.dateExample", date))
-)
+    @inputDate(
+        form = accountingDatesForm,
+        id = "futureDate",
+        legendContent = "",
+        legendAsPageHeading = false,
+        hintText = Some(messages("common.dateExample", date))
+    )
 }
 
 @hiddenContentOther = {
@@ -86,7 +86,7 @@
                     checked = accountingDatesForm("businessStartDate").value.contains("whenRegistered")
                 ),
                 RadioItem(
-                    id = Some("futureDate"),
+                    id = Some("futureDateOption"),
                     content = Text(messages("page.reg.accountingDates.radioTwo")),
                     value = Some("futureDate"),
                     checked = accountingDatesForm("businessStartDate").value.contains("futureDate"),
