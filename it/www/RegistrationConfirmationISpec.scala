@@ -166,7 +166,7 @@ class RegistrationConfirmationISpec extends IntegrationSpecBase with LoginStub {
       stubGet(s"/company-registration/corporation-tax-registration/$regId/confirmation-references", 200, crResponse)
 
       val fResponse = client(confirmationEncryptedRequest(encryptedForwardPayload.get)).
-        withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").
+        withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").
         get()
 
       val response = await(fResponse)
@@ -216,7 +216,7 @@ class RegistrationConfirmationISpec extends IntegrationSpecBase with LoginStub {
       stubGet(s"/company-registration/corporation-tax-registration/$regId/confirmation-references", 200, crResponse)
 
       val fResponse = client(confirmationEncryptedRequest(encryptedForwardWithChPayload.get)).
-        withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").
+        withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").
         get()
 
       val response = await(fResponse)
@@ -253,7 +253,7 @@ class RegistrationConfirmationISpec extends IntegrationSpecBase with LoginStub {
       stubGet(s"/company-registration/corporation-tax-registration/$regId/confirmation-references", 200, crResponse)
 
       val fResponse = client(confirmationEncryptedRequest(encryptedForwardPayload.get)).
-        withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").
+        withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").
         get()
 
       val response = await(fResponse)
@@ -290,7 +290,7 @@ class RegistrationConfirmationISpec extends IntegrationSpecBase with LoginStub {
       stubGet(s"/company-registration/corporation-tax-registration/$regId/confirmation-references", 200, crResponse)
 
       val fResponse = client(confirmationEncryptedRequest(encryptedForwardPayload.get)).
-        withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").
+        withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").
         get()
 
       val response = await(fResponse)
@@ -350,7 +350,7 @@ class RegistrationConfirmationISpec extends IntegrationSpecBase with LoginStub {
       stubPut(s"/company-registration/corporation-tax-registration/$regId/confirmation-references", 200, crResponse)
 
       val fResponse = client(confirmationEncryptedRequest(encryptedPayload.get)).
-        withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").
+        withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").
         get()
 
       val response = await(fResponse)
@@ -371,7 +371,7 @@ class RegistrationConfirmationISpec extends IntegrationSpecBase with LoginStub {
       stubPut(s"/company-registration/corporation-tax-registration/$regId/confirmation-references", 502, "")
 
       val fResponse = client(confirmationEncryptedRequest(encryptedPayload.get)).
-        withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").
+        withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").
         get()
 
       val response = await(fResponse)
@@ -392,7 +392,7 @@ class RegistrationConfirmationISpec extends IntegrationSpecBase with LoginStub {
       stubPut(s"/company-registration/corporation-tax-registration/$regId/confirmation-references", 403, "")
 
       val fResponse = client(confirmationEncryptedRequest(encryptedPayload.get)).
-        withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").
+        withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").
         get()
 
       val response = await(fResponse)

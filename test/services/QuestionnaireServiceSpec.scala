@@ -16,17 +16,23 @@
 
 package services
 
+import java.time.Instant
+import java.util.UUID
+
+import audit.events.QuestionnaireAuditEvent
 import helpers.UnitSpec
 import models.QuestionnaireModel
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
+import play.api.libs.json.Json
 import play.api.test.FakeRequest
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, SessionId}
+import uk.gov.hmrc.play.audit.AuditExtensions.auditHeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.audit.model.ExtendedDataEvent
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class QuestionnaireServiceSpec extends UnitSpec with MockitoSugar {
 
@@ -47,14 +53,14 @@ class QuestionnaireServiceSpec extends UnitSpec with MockitoSugar {
     val maximum = QuestionnaireModel("able",Some("why"),"trying","satisfaction",1,"recommend",Some("imp"))
 
     "successfully send a audit event of type QuestionnaireAuditEvent" in new Setup {
-      when(mockAuditConnector.sendExtendedEvent(ArgumentMatchers.any[ExtendedDataEvent]())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
+      when(mockAuditConnector.sendExtendedEvent(ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
         .thenReturn(Future.successful(expected))
 
-      await(service.sendAuditEventOnSuccessfulSubmission(minimum)(hc, FakeRequest())) mustBe expected
+      await(service.sendAuditEventOnSuccessfulSubmission(maximum)(hc, FakeRequest())) mustBe expected
     }
 
     "successfully send a audit event with min data" in new Setup {
-      when(mockAuditConnector.sendExtendedEvent(ArgumentMatchers.any[ExtendedDataEvent]())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
+      when(mockAuditConnector.sendExtendedEvent(ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
         .thenReturn(Future.successful(expected))
 
       await(service.sendAuditEventOnSuccessfulSubmission(maximum)(hc, FakeRequest())) mustBe expected

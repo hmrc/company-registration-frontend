@@ -18,21 +18,22 @@ package audit.events
 
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{AnyContent, Request}
+import services.RegistrationAuditEvent
 import uk.gov.hmrc.http.HeaderCarrier
 
-case class EmailVerifiedEventDetail(externalUserId : String,
-                                    authProviderId : String,
-                                    journeyId : String,
-                                    emailAddress : String,
-                                    isVerifiedEmailAddress : Boolean = true,
-                                    previouslyVerified : Boolean = true)
+case class EmailVerifiedEventDetail(externalUserId: String,
+                                    authProviderId: String,
+                                    journeyId: String,
+                                    emailAddress: String,
+                                    isVerifiedEmailAddress: Boolean = true,
+                                    previouslyVerified: Boolean = true)
 
 object EmailVerifiedEventDetail {
   implicit val format = Json.format[EmailVerifiedEventDetail]
 }
 
-class EmailVerifiedEvent(detail : EmailVerifiedEventDetail)(implicit hc : HeaderCarrier, req: Request[AnyContent])
+class EmailVerifiedEvent(detail: EmailVerifiedEventDetail)(implicit hc: HeaderCarrier, req: Request[AnyContent])
   extends RegistrationAuditEvent(
-    "emailVerified",
-    Json.toJson(detail).as[JsObject]
+    auditType = "emailVerified",
+    detail = Json.toJson(detail).as[JsObject]
   )(hc, req)

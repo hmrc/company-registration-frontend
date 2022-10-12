@@ -170,3 +170,5 @@ trait EmailVerificationService {
     } yield result
   }
 }
+
+//put in audit service

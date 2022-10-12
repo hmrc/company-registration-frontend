@@ -176,7 +176,7 @@ class BasicCompanyDetailsControllerISpec extends IntegrationSpecBase with LoginS
       stubGetUserDetails(userId)
 
       val fResponse = buildClient("/basic-company-details").
-        withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").
+        withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").
         get()
 
       val response = await(fResponse)
@@ -202,7 +202,7 @@ class BasicCompanyDetailsControllerISpec extends IntegrationSpecBase with LoginS
       stubKeystore(SessionId, regId)
 
       val fResponse = buildClient(returnEncryptedRequest(app.injector.instanceOf[JweCommon].encrypt[JsObject](returnPayloadJson).get)).
-        withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").
+        withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").
         get()
 
       val response = await(fResponse)
@@ -222,7 +222,7 @@ class BasicCompanyDetailsControllerISpec extends IntegrationSpecBase with LoginS
       stubKeystore(SessionId, regId)
 
       val fResponse = buildClient(returnEncryptedRequest("malformed-encrypted-json")).
-        withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").
+        withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").
         get()
 
       val response = await(fResponse)

@@ -18,10 +18,8 @@ package audit.events
 
 import helpers.UnitSpec
 import models.CHROAddress
-import play.api.libs.json.{JsDefined, Json}
+import play.api.libs.json.Json
 import play.api.test.FakeRequest
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.audit.model.ExtendedDataEvent
 
 class ROUsedAsPPOBAuditEventSpec extends UnitSpec {
 
@@ -100,9 +98,8 @@ class ROUsedAsPPOBAuditEventSpec extends UnitSpec {
   "ROUsedAsPPOBAuditEvent" should {
 
     "have correct auditType and detail" in {
-      implicit val format = Json.format[ExtendedDataEvent]
 
-      val detail = ROUsedAsPPOBAuditEventDetail(
+      val testModel = ROUsedAsPPOBAuditEventDetail(
         "regId12345", "credId12345", "testCompanyName",
         CHROAddress(
           "testPremises",
@@ -116,11 +113,26 @@ class ROUsedAsPPOBAuditEventSpec extends UnitSpec {
         )
       )
 
-      val auditEvent = new ROUsedAsPPOBAuditEvent(detail)(HeaderCarrier(), req)
-      val result = Json.toJson[ExtendedDataEvent](auditEvent)
+      val expectedJson = Json.parse(
+        """
+          |{
+          | "authProviderId" : "credId12345",
+          | "journeyId" : "regId12345",
+          | "companyName" : "testCompanyName",
+          | "registeredOfficeAddress": {
+          | "premises": "testPremises",
+          | "addressLine1": "testAddressLine1",
+          | "addressLine2": "testAddressLine2",
+          | "locality": "testLocality",
+          | "postCode": "testPostcode",
+          | "region": "testRegion"
+          | }
+          |}
+        """.stripMargin
+      )
 
-      (result \ "auditType").as[String] mustBe "registeredOfficeUsedAsPrincipalPlaceOfBusiness"
-      (result \ "detail") mustBe JsDefined(Json.toJson(detail))
+      val result = Json.toJson[ROUsedAsPPOBAuditEventDetail](testModel)(ROUsedAsPPOBAuditEventDetail.writes)
+      result mustBe expectedJson
     }
   }
 }

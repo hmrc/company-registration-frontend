@@ -17,19 +17,19 @@
 package services
 
 import javax.inject.Inject
-
 import audit.events.QuestionnaireAuditEvent
 import models.QuestionnaireModel
+import play.api.libs.json.JsObject
 import play.api.mvc.{AnyContent, Request}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class QuestionnaireServiceImpl @Inject()(val auditConnector: AuditConnector) extends QuestionnaireService
 
-trait QuestionnaireService {
+trait QuestionnaireService extends AuditService {
 
   val auditConnector: AuditConnector
 

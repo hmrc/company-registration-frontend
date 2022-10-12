@@ -56,8 +56,6 @@ class EmailMismatchEventSpec extends UnitSpec {
     "contain the correct field values" when {
       "populated with event detail" in {
 
-        implicit val hc = HeaderCarrier()
-        implicit val format = Json.format[ExtendedDataEvent]
 
         val testModel =
           EmailMismatchEventDetail(
@@ -66,12 +64,22 @@ class EmailMismatchEventSpec extends UnitSpec {
             "testJourneyId"
           )
 
-        val auditEvent = new EmailMismatchEvent(testModel)(hc, req)
+        val expectedJson = Json.parse(
+          """
+            |{
+            | "externalUserId": "testEXID",
+            | "authProviderId": "testAPId",
+            | "journeyId": "testJourneyId"
+            |}
+        """.stripMargin
+        )
 
-        val result = Json.toJson[ExtendedDataEvent](auditEvent)
-        result.getClass mustBe classOf[JsObject]
-        (result \ "auditSource").as[String] mustBe "company-registration-frontend"
-        (result \ "auditType").as[String] mustBe "emailMismatch"
+        val result = Json.toJson[EmailMismatchEventDetail](testModel)
+        result mustBe expectedJson
+
+
+ /*       (result \ "auditSource").as[String] mustBe "company-registration-frontend"
+        (result \ "auditType").as[String] mustBe "emailMismatch"*/
       }
     }
   }

@@ -26,7 +26,7 @@ import play.api.http.HeaderNames
 import play.api.libs.crypto.DefaultCookieSigner
 import play.api.libs.json.{JsObject, Json}
 import play.api.libs.ws.WSCookie
-import uk.gov.hmrc.crypto.{CompositeSymmetricCrypto, Crypted, PlainText}
+import uk.gov.hmrc.crypto.{CompositeSymmetricCrypto, Crypted, PlainText, SymmetricCryptoFactory}
 import uk.gov.hmrc.http.SessionKeys
 
 trait LoginStub extends SessionCookieBaker {
@@ -43,11 +43,14 @@ trait LoginStub extends SessionCookieBaker {
     Map(
       SessionKeys.sessionId -> sessionId,
       userIdKey -> userId,
-      tokenKey -> "token",
-      authProviderKey -> "GGW",
-      SessionKeys.lastRequestTimestamp -> new java.util.Date().getTime.toString
+      "token" -> "token",
+      "ap" -> "GGW",
+      SessionKeys.lastRequestTimestamp -> new java.util.Date().getTime.toString,
+      SessionKeys.authToken -> "FooBarToken"
     ) ++ additionalData
   }
+
+
 
   def stubPostAuth(url: String, status: Integer, body: Option[String]): StubMapping = {
     stubFor(post(urlMatching(url)).willReturn {
@@ -69,6 +72,8 @@ trait LoginStub extends SessionCookieBaker {
       }
     )
   }
+
+
 
   def getSessionCookie(additionalData: Map[String, String] = Map(), userId: String = defaultUser, sessionId: String = SessionId): String = {
     cookieValue(cookieData(additionalData, userId, sessionId))
@@ -134,7 +139,7 @@ trait LoginStub extends SessionCookieBaker {
 trait SessionCookieBaker {
   val defaultCookieSigner: DefaultCookieSigner
   val cookieKey = "gvBoGdgzqG1AarzF1LY0zQ=="
-  def cookieValue(sessionData: Map[String,String]) = {
+  def cookieValue(sessionData: Map[String, String]): String = {
     def encode(data: Map[String, String]): PlainText = {
       val encoded = data.map {
         case (k, v) => URLEncoder.encode(k, "UTF-8") + "=" + URLEncoder.encode(v, "UTF-8")
@@ -144,7 +149,7 @@ trait SessionCookieBaker {
     }
 
     val encodedCookie = encode(sessionData)
-    val encrypted = CompositeSymmetricCrypto.aesGCM(cookieKey, Seq()).encrypt(encodedCookie).value
+    val encrypted = SymmetricCryptoFactory.aesGcmCrypto(cookieKey).encrypt(encodedCookie).value
 
     s"""mdtp="$encrypted"; Path=/; HTTPOnly"; Path=/; HTTPOnly"""
   }
@@ -155,10 +160,10 @@ trait SessionCookieBaker {
 
   def getCookieData(cookieData: String): Map[String, String] = {
 
-    val decrypted = CompositeSymmetricCrypto.aesGCM(cookieKey, Seq()).decrypt(Crypted(cookieData)).value
+    val decrypted = SymmetricCryptoFactory.aesGcmCrypto(cookieKey).decrypt(Crypted(cookieData)).value
     val result = decrypted.split("&")
       .map(_.split("="))
-      .map { case Array(k, v) => (k, URLDecoder.decode(v, StandardCharsets.UTF_8.name()))}
+      .map { case Array(k, v) => (k, URLDecoder.decode(v, StandardCharsets.UTF_8.name())) }
       .toMap
 
     result

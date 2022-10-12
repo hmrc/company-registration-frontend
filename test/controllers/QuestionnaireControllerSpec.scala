@@ -28,7 +28,7 @@ import play.api.Configuration
 import play.api.mvc.{AnyContent, MessagesControllerComponents, Request}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services.QuestionnaireService
+import services.{AuditService, QuestionnaireService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
@@ -90,7 +90,7 @@ class QuestionnaireControllerSpec extends UnitSpec with GuiceOneAppPerSuite with
           "improvements" -> "improvements here"
         )
 
-        val request = FakeRequest().withFormUrlEncodedBody(form.toSeq: _*)
+        val request = fakeRequest("POST").withFormUrlEncodedBody(form.toSeq: _*)
 
         val result = await(controller.submit(request))
         status(result) mustBe 303
@@ -134,7 +134,7 @@ class QuestionnaireControllerSpec extends UnitSpec with GuiceOneAppPerSuite with
           "improvements" -> "improvements here"
         )
 
-        val request = FakeRequest().withFormUrlEncodedBody(form.toSeq: _*)
+        val request = fakeRequest("POST").withFormUrlEncodedBody(form.toSeq: _*)
 
         val result = await(controller.submit(request))
         status(result) mustBe 303

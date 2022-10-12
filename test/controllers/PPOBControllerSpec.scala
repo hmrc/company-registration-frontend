@@ -36,7 +36,7 @@ import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import repositories.NavModelRepo
-import services.{AddressLookupFrontendService, NavModelNotFoundException}
+import services.{AddressLookupFrontendService, AuditService, NavModelNotFoundException}
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
@@ -55,6 +55,7 @@ class PPOBControllerSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixtur
   lazy val mockControllerErrorHandler = app.injector.instanceOf[ControllerErrorHandler]
   override lazy val mockSCRSFeatureSwitches = app.injector.instanceOf[SCRSFeatureSwitches]
   lazy val mockPrinciplePlaceOfBusinessView = app.injector.instanceOf[PrinciplePlaceOfBusinessView]
+  override lazy val mockAuditService = mock[AuditService]
   implicit val langs = app.injector.instanceOf[Langs]
 
   val regId = "reg-12345"

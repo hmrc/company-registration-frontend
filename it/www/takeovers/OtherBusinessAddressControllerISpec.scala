@@ -69,7 +69,7 @@ class OtherBusinessAddressControllerISpec extends IntegrationSpecBase
       stubGetPrepopAddresses(testRegId, OK, Nil)
 
       val res: WSResponse = await(buildClient(controllers.takeovers.routes.OtherBusinessAddressController.show.url)
-        .withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+        .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
         .get()
       )
 
@@ -86,7 +86,7 @@ class OtherBusinessAddressControllerISpec extends IntegrationSpecBase
       stubGetPrepopAddresses(testRegId, OK, Seq(testBusinessAddress))
 
       val res: WSResponse = await(buildClient(controllers.takeovers.routes.OtherBusinessAddressController.show.url)
-        .withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+        .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
         .get()
       )
 
@@ -109,7 +109,7 @@ class OtherBusinessAddressControllerISpec extends IntegrationSpecBase
         ), userId)
 
       val res: WSResponse = await(buildClient(controllers.takeovers.routes.OtherBusinessAddressController.submit.url)
-        .withHeaders(
+        .withHttpHeaders(
           HeaderNames.COOKIE -> sessionCookie,
           "Csrf-Token" -> "nocheck"
         ).post(Map(otherBusinessAddressKey -> Seq("0")))
@@ -134,7 +134,7 @@ class OtherBusinessAddressControllerISpec extends IntegrationSpecBase
         ), userId)
 
       val res: WSResponse = await(buildClient(controllers.takeovers.routes.OtherBusinessAddressController.submit.url)
-        .withHeaders(
+        .withHttpHeaders(
           HeaderNames.COOKIE -> sessionCookie,
           "Csrf-Token" -> "nocheck"
         ).post(Map(otherBusinessAddressKey -> Seq("Other")))
@@ -288,7 +288,7 @@ class OtherBusinessAddressControllerISpec extends IntegrationSpecBase
         ), userId)
 
       val res: WSResponse = await(buildClient(controllers.takeovers.routes.OtherBusinessAddressController.handbackFromALF(Some(testAlfId)).url)
-        .withHeaders(
+        .withHttpHeaders(
           HeaderNames.COOKIE -> sessionCookie,
           "Csrf-Token" -> "nocheck"
         ).get()

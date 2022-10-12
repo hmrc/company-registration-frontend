@@ -25,7 +25,6 @@ import forms.takeovers.HomeAddressForm.homeAddressKey
 import itutil.servicestubs.{ALFStub, BusinessRegistrationStub, TakeoverStub}
 import itutil.{IntegrationSpecBase, LoginStub, RequestsFinder}
 import models._
-import org.jsoup.Jsoup
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.HeaderNames
 import play.api.libs.crypto.DefaultCookieSigner
@@ -71,7 +70,7 @@ class PreviousOwnersAddressControllerISpec extends IntegrationSpecBase
       stubGetPrepopAddresses(testRegId, OK, Nil)
 
       val res: WSResponse = await(buildClient(controllers.takeovers.routes.PreviousOwnersAddressController.show.url)
-        .withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+        .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
         .get()
       )
 
@@ -88,7 +87,7 @@ class PreviousOwnersAddressControllerISpec extends IntegrationSpecBase
       stubGetPrepopAddresses(testRegId, OK, Seq(testPreviousOwnersAddress))
 
       val res: WSResponse = await(buildClient(controllers.takeovers.routes.PreviousOwnersAddressController.show.url)
-        .withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+        .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
         .get()
       )
 
@@ -110,7 +109,7 @@ class PreviousOwnersAddressControllerISpec extends IntegrationSpecBase
         ), userId)
 
       val res: WSResponse = await(buildClient(controllers.takeovers.routes.PreviousOwnersAddressController.submit.url)
-        .withHeaders(
+        .withHttpHeaders(
           HeaderNames.COOKIE -> sessionCookie,
           "Csrf-Token" -> "nocheck"
         ).post(Map(homeAddressKey -> Seq("0")))
@@ -133,7 +132,7 @@ class PreviousOwnersAddressControllerISpec extends IntegrationSpecBase
         ), userId)
 
       val res: WSResponse = await(buildClient(controllers.takeovers.routes.PreviousOwnersAddressController.submit.url)
-        .withHeaders(
+        .withHttpHeaders(
           HeaderNames.COOKIE -> sessionCookie,
           "Csrf-Token" -> "nocheck"
         ).post(Map(homeAddressKey -> Seq("Other")))
@@ -289,7 +288,7 @@ class PreviousOwnersAddressControllerISpec extends IntegrationSpecBase
         ), userId)
 
       val res: WSResponse = await(buildClient(controllers.takeovers.routes.PreviousOwnersAddressController.handbackFromALF(Some(testAlfId)).url)
-        .withHeaders(
+        .withHttpHeaders(
           HeaderNames.COOKIE -> sessionCookie,
           "Csrf-Token" -> "nocheck"
         ).get()

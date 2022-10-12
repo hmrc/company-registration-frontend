@@ -16,11 +16,8 @@
 
 package audit.events
 
-import audit.events.RegistrationAuditEvent.buildTags
-import play.api.libs.json.JsObject
 import play.api.mvc.{AnyContent, Request}
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.audit.model.ExtendedDataEvent
 
 case class TagSet(clientIP : Boolean,
                   clientPort : Boolean,
@@ -35,24 +32,14 @@ object TagSet {
   val NO_TAGS = TagSet(false, false, false, false, false, false, false)
 }
 
-import audit.events.TagSet.ALL_TAGS
-
-abstract class RegistrationAuditEvent(auditType: String, detail: JsObject, tagSet: TagSet = ALL_TAGS)(implicit hc: HeaderCarrier, req: Request[AnyContent])
-  extends ExtendedDataEvent(
-    auditSource = "company-registration-frontend",
-    auditType = auditType,
-    detail = detail,
-    tags = buildTags(auditType, tagSet)
-  )
-
-object RegistrationAuditEvent {
-
+object AuditEventConstants {
   val EXT_USER_ID = "externalUserId"
   val AUTH_PROVIDER_ID = "authProviderId"
   val JOURNEY_ID = "journeyId"
   val COMPANY_NAME = "companyName"
   val RO_ADDRESS = "registeredOfficeAddress"
   val PATH = "path"
+
 
   def buildTags(auditType: String, tagSet: TagSet)(implicit hc: HeaderCarrier, req: Request[AnyContent]) = {
     Map("transactionName" -> auditType) ++
@@ -85,4 +72,5 @@ object RegistrationAuditEvent {
 
   private def buildPath(tagSet: TagSet)(implicit req: Request[AnyContent]) =
     if(tagSet.path) Map(PATH -> req.path) else Map()
+
 }

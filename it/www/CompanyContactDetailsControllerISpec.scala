@@ -78,7 +78,7 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
       stubContactDetails(regId, 404)
 
       val fResponse = await(buildClient(controllers.reg.routes.CompanyContactDetailsController.show.url)
-        .withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
+        .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
         .get())
       val doc = Jsoup.parse(fResponse.body)
       fResponse.status mustBe 200
@@ -103,7 +103,7 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
       stubGet(s"/company-registration/corporation-tax-registration/$regId/contact-details", 200, contactDetailsResp.toString())
 
       val fResponse = await(buildClient(controllers.reg.routes.CompanyContactDetailsController.show.url)
-        .withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
+        .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
         .get())
       val doc = Jsoup.parse(fResponse.body)
       fResponse.status mustBe 200
@@ -132,7 +132,7 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
       stubContactDetails(regId, 200)
 
       val response = await(buildClient(controllers.reg.routes.CompanyContactDetailsController.submit.url)
-        .withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck").post(
+        .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck").post(
         Map(
           "csrfToken" -> Seq("xxx-ignored-xxx"),
           "contactDaytimeTelephoneNumber" -> Seq("12345678910"),
@@ -152,7 +152,7 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
       stubKeystore(SessionId, regId)
       stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR())
       val response = await(buildClient(controllers.reg.routes.CompanyContactDetailsController.submit.url).
-        withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck").post(
+        withHttpHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck").post(
         Map(
           "csrfToken" -> Seq("xxx-ignored-xxx"),
           "contactDaytimeTelephoneNumber" -> Seq("1"),
@@ -178,7 +178,7 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
       stubPut(s"/company-registration/corporation-tax-registration/$regId/contact-details", 200, contactDetailsResp.toString())
       stubContactDetails(regId, 200)
       val response = await(buildClient(controllers.reg.routes.CompanyContactDetailsController.submit.url).
-        withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck").post(
+        withHttpHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck").post(
         Map(
           "csrfToken" -> Seq("xxx-ignored-xxx"),
           "contactDaytimeTelephoneNumber" -> Seq("12345678910"),
@@ -209,7 +209,7 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
       stubPut(s"/company-registration/corporation-tax-registration/$regId/contact-details", 200, contactDetailsResp.toString())
       stubContactDetails(regId, 200)
       val response = await(buildClient(controllers.reg.routes.CompanyContactDetailsController.submit.url).
-        withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck").post(
+        withHttpHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck").post(
         Map(
           "csrfToken" -> Seq("xxx-ignored-xxx"),
           "contactName" -> Seq("foo bar"),

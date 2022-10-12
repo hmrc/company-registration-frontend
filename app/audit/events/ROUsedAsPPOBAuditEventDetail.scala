@@ -16,10 +16,9 @@
 
 package audit.events
 
+import audit.events.AuditEventConstants._
 import models.CHROAddress
-import play.api.libs.json.{JsObject, Json, Writes}
-import play.api.mvc.{AnyContent, Request}
-import uk.gov.hmrc.http.HeaderCarrier
+import play.api.libs.json.{Json, Writes}
 
 case class ROUsedAsPPOBAuditEventDetail(regId: String,
                                         credId: String,
@@ -28,21 +27,12 @@ case class ROUsedAsPPOBAuditEventDetail(regId: String,
 
 
 object ROUsedAsPPOBAuditEventDetail {
-  import RegistrationAuditEvent.{AUTH_PROVIDER_ID, COMPANY_NAME, JOURNEY_ID, RO_ADDRESS}
-  implicit val writes = new Writes[ROUsedAsPPOBAuditEventDetail] {
-    def writes(detail: ROUsedAsPPOBAuditEventDetail) = {
-      Json.obj(
-        AUTH_PROVIDER_ID -> detail.credId,
-        JOURNEY_ID -> detail.regId,
-        COMPANY_NAME -> detail.companyName,
-        RO_ADDRESS -> Json.toJson(detail.address)(CHROAddress.auditWrites)
-      )
-    }
+  implicit val writes: Writes[ROUsedAsPPOBAuditEventDetail] = Writes[ROUsedAsPPOBAuditEventDetail] { detail =>
+    Json.obj(
+      AUTH_PROVIDER_ID -> detail.credId,
+      JOURNEY_ID -> detail.regId,
+      COMPANY_NAME -> detail.companyName,
+      RO_ADDRESS -> Json.toJson(detail.address)(CHROAddress.auditWrites)
+    )
   }
 }
-
-class ROUsedAsPPOBAuditEvent(details: ROUsedAsPPOBAuditEventDetail)(implicit hc: HeaderCarrier, req: Request[AnyContent])
-  extends RegistrationAuditEvent(
-    "registeredOfficeUsedAsPrincipalPlaceOfBusiness",
-    Json.toJson(details).as[JsObject]
-  )(hc, req)
