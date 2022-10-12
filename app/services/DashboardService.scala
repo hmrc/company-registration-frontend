@@ -16,14 +16,15 @@
 
 package services
 
-import javax.inject.Inject
+import java.time._
+import java.time.format.DateTimeFormatter
+
 import _root_.connectors._
-import audit.events.{EmailMismatchEvent, EmailMismatchEventDetail}
 import config.AppConfig
+import javax.inject.Inject
 import models._
 import models.auth.AuthDetails
 import models.external.{OtherRegStatus, Statuses}
-import java.time._
 import play.api.libs.json.JsValue
 import play.api.mvc.{AnyContent, Call, Request}
 import uk.gov.hmrc.auth.core.Enrolments
@@ -31,7 +32,6 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import utils._
 
-import java.time.format.DateTimeFormatter
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.control.NoStackTrace
@@ -45,6 +45,7 @@ class DashboardServiceImpl @Inject()(val keystoreConnector: KeystoreConnector,
                                      val auditConnector: AuditConnector,
                                      val featureFlag: SCRSFeatureSwitches,
                                      val thresholdService: ThresholdService,
+                                     val auditService: AuditService,
                                      val appConfig: AppConfig
                                     ) extends DashboardService {
 
@@ -78,6 +79,7 @@ trait DashboardService extends SCRSExceptions with AlertLogging with CommonServi
   val incorpInfoConnector: IncorpInfoConnector
   val auditConnector: AuditConnector
   val thresholdService: ThresholdService
+  val auditService: AuditService
   val otrsUrl: String
   val payeBaseUrl: String
   val payeUri: String
@@ -228,14 +230,10 @@ trait DashboardService extends SCRSExceptions with AlertLogging with CommonServi
           val mismatch = authDetails.email != crEmail.address
           if (mismatch) {
             for {
-              result <- auditConnector.sendExtendedEvent(
-                new EmailMismatchEvent(
-                  EmailMismatchEventDetail(
+              result <- auditService.emailMismatchEventDetail(
                     authDetails.externalId,
                     authDetails.authProviderId,
                     regID
-                  )
-                )
               )
               _ <- keystoreConnector.cache("emailMismatchAudit", mismatch)
             } yield mismatch

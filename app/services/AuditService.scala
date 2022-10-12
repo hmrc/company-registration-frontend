@@ -20,12 +20,10 @@ package services
 import java.time.Instant
 import java.util.UUID
 
-import audit.events.AuditEventConstants.buildTags
-import audit.events.TagSet.ALL_TAGS
-import audit.events.{AuditEventConstants, ContactDetailsAuditEventDetail, TagSet}
+import audit.events.{AuditEventConstants, ContactDetailsAuditEventDetail, EmailMismatchEventDetail, EmailVerifiedEventDetail, QuestionnaireAuditEvent}
 import javax.inject.{Inject, Singleton}
-import models.CompanyContactDetails
-import play.api.libs.json.{JsObject, Json, Writes}
+import models.{CompanyContactDetails, QuestionnaireModel}
+import play.api.libs.json.{Json, Writes}
 import play.api.mvc.{AnyContent, Request}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.AuditExtensions.auditHeaderCarrier
@@ -36,19 +34,6 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class AuditServiceImpl @Inject()(val auditConnector: AuditConnector) extends AuditService {
-}
-
-
-abstract class RegistrationAuditEvent(auditType: String, detail: JsObject, tagSet: TagSet = ALL_TAGS)(implicit hc: HeaderCarrier, req: Request[AnyContent])
-  extends ExtendedDataEvent(
-    auditSource = "company-registration-frontend",
-    auditType = auditType,
-    detail = detail,
-    tags = buildTags(auditType, tagSet)
-  )
-
-object RegistrationAuditEventTest {
-
 }
 
 
@@ -87,15 +72,36 @@ trait AuditService {
       detail = ContactDetailsAuditEventDetail(externalID, authProviderId, rID, originalEmail, amendedContactDetails)
     )
 
-  abstract class RegistrationAuditEventTest(auditType: String, detail: JsObject)(implicit hc: HeaderCarrier, req: Request[AnyContent])
-    extends ExtendedDataEvent(
-      auditSource = "company-registration-frontend",
-      auditType = auditType,
-      detail = detail
+
+  def emailMismatchEventDetail(externalUserId: String,
+                               authProviderId: String,
+                               journeyId: String)
+                              (implicit hc: HeaderCarrier, req: Request[AnyContent], ec: ExecutionContext): Future[AuditResult] =
+
+    sendEvent(
+      auditType = "emailMismatch",
+      detail = EmailMismatchEventDetail(externalUserId, authProviderId, journeyId)
     )
 
-  object RegistrationAuditEventTest{}
 
+  def emailVerifiedEventDetail(externalUserId: String, authProviderId: String,
+                               journeyId: String,
+                               emailAddress: String, isVerifiedEmailAddress: Boolean = true,
+                               previouslyVerified: Boolean = true)
+                              (implicit hc: HeaderCarrier, req: Request[AnyContent], ec: ExecutionContext): Future[AuditResult] =
+
+    sendEvent(
+      auditType = "emailVerified",
+      detail = EmailVerifiedEventDetail(externalUserId, authProviderId, journeyId, emailAddress, isVerifiedEmailAddress, previouslyVerified)
+    )
+
+  def questionnaireAuditEvent(questionnaireModel: QuestionnaireModel)
+                             (implicit hc: HeaderCarrier, req: Request[AnyContent], ec: ExecutionContext): Future[AuditResult] =
+
+    sendEvent(
+      auditType = "Questionnaire",
+      detail = QuestionnaireAuditEvent(questionnaireModel)
+    )
 
 }
 

@@ -19,18 +19,7 @@ package audit.events
 import play.api.mvc.{AnyContent, Request}
 import uk.gov.hmrc.http.HeaderCarrier
 
-case class TagSet(clientIP : Boolean,
-                  clientPort : Boolean,
-                  requestId : Boolean,
-                  sessionId : Boolean,
-                  deviceId : Boolean,
-                  authorisation : Boolean,
-                  path: Boolean)
 
-object TagSet {
-  val ALL_TAGS = TagSet(true, true, true, true, true, true, true)
-  val NO_TAGS = TagSet(false, false, false, false, false, false, false)
-}
 
 object AuditEventConstants {
   val EXT_USER_ID = "externalUserId"
@@ -39,38 +28,5 @@ object AuditEventConstants {
   val COMPANY_NAME = "companyName"
   val RO_ADDRESS = "registeredOfficeAddress"
   val PATH = "path"
-
-
-  def buildTags(auditType: String, tagSet: TagSet)(implicit hc: HeaderCarrier, req: Request[AnyContent]) = {
-    Map("transactionName" -> auditType) ++
-      buildClientIP(tagSet) ++
-      buildClientPort(tagSet) ++
-      buildRequestId(tagSet) ++
-      buildSessionId(tagSet) ++
-      buildAuthorization(tagSet) ++
-      buildDeviceId(tagSet) ++
-      buildPath(tagSet)
-  }
-
-  private def buildClientIP(tagSet: TagSet)(implicit hc: HeaderCarrier) =
-    if(tagSet.clientIP) Map("clientIP" -> hc.trueClientIp.getOrElse("-")) else Map()
-
-  private def buildClientPort(tagSet: TagSet)(implicit hc: HeaderCarrier) =
-    if(tagSet.clientPort) Map("clientPort" -> hc.trueClientPort.getOrElse("-")) else Map()
-
-  private def buildRequestId(tagSet: TagSet)(implicit hc: HeaderCarrier) =
-    if(tagSet.requestId) Map(hc.names.xRequestId -> hc.requestId.map(_.value).getOrElse("-")) else Map()
-
-  private def buildSessionId(tagSet: TagSet)(implicit hc: HeaderCarrier) =
-    if(tagSet.sessionId) Map(hc.names.xSessionId -> hc.sessionId.map(_.value).getOrElse("-")) else Map()
-
-  private def buildAuthorization(tagSet: TagSet)(implicit hc: HeaderCarrier) =
-    if(tagSet.authorisation) Map(hc.names.authorisation -> hc.authorization.map(_.value).getOrElse("-")) else Map()
-
-  private def buildDeviceId(tagSet: TagSet)(implicit hc: HeaderCarrier) =
-    if(tagSet.deviceId) Map(hc.names.deviceID -> hc.deviceID.getOrElse("-")) else Map()
-
-  private def buildPath(tagSet: TagSet)(implicit req: Request[AnyContent]) =
-    if(tagSet.path) Map(PATH -> req.path) else Map()
 
 }

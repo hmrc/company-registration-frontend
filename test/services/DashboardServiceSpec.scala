@@ -18,7 +18,6 @@ package services
 
 import java.time.LocalDate
 
-import audit.events.EmailMismatchEvent
 import builders.AuthBuilder
 import config.AppConfig
 import connectors.{NotStarted, SuccessfulResponse}
@@ -28,13 +27,12 @@ import models._
 import models.auth.AuthDetails
 import models.connectors.ConfirmationReferences
 import models.external.{OtherRegStatus, Statuses}
+import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito._
-import org.mockito.{ArgumentCaptor, ArgumentMatchers}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.{JsObject, JsValue, Json}
 import play.api.test.FakeRequest
-import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolment, EnrolmentIdentifier, Enrolments}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.cache.client.CacheMap
@@ -75,6 +73,8 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
       override val loggingTimes = mockLoggingTimes
       override val thresholdService: ThresholdService = mockThresholdService
       override val appConfig: AppConfig = app.injector.instanceOf[AppConfig]
+      override val auditService = mockAuditService
+
     }
   }
 
@@ -97,6 +97,7 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
       override val loggingTimes = mockLoggingTimes
       override val thresholdService: ThresholdService = mockThresholdService
       override val appConfig: AppConfig = app.injector.instanceOf[AppConfig]
+      override val auditService = mockAuditService
 
 
       override def buildIncorpCTDashComponent(regId: String, enrolments: Enrolments)(implicit hc: HeaderCarrier) = Future.successful(dash)
@@ -442,9 +443,9 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
         when(mockKeystoreConnector.fetchAndGet(eqTo("emailMismatchAudit"))(any(), any()))
           .thenReturn(Future.successful(None))
 
-        val captor = ArgumentCaptor.forClass(classOf[EmailMismatchEvent])
 
-        when(mockAuditConnector.sendExtendedEvent(captor.capture())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]()))
+        when(mockAuditService.emailMismatchEventDetail(ArgumentMatchers.any(),ArgumentMatchers.any(),ArgumentMatchers.any())
+        (ArgumentMatchers.any(),ArgumentMatchers.any(),ArgumentMatchers.any()))
           .thenReturn(Future.successful(Success))
 
         when(mockCompanyRegistrationConnector.retrieveEmail(any())(any()))

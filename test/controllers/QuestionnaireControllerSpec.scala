@@ -24,24 +24,22 @@ import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.Configuration
 import play.api.mvc.{AnyContent, MessagesControllerComponents, Request}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services.{AuditService, QuestionnaireService}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import utils.SCRSFeatureSwitches
 import views.html.reg.{Questionnaire => QuestionnaireView}
 
-import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 
 class QuestionnaireControllerSpec extends UnitSpec with GuiceOneAppPerSuite with MockitoSugar with SCRSMocks {
 
-  val mockQuestionnaireService = mock[QuestionnaireService]
+  val mockAuditServices = mockAuditService
   val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
   val mockQuestionnaireView = app.injector.instanceOf[QuestionnaireView]
   implicit val appConfig: AppConfig = new AppConfig(mock[ServicesConfig], mock[SCRSFeatureSwitches]){
@@ -60,7 +58,7 @@ class QuestionnaireControllerSpec extends UnitSpec with GuiceOneAppPerSuite with
     class Setup {
       val controller = new QuestionnaireController(
         MetricServiceMock,
-        mockQuestionnaireService,
+        mockAuditService,
         mockMcc,
         mockQuestionnaireView
       )
@@ -77,7 +75,7 @@ class QuestionnaireControllerSpec extends UnitSpec with GuiceOneAppPerSuite with
 
       "redirect to post sign in on successful form submission with all fields populated" in new Setup {
         when(
-          mockQuestionnaireService.sendAuditEventOnSuccessfulSubmission(ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier], ArgumentMatchers.any[Request[AnyContent]])).
+          mockAuditServices.questionnaireAuditEvent(ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier], ArgumentMatchers.any[Request[AnyContent]],ArgumentMatchers.any())).
           thenReturn(Future.successful(AuditResult.Success))
 
         val form = Map(
@@ -99,7 +97,7 @@ class QuestionnaireControllerSpec extends UnitSpec with GuiceOneAppPerSuite with
 
       "return a bad request on an unsuccessful form submission" in new Setup {
         when(
-          mockQuestionnaireService.sendAuditEventOnSuccessfulSubmission(ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier], ArgumentMatchers.any[Request[AnyContent]])).
+          mockAuditServices.questionnaireAuditEvent(ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier], ArgumentMatchers.any[Request[AnyContent]],ArgumentMatchers.any())).
           thenReturn(Future.successful(AuditResult.Success))
 
         val form = Map(
@@ -121,7 +119,7 @@ class QuestionnaireControllerSpec extends UnitSpec with GuiceOneAppPerSuite with
       "not be affected by a failed audit event" in new Setup {
 
         when(
-          mockQuestionnaireService.sendAuditEventOnSuccessfulSubmission(ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier], ArgumentMatchers.any[Request[AnyContent]])).
+          mockAuditServices.questionnaireAuditEvent(ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier], ArgumentMatchers.any[Request[AnyContent]],ArgumentMatchers.any())).
           thenReturn(Future.successful(AuditResult.Failure("")))
 
         val form = Map(
