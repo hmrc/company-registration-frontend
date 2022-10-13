@@ -19,7 +19,7 @@ package connectors
 import config.{AppConfig, WSHttp}
 import javax.inject.Inject
 import models._
-import play.api.Logging
+import utils.Logging
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.http._
 
@@ -56,7 +56,7 @@ trait BusinessRegistrationConnector extends Logging {
         wsHttp.POST[JsValue, BusinessRegistration](s"$businessRegUrl/business-registration/business-tax-registration/update/$registrationID",
           Json.toJson[BusinessRegistration](resp.copy(completionCapacity = Some(completionCapacity))))
       case unknown => {
-        logger.warn(s"[BusinessRegistrationConnector][retrieveAndUpdateCompletionCapacity] Unexpected result, unable to get BR doc : ${unknown}")
+        logger.warn(s"[retrieveAndUpdateCompletionCapacity] Unexpected result, unable to get BR doc : ${unknown}")
         throw new RuntimeException("Missing BR document for signed in user")
       }
     }
@@ -68,13 +68,13 @@ trait BusinessRegistrationConnector extends Logging {
         BusinessRegistrationSuccessResponse(metaData)
     } recover {
       case e: NotFoundException =>
-        logger.info(s"[BusinessRegistrationConnector] [retrieveMetadata] - Received a NotFound status code when expecting metadata from Business-Registration")
+        logger.warn(s"[retrieveMetadata] Received a NotFound status code when expecting metadata from Business-Registration")
         BusinessRegistrationNotFoundResponse
       case e: ForbiddenException =>
-        logger.error(s"[BusinessRegistrationConnector] [retrieveMetadata] - Received a Forbidden status code when expecting metadata from Business-Registration")
+        logger.error(s"[retrieveMetadata] Received a Forbidden status code when expecting metadata from Business-Registration")
         BusinessRegistrationForbiddenResponse
       case e: Exception =>
-        logger.error(s"[BusinessRegistrationConnector] [retrieveMetadata] - Received error when expecting metadata from Business-Registration - Error ${e.getMessage}")
+        logger.error(s"[retrieveMetadata] Received error when expecting metadata from Business-Registration - Error ${e.getMessage}")
         BusinessRegistrationErrorResponse(e)
     }
   }
@@ -85,13 +85,13 @@ trait BusinessRegistrationConnector extends Logging {
         BusinessRegistrationSuccessResponse(metaData)
     } recover {
       case e: NotFoundException =>
-        logger.info(s"[BusinessRegistrationConnector] [retrieveMetadata] - Received a NotFound status code when expecting metadata from Business-Registration")
+        logger.warn(s"[retrieveMetadata] Received a NotFound status code when expecting metadata from Business-Registration")
         BusinessRegistrationNotFoundResponse
       case e: ForbiddenException =>
-        logger.error(s"[BusinessRegistrationConnector] [retrieveMetadata] - Received a Forbidden status code when expecting metadata from Business-Registration")
+        logger.error(s"[retrieveMetadata] Received a Forbidden status code when expecting metadata from Business-Registration")
         BusinessRegistrationForbiddenResponse
       case e: Exception =>
-        logger.error(s"[BusinessRegistrationConnector] [retrieveMetadata] - Received error when expecting metadata from Business-Registration - Error ${e.getMessage}")
+        logger.error(s"[retrieveMetadata] Received error when expecting metadata from Business-Registration - Error ${e.getMessage}")
         BusinessRegistrationErrorResponse(e)
     }
   }
@@ -129,10 +129,10 @@ trait BusinessRegistrationConnector extends Logging {
 
   private def handlePrePopError(funcName: String): PartialFunction[Throwable, Boolean] = {
     case ex: HttpException =>
-      logger.error(s"[BusinessRegistrationConnector] [$funcName] http status code ${ex.responseCode} returned for reason ${ex.message}", ex)
+      logger.error(s"[$funcName] http status code ${ex.responseCode} returned for reason ${ex.message}", ex)
       false
     case ex: Exception =>
-      logger.error(s"[BusinessRegistrationConnector] [$funcName] unknown exception caught : ${ex.getMessage}", ex)
+      logger.error(s"[$funcName] unknown exception caught : ${ex.getMessage}", ex)
       false
   }
 }

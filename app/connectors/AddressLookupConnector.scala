@@ -19,7 +19,7 @@ package connectors
 import config.{AppConfig, WSHttp}
 import javax.inject.Inject
 import models.{AlfJourneyConfig, NewAddress}
-import play.api.Logging
+import utils.Logging
 import uk.gov.hmrc.http._
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -45,7 +45,7 @@ trait AddressLookupConnector extends Logging {
     wSHttp.POST[AlfJourneyConfig, HttpResponse](onRampUrl, alfJourneyConfig) map {
       response =>
         response.header(key = locationKey).getOrElse {
-          logger.error("[AddressLookupConnector] [getOnRampURL] Location header not set in Address Lookup response")
+          logger.error("[getOnRampURL] Location header not set in Address Lookup response")
           throw new ALFLocationHeaderNotSet
         }
     }

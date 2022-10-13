@@ -137,9 +137,11 @@ class PPOBServiceSpec extends SCRSSpec with CompanyDetailsFixture with SCRSExcep
 
       val result = await(service.fetchAddressesAndChoice("123456789"))
 
-      result mustBe (Some(CHROAddress("14","test road",Some("test town"),"Foo","UK",None,Some("FX1 1ZZ"),None)),
+      result mustBe ((
+        Some(CHROAddress("14","test road",Some("test town"),"Foo","UK",None,Some("FX1 1ZZ"),None)),
         Some(NewAddress("10 Test Street","Testtown",None,None,Some("FX1 1ZZ"),Some("United Kingdom"),None)),
-        PPOBChoice("RO"))
+        PPOBChoice("RO")
+      ))
 
     }
 
@@ -152,9 +154,11 @@ class PPOBServiceSpec extends SCRSSpec with CompanyDetailsFixture with SCRSExcep
 
       val result = await(service.fetchAddressesAndChoice("123456789"))
 
-      result mustBe (None,
+      result mustBe ((
+        None,
         Some(NewAddress("10 Test Street","Testtown",None,None,Some("FX1 1ZZ"),Some("United Kingdom"),None)),
-        PPOBChoice("PPOB"))
+        PPOBChoice("PPOB")
+      ))
     }
   }
 

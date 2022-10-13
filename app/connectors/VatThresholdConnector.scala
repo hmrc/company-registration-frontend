@@ -20,7 +20,7 @@ import javax.inject.Inject
 
 import config.{AppConfig, WSHttp}
 import java.time._
-import play.api.Logging
+import utils.Logging
 import play.api.libs.json.{JsNull, JsString}
 import uk.gov.hmrc.http._
 
@@ -52,9 +52,9 @@ trait VatThresholdConnector extends HttpErrorFunctions with Logging {
         }
       }
     } recover {
-      case ex: NotFoundException => logger.error(s"[VATThresholdConnector] [getVATThreshold] $ex"); throw ex
-      case ex: InternalServerException => logger.error(s"[VATThresholdConnector] [getVATThreshold] $ex"); throw ex
-      case ex: BadGatewayException => logger.error(s"[VATThresholdConnector] [getVATThreshold] $ex"); throw ex
+      case ex: NotFoundException => logger.error(s"[getVATThreshold] $ex"); throw ex
+      case ex: InternalServerException => logger.error(s"[getVATThreshold] $ex"); throw ex
+      case ex: BadGatewayException => logger.error(s"[getVATThreshold] $ex"); throw ex
     }
   }
 

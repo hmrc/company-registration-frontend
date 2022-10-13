@@ -298,7 +298,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
 
     "return a 200" in new Setup {
       when(mockDynamicStubConnector.simulateDesPost(ArgumentMatchers.eq(ackRef))(ArgumentMatchers.any()))
-        .thenReturn(Future.successful(HttpResponse(200)))
+        .thenReturn(Future.successful(HttpResponse(200, "")))
 
       val result = await(controller.simulateDesPost(ackRef)(FakeRequest()))
       status(result) mustBe OK

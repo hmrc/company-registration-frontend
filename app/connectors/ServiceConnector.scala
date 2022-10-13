@@ -19,7 +19,7 @@ package connectors
 import config.{AppConfig, WSHttp}
 import javax.inject.Inject
 import models.external.OtherRegStatus
-import play.api.Logging
+import utils.Logging
 import play.api.http.Status._
 import uk.gov.hmrc.http._
 
@@ -54,10 +54,10 @@ trait ServiceConnector extends Logging {
     } recover {
       case ex: NotFoundException => NotStarted
       case ex: HttpException =>
-        logger.error(s"[ServiceConnector] [getStatus] - ${ex.responseCode} response code was returned - reason : ${ex.message}", ex)
+        logger.error(s"[getStatus] ${ex.responseCode} response code was returned - reason : ${ex.message}", ex)
         ErrorResponse
       case ex: Throwable =>
-        logger.error(s"[ServiceConnector] [getStatus] - Non-Http Exception caught", ex)
+        logger.error(s"[getStatus] Non-Http Exception caught", ex)
         ErrorResponse
     }
   }
@@ -81,11 +81,11 @@ trait ServiceConnector extends Logging {
         }
       case _ => throw cantCancel
     } recover {
-      case ex: HttpException => logger.error(s"[ServiceConnector] [cancelReg] - ${ex.responseCode} response code was returned - reason : ${ex.message}  ", ex)
+      case ex: HttpException => logger.error(s"[cancelReg] ${ex.responseCode} response code was returned - reason : ${ex.message}  ", ex)
         NotCancelled
-      case ex: cantCancelT => logger.error(s"[ServiceConnector] [cancelReg] - $ex functionPassed in to return regId succeeded but didn't return a SuccessfulResponse (getStatus)")
+      case ex: cantCancelT => logger.error(s"[cancelReg] $ex functionPassed in to return regId succeeded but didn't return a SuccessfulResponse (getStatus)")
         NotCancelled
-      case ex: Throwable => logger.error(s"[ServiceConnector] [cancelReg] - Non-Http Exception caught", ex)
+      case ex: Throwable => logger.error(s"[cancelReg] Non-Http Exception caught", ex)
         NotCancelled
     }
   }

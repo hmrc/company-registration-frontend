@@ -73,16 +73,16 @@ class CompanyRegistrationConnectorSpec extends SCRSSpec with CTDataFixture with 
           |}
         """.stripMargin)
 
-      mockHttpPOST[JsValue, HttpResponse](s"${connector.companyRegUrl}/company-registration/corporation-tax-registration/check-ro-address", HttpResponse(200, Some(roWithCountry)))
+      mockHttpPOST[JsValue, HttpResponse](s"${connector.companyRegUrl}/company-registration/corporation-tax-registration/check-ro-address", HttpResponse(200, json = roWithCountry, Map()))
       await(connector.checkROValidPPOB("12345", CHROAddress("38", "line 1", None, "Telford", "UK", None, None, None))) mustBe
         Some(NewAddress("10 Test Street", "Testtown", None, None, None, Some("United Kingdom"), None))
     }
     "return false if an RO address cannot be normalised" in new Setup {
-      mockHttpPOST[JsValue, HttpResponse](s"${connector.companyRegUrl}/company-registration/corporation-tax-registration/check-ro-address", HttpResponse(400))
+      mockHttpPOST[JsValue, HttpResponse](s"${connector.companyRegUrl}/company-registration/corporation-tax-registration/check-ro-address", HttpResponse(400, ""))
       await(connector.checkROValidPPOB("12345", CHROAddress("38", "line 1<", None, "Telford", "UK", None, None, None))) mustBe None
     }
     "throw an Exception if any other response is received" in new Setup {
-      mockHttpPOST[JsValue, HttpResponse](s"${connector.companyRegUrl}/company-registration/corporation-tax-registration/check-ro-address", HttpResponse(500))
+      mockHttpPOST[JsValue, HttpResponse](s"${connector.companyRegUrl}/company-registration/corporation-tax-registration/check-ro-address", HttpResponse(500, ""))
       intercept[Exception](await(connector.checkROValidPPOB("12334", CHROAddress("38", "line 1", None, "Telford", "UK", None, None, None))))
     }
   }
@@ -117,17 +117,17 @@ class CompanyRegistrationConnectorSpec extends SCRSSpec with CTDataFixture with 
     "return a 4xx" in new Setup {
       when(mockWSHttp.GET[JsValue](ArgumentMatchers.anyString(),ArgumentMatchers.any(),ArgumentMatchers.any())
         (ArgumentMatchers.any[HttpReads[JsValue]](), ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
-        .thenReturn(Future.failed(Upstream4xxResponse("427", 427, 427)))
+        .thenReturn(Future.failed(UpstreamErrorResponse("427", 427, 427)))
       val result = connector.retrieveCorporationTaxRegistration(registrationID)
-      intercept[Upstream4xxResponse](await(result))
+      intercept[UpstreamErrorResponse](await(result))
     }
 
     "return a 5xx" in new Setup {
       when(mockWSHttp.GET[JsValue](ArgumentMatchers.anyString(),ArgumentMatchers.any(),ArgumentMatchers.any())
         (ArgumentMatchers.any[HttpReads[JsValue]](), ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
-        .thenReturn(Future.failed(Upstream5xxResponse("427", 427, 427)))
+        .thenReturn(Future.failed(UpstreamErrorResponse("500", 500, 500)))
       val result = connector.retrieveCorporationTaxRegistration(registrationID)
-      intercept[Upstream5xxResponse](await(result))
+      intercept[UpstreamErrorResponse](await(result))
     }
 
     "return any other exception" in new Setup {
@@ -169,7 +169,7 @@ class CompanyRegistrationConnectorSpec extends SCRSSpec with CTDataFixture with 
     "return a FootprintTooManyRequestsResponse" in new Setup {
       when(mockWSHttp.GET[ThrottleResponse](ArgumentMatchers.anyString(),ArgumentMatchers.any(),ArgumentMatchers.any())
         (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-        .thenReturn(Future.failed(Upstream4xxResponse("", 429, 429)))
+        .thenReturn(Future.failed(UpstreamErrorResponse("", 429, 429)))
 
       await(connector.retrieveOrCreateFootprint()) mustBe FootprintTooManyRequestsResponse
     }
@@ -177,9 +177,9 @@ class CompanyRegistrationConnectorSpec extends SCRSSpec with CTDataFixture with 
     "return a FootprintErrorResponse" in new Setup {
       when(mockWSHttp.GET[ThrottleResponse](ArgumentMatchers.anyString(),ArgumentMatchers.any(),ArgumentMatchers.any())
         (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-        .thenReturn(Future.failed(Upstream4xxResponse("", 400, 400)))
+        .thenReturn(Future.failed(UpstreamErrorResponse("", 400, 400)))
 
-      await(connector.retrieveOrCreateFootprint()) mustBe FootprintErrorResponse(Upstream4xxResponse("", 400, 400))
+      await(connector.retrieveOrCreateFootprint()) mustBe FootprintErrorResponse(UpstreamErrorResponse("", 400, 400))
     }
 
     "return an CompanyContactDetailsBadRequestResponse when encountering any other exception" in new Setup {
@@ -216,16 +216,16 @@ class CompanyRegistrationConnectorSpec extends SCRSSpec with CTDataFixture with 
     "return a 4xx" in new Setup {
       when(mockWSHttp.PUT[JsValue, CorporationTaxRegistrationResponse](ArgumentMatchers.anyString(), ArgumentMatchers.any(), ArgumentMatchers.any())
         (ArgumentMatchers.any(), ArgumentMatchers.any[HttpReads[CorporationTaxRegistrationResponse]](), ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
-        .thenReturn(Future.failed(Upstream4xxResponse("429", 429, 429)))
+        .thenReturn(Future.failed(UpstreamErrorResponse("429", 429, 429)))
 
-      intercept[Upstream4xxResponse](await(connector.createCorporationTaxRegistrationDetails("123")))
+      intercept[UpstreamErrorResponse](await(connector.createCorporationTaxRegistrationDetails("123")))
     }
     "return a 5xx" in new Setup {
       when(mockWSHttp.PUT[JsValue, CorporationTaxRegistrationResponse](ArgumentMatchers.anyString(), ArgumentMatchers.any(), ArgumentMatchers.any())
         (ArgumentMatchers.any(), ArgumentMatchers.any[HttpReads[CorporationTaxRegistrationResponse]](), ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
-        .thenReturn(Future.failed(Upstream5xxResponse("500", 500, 500)))
+        .thenReturn(Future.failed(UpstreamErrorResponse("500", 500, 500)))
 
-      intercept[Upstream5xxResponse](await(connector.createCorporationTaxRegistrationDetails("123")))
+      intercept[UpstreamErrorResponse](await(connector.createCorporationTaxRegistrationDetails("123")))
     }
     "return any other exception" in new Setup {
       when(mockWSHttp.PUT[JsValue, CorporationTaxRegistrationResponse](ArgumentMatchers.anyString(), ArgumentMatchers.any(), ArgumentMatchers.any())
@@ -259,14 +259,14 @@ class CompanyRegistrationConnectorSpec extends SCRSSpec with CTDataFixture with 
     "return a 4xx" in new Setup {
       when(mockWSHttp.GET[Option[CorporationTaxRegistrationResponse]](ArgumentMatchers.anyString(),ArgumentMatchers.any(),ArgumentMatchers.any())
         (ArgumentMatchers.any(), ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
-        .thenReturn(Future.failed(Upstream4xxResponse("429", 429, 429)))
+        .thenReturn(Future.failed(UpstreamErrorResponse("429", 429, 429)))
 
       await(connector.retrieveCorporationTaxRegistrationDetails("123")) mustBe None
     }
     "return a 5xx" in new Setup {
       when(mockWSHttp.GET[Option[CorporationTaxRegistrationResponse]](ArgumentMatchers.anyString(),ArgumentMatchers.any(),ArgumentMatchers.any())
         (ArgumentMatchers.any(), ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
-        .thenReturn(Future.failed(Upstream5xxResponse("500", 500, 500)))
+        .thenReturn(Future.failed(UpstreamErrorResponse("500", 500, 500)))
 
       await(connector.retrieveCorporationTaxRegistrationDetails("123")) mustBe None
     }
@@ -302,14 +302,14 @@ class CompanyRegistrationConnectorSpec extends SCRSSpec with CTDataFixture with 
     "return a 4xx" in new Setup {
       when(mockWSHttp.GET[Option[TradingDetails]](ArgumentMatchers.anyString(),ArgumentMatchers.any(),ArgumentMatchers.any())
         (ArgumentMatchers.any(), ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
-        .thenReturn(Future.failed(Upstream4xxResponse("429", 429, 429)))
+        .thenReturn(Future.failed(UpstreamErrorResponse("429", 429, 429)))
 
       await(connector.retrieveTradingDetails("123")) mustBe None
     }
     "return a 5xx" in new Setup {
       when(mockWSHttp.GET[Option[TradingDetails]](ArgumentMatchers.anyString(),ArgumentMatchers.any(),ArgumentMatchers.any())
         (ArgumentMatchers.any(), ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
-        .thenReturn(Future.failed(Upstream5xxResponse("500", 500, 500)))
+        .thenReturn(Future.failed(UpstreamErrorResponse("500", 500, 500)))
 
       await(connector.retrieveTradingDetails("123")) mustBe None
     }
@@ -342,13 +342,13 @@ class CompanyRegistrationConnectorSpec extends SCRSSpec with CTDataFixture with 
     }
     "return a 4xx" in new Setup {
       when(mockWSHttp.PUT[JsValue, TradingDetails](ArgumentMatchers.anyString(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
-        .thenReturn(Future.failed(Upstream4xxResponse("429", 429, 429)))
+        .thenReturn(Future.failed(UpstreamErrorResponse("429", 429, 429)))
 
       await(connector.updateTradingDetails("123", TradingDetails("true"))) mustBe TradingDetailsNotFoundResponse
     }
     "return a 5xx" in new Setup {
       when(mockWSHttp.PUT[JsValue, TradingDetails](ArgumentMatchers.anyString(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
-        .thenReturn(Future.failed(Upstream5xxResponse("500", 500, 500)))
+        .thenReturn(Future.failed(UpstreamErrorResponse("500", 500, 500)))
 
       await(connector.updateTradingDetails("123", TradingDetails("true"))) mustBe TradingDetailsNotFoundResponse
     }
@@ -379,15 +379,15 @@ class CompanyRegistrationConnectorSpec extends SCRSSpec with CTDataFixture with 
     }
     "return a 4xx" in new Setup {
       when(mockWSHttp.PUT[JsValue, CompanyDetails](ArgumentMatchers.anyString(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
-        .thenReturn(Future.failed(Upstream4xxResponse("429", 429, 429)))
+        .thenReturn(Future.failed(UpstreamErrorResponse("429", 429, 429)))
 
-      intercept[Upstream4xxResponse](await(connector.updateCompanyDetails("123", validCompanyDetailsRequest)))
+      intercept[UpstreamErrorResponse](await(connector.updateCompanyDetails("123", validCompanyDetailsRequest)))
     }
     "return a 5xx" in new Setup {
       when(mockWSHttp.PUT[JsValue, CompanyDetails](ArgumentMatchers.anyString(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
-        .thenReturn(Future.failed(Upstream5xxResponse("500", 500, 500)))
+        .thenReturn(Future.failed(UpstreamErrorResponse("500", 500, 500)))
 
-      intercept[Upstream5xxResponse](await(connector.updateCompanyDetails("123", validCompanyDetailsRequest)))
+      intercept[UpstreamErrorResponse](await(connector.updateCompanyDetails("123", validCompanyDetailsRequest)))
     }
     "return any other exception" in new Setup {
       when(mockWSHttp.PUT[JsValue, CompanyDetails](ArgumentMatchers.anyString(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
@@ -420,14 +420,14 @@ class CompanyRegistrationConnectorSpec extends SCRSSpec with CTDataFixture with 
     "return a 4xx" in new Setup {
       when(mockWSHttp.GET[Option[CompanyDetails]](ArgumentMatchers.anyString(),ArgumentMatchers.any(),ArgumentMatchers.any())
         (ArgumentMatchers.any(), ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
-        .thenReturn(Future.failed(Upstream4xxResponse("429", 429, 429)))
+        .thenReturn(Future.failed(UpstreamErrorResponse("429", 429, 429)))
 
       await(connector.retrieveCompanyDetails("12345")) mustBe None
     }
     "return a 5xx" in new Setup {
       when(mockWSHttp.GET[Option[CompanyDetails]](ArgumentMatchers.anyString(),ArgumentMatchers.any(),ArgumentMatchers.any())
         (ArgumentMatchers.any(), ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
-        .thenReturn(Future.failed(Upstream5xxResponse("500", 500, 500)))
+        .thenReturn(Future.failed(UpstreamErrorResponse("500", 500, 500)))
 
       await(connector.retrieveCompanyDetails("12345")) mustBe None
     }
@@ -450,13 +450,13 @@ class CompanyRegistrationConnectorSpec extends SCRSSpec with CTDataFixture with 
     }
     "return a 4xx as a DESFailureDeskpro response" in new Setup {
       when(mockWSHttp.PUT[JsValue, ConfirmationReferences](ArgumentMatchers.anyString(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
-        .thenReturn(Future.failed(Upstream4xxResponse("429", 429, 429)))
+        .thenReturn(Future.failed(UpstreamErrorResponse("429", 429, 429)))
 
       await(connector.updateReferences("12345", validConfirmationReferences)) mustBe DESFailureDeskpro
     }
     "return a 5xx as retriable DESFailure response" in new Setup {
       when(mockWSHttp.PUT[JsValue, ConfirmationReferences](ArgumentMatchers.anyString(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
-        .thenReturn(Future.failed(Upstream5xxResponse("500", 500, 500)))
+        .thenReturn(Future.failed(UpstreamErrorResponse("500", 500, 500)))
 
       await(connector.updateReferences("12345", validConfirmationReferences)) mustBe DESFailureRetriable
     }
@@ -725,7 +725,7 @@ class CompanyRegistrationConnectorSpec extends SCRSSpec with CTDataFixture with 
 
     val registrationId = "12345"
     val txId = "123abc"
-    val successfulResponse = HttpResponse(200)
+    val successfulResponse = HttpResponse(200, "")
 
     "return a 200 response if CR call returns 200" in new Setup {
       mockHttpPUT[JsValue, HttpResponse]("testUrl", successfulResponse)
@@ -753,18 +753,18 @@ class CompanyRegistrationConnectorSpec extends SCRSSpec with CTDataFixture with 
       result mustBe None
     }
 
-    "return a None if CR call returns a Upstream4xxResponse" in new Setup {
+    "return a None if CR call returns a UpstreamErrorResponse 4xx" in new Setup {
       when(mockWSHttp.PUT[JsValue, HttpResponse](ArgumentMatchers.anyString(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
-        .thenReturn(Future.failed(new Upstream4xxResponse("429", 429, 429)))
+        .thenReturn(Future.failed(UpstreamErrorResponse("429", 429, 429)))
 
       val result = await(connector.saveTXIDAfterHO2(registrationId, txId))
 
       result mustBe None
     }
 
-    "return a None if CR call returns a Upstream5xxResponse" in new Setup {
+    "return a None if CR call returns a UpstreamErrorResponse 5xx" in new Setup {
       when(mockWSHttp.PUT[JsValue, HttpResponse](ArgumentMatchers.anyString(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
-        .thenReturn(Future.failed(new Upstream5xxResponse("503", 503, 503)))
+        .thenReturn(Future.failed(UpstreamErrorResponse("503", 503, 503)))
 
       val result = await(connector.saveTXIDAfterHO2(registrationId, txId))
 
@@ -784,14 +784,14 @@ class CompanyRegistrationConnectorSpec extends SCRSSpec with CTDataFixture with 
   "getGroups" should {
     "return Some(groups)" in new Setup {
       when(mockWSHttp.GET[HttpResponse](ArgumentMatchers.anyString(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(),ArgumentMatchers.any())).thenReturn(
-        Future.successful(HttpResponse(200, Some(Json.toJson(Groups(true, None, None, None)))))
+        Future.successful(HttpResponse(200, json = Json.toJson(Groups(true, None, None, None)), Map()))
       )
       val res = await(connector.getGroups(""))
       res mustBe Some(Groups(true, None, None, None))
     }
     "return None when status 204" in new Setup {
       when(mockWSHttp.GET[HttpResponse](ArgumentMatchers.anyString(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(
-        Future.successful(HttpResponse(204, Some(Json.toJson(Groups(true, None, None, None)))))
+        Future.successful(HttpResponse(204, json = Json.toJson(Groups(true, None, None, None)), Map()))
       )
       val res = await(connector.getGroups(""))
       res mustBe None
@@ -806,18 +806,18 @@ class CompanyRegistrationConnectorSpec extends SCRSSpec with CTDataFixture with 
   }
   "updateGroups" should {
     "return groups when groups json is valid" in new Setup {
-      mockHttpPUT[Groups, HttpResponse]("testUrl", HttpResponse(200, Some(Json.toJson(Groups(true, None, None, None)))))
+      mockHttpPUT[Groups, HttpResponse]("testUrl", HttpResponse(200, json = Json.toJson(Groups(true, None, None, None)), Map()))
       val res = await(connector.updateGroups("", Groups(true, None, None, None)))
     }
     "return exception if json is valid on return of update" in new Setup {
-      mockHttpPUT[Groups, HttpResponse]("testUrl", HttpResponse(200, Some(Json.obj())))
+      mockHttpPUT[Groups, HttpResponse]("testUrl", HttpResponse(200, json = Json.obj(), Map()))
       intercept[Exception](await(connector.updateGroups("", Groups(true, None, None, None))))
     }
   }
   "delete groups" should {
     "return true" in new Setup {
       when(mockWSHttp.DELETE[HttpResponse](ArgumentMatchers.anyString(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(
-        Future.successful(HttpResponse(200, None))
+        Future.successful(HttpResponse(200, json = Json.obj(), Map()))
       )
       val res = await(connector.deleteGroups(""))
       res mustBe true
@@ -832,14 +832,12 @@ class CompanyRegistrationConnectorSpec extends SCRSSpec with CTDataFixture with 
 
   "shareholderListValidationEndpoint" should {
     "return list of desable shareholder names if status 200" in new Setup {
-      mockHttpPOST("", HttpResponse(200, Some(Json.toJson(List("foo", "bar")))
-      ))
+      mockHttpPOST("", HttpResponse(200, json = Json.toJson(List("foo", "bar")), Map()))
       val res = await(connector.shareholderListValidationEndpoint(List.empty))
       res mustBe List("foo", "bar")
     }
     "return empty list if status 204" in new Setup {
-      mockHttpPOST("", HttpResponse(204, Some(Json.toJson(List("foo", "bar")))
-      ))
+      mockHttpPOST("", HttpResponse(204, json = Json.toJson(List("foo", "bar")), Map()))
       val res = await(connector.shareholderListValidationEndpoint(List.empty))
       res mustBe List.empty
     }

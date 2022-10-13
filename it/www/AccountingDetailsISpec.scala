@@ -111,7 +111,7 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fix
       val response = await(fResponse)
 
       response.status mustBe 303
-      response.allHeaders("Location") mustBe Seq("/register-your-company/company-registration-overview")
+      response.header("Location") mustBe Some("/register-your-company/company-registration-overview")
     }
   }
 

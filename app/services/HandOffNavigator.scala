@@ -21,7 +21,7 @@ import java.util.NoSuchElementException
 import config.AppConfig
 import controllers.handoff._
 import models.handoff.{HandOffNavModel, NavLinks, Receiver, Sender}
-import play.api.Logging
+import utils.Logging
 import repositories._
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.{SCRSExceptions, SCRSFeatureSwitches}

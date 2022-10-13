@@ -20,7 +20,7 @@ import javax.inject.Inject
 
 import config.{AppConfig, WSHttp}
 import models.Shareholder
-import play.api.Logging
+import utils.Logging
 import play.api.libs.json.JsValue
 import services.MetricsService
 import uk.gov.hmrc.http.{CoreGet, HeaderCarrier, HttpException, HttpResponse}
@@ -70,7 +70,7 @@ trait IncorpInfoConnector extends Logging {
 
   private def handleError(transId: String, funcName: String):PartialFunction[Throwable, JsValue] = {
     case ex: HttpException =>
-      throw new Exception(s"[IncorpInfoConnector] [$funcName] - An exception was caught. Response code : ${ex.responseCode} reason : ${ex.message}")
+      throw new Exception(s"[$funcName] - An exception was caught. Response code : ${ex.responseCode} reason : ${ex.message}")
     case ex: Throwable =>
       throw new Exception
   }
@@ -79,14 +79,14 @@ trait IncorpInfoConnector extends Logging {
     val queryString = s"txId=$transId&date=2018-01-01${if(isSuccess) "&crn=12345678" else ""}&success=$isSuccess"
 
     wSHttp.GET[HttpResponse](s"$incorpInfoUrl/test-only/add-incorp-update/?$queryString") map (_ => true) recover { case _ =>
-        logger.error(s"[IncorpInfoConnector] [injectTestIncorporationUpdate] Failed to inject a test incorporation update into II for $transId")
+        logger.error(s"[injectTestIncorporationUpdate] Failed to inject a test incorporation update into II for $transId")
         false
     }
   }
 
   def manuallyTriggerIncorporationUpdate(implicit hc:HeaderCarrier): Future[Boolean] = {
     wSHttp.GET[HttpResponse](s"$incorpInfoUrl/test-only/manual-trigger/fireSubs") map (_ => true) recover { case _ =>
-        logger.error(s"[IncorpInfoConnector] [manuallyTriggerIncorporationUpdate] Failed to trigger subscription processing on II")
+        logger.error(s"[manuallyTriggerIncorporationUpdate] Failed to trigger subscription processing on II")
         false
     }
   }

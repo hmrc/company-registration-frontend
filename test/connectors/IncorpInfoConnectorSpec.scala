@@ -20,7 +20,7 @@ import helpers.SCRSSpec
 import mocks.MetricServiceMock
 import models.{CHROAddress, Shareholder}
 import play.api.libs.json.Json
-import uk.gov.hmrc.http.{HttpResponse, NotFoundException, Upstream5xxResponse}
+import uk.gov.hmrc.http.{HttpResponse, NotFoundException, Upstream5xxResponse, UpstreamErrorResponse}
 
 import scala.concurrent.Future
 
@@ -63,12 +63,12 @@ class mockHttpPOSTIncorpInfoConnectorSpec extends SCRSSpec {
 
   "injectTestIncorporationUpdate" should {
     "set up a successful incorporation update" in new Setup {
-      mockHttpGet(s"$iiUrl/test-only/add-incorp-update/?txId=$transId&date=2018-01-01&crn=12345678&success=true", Future.successful(HttpResponse(200)))
+      mockHttpGet(s"$iiUrl/test-only/add-incorp-update/?txId=$transId&date=2018-01-01&crn=12345678&success=true", Future.successful(HttpResponse(200, "")))
       val res = await(connector.injectTestIncorporationUpdate(transId, isSuccess = true))
       res mustBe true
     }
     "set up a rejected incorporation update" in new Setup {
-      mockHttpGet(s"$iiUrl/test-only/add-incorp-update/?txId=$transId&date=2018-01-01&success=false", Future.successful(HttpResponse(200)))
+      mockHttpGet(s"$iiUrl/test-only/add-incorp-update/?txId=$transId&date=2018-01-01&success=false", Future.successful(HttpResponse(200, "")))
       val res = await(connector.injectTestIncorporationUpdate(transId, isSuccess = false))
       res mustBe true
     }
@@ -81,12 +81,12 @@ class mockHttpPOSTIncorpInfoConnectorSpec extends SCRSSpec {
 
   "manuallyTriggerIncorporationUpdate" should {
     "trigger subscriptions to be fired" in new Setup {
-      mockHttpGet(s"$iiUrl/test-only/manual-trigger/fireSubs", Future.successful(HttpResponse(200)))
+      mockHttpGet(s"$iiUrl/test-only/manual-trigger/fireSubs", Future.successful(HttpResponse(200, "")))
       val res = await(connector.manuallyTriggerIncorporationUpdate)
       res mustBe true
     }
     "persist any exceptions returned by II" in new Setup {
-      mockHttpGet(s"$iiUrl/test-only/manual-trigger/fireSubs", Future.failed(new Upstream5xxResponse("502", 502, 502)))
+      mockHttpGet(s"$iiUrl/test-only/manual-trigger/fireSubs", Future.failed(UpstreamErrorResponse("502", 502, 502)))
       val res = await(connector.manuallyTriggerIncorporationUpdate)
       res mustBe false
     }
@@ -143,7 +143,7 @@ class mockHttpPOSTIncorpInfoConnectorSpec extends SCRSSpec {
 
       mockHttpGet(s"$iiUrl/shareholders/$transId",
         Future.successful(
-          HttpResponse(200,Some(listOfShareHoldersFromII))))
+          HttpResponse(200, json = listOfShareHoldersFromII, Map())))
 
       val res = await(connector.returnListOfShareholdersFromTxApi(transId))
       res.right.get mustBe listOfShareholders
@@ -152,7 +152,7 @@ class mockHttpPOSTIncorpInfoConnectorSpec extends SCRSSpec {
     "return an empty list for a 204" in new Setup {
       mockHttpGet(s"$iiUrl/shareholders/$transId",
         Future.successful(
-          HttpResponse(204,Some(listOfShareHoldersFromII))))
+          HttpResponse(204, json = listOfShareHoldersFromII, Map())))
 
       val res = await(connector.returnListOfShareholdersFromTxApi(transId))
       res.right.get mustBe List.empty[Shareholder]
@@ -160,7 +160,7 @@ class mockHttpPOSTIncorpInfoConnectorSpec extends SCRSSpec {
     "return empty list if json is unparsable as a list of shareholders" in new Setup {
       mockHttpGet(s"$iiUrl/shareholders/$transId",
         Future.successful(
-          HttpResponse(200,Some(Json.obj("foo" -> "bar")))))
+          HttpResponse(200, json = Json.obj("foo" -> "bar"), Map())))
 
       val res = await(connector.returnListOfShareholdersFromTxApi(transId))
       res.right.get mustBe List.empty[Shareholder]

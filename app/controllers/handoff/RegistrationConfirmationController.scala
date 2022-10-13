@@ -21,7 +21,7 @@ import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthenticatedController
 import javax.inject.Inject
 import models.{ConfirmationReferencesSuccessResponse, DESFailureRetriable}
-import play.api.Logging
+import utils.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc._
 import services.{HandBackService, HandOffService, NavModelNotFoundException}
@@ -60,7 +60,7 @@ class RegistrationConfirmationController @Inject()(val authConnector: PlayAuthCo
               }
               case Failure(DecryptionError) => Future.successful(BadRequest(error_template_restart("6", "DecryptionError")))
               case unknown => Future.successful {
-                logger.warn(s"[RegistrationConfirmationController][registrationConfirmation] HO6 Unexpected result, sending to post-sign-in : ${unknown}")
+                logger.warn(s"[registrationConfirmation][HO6] Unexpected result, sending to post-sign-in : ${unknown}")
                 Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))
               }
             } recover {
@@ -71,10 +71,8 @@ class RegistrationConfirmationController @Inject()(val authConnector: PlayAuthCo
       }
   }
 
-  def paymentConfirmation(requestData: String): Action[AnyContent] = {
-    logger.info("[RegistrationConfirmationController][paymentConfirmation] New Handoff 6")
+  def paymentConfirmation(requestData: String): Action[AnyContent] =
     registrationConfirmation(requestData)
-  }
 
   private def getPaymentHandoffResult(externalID: Option[String])(implicit hc: HeaderCarrier, request: Request[AnyContent]): Future[Result] = {
     handOffService.buildPaymentConfirmationHandoff(externalID).map {

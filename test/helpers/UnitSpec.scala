@@ -26,6 +26,8 @@ import java.nio.charset.Charset
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Future}
+import scala.language.postfixOps
+import scala.language.implicitConversions
 
 trait UnitSpec extends PlaySpec {
 

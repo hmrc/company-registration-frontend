@@ -21,7 +21,7 @@ import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthenticatedController
 import controllers.reg.ControllerErrorHandler
 import javax.inject.Inject
-import play.api.Logging
+import utils.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services._
@@ -55,7 +55,7 @@ class DashboardController @Inject()(val authConnector: PlayAuthConnector,
               case CouldNotBuild => Redirect(controllers.handoff.routes.BasicCompanyDetailsController.basicCompanyDetails)
               case RejectedIncorp => Ok(viewRegistrationUnsuccessful())
             } recover {
-              case ex => logger.error(s"[Dashboard Controller] [Show] buildDashboard returned an error ${ex.getMessage}", ex)
+              case ex => logger.error(s"[show] buildDashboard returned an error ${ex.getMessage}", ex)
                 InternalServerError(controllerErrorHandler.defaultErrorPage)
             }
           }

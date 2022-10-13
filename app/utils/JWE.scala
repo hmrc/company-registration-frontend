@@ -16,16 +16,14 @@
 
 package utils
 
-import java.nio.charset.{StandardCharsets => CS}
-import javax.inject.Inject
-
 import config.AppConfig
 import org.jose4j.jwe.{ContentEncryptionAlgorithmIdentifiers => CEAI, JsonWebEncryption => JWE, KeyManagementAlgorithmIdentifiers => KMAI}
 import org.jose4j.keys.AesKey
-import play.api.Logging
 import play.api.libs.json
 import play.api.libs.json.Json
 
+import java.nio.charset.{StandardCharsets => CS}
+import javax.inject.Inject
 import scala.util.control.NoStackTrace
 import scala.util.{Failure, Success, Try}
 
@@ -76,7 +74,7 @@ trait JweDecryptor extends Logging {
       Success(payload)
     } catch {
       case e: Exception =>
-        logger.error(s"[JweDecryptor] [decryptRaw] Could not decrypt payload due to ${e.getMessage}")
+        logger.error(s"[decryptRaw] Could not decrypt payload due to ${e.getMessage}")
         Failure(DecryptionError)
     }
   }
@@ -93,7 +91,7 @@ trait JweDecryptor extends Logging {
         )
       ) recoverWith {
       case e: Exception =>
-        logger.error(s"[JweDecryptor] [unpack] Could not unpack payload due to ${e.getMessage}")
+        logger.error(s"[unpack] Could not unpack payload due to ${e.getMessage}")
         Failure(PayloadError)
     }
   }

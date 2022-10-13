@@ -26,7 +26,7 @@ import models._
 import models.connectors.ConfirmationReferences
 import models.handoff._
 import models.test.FeatureSwitch
-import play.api.Logging
+import utils.Logging
 import play.api.i18n.I18nSupport
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -257,7 +257,7 @@ class TestEndpointController @Inject()(val authConnector: PlayAuthConnector,
           brConnector.retrieveMetadata map {
             case BusinessRegistrationSuccessResponse(metaData) => metaData
             case unknown => {
-              logger.warn(s"[TestEndpointController][verifyEmail/getMetadata] HO6 Unexpected result, sending to post-sign-in : ${unknown}")
+              logger.warn(s"[verifyEmail] HO6 Unexpected result, sending to post-sign-in : ${unknown}")
               throw new RuntimeException(s"Unexpected result ${unknown}")
             }
           }

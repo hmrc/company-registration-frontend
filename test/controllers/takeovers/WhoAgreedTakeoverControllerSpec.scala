@@ -17,7 +17,7 @@
 package controllers.takeovers
 
 import akka.actor.ActorSystem
-import akka.stream.ActorMaterializer
+import akka.stream.{ActorMaterializer, Materializer}
 import builders.AuthBuilder
 import controllers.reg.ControllerErrorHandler
 import fixtures.LoginFixture
@@ -50,7 +50,7 @@ class WhoAgreedTakeoverControllerSpec extends SCRSSpec
   val testPreviousOwnersName: String = "testName"
   implicit val request: Request[AnyContent] = FakeRequest()
   implicit val actorSystem: ActorSystem = ActorSystem("MyTest")
-  implicit val actorMaterializer: ActorMaterializer = ActorMaterializer()
+  implicit val actorMaterializer: Materializer = Materializer(actorSystem)
   implicit lazy val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
   val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
   implicit val ec: ExecutionContext = mockMcc.executionContext

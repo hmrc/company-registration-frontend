@@ -19,7 +19,7 @@ package connectors
 import javax.inject.Inject
 import config.{AppConfig, WSHttp}
 import models.EmailVerificationRequest
-import play.api.Logging
+import utils.Logging
 import play.api.http.Status._
 import play.api.libs.json.{JsObject, Json}
 import uk.gov.hmrc.http._
@@ -46,7 +46,7 @@ trait EmailVerificationConnector extends HttpErrorFunctions with Logging {
 
   def checkVerifiedEmail(email : String)(implicit hc : HeaderCarrier) : Future[Boolean] = {
     def errorMsg(status: String) = {
-      logger.debug(s"[EmailVerificationConnector] [checkVerifiedEmail] request to check verified email returned a $status - email not found / not verified")
+      logger.debug(s"[checkVerifiedEmail] request to check verified email returned a $status - email not found / not verified")
       false
     }
     wSHttp.POST[JsObject, HttpResponse](s"$checkVerifiedEmailURL", Json.obj("email" -> email)) map {
@@ -62,18 +62,18 @@ trait EmailVerificationConnector extends HttpErrorFunctions with Logging {
 
   def requestVerificationEmailReturnVerifiedEmailStatus(emailRequest : EmailVerificationRequest)(implicit hc : HeaderCarrier) : Future[Boolean] = {
     def errorMsg(status: String, ex: HttpException) = {
-      logger.error(s"[EmailVerificationConnector] [requestVerificationEmail] request to send verification email returned a $status - email not sent - reason = ${ex.getMessage}")
+      logger.error(s"[requestVerificationEmail] request to send verification email returned a $status - email not sent - reason = ${ex.getMessage}")
       throw new EmailErrorResponse(status)
     }
 
     wSHttp.POST[EmailVerificationRequest, HttpResponse] (s"$sendVerificationEmailURL", emailRequest) map { r =>
       r.status match {
         case CREATED => {
-          logger.debug("[EmailVerificationConnector] [requestVerificationEmail] request to verification service successful")
+          logger.debug("[requestVerificationEmailReturnVerifiedEmailStatus] request to verification service successful")
           false
         }
         case CONFLICT =>
-          logger.warn("[EmailVerificationConnector] [requestVerificationEmail] request to send verification email returned a 409 - email already verified")
+          logger.warn("[requestVerificationEmailReturnVerifiedEmailStatus] request to send verification email returned a 409 - email already verified")
           true
       }
     } recover {

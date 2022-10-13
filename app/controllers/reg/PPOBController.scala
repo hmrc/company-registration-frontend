@@ -24,7 +24,7 @@ import forms.PPOBForm
 import javax.inject.{Inject, Singleton}
 import models._
 import models.handoff.BackHandoff
-import play.api.Logging
+import utils.Logging
 import play.api.i18n.Messages
 import play.api.mvc._
 import repositories.NavModelRepo
@@ -87,7 +87,7 @@ class PPOBController @Inject()(val authConnector: PlayAuthConnector,
                 Redirect(controllers.reg.routes.CompanyContactDetailsController.show)
               }
               case None =>
-                throw new Exception("[PPOBController] [ALF Handback] 'id' query string missing from ALF handback")
+                throw new Exception("[PPOBController][ALF Handback] 'id' query string missing from ALF handback")
             }
 
         }
@@ -128,7 +128,7 @@ class PPOBController @Inject()(val authConnector: PlayAuthConnector,
                     confirmPageHeading = Messages("page.addressLookup.PPOB.confirm.description")
                   ).map(Redirect(_))
                 case unexpected =>
-                  logger.warn(s"[PPOBController] [Submit] '$unexpected' address choice submitted for reg ID: $regId")
+                  logger.warn(s"[Submit] '$unexpected' address choice submitted for reg ID: $regId")
                   Future.successful(BadRequest(controllerErrorHandler.defaultErrorPage))
               }
             }

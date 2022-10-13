@@ -20,7 +20,7 @@ import config.AppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthenticatedController
 import javax.inject.Inject
-import play.api.Logging
+import utils.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.{HandBackService, HandOffService, NavModelNotFoundException}
@@ -51,7 +51,7 @@ class CorporationTaxSummaryController @Inject()(val authConnector: PlayAuthConne
             case Failure(PayloadError) => BadRequest(error_template_restart("4", "PayloadError"))
             case Failure(DecryptionError) => BadRequest(error_template_restart("4", "DecryptionError"))
             case unknown => {
-              logger.warn(s"[CorporationTaxSummaryController][corporationTaxSummary] HO4 Unexpected result, sending to post-sign-in : ${unknown}")
+              logger.warn(s"[corporationTaxSummary][HO4] Unexpected result, sending to post-sign-in : ${unknown}")
               Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))
             }
           } recover {

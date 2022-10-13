@@ -78,7 +78,7 @@ object SCRSValidators {
         case name if name.length == 0 => Seq(ValidationError("error.otherBusinessName.required"))
         case name if name.length > 100 => Seq(ValidationError("error.otherBusinessName.over100Characters"))
         case name if !name.matches(otherBusinessNameRegex) =>
-          val nonMatchingList = otherBusinessNameInverseRegex.r.findAllIn(name.toCharArray).toList.distinct
+          val nonMatchingList = otherBusinessNameInverseRegex.r.findAllIn(name).toList.distinct
           if (nonMatchingList.size == 1) {
             Seq(ValidationError("error.otherBusinessName.invalidCharacter", nonMatchingList.head))
           }

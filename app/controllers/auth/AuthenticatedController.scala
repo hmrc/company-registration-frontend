@@ -18,7 +18,7 @@ package controllers.auth
 
 import config.AppConfig
 import models.auth.{AuthDetails, BasicCompanyAuthDetails}
-import play.api.Logging
+import utils.Logging
 import play.api.mvc._
 import uk.gov.hmrc.auth.core.AuthProvider.GovernmentGateway
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.{credentials, emailVerified, name, _}
@@ -57,7 +57,7 @@ trait AuthenticatedController extends FrontendBaseController with AuthorisedFunc
     baseFunction.retrieve(name and email and externalId) {
       case Some(nm) ~ Some(em) ~ Some(ei) => body(BasicCompanyAuthDetails(nm.name.get, em, ei))
       case nm ~ None ~ Some(ei) => {
-        logger.info("ctAuthorisedBasicCompanyDetails user does not have email on gg record (call from auth)")
+        logger.info("[ctAuthorisedBasicCompanyDetails] user does not have email on gg record (call from auth)")
         Future.successful(Redirect(controllers.verification.routes.EmailVerificationController.createShow))
       }
       case _ => Future.failed(InternalError("ctAuthorisedBasicCompanyDetails auth response was incorrect to what we expected when we were extracting Retrievals"))
@@ -68,7 +68,7 @@ trait AuthenticatedController extends FrontendBaseController with AuthorisedFunc
     baseFunction.retrieve(name and email) {
       case nm ~ Some(em) => body(em)
       case nm ~ None => {
-        logger.info("ctAuthorisedCompanyContact user does not have email on gg record (call from auth)")
+        logger.info("[ctAuthorisedCompanyContact] user does not have email on gg record (call from auth)")
         Future.successful(Redirect(controllers.verification.routes.EmailVerificationController.createShow))
       }
       case _ => Future.failed(InternalError("ctAuthorisedCompanyContact auth response was incorrect to what we expected when we were extracting Retrievals"))
@@ -81,7 +81,7 @@ trait AuthenticatedController extends FrontendBaseController with AuthorisedFunc
     baseFunction.retrieve(name and email and credentials and externalId) {
       case nm ~ Some(em) ~ Some(cr) ~ Some(ei) => body(em, cr.providerId, ei)
       case nm ~ None ~ cr ~ Some(ei) => {
-        logger.info("ctAuthorisedEmailCredsExtId user does not have email on gg record (call from auth)")
+        logger.info("[ctAuthorisedEmailCredsExtId] user does not have email on gg record (call from auth)")
         Future.successful(Redirect(controllers.verification.routes.EmailVerificationController.createShow))
       }
       case _ => Future.failed(InternalError("ctAuthorisedEmailCredsExtId auth response was incorrect to what we expected when we were extracting Retrievals"))
@@ -100,7 +100,7 @@ trait AuthenticatedController extends FrontendBaseController with AuthorisedFunc
     baseFunction.retrieve(affinityGroup and allEnrolments and email and internalId and credentials) {
       case Some(ag) ~ ae ~ Some(em) ~ Some(ii) ~ Some(api) => body(AuthDetails(ag, ae, em, ii, api.providerId))
       case Some(ag) ~ ae ~ None ~ Some(ii) ~ api => {
-        logger.info("ctAuthorisedPostSignIn user does not have email on gg record (call from auth)")
+        logger.info("[ctAuthorisedPostSignIn] user does not have email on gg record (call from auth)")
         Future.successful(Redirect(controllers.verification.routes.EmailVerificationController.createShow))
       }
       case _ => Future.failed(InternalError("ctAuthorisedPostSignIn auth response was incorrect to what we expected when we were extracting Retrievals"))
@@ -118,28 +118,28 @@ trait AuthenticatedController extends FrontendBaseController with AuthorisedFunc
 
   def authErrorHandlingIncomplete(implicit request: Request[AnyContent]): PartialFunction[Throwable, Result] = {
     case e: NoActiveSession => {
-      logger.info(s"[AuthenticatedController][authErrorHandlingIncomplete] Reason for NoActiveSession: ${e.reason}")
+      logger.info(s"[authErrorHandlingIncomplete] Reason for NoActiveSession: ${e.reason}")
       Redirect(controllers.reg.routes.IncompleteRegistrationController.show)
     }
     case InternalError(e) =>
-      logger.warn(s"Something went wrong with a call to Auth with exception: ${e}")
+      logger.warn(s"[authErrorHandlingIncomplete] Something went wrong with a call to Auth with exception: ${e}")
       InternalServerError
     case e: AuthorisationException =>
-      logger.error(s"auth returned $e and redirected user to 'incorrect-account-type' page")
+      logger.error(s"[authErrorHandlingIncomplete] auth returned $e and redirected user to 'incorrect-account-type' page")
       Redirect(controllers.verification.routes.EmailVerificationController.createGGWAccountAffinityShow)
   }
 
   def authErrorHandling(hoID: Option[String] = None, payload: Option[String] = None)
                        (implicit request: Request[AnyContent]): PartialFunction[Throwable, Result] = {
     case e: NoActiveSession => {
-      logger.info(s"[AuthenticatedController][authErrorHandling] Reason for NoActiveSession: ${e.reason} HO was ${hoID.fold("None")(ho => ho)} Payload was ${payload.fold("None")(pl => pl)}")
+      logger.info(s"[authErrorHandling] Reason for NoActiveSession: ${e.reason} HO was ${hoID.fold("None")(ho => ho)} Payload was ${payload.fold("None")(pl => pl)}")
       Redirect(appConfig.loginURL, loginParams(hoID, payload))
     }
     case InternalError(e) =>
-      logger.warn(s"Something went wrong with a call to Auth with exception: ${e}")
+      logger.warn(s"[authErrorHandling] Something went wrong with a call to Auth with exception: ${e}")
       InternalServerError
     case e: AuthorisationException =>
-      logger.info(s"auth returned $e and redirected user to 'incorrect-account-type' page")
+      logger.error(s"[authErrorHandling] auth returned $e and redirected user to 'incorrect-account-type' page")
       Redirect(controllers.verification.routes.EmailVerificationController.createGGWAccountAffinityShow)
   }
 

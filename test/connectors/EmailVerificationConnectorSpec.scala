@@ -62,7 +62,7 @@ class EmailVerificationConnectorSpec extends SCRSSpec with UnitSpec with Mockito
   "checkVerifiedEmail" should {
 
     "Return a true when passed an email that has been verified" in new Setup {
-      mockHttpPOST(connector.checkVerifiedEmailURL, HttpResponse(OK))
+      mockHttpPOST(connector.checkVerifiedEmailURL, HttpResponse(OK, ""))
 
       await(connector.checkVerifiedEmail(verifiedEmail)) mustBe true
     }
@@ -97,7 +97,7 @@ class EmailVerificationConnectorSpec extends SCRSSpec with UnitSpec with Mockito
   "requestVerificationEmail" should {
 
     "Return a false when a new email verification request is successful to indicate the email was NOT verified before" in new Setup {
-      mockHttpPOST(connector.sendVerificationEmailURL, HttpResponse(CREATED))
+      mockHttpPOST(connector.sendVerificationEmailURL, HttpResponse(CREATED, ""))
 
       await(connector.requestVerificationEmailReturnVerifiedEmailStatus(verificationRequest)) mustBe false
     }
@@ -105,7 +105,7 @@ class EmailVerificationConnectorSpec extends SCRSSpec with UnitSpec with Mockito
 
     "Return a true when a new email verification request has been sent because the email is already verified" in new Setup {
       when(mockWSHttp.POST[JsValue, HttpResponse](ArgumentMatchers.anyString(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any[ExecutionContext]))
-        .thenReturn(Future.successful(HttpResponse(409)))
+        .thenReturn(Future.successful(HttpResponse(409, "")))
 
       await(connector.requestVerificationEmailReturnVerifiedEmailStatus(verificationRequest)) mustBe true
     }
@@ -142,34 +142,34 @@ class EmailVerificationConnectorSpec extends SCRSSpec with UnitSpec with Mockito
 
   "customRead" should {
     "return a 200" in new Setup {
-      val expected = HttpResponse(OK)
+      val expected = HttpResponse(OK, "")
       val result = connector.customRead("test", "test", expected)
       result.status mustBe expected.status
     }
     "return a 409" in new Setup {
-      val expected = HttpResponse(CONFLICT)
-      val result = connector.customRead("test", "test", HttpResponse(CONFLICT))
+      val expected = HttpResponse(CONFLICT, "")
+      val result = connector.customRead("test", "test", HttpResponse(CONFLICT, ""))
       result.status mustBe expected.status
     }
     "return a BadRequestException" in new Setup {
-      val response = HttpResponse(BAD_REQUEST)
+      val response = HttpResponse(BAD_REQUEST, "")
       intercept[BadRequestException](connector.customRead("test", "test", response))
     }
     "return a NotFoundException" in new Setup {
-      val response = HttpResponse(NOT_FOUND)
+      val response = HttpResponse(NOT_FOUND, "")
       intercept[NotFoundException](connector.customRead("test", "test", response))
     }
     "return an InternalServerException" in new Setup {
-      val response = HttpResponse(INTERNAL_SERVER_ERROR)
+      val response = HttpResponse(INTERNAL_SERVER_ERROR, "")
       intercept[InternalServerException](connector.customRead("test", "test", response))
     }
     "return a BadGatewayException" in new Setup {
-      val response = HttpResponse(BAD_GATEWAY)
+      val response = HttpResponse(BAD_GATEWAY, "")
       intercept[BadGatewayException](connector.customRead("test", "test", response))
     }
     "return an upstream 4xx" in new Setup {
-      val response = HttpResponse(UNAUTHORIZED)
-      intercept[Upstream4xxResponse](connector.customRead("test", "test", response))
+      val response = HttpResponse(UNAUTHORIZED, "")
+      intercept[UpstreamErrorResponse](connector.customRead("test", "test", response))
     }
   }
 

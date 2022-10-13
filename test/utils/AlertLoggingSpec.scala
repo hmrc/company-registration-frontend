@@ -45,7 +45,7 @@ class AlertLoggingSpec extends UnitSpec with LogCapturing with Eventually {
               logDays: String = defaultLoggingDays,
               logTimes: String = defaultLoggingTime) {
 
-    val alertLogging: AlertLogging = new AlertLogging {
+    object AlertLogging extends AlertLogging {
       protected val loggingTimes: String = logTimes
       protected val loggingDays: String = logDays
 
@@ -60,22 +60,22 @@ class AlertLoggingSpec extends UnitSpec with LogCapturing with Eventually {
   "isLoggingDay" should {
 
     "return true when today is the logging day" in new SetupInWorkingHours {
-      alertLogging.isLoggingDay mustBe true
+      AlertLogging.isLoggingDay mustBe true
     }
 
     "return false when today is not the logging day" in new Setup(saturday, _2pm) {
-      alertLogging.isLoggingDay mustBe false
+      AlertLogging.isLoggingDay mustBe false
     }
   }
 
   "isBetweenLoggingTimes" should {
 
     "return true when now is between the logging times" in new SetupInWorkingHours {
-      alertLogging.isBetweenLoggingTimes mustBe true
+      AlertLogging.isBetweenLoggingTimes mustBe true
     }
 
     "return false when now is not between the logging times" in new Setup(monday, _9pm) {
-      alertLogging.isBetweenLoggingTimes mustBe false
+      AlertLogging.isBetweenLoggingTimes mustBe false
     }
   }
 
@@ -84,42 +84,42 @@ class AlertLoggingSpec extends UnitSpec with LogCapturing with Eventually {
     "return true" when {
 
       "the current time is 14:00 on a Monday" in new SetupInWorkingHours {
-        alertLogging.inWorkingHours mustBe true
+        AlertLogging.inWorkingHours mustBe true
       }
 
       "the current time is 08:00 on a Monday" in new Setup(monday, _8am) {
-        alertLogging.inWorkingHours mustBe true
+        AlertLogging.inWorkingHours mustBe true
       }
 
       "the current time is 08:01 on a Monday" in new Setup(monday, _8_01am) {
-        alertLogging.inWorkingHours mustBe true
+        AlertLogging.inWorkingHours mustBe true
       }
 
       "the current time is 16:59 on a Friday" in new Setup(friday, _4_59pm) {
-        alertLogging.inWorkingHours mustBe true
+        AlertLogging.inWorkingHours mustBe true
       }
     }
 
     "return false" when {
 
       "the current time is 07:59:59 on a Monday" in new Setup(monday, _7_59am) {
-        alertLogging.inWorkingHours mustBe false
+        AlertLogging.inWorkingHours mustBe false
       }
 
       "the current time is 17:00 on a Monday" in new Setup(monday, _5pm) {
-        alertLogging.inWorkingHours mustBe false
+        AlertLogging.inWorkingHours mustBe false
       }
 
       "the current time is 21:00 on a Monday" in new Setup(monday, _9pm) {
-        alertLogging.inWorkingHours mustBe false
+        AlertLogging.inWorkingHours mustBe false
       }
 
       "the current time is 14:00 on a Saturday" in new Setup(saturday, _2pm) {
-        alertLogging.inWorkingHours mustBe false
+        AlertLogging.inWorkingHours mustBe false
       }
 
       "the current time is 14:00 on a Sunday" in new Setup(sunday, _2pm) {
-        alertLogging.inWorkingHours mustBe false
+        AlertLogging.inWorkingHours mustBe false
       }
 
     }
@@ -137,9 +137,9 @@ class AlertLoggingSpec extends UnitSpec with LogCapturing with Eventually {
     }
     "accept any Pager Duty key" in new Setup(monday, _8am){
       validKeys foreach { key =>
-        withCaptureOfLoggingFrom(Logger(alertLogging.getClass)) { logs =>
-          alertLogging.pagerduty(key)
-          logs.head.getMessage mustBe key.toString
+        withCaptureOfLoggingFrom(AlertLogging.logger) { logs =>
+          AlertLogging.pagerduty(key)
+          logs.head.getMessage mustBe s"[AlertLogging] ${key.toString}"
         }
       }
     }
@@ -147,37 +147,37 @@ class AlertLoggingSpec extends UnitSpec with LogCapturing with Eventually {
     "log an error in working hours" when {
       "custom message is not provided" in new Setup(monday, _8am) {
         validKeys foreach { key =>
-          withCaptureOfLoggingFrom(Logger(alertLogging.getClass)) { logs =>
-            alertLogging.pagerduty(key)
-            found(logs)(1, key.toString, Level.ERROR)
+          withCaptureOfLoggingFrom(AlertLogging.logger) { logs =>
+            AlertLogging.pagerduty(key)
+            found(logs)(1, s"[AlertLogging] ${key.toString}", Level.ERROR)
           }
         }
       }
       "custom message is provided" in new Setup(friday, _4_59pm) {
-        withCaptureOfLoggingFrom(Logger(alertLogging.getClass)) { logs =>
-          alertLogging.pagerduty(PagerDutyKeys.CT_UTR_MISMATCH, message = Some("test"))
-          found(logs)(1, "CT_UTR_MISMATCH - test", Level.ERROR)
+        withCaptureOfLoggingFrom(AlertLogging.logger) { logs =>
+          AlertLogging.pagerduty(PagerDutyKeys.CT_UTR_MISMATCH, message = Some("test"))
+          found(logs)(1, "[AlertLogging] CT_UTR_MISMATCH - test", Level.ERROR)
         }
       }
     }
     "log info out of working hours" when {
       "custom message is not provided" in new Setup(monday, _7_59am) {
-        withCaptureOfLoggingFrom(Logger(alertLogging.getClass)) { logs =>
-          alertLogging.pagerduty(PagerDutyKeys.CT_UTR_MISMATCH)
-          found(logs)(1, "CT_UTR_MISMATCH", Level.INFO)
+        withCaptureOfLoggingFrom(AlertLogging.logger) { logs =>
+          AlertLogging.pagerduty(PagerDutyKeys.CT_UTR_MISMATCH)
+          found(logs)(1, "[AlertLogging] CT_UTR_MISMATCH", Level.INFO)
         }
       }
       "custom message is provided" in new Setup(friday, _5pm) {
-        withCaptureOfLoggingFrom(Logger(alertLogging.getClass)) { logs =>
-          alertLogging.pagerduty(PagerDutyKeys.CT_UTR_MISMATCH, message = Some("extra string"))
-          found(logs)(1, "CT_UTR_MISMATCH - extra string", Level.INFO)
+        withCaptureOfLoggingFrom(AlertLogging.logger) { logs =>
+          AlertLogging.pagerduty(PagerDutyKeys.CT_UTR_MISMATCH, message = Some("extra string"))
+          found(logs)(1, "[AlertLogging] CT_UTR_MISMATCH - extra string", Level.INFO)
         }
       }
     }
     "log info when it is not a weekday" in new Setup(saturday, _2pm) {
-      withCaptureOfLoggingFrom(Logger(alertLogging.getClass)) { logs =>
-        alertLogging.pagerduty(PagerDutyKeys.CT_UTR_MISMATCH)
-        found(logs)(1, "CT_UTR_MISMATCH", Level.INFO)
+      withCaptureOfLoggingFrom(AlertLogging.logger) { logs =>
+        AlertLogging.pagerduty(PagerDutyKeys.CT_UTR_MISMATCH)
+        found(logs)(1, "[AlertLogging] CT_UTR_MISMATCH", Level.INFO)
       }
     }
   }

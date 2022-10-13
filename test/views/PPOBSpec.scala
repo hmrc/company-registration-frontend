@@ -67,7 +67,7 @@ class PPOBSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixture with Nav
     )
     (mockAppConfig,
       global
-      )
+    )
   }
 
   "PPOBController.show" should {
@@ -76,7 +76,13 @@ class PPOBSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixture with Nav
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
 
       when(mockPPOBService.fetchAddressesAndChoice(ArgumentMatchers.any())(ArgumentMatchers.any()))
-        .thenReturn(Future.successful(Some(CHROAddress("38", "line 1", Some("line 2"), "Telford", "UK", None, Some("ZZ1 1ZZ"), None)), None, PPOBChoice("")))
+        .thenReturn(Future.successful(
+          (
+            Some(CHROAddress("38", "line 1", Some("line 2"), "Telford", "UK", None, Some("ZZ1 1ZZ"), None)),
+            None,
+            PPOBChoice("")
+          )
+        ))
 
 
       showWithAuthorisedUser(controller.show) {
@@ -97,9 +103,13 @@ class PPOBSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixture with Nav
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
 
       when(mockPPOBService.fetchAddressesAndChoice(ArgumentMatchers.any())(ArgumentMatchers.any()))
-        .thenReturn(Future.successful(Some(CHROAddress("38", "line 1", Some("line 2"), "Telford", "UK", None, Some("ZZ1 1ZZ"), None)),
-                                           Some(NewAddress("line 1", "line 2", None, None, Some("ZZ2 2ZZ"), None, None)),
-                                           PPOBChoice("PPOB")))
+        .thenReturn(Future.successful(
+          (
+            Some(CHROAddress("38", "line 1", Some("line 2"), "Telford", "UK", None, Some("ZZ1 1ZZ"), None)),
+            Some(NewAddress("line 1", "line 2", None, None, Some("ZZ2 2ZZ"), None, None)),
+            PPOBChoice("PPOB")
+          )
+        ))
 
       showWithAuthorisedUser(controller.show) {
         result =>
@@ -120,9 +130,13 @@ class PPOBSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixture with Nav
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
 
       when(mockPPOBService.fetchAddressesAndChoice(ArgumentMatchers.any())(ArgumentMatchers.any()))
-        .thenReturn(Future.successful(Some(CHROAddress("14", "St Test Walk", Some("Testley"), "Testford", "UK", None, Some("TE1 1ST"), Some("Testshire"))),
-          Some(NewAddress("14 St Test Walk", "Testley", Some("Testford"), Some("Testshire"), Some("TE1 1ST"), Some("UK"), Some("txid"))),
-          PPOBChoice("RO")))
+        .thenReturn(Future.successful(
+          (
+            Some(CHROAddress("14", "St Test Walk", Some("Testley"), "Testford", "UK", None, Some("TE1 1ST"), Some("Testshire"))),
+            Some(NewAddress("14 St Test Walk", "Testley", Some("Testford"), Some("Testshire"), Some("TE1 1ST"), Some("UK"), Some("txid"))),
+            PPOBChoice("RO")
+          )
+        ))
 
       showWithAuthorisedUser(controller.show) {
         result =>
@@ -143,7 +157,13 @@ class PPOBSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixture with Nav
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
 
       when(mockPPOBService.fetchAddressesAndChoice(ArgumentMatchers.any())(ArgumentMatchers.any()))
-        .thenReturn(Future.successful(None, Some(NewAddress("line 1", "line 2", None, None, None, None, None)), PPOBChoice("")))
+        .thenReturn(Future.successful(
+          (
+            None,
+            Some(NewAddress("line 1", "line 2", None, None, None, None, None)),
+            PPOBChoice("")
+          )
+        ))
 
       showWithAuthorisedUser(controller.show) {
         result =>

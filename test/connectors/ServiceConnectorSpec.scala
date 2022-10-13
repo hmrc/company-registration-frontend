@@ -114,7 +114,7 @@ class ServiceConnectorSpec extends SCRSSpec {
     val status = OtherRegStatus("testStatus", Some(localDate), Some(ackRef), Some("foo"), None)
     "return Cancelled if user has cancelURL in paye status and delete is successful" in new Setup {
 
-      when(mockHttp.DELETE[HttpResponse](ArgumentMatchers.any[String], ArgumentMatchers.any())(ArgumentMatchers.any(),ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(200)))
+      when(mockHttp.DELETE[HttpResponse](ArgumentMatchers.any[String], ArgumentMatchers.any())(ArgumentMatchers.any(),ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(200, "")))
       val s = (t: String) => Future.successful(SuccessfulResponse(status))
        val result = connector.cancelReg("test-regId")(s)
 
@@ -122,7 +122,7 @@ class ServiceConnectorSpec extends SCRSSpec {
       response mustBe Cancelled
     }
     "return NotCancelled if getStatus returns ArgumentMatchers.anything but success" in new Setup {
-      when(mockHttp.DELETE[HttpResponse](ArgumentMatchers.any[String], ArgumentMatchers.any())(ArgumentMatchers.any(),ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(200)))
+      when(mockHttp.DELETE[HttpResponse](ArgumentMatchers.any[String], ArgumentMatchers.any())(ArgumentMatchers.any(),ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(200, "")))
       val s = (t: String) => Future.successful(ErrorResponse)
       val result = connector.cancelReg("test-regId")(s)
 
@@ -133,7 +133,7 @@ class ServiceConnectorSpec extends SCRSSpec {
     "return Cancelled if user has cancelURL in paye status and delete is successful with different parameters in HTTP response" in new Setup {
 
       when(mockHttp.DELETE[HttpResponse](ArgumentMatchers.any[String], ArgumentMatchers.any())(ArgumentMatchers.any(),ArgumentMatchers.any(), ArgumentMatchers.any()))
-        .thenReturn(Future.successful(HttpResponse(OK,None,Map("" -> Seq("")),None)))
+        .thenReturn(Future.successful(HttpResponse(OK,"",Map("" -> Seq("")))))
       val s = (t: String) => Future.successful(SuccessfulResponse(status))
       val result = connector.cancelReg("test-regId")(s)
 
@@ -141,7 +141,7 @@ class ServiceConnectorSpec extends SCRSSpec {
       response mustBe Cancelled
     }
     "return NotCancelled if user has cancelURL in paye status and delete does not return 200" in new Setup {
-      when(mockHttp.DELETE[HttpResponse](ArgumentMatchers.any[String], ArgumentMatchers.any())(ArgumentMatchers.any(),ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST,None,Map("" -> Seq("")),None)))
+      when(mockHttp.DELETE[HttpResponse](ArgumentMatchers.any[String], ArgumentMatchers.any())(ArgumentMatchers.any(),ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST,"",Map("" -> Seq("")))))
 
       val result = connector.cancelReg("test-regId")(f => Future.successful(
         SuccessfulResponse(status)))
@@ -150,7 +150,7 @@ class ServiceConnectorSpec extends SCRSSpec {
       response mustBe NotCancelled
     }
     "return notcancelled if user does not have cancelURL " in new Setup {
-      when(mockHttp.DELETE[HttpResponse](ArgumentMatchers.any[String], ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST,None,Map("" -> Seq("")),None)))
+      when(mockHttp.DELETE[HttpResponse](ArgumentMatchers.any[String], ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(HttpResponse(BAD_REQUEST,"",Map("" -> Seq("")))))
 
       val result = connector.cancelReg("test-regId")(f => Future.successful(
         SuccessfulResponse(OtherRegStatus("", None, None, None, None))))

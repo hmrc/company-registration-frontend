@@ -92,5 +92,5 @@ trait SCRSSpec extends UnitSpec with MockitoSugar with SCRSMocks with BeforeAndA
 
 trait TestActorSystem {
   implicit val system = ActorSystem("test")
-  implicit val materializer: Materializer = ActorMaterializer()
+  implicit val materializer: Materializer = Materializer(system)
 }

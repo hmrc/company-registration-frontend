@@ -165,7 +165,7 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
       val r = simpleRequest() ++ companyDetails(name) ++ companyDetailsLinks()
       val encryptedRequest = testJwe.encrypt[JsValue](r)
       when(mockCompanyRegistrationConnector.saveTXIDAfterHO2(testRegId,"testTxId"))
-        .thenReturn(Future.successful(Some(HttpResponse(200))))
+        .thenReturn(Future.successful(Some(HttpResponse(200, ""))))
 
       encryptedRequest mustBe defined
 

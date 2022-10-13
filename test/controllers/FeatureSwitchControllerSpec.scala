@@ -32,7 +32,7 @@ class FeatureSwitchControllerSpec extends SCRSSpec with GuiceOneAppPerSuite {
 
   implicit val system = ActorSystem("test")
 
-  implicit def mat: Materializer = ActorMaterializer()
+  implicit def mat: Materializer = Materializer(system)
 
   val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
 

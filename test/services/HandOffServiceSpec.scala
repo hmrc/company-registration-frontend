@@ -406,7 +406,7 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
         .thenReturn(Future.successful(Some(handOffNavModel)))
 
       when(mockCompanyRegistrationConnector.updateRegistrationProgress(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
-        .thenReturn(Future.successful(HttpResponse(200)))
+        .thenReturn(Future.successful(HttpResponse(200, "")))
 
       val result = await(service.summaryHandOff(externalID)).get
 

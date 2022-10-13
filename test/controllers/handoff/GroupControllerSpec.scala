@@ -216,7 +216,7 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
       when(mockGroupService.retrieveGroups(any())(any()))
         .thenReturn(Future.successful(None))
       when(mockHandOffService.buildPSCPayload(any(), any(), any())(any()))
-        .thenReturn(Future.successful(Some("foo", "bar")))
+        .thenReturn(Future.successful(Some("foo" -> "bar")))
       when(mockHandOffService.buildHandOffUrl(any(), any()))
         .thenReturn("foo/bar/wizz/3-2")
 
@@ -235,7 +235,7 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
 
 
       when(mockHandOffService.buildPSCPayload(any(), any(), eqTo(Some(groups)))(any()))
-        .thenReturn(Future.successful(Some("foo", "bar")))
+        .thenReturn(Future.successful(Some("foo" -> "bar")))
       when(mockHandOffService.buildHandOffUrl(any(), any()))
         .thenReturn("foo/bar/wizz/3-2")
 

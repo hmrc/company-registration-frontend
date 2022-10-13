@@ -224,7 +224,7 @@ class SummaryService @Inject()(val authConnector: PlayAuthConnector,
     )
 
     val takeoverAddress = optSummaryListRowString(
-      messages("page.reg.summary.takeovers.businessTakeOverAddress", takeoverBlock.businessName.getOrElse()),
+      messages("page.reg.summary.takeovers.businessTakeOverAddress", takeoverBlock.businessName.getOrElse("")),
       takeoverBlock.businessTakeoverAddress.map(_.toString),
       Some(controllers.takeovers.routes.OtherBusinessAddressController.show.url)
     )
@@ -236,7 +236,7 @@ class SummaryService @Inject()(val authConnector: PlayAuthConnector,
     )
 
     val previousOwnerAddress = optSummaryListRowString(
-      messages("page.reg.summary.takeovers.previousOwnersAddress", takeoverBlock.previousOwnersName.getOrElse()),
+      messages("page.reg.summary.takeovers.previousOwnersAddress", takeoverBlock.previousOwnersName.getOrElse("")),
       takeoverBlock.previousOwnersAddress.map(_.toString),
       Some(controllers.takeovers.routes.PreviousOwnersAddressController.show.url)
     )
