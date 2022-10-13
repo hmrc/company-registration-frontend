@@ -14,14 +14,17 @@
  * limitations under the License.
  *@
 
+@import views.ViewUtils._
+
 @this(layout: templates.layout,
         h1: components.h1,
         link: components.link,
         p: components.p
 )
+
 @()(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
-@layout(pageTitle = Some(messages("page.timeout.description"))) {
+@layout(pageTitle = Some(titleNoForm(messages("page.timeout.description")))) {
 
     @h1(messages("page.timeout.description"))
 

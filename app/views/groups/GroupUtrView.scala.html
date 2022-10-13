@@ -15,6 +15,7 @@
  *@
 
 @import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
+@import views.ViewUtils._
 
 @this(
         errorSummary: components.errorSummary,
@@ -40,7 +41,7 @@
 )
 }
 
-@layout(pageTitle = Some(Messages("page.groups.groupUtr.title", parentCompanyName))) {
+@layout(pageTitle = Some(title(groupUTR, messages("page.groups.groupUtr.title", parentCompanyName)))) {
 
     @errorSummary(groupUTR.errors)
 

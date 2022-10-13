@@ -17,6 +17,7 @@
 @import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
 @import uk.gov.hmrc.govukfrontend.views.html.components.GovukSummaryList
 @import uk.gov.hmrc.govukfrontend.views.Aliases.SummaryList
+@import views.ViewUtils._
 
 @this(layout: templates.layout,
         formWithCSRF: FormWithCSRF,
@@ -38,7 +39,7 @@
 }
 
 
-@layout(pageTitle = Some(messages("page.reg.summary.description"))){
+@layout(pageTitle = Some(titleNoForm(messages("page.reg.summary.description")))){
 
     @h1(messages("page.reg.summary.description"))
 

@@ -16,6 +16,7 @@
 
 @import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
 @import uk.gov.hmrc.play.views.html.helpers.InputRadioGroup
+@import views.ViewUtils._
 
 @this(layout: templates.layout,
         h1: components.h1,
@@ -26,7 +27,7 @@
 
 @(featureSwitchForm: Form[models.test.FeatureSwitch])(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
-@layout(pageTitle = Some("Feature switch")) {
+@layout(pageTitle = Some(titleNoForm("Feature switch"))) {
 
         @h1(messages("Feature Switch"))
 
