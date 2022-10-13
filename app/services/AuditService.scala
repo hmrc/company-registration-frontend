@@ -63,7 +63,7 @@ trait AuditService {
 
   def auditChangeInContactDetails(externalID: String, authProviderId: String, rID: String,
                                   originalEmail: String,
-                                  amendedContactDetails: CompanyContactDetails,
+                                  amendedContactDetails: CompanyContactDetails
                                  )
                                  (implicit hc: HeaderCarrier, req: Request[AnyContent], ec: ExecutionContext): Future[AuditResult] =
     sendEvent(
