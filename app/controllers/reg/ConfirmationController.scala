@@ -22,7 +22,7 @@ import controllers.auth.AuthenticatedController
 import forms.errors.DeskproForm
 import javax.inject.{Inject, Singleton}
 import models.ConfirmationReferencesSuccessResponse
-import play.api.Logging
+import utils.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.{CommonService, DeskproService}
@@ -56,7 +56,7 @@ class ConfirmationController @Inject()(val authConnector: PlayAuthConnector,
       } yield references match {
         case ConfirmationReferencesSuccessResponse(ref) => Ok(confirmationView(ref))
         case _ =>
-          logger.error(s"[ConfirmationController] [show] could not find acknowledgement ID for reg ID: $regID")
+          logger.error(s"[show] could not find acknowledgement ID for reg ID: $regID")
           InternalServerError(controllerErrorHandler.defaultErrorPage)
       }
     }

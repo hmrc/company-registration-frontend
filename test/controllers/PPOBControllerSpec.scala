@@ -136,7 +136,7 @@ class PPOBControllerSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixtur
     "return a 200 and show the page when check status returns Some of reg id" in new Setup {
       mockCheckStatus()
       when(mockPPOBService.fetchAddressesAndChoice(ArgumentMatchers.any())(ArgumentMatchers.any()))
-        .thenReturn(Future.successful(Some(CHROAddress("38", "line 1", None, "Telford", "UK", None, None, None)), Some(NewAddress("line 1", "line 2", None, None, None, None, None)), PPOBChoice("")))
+        .thenReturn(Future.successful((Some(CHROAddress("38", "line 1", None, "Telford", "UK", None, None, None)), Some(NewAddress("line 1", "line 2", None, None, None, None, None)), PPOBChoice(""))))
       showWithAuthorisedUser(controller.show) {
         result =>
           status(result) mustBe OK
@@ -201,11 +201,11 @@ class PPOBControllerSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixtur
     "handle an invalid submission correctly" in new Setup {
       mockCheckStatus()
       when(mockPPOBService.fetchAddressesAndChoice(ArgumentMatchers.any())(ArgumentMatchers.any()))
-        .thenReturn(Future.successful(
+        .thenReturn(Future.successful((
           Some(CHROAddress("38", "line 1", None, "Telford", "UK", None, None, None)),
           Some(NewAddress("line 1", "line 2", None, None, None, None, None)),
-          PPOBChoice(""))
-        )
+          PPOBChoice("")
+        )))
 
       submitWithAuthorisedUserRetrieval(controller.submit, FakeRequest().withFormUrlEncodedBody("whoops" -> "not good"), credID) {
         result =>

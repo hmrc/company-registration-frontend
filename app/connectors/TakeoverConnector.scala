@@ -19,7 +19,7 @@ package connectors
 import config.{AppConfig, WSHttp}
 import javax.inject.Inject
 import models.TakeoverDetails
-import play.api.Logging
+import utils.Logging
 import play.api.http.Status._
 import play.api.libs.json.{JsError, JsSuccess}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}

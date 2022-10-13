@@ -141,7 +141,7 @@ class BusinessRegistrationConnectorSpec extends SCRSSpec with BusinessRegistrati
     "return true when a 200 is returned from BR" in new Setup {
       when(mockWSHttp.POST[JsValue, HttpResponse](ArgumentMatchers.anyString(), ArgumentMatchers.any(), ArgumentMatchers.any())
         (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any[ExecutionContext]))
-        .thenReturn(Future.successful(HttpResponse(200)))
+        .thenReturn(Future.successful(HttpResponse(200, "")))
 
       val result = await(connector.updatePrePopContactDetails(registrationId, companyDetails))
 
@@ -174,7 +174,7 @@ class BusinessRegistrationConnectorSpec extends SCRSSpec with BusinessRegistrati
     "return true when a 200 is returned from BR" in new Setup {
       when(mockWSHttp.POST[JsValue, HttpResponse](ArgumentMatchers.anyString(), ArgumentMatchers.any(), ArgumentMatchers.any())
         (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any[ExecutionContext]))
-        .thenReturn(Future.successful(HttpResponse(200)))
+        .thenReturn(Future.successful(HttpResponse(200, "")))
 
       val result = await(connector.updatePrePopAddress(registrationId, address))
 

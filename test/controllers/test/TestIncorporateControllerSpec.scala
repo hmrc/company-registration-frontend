@@ -34,7 +34,7 @@ class TestIncorporateControllerSpec extends UnitSpec with MockitoSugar with Guic
 
   implicit val system = ActorSystem("test")
 
-  implicit def mat: Materializer = ActorMaterializer()
+  implicit def mat: Materializer = Materializer(system)
 
   val mockCheckIncorporationService = mock[TestIncorporationService]
   lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]

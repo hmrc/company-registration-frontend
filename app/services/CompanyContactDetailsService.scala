@@ -23,7 +23,7 @@ import audit.events._
 import connectors._
 import javax.inject.Inject
 import models._
-import play.api.Logging
+import utils.Logging
 import play.api.libs.json.{Json, Writes}
 import play.api.mvc.{AnyContent, Request}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
@@ -55,7 +55,7 @@ trait CompanyContactDetailsService extends CommonService with AuditService with 
       verEmail <- companyRegistrationConnector.retrieveEmail(regId) map {
         e =>
           e.fold {
-            logger.warn("[CompanyContactDetails] - No Email in verified block")
+            logger.warn("[CompanyContactDetails] No Email in verified block")
             throw new NoSuchElementException("Verified Email not found")
           } {
             _.address

@@ -38,7 +38,7 @@ class VatThresholdConnectorSpec extends SCRSSpec with UnitSpec with LogCapturing
   val baseUri: String = "test vatserviceUri"
 
   trait Setup {
-    val connector = new VatThresholdConnector {
+    object Connector extends VatThresholdConnector {
       override val serviceBaseUrl = baseUrl
       override val serviceUri = baseUri
       override val wSHttp = mockWSHttp
@@ -74,66 +74,66 @@ class VatThresholdConnectorSpec extends SCRSSpec with UnitSpec with LogCapturing
     }
 
     "use the correct url" in new Setup {
-      connector.serviceBaseUrl mustBe "test vatBaseURL"
-      connector.serviceUri mustBe "test vatserviceUri"
+      Connector.serviceBaseUrl mustBe "test vatBaseURL"
+      Connector.serviceUri mustBe "test vatserviceUri"
     }
     "returns a threshold amount with a successful call" in new Setup {
 
-      mockHttpGet(connector.url, HttpResponse(OK))
+      mockHttpGet(Connector.url, HttpResponse(OK, ""))
 
       when(mockWSHttp.GET[HttpResponse](ArgumentMatchers.anyString(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any[ExecutionContext]))
-        .thenReturn(Future.successful(HttpResponse(200, Some(returnJson))))
+        .thenReturn(Future.successful(HttpResponse(200, json = returnJson, Map())))
 
-      await(connector.getVATThreshold(todayDate)) mustBe thresholdAmount
+      await(Connector.getVATThreshold(todayDate)) mustBe thresholdAmount
     }
 
     "returns a particular log entry when the taxable-threshold key is missing from the returned JSON from the VR Threshold service" in new Setup {
 
-      mockHttpGet(connector.url, HttpResponse(OK))
+      mockHttpGet(Connector.url, HttpResponse(OK, ""))
 
       when(mockWSHttp.GET[HttpResponse](ArgumentMatchers.anyString(), ArgumentMatchers.any(), ArgumentMatchers.any())
         (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any[ExecutionContext]))
-        .thenReturn(Future.successful(HttpResponse(200, Some(noTaxableThresholdReturnJson))))
+        .thenReturn(Future.successful(HttpResponse(200, json = noTaxableThresholdReturnJson, Map())))
 
-      withCaptureOfLoggingFrom(Logger(connector.getClass)) { logs =>
-        connector.getVATThreshold(todayDate)
+      withCaptureOfLoggingFrom(Connector.logger) { logs =>
+        Connector.getVATThreshold(todayDate)
         eventually {
           logs.size mustBe 1
         }
-        found(logs)(1, "[getVATThreshold] taxable-threshold key not found", Level.ERROR)
+        found(logs)(1, "[Connector][getVATThreshold] taxable-threshold key not found", Level.ERROR)
       }
     }
 
     "returns a particular log entry when the taxable-threshold key is not a string in the returned JSON from the VR Threshold service" in new Setup {
 
-      mockHttpGet(connector.url, HttpResponse(OK))
+      mockHttpGet(Connector.url, HttpResponse(OK, ""))
 
       when(mockWSHttp.GET[HttpResponse](ArgumentMatchers.anyString(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any[ExecutionContext]))
-        .thenReturn(Future.successful(HttpResponse(200, Some(taxableThresholdNotAStringJson))))
+        .thenReturn(Future.successful(HttpResponse(200, json = taxableThresholdNotAStringJson, Map())))
 
-      withCaptureOfLoggingFrom(Logger(connector.getClass)) { logs =>
-        connector.getVATThreshold(todayDate)
+      withCaptureOfLoggingFrom(Connector.logger) { logs =>
+        Connector.getVATThreshold(todayDate)
         eventually {
           logs.size mustBe 1
         }
-        found(logs)(1, "[getVATThreshold] taxable-threshold is not a string", Level.ERROR)
+        found(logs)(1, "[Connector][getVATThreshold] taxable-threshold is not a string", Level.ERROR)
       }
     }
 
     "returns a particular log entry when empty JSON s returnedfrom the VR Threshold service" in new Setup {
 
-      mockHttpGet(connector.url, HttpResponse(OK))
+      mockHttpGet(Connector.url, HttpResponse(OK, ""))
 
       when(mockWSHttp.GET[HttpResponse](ArgumentMatchers.anyString(), ArgumentMatchers.any(), ArgumentMatchers.any())
         (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any[ExecutionContext]))
-        .thenReturn(Future.successful(HttpResponse(200, Some(JsNull))))
+        .thenReturn(Future.successful(HttpResponse(200, json = JsNull, Map())))
 
-      withCaptureOfLoggingFrom(Logger(connector.getClass)) { logs =>
-        connector.getVATThreshold(todayDate)
+      withCaptureOfLoggingFrom(Connector.logger) { logs =>
+        Connector.getVATThreshold(todayDate)
         eventually {
           logs.size mustBe 1
         }
-        found(logs)(1, s"[getVATThreshold] taxable-threshold for $todayDate not found", Level.ERROR)
+        found(logs)(1, s"[Connector][getVATThreshold] taxable-threshold for $todayDate not found", Level.ERROR)
       }
     }
 
@@ -142,12 +142,12 @@ class VatThresholdConnectorSpec extends SCRSSpec with UnitSpec with LogCapturing
         (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.failed(new NotFoundException("NOTFOUND")))
 
-      withCaptureOfLoggingFrom(Logger(connector.getClass)) { logs =>
-        connector.getVATThreshold(todayDate)
+      withCaptureOfLoggingFrom(Connector.logger) { logs =>
+        Connector.getVATThreshold(todayDate)
         eventually {
           logs.size mustBe 1
         }
-        found(logs)(1, "[VATThresholdConnector] [getVATThreshold] uk.gov.hmrc.http.NotFoundException: NOTFOUND", Level.ERROR)
+        found(logs)(1, "[Connector][getVATThreshold] uk.gov.hmrc.http.NotFoundException: NOTFOUND", Level.ERROR)
       }
     }
 
@@ -156,12 +156,12 @@ class VatThresholdConnectorSpec extends SCRSSpec with UnitSpec with LogCapturing
         (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.failed(new InternalServerException("INTERNALSERVERERROR")))
 
-      withCaptureOfLoggingFrom(Logger(connector.getClass)) { logs =>
-        connector.getVATThreshold(todayDate)
+      withCaptureOfLoggingFrom(Connector.logger) { logs =>
+        Connector.getVATThreshold(todayDate)
         eventually {
           logs.size mustBe 1
         }
-        found(logs)(1, "[VATThresholdConnector] [getVATThreshold] uk.gov.hmrc.http.InternalServerException: INTERNALSERVERERROR", Level.ERROR)
+        found(logs)(1, "[Connector][getVATThreshold] uk.gov.hmrc.http.InternalServerException: INTERNALSERVERERROR", Level.ERROR)
       }
     }
 
@@ -170,12 +170,12 @@ class VatThresholdConnectorSpec extends SCRSSpec with UnitSpec with LogCapturing
         (ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.failed(new BadGatewayException("BADGATEWAYERROR")))
 
-      withCaptureOfLoggingFrom(Logger(connector.getClass)) { logs =>
-        connector.getVATThreshold(todayDate)
+      withCaptureOfLoggingFrom(Connector.logger) { logs =>
+        Connector.getVATThreshold(todayDate)
         eventually {
           logs.size mustBe 1
         }
-        found(logs)(1, "[VATThresholdConnector] [getVATThreshold] uk.gov.hmrc.http.BadGatewayException: BADGATEWAYERROR", Level.ERROR)
+        found(logs)(1, "[Connector][getVATThreshold] uk.gov.hmrc.http.BadGatewayException: BADGATEWAYERROR", Level.ERROR)
       }
     }
   }

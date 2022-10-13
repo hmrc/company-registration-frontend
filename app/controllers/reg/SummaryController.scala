@@ -21,7 +21,7 @@ import connectors.{CompanyRegistrationConnector, KeystoreConnector, S4LConnector
 import controllers.auth.AuthenticatedController
 import models._
 import models.handoff.BackHandoff
-import play.api.Logging
+import utils.Logging
 import play.api.i18n.I18nSupport
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -70,7 +70,7 @@ class SummaryController @Inject()(val authConnector: PlayAuthConnector,
             Ok(view(accountingBlock, takeoverDetails, companyDetails, contactDetails, completionCapacity))
           }) recover {
             case ex: Throwable =>
-              logger.error(s"[SummaryController] [show] Error occurred while loading the summary page - ${ex.getMessage}")
+              logger.error(s"[show] Error occurred while loading the summary page - ${ex.getMessage}")
               InternalServerError(controllerErrorHandler.defaultErrorPage)
           }
         }
@@ -132,7 +132,7 @@ class SummaryController @Inject()(val authConnector: PlayAuthConnector,
     companyContactDetailsResponse match {
       case CompanyContactDetailsSuccessResponse(response) => CompanyContactDetails.toApiModel(response)
       case _ =>
-        logger.error(s"[SummaryController] [extractContactDetails] Could not find company details - suspected direct routing to summary page")
+        logger.error(s"[extractContactDetails] Could not find company details - suspected direct routing to summary page")
         throw new Exception("could not find company contact details - suspected direct routing to summary page")
     }
   }

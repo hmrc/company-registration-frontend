@@ -20,7 +20,7 @@ import javax.inject.Inject
 
 import config.{AppConfig, WSHttp}
 import models.external.Ticket
-import play.api.Logging
+import utils.Logging
 import play.api.libs.json._
 import services.MetricsService
 import uk.gov.hmrc.http.{CorePost, HeaderCarrier}
@@ -48,7 +48,7 @@ trait DeskproConnector extends Logging {
     } recover {
       case e =>
         deskproTimer.stop()
-        logger.warn(s"[DeskproConnector] [submitTicket] returned ${e.getMessage}")
+        logger.warn(s"[submitTicket] returned ${e.getMessage}")
         throw e
     }
   }

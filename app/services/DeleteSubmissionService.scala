@@ -18,7 +18,7 @@ package services
 
 import javax.inject.Inject
 import connectors.CompanyRegistrationConnector
-import play.api.Logging
+import utils.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -32,7 +32,7 @@ trait DeleteSubmissionService extends Logging {
   def deleteSubmission(regId: String)(implicit hc: HeaderCarrier): Future[Boolean] = {
     crConnector.deleteRegistrationSubmission(regId) map { res => true} recover {
       case ex: Exception =>
-        logger.error(s"[DeleteSubmissionService] [deleteSubmission] Submission was not deleted.  Message received was ${ex.getMessage}")
+        logger.error(s"[deleteSubmission] Submission was not deleted.  Message received was ${ex.getMessage}")
         false
     }  }
 }

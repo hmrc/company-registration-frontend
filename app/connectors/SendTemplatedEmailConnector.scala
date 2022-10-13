@@ -20,7 +20,7 @@ import javax.inject.Inject
 
 import config.{AppConfig, WSHttp}
 import models.SendTemplatedEmailRequest
-import play.api.Logging
+import utils.Logging
 import play.api.http.Status._
 import uk.gov.hmrc.http._
 
@@ -40,14 +40,14 @@ trait SendTemplatedEmailConnector extends HttpErrorFunctions with Logging {
 
   def requestTemplatedEmail(templatedEmailRequest : SendTemplatedEmailRequest)(implicit hc : HeaderCarrier) : Future[Boolean] = {
     def errorMsg(status: String, ex: HttpException) = {
-      logger.error(s"[SendTemplatedEmailConnector] [sendTemplatedEmail] request to send templated email returned a $status - email not sent - reason = ${ex.getMessage}")
+      logger.error(s"[sendTemplatedEmail] request to send templated email returned a $status - email not sent - reason = ${ex.getMessage}")
       throw new TemplateEmailErrorResponse(status)
     }
 
     wSHttp.POST[SendTemplatedEmailRequest, HttpResponse] (s"$sendTemplatedEmailURL", templatedEmailRequest) map { r =>
       r.status match {
         case ACCEPTED => {
-          logger.debug("[SendTemplatedEmailConnector] [sendTemplatedEmail] request to email service was successful")
+          logger.debug("[sendTemplatedEmail] request to email service was successful")
           true
         }
       }

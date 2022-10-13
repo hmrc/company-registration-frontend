@@ -25,7 +25,8 @@ import play.api.http.HeaderNames
 import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name, Retrievals, ~}
+import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name, ~}
+import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.{AffinityGroup, AuthConnector, AuthorisationException, Enrolments}
 import uk.gov.hmrc.http.InternalServerException
 

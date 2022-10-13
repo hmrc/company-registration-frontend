@@ -74,7 +74,7 @@ class RegistrationUnsuccessfulControllerSpec extends SCRSSpec with GuiceOneAppPe
       when(mockDeleteSubmissionService.deleteSubmission(ArgumentMatchers.eq("12345"))(ArgumentMatchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(true))
       when(mockKeystoreConnector.remove()(ArgumentMatchers.any()))
-        .thenReturn(Future.successful(HttpResponse(200)))
+        .thenReturn(Future.successful(HttpResponse(200, "")))
 
       submitWithAuthorisedUser(controller.submit, FakeRequest().withFormUrlEncodedBody(Nil: _*)) {
         result =>
@@ -98,7 +98,7 @@ class RegistrationUnsuccessfulControllerSpec extends SCRSSpec with GuiceOneAppPe
       when(mockDeleteSubmissionService.deleteSubmission(ArgumentMatchers.eq("12345"))(ArgumentMatchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(true))
       when(mockKeystoreConnector.remove()(ArgumentMatchers.any()))
-        .thenReturn(Future.successful(HttpResponse(200)))
+        .thenReturn(Future.successful(HttpResponse(200, "")))
 
       submitWithAuthorisedUser(controller.rejectionSubmit, FakeRequest().withFormUrlEncodedBody(Nil: _*)) {
         result =>

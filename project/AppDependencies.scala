@@ -38,7 +38,7 @@ private object AppDependencies {
     "org.scalatestplus"       %%  "mockito-4-5"                     %  s"$scalaTestVersion.0"   % "test, it",
     "org.jsoup"               %   "jsoup"                           %  "1.15.3"                 % "test, it",
     "com.typesafe.play"       %%  "play-test"                       %  PlayVersion.current      % "test, it",
-    "com.github.tomakehurst"  %   "wiremock-jre8"                   %  "2.27.2"                 % "it"
+    "com.github.tomakehurst"  %   "wiremock-jre8-standalone"        %  "2.33.2"                 % "it"
   )
 
   def apply() = compile ++ test

@@ -26,7 +26,7 @@ object GroupUtrForm extends EmptyStringValidator {
 
   private def unapplyGUTR(groupUTR: GroupUTR): Option[(String, Option[String])] = {
     val firstRadioButtonValue = groupUTR.UTR.fold("false")(_ => "true")
-    Some(firstRadioButtonValue, groupUTR.UTR)
+    Some(firstRadioButtonValue -> groupUTR.UTR)
   }
   val radioButtonvalidation = (radioValue:String) => Seq("true","false").contains(radioValue)
   private def ifOther(mapping: Mapping[String]): Mapping[Option[String]] = mandatoryIfEqual("groupUTR", "true", mapping)

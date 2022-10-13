@@ -17,7 +17,6 @@
 package utils
 
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
-import play.api.Logging
 import play.api.libs.json.JsValue
 import play.api.mvc.Result
 import play.api.mvc.Results.Redirect
@@ -40,7 +39,7 @@ trait SessionRegistration extends Logging {
   private def registered(handOff: Option[String] = None, payload: Option[String] = None)(f: => String => Future[Result])(implicit hc: HeaderCarrier): Future[Result] = {
     keystoreConnector.fetchAndGet[String]("registrationID") flatMap {
       case Some(regId) => f(regId)
-      case None => logger.error("[SessionRegistration] [registered] returned None from keystore when fetching a registrationID")
+      case None => logger.error("[registered] returned None from keystore when fetching a registrationID")
         Future.successful(Redirect(controllers.reg.routes.SignInOutController.postSignIn(None, handOff, payload)))
     }
   }
@@ -64,7 +63,7 @@ trait SessionRegistration extends Logging {
 
     def checkSCRSVerified(fullCorpModel: JsValue): Boolean = {
       (fullCorpModel \ "verifiedEmail" \ "verified").asOpt[Boolean].fold {
-        logger.info("[SessionRegistration] User does not have an Email Block redirecting to post sign in")
+        logger.info("[checkSCRSVerified] User does not have an Email Block redirecting to post sign in")
         false
       }(e => e)
 

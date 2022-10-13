@@ -81,8 +81,7 @@ class RegistrationEmailControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
 
     "return 200, with data in keystore" in new Setup {
 
-      val email = "foo@bar.wibble"
-      when(mockEmailService.emailVerifiedStatusInSCRS(ArgumentMatchers.any(),ArgumentMatchers.any() )(ArgumentMatchers.any())).thenReturn(Future.successful(awaitedFun))
+//      when(mockEmailService.emailVerifiedStatusInSCRS(ArgumentMatchers.any(),ArgumentMatchers.any() )(ArgumentMatchers.any())).thenReturn(Future.successful(awaitedFun))
       mockKeystoreFetchAndGet[RegistrationEmailModel]("RegEmail", Some(RegistrationEmailModel("currentEmail", Some("differentEmail"))))
       mockKeystoreFetchAndGet[String]("registrationID", Some("regid"))
       val awaitedFun = await(TestController.showLogicFun())
@@ -98,7 +97,7 @@ class RegistrationEmailControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
     }
     "return 200, with no data in keystore" in new Setup {
       mockKeystoreFetchAndGet[String]("registrationID", Some("regid"))
-      when(mockEmailService.emailVerifiedStatusInSCRS(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(awaitedFun))
+//      when(mockEmailService.emailVerifiedStatusInSCRS(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(awaitedFun))
       mockKeystoreFetchAndGet[RegistrationEmailModel]("RegEmail", None)
       val awaitedFun = await(TestController.showLogicFun())
       when(mockEmailService.emailVerifiedStatusInSCRS(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(awaitedFun))

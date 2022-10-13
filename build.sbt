@@ -18,8 +18,8 @@ lazy val scoverageSettings = {
   // Semicolon-separated list of regexs matching classes to exclude
   Seq(
     ScoverageKeys.coverageExcludedPackages := "<empty>;Reverse.*;models/.data/..*;view.*;config.*;poc.view.*;poc.config.*;.*(AuthService|BuildInfo|Routes).*",
-    ScoverageKeys.coverageMinimum := 80,
-    ScoverageKeys.coverageFailOnMinimum := false,
+    ScoverageKeys.coverageMinimumStmtTotal := 85,
+    ScoverageKeys.coverageFailOnMinimum := true,
     ScoverageKeys.coverageHighlighting := true
   )
 }
@@ -32,11 +32,12 @@ lazy val microservice = Project(appName, file("."))
   .settings(publishingSettings: _*)
   .settings(defaultSettings(): _*)
   .settings(
+    scalacOptions += "-Xlint:-unused",
     libraryDependencies ++= appDependencies,
-    fork in Test := false,
+    Test / fork := false,
     retrieveManaged := true,
     routesImport ++= Seq("uk.gov.hmrc.play.binders._"),
-    scalaVersion := "2.12.12",
+    scalaVersion := "2.12.15",
     resolvers ++= Seq(Resolver.bintrayRepo("hmrc", "releases"), Resolver.jcenterRepo)
   )
   .settings(PlayKeys.devSettings := Seq(
@@ -46,10 +47,10 @@ lazy val microservice = Project(appName, file("."))
   .settings(inConfig(IntegrationTest)(Defaults.itSettings): _*)
   .settings(majorVersion := 2)
   .settings(
-    Keys.fork in IntegrationTest := true,
-    javaOptions in IntegrationTest += "-Dlogger.resource=logback-test.xml",
-    parallelExecution in IntegrationTest := false,
-    unmanagedSourceDirectories in IntegrationTest := (baseDirectory in IntegrationTest) (base => Seq(base / "it")).value
+    IntegrationTest / fork := true,
+    IntegrationTest / javaOptions += "-Dlogger.resource=logback-test.xml",
+    IntegrationTest / parallelExecution := false,
+    IntegrationTest / unmanagedSourceDirectories := (IntegrationTest / baseDirectory) (base => Seq(base / "it")).value
   )
   .disablePlugins(JUnitXmlReportPlugin) //Required to prevent https://github.com/scalatest/scalatest/issues/1427
 

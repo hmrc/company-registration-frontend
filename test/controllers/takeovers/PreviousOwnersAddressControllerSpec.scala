@@ -17,7 +17,7 @@
 package controllers.takeovers
 
 import akka.actor.ActorSystem
-import akka.stream.ActorMaterializer
+import akka.stream.{ActorMaterializer, Materializer}
 import builders.AuthBuilder
 import controllers.reg.ControllerErrorHandler
 import controllers.takeovers.OtherBusinessAddressController._
@@ -57,7 +57,7 @@ class PreviousOwnersAddressControllerSpec()(implicit val lang: Lang) extends SCR
   val testPreviousOwnersAddress: NewAddress = NewAddress("testLine1", "testLine2", None, None, Some("Z11 11Z"), Some("testCountry"))
   implicit val request: Request[AnyContent] = FakeRequest()
   implicit val actorSystem: ActorSystem = ActorSystem("MyTest")
-  implicit val actorMaterializer: ActorMaterializer = ActorMaterializer()
+  implicit val actorMaterializer: Materializer = Materializer(actorSystem)
   implicit lazy val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
   implicit val messages: Messages = app.injector.instanceOf[Messages]
   implicit val langs = app.injector.instanceOf[Langs]

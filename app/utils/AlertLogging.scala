@@ -20,8 +20,6 @@ import java.time.format.{DateTimeFormatter, TextStyle}
 import java.time.{LocalDate, LocalTime, ZoneOffset}
 import java.util.Locale
 
-import play.api.Logging
-
 object PagerDutyKeys extends Enumeration {
   val CT_UTR_MISMATCH = Value
 }

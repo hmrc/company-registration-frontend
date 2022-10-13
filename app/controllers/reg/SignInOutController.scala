@@ -25,7 +25,7 @@ import controllers.handoff.{routes => handoffRoutes}
 import controllers.verification.{routes => emailRoutes}
 import javax.inject.Inject
 import models.ThrottleResponse
-import play.api.Logging
+import utils.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc._
 import services._
@@ -69,7 +69,7 @@ class SignInOutController @Inject()(val authConnector: PlayAuthConnector,
 
                     } recover {
                       case ex: Throwable =>
-                        logger.error(s"[SignInOutController] [postSignIn] error occurred during post sign in - ${ex.getMessage}")
+                        logger.error(s"[postSignIn] error occurred during post sign in - ${ex.getMessage}")
                         BadRequest(controllerErrorHandler.defaultErrorPage)
                     }
                   }
@@ -112,11 +112,11 @@ class SignInOutController @Inject()(val authConnector: PlayAuthConnector,
         Future.successful(Redirect(routes.LimitReachedController.show))
       case FootprintForbiddenResponse =>
         context.stop()
-        logger.error(s"[SignInOutController] [postSignIn] - retrieveOrCreateFootprint returned FootprintForbiddenResponse")
+        logger.error(s"[postSignIn] retrieveOrCreateFootprint returned FootprintForbiddenResponse")
         Future.successful(Forbidden(controllerErrorHandler.defaultErrorPage))
       case FootprintErrorResponse(ex) =>
         context.stop()
-        logger.error(s"[SignInOutController] [postSignIn] - retrieveOrCreateFootprint returned FootprintErrorResponse($ex)")
+        logger.error(s"[postSignIn] retrieveOrCreateFootprint returned FootprintErrorResponse($ex)")
         Future.successful(InternalServerError(controllerErrorHandler.defaultErrorPage))
     }
   }
@@ -163,7 +163,7 @@ class SignInOutController @Inject()(val authConnector: PlayAuthConnector,
 
   private def hasNoEnrolments(enrolments: Enrolments)(f: => Future[Result])(implicit hc: HeaderCarrier): Future[Result] = {
     if (enrolmentsService.hasBannedRegimes(enrolments)) {
-      logger.warn("[SignInOutController][postSignIn] Throttle was incremented but user was blocked due to existing enrolments")
+      logger.warn("[postSignIn] Throttle was incremented but user was blocked due to existing enrolments")
       metrics.blockedByEnrollment.inc(1)
       Future.successful(Redirect(emailRoutes.EmailVerificationController.createNewGGWAccountShow))
     } else f
@@ -182,17 +182,17 @@ class SignInOutController @Inject()(val authConnector: PlayAuthConnector,
     implicit request => {
       val optHcAuth = hc.authorization
       val optSessionAuthToken = request.session.get(SessionKeys.authToken)
-      logger.warn(s"[SignInOutController] [renewSession] mdtp cookie present? ${request.cookies.get("mdtp").isDefined}")
+      logger.debug(s"[renewSession] mdtp cookie present? ${request.cookies.get("mdtp").isDefined}")
       (optHcAuth, optSessionAuthToken) match {
         case (Some(hcAuth), Some(sAuth)) => if (hcAuth.value == sAuth) {
-          logger.warn("[SignInOutController] [renewSession] hcAuth and session auth present and equal")
+          logger.debug("[renewSession] hcAuth and session auth present and equal")
         }
         else {
-          logger.warn("[SignInOutController] [renewSession] hcAuth and session auth present but not equal")
+          logger.warn("[renewSession] hcAuth and session auth present but not equal")
         }
-        case (Some(hcAuth), None) => logger.warn("[SignInOutController] [renewSession] hcAuth present, session auth not")
-        case (None, Some(sAuth)) => logger.warn("[SignInOutController] [renewSession] session auth present, hcAuth auth not")
-        case (None, None) => logger.warn("[SignInOutController] [renewSession] neither session auth or hcAuth present")
+        case (Some(hcAuth), None) => logger.debug("[renewSession] hcAuth present, session auth not")
+        case (None, Some(sAuth)) => logger.debug("[renewSession] session auth present, hcAuth auth not")
+        case (None, None) => logger.warn("[renewSession] neither session auth or hcAuth present")
       }
       ctAuthorised {
         type Headers = Seq[Tuple2[String, String]]

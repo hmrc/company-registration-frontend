@@ -21,7 +21,7 @@ import config.AppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector, S4LConnector}
 import models._
 import models.handoff._
-import play.api.Logging
+import utils.Logging
 import play.api.libs.json.{Format, JsObject, JsValue}
 import repositories._
 import uk.gov.hmrc.http.HeaderCarrier
@@ -55,12 +55,12 @@ trait HandBackService extends HandOffNavigator with Logging {
   private[services] def decryptHandBackRequest[T](request: String)(f: T => Future[Try[T]])(implicit hc: HeaderCarrier, formats: Format[T]): Future[Try[T]] = {
     request.isEmpty match {
       case true =>
-        logger.error(s"[HandBackService] [decryptHandBackRequest] Encrypted hand back payload was empty")
+        logger.error(s"[decryptHandBackRequest] Encrypted hand back payload was empty")
         Future.successful(Failure(DecryptionError))
       case false => jwe.decrypt[T](request) match {
         case Success(payload) => f(payload)
         case Failure(ex) =>
-          logger.error(s"[HandBackService] [decryptHandBackRequest] Payload could not be decrypted: ${ex}")
+          logger.error(s"[decryptHandBackRequest] Payload could not be decrypted: ${ex}")
           Future.successful(Failure(ex))
       }
     }
@@ -177,7 +177,7 @@ trait HandBackService extends HandOffNavigator with Logging {
         } yield {
           storeResult match {
             case false =>
-              logger.error("[HandBackService] [processSummaryPage1Handback] CH handoff payload wasn't stored")
+              logger.error("[processSummaryPage1Handback] CH handoff payload wasn't stored")
               Failure(PayloadNotSavedError)
             case _ => Success(payload)
           }

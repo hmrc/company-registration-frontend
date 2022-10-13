@@ -20,7 +20,7 @@ import config.{AppConfig, WSHttp}
 
 import javax.inject.{Inject, Singleton}
 import models.{CHROAddress, NewAddress, PPOBChoice}
-import play.api.Logging
+import utils.Logging
 import play.api.libs.json._
 import uk.gov.hmrc.http._
 
@@ -37,17 +37,17 @@ class PrepopAddressConnector @Inject()(appConfig: AppConfig,
         case JsSuccess(addresses, _) =>
           addresses
         case JsError(errors) =>
-          logger.error(s"[Get prepop addresses] Incoming JSON failed format validation with reason(s): $errors")
+          logger.error(s"[getPrepopAddresses] Incoming JSON failed format validation with reason(s): $errors")
           Nil
       }
     } recover {
       case _: NotFoundException =>
         Nil
       case e: ForbiddenException =>
-        logger.error(s"[Get prepop address] Forbidden request (${e.responseCode}) ${e.message}")
+        logger.error(s"[getPrepopAddresses] Forbidden request (${e.responseCode}) ${e.message}")
         Nil
       case e: Exception =>
-        logger.error(s"[Get prepop address] Unexpected error calling business registration (${e.getMessage})")
+        logger.error(s"[getPrepopAddresses] Unexpected error calling business registration (${e.getMessage})")
         Nil
     }
 
@@ -56,7 +56,7 @@ class PrepopAddressConnector @Inject()(appConfig: AppConfig,
       .map (_ => true)
       .recover {
         case e: Exception =>
-          logger.error(s"[Update prepop address] Unexpected error updating prepop address (${e.getMessage})")
+          logger.error(s"[updatePrepopAddress] Unexpected error updating prepop address (${e.getMessage})")
           false
       }
 

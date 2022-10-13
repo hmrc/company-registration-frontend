@@ -19,7 +19,7 @@ package services
 import java.time.LocalDate
 
 import connectors.KeystoreConnector
-import play.api.Logging
+import utils.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.cache.client.CacheMap
 import utils.SCRSExceptions
@@ -36,7 +36,7 @@ trait CommonService extends Logging {
     keystoreConnector.fetchAndGet[String]("registrationID").map {
       case Some(regID) => regID
       case None =>
-        logger.error(s"[CommonService] [fetchRegistrationID] - Could not find a registration ID in keystore")
+        logger.error(s"[fetchRegistrationID] Could not find a registration ID in keystore")
         throw RegistrationIDNotFoundException
     }
   }

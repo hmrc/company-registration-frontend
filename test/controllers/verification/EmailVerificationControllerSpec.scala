@@ -50,7 +50,7 @@ class EmailVerificationControllerSpec extends SCRSSpec with CompanyRegistrationC
 
   def testUnVerifiedEmail = Email("unverified", "GG", linkSent = true, verified = false, returnLinkEmailSent = true)
 
-  implicit def mat: Materializer = ActorMaterializer()
+  implicit def mat: Materializer = Materializer(system)
   lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
   lazy val appConfig: AppConfig = app.injector.instanceOf[AppConfig]
   lazy val mockCreateGGWAccount = app.injector.instanceOf[CreateGGWAccount]

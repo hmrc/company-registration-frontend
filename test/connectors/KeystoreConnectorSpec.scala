@@ -82,10 +82,10 @@ class KeystoreConnectorSpec extends SCRSSpec {
   "Removing from KeyStore" should {
     "return a HTTP Response" in {
       when(mockSessionCache.remove()(ArgumentMatchers.any(), ArgumentMatchers.any()))
-        .thenReturn(Future.successful(HttpResponse(OK)))
+        .thenReturn(Future.successful(HttpResponse(OK, "")))
 
       val result = connector.remove()
-      await(result).status mustBe HttpResponse(OK).status
+      await(result).status mustBe HttpResponse(OK, "").status
     }
   }
 }

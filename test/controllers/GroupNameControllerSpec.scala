@@ -161,7 +161,7 @@ class GroupNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Moc
     when(mockGroupService.retrieveGroups(any())(any()))
       .thenReturn(Future.successful(Some(testGroups)))
     when(mockGroupService.returnValidShareholdersAndUpdateGroups(any(), any())(any()))
-      .thenReturn(Future.successful(List("1"), testGroups))
+      .thenReturn(Future.successful(List("1") -> testGroups))
 
     showWithAuthorisedUser(controller.show) {
       result =>
@@ -183,7 +183,7 @@ class GroupNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Moc
     when(mockGroupService.retrieveGroups(any())(any()))
       .thenReturn(Future.successful(Some(testGroups)))
     when(mockGroupService.returnValidShareholdersAndUpdateGroups(any(), any())(any()))
-      .thenReturn(Future.successful(List("1"), testGroups))
+      .thenReturn(Future.successful(List("1") -> testGroups))
 
     showWithAuthorisedUser(controller.show) {
       result =>
@@ -205,7 +205,7 @@ class GroupNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Moc
     when(mockGroupService.retrieveGroups(any())(any()))
       .thenReturn(Future.successful(Some(testGroups)))
     when(mockGroupService.returnValidShareholdersAndUpdateGroups(any(), any())(any()))
-      .thenReturn(Future.successful(List("1"), testGroups))
+      .thenReturn(Future.successful(List("1") -> testGroups))
     when(mockGroupService.updateGroupName(any(), any(), any())(any()))
       .thenReturn(Future.successful(testGroups))
 
@@ -233,7 +233,7 @@ class GroupNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Moc
     when(mockGroupService.retrieveGroups(any())(any()))
       .thenReturn(Future.successful(Some(testGroups)))
     when(mockGroupService.returnValidShareholdersAndUpdateGroups(any(), any())(any()))
-      .thenReturn(Future.successful(List("1"), testGroups))
+      .thenReturn(Future.successful(List("1") -> testGroups))
     when(mockGroupService.updateGroupName(any(), any(), any())(any()))
       .thenReturn(Future.successful(testGroups))
 
@@ -262,7 +262,7 @@ class GroupNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Moc
     when(mockGroupService.retrieveGroups(any())(any()))
       .thenReturn(Future.successful(Some(testGroups)))
     when(mockGroupService.returnValidShareholdersAndUpdateGroups(any(), any())(any()))
-      .thenReturn(Future.successful(List("1"), testGroups))
+      .thenReturn(Future.successful(List("1") -> testGroups))
     when(mockGroupService.updateGroupName(any(), any(), any())(any()))
       .thenReturn(Future.successful(testGroups))
 

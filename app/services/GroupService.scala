@@ -202,7 +202,7 @@ class GroupService @Inject()(val keystoreConnector: KeystoreConnector,
             compRegConnector.shareholderListValidationEndpoint(iiShareholders.map(_.corporate_name)).flatMap { validShareholders =>
               groups.nameOfCompany match {
                 case Some(nameAndType) if nameAndType.nameType.equals("Other") || validShareholders.contains(nameAndType.name) =>
-                  Future.successful(validShareholders, groups)
+                  Future.successful(validShareholders -> groups)
                 case _ =>
                   compRegConnector
                     .updateGroups(registrationId, Groups(groups.groupRelief, None, None, None))

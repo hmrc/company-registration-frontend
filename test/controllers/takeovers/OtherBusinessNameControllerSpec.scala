@@ -17,7 +17,7 @@
 package controllers.takeovers
 
 import akka.actor.ActorSystem
-import akka.stream.ActorMaterializer
+import akka.stream.{ActorMaterializer, Materializer}
 import builders.AuthBuilder
 import controllers.reg.ControllerErrorHandler
 import fixtures.{AccountingDatesFixture, AccountingDetailsFixture, LoginFixture}
@@ -48,7 +48,7 @@ class OtherBusinessNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
     val testRegistrationId = "testRegistrationId"
     implicit val request: Request[AnyContent] = FakeRequest()
     implicit val actorSystem: ActorSystem = ActorSystem("MyTest")
-    implicit val actorMaterializer: ActorMaterializer = ActorMaterializer()
+    implicit val actorMaterializer: Materializer = Materializer(actorSystem)
     val page = app.injector.instanceOf[OtherBusinessName]
     val mockControllerErrorHandler = app.injector.instanceOf[ControllerErrorHandler]
 

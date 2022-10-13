@@ -20,7 +20,7 @@ import javax.inject.Inject
 
 import connectors.{BusinessRegistrationConnector, BusinessRegistrationSuccessResponse, KeystoreConnector}
 import models.{AboutYouChoice, AboutYouChoiceForm, BusinessRegistration}
-import play.api.Logging
+import utils.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.SCRSExceptions
 
@@ -56,7 +56,7 @@ trait MetaDataService extends CommonService with SCRSExceptions with Logging {
         throw new RuntimeException(s"Completion capacity missing at Summary for regId: $regId"))
       )
       case unknown => {
-        logger.warn(s"[MetaDataService][getApplicantData] Unexpected result, unable to get BR doc : ${unknown}")
+        logger.warn(s"[getApplicantData] Unexpected result, unable to get BR doc : ${unknown}")
         throw new RuntimeException("Missing BR document for signed in user")
       }
     }

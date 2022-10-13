@@ -72,7 +72,7 @@ class SessionRegistrationSpec extends UnitSpec with CompanyRegistrationConnector
 
         mockKeystoreFetchAndGet("registrationID", None)
 
-        withCaptureOfLoggingFrom(Logger(SessionRegistration.getClass)) { logEvents =>
+        withCaptureOfLoggingFrom(SessionRegistration.logger) { logEvents =>
 
           val result = SessionRegistration.registered { redirect =>
             Future.successful(Results.Ok)
@@ -80,7 +80,7 @@ class SessionRegistrationSpec extends UnitSpec with CompanyRegistrationConnector
           val response = await(result)
           response.header.status mustBe SEE_OTHER
 
-           await(logEvents.filter(_.getLevel == Level.ERROR).loneElement.getMessage) must include(s"[SessionRegistration] [registered] returned None from keystore when fetching a registrationID")
+           await(logEvents.filter(_.getLevel == Level.ERROR).loneElement.getMessage) must include(s"[SessionRegistration][registered] returned None from keystore when fetching a registrationID")
         }
       }
     }
