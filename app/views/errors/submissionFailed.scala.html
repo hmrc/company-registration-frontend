@@ -15,6 +15,7 @@
  *@
 
 @import models.Ticket
+@import views.ViewUtils._
 
 @this(layout: templates.layout,
         errorSummary: components.errorSummary,
@@ -23,7 +24,7 @@
 
 @(deskproForm: Form[Ticket])(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
-@layout(Some(Messages("errorPages.failedSubmission.description"))) {
+@layout(Some(titleNoForm(messages("errorPages.failedSubmission.description")))) {
 
     @errorSummary(deskproForm.errors)
 

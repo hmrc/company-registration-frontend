@@ -75,7 +75,7 @@ class AppConfig @Inject()(val servicesConfig: ServicesConfig, featureSwitch: SCR
 
   private def encodeUrl(url: String): String = URLEncoder.encode(url, "UTF-8")
 
-  lazy val accessibilityStatementPath = loadConfig("accessibility-statement.host")
+  lazy val accessibilityStatementPath = loadConfig("microservice.services.accessibility-statement.host")
   lazy val accessibilityStatementUrl = s"$accessibilityStatementPath/accessibility-statement/company-registration"
 
   lazy val contactHost = loadConfig("contact-frontend.host")

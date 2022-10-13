@@ -25,6 +25,7 @@
 @import scala.collection.immutable.Seq
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 @import uk.gov.hmrc.govukfrontend.views.Aliases.HeadCell
+@import views.ViewUtils._
 
 @this(layout: templates.layout,
         h1: components.h1,
@@ -183,7 +184,7 @@
 }
 }
 
-@layout(pageTitle = Some(Messages("page.reg.Dashboard.description"))) {
+@layout(pageTitle = Some(titleNoForm(messages("page.reg.Dashboard.description")))) {
 
     @h1(messages("page.reg.Dashboard.description"))
 

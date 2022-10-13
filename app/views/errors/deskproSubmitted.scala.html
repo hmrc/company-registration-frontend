@@ -14,6 +14,8 @@
  * limitations under the License.
  *@
 
+@import views.ViewUtils._
+
 @this(
         layout: templates.layout,
         h1: components.h1,
@@ -22,7 +24,7 @@
 
 @()(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
-@layout(Some(Messages("errorPages.deskproSubmitted.description"))) {
+@layout(pageTitle = Some(titleNoForm(messages("errorPages.deskproSubmitted.description")))) {
 
  @h1(messages("errorPages.deskproSubmitted.description"))
 

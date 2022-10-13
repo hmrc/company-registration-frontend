@@ -59,7 +59,7 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fix
       val document = Jsoup.parse(response.body)
       document.title must include("When will the company start trading?")
       document.getElementById("businessStartDate").attr("checked") mustBe ""
-      document.getElementById("futureDate").attr("checked") mustBe ""
+      document.getElementById("futureDateOption").attr("checked") mustBe ""
       document.getElementById("notPlanningToYet").attr("checked") mustBe ""
     }
 
@@ -85,7 +85,7 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fix
 
       val document = Jsoup.parse(response.body)
       document.title must include("When will the company start trading?")
-      document.getElementById("futureDate").`val` mustBe "futureDate"
+      document.getElementById("futureDateOption").`val` mustBe "futureDate"
       document.getElementById("futureDate.Day").`val` mustBe "02"
       document.getElementById("futureDate.Month").`val` mustBe "01"
       document.getElementById("futureDate.Year").`val` mustBe "2018"

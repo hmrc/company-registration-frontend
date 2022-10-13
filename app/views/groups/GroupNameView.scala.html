@@ -17,6 +17,7 @@
 @import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 @import uk.gov.hmrc.govukfrontend.views.Aliases.RadioItem
+@import views.ViewUtils._
 
 
 @this(layout: templates.layout,
@@ -40,7 +41,7 @@
     )
 }
 
-@layout(pageTitle = Some(messages(s"page.groups.groupName.title"))) {
+@layout(pageTitle = Some(title(shareholdersForm, messages(s"page.groups.groupName.title")))) {
 
     @errorSummary(shareholdersForm.errors)
 

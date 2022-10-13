@@ -14,12 +14,16 @@
  * limitations under the License.
  *@
 
+@import views.ViewUtils._
+
 @this(
         layout: templates.layout,
         h1: components.h1)
 @()(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
 
- @layout(Some(Messages("page.healthcheck.header"))) {
+ @layout(Some(titleNoForm(messages("page.healthcheck.header")))) {
+
  @h1(messages("page.healthcheck.header"))
+
 }

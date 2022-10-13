@@ -14,11 +14,13 @@
  * limitations under the License.
  *@
 
+@import views.ViewUtils._
+
 @this(layout: templates.layout,
         h1: components.h1)
 @(addresses: Seq[Address])(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
-@layout(pageTitle = Some("Feature switch")) {
+@layout(pageTitle = Some(titleNoForm("Pre-pop addresses"))) {
 
 
     @h1(messages("Pre-pop addresses"))

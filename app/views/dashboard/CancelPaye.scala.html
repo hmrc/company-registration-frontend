@@ -15,6 +15,7 @@
  *@
 
 @import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
+@import views.ViewUtils._
 
 @this(layout: templates.layout,
         p: components.p,
@@ -24,7 +25,7 @@
 
 @(cancelSelection : Form[Boolean])(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
-@layout(pageTitle = Some(messages("page.reg.cancelpaye.description"))){
+@layout(pageTitle = Some(title(cancelSelection, messages("page.reg.cancelpaye.description")))){
 
     @p{
         @messages("page.reg.cancelpaye.p1")
