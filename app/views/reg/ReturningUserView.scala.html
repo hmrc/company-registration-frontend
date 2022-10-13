@@ -31,7 +31,8 @@
         @messages("page.reg.returningUser.radioYesHintText")
     }
 }
-@layout(pageTitle = Some(title(returningUser, messages("page.reg.returningUser.title")))) {
+
+@layout(pageTitle = Some(title(returningUser, messages("page.reg.returningUser.title"))), signOutLink = false) {
 
     @errorSummary(returningUser.errors)
 
