@@ -44,7 +44,7 @@ class ReturningUserControllerISpec extends IntegrationSpecBase with LoginStub {
       val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
 
       val post: Future[WSResponse] = buildClient("/setting-up-new-limited-company")
-        .withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+        .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
         .post(map)
       val response = await(post)
 

@@ -50,7 +50,7 @@ class OtherBusinessNameControllerISpec extends IntegrationSpecBase with LoginStu
       stubGetTakeoverDetails(testRegId, OK, Some(TakeoverDetails(replacingAnotherBusiness = true)))
 
       val res: WSResponse = await(buildClient(controllers.takeovers.routes.OtherBusinessNameController.show.url)
-        .withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+        .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
         .get())
 
       res.status mustBe OK
@@ -64,7 +64,7 @@ class OtherBusinessNameControllerISpec extends IntegrationSpecBase with LoginStu
       stubGetTakeoverDetails(testRegId, OK, Some(TakeoverDetails(replacingAnotherBusiness = true, Some(testPrepopBusinessName))))
 
       val res: WSResponse = await(buildClient(controllers.takeovers.routes.OtherBusinessNameController.show.url)
-        .withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+        .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
         .get())
 
       res.status mustBe OK
@@ -81,7 +81,7 @@ class OtherBusinessNameControllerISpec extends IntegrationSpecBase with LoginStu
       stubPutTakeoverDetails(testRegId, OK, TakeoverDetails(replacingAnotherBusiness = true, Some(testBusinessName)))
 
       val res: WSResponse = await(buildClient(controllers.takeovers.routes.OtherBusinessNameController.submit.url)
-        .withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+        .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
         .post(Map(otherBusinessNameKey -> Seq(testBusinessName)))
       )
 

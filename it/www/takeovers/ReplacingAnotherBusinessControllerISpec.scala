@@ -49,7 +49,7 @@ class ReplacingAnotherBusinessControllerISpec extends IntegrationSpecBase with L
       stubGetTakeoverDetails(testRegId, OK, Some(TakeoverDetails(replacingAnotherBusiness = true)))
 
       val res: WSResponse = await(buildClient(controllers.takeovers.routes.ReplacingAnotherBusinessController.show.url)
-        .withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+        .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
         .get())
 
       res.status mustBe OK
@@ -66,7 +66,7 @@ class ReplacingAnotherBusinessControllerISpec extends IntegrationSpecBase with L
 
       val res: WSResponse = await(
         buildClient(controllers.takeovers.routes.ReplacingAnotherBusinessController.submit.url)
-          .withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+          .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
           .post(Map(replacingAnotherBusinessKey -> Seq(false.toString)))
       )
 
@@ -83,7 +83,7 @@ class ReplacingAnotherBusinessControllerISpec extends IntegrationSpecBase with L
 
       val res: WSResponse = await(
         buildClient(controllers.takeovers.routes.ReplacingAnotherBusinessController.submit.url)
-          .withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+          .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
           .post(Map(replacingAnotherBusinessKey -> Seq(true.toString)))
       )
 

@@ -79,7 +79,7 @@ class Module extends AbstractModule {
     bind(classOf[MetaDataService]).to(classOf[MetaDataServiceImpl]).asEagerSingleton()
     bind(classOf[DeskproService]).to(classOf[DeskproServiceImpl]).asEagerSingleton()
     bind(classOf[PPOBService]).to(classOf[PPOBServiceImpl]).asEagerSingleton()
-    bind(classOf[QuestionnaireService]).to(classOf[QuestionnaireServiceImpl]).asEagerSingleton()
+    bind(classOf[AuditService]).to(classOf[AuditServiceImpl]).asEagerSingleton()
     bind(classOf[EmailVerificationService]).to(classOf[EmailVerificationServiceImpl]).asEagerSingleton()
     bind(classOf[DeleteSubmissionService]).to(classOf[DeleteSubmissionServiceImpl]).asEagerSingleton()
     bind(classOf[EnrolmentsService]).to(classOf[EnrolmentsServiceImpl]).asEagerSingleton()

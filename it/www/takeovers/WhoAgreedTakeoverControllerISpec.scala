@@ -54,7 +54,7 @@ class WhoAgreedTakeoverControllerISpec extends IntegrationSpecBase with LoginStu
       stubGetTakeoverDetails(testRegId, OK, Some(testTakeoverDetails))
 
       val res: WSResponse = await(buildClient(controllers.takeovers.routes.WhoAgreedTakeoverController.show.url)
-        .withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+        .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
         .get())
 
       res.status mustBe OK
@@ -66,7 +66,7 @@ class WhoAgreedTakeoverControllerISpec extends IntegrationSpecBase with LoginStu
       stubGetTakeoverDetails(testRegId, OK, Some(testTakeoverDetails.copy(previousOwnersName = Some(testPreviousOwnersName))))
 
       val res: WSResponse = await(buildClient(controllers.takeovers.routes.WhoAgreedTakeoverController.show.url)
-        .withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+        .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
         .get())
 
       res.status mustBe OK
@@ -83,7 +83,7 @@ class WhoAgreedTakeoverControllerISpec extends IntegrationSpecBase with LoginStu
       stubPutTakeoverDetails(testRegId, OK, testTakeoverDetails.copy(previousOwnersName = Some(testPreviousOwnersName)))
 
       val res: WSResponse = await(buildClient(controllers.takeovers.routes.WhoAgreedTakeoverController.submit.url)
-        .withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+        .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
         .post(Map(whoAgreedTakeoverKey -> Seq(testPreviousOwnersName)))
       )
 

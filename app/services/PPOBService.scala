@@ -27,14 +27,14 @@ import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import utils.SCRSExceptions
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class PPOBServiceImpl @Inject()(val compRegConnector: CompanyRegistrationConnector,
                                 val keystoreConnector: KeystoreConnector,
                                 val s4LConnector: S4LConnector,
                                 val auditConnector: AuditConnector) extends PPOBService
 
-trait PPOBService extends SCRSExceptions {
+trait PPOBService extends SCRSExceptions with AuditService {
   val keystoreConnector: KeystoreConnector
   val compRegConnector: CompanyRegistrationConnector
   val s4LConnector : S4LConnector
@@ -96,11 +96,12 @@ trait PPOBService extends SCRSExceptions {
     }
   }
 
-  def auditROAddress(regId: String, credID : String, companyName: String, chro: CHROAddress)
-                    (implicit hc: HeaderCarrier, request: Request[AnyContent]): Future[AuditResult] = {
-    val event = new ROUsedAsPPOBAuditEvent(ROUsedAsPPOBAuditEventDetail(regId, credID, companyName, chro))
-    auditConnector.sendExtendedEvent(event)
-  }
+  def auditROAddress(regId: String, credID: String, companyName: String, chro: CHROAddress)
+                    (implicit hc: HeaderCarrier, request: Request[AnyContent]): Future[AuditResult] =
+    sendEvent(
+      auditType = "ROAddress",
+      detail = ROUsedAsPPOBAuditEventDetail(regId, credID, companyName, chro)
+    )
 
   private def retrieveNewAddress(regId : String, cD: CompanyDetails, addressType : String, optAddress : Option[NewAddress])(implicit hc : HeaderCarrier): Future[Option[NewAddress]] =
     (addressType, optAddress) match {

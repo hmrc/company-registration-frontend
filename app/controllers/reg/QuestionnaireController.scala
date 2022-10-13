@@ -21,7 +21,7 @@ import forms.QuestionnaireForm
 import javax.inject.{Inject, Singleton}
 import play.api.i18n.I18nSupport
 import play.api.mvc.MessagesControllerComponents
-import services.{MetricsService, QuestionnaireService}
+import services.{AuditService, MetricsService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import views.html.reg.{Questionnaire => QuestionnaireView}
 
@@ -29,7 +29,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class QuestionnaireController @Inject()(val metricsService: MetricsService,
-                                        val qService: QuestionnaireService,
+                                        val auditService: AuditService,
                                         mcc: MessagesControllerComponents,
                                         view: QuestionnaireView)(implicit val appConfig: AppConfig, implicit val ec: ExecutionContext) extends FrontendController(mcc) with I18nSupport {
 
@@ -47,7 +47,7 @@ class QuestionnaireController @Inject()(val metricsService: MetricsService,
           Future.successful(BadRequest(view(errors))),
         success => {
           metricsService.numberOfQuestionnairesSubmitted.inc()
-          qService.sendAuditEventOnSuccessfulSubmission(success)
+          auditService.questionnaireAuditEvent(success)
           Future.successful(Redirect(gHost))
         }
       )

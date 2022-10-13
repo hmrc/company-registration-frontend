@@ -6,9 +6,10 @@ import sbt._
 private object AppDependencies {
 
   val playVersion                 = "-play-28"
-  val bootsrapVersion             = "5.16.0"
+  val bootsrapVersion             = "7.7.0"
   val hmrcMongoVersion            = "0.73.0"
   val scalaTestVersion            = "3.2.12"
+
 
   val compile = Seq(
     ws,
@@ -16,7 +17,7 @@ private object AppDependencies {
     "uk.gov.hmrc.mongo"       %% s"hmrc-mongo$playVersion"          %  hmrcMongoVersion,
     "uk.gov.hmrc"             %%  "play-partials"                   % s"8.3.0$playVersion",
     "uk.gov.hmrc"             %%  "url-builder"                     % s"3.5.0$playVersion",
-    "uk.gov.hmrc"             %%  "http-caching-client"             % s"9.6.0$playVersion",
+    "uk.gov.hmrc"             %%  "http-caching-client"             % s"10.0.0$playVersion",
     "uk.gov.hmrc"             %%  "play-conditional-form-mapping"   % s"1.11.0$playVersion",
     "org.bitbucket.b_c"       %   "jose4j"                          %  "0.5.0",
     "uk.gov.hmrc"             %%  "time"                            %  "3.25.0",

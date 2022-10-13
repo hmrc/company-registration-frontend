@@ -24,6 +24,7 @@ import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.Configuration
 import play.api.libs.json.JsValue
+import play.api.test.FakeRequest
 import services._
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.cache.client.{CacheMap, SessionCache}
@@ -51,6 +52,7 @@ trait SCRSMocks extends CompanyContactDetailsServiceMock
   lazy val mockSessionCache = mock[SessionCache]
   lazy val mockAudit = mock[Audit]
   lazy val mockAuditConnector = mock[AuditConnector]
+  lazy val mockAuditService = mock[AuditService]
   lazy val mockIncorpInfoConnector = mock[IncorpInfoConnector]
   lazy val mockDeleteSubmissionService = mock[DeleteSubmissionService]
   lazy val mockEmailService = mock[EmailVerificationService]
@@ -81,6 +83,8 @@ trait SCRSMocks extends CompanyContactDetailsServiceMock
     when(mock.cache[String](any(), any())(any(), any())).thenReturn(Future.successful(CacheMap("", Map.empty[String, JsValue])))
   }
 
+  def fakeRequest(method: String = "GET") = FakeRequest(method, "")
+
   def resetMocks(): Unit = {
     reset(mockAuditConnector)
     reset(mockS4LConnector)
@@ -90,6 +94,7 @@ trait SCRSMocks extends CompanyContactDetailsServiceMock
     reset(mockCompanyRegistrationConnector)
     reset(mockHandBackService)
     reset(mockPPOBService)
+    reset(mockAuditService)
     reset(mockHandOffService)
     reset(mockCompanyContactDetailsService)
     reset(mockAudit)

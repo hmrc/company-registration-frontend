@@ -16,20 +16,12 @@
 
 package audit.events
 
-import play.api.libs.json.{JsObject, Json}
-import play.api.mvc.{AnyContent, Request}
-import uk.gov.hmrc.http.HeaderCarrier
+import play.api.libs.json.Json
 
-case class EmailMismatchEventDetail(externalUserId : String,
-                                    authProviderId : String,
-                                    journeyId : String)
+case class EmailMismatchEventDetail(externalUserId: String,
+                                    authProviderId: String,
+                                    journeyId: String)
 
 object EmailMismatchEventDetail {
   implicit val format = Json.format[EmailMismatchEventDetail]
 }
-
-class EmailMismatchEvent(detail : EmailMismatchEventDetail)(implicit hc : HeaderCarrier, req: Request[AnyContent])
-  extends RegistrationAuditEvent(
-    "emailMismatch",
-    Json.toJson(detail).as[JsObject]
-  )(hc, req)

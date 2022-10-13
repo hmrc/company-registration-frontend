@@ -53,7 +53,7 @@ class ContactDetailsAuditEventSpec extends UnitSpec {
         "extID", "regID", "credID", "foo@bar.wibble", amendedContactDetails
       )
 
-      val json = Json.toJson(detail)(ContactDetailsAuditEvent.auditWrites)
+      val json = Json.toJson[ContactDetailsAuditEventDetail](detail)(ContactDetailsAuditEventDetail.writes)
       json mustBe expected
     }
 
@@ -80,7 +80,7 @@ class ContactDetailsAuditEventSpec extends UnitSpec {
         "extID", "regID", "credID", "foo@bar.wibble", amendedContactDetails
       )
 
-      val json = Json.toJson(detail)(ContactDetailsAuditEvent.auditWrites)
+      val json = Json.toJson[ContactDetailsAuditEventDetail](detail)(ContactDetailsAuditEventDetail.writes)
       json mustBe expected
     }
     "output json when email is not supplied by the user" in {
@@ -105,7 +105,7 @@ class ContactDetailsAuditEventSpec extends UnitSpec {
         "extID", "regID", "credID", "foo@bar.wibble", amendedContactDetails
       )
 
-      val json = Json.toJson(detail)(ContactDetailsAuditEvent.auditWrites)
+      val json = Json.toJson[ContactDetailsAuditEventDetail](detail)(ContactDetailsAuditEventDetail.writes)
       json mustBe expected
     }
   }

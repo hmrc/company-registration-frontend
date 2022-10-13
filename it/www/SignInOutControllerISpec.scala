@@ -226,7 +226,7 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with R
       stubGetUserDetails(userId)
 
       val fResponse = buildClient("/post-sign-in").
-        withHeaders(HeaderNames.COOKIE -> sessionCookie).
+        withHttpHeaders(HeaderNames.COOKIE -> sessionCookie).
         get()
 
       val response = await(fResponse)
@@ -251,7 +251,7 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with R
       stubGetUserDetails(userId)
 
       val fResponse = buildClient("/post-sign-in").
-        withHeaders(HeaderNames.COOKIE -> sessionCookie).
+        withHttpHeaders(HeaderNames.COOKIE -> sessionCookie).
         get()
 
       val response = await(fResponse)
@@ -275,7 +275,7 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with R
       stubGetUserDetails(userId)
 
       val fResponse = buildClient("/post-sign-in").
-        withHeaders(HeaderNames.COOKIE -> sessionCookie).
+        withHttpHeaders(HeaderNames.COOKIE -> sessionCookie).
         get()
 
       val response = await(fResponse)
@@ -300,7 +300,7 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with R
       stubGetUserDetails(userId)
 
       val fResponse = buildClient("/post-sign-in").
-        withHeaders(HeaderNames.COOKIE -> sessionCookie).
+        withHttpHeaders(HeaderNames.COOKIE -> sessionCookie).
         get()
 
       val response = await(fResponse)
@@ -336,7 +336,7 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with R
       stubVerifyEmail("foo@bar.wibble", 404)
 
       val fResponse = buildClient("/post-sign-in").
-        withHeaders(HeaderNames.COOKIE -> sessionCookie).
+        withHttpHeaders(HeaderNames.COOKIE -> sessionCookie).
         get()
 
       val response = await(fResponse)
@@ -372,7 +372,7 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with R
       stubVerifyEmail("foo@bar.wibble", 200)
 
       val fResponse = buildClient("/post-sign-in").
-        withHeaders(HeaderNames.COOKIE -> sessionCookie).
+        withHttpHeaders(HeaderNames.COOKIE -> sessionCookie).
         get()
 
       val response = await(fResponse)
@@ -397,7 +397,7 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with R
       stubGetUserDetails(userId)
 
       val fResponse = buildClient("/post-sign-in").
-        withHeaders(HeaderNames.COOKIE -> sessionCookie).
+        withHttpHeaders(HeaderNames.COOKIE -> sessionCookie).
         get()
 
       val response = await(fResponse)
@@ -491,7 +491,7 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with R
       stubAuthorisation()
       stubKeystoreCache(SessionId, "lastActionTimestamp", status = 500)
       val response = await(buildClient("/renew-session")
-        .withHeaders(HeaderNames.COOKIE -> sessionCookie)
+        .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie)
         .get())
 
       response.status mustBe 500

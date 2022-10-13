@@ -65,7 +65,7 @@ class VerifyYourEmailISpec extends IntegrationSpecBase with LoginStub {
       stubKeystore(SessionId, "5", email)
       stubGet("/company-registration/corporation-tax-registration/5/retrieve-email", 200, emailResponseFromCr)
       val fResponse = buildClient("/sent-an-email").
-        withHeaders(HeaderNames.COOKIE -> getSessionCookie(userId = userId)).
+        withHttpHeaders(HeaderNames.COOKIE -> getSessionCookie(userId = userId)).
         get()
 
       val response = await(fResponse)(FiniteDuration(10, "seconds"))

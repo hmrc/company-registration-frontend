@@ -63,7 +63,7 @@ class CompletionCapacityControllerISpec extends IntegrationSpecBase with LoginSt
       stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR())
       val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
       val response = await(buildClient(controllers.reg.routes.CompletionCapacityController.show.url)
-        .withHeaders(HeaderNames.COOKIE -> sessionCookie)
+        .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie)
         .get())
       response.status mustBe 200
 
@@ -82,7 +82,7 @@ class CompletionCapacityControllerISpec extends IntegrationSpecBase with LoginSt
       val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
 
       val response = await(buildClient(controllers.reg.routes.CompletionCapacityController.submit.url).
-        withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").post(
+        withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").post(
         Map("csrfToken" -> Seq("xxx-ignored-xxx"), "completionCapacity" -> Seq("director"), "completionCapacityOther" -> Seq("")))
       )
 
@@ -98,7 +98,7 @@ class CompletionCapacityControllerISpec extends IntegrationSpecBase with LoginSt
       val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
 
       val response = await(buildClient(controllers.reg.routes.CompletionCapacityController.submit.url).
-        withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").post(
+        withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").post(
         Map("csrfToken" -> Seq("xxx-ignored-xxx"), "completionCapacity" -> Seq(""), "completionCapacityOther" -> Seq("bar")))
       )
 

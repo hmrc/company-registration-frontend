@@ -16,16 +16,16 @@
 
 package services
 
-import javax.inject.Inject
-import audit.events.{EmailVerifiedEvent, EmailVerifiedEventDetail}
 import config.AppConfig
 import connectors.{CompanyRegistrationConnector, EmailVerificationConnector, KeystoreConnector, SendTemplatedEmailConnector}
+import javax.inject.Inject
 import models.Email.GG
 import models.auth.AuthDetails
 import models.{Email, _}
 import play.api.mvc.{AnyContent, Request, Result, Results}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.control.NoStackTrace
@@ -43,7 +43,8 @@ class EmailVerificationServiceImpl @Inject()(val emailConnector: EmailVerificati
                                              val auditConnector: AuditConnector,
                                              val handOffService: HandOffService,
                                              val appConfig: AppConfig,
-                                             val templatedEmailConnector: SendTemplatedEmailConnector) extends EmailVerificationService {
+                                             val templatedEmailConnector: SendTemplatedEmailConnector,
+                                            val auditService: AuditService) extends EmailVerificationService {
   lazy val returnUrl = appConfig.self
   lazy val sendTemplatedEmailURL = appConfig.servicesConfig.getConfString("email.returnToSCRSURL", throw new Exception("email.returnToSCRSURL not found"))
 }
@@ -61,6 +62,7 @@ trait EmailVerificationService {
   val auditConnector : AuditConnector
   val sendTemplatedEmailURL : String
   val handOffService : HandOffService
+  val auditService: AuditService
 
 
   private def emailChecks(compRegEmailOpt: Option[Email], rId:String, authDetails: AuthDetails)(implicit hc: HeaderCarrier,req: Request[AnyContent]): Future[Option[Email]] = {
@@ -157,16 +159,10 @@ trait EmailVerificationService {
   private def emailAuditing(rId : String, emailAddress : String, authProviderId: String, externalId: String)
                            (implicit hc : HeaderCarrier, req: Request[AnyContent]) = {
     for {
-      result <- auditConnector.sendExtendedEvent(
-        new EmailVerifiedEvent(
-          EmailVerifiedEventDetail(
-            externalId,
-            authProviderId,
-            rId,
-            emailAddress
-          )
-        )
-      )
+      result <- auditService.emailVerifiedEventDetail(externalId,
+        authProviderId,
+        rId,
+        emailAddress)
     } yield result
   }
 }

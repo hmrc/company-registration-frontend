@@ -18,9 +18,7 @@ package filters
 
 import itutil._
 import org.jsoup.Jsoup
-import play.api.{Application, Environment, Mode}
 import play.api.http.HeaderNames
-import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.crypto.DefaultCookieSigner
 
 class SessionIdFilterISpec extends IntegrationSpecBase
@@ -38,7 +36,7 @@ class SessionIdFilterISpec extends IntegrationSpecBase
       stubAudit
 
       val response = await(buildClient("/setting-up-new-limited-company")
-        .withHeaders(HeaderNames.COOKIE -> getSessionCookie(sessionId = invalidSessionId))
+        .withHttpHeaders(HeaderNames.COOKIE -> getSessionCookie(sessionId = invalidSessionId))
         .get())
 
       response.status mustBe 303
@@ -49,7 +47,7 @@ class SessionIdFilterISpec extends IntegrationSpecBase
       stubAudit
 
       val response = await(buildClient("/setting-up-new-limited-company")
-        .withHeaders(HeaderNames.COOKIE -> getSessionCookie())
+        .withHttpHeaders(HeaderNames.COOKIE -> getSessionCookie())
         .get())
 
       response.status mustBe 200

@@ -131,7 +131,7 @@ class RegistrationEmailControllerISpec extends IntegrationSpecBase with LoginStu
       stubGet("/company-registration/corporation-tax-registration/test/retrieve-email", 200, emailResponseFromCr)
       stubKeystoreGetWithJson(SessionId, regId, 200, data)
       val res = await(buildClient(controllers.reg.routes.RegistrationEmailController.show.url)
-        .withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
+        .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
         .get())
 
       res.status mustBe 200
@@ -162,7 +162,7 @@ class RegistrationEmailControllerISpec extends IntegrationSpecBase with LoginStu
       stubGet("/company-registration/corporation-tax-registration/test/retrieve-email", 200, emailResponseFromCr)
       stubKeystoreGetWithJson(SessionId, regId, 200, data)
       val res = await(buildClient(controllers.reg.routes.RegistrationEmailController.show.url)
-        .withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
+        .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
         .get())
 
       res.status mustBe 303
@@ -202,7 +202,7 @@ class RegistrationEmailControllerISpec extends IntegrationSpecBase with LoginStu
         """.stripMargin)
 
       val res = await(buildClient(controllers.reg.routes.RegistrationEmailController.submit.url)
-        .withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
+        .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
         .post(Map(
           "csrfToken" -> Seq("xxx-ignored-xxx"),
           "registrationEmail" -> Seq("currentEmail")
@@ -243,7 +243,7 @@ class RegistrationEmailControllerISpec extends IntegrationSpecBase with LoginStu
         """.stripMargin)
 
       val res = await(buildClient(controllers.reg.routes.RegistrationEmailController.submit.url)
-        .withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
+        .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
         .post(Map(
           "csrfToken" -> Seq("xxx-ignored-xxx"),
           "registrationEmail" -> Seq("currentEmail")
@@ -277,7 +277,7 @@ class RegistrationEmailControllerISpec extends IntegrationSpecBase with LoginStu
       stubKeystoreGetWithJson(SessionId, regId, 200, data)
       stubKeystoreCache(SessionId, "RegEmail", 200)
       val res = await(buildClient(controllers.reg.routes.RegistrationEmailController.submit.url)
-        .withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
+        .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
         .post(Map(
           "csrfToken" -> Seq("xxx-ignored-xxx"),
           "registrationEmail" -> Seq("differentEmail"),
@@ -311,7 +311,7 @@ class RegistrationEmailControllerISpec extends IntegrationSpecBase with LoginStu
       stubKeystoreGetWithJson(SessionId, regId, 200, data)
 
       val res = await(buildClient(controllers.reg.routes.RegistrationEmailController.submit.url)
-        .withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
+        .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
         .post(Map(
           "csrfToken" -> Seq("xxx-ignored-xxx"),
           "registrationEmail" -> Seq("differentEmail"),
@@ -358,7 +358,7 @@ class RegistrationEmailControllerISpec extends IntegrationSpecBase with LoginStu
       stubKeystoreGetWithJson(SessionId, regId, 200, data)
 
       val res = await(buildClient(controllers.reg.routes.RegistrationEmailController.submit.url)
-        .withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
+        .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
         .post(Map(
           "csrfToken" -> Seq("xxx-ignored-xxx"),
           "registrationEmail" -> Seq("currentEmail")

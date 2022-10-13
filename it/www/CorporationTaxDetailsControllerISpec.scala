@@ -86,7 +86,7 @@ class CorporationTaxDetailsControllerISpec extends IntegrationSpecBase with Logi
 
       await(repo.getNavModel(regId)).get mustBe handOffNavModelDataUpTo1
       val fResponse = buildClient(controllers.handoff.routes.CorporationTaxDetailsController.corporationTaxDetails(HO2_PAYLOAD).url)
-        .withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+        .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
         .get()
 
       val response = await(fResponse)
@@ -109,7 +109,7 @@ class CorporationTaxDetailsControllerISpec extends IntegrationSpecBase with Logi
 
       await(repo.getNavModel(regId)).get mustBe handOffNavModelDataUpTo1
       val fResponse = buildClient(controllers.handoff.routes.CorporationTaxDetailsController.corporationTaxDetails("").url)
-        .withHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
+        .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
         .get()
 
       val response = await(fResponse)

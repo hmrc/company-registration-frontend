@@ -18,19 +18,17 @@ package services
 
 import java.util.UUID
 
-import audit.events.EmailVerifiedEvent
 import fixtures.UserDetailsFixture
 import helpers.{SCRSSpec, UnitSpec}
 import models.auth.AuthDetails
 import models.{Email, EmailVerificationRequest}
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
-import org.mockito.{ArgumentCaptor, ArgumentMatchers}
 import play.api.libs.json.Json
 import play.api.mvc.{AnyContent, Request}
 import play.api.test.FakeRequest
-import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolments}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.cache.client.CacheMap
@@ -61,6 +59,7 @@ class EmailVerificationServiceSpec extends UnitSpec with SCRSSpec with UserDetai
       val auditConnector = mockAuditConnector
       val sendTemplatedEmailURL = "TemplatedEmailUrl"
       val handOffService = mockHandOffService
+      val auditService = mockAuditService
 
 
       override def verifyEmailAddressAndSaveEmailBlockWithFlag(s: String, e: String, authProviderId: String, externalId: String)(implicit hc: HeaderCarrier, req: Request[AnyContent]) =
@@ -89,6 +88,7 @@ class EmailVerificationServiceSpec extends UnitSpec with SCRSSpec with UserDetai
       val auditConnector = mockAuditConnector
       val sendTemplatedEmailURL = "TemplatedEmailUrl"
       val handOffService = mockHandOffService
+      val auditService = mockAuditService
     }
   }
 
@@ -143,12 +143,13 @@ class EmailVerificationServiceSpec extends UnitSpec with SCRSSpec with UserDetai
   }
   "saveEmailBlock" should {
     "save email block + send audit event if verified == true" in new Setup {
-      val captor = ArgumentCaptor.forClass(classOf[EmailVerifiedEvent])
-      when(mockAuditConnector.sendExtendedEvent(captor.capture())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]()))
+      when(mockAuditService.emailVerifiedEventDetail(ArgumentMatchers.any(),ArgumentMatchers.any(),ArgumentMatchers.any(),ArgumentMatchers.any(),ArgumentMatchers.any(),ArgumentMatchers.any())
+      (ArgumentMatchers.any(),ArgumentMatchers.any(),ArgumentMatchers.any()))
         .thenReturn(Future.successful(Success))
       when(mockCompanyRegistrationConnector.updateEmail(ArgumentMatchers.any(),ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
       val res = await(stubbedService.saveEmailBlock("foo",Email("fooemail","type",true,true,true),"provId","extId"))
+
 
     }
     "save email block + NOT send audit event if verified == false" in new Setup {
@@ -173,7 +174,8 @@ class EmailVerificationServiceSpec extends UnitSpec with SCRSSpec with UserDetai
 
 
 
-      when(mockAuditConnector.sendExtendedEvent(ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]()))
+      when(mockAuditService.emailVerifiedEventDetail(ArgumentMatchers.any(),ArgumentMatchers.any(),ArgumentMatchers.any(),ArgumentMatchers.any(),ArgumentMatchers.any(),ArgumentMatchers.any())
+      (ArgumentMatchers.any(),ArgumentMatchers.any(),ArgumentMatchers.any()))
         .thenReturn(Future.successful(Success))
 
       await(emailService.verifyEmailAddressAndSaveEmailBlockWithFlag("testEmail", regId,"provId", "extId")) mustBe Some(true)
@@ -188,7 +190,7 @@ class EmailVerificationServiceSpec extends UnitSpec with SCRSSpec with UserDetai
       when(mockCrConnector.updateEmail(ArgumentMatchers.eq(regId), ArgumentMatchers.any[Email]())(ArgumentMatchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(None))
 
-      when(mockAuditConnector.sendExtendedEvent(ArgumentMatchers.any[EmailVerifiedEvent]())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]()))
+      when(mockAuditConnector.sendExtendedEvent(ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(Success))
 
       await(emailService.verifyEmailAddressAndSaveEmailBlockWithFlag("testEmail", regId,"provId", "extId")) mustBe Some(false)
@@ -205,7 +207,9 @@ class EmailVerificationServiceSpec extends UnitSpec with SCRSSpec with UserDetai
 
       when(mockCrConnector.updateEmail(ArgumentMatchers.eq(regId), ArgumentMatchers.any[Email]())(ArgumentMatchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(None))
-      when(mockAuditConnector.sendExtendedEvent(ArgumentMatchers.any())(ArgumentMatchers.any(),ArgumentMatchers.any())).thenReturn(Future.successful(AuditResult.Success))
+      when(mockAuditService.emailVerifiedEventDetail(ArgumentMatchers.any(),ArgumentMatchers.any(),ArgumentMatchers.any(),ArgumentMatchers.any(),ArgumentMatchers.any(),ArgumentMatchers.any())
+      (ArgumentMatchers.any(),ArgumentMatchers.any(),ArgumentMatchers.any()))
+        .thenReturn(Future.successful(AuditResult.Success))
 
       await(emailService.sendVerificationLink("testEmail", regId, "authProvId", "extId")) mustBe Some(true)
     }
@@ -220,9 +224,8 @@ class EmailVerificationServiceSpec extends UnitSpec with SCRSSpec with UserDetai
       when(mockCrConnector.updateEmail(ArgumentMatchers.eq(regId), ArgumentMatchers.any[Email]())(ArgumentMatchers.any[HeaderCarrier]()))
         .thenAnswer((i: InvocationOnMock) => Future.successful(Some(i.getArguments()(1).asInstanceOf[Email])))
 
-      val captor = ArgumentCaptor.forClass(classOf[EmailVerifiedEvent])
-
-      when(mockAuditConnector.sendExtendedEvent(captor.capture())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]()))
+      when(mockAuditService.emailVerifiedEventDetail(ArgumentMatchers.any(),ArgumentMatchers.any(),ArgumentMatchers.any(),ArgumentMatchers.any(),ArgumentMatchers.any(),ArgumentMatchers.any())
+      (ArgumentMatchers.any(),ArgumentMatchers.any(),ArgumentMatchers.any()))
         .thenReturn(Future.successful(Success))
 
       await(emailService.sendVerificationLink("testEmail", regId, "authProvId", "extId")) mustBe Some(false)

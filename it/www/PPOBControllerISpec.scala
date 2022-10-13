@@ -45,7 +45,7 @@ class PPOBControllerISpec extends IntegrationSpecBase with LoginStub with Fixtur
     stubKeystore(SessionId, regId)
     stubPost("/api/v2/init", 200, "{}", responseHeader = ("Location", "foo"))
     val fResponse = buildClient(controllers.reg.routes.PPOBController.submit.url)
-      .withHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
+      .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
       .post(Map("Csrf-Token" -> Seq("nocheck"), "addressChoice" -> Seq("OtherAddress")))
 
     await(fResponse).status mustBe 303

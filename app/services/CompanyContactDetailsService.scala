@@ -16,27 +16,33 @@
 
 package services
 
-import javax.inject.Inject
-import audit.events.{ContactDetailsAuditEvent, ContactDetailsAuditEventDetail}
+import java.time.Instant
+import java.util.UUID
+
+import audit.events._
 import connectors._
+import javax.inject.Inject
 import models._
 import play.api.Logging
+import play.api.libs.json.{Json, Writes}
 import play.api.mvc.{AnyContent, Request}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
-import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.audit.AuditExtensions.auditHeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
+import uk.gov.hmrc.play.audit.model.ExtendedDataEvent
 import utils.SCRSExceptions
+
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class CompanyContactDetailsServiceImpl @Inject()(val businessRegConnector: BusinessRegistrationConnector,
-                                             val companyRegistrationConnector: CompanyRegistrationConnector,
-                                             val keystoreConnector: KeystoreConnector,
-                                             val authConnector: PlayAuthConnector,
-                                             val auditConnector: AuditConnector) extends CompanyContactDetailsService
+                                                 val companyRegistrationConnector: CompanyRegistrationConnector,
+                                                 val keystoreConnector: KeystoreConnector,
+                                                 val authConnector: PlayAuthConnector,
+                                                 val auditConnector: AuditConnector) extends CompanyContactDetailsService
 
-trait CompanyContactDetailsService extends CommonService with SCRSExceptions with Logging {
+trait CompanyContactDetailsService extends CommonService with AuditService with SCRSExceptions with Logging {
   val businessRegConnector: BusinessRegistrationConnector
   val companyRegistrationConnector: CompanyRegistrationConnector
   val auditConnector: AuditConnector
@@ -67,7 +73,7 @@ trait CompanyContactDetailsService extends CommonService with SCRSExceptions wit
         if (isEmailValid(verifiedEmail)) {
           Future.successful(CompanyContactDetailsApi(Some(verifiedEmail), None, None))
         } else {
-            Future.successful(CompanyContactDetailsApi(None, None, None))
+          Future.successful(CompanyContactDetailsApi(None, None, None))
         }
     }
   }
@@ -107,12 +113,7 @@ trait CompanyContactDetailsService extends CommonService with SCRSExceptions wit
     !userSubmittedEmail.contains(ggEmail)
   }
 
-  private[services] def auditChangeInContactDetails(externalID: String, authProviderId: String, rID: String,
-                                                    originalEmail: String,
-                                                    amendedContactDetails: CompanyContactDetails)
-                                                   (implicit hc: HeaderCarrier, req: Request[AnyContent]): Future[AuditResult] = {
 
-    val event = new ContactDetailsAuditEvent(ContactDetailsAuditEventDetail(externalID, authProviderId, rID, originalEmail, amendedContactDetails))
-    auditConnector.sendExtendedEvent(event)
-  }
+
+
 }

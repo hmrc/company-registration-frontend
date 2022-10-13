@@ -19,8 +19,6 @@ package audit.events
 import helpers.UnitSpec
 import play.api.libs.json.{JsObject, Json}
 import play.api.test.FakeRequest
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.play.audit.model.ExtendedDataEvent
 
 class EmailVerifiedEventSpec extends UnitSpec {
 
@@ -62,9 +60,6 @@ class EmailVerifiedEventSpec extends UnitSpec {
     "contain the correct field values" when {
       "populated with event detail" in {
 
-        implicit val hc = HeaderCarrier()
-        implicit val format = Json.format[ExtendedDataEvent]
-
         val testModel =
           EmailVerifiedEventDetail(
             "testEXID",
@@ -75,12 +70,21 @@ class EmailVerifiedEventSpec extends UnitSpec {
             true
           )
 
-        val auditEvent = new EmailVerifiedEvent(testModel)(hc, req)
+        val expectedJson = Json.parse(
+          """
+            |{
+            | "externalUserId": "testEXID",
+            | "authProviderId": "testAPId",
+            | "journeyId": "testJourneyId",
+            | "emailAddress": "foo@bar.wibble",
+            | "isVerifiedEmailAddress": true,
+            | "previouslyVerified": true
+            |}
+        """.stripMargin
+        )
 
-        val result = Json.toJson[ExtendedDataEvent](auditEvent)
-        result.getClass mustBe classOf[JsObject]
-        (result \ "auditSource").as[String] mustBe "company-registration-frontend"
-        (result \ "auditType").as[String] mustBe "emailVerified"
+        val result = Json.toJson[EmailVerifiedEventDetail](testModel)
+        result mustBe expectedJson
       }
     }
   }
