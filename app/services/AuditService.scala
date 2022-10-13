@@ -20,7 +20,7 @@ package services
 import java.time.Instant
 import java.util.UUID
 
-import audit.events.{AuditEventConstants, ContactDetailsAuditEventDetail, EmailMismatchEventDetail, EmailVerifiedEventDetail, QuestionnaireAuditEvent}
+import audit.events.{AuditEventConstants, ContactDetailsAuditEventDetail, EmailMismatchEventDetail, EmailVerifiedEventDetail}
 import javax.inject.{Inject, Singleton}
 import models.{CompanyContactDetails, QuestionnaireModel}
 import play.api.libs.json.{Json, Writes}
@@ -33,8 +33,7 @@ import uk.gov.hmrc.play.audit.model.ExtendedDataEvent
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class AuditServiceImpl @Inject()(val auditConnector: AuditConnector) extends AuditService {
-}
+class AuditServiceImpl @Inject()(val auditConnector: AuditConnector) extends AuditService
 
 
 trait AuditService {
