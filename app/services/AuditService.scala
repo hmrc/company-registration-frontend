@@ -100,7 +100,7 @@ trait AuditService {
 
     sendEvent(
       auditType = "Questionnaire",
-      detail = QuestionnaireAuditEvent(questionnaireModel)
+      detail = questionnaireModel
     )
 
 }

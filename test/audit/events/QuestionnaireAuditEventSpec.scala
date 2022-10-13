@@ -26,18 +26,17 @@ class QuestionnaireAuditEventSpec extends UnitSpec {
   "QuestionnaireAuditEvent" should {
     "return a valid event when instantiated" in {
       val questionnaireModel = QuestionnaireModel("able", Some("why"), "trying", "satisfaction", 1, "recommend", Some("imp"))
-      val event = QuestionnaireAuditEvent(questionnaireModel)
+      val event = questionnaireModel
 
       val expectedJson = Json.parse(
         """
-          |{"questionnaireModel": {
+          |{
           | "ableToAchieve":"able","whyNotAchieve":"why","tryingToDo":"trying","satisfaction":"satisfaction","meetNeeds":1,"recommendation":"recommend","improvements":"imp"
-          |}
           |}
         """.stripMargin
       )
 
-      val result = Json.toJson[QuestionnaireAuditEvent](event)
+      val result = Json.toJson(event)
       result mustBe expectedJson
 
     }

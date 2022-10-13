@@ -21,6 +21,4 @@ import play.api.libs.json.Json
 
 case class QuestionnaireAuditEvent(questionnaireModel: QuestionnaireModel)
 
-object QuestionnaireAuditEvent {
-  implicit val format = Json.format[QuestionnaireAuditEvent]
-}
+
