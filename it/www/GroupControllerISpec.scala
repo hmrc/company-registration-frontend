@@ -425,7 +425,7 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
         .get())
       val doc = Jsoup.parse(fResponse.body)
 
-      doc.getElementById("otherName").attr("value") mustBe "otherName"
+      doc.getElementById("otherNameOption").attr("value") mustBe "otherName"
     }
     "return 200 and pre populate page when CohoEntered is saved && shareholder name still in list of shareholders" in new Setup {
       val expected = Json.parse(
