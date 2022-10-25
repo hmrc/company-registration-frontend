@@ -366,6 +366,7 @@ page.reg.Dashboard.VAT.helpTextParagraph2                           = your taxab
 page.reg.Dashboard.VAT.helpTextParagraph3                           = you expect your taxable sales to go over £{0} in the next 30-day period
 page.reg.Dashboard.VAT.helpTextParagraph4                           = If you were registered for VAT as a sole trader but have switched to a limited company, you’ll need to register your limited company for VAT if any of the above applies.
 page.reg.Dashboard.VAT.helpTextParagraph5                           = You can register voluntarily if the company’s annual taxable sales are less than £{0}.
+page.reg.Dashboard.VAT.helpTextParagraph6                           = You must wait until you get your Corporation Tax UTR before you register for VAT.
 
 page.reg.Dashboard.registerTextForPAYE                              = Register for PAYE
 page.reg.Dashboard.registerText                                     = Register
