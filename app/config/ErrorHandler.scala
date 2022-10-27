@@ -16,25 +16,23 @@
 
 package config
 
-import javax.inject.Inject
-import config.filters.SessionIdFilter
-import play.api.http.DefaultHttpFilters
+import play.api.Configuration
 import play.api.i18n.MessagesApi
 import play.api.mvc.Request
 import play.twirl.api.Html
-import uk.gov.hmrc.play.bootstrap.frontend.filters.FrontendFilters
 import uk.gov.hmrc.play.bootstrap.frontend.http.FrontendErrorHandler
 import views.html.error_template
 
-class SCRSErrorHandler @Inject()(val appConfig: AppConfig,
-                                  val messagesApi: MessagesApi,
-                                 error_template: error_template
-                                ) extends FrontendErrorHandler {
+import javax.inject.Inject
 
+class ErrorHandler @Inject()(val messagesApi: MessagesApi,
+                             val configuration: Configuration,
+                             error_template: error_template
+                            )(implicit appConfig: AppConfig) extends FrontendErrorHandler {
 
-  def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit rh: Request[_]): Html = {
-    implicit lazy val ac = appConfig
+  override def standardErrorTemplate(pageTitle: String,
+                                     heading: String,
+                                     message: String
+                                    )(implicit request: Request[_]): Html =
     error_template(pageTitle, heading, message)
-  }
 }
-class SCRSFilters @Inject()(defaultFilters : FrontendFilters, seshFilter: SessionIdFilter) extends DefaultHttpFilters(defaultFilters.filters :+ seshFilter: _*)
