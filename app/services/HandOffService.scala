@@ -97,7 +97,7 @@ trait HandOffService extends HandOffNavigator {
     }
   }
 
-  def buildPSCPayload(regId: String, externalId: String, groups: Option[Groups])(implicit hc: HeaderCarrier): Future[Option[(String,String)]] = {
+  def buildPSCPayload(regId: String, externalId: String, groups: Option[Groups], currentLanguage: String)(implicit hc: HeaderCarrier): Future[Option[(String,String)]] = {
     val navModel = fetchNavModel() map {
       implicit model =>
         (forwardTo("3-2"), hmrcLinks("3-2"), model.receiver.chData)
@@ -120,6 +120,7 @@ trait HandOffService extends HandOffNavigator {
         regId,
         Json.obj(),
         chData,
+        currentLanguage,
         groupsInfluenced3bor3b1BackHandOff(groups),
         groupsUpdatedAndChecked.isDefined,
         groupsUpdatedAndChecked.map(_.groupRelief),
@@ -131,7 +132,7 @@ trait HandOffService extends HandOffNavigator {
     }
   }
 
-  def buildBusinessActivitiesPayload(regId: String, externalId : String)(implicit hc : HeaderCarrier) : Future[Option[(String, String)]] = {
+  def buildBusinessActivitiesPayload(regId: String, externalId : String, currentLang: String)(implicit hc : HeaderCarrier) : Future[Option[(String, String)]] = {
     val navModel = fetchNavModel() map {
       implicit model =>
         (forwardTo(3), hmrcLinks("3"), model.receiver.chData)
@@ -147,13 +148,14 @@ trait HandOffService extends HandOffNavigator {
         ppob = Some(HandoffPPOB.fromCorePPOB(addressData.pPOBAddress)),
         ch = chData,
         hmrc = JsObject(Seq()),
+        language = currentLang,
         links = links
       )
       encryptor.encrypt[BusinessActivitiesModel](payload) map { (url, _) }
     }
   }
 
-  def companyNamePayload(regId: String, email : String, name : String, extID : String)
+  def companyNamePayload(regId: String, email : String, name : String, extID : String, currentLang: String)
                         (implicit hc : HeaderCarrier) : Future[Option[(String, String)]] = {
     val navModel = fetchNavModel(canCreate = true) map {
       implicit model =>
@@ -172,6 +174,7 @@ trait HandOffService extends HandOffNavigator {
         hmrc = Json.obj(),
         session = renewSessionObject,
         ch = chData,
+        language = currentLang,
         links = links)
       encryptor.encrypt[CompanyNameHandOffModel](payload) map { (url, _) }
     }
@@ -198,7 +201,7 @@ trait HandOffService extends HandOffNavigator {
     }
   }
 
-  def buildBackHandOff(externalID : String)(implicit hc : HeaderCarrier) : Future[BackHandoff] = {
+  def buildBackHandOff(externalID : String, currentLanguage: String)(implicit hc : HeaderCarrier) : Future[BackHandoff] = {
     for {
       regID <- fetchRegistrationID
       navModel <- fetchNavModel()
@@ -208,12 +211,13 @@ trait HandOffService extends HandOffNavigator {
         regID,
         navModel.receiver.chData.getOrElse(throw new Exception("could not get chData from navModel in the buildBackHandOff method")),
         Json.obj(),
+        currentLanguage,
         Json.obj()
       )
     }
   }
 
-  def summaryHandOff(externalID : String)(implicit hc : HeaderCarrier) : Future[Option[(String, String)]] = {
+  def summaryHandOff(externalID : String, currentLanguage: String)(implicit hc : HeaderCarrier) : Future[Option[(String, String)]] = {
     val navModel = fetchNavModel() map {
       implicit model =>
         (forwardTo(5), hmrcLinks("5"), model.receiver.chData)
@@ -229,6 +233,7 @@ trait HandOffService extends HandOffNavigator {
           externalID,
           journeyID,
           Json.obj(),
+          currentLanguage,
           chData,
           Json.toJson[NavLinks](links).as[JsObject]
         )
@@ -236,7 +241,7 @@ trait HandOffService extends HandOffNavigator {
     }
   }
 
-  def buildPaymentConfirmationHandoff(externalID : Option[String])(implicit hc : HeaderCarrier): Future[Option[(String,String)]] = {
+  def buildPaymentConfirmationHandoff(externalID : Option[String], currentLanguage: String)(implicit hc : HeaderCarrier): Future[Option[(String,String)]] = {
     def navModel = {
       fetchNavModel() map {
         implicit model =>
@@ -257,6 +262,7 @@ trait HandOffService extends HandOffNavigator {
         ctReference,
         Json.obj(),
         chData.get,
+        currentLanguage,
         Json.obj("forward" -> navLinks.forward)
       )
       encryptor.encrypt[PaymentHandoff](payloadModel).map((url,_))

@@ -16,6 +16,7 @@
 
 package models.handoff
 
+import config.LangConstants
 import helpers.UnitSpec
 import play.api.libs.json.{JsObject, Json}
 
@@ -34,6 +35,7 @@ class SummaryPage1HandOffIncomingSpec extends UnitSpec {
            |  "journey_id" : "regID",
            |  "hmrc" : { "foo":"bar" },
            |  "ch" : { "foo":"bar" },
+           |  "language" : "en",
            |  "links" : { "forward":"test", "reverse":"test2" }
            |}
        """.stripMargin
@@ -44,6 +46,7 @@ class SummaryPage1HandOffIncomingSpec extends UnitSpec {
         "regID",
         JsObject(Seq("foo" -> Json.toJson("bar"))),
         JsObject(Seq("foo" -> Json.toJson("bar"))),
+        LangConstants.english,
         NavLinks("test", "test2")
       )
 

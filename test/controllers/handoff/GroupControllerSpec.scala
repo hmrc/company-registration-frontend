@@ -17,7 +17,7 @@
 package controllers.handoff
 
 import builders.AuthBuilder
-import config.AppConfig
+import config.{AppConfig, LangConstants}
 import controllers.reg.ControllerErrorHandler
 import fixtures.LoginFixture
 import helpers.SCRSSpec
@@ -35,9 +35,9 @@ import services.NavModelNotFoundException
 import utils.JweCommon
 import views.html.error_template_restart
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
-import scala.concurrent.ExecutionContext.Implicits.global
 
 
 class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPerSuite with AuthBuilder {
@@ -60,6 +60,7 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
       mockJWECommon,
       mockMcc,
       mockControllerErrorHandler,
+      app.injector.instanceOf[HandOffUtils],
       errorTemplateRestartPage
     )(
       mockAppConfig,
@@ -114,6 +115,7 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
           "aaa",
           Json.obj("key" -> "value"),
           Json.obj("key" -> "value"),
+          LangConstants.english,
           NavLinks("t", "b"),
           Some(true))))
       )
@@ -141,6 +143,7 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
           "aaa",
           Json.obj("key" -> "value"),
           Json.obj("key" -> "value"),
+          LangConstants.english,
           NavLinks("t", "b"),
           Some(true))))
       )
@@ -161,6 +164,7 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
           "aaa",
           Json.obj("key" -> "value"),
           Json.obj("key" -> "value"),
+          LangConstants.english,
           NavLinks("t", "b"),
           None)))
       )
@@ -203,7 +207,7 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
       mockKeystoreFetchAndGet("registrationID", Some("1"))
       when(mockGroupService.retrieveGroups(any())(any()))
         .thenReturn(Future.successful(None))
-      when(mockHandOffService.buildPSCPayload(any(), any(), any())(any()))
+      when(mockHandOffService.buildPSCPayload(any(), any(), any(), any())(any()))
         .thenReturn(Future.successful(None))
 
       showWithAuthorisedUserRetrieval(testController.PSCGroupHandOff(), Some("extID")) {
@@ -215,7 +219,7 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
       mockKeystoreFetchAndGet("registrationID", Some("1"))
       when(mockGroupService.retrieveGroups(any())(any()))
         .thenReturn(Future.successful(None))
-      when(mockHandOffService.buildPSCPayload(any(), any(), any())(any()))
+      when(mockHandOffService.buildPSCPayload(any(), any(), any(), any())(any()))
         .thenReturn(Future.successful(Some("foo" -> "bar")))
       when(mockHandOffService.buildHandOffUrl(any(), any()))
         .thenReturn("foo/bar/wizz/3-2")
@@ -234,7 +238,7 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
         .thenReturn(Future.successful(Some(groups)))
 
 
-      when(mockHandOffService.buildPSCPayload(any(), any(), eqTo(Some(groups)))(any()))
+      when(mockHandOffService.buildPSCPayload(any(), any(), eqTo(Some(groups)), any())(any()))
         .thenReturn(Future.successful(Some("foo" -> "bar")))
       when(mockHandOffService.buildHandOffUrl(any(), any()))
         .thenReturn("foo/bar/wizz/3-2")
@@ -250,7 +254,7 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
       mockKeystoreFetchAndGet("registrationID", Some("1"))
       when(mockGroupService.retrieveGroups(any())(any()))
         .thenReturn(Future.successful(None))
-      when(mockHandOffService.buildPSCPayload(any(), any(), any())(any()))
+      when(mockHandOffService.buildPSCPayload(any(), any(), any(), any())(any()))
         .thenReturn(Future.failed(new NavModelNotFoundException))
       when(mockHandOffService.buildHandOffUrl(any(), any())).thenReturn("foo/bar/wizz/3-2")
 
@@ -263,7 +267,7 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
 
     "throw an exception if buildPSCPayload returns an exception" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("1"))
-      when(mockHandOffService.buildPSCPayload(any(), any(), any())(any()))
+      when(mockHandOffService.buildPSCPayload(any(), any(), any(), any())(any()))
         .thenReturn(Future.failed(new Exception()))
 
       intercept[Exception](showWithAuthorisedUser(testController.PSCGroupHandOff) {
@@ -311,8 +315,8 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
 
       when(mockHandOffService.fetchNavModel(ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(handOffNavModel))
-      when(mockHandOffService.buildBackHandOff(ArgumentMatchers.any())(ArgumentMatchers.any()))
-        .thenReturn(Future.successful(BackHandoff("EXT-123456", "12354", Json.obj(), Json.obj(), Json.obj())))
+      when(mockHandOffService.buildBackHandOff(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
+        .thenReturn(Future.successful(BackHandoff("EXT-123456", "12354", Json.obj(), Json.obj(), LangConstants.english, Json.obj())))
       when(mockHandOffService.buildHandOffUrl(any(), any())).thenReturn("foo")
 
       submitWithAuthorisedUserRetrieval(testController.back, request, Some("extID")) {

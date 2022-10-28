@@ -14,18 +14,11 @@
  * limitations under the License.
  */
 
-package models.handoff
+package config
 
-import play.api.libs.json.{JsObject, Json}
+object LangConstants {
 
-case class GroupHandBackModel(user_id : String,
-                              journey_id : String,
-                              ch: JsObject,
-                              hmrc: JsObject,
-                              language: String,
-                              links: NavLinks,
-                              has_corporate_shareholders: Option[Boolean])
+  val welsh = "cy"
+  val english = "en"
 
-object GroupHandBackModel {
-  implicit val formats = Json.format[GroupHandBackModel]
 }

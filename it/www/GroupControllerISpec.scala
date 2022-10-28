@@ -17,6 +17,7 @@
 package www
 
 import com.github.tomakehurst.wiremock.client.WireMock._
+import config.LangConstants
 import fixtures.{Fixtures, HandOffFixtures}
 import itutil._
 import models.handoff.{NavLinks, PSCHandOff}
@@ -255,9 +256,10 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
         "12345",
         Json.obj(),
         Some(Json.obj("testCHBagKey" -> "testValue")),
+        LangConstants.english,
         NavLinks("/forwardToNextHmrcPage", "/reverseToPreviousHmrcPage"),
         false)
-      decryptedPayload.get mustBe Json.parse("""{"user_id":"foo","journey_id":"12345","hmrc":{},"another_company_own_shares":false,"ch":{"testCHBagKey":"testValue"},"links":{"forward":"/forwardToNextHmrcPage","reverse":"http://localhost:9970/register-your-company/business-activities-back"}}""".stripMargin)
+      decryptedPayload.get mustBe Json.parse("""{"user_id":"foo","journey_id":"12345","hmrc":{},"another_company_own_shares":false,"ch":{"testCHBagKey":"testValue"},"language":"en","links":{"forward":"/forwardToNextHmrcPage","reverse":"http://localhost:9970/register-your-company/business-activities-back"}}""".stripMargin)
     }
     "Redirect to PSC hand off url from 3-1 entry in nav Model with FULL groups in cr" in new Setup {
       val groups = Json.parse(
@@ -301,7 +303,7 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
       val payload = PayloadExtractor.extractPayload(url)
       val decryptedPayload = jweDecryptor.decrypt[JsObject](payload)
 
-      decryptedPayload.get mustBe Json.parse("""{"user_id":"foo","journey_id":"12345","hmrc":{},"another_company_own_shares":true,"ch":{"testCHBagKey":"testValue"},"parent_company":{"name":"foo","address":{"address_line_1":"1 abc","address_line_2":"2 abc","address_line_3":"3 abc","address_line_4":"4 abc","country":"country A","postal_code":"ZZ1 1ZZ"},"tax_reference":"*******890"},"links":{"forward":"/forwardToNextHmrcPage","reverse":"http://localhost:9970/register-your-company/groups-back-handback","loss_relief_group":"http://localhost:9970/register-your-company/group-relief","parent_address":"http://localhost:9970/register-your-company/owning-companys-address","parent_company_name":"http://localhost:9970/register-your-company/owning-companys-name","parent_tax_reference":"http://localhost:9970/register-your-company/owning-companys-utr"},"loss_relief_group":true}""".stripMargin)
+      decryptedPayload.get mustBe Json.parse("""{"user_id":"foo","journey_id":"12345","hmrc":{},"another_company_own_shares":true,"ch":{"testCHBagKey":"testValue"},"language":"en","parent_company":{"name":"foo","address":{"address_line_1":"1 abc","address_line_2":"2 abc","address_line_3":"3 abc","address_line_4":"4 abc","country":"country A","postal_code":"ZZ1 1ZZ"},"tax_reference":"*******890"},"links":{"forward":"/forwardToNextHmrcPage","reverse":"http://localhost:9970/register-your-company/groups-back-handback","loss_relief_group":"http://localhost:9970/register-your-company/group-relief","parent_address":"http://localhost:9970/register-your-company/owning-companys-address","parent_company_name":"http://localhost:9970/register-your-company/owning-companys-name","parent_tax_reference":"http://localhost:9970/register-your-company/owning-companys-utr"},"loss_relief_group":true}""".stripMargin)
     }
     "Redirect to PSC hand off url from 3-1 entry in nav Model with groups loss relief of false" in new Setup {
       val groups = Json.parse(
@@ -325,7 +327,7 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
 
       val payload = PayloadExtractor.extractPayload(url)
       val decryptedPayload = jweDecryptor.decrypt[JsObject](payload)
-      decryptedPayload.get mustBe Json.parse("""{"user_id":"foo","journey_id":"12345","hmrc":{},"another_company_own_shares":true,"ch":{"testCHBagKey":"testValue"},"links":{"forward":"/forwardToNextHmrcPage","reverse":"http://localhost:9970/register-your-company/groups-back-handback","loss_relief_group":"http://localhost:9970/register-your-company/group-relief"},"loss_relief_group":false}""".stripMargin)
+      decryptedPayload.get mustBe Json.parse("""{"user_id":"foo","journey_id":"12345","hmrc":{},"another_company_own_shares":true,"ch":{"testCHBagKey":"testValue"},"language": "en","links":{"forward":"/forwardToNextHmrcPage","reverse":"http://localhost:9970/register-your-company/groups-back-handback","loss_relief_group":"http://localhost:9970/register-your-company/group-relief"},"loss_relief_group":false}""".stripMargin)
     }
     "Redirect to post sign in if no nav model exists" in new Setup {
       stubGet(s"/company-registration/corporation-tax-registration/$regId/groups", 204, "")

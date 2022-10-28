@@ -23,6 +23,7 @@ case class PSCHandOff(user_id: String,
                       journey_id: String,
                       hmrc: JsObject,
                       ch: Option[JsObject],
+                      language: String,
                       links: NavLinks,
                       another_company_own_shares: Boolean = false,
                       loss_relief_group: Option[Boolean] = None,
@@ -89,6 +90,7 @@ object PSCHandOff {
           "user_id" -> o.user_id,
           "journey_id" -> o.journey_id,
           "hmrc" -> o.hmrc,
+          "language" -> o.language,
           "another_company_own_shares" -> o.another_company_own_shares
         ).deepMerge(chJs)
           .deepMerge(parentCompany)

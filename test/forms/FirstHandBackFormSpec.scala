@@ -45,7 +45,8 @@ class FirstHandBackFormSpec extends SCRSSpec with PayloadFixture {
         ),
         "testJurisdiction",
         "ch",
-        "hmrc"
+        "hmrc",
+        "en"
       )
     }
   }

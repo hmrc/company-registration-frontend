@@ -21,10 +21,11 @@ import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthenticatedController
 import controllers.reg.ControllerErrorHandler
 import javax.inject.Inject
-import play.api.i18n.I18nSupport
+import play.api.i18n.{I18nSupport, Lang}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.{HandBackService, HandOffService, NavModelNotFoundException}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
+import uk.gov.hmrc.play.language.LanguageUtils
 import utils.{DecryptionError, PayloadError, SessionRegistration}
 import views.html.{error_template, error_template_restart}
 
@@ -39,11 +40,11 @@ class BasicCompanyDetailsController @Inject()(val authConnector: PlayAuthConnect
                                               val controllerComponents: MessagesControllerComponents,
                                               val controllerErrorHandler: ControllerErrorHandler,
                                               error_template: error_template,
-                                              error_template_restart: error_template_restart
+                                              error_template_restart: error_template_restart,
+                                              handOffUtils: HandOffUtils
                                              )
                                              (implicit val appConfig: AppConfig, implicit val ec: ExecutionContext)
   extends AuthenticatedController with SessionRegistration with I18nSupport {
-
 
   //HO1
   val basicCompanyDetails: Action[AnyContent] = Action.async {
@@ -53,7 +54,7 @@ class BasicCompanyDetailsController @Inject()(val authConnector: PlayAuthConnect
           regId =>
             compRegConnector.retrieveEmail(regId).flatMap { emailBlock =>
               emailBlock.fold(Future.successful(Redirect(controllers.reg.routes.SignInOutController.postSignIn()))) { email =>
-                handOffService.companyNamePayload(regId, email.address, basicAuth.name, basicAuth.externalId) map {
+                handOffService.companyNamePayload(regId, email.address, basicAuth.name, basicAuth.externalId, handOffUtils.getCurrentLang(request)) map {
                   case Some((url, payload)) => Redirect(handOffService.buildHandOffUrl(url, payload))
                   case None => BadRequest(error_template("", "", ""))
                 }

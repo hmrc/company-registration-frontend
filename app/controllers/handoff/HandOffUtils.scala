@@ -14,18 +14,24 @@
  * limitations under the License.
  */
 
-package models.handoff
+package controllers.handoff
 
-import play.api.libs.json.{JsObject, Json}
+import com.google.inject.Inject
+import config.LangConstants
+import play.api.i18n.Lang
+import play.api.mvc.{AnyContent, MessagesRequest}
+import uk.gov.hmrc.play.language.LanguageUtils
 
-case class GroupHandBackModel(user_id : String,
-                              journey_id : String,
-                              ch: JsObject,
-                              hmrc: JsObject,
-                              language: String,
-                              links: NavLinks,
-                              has_corporate_shareholders: Option[Boolean])
+class HandOffUtils @Inject() (languageUtils: LanguageUtils) {
 
-object GroupHandBackModel {
-  implicit val formats = Json.format[GroupHandBackModel]
+  private val welshCookie = Lang(LangConstants.welsh)
+
+  def getCurrentLang(implicit request: MessagesRequest[AnyContent]): String = {
+    if (languageUtils.getCurrentLang == welshCookie) {
+      LangConstants.welsh
+    } else {
+      LangConstants.english
+    }
+  }
+
 }

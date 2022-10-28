@@ -52,6 +52,7 @@ case class BusinessActivitiesModel(authExtId : String,
                                    ppob : Option[HandoffPPOB],
                                    ch : Option[JsObject],
                                    hmrc : JsObject,
+                                   language: String,
                                    links : NavLinks)
 
 object BusinessActivitiesModel {
@@ -72,6 +73,7 @@ object BusinessActivitiesModel {
       (__ \ "principal_place_of_business_address").formatNullable[HandoffPPOB] and
       (__ \ "ch").formatNullable[JsObject] and
       (__ \ "hmrc").format[JsObject] and
+      (__ \ "language").format[String] and
       (__ \ "links").format[NavLinks]
     )(BusinessActivitiesModel.apply, unlift(BusinessActivitiesModel.unapply))
 

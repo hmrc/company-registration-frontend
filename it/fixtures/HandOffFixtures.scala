@@ -16,6 +16,7 @@
 
 package fixtures
 
+import config.LangConstants
 import models.CHROAddress
 import models.handoff._
 import play.api.libs.json.{JsObject, JsValue, Json}
@@ -48,6 +49,7 @@ trait HandOffFixtures {
     "txid",
     Json.obj(),
     Json.obj(),
+    LangConstants.english,
     Json.parse("""{"forward":"/testForward","reverse":"/testReverse","company_name" : "/String","company_address" : "/String","company_jurisdiction" : "/String"}""").as[JsObject]
   )
   lazy val H03_1_MODEL_SHAREHOLDERS_FLAG = GroupHandBackModel(
@@ -55,6 +57,7 @@ trait HandOffFixtures {
     regId,
     Json.obj("testCHBagKey" -> "testValue"),
     Json.obj(),
+    LangConstants.english,
     NavLinks("/forwardToNextCohoPage","/backToPreviousCohoPage"),
     Some(true)
   )
@@ -64,6 +67,7 @@ trait HandOffFixtures {
     regId,
     Json.obj(),
     Json.obj(),
+    LangConstants.english,
     NavLinks("/forwardToNextCohoPage","/backToPreviousCohoPage"),
     None
   )
@@ -73,6 +77,7 @@ trait HandOffFixtures {
     regId,
     Json.obj(),
     Json.obj(),
+    LangConstants.english,
     NavLinks("testForwardLink", "testReverseLink")
   )
 

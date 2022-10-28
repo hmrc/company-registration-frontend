@@ -24,6 +24,7 @@ case class BackHandoff (
                        journey_id : String,
                        ch : JsObject,
                        hmrc : JsObject,
+                       language: String,
                        links : JsObject
                        )
 object BackHandoff {

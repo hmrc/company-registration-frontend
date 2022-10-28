@@ -17,7 +17,7 @@
 package controllers.handoff
 
 import builders.AuthBuilder
-import config.AppConfig
+import config.{AppConfig, LangConstants}
 import controllers.reg.ControllerErrorHandler
 import fixtures.{LoginFixture, PayloadFixture}
 import helpers.SCRSSpec
@@ -72,6 +72,7 @@ class CorporationTaxDetailsControllerSpec extends SCRSSpec with PayloadFixture w
       "txid",
       Json.parse("""{"ch" : 1}""").as[JsObject],
       Json.parse("""{"ch" : 1}""").as[JsObject],
+      LangConstants.english,
       Json.parse("""{"forward":"testForward","reverse":"testReverse"}""").as[JsObject])
 
     "return a SEE_OTHER if submitting without authorisation" in new Setup {

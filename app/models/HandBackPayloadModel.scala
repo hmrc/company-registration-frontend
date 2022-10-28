@@ -39,6 +39,7 @@ case class RegistrationConfirmationPayload(user_id : String,
                                            payment_amount : Option[String],
                                            ch : JsObject,
                                            hmrc : JsObject,
+                                           language: String,
                                            links : JsObject)
 
 

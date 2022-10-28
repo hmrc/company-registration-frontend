@@ -16,11 +16,10 @@
 
 package controllers
 
-import java.util.Locale
-
 import builders.AuthBuilder
-import config.AppConfig
+import config.LangConstants
 import connectors.BusinessRegistrationConnector
+import controllers.handoff.HandOffUtils
 import controllers.reg.{ControllerErrorHandler, PPOBController}
 import fixtures.PPOBFixture
 import helpers.SCRSSpec
@@ -40,7 +39,7 @@ import services.{AddressLookupFrontendService, AuditService, NavModelNotFoundExc
 import uk.gov.hmrc.auth.core.retrieve.Credentials
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditResult
-import utils.{JweCommon, SCRSFeatureSwitches}
+import utils.SCRSFeatureSwitches
 import views.html.reg.{PrinciplePlaceOfBusiness => PrinciplePlaceOfBusinessView}
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -75,6 +74,7 @@ class PPOBControllerSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixtur
       mockSCRSFeatureSwitches,
       mockMcc,
       mockControllerErrorHandler,
+      app.injector.instanceOf[HandOffUtils],
       mockPrinciplePlaceOfBusinessView
     )
     (
@@ -121,8 +121,8 @@ class PPOBControllerSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixtur
 
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
       when(mockHandOffService.fetchNavModel(ArgumentMatchers.any[Boolean])(ArgumentMatchers.any())).thenReturn(Future.successful(handOffNavModelData))
-      when(mockHandOffService.buildBackHandOff(ArgumentMatchers.any())(ArgumentMatchers.any()))
-        .thenReturn(Future.successful(BackHandoff("ext-xxxx-xxxx", "12345", Json.obj(), Json.obj(), Json.obj())))
+      when(mockHandOffService.buildBackHandOff(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
+        .thenReturn(Future.successful(BackHandoff("ext-xxxx-xxxx", "12345", Json.obj(), Json.obj(), LangConstants.english, Json.obj())))
 
       showWithAuthorisedUserRetrieval(controller.back, extID) {
         result =>

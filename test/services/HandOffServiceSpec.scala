@@ -17,7 +17,7 @@
 package services
 
 import builders.AuthBuilder
-import config.AppConfig
+import config.{AppConfig, LangConstants}
 import fixtures._
 import helpers.SCRSSpec
 import mocks.{KeystoreMock, NavModelRepoMock}
@@ -94,7 +94,7 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
       when(mockCompanyRegistrationConnector.retrieveCompanyDetails(ArgumentMatchers.eq(registrationID))(ArgumentMatchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(Some(validCompanyDetailsResponseDifferentAddresses)))
 
-      val result = await(service.buildBusinessActivitiesPayload(registrationID, externalID))
+      val result = await(service.buildBusinessActivitiesPayload(registrationID, externalID, LangConstants.english))
 
       result.get._1 mustBe "SIC codes"
 
@@ -105,6 +105,7 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
         Some(address),
         None,
         Json.parse("""{}""").as[JsObject],
+        LangConstants.english,
         NavLinks("summary", "regularPayments"))
 
       testJwe.decrypt[BusinessActivitiesModel](result.get._2).get mustBe model
@@ -125,7 +126,7 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
       mockGetNavModel(None)
       when(mockSCRSFeatureSwitches.legacyEnv).thenReturn(BooleanFeatureSwitch("foo", false))
       when(mockSCRSFeatureSwitches.cohoFirstHandOff).thenReturn(BooleanFeatureSwitch("foo", false))
-      val result = await(service.companyNamePayload("testRegID", "testemail", "testname", externalID))
+      val result = await(service.companyNamePayload("testRegID", "testemail", "testname", externalID, LangConstants.english))
       result.get._1 mustBe "http://localhost:9986/incorporation-frontend-stubs/basic-company-details"
       val decrypted = testJwe.decrypt[BusinessActivitiesModel](result.get._2)
       decrypted.get mustBe BusinessActivitiesModel(
@@ -133,6 +134,7 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
         "testRegID",
         None, None,
         Json.obj(),
+        LangConstants.english,
         NavLinks(
           "http://localhost:9970/register-your-company/corporation-tax-details",
           "http://localhost:9970/register-your-company/return-to-about-you")
@@ -159,13 +161,16 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
         .thenReturn(Future.successful(Some("12345")))
       mockGetNavModel(Some(validNavModelForThisFunction))
 
-      val result = await(service.buildPSCPayload("12345", "12", None))
+      val result = await(service.buildPSCPayload("12345", "12", None, LangConstants.english))
       result.get._1 mustBe "PSCStubPage"
       val decrypted = testJwe.decrypt[JsObject](result.get._2)
       decrypted.get mustBe Json.parse(
         """{
-          |"user_id":"12","journey_id":"12345","hmrc":{},"another_company_own_shares":false,
+          |"user_id":"12","journey_id":"12345",
+          |"hmrc":{},
+          |"another_company_own_shares":false,
           |"ch":{"foo":"bar"},
+          |"language": "en",
           |"links":{"forward":"SenderUrlToSummary","reverse":"http://localhost:9970/register-your-company/business-activities-back"}
           |} """.stripMargin)
     }
@@ -174,29 +179,29 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
         .thenReturn(Future.successful(Some("12345")))
       mockGetNavModel(Some(validNavModelForThisFunction))
 
-      val result = await(service.buildPSCPayload("12345", "12", Some(groups)))
+      val result = await(service.buildPSCPayload("12345", "12", Some(groups), LangConstants.english))
       result.get._1 mustBe "PSCStubPage"
       val decrypted = testJwe.decrypt[JsObject](result.get._2)
       decrypted.get mustBe Json.parse(
         """
-          |{"user_id":"12","journey_id":"12345","hmrc":{},"another_company_own_shares":true,"ch":{"foo":"bar"},"parent_company":{"name":"foo","address":{"address_line_1":"1 abc","address_line_2":"2 abc","address_line_3":"3 abc","address_line_4":"4 abc","country":"country A","postal_code":"ZZ1 1ZZ"},"tax_reference":"*******890"},"links":{"forward":"SenderUrlToSummary","reverse":"http://localhost:9970/register-your-company/groups-back-handback","loss_relief_group":"http://localhost:9970/register-your-company/group-relief","parent_address":"http://localhost:9970/register-your-company/owning-companys-address","parent_company_name":"http://localhost:9970/register-your-company/owning-companys-name","parent_tax_reference":"http://localhost:9970/register-your-company/owning-companys-utr"},"loss_relief_group":true} """.stripMargin)
+          |{"user_id":"12","journey_id":"12345","hmrc":{},"another_company_own_shares":true,"ch":{"foo":"bar"},"parent_company":{"name":"foo","address":{"address_line_1":"1 abc","address_line_2":"2 abc","address_line_3":"3 abc","address_line_4":"4 abc","country":"country A","postal_code":"ZZ1 1ZZ"},"tax_reference":"*******890"},"links":{"forward":"SenderUrlToSummary","reverse":"http://localhost:9970/register-your-company/groups-back-handback","loss_relief_group":"http://localhost:9970/register-your-company/group-relief","parent_address":"http://localhost:9970/register-your-company/owning-companys-address","parent_company_name":"http://localhost:9970/register-your-company/owning-companys-name","parent_tax_reference":"http://localhost:9970/register-your-company/owning-companys-utr"},"loss_relief_group":true, "language": "en"} """.stripMargin)
     }
     "Return forward URL and encrypted payload with groups but relief is false" in new Setup {
       when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.eq("registrationID"))(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some("12345")))
       mockGetNavModel(Some(validNavModelForThisFunction))
 
-      val result = await(service.buildPSCPayload("12345", "12", Some(Groups(false, None, None, None))))
+      val result = await(service.buildPSCPayload("12345", "12", Some(Groups(false, None, None, None)), LangConstants.english))
       result.get._1 mustBe "PSCStubPage"
       val decrypted = testJwe.decrypt[JsObject](result.get._2)
       decrypted.get mustBe Json.parse(
-        """{"user_id":"12","journey_id":"12345","hmrc":{},"another_company_own_shares":true,"ch":{"foo":"bar"},"links":{"forward":"SenderUrlToSummary","reverse":"http://localhost:9970/register-your-company/groups-back-handback","loss_relief_group":"http://localhost:9970/register-your-company/group-relief"},"loss_relief_group":false}""".stripMargin)
+        """{"user_id":"12","journey_id":"12345","hmrc":{},"another_company_own_shares":true,"ch":{"foo":"bar"},"language": "en","links":{"forward":"SenderUrlToSummary","reverse":"http://localhost:9970/register-your-company/groups-back-handback","loss_relief_group":"http://localhost:9970/register-your-company/group-relief"},"loss_relief_group":false}""".stripMargin)
     }
     "throw exception if groups block incomplete" in new Setup {
       when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.eq("registrationID"))(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some("12345")))
       mockGetNavModel(Some(validNavModelForThisFunction))
-      intercept[Exception](await(service.buildPSCPayload("12345", "12", Some(Groups(true, None, None, Some(GroupUTR(None)))))))
+      intercept[Exception](await(service.buildPSCPayload("12345", "12", Some(Groups(true, None, None, Some(GroupUTR(None)))), LangConstants.english)))
     }
 
     "return exception when sender link does not exist in nav model" in new Setup {
@@ -211,7 +216,7 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
         .thenReturn(Future.successful(Some("12345")))
       mockGetNavModel(Some(invalidNavModel))
 
-      intercept[Exception](await(service.buildPSCPayload("12345", "12", None)))
+      intercept[Exception](await(service.buildPSCPayload("12345", "12", None, LangConstants.english)))
     }
     "return exception when receiver link does not exist in nav model" in new Setup {
       val invalidNavModel = HandOffNavModel(
@@ -225,13 +230,13 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
         .thenReturn(Future.successful(Some("12345")))
       mockGetNavModel(Some(invalidNavModel))
 
-      intercept[Exception](await(service.buildPSCPayload("12345", "12", None)))
+      intercept[Exception](await(service.buildPSCPayload("12345", "12", None, LangConstants.english)))
     }
     "return an exception when keystorefetchAndGet returns an exception" in new Setup {
       when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.eq("registrationID"))(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.failed(new Exception("foo")))
 
-      intercept[Exception](await(service.buildPSCPayload("12345", "12", None)))
+      intercept[Exception](await(service.buildPSCPayload("12345", "12", None, LangConstants.english)))
     }
   }
 
@@ -366,7 +371,7 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
       when(mockNavModelRepoObj.getNavModel("12345"))
         .thenReturn(Future.successful(Some(handOffNavModel)))
 
-      val result = await(service.buildBackHandOff(externalID))
+      val result = await(service.buildBackHandOff(externalID, LangConstants.english))
 
       result.user_id mustBe "testExternalID"
       result.journey_id mustBe "12345"
@@ -408,7 +413,7 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
       when(mockCompanyRegistrationConnector.updateRegistrationProgress(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(HttpResponse(200, "")))
 
-      val result = await(service.summaryHandOff(externalID)).get
+      val result = await(service.summaryHandOff(externalID, LangConstants.english)).get
 
       result._1 mustBe "testForwardLinkFromReceiver4"
       val decrypted = testJwe.decrypt[BusinessActivitiesModel](result._2)
@@ -418,6 +423,7 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
         None,
         Some(Json.obj("testCHBagKey" -> "testValue")),
         Json.obj(),
+        LangConstants.english,
         NavLinks("testForwardLinkFromSender5", "testReverseLinkFromSender5"))
     }
   }

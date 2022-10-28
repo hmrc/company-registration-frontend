@@ -27,6 +27,7 @@ case class AccountingDatesHandOffModel(OID: String,
 case class SummaryHandOff(user_id : String,
                           journey_id : String,
                           hmrc : JsObject,
+                          language: String,
                           ch : Option[JsObject],
                           links : JsObject)
 

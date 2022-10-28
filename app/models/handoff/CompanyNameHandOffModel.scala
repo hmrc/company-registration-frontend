@@ -29,6 +29,7 @@ case class CompanyNameHandOffModel(email_address : String,
                                    hmrc: JsObject,
                                    session: JsObject,
                                    ch: Option[JsObject],
+                                   language: String,
                                    links: NavLinks)
 
 object CompanyNameHandOffModel {
@@ -41,7 +42,8 @@ case class CompanyNameHandOffFormModel(registration_id : Option[String],
                                        registered_office_address : CHROAddress,
                                        jurisdiction : String,
                                        ch: String,
-                                       hmrc: String)
+                                       hmrc: String,
+                                       language: String)
 
 object CompanyNameHandOffFormModel {
   implicit val format = Json.format[CompanyNameHandOffFormModel]
@@ -55,6 +57,7 @@ case class CompanyNameHandOffIncoming(journey_id : Option[String],
                                       transactionId : String,
                                       ch: JsObject,
                                       hmrc: JsObject,
+                                      language: String,
                                       links: JsObject) {
 
 
@@ -70,6 +73,7 @@ object CompanyNameHandOffIncoming {
     (__ \ "transaction_id").format[String] and
     (__ \ "ch").format[JsObject] and
     (__ \ "hmrc").format[JsObject] and
+    (__ \ "language").format[String] and
     (__ \ "links").format[JsObject]
   )(CompanyNameHandOffIncoming.apply, unlift(CompanyNameHandOffIncoming.unapply))
 }

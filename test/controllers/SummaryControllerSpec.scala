@@ -17,7 +17,8 @@
 package controllers
 
 import builders.AuthBuilder
-import config.AppConfig
+import config.{AppConfig, LangConstants}
+import controllers.handoff.HandOffUtils
 import controllers.reg.{ControllerErrorHandler, SummaryController}
 import fixtures.{AccountingDetailsFixture, CorporationTaxFixture, SCRSFixtures, TradingDetailsFixtures}
 import helpers.SCRSSpec
@@ -33,16 +34,14 @@ import play.api.libs.json.{JsObject, Json, Writes}
 import play.api.mvc.{AnyContentAsEmpty, MessagesControllerComponents}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import services.{NavModelNotFoundException, SummaryService}
-import uk.gov.hmrc.http.HeaderCarrier
-import utils.{SCRSFeatureSwitches, SCRSFeatureSwitchesImpl}
-
-import java.util.UUID
 import repositories.NavModelRepo
-import uk.gov.hmrc.govukfrontend.views.viewmodels.content.Text
-import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.{Key, SummaryList, SummaryListRow}
+import services.{NavModelNotFoundException, SummaryService}
+import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryList
+import uk.gov.hmrc.http.HeaderCarrier
+import utils.SCRSFeatureSwitchesImpl
 import views.html.reg.{Summary => SummaryView}
 
+import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -93,6 +92,7 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with GuiceOneAppP
       mockControllerComponents,
       mockControllerErrorHandler,
       mockSummaryService,
+      app.injector.instanceOf[HandOffUtils],
       mockSummaryView
     )(
       appConfig,
@@ -220,8 +220,8 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with GuiceOneAppP
 
       when(mockHandOffService.fetchNavModel(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(handOffNavModel))
 
-      when(mockHandOffService.buildBackHandOff(ArgumentMatchers.any())(ArgumentMatchers.any()))
-        .thenReturn(Future.successful(BackHandoff("EXT-123456", testRegId, Json.obj(), Json.obj(), Json.obj())))
+      when(mockHandOffService.buildBackHandOff(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
+        .thenReturn(Future.successful(BackHandoff("EXT-123456", testRegId, Json.obj(), Json.obj(), LangConstants.english, Json.obj())))
 
       when(mockHandOffService.buildHandOffUrl(ArgumentMatchers.eq("testReverseLinkFromReceiver4"), ArgumentMatchers.eq("foo")))
         .thenReturn(s"testReverseLinkFromReceiver4?request=foo")

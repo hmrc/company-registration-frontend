@@ -22,6 +22,7 @@ case class SummaryPage1HandOffIncoming(user_id : String,
                                        journey_id : String,
                                        ch: JsObject,
                                        hmrc: JsObject,
+                                       language: String,
                                        links: NavLinks)
 
 object SummaryPage1HandOffIncoming {
