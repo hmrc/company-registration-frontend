@@ -17,13 +17,15 @@
 package www
 
 import java.util.UUID
-
 import com.github.tomakehurst.wiremock.client.WireMock.{findAll, postRequestedFor, urlMatching}
+import config.AppConfig
 import itutil.{IntegrationSpecBase, LoginStub, RequestsFinder}
 import org.jsoup.Jsoup
 import play.api.http.HeaderNames
+import play.api.i18n.{Lang, MessagesApi}
 import play.api.libs.crypto.DefaultCookieSigner
 import play.api.libs.json.{JsObject, Json}
+import play.api.test.FakeRequest
 
 class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with LoginStub with RequestsFinder {
 
@@ -33,7 +35,12 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
   val csrfToken = UUID.randomUUID().toString
   val regId = "5"
   val sessionCookie = () => getSessionCookie(Map("csrfToken" -> csrfToken), userId)
+
   lazy val defaultCookieSigner: DefaultCookieSigner = app.injector.instanceOf[DefaultCookieSigner]
+
+  val errorTemplate = app.injector.instanceOf[views.html.error_template]
+  val messages = app.injector.instanceOf[MessagesApi].preferred(Seq(Lang("en")))
+  val appConfig = app.injector.instanceOf[AppConfig]
 
   def statusResponseFromCR(status: String = "draft", rID: String = "5") =
     s"""
@@ -110,6 +117,23 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
       doc.getElementById("contactDaytimeTelephoneNumber").`val` mustBe "12345678"
       doc.getElementById("contactMobileNumber").`val` mustBe "45678"
       doc.getElementById("contactEmail").`val` mustBe "foo@foo.com"
+    }
+
+    "render the ISE error template when an unexpected error occurs" in {
+      stubSuccessfulLogin(userId = userId)
+      stubKeystore(SessionId, regId)
+      stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 404, "")
+
+      val fResponse = await(buildClient(controllers.reg.routes.CompanyContactDetailsController.show.url)
+        .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
+        .get())
+
+      fResponse.status mustBe 500
+      fResponse.body mustBe errorTemplate(
+        "Sorry, we are experiencing technical difficulties - 500",
+        "Sorry, we’re experiencing technical difficulties",
+        "Please try again in a few minutes."
+      )(FakeRequest(), messages, appConfig).toString
     }
   }
   "submit" should {
