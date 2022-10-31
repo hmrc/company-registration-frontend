@@ -53,11 +53,11 @@ class RegistrationConfirmationController @Inject()(val authConnector: PlayAuthCo
         registered {
           regid =>
             handBackService.decryptConfirmationHandback(requestData) flatMap {
-              case payload@Success(s) => handBackService.storeConfirmationHandOff(s, regid).flatMap {
-                case _ if handBackService.payloadHasForwardLinkAndNoPaymentRefs(s) => getPaymentHandoffResult(externalID)
-                case ConfirmationReferencesSuccessResponse(_) => Future.successful(Redirect(controllers.reg.routes.ConfirmationController.show).withLang(Lang(payload.get.language)))
-                case DESFailureRetriable => Future.successful(Redirect(controllers.reg.routes.ConfirmationController.show).withLang(Lang(payload.get.language)))
-                case _ => Future.successful(Redirect(controllers.reg.routes.ConfirmationController.deskproPage).withLang(Lang(payload.get.language)))
+              case Success(payload) => handBackService.storeConfirmationHandOff(payload, regid).flatMap {
+                case _ if handBackService.payloadHasForwardLinkAndNoPaymentRefs(payload) => getPaymentHandoffResult(externalID)
+                case ConfirmationReferencesSuccessResponse(_) => Future.successful(Redirect(controllers.reg.routes.ConfirmationController.show).withLang(Lang(payload.language)))
+                case DESFailureRetriable => Future.successful(Redirect(controllers.reg.routes.ConfirmationController.show).withLang(Lang(payload.language)))
+                case _ => Future.successful(Redirect(controllers.reg.routes.ConfirmationController.deskproPage).withLang(Lang(payload.language)))
               }
               case Failure(DecryptionError) => Future.successful(BadRequest(error_template_restart("6", "DecryptionError")))
               case unknown => Future.successful {

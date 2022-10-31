@@ -63,7 +63,7 @@ class CorporationTaxDetailsController @Inject()(val authConnector: PlayAuthConne
       ctAuthorisedHandoff("HO2", requestData) {
         registeredHandOff("HO2", requestData) { _ =>
           handBackService.processCompanyDetailsHandBack(requestData).map {
-            case payload@Success(_) => Redirect(controllers.reg.routes.PPOBController.show).withLang(Lang(payload.get.language))
+            case Success(payload) => Redirect(controllers.reg.routes.PPOBController.show).withLang(Lang(payload.language))
             case Failure(PayloadError) => BadRequest(error_template_restart("2", "PayloadError"))
             case Failure(DecryptionError) => BadRequest(error_template_restart("2", "DecryptionError"))
             case unknown => {

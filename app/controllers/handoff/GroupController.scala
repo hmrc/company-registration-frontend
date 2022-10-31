@@ -56,11 +56,11 @@ class GroupController @Inject()(val authConnector: PlayAuthConnector,
       ctAuthorisedHandoff("HO3-1", requestData) {
         registeredHandOff("HO3-1", requestData) { regID =>
           handBackService.processGroupsHandBack(requestData).flatMap {
-            case payload@Success(GroupHandBackModel(_, _, _, _, _, _ , Some(true))) =>
-              pscHandOffToGroupsIfDataInTxApi(regID, payload.get.language)
-            case payload@Success(GroupHandBackModel(_, _, _, _, _, _ , Some(false))) =>
+            case Success(GroupHandBackModel(_, _, _, _, lang, _ , Some(true))) =>
+              pscHandOffToGroupsIfDataInTxApi(regID, lang)
+            case payload@Success(GroupHandBackModel(_, _, _, _, lang, _ , Some(false))) =>
               groupService.dropGroups(regID).map { _ =>
-                Redirect(controllers.handoff.routes.GroupController.PSCGroupHandOff).withLang(Lang(payload.get.language))
+                Redirect(controllers.handoff.routes.GroupController.PSCGroupHandOff).withLang(Lang(lang))
               }
             case _ => Future.successful(BadRequest(error_template_restart("3-1", "PayloadError")))
           }
