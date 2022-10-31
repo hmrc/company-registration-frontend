@@ -53,6 +53,6 @@ object VatDashboardMessages extends Viewtils {
     override def disclosureBullet1(threshold: Int) = s"oedd eich gwerthiant trethadwy dros ${monetary(threshold)} ar ddiwedd unrhyw fis yn ystod y flwyddyn ddiwethaf"
     override def disclosureBullet2(threshold: Int) = s"rydych yn disgwyl i’ch trosiant trethadwy TAW fod yn fwy nag ${monetary(threshold)} yn ystod y cyfnod 30 diwrnod nesaf"
     override def disclosureP2(threshold: Int) = s"Os oeddech wedi cofrestru ar gyfer TAW fel unig fasnachwr ond wedi newid i gwmni cyfyngedig, bydd angen i chi gofrestru’ch cwmni cyfyngedig ar gyfer TAW os bydd unrhyw un o’r uchod yn berthnasol. Gallwch gofrestru’n wirfoddol os yw gwerthiannau trethadwy blynyddol y cwmni yn llai na ${monetary(threshold)}."
-    override val disclosureP3 = "You must wait until you get your Corporation Tax UTR before you register for VAT." //TODO: Requires Welsh
+    override val disclosureP3 = "Mae’n rhaid i chi aros nes eich bod yn cael eich Cyfeirnod Unigryw y Trethdalwr (UTR) ar gyfer Treth Gorfforaeth cyn i chi gofrestru ar gyfer TAW."
   }
 }
