@@ -20,13 +20,15 @@ import config.AppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthenticatedController
 import controllers.reg.ControllerErrorHandler
+
 import javax.inject.Inject
 import utils.Logging
-import play.api.i18n.I18nSupport
+import play.api.i18n.{I18nSupport, Lang}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.{HandBackService, HandOffService, NavModelNotFoundException}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
+import uk.gov.hmrc.play.language.LanguageUtils
 import utils.{DecryptionError, PayloadError, SessionRegistration}
 import views.html.error_template_restart
 
@@ -40,6 +42,7 @@ class IncorporationSummaryController @Inject()(val authConnector: PlayAuthConnec
                                                    val handBackService: HandBackService,
                                                    val controllerComponents: MessagesControllerComponents,
                                                    val controllerErrorHandler: ControllerErrorHandler,
+                                                   handOffUtils: HandOffUtils,
                                                    error_template_restart: error_template_restart)
                                                   (implicit val appConfig: AppConfig, implicit val ec: ExecutionContext)
   extends AuthenticatedController with SessionRegistration with I18nSupport with Logging {
@@ -49,7 +52,7 @@ class IncorporationSummaryController @Inject()(val authConnector: PlayAuthConnec
     implicit request =>
       ctAuthorisedOptStr(Retrievals.externalId) { externalID =>
         registered { a =>
-          handOffService.summaryHandOff(externalID) map {
+          handOffService.summaryHandOff(externalID, handOffUtils.getCurrentLang(request)) map {
             case Some((url, payload)) => Redirect(handOffService.buildHandOffUrl(url, payload))
             case None => BadRequest(controllerErrorHandler.defaultErrorPage)
           } recover {

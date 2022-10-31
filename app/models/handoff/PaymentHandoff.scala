@@ -24,6 +24,7 @@ case class PaymentHandoff(
                          ct_reference: String,
                          hmrc: JsObject,
                          ch: JsObject,
+                         language: String,
                          links: JsObject
                          )
 object PaymentHandoff{

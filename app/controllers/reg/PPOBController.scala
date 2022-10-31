@@ -19,12 +19,11 @@ package controllers.reg
 import _root_.connectors.{BusinessRegistrationConnector, CompanyRegistrationConnector, KeystoreConnector, S4LConnector}
 import config.AppConfig
 import controllers.auth.AuthenticatedController
+import controllers.handoff.HandOffUtils
 import controllers.reg.PPOBController._
 import forms.PPOBForm
-import javax.inject.{Inject, Singleton}
 import models._
 import models.handoff.BackHandoff
-import utils.Logging
 import play.api.i18n.Messages
 import play.api.mvc._
 import repositories.NavModelRepo
@@ -32,9 +31,10 @@ import services._
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.http.HeaderCarrier
-import utils._
+import utils.{Logging, _}
 import views.html.reg.{PrinciplePlaceOfBusiness => PrinciplePlaceOfBusinessView}
 
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
@@ -51,6 +51,7 @@ class PPOBController @Inject()(val authConnector: PlayAuthConnector,
                                val scrsFeatureSwitches: SCRSFeatureSwitches,
                                val controllerComponents: MessagesControllerComponents,
                                val controllerErrorHandler: ControllerErrorHandler,
+                               handOffUtils: HandOffUtils,
                                view: PrinciplePlaceOfBusinessView)
                               (implicit val appConfig: AppConfig, implicit val ec: ExecutionContext) extends AuthenticatedController
   with SessionRegistration with Logging {
@@ -143,7 +144,7 @@ class PPOBController @Inject()(val authConnector: PlayAuthConnector,
         registered { _ =>
           (for {
             navModel <- handOffService.fetchNavModel()
-            backPayload <- handOffService.buildBackHandOff(externalID)
+            backPayload <- handOffService.buildBackHandOff(externalID, handOffUtils.getCurrentLang(request))
           } yield {
             val payload = jwe.encrypt[BackHandoff](backPayload).getOrElse("")
             val url = navModel.receiver.nav("2").reverse

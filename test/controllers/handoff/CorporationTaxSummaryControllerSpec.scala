@@ -17,7 +17,7 @@
 package controllers.handoff
 
 import builders.AuthBuilder
-import config.AppConfig
+import config.{AppConfig, LangConstants}
 import controllers.reg.ControllerErrorHandler
 import fixtures.LoginFixture
 import helpers.SCRSSpec
@@ -68,6 +68,7 @@ class CorporationTaxSummaryControllerSpec extends SCRSSpec with LoginFixture wit
       "testjourneyID",
       Json.obj(),
       Json.obj(),
+      LangConstants.english,
       NavLinks("testForwardLink", "testReverseLink")
     )
 

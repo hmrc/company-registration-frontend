@@ -16,6 +16,7 @@
 
 package models.handoff
 
+import config.LangConstants
 import helpers.UnitSpec
 import models.{Address, PPOB}
 import play.api.libs.json.{JsObject, Json}
@@ -32,6 +33,7 @@ class BusinessActivitiesModelSpec extends UnitSpec {
            |  "journey_id" : "regID",
            |  "ch" : { "foo":"bar" },
            |  "hmrc" : { "foo":"bar" },
+           |  "language" : "en",
            |  "links" : { "forward":"test", "reverse":"test2" }
            |}
        """.stripMargin
@@ -43,6 +45,7 @@ class BusinessActivitiesModelSpec extends UnitSpec {
           None,
           Some(JsObject(Seq("foo" -> Json.toJson("bar")))),
           JsObject(Seq("foo" -> Json.toJson("bar"))),
+          LangConstants.english,
           NavLinks("test", "test2")
       )
 
@@ -68,6 +71,7 @@ class BusinessActivitiesModelSpec extends UnitSpec {
            |  },
            |  "hmrc" : { "foo":"bar" },
            |  "ch" : { "foo":"bar" },
+           |  "language" : "en",
            |  "links" : { "forward": "testForward", "reverse": "testReverse" }
            |}
        """.stripMargin
@@ -79,6 +83,7 @@ class BusinessActivitiesModelSpec extends UnitSpec {
             Some("POCode"), Some("Country")) ),
             Some(JsObject(Seq("foo" -> Json.toJson("bar")))),
             JsObject(Seq("foo" -> Json.toJson("bar"))),
+          LangConstants.english,
           NavLinks("testForward","testReverse")
         )
 
@@ -95,6 +100,7 @@ class BusinessActivitiesModelSpec extends UnitSpec {
             Some("POCode"), None) ),
           Some(JsObject(Seq("foo" -> Json.toJson("bar")))),
           JsObject(Seq("foo" -> Json.toJson("bar"))),
+          LangConstants.english,
           NavLinks("testForward","testReverse")
         )
 
@@ -111,6 +117,7 @@ class BusinessActivitiesModelSpec extends UnitSpec {
            |  },
            |  "hmrc" : { "foo":"bar" },
            |  "ch" : { "foo":"bar" },
+           |  "language": "en",
            |  "links": {"forward" : "testForward", "reverse" : "testReverse"}
            |}
        """.stripMargin

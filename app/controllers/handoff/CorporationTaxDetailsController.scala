@@ -21,7 +21,7 @@ import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthenticatedController
 import javax.inject.Inject
 import utils.Logging
-import play.api.i18n.I18nSupport
+import play.api.i18n.{I18nSupport, Lang}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.{HandBackService, HandOffService, NavModelNotFoundException}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
@@ -63,7 +63,7 @@ class CorporationTaxDetailsController @Inject()(val authConnector: PlayAuthConne
       ctAuthorisedHandoff("HO2", requestData) {
         registeredHandOff("HO2", requestData) { _ =>
           handBackService.processCompanyDetailsHandBack(requestData).map {
-            case Success(_) => Redirect(controllers.reg.routes.PPOBController.show)
+            case Success(payload) => Redirect(controllers.reg.routes.PPOBController.show).withLang(Lang(payload.language))
             case Failure(PayloadError) => BadRequest(error_template_restart("2", "PayloadError"))
             case Failure(DecryptionError) => BadRequest(error_template_restart("2", "DecryptionError"))
             case unknown => {

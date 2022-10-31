@@ -16,14 +16,15 @@
 
 package controllers.handoff
 
-import config.AppConfig
+import config.{AppConfig, LangConstants}
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthenticatedController
 import controllers.reg.ControllerErrorHandler
+
 import javax.inject.Inject
 import models.Groups
 import models.handoff.{BackHandoff, GroupHandBackModel}
-import play.api.i18n.I18nSupport
+import play.api.i18n.{I18nSupport, Lang}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import services.{GroupService, HandBackService, HandOffService, NavModelNotFoundException}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
@@ -44,6 +45,7 @@ class GroupController @Inject()(val authConnector: PlayAuthConnector,
                                 val jwe: JweCommon,
                                 val controllerComponents: MessagesControllerComponents,
                                 val controllerErrorHandler: ControllerErrorHandler,
+                                handOffUtils: HandOffUtils,
                                 error_template_restart: error_template_restart
                                )(implicit val appConfig: AppConfig, implicit val ec: ExecutionContext)
   extends AuthenticatedController with I18nSupport with SessionRegistration {
@@ -54,11 +56,11 @@ class GroupController @Inject()(val authConnector: PlayAuthConnector,
       ctAuthorisedHandoff("HO3-1", requestData) {
         registeredHandOff("HO3-1", requestData) { regID =>
           handBackService.processGroupsHandBack(requestData).flatMap {
-            case Success(GroupHandBackModel(_, _, _, _, _, Some(true))) =>
-              pscHandOffToGroupsIfDataInTxApi(regID)
-            case Success(GroupHandBackModel(_, _, _, _, _, Some(false))) =>
+            case Success(GroupHandBackModel(_, _, _, _, lang, _ , Some(true))) =>
+              pscHandOffToGroupsIfDataInTxApi(regID, lang)
+            case payload@Success(GroupHandBackModel(_, _, _, _, lang, _ , Some(false))) =>
               groupService.dropGroups(regID).map { _ =>
-                Redirect(controllers.handoff.routes.GroupController.PSCGroupHandOff)
+                Redirect(controllers.handoff.routes.GroupController.PSCGroupHandOff).withLang(Lang(lang))
               }
             case _ => Future.successful(BadRequest(error_template_restart("3-1", "PayloadError")))
           }
@@ -71,7 +73,7 @@ class GroupController @Inject()(val authConnector: PlayAuthConnector,
       ctAuthorisedOptStr(Retrievals.externalId) { externalID =>
         (for {
           navModel <- handOffService.fetchNavModel()
-          backPayload <- handOffService.buildBackHandOff(externalID)
+          backPayload <- handOffService.buildBackHandOff(externalID, handOffUtils.getCurrentLang(request))
         } yield {
           val payload = jwe.encrypt[BackHandoff](backPayload).getOrElse("")
           Redirect(handOffService.buildHandOffUrl(s"${navModel.receiver.nav("3-1").reverse}", payload))
@@ -81,14 +83,14 @@ class GroupController @Inject()(val authConnector: PlayAuthConnector,
       }
   }
 
-  private[controllers] def pscHandOffToGroupsIfDataInTxApi(regID: String)(implicit hc: HeaderCarrier): Future[Result] = {
+  private[controllers] def pscHandOffToGroupsIfDataInTxApi(regID: String, updatedLanguage: String)(implicit hc: HeaderCarrier): Future[Result] = {
     groupService.fetchTxID(regID).flatMap { txId =>
       groupService.returnListOfShareholders(txId).flatMap { eitherShareholders =>
         groupService.dropOldGroups(eitherShareholders, regID)
       }
     }.flatMap {
-      case Nil => Future.successful(Redirect(controllers.handoff.routes.GroupController.PSCGroupHandOff))
-      case _ => Future.successful(Redirect(controllers.groups.routes.GroupReliefController.show))
+      case Nil => Future.successful(Redirect(controllers.handoff.routes.GroupController.PSCGroupHandOff).withLang(Lang(updatedLanguage)))
+      case _ => Future.successful(Redirect(controllers.groups.routes.GroupReliefController.show).withLang(Lang(updatedLanguage)))
     }
   }
 
@@ -98,7 +100,7 @@ class GroupController @Inject()(val authConnector: PlayAuthConnector,
       ctAuthorisedOptStr(Retrievals.externalId) { externalID =>
         registered { regId =>
           groupService.retrieveGroups(regId).flatMap { optGroups =>
-            handOffService.buildPSCPayload(regId, externalID, optGroups) map {
+            handOffService.buildPSCPayload(regId, externalID, optGroups, handOffUtils.getCurrentLang(request)) map {
               case Some((url, payload)) => Redirect(handOffService.buildHandOffUrl(url, payload))
               case None => BadRequest(error_template_restart("3-2", "EncryptionError"))
             } recover {

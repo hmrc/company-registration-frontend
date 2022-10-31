@@ -16,6 +16,7 @@
 
 package models.handoff
 
+import config.LangConstants
 import helpers.UnitSpec
 import models.NewAddress
 import play.api.libs.json.Json
@@ -50,6 +51,7 @@ class PSCHandOffSpec extends UnitSpec{
         "bar",
         Json.obj("foo" -> "wizz"),
         Some(Json.obj("ch" -> "bar")),
+        LangConstants.english,
         NavLinks("for","rev"),
         true,
         Some(true),
@@ -64,6 +66,7 @@ class PSCHandOffSpec extends UnitSpec{
           |"ch":{"ch":"bar"},"parent_company":{"name":"name",
           |"address":{"address_line_1":"1","address_line_2":"2","address_line_3":"3","address_line_4":"4","country":"count","postal_code":"post"},
           |"tax_reference":"*******890"},
+          |"language":"en",
           |"links":{"forward":"for","reverse":"rev","loss_relief_group":"loss","parent_address":"parentadd","parent_company_name":"parentname","parent_tax_reference":"parenttax"},"loss_relief_group":true}""".stripMargin)
     }
     "write with no groups" in {
@@ -72,6 +75,7 @@ class PSCHandOffSpec extends UnitSpec{
         "bar",
         Json.obj("foo" -> "wizz"),
         Some(Json.obj("ch" -> "bar")),
+        LangConstants.english,
         NavLinks("for","rev"),
         false,
         None,
@@ -79,7 +83,9 @@ class PSCHandOffSpec extends UnitSpec{
         None)
       Json.toJson(validfullModel)(PSCHandOff.writes) mustBe Json.parse(
         """{"user_id":"foo","journey_id":"bar","hmrc":{"foo":"wizz"},
-          |"another_company_own_shares":false,"ch":{"ch":"bar"},"links":{"forward":"for","reverse":"rev"}} """.stripMargin)
+          |"another_company_own_shares":false,"ch":{"ch":"bar"},
+          |"language":"en",
+          |"links":{"forward":"for","reverse":"rev"}} """.stripMargin)
     }
     "write with loss relief and ONE jump link for loss relief as user was eligible for groups but said no" in {
       val validfullModel = PSCHandOff(
@@ -87,13 +93,14 @@ class PSCHandOffSpec extends UnitSpec{
         "bar",
         Json.obj("foo" -> "wizz"),
         Some(Json.obj("ch" -> "bar")),
+        LangConstants.english,
         NavLinks("for","rev"),
         true,
         Some(false),
         None,Some(JumpLinksForGroups("loss",None,None,None)))
 
       val res = Json.toJson(validfullModel)(PSCHandOff.writes)
-      res mustBe Json.parse("""{"user_id":"foo","journey_id":"bar","hmrc":{"foo":"wizz"},"another_company_own_shares":true,"ch":{"ch":"bar"},"links":{"forward":"for","reverse":"rev","loss_relief_group":"loss"},"loss_relief_group":false}""")
+      res mustBe Json.parse("""{"user_id":"foo","journey_id":"bar","hmrc":{"foo":"wizz"},"another_company_own_shares":true,"ch":{"ch":"bar"},"language":"en","links":{"forward":"for","reverse":"rev","loss_relief_group":"loss"},"loss_relief_group":false}""")
     }
     "write with no country or postcode in address and no tax reference" in {
       val validfullModel = PSCHandOff(
@@ -101,6 +108,7 @@ class PSCHandOffSpec extends UnitSpec{
         "bar",
         Json.obj("foo" -> "wizz"),
         Some(Json.obj("ch" -> "bar")),
+        LangConstants.english,
         NavLinks("for","rev"),
         true,
         Some(true),
@@ -113,6 +121,7 @@ class PSCHandOffSpec extends UnitSpec{
           |"hmrc":{"foo":"wizz"},
           |"another_company_own_shares":true,"ch":{"ch":"bar"},
           |"parent_company":{"name":"name","address":{"address_line_1":"1","address_line_2":"2","address_line_3":"3","address_line_4":"4"}},
+          |"language": "en",
           |"links":{"forward":"for","reverse":"rev","loss_relief_group":"loss","parent_address":"parentadd","parent_company_name":"parentname","parent_tax_reference":"parenttax"},"loss_relief_group":true}
         """.stripMargin)
     }

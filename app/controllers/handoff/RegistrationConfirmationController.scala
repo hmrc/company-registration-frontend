@@ -22,7 +22,7 @@ import controllers.auth.AuthenticatedController
 import javax.inject.Inject
 import models.{ConfirmationReferencesSuccessResponse, DESFailureRetriable}
 import utils.Logging
-import play.api.i18n.I18nSupport
+import play.api.i18n.{I18nSupport, Lang}
 import play.api.mvc._
 import services.{HandBackService, HandOffService, NavModelNotFoundException}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
@@ -40,7 +40,8 @@ class RegistrationConfirmationController @Inject()(val authConnector: PlayAuthCo
                                                    val handBackService: HandBackService,
                                                    val controllerComponents: MessagesControllerComponents,
                                                    error_template_restart: error_template_restart,
-                                                   error_template: error_template
+                                                   error_template: error_template,
+                                                   handOffUtils: HandOffUtils
                                                   )
                                                   (implicit val appConfig: AppConfig, implicit val ec: ExecutionContext)
   extends AuthenticatedController with I18nSupport with SessionRegistration with Logging {
@@ -52,11 +53,11 @@ class RegistrationConfirmationController @Inject()(val authConnector: PlayAuthCo
         registered {
           regid =>
             handBackService.decryptConfirmationHandback(requestData) flatMap {
-              case Success(s) => handBackService.storeConfirmationHandOff(s, regid).flatMap {
-                case _ if handBackService.payloadHasForwardLinkAndNoPaymentRefs(s) => getPaymentHandoffResult(externalID)
-                case ConfirmationReferencesSuccessResponse(_) => Future.successful(Redirect(controllers.reg.routes.ConfirmationController.show))
-                case DESFailureRetriable => Future.successful(Redirect(controllers.reg.routes.ConfirmationController.show))
-                case _ => Future.successful(Redirect(controllers.reg.routes.ConfirmationController.deskproPage))
+              case Success(payload) => handBackService.storeConfirmationHandOff(payload, regid).flatMap {
+                case _ if handBackService.payloadHasForwardLinkAndNoPaymentRefs(payload) => getPaymentHandoffResult(externalID)
+                case ConfirmationReferencesSuccessResponse(_) => Future.successful(Redirect(controllers.reg.routes.ConfirmationController.show).withLang(Lang(payload.language)))
+                case DESFailureRetriable => Future.successful(Redirect(controllers.reg.routes.ConfirmationController.show).withLang(Lang(payload.language)))
+                case _ => Future.successful(Redirect(controllers.reg.routes.ConfirmationController.deskproPage).withLang(Lang(payload.language)))
               }
               case Failure(DecryptionError) => Future.successful(BadRequest(error_template_restart("6", "DecryptionError")))
               case unknown => Future.successful {
@@ -74,8 +75,8 @@ class RegistrationConfirmationController @Inject()(val authConnector: PlayAuthCo
   def paymentConfirmation(requestData: String): Action[AnyContent] =
     registrationConfirmation(requestData)
 
-  private def getPaymentHandoffResult(externalID: Option[String])(implicit hc: HeaderCarrier, request: Request[AnyContent]): Future[Result] = {
-    handOffService.buildPaymentConfirmationHandoff(externalID).map {
+  private def getPaymentHandoffResult(externalID: Option[String])(implicit hc: HeaderCarrier, request: MessagesRequest[AnyContent]): Future[Result] = {
+    handOffService.buildPaymentConfirmationHandoff(externalID, handOffUtils.getCurrentLang(request)).map {
       case Some((url, payloadString)) => Redirect(handOffService.buildHandOffUrl(url, payloadString))
       case None => BadRequest(error_template("", "", ""))
     }

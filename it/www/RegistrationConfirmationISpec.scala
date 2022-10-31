@@ -18,6 +18,7 @@ package www
 
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, stubFor, urlMatching}
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
+import config.LangConstants
 import itutil.{IntegrationSpecBase, LoginStub}
 import models.RegistrationConfirmationPayload
 import models.handoff.{HandOffNavModel, NavLinks, Receiver, Sender}
@@ -52,6 +53,7 @@ class RegistrationConfirmationISpec extends IntegrationSpecBase with LoginStub {
        |  "ct_reference" : "TEST-ACKREF",
        |  "hmrc" : {},
        |  "ch" : {},
+       |  "language": "en",
        |  "links" : {
        |    "forward" : "link-to-confirmation-on-ct"
        |  }
@@ -68,6 +70,7 @@ class RegistrationConfirmationISpec extends IntegrationSpecBase with LoginStub {
        |  "ch" : {
        |    "data" : "test-data"
        |  },
+       |  "language": "en",
        |  "links" : {
        |    "forward" : "link-to-confirmation-on-ct"
        |  }
@@ -138,6 +141,7 @@ class RegistrationConfirmationISpec extends IntegrationSpecBase with LoginStub {
       None,
       Json.obj(),
       Json.obj(),
+      LangConstants.english,
       Json.obj("forward" -> "/link-to-before-you-pay-coho")
     ))
 
@@ -196,6 +200,7 @@ class RegistrationConfirmationISpec extends IntegrationSpecBase with LoginStub {
         None,
         Json.obj("data" -> "test-data"),
         Json.obj(),
+        LangConstants.english,
         Json.obj("forward" -> "/link-to-before-you-pay-coho")
       ))
 
@@ -317,6 +322,7 @@ class RegistrationConfirmationISpec extends IntegrationSpecBase with LoginStub {
       Some(paymentAmount),
       Json.obj(),
       Json.obj(),
+      LangConstants.english,
       Json.obj()
     ))
 

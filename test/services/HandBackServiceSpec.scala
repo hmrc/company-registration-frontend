@@ -16,7 +16,7 @@
 
 package services
 
-import config.AppConfig
+import config.{AppConfig, LangConstants}
 import fixtures.{CompanyDetailsFixture, PayloadFixture, SubmissionFixture}
 import helpers.SCRSSpec
 import models.handoff._
@@ -76,6 +76,7 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
     "journey_id" -> regId,
     "hmrc" -> Json.obj(),
     "ch" -> Json.obj("a"->1),
+    "language" -> "en",
     "links" -> Json.obj("forward"->forward, "reverse"->reverse)
   )
 
@@ -122,7 +123,8 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
         "country" -> "testCountry"
       ),
       "jurisdiction" -> "testJurisdiction",
-      "transaction_id" -> "testTxId"
+      "transaction_id" -> "testTxId",
+      "language" -> "en"
     )
 
     def companyDetailsLinks(forward: String = "/testForward",
@@ -271,6 +273,7 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
         "journeyid",
         Json.obj("ch"->"value"),
         Json.obj("hmrc"->"value"),
+        LangConstants.english,
         NavLinks("f", "r"),
         None
       )
@@ -284,6 +287,7 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
         "journeyid",
         Json.obj("ch"->"value"),
         Json.obj("hmrc"->"value"),
+        LangConstants.english,
         NavLinks("/testForward", "/testReverse"),
         Some(true)
       )
@@ -300,6 +304,7 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
         "journeyid",
         Json.obj("ch"->"value"),
         Json.obj("hmrc"->"value"),
+        LangConstants.english,
         NavLinks("INVALIDXXX", "/testReverse"),
         Some(true)
       )
@@ -314,6 +319,7 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
         "journeyid",
         Json.obj("ch"->"value"),
         Json.obj("hmrc"->"value"),
+        LangConstants.english,
         NavLinks("/forward", "/testReverse"),
         Some(true)
       )
@@ -331,6 +337,7 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
         "journeyid",
         Json.obj("ch"->"value"),
         Json.obj("hmrc"->"value"),
+        LangConstants.english,
         NavLinks("/forward", "/testReverse"),
         Some(true)
         )

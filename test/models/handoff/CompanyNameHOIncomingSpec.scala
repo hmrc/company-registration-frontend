@@ -16,6 +16,7 @@
 
 package models.handoff
 
+import config.LangConstants
 import helpers.UnitSpec
 import models.{CHROAddress, JsonFormatValidation}
 import play.api.data.validation.ValidationError
@@ -45,6 +46,7 @@ class CompanyNameHOIncomingSpec extends UnitSpec with JsonFormatValidation {
        |  ${jsonLine("transaction_id", txid)}
        |  "ch": {},
        |  "hmrc": {},
+       |  "language": "en",
        |  "links": {}
        |}
      """.stripMargin
@@ -72,7 +74,7 @@ class CompanyNameHOIncomingSpec extends UnitSpec with JsonFormatValidation {
 
       val expected = CompanyNameHandOffIncoming(Some("r"), "u", "name",
         CHROAddress("p", "1", None, "l", "c", Some("pb"), Some("pc"), Some("r")),
-        "j", "txid", empty, empty, empty)
+        "j", "txid", empty, empty, LangConstants.english, empty)
 
       val result = Json.parse(json).validate[CompanyNameHandOffIncoming]
 
@@ -83,9 +85,17 @@ class CompanyNameHOIncomingSpec extends UnitSpec with JsonFormatValidation {
       val companyName = "Company Name Ltd<>@"
       val json = inJson("r", "u", companyName, "j", "txid")
       val empty = Json.obj()
-      val expected = CompanyNameHandOffIncoming(Some("r"), "u", companyName,
+      val expected = CompanyNameHandOffIncoming(
+        Some("r"),
+        "u",
+        companyName,
         CHROAddress("p", "1", None, "l", "c", Some("pb"), Some("pc"), Some("r")),
-        "j", "txid", empty, empty, empty)
+        "j",
+        "txid",
+        empty,
+        empty,
+        LangConstants.english,
+        empty)
 
       val result = Json.parse(json).validate[CompanyNameHandOffIncoming]
 

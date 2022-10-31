@@ -17,7 +17,6 @@
 package controllers.handoff
 
 import builders.AuthBuilder
-import config.AppConfig
 import controllers.reg.ControllerErrorHandler
 import fixtures.PayloadFixture
 import helpers.SCRSSpec
@@ -52,6 +51,7 @@ class IncorporationSummaryControllerSpec extends SCRSSpec with PayloadFixture wi
       mockHandBackService,
       mockMcc,
       mockControllerErrorHandler,
+      app.injector.instanceOf[HandOffUtils],
       errorTemplateRestartPage
     )(
       mockAppConfig,global
@@ -69,7 +69,7 @@ class IncorporationSummaryControllerSpec extends SCRSSpec with PayloadFixture wi
     "return a 303 if user details are retrieved" in new Setup {
       val payload = summaryEncryptedPayload(jweInstance())
       mockKeystoreFetchAndGet("registrationID", Some("1"))
-      when(mockHandOffService.summaryHandOff(ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockHandOffService.summaryHandOff(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(("testLink", payload))))
 
       when(mockHandOffService.buildHandOffUrl(ArgumentMatchers.eq("testLink"), ArgumentMatchers.eq(payload)))
@@ -87,7 +87,7 @@ class IncorporationSummaryControllerSpec extends SCRSSpec with PayloadFixture wi
 
     "return a 400 if no link or payload are returned" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("1"))
-      when(mockHandOffService.summaryHandOff(ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockHandOffService.summaryHandOff(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(None))
 
       showWithAuthorisedUserRetrieval(testController.incorporationSummary, extID) {

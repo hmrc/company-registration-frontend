@@ -19,6 +19,7 @@ package views
 import _root_.connectors.BusinessRegistrationConnector
 import _root_.helpers.SCRSSpec
 import builders.AuthBuilder
+import controllers.handoff.HandOffUtils
 import controllers.reg.{ControllerErrorHandler, PPOBController}
 import fixtures.PPOBFixture
 import mocks.NavModelRepoMock
@@ -33,10 +34,9 @@ import play.api.test.Helpers._
 import repositories.NavModelRepo
 import services.AddressLookupFrontendService
 import utils.SCRSFeatureSwitches
-
-import scala.concurrent.ExecutionContext.Implicits.global
 import views.html.reg.{PrinciplePlaceOfBusiness => PrinciplePlaceOfBusinessView}
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class PPOBSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixture with NavModelRepoMock with GuiceOneAppPerSuite with AuthBuilder {
@@ -62,6 +62,7 @@ class PPOBSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixture with Nav
       mockSCRSFeatureSwitches,
       app.injector.instanceOf[MessagesControllerComponents],
       app.injector.instanceOf[ControllerErrorHandler],
+      app.injector.instanceOf[HandOffUtils],
       app.injector.instanceOf[PrinciplePlaceOfBusinessView]
 
     )

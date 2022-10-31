@@ -39,7 +39,8 @@ object FirstHandBackForm {
       )(CHROAddress.apply)(CHROAddress.unapply),
       "jurisdiction" -> text,
       "ch" -> text,
-      "hmrc" -> text
+      "hmrc" -> text,
+      "language" -> text
     )(CompanyNameHandOffFormModel.apply)(CompanyNameHandOffFormModel.unapply)
   )
 }

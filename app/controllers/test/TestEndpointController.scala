@@ -83,7 +83,8 @@ class TestEndpointController @Inject()(val authConnector: PlayAuthConnector,
       registered_office_address = data.registered_office_address,
       jurisdiction = data.jurisdiction,
       ch = data.ch.value.get("foo").toString,
-      hmrc = data.hmrc.value.get("foo").toString
+      hmrc = data.hmrc.value.get("foo").toString,
+      language = data.language
     )
   }
 
@@ -116,7 +117,7 @@ class TestEndpointController @Inject()(val authConnector: PlayAuthConnector,
           })
           val handBackForm = FirstHandBackForm.form.fill(handBackData match {
             case Some(data) => convertToForm(data)
-            case _ => CompanyNameHandOffFormModel(None, "", "", CHROAddress("", "", Some(""), "", "", Some(""), Some(""), Some("")), "", "", "")
+            case _ => CompanyNameHandOffFormModel(None, "", "", CHROAddress("", "", Some(""), "", "", Some(""), Some(""), Some("")), "", "", "", "")
           })
           val companyContactForm = CompanyContactTestEndpointForm.form.fill(contactDetails match {
             case CompanyContactDetailsSuccessResponse(x) => CompanyContactDetails.toApiModel(x)

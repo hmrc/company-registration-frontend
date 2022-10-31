@@ -19,9 +19,9 @@ package controllers.reg
 import config.AppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector, S4LConnector}
 import controllers.auth.AuthenticatedController
+import controllers.handoff.HandOffUtils
 import models._
 import models.handoff.BackHandoff
-import utils.Logging
 import play.api.i18n.I18nSupport
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -29,10 +29,10 @@ import repositories.NavModelRepo
 import services._
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
-import utils._
+import utils.{Logging, _}
 import views.html.reg.{Summary => SummaryView}
-import javax.inject.{Inject, Singleton}
 
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
@@ -49,6 +49,7 @@ class SummaryController @Inject()(val authConnector: PlayAuthConnector,
                                   val controllerComponents: MessagesControllerComponents,
                                   val controllerErrorHandler: ControllerErrorHandler,
                                   summaryService: SummaryService,
+                                  handOffUtils: HandOffUtils,
                                   view: SummaryView)
                                  (implicit val appConfig: AppConfig, implicit val ec: ExecutionContext)
   extends AuthenticatedController with CommonService with SCRSExceptions
@@ -91,7 +92,7 @@ class SummaryController @Inject()(val authConnector: PlayAuthConnector,
         (for {
           _ <- fetchRegistrationID
           navModel <- handOffService.fetchNavModel()
-          backPayload <- handOffService.buildBackHandOff(externalID)
+          backPayload <- handOffService.buildBackHandOff(externalID, handOffUtils.getCurrentLang(request))
         } yield {
           val payload = jwe.encrypt[BackHandoff](backPayload).getOrElse("")
           Redirect(handOffService.buildHandOffUrl(s"${navModel.receiver.nav("4").reverse}", payload))
@@ -112,6 +113,7 @@ class SummaryController @Inject()(val authConnector: PlayAuthConnector,
             "user_id" -> externalID,
             "journey_id" -> journeyID,
             "hmrc" -> Json.obj(),
+            "language" -> handOffUtils.getCurrentLang(request),
             "ch" -> navModel.receiver.chData,
             "links" -> Json.obj()
           )

@@ -16,6 +16,7 @@
 
 package fixtures
 
+import config.LangConstants
 import models._
 import models.handoff.{CompanyNameHandOffIncoming, HandoffPPOB}
 import play.api.libs.json.{JsObject, Json}
@@ -41,6 +42,7 @@ trait CompanyDetailsFixture {
       "testTxID",
       Json.parse("""{"ch" : 1}""").as[JsObject],
       Json.parse("""{"hmrc" : 1}""").as[JsObject],
+      LangConstants.english,
       Json.parse("""{"forward":"testForward","reverse":"testReverse"}""").as[JsObject]
     )
 

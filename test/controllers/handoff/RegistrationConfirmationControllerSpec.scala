@@ -17,7 +17,7 @@
 package controllers.handoff
 
 import builders.AuthBuilder
-import config.AppConfig
+import config.LangConstants
 import controllers.reg.ControllerErrorHandler
 import fixtures.{LoginFixture, PayloadFixture}
 import helpers.SCRSSpec
@@ -40,7 +40,7 @@ import scala.util.{Failure, Success}
 
 class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixture with LoginFixture with AuthBuilder with GuiceOneAppPerSuite {
 
-  lazy val payload = RegistrationConfirmationPayload("user", "journey", "transaction", Some("ref"), Some("amount"), Json.obj(), Json.obj(), Json.obj())
+  lazy val payload = RegistrationConfirmationPayload("user", "journey", "transaction", Some("ref"), Some("amount"), Json.obj(), Json.obj(), LangConstants.english, Json.obj())
   lazy val jweInstance = () => app.injector.instanceOf[JweCommon]
   lazy val errorTemplateRestartPage = app.injector.instanceOf[error_template_restart]
   lazy val errorTemplatePage = app.injector.instanceOf[error_template]
@@ -57,7 +57,8 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
       mockHandBackService,
       mockMcc,
       errorTemplateRestartPage,
-      errorTemplatePage
+      errorTemplatePage,
+      app.injector.instanceOf[HandOffUtils]
     )(mockAppConfig, global)
 
   }
@@ -105,7 +106,7 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
       when(mockHandBackService.payloadHasForwardLinkAndNoPaymentRefs(ArgumentMatchers.any()))
         .thenReturn(true)
 
-      when(mockHandOffService.buildPaymentConfirmationHandoff(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Some(("coho-url", "encrypted-payload")))
+      when(mockHandOffService.buildPaymentConfirmationHandoff(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Some(("coho-url", "encrypted-payload")))
 
       when(mockHandOffService.buildHandOffUrl(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn("coho-url?request=encrypted-payload")
 
@@ -141,7 +142,7 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
       when(mockHandBackService.payloadHasForwardLinkAndNoPaymentRefs(ArgumentMatchers.any()))
         .thenReturn(true)
 
-      when(mockHandOffService.buildPaymentConfirmationHandoff(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+      when(mockHandOffService.buildPaymentConfirmationHandoff(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
       showWithAuthorisedUserRetrieval(testController.registrationConfirmation(payloadEncr), externalID) {
         result =>

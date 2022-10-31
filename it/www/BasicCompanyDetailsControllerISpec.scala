@@ -50,6 +50,7 @@ class BasicCompanyDetailsControllerISpec extends IntegrationSpecBase with LoginS
        |  "journey_id" : "$regId",
        |  "name" : "name",
        |  "hmrc" : {},
+       |  "language": "en",
        |  "session" : {
        |    "timeout" : 999939,
        |    "keepalive_url" : "http://localhost:9970${controllers.reg.routes.SignInOutController.renewSession.url}",
@@ -71,6 +72,7 @@ class BasicCompanyDetailsControllerISpec extends IntegrationSpecBase with LoginS
        |  "journey_id" : "$regId",
        |  "hmrc" : {},
        |  "ch" : {},
+       |  "language": "en",
        |  "links" : {}
        |}
      """.stripMargin
