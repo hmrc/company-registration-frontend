@@ -54,7 +54,7 @@ class RegistrationConfirmationController @Inject()(val authConnector: PlayAuthCo
           regid =>
             handBackService.decryptConfirmationHandback(requestData) flatMap {
               case Success(payload) => handBackService.storeConfirmationHandOff(payload, regid).flatMap {
-                case _ if handBackService.payloadHasForwardLinkAndNoPaymentRefs(payload) => getPaymentHandoffResult(externalID)
+                case _ if handBackService.payloadHasForwardLinkAndNoPaymentRefs(payload) => getPaymentHandoffResult(externalID, payload.language)
                 case ConfirmationReferencesSuccessResponse(_) => Future.successful(Redirect(controllers.reg.routes.ConfirmationController.show).withLang(Lang(payload.language)))
                 case DESFailureRetriable => Future.successful(Redirect(controllers.reg.routes.ConfirmationController.show).withLang(Lang(payload.language)))
                 case _ => Future.successful(Redirect(controllers.reg.routes.ConfirmationController.deskproPage).withLang(Lang(payload.language)))
@@ -75,8 +75,8 @@ class RegistrationConfirmationController @Inject()(val authConnector: PlayAuthCo
   def paymentConfirmation(requestData: String): Action[AnyContent] =
     registrationConfirmation(requestData)
 
-  private def getPaymentHandoffResult(externalID: Option[String])(implicit hc: HeaderCarrier, request: MessagesRequest[AnyContent]): Future[Result] = {
-    handOffService.buildPaymentConfirmationHandoff(externalID, handOffUtils.getCurrentLang(request)).map {
+  private def getPaymentHandoffResult(externalID: Option[String], currentLanguage: String )(implicit hc: HeaderCarrier, request: MessagesRequest[AnyContent]): Future[Result] = {
+    handOffService.buildPaymentConfirmationHandoff(externalID, currentLanguage).map {
       case Some((url, payloadString)) => Redirect(handOffService.buildHandOffUrl(url, payloadString))
       case None => BadRequest(error_template("", "", ""))
     }
