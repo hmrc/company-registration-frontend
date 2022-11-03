@@ -81,9 +81,6 @@ POST       /companies-house-email-confirm           controllers.reg.Registration
 GET        /enter-your-details                      controllers.verification.EmailVerificationController.createShow
 POST       /enter-your-details                      controllers.verification.EmailVerificationController.createSubmit
 
-GET        /questionnaire                           controllers.reg.QuestionnaireController.show
-POST       /questionnaire                           controllers.reg.QuestionnaireController.submit
-
 GET        /sign-in-complete-application            controllers.reg.IncompleteRegistrationController.show
 POST       /sign-in-complete-application            controllers.reg.IncompleteRegistrationController.submit
 

@@ -22,7 +22,7 @@ import java.util.UUID
 
 import audit.events.{AuditEventConstants, ContactDetailsAuditEventDetail, EmailMismatchEventDetail, EmailVerifiedEventDetail}
 import javax.inject.{Inject, Singleton}
-import models.{CompanyContactDetails, QuestionnaireModel}
+import models.CompanyContactDetails
 import play.api.libs.json.{Json, Writes}
 import play.api.mvc.{AnyContent, Request}
 import uk.gov.hmrc.http.HeaderCarrier
@@ -92,14 +92,6 @@ trait AuditService {
     sendEvent(
       auditType = "emailVerified",
       detail = EmailVerifiedEventDetail(externalUserId, authProviderId, journeyId, emailAddress, isVerifiedEmailAddress, previouslyVerified)
-    )
-
-  def questionnaireAuditEvent(questionnaireModel: QuestionnaireModel)
-                             (implicit hc: HeaderCarrier, req: Request[AnyContent], ec: ExecutionContext): Future[AuditResult] =
-
-    sendEvent(
-      auditType = "Questionnaire",
-      detail = questionnaireModel
     )
 
 }
