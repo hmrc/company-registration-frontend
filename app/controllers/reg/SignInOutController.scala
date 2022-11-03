@@ -173,7 +173,7 @@ class SignInOutController @Inject()(val authConnector: PlayAuthConnector,
     implicit request =>
       val c = continueUrl match {
         case Some(str) => str.url
-        case None => s"$cRFEBaseUrl${controllers.reg.routes.QuestionnaireController.show.url}"
+        case None => appConfig.betaFeedbackUrl
       }
       Future.successful(Redirect(appConfig.logoutURL, Map("continue" -> Seq(c))))
   }

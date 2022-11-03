@@ -335,7 +335,7 @@ class SignInOutControllerSpec extends SCRSSpec
     "redirect to the gg sign out url with a continue query string pointing to the questionnaire page" in new Setup {
       val result = controller.signOut()(FakeRequest())
       status(result) mustBe SEE_OTHER
-      redirectLocation(result) mustBe Some("http://localhost:9553/bas-gateway/sign-out-without-state?continue=test-base-url%2Fregister-your-company%2Fquestionnaire")
+      redirectLocation(result) mustBe Some("http://localhost:9553/bas-gateway/sign-out-without-state?continue=http%3A%2F%2Flocalhost%3A9514%2Ffeedback%2FSCRS")
     }
 
     "redirect to the gg sign out url with a continue query string pointing to the specified relative page" in new Setup {
