@@ -74,7 +74,7 @@
     }
 
     @p {
-        @link("questionnaire", messages("page.reg.Confirmation.questionnaire.link"),id = Some("Questionnaire"), isExternal = true)
+        @link(appConfig.betaFeedbackUrl, messages("page.reg.Confirmation.questionnaire.link"),id = Some("Questionnaire"), isExternal = true)
         @messages("page.reg.Confirmation.questionnaire.time")
     }
 }
