@@ -17,7 +17,7 @@
 package controllers.takeovers
 
 import akka.actor.ActorSystem
-import akka.stream.{ActorMaterializer, Materializer}
+import akka.stream.Materializer
 import builders.AuthBuilder
 import config.AppConfig
 import controllers.reg.ControllerErrorHandler
@@ -33,7 +33,6 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{redirectLocation, _}
-import uk.gov.hmrc.http.NotFoundException
 import views.html.takeovers.WhoAgreedTakeover
 
 import scala.concurrent.{ExecutionContext, Future}
