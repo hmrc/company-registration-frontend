@@ -190,9 +190,9 @@ class SignInOutController @Inject()(val authConnector: PlayAuthConnector,
         else {
           logger.warn("[renewSession] hcAuth and session auth present but not equal")
         }
-        case (Some(hcAuth), None) => logger.debug("[renewSession] hcAuth present, session auth not")
-        case (None, Some(sAuth)) => logger.debug("[renewSession] session auth present, hcAuth auth not")
-        case (None, None) => logger.warn("[renewSession] neither session auth or hcAuth present")
+        case (Some(_), None) => logger.debug("[renewSession] hcAuth present, session auth not")
+        case (None, Some(_)) => logger.debug("[renewSession] session auth present, hcAuth auth not")
+        case _ => logger.debug("[renewSession] neither session auth or hcAuth present")
       }
       ctAuthorised {
         type Headers = Seq[Tuple2[String, String]]
