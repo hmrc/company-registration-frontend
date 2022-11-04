@@ -27,7 +27,6 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.{HandBackService, HandOffService, NavModelNotFoundException}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
-import uk.gov.hmrc.play.language.LanguageUtils
 import utils.{DecryptionError, PayloadError, SessionRegistration}
 import views.html.{error_template, error_template_restart}
 
@@ -70,7 +69,7 @@ class BusinessActivitiesController @Inject()(val authConnector: PlayAuthConnecto
       ctAuthorisedHandoff("HO3b", request) {
         registeredHandOff("HO3b", request) { _ =>
           handBackService.processBusinessActivitiesHandBack(request).map {
-            case Success(_) => Redirect(controllers.reg.routes.TradingDetailsController.show)
+            case Success(payload) => Redirect(controllers.reg.routes.TradingDetailsController.show).withLang(Lang((payload \ "language").as[String]))
             case Failure(PayloadError) => BadRequest(error_template_restart("3b", "PayloadError"))
             case Failure(DecryptionError) => BadRequest(error_template_restart("3b", "DecryptionError"))
             case _ => InternalServerError(controllerErrorHandler.defaultErrorPage)

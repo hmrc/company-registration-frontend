@@ -16,7 +16,7 @@
 
 package controllers.handoff
 
-import config.{AppConfig, LangConstants}
+import config.{AppConfig}
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthenticatedController
 import controllers.reg.ControllerErrorHandler
@@ -114,19 +114,23 @@ class GroupController @Inject()(val authConnector: PlayAuthConnector,
   // 3b-1 hand back, back link from Coho
   def pSCGroupHandBack(request: String): Action[AnyContent] = Action.async {
     implicit _request =>
-      val groupsRedirect = (optGroups: Option[Groups]) => {
+      def groupsRedirect(handbackLanguage: String) = (optGroups: Option[Groups]) => {
         optGroups.fold(Redirect(controllers.reg.routes.SignInOutController.postSignIn())) { groupsExist =>
           if (!groupsExist.groupRelief) {
-            Redirect(controllers.groups.routes.GroupReliefController.show)
+            Redirect(controllers.groups.routes.GroupReliefController.show).withLang(Lang(handbackLanguage))
           } else {
-            Redirect(controllers.groups.routes.GroupUtrController.show)
+            Redirect(controllers.groups.routes.GroupUtrController.show).withLang(Lang(handbackLanguage))
           }
         }
       }
       ctAuthorisedHandoff("HO3b-1", request) {
         registeredHandOff("HO3b-1", request) { regID =>
           handBackService.processGroupsHandBck(request).flatMap {
-            case Success(_) => groupService.retrieveGroups(regID).map(groupsRedirect)
+            case Success(payload) => {
+              groupService.retrieveGroups(regID).map(
+              groupsRedirect((payload \ "language").as[String])
+              )
+            }
             case Failure(PayloadError) => Future.successful(BadRequest(error_template_restart("3b-1", "PayloadError")))
             case Failure(DecryptionError) => Future.successful(BadRequest(error_template_restart("3b-1", "DecryptionError")))
             case _ => Future.successful(InternalServerError(controllerErrorHandler.defaultErrorPage))

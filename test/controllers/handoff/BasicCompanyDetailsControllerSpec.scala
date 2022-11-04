@@ -146,6 +146,7 @@ class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture wit
       "journey_id" -> Json.toJson("testJourneyID"),
       "hmrc" -> Json.obj(),
       "ch" -> Json.obj(),
+      "language" -> Json.toJson("language"),
       "links" -> Json.obj()
     )
 
