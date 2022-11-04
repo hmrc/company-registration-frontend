@@ -19,6 +19,7 @@ package controllers.takeovers
 import akka.actor.ActorSystem
 import akka.stream.{ActorMaterializer, Materializer}
 import builders.AuthBuilder
+import config.AppConfig
 import controllers.reg.ControllerErrorHandler
 import fixtures.{AccountingDatesFixture, AccountingDetailsFixture, LoginFixture}
 import forms.takeovers.OtherBusinessNameForm
@@ -36,12 +37,13 @@ import uk.gov.hmrc.http.NotFoundException
 import views.html.takeovers.OtherBusinessName
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class OtherBusinessNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with AccountingDatesFixture with AccountingDetailsFixture
   with LoginFixture with AuthBuilder with TakeoverServiceMock with I18nSupport {
   implicit lazy val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
   val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
+  lazy implicit val appConfig = app.injector.instanceOf[AppConfig]
 
   class Setup {
     val testBusinessName: String = "testName"
@@ -52,8 +54,6 @@ class OtherBusinessNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
     val page = app.injector.instanceOf[OtherBusinessName]
     val mockControllerErrorHandler = app.injector.instanceOf[ControllerErrorHandler]
 
-
-
     object TestOtherBusinessNameController extends OtherBusinessNameController(
       mockAuthConnector,
       mockTakeoverService,
@@ -63,7 +63,7 @@ class OtherBusinessNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
       mockMcc,
       mockControllerErrorHandler,
       page
-    )
+    )(appConfig, global)
 
   }
 

@@ -19,6 +19,7 @@ package controllers.takeovers
 import akka.actor.ActorSystem
 import akka.stream.{ActorMaterializer, Materializer}
 import builders.AuthBuilder
+import config.AppConfig
 import controllers.reg.ControllerErrorHandler
 import controllers.takeovers.OtherBusinessAddressController._
 import fixtures.LoginFixture
@@ -62,6 +63,7 @@ class OtherBusinessAddressControllerSpec(implicit lang: Lang) extends SCRSSpec
   val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
   val page = app.injector.instanceOf[OtherBusinessAddress]
   val mockControllerErrorHandler = app.injector.instanceOf[ControllerErrorHandler]
+  lazy implicit val appConfig = app.injector.instanceOf[AppConfig]
 
   object TestOtherBusinessAddressController extends OtherBusinessAddressController(
     mockAuthConnector,
@@ -75,7 +77,7 @@ class OtherBusinessAddressControllerSpec(implicit lang: Lang) extends SCRSSpec
     mockMcc,
     mockControllerErrorHandler,
     page
-  )
+  )(appConfig)
 
   "show" when {
     "user is authorised with a valid reg ID and the feature switch is enabled" when {

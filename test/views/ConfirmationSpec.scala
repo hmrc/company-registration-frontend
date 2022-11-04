@@ -18,6 +18,7 @@ package views
 
 import _root_.helpers.SCRSSpec
 import builders.AuthBuilder
+import config.AppConfig
 import controllers.reg.{ConfirmationController, ControllerErrorHandler}
 import fixtures.CompanyDetailsFixture
 import models.ConfirmationReferencesSuccessResponse
@@ -29,6 +30,7 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.Helpers._
 import services.DeskproService
+
 import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
 import views.html.reg.{Confirmation => ConfirmationView}
@@ -43,6 +45,7 @@ class ConfirmationSpec extends SCRSSpec with CompanyDetailsFixture with GuiceOne
   lazy val mockConfirmationView = app.injector.instanceOf[ConfirmationView]
   lazy val mockSubmissionFailedView = app.injector.instanceOf[submissionFailedView]
   lazy val mockDeskproSubmittedView = app.injector.instanceOf[deskproSubmittedView]
+  lazy implicit val appConfig = app.injector.instanceOf[AppConfig]
 
   class SetupPage {
     val controller = new ConfirmationController (
@@ -57,7 +60,7 @@ class ConfirmationSpec extends SCRSSpec with CompanyDetailsFixture with GuiceOne
       mockDeskproSubmittedView
     )
     (
-      mockAppConfig,
+      appConfig,
       global
     )
 

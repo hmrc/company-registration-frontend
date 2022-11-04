@@ -18,6 +18,7 @@ package views
 
 import _root_.helpers.SCRSSpec
 import builders.AuthBuilder
+import config.AppConfig
 import controllers.dashboard.DashboardController
 import controllers.reg.ControllerErrorHandler
 import models.external.Statuses
@@ -26,17 +27,16 @@ import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.i18n.MessagesApi
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.Helpers._
 import services.{DashboardBuilt, DashboardService}
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, ~}
 import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolment, EnrolmentIdentifier, Enrolments}
+import views.html.dashboard.{Dashboard => DashboardView}
+import views.html.reg.{RegistrationUnsuccessful => RegistrationUnsuccessfulView}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import views.html.dashboard.{Dashboard => DashboardView}
-import views.html.reg.{RegistrationUnsuccessful => RegistrationUnsuccessfulView}
 
 class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
 
@@ -45,6 +45,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
   lazy val mockControllerErrorHandler = app.injector.instanceOf[ControllerErrorHandler]
   lazy val mockDashboardView = app.injector.instanceOf[DashboardView]
   lazy val mockRegistrationUnsuccessfulView = app.injector.instanceOf[RegistrationUnsuccessfulView]
+  val appConfig = app.injector.instanceOf[AppConfig]
 
   class Setup {
     val controller = new DashboardController (
@@ -57,7 +58,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
       mockDashboardView,
       mockRegistrationUnsuccessfulView
     )(
-      mockAppConfig,
+      appConfig,
       global
     ) {
       override lazy val companiesHouseURL = "testUrl"

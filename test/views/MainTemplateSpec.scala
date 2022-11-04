@@ -17,6 +17,7 @@
 package views
 
 import _root_.helpers.SCRSSpec
+import config.AppConfig
 import org.jsoup.Jsoup
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.MessagesApi
@@ -28,7 +29,7 @@ import views.html.templates.layout
 class MainTemplateSpec extends SCRSSpec with GuiceOneAppPerSuite {
 
   val fakeTitle = "Fake Title"
-
+  lazy implicit val appConfig = app.injector.instanceOf[AppConfig]
   implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
   implicit val messages = app.injector.instanceOf[MessagesApi].preferred(request)
   lazy val main_template = app.injector.instanceOf[layout]
@@ -36,7 +37,7 @@ class MainTemplateSpec extends SCRSSpec with GuiceOneAppPerSuite {
 
   "main template" should {
     "append the title with the service name and GOV.UK" in {
-      val view = main_template(Some(fakeTitle))(Html(""))
+      val view = main_template(Some(fakeTitle))(Html(""))(request, messages,appConfig)
       val doc = Jsoup.parse(view.toString())
       doc.title mustBe s"$fakeTitle"
     }

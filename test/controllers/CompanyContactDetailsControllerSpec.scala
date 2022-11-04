@@ -40,7 +40,7 @@ class CompanyContactDetailsControllerSpec extends SCRSSpec with UserDetailsFixtu
   lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
   lazy val mockControllerErrorHandler = app.injector.instanceOf[ControllerErrorHandler]
   lazy val mockCompanyContactDetailsView = app.injector.instanceOf[CompanyContactDetailsView]
-
+  lazy implicit val appConfig = app.injector.instanceOf[AppConfig]
 
   class Setup {
     val controller = new CompanyContactDetailsController (
@@ -56,7 +56,7 @@ class CompanyContactDetailsControllerSpec extends SCRSSpec with UserDetailsFixtu
       mockCompanyContactDetailsView
     )
     (
-      mockAppConfig,
+      appConfig,
       global
     )
   }

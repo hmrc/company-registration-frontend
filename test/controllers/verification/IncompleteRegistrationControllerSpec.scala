@@ -16,6 +16,7 @@
 
 package controllers.verification
 
+import config.AppConfig
 import controllers.reg.IncompleteRegistrationController
 import helpers.UnitSpec
 import mocks.SCRSMocks
@@ -31,12 +32,13 @@ class IncompleteRegistrationControllerSpec extends UnitSpec with GuiceOneAppPerS
 
   val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
 
+
   class Setup {
 
     val page = app.injector.instanceOf[IncompleteRegistration]
 
     object TestController extends IncompleteRegistrationController(mockMcc, page) {
-      override val appConfig = mockAppConfig
+      override implicit val appConfig = app.injector.instanceOf[AppConfig]
       override val messagesApi = app.injector.instanceOf[MessagesApi]
     }
 

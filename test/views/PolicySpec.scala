@@ -23,6 +23,7 @@ import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import _root_.helpers.SCRSSpec
+import config.AppConfig
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import views.html.policies
@@ -34,13 +35,14 @@ class PolicySpec extends SCRSSpec with GuiceOneAppPerSuite {
 
   val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
   val mockPolicies = app.injector.instanceOf[policies]
+  lazy implicit val appConfig = app.injector.instanceOf[AppConfig]
 
   class SetupPage {
     val controller = new PolicyController(
       mockMcc,
       mockPolicies)
     (
-      mockAppConfig,
+      appConfig,
       global)
 
   }

@@ -19,6 +19,7 @@ package controllers.takeovers
 import akka.actor.ActorSystem
 import akka.stream.{ActorMaterializer, Materializer}
 import builders.AuthBuilder
+import config.AppConfig
 import controllers.reg.ControllerErrorHandler
 import fixtures.LoginFixture
 import forms.takeovers.WhoAgreedTakeoverForm
@@ -57,6 +58,7 @@ class WhoAgreedTakeoverControllerSpec extends SCRSSpec
 
   val page = app.injector.instanceOf[WhoAgreedTakeover]
   val mockControllerErrorHandler = app.injector.instanceOf[ControllerErrorHandler]
+  lazy implicit val appConfig = app.injector.instanceOf[AppConfig]
 
 
   object TestWhoAgreedTakeoverController extends WhoAgreedTakeoverController(
@@ -68,7 +70,7 @@ class WhoAgreedTakeoverControllerSpec extends SCRSSpec
     mockMcc,
     mockControllerErrorHandler,
     page
-  )
+  )(appConfig, ec)
 
   "show" when {
     "user is authorised with a valid reg ID and the feature switch is enabled" when {

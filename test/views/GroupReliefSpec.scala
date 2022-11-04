@@ -18,6 +18,7 @@ package views
 
 import _root_.helpers.SCRSSpec
 import builders.AuthBuilder
+import config.AppConfig
 import controllers.groups.GroupReliefController
 import controllers.reg.ControllerErrorHandler
 import fixtures.UserDetailsFixture
@@ -36,6 +37,7 @@ import scala.concurrent.Future
 class GroupReliefSpec extends SCRSSpec with UserDetailsFixture with AuthBuilder with GuiceOneAppPerSuite {
 
   object Selectors extends BaseSelectors
+  lazy implicit val appConfig = app.injector.instanceOf[AppConfig]
 
   class Setup {
     val controller = new GroupReliefController(
@@ -46,7 +48,7 @@ class GroupReliefSpec extends SCRSSpec with UserDetailsFixture with AuthBuilder 
       app.injector.instanceOf[MessagesControllerComponents],
       app.injector.instanceOf[ControllerErrorHandler],
       app.injector.instanceOf[GroupReliefView]
-    )
+    )(appConfig)
 
     val ctDocFirstTimeThrough: JsValue =
       Json.parse(
