@@ -83,7 +83,7 @@ trait HandOffFixtures {
 
   val HO1B_PAYLOAD = jwe.encrypt[JsValue](Json.parse("""{"test":"json"}""")).get
   lazy val HO2_PAYLOAD = jwe.encrypt[CompanyNameHandOffIncoming](HO2_MODEL).get
-  val HO3B_PAYLOAD = jwe.encrypt[JsValue](Json.parse("""{"test":"json"}""")).get
+  val HO3B_PAYLOAD = jwe.encrypt[JsValue](Json.parse("""{"language":"en"}""")).get
   lazy val H03_1_PAYLOAD_FLAG = jwe.encrypt[GroupHandBackModel](H03_1_MODEL_SHAREHOLDERS_FLAG).get
   lazy val H03_1_PAYLOAD_NO_FLAG = jwe.encrypt[GroupHandBackModel](H03_1_MODEL_NO_SHAREHOLDERS_FLAG).get
   lazy val HO4_PAYLOAD = jwe.encrypt[SummaryPage1HandOffIncoming](HO4_MODEL).get

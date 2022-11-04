@@ -103,6 +103,7 @@ class IncorporationSummaryControllerSpec extends SCRSSpec with PayloadFixture wi
       "journey_id" -> Json.toJson("testJourneyID"),
       "hmrc" -> Json.obj(),
       "ch" -> Json.obj(),
+      "language" -> Json.toJson("en"),
       "links" -> Json.obj()
     )
 
