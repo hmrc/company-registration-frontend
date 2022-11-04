@@ -19,6 +19,7 @@ package controllers.handoff
 import com.google.inject.Inject
 import config.LangConstants
 import play.api.i18n.Lang
+import play.api.libs.json.{JsValue, Reads, __}
 import play.api.mvc.{AnyContent, MessagesRequest}
 import uk.gov.hmrc.play.language.LanguageUtils
 
@@ -34,4 +35,7 @@ class HandOffUtils @Inject() (languageUtils: LanguageUtils) {
     }
   }
 
+  def readLang(implicit request: MessagesRequest[AnyContent], payload: JsValue): Lang = {
+    payload.as[Option[String]](Reads.nullable(__ \ "language")).fold(Lang(getCurrentLang(request)))(Lang(_))
+  }
 }

@@ -114,12 +114,12 @@ class GroupController @Inject()(val authConnector: PlayAuthConnector,
   // 3b-1 hand back, back link from Coho
   def pSCGroupHandBack(request: String): Action[AnyContent] = Action.async {
     implicit _request =>
-      def groupsRedirect(handbackLanguage: String) = (optGroups: Option[Groups]) => {
+      def groupsRedirect(handbackLanguage: Lang) = (optGroups: Option[Groups]) => {
         optGroups.fold(Redirect(controllers.reg.routes.SignInOutController.postSignIn())) { groupsExist =>
           if (!groupsExist.groupRelief) {
-            Redirect(controllers.groups.routes.GroupReliefController.show).withLang(Lang(handbackLanguage))
+            Redirect(controllers.groups.routes.GroupReliefController.show).withLang(handbackLanguage)
           } else {
-            Redirect(controllers.groups.routes.GroupUtrController.show).withLang(Lang(handbackLanguage))
+            Redirect(controllers.groups.routes.GroupUtrController.show).withLang(handbackLanguage)
           }
         }
       }
@@ -128,7 +128,7 @@ class GroupController @Inject()(val authConnector: PlayAuthConnector,
           handBackService.processGroupsHandBck(request).flatMap {
             case Success(payload) => {
               groupService.retrieveGroups(regID).map(
-              groupsRedirect((payload \ "language").as[String])
+              groupsRedirect(handOffUtils.readLang(_request, payload))
               )
             }
             case Failure(PayloadError) => Future.successful(BadRequest(error_template_restart("3b-1", "PayloadError")))

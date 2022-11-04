@@ -67,7 +67,7 @@ class IncorporationSummaryController @Inject()(val authConnector: PlayAuthConnec
       ctAuthorisedHandoff("HO5b", request) {
         registeredHandOff("HO5b", request) { _ =>
           handBackService.processCompanyNameReverseHandBack(request).map {
-            case Success(payload) => Redirect(controllers.reg.routes.SummaryController.show).withLang(Lang((payload \ "language").as[String]))
+            case Success(payload) => Redirect(controllers.reg.routes.SummaryController.show).withLang(handOffUtils.readLang(_request, payload))
             case Failure(PayloadError) => BadRequest(error_template_restart("5b", "PayloadError"))
             case Failure(DecryptionError) => BadRequest(error_template_restart("5b", "DecryptionError"))
             case unknown => {
