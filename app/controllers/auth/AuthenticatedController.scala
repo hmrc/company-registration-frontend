@@ -131,10 +131,9 @@ trait AuthenticatedController extends FrontendBaseController with AuthorisedFunc
 
   def authErrorHandling(hoID: Option[String] = None, payload: Option[String] = None)
                        (implicit request: Request[AnyContent]): PartialFunction[Throwable, Result] = {
-    case e: NoActiveSession => {
-      logger.info(s"[authErrorHandling] Reason for NoActiveSession: ${e.reason} HO was ${hoID.fold("None")(ho => ho)} Payload was ${payload.fold("None")(pl => pl)}")
+    case e: NoActiveSession =>
+      logger.debug(s"[authErrorHandling] Reason for NoActiveSession: ${e.reason} HO was ${hoID.fold("None")(ho => ho)} Payload was ${payload.fold("None")(pl => pl)}")
       Redirect(appConfig.loginURL, loginParams(hoID, payload))
-    }
     case InternalError(e) =>
       logger.warn(s"[authErrorHandling] Something went wrong with a call to Auth with exception: ${e}")
       InternalServerError
