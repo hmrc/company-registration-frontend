@@ -77,7 +77,7 @@ class TradingDetailsControllerSpec extends SCRSSpec with GuiceOneAppPerSuite wit
 
       mockHttpGet[Option[TradingDetails]]("testUrl", Some(tradingDetailsTrue))
 
-      when(mockCompanyRegistrationConnector.retrieveTradingDetails(ArgumentMatchers.eq(regID))(ArgumentMatchers.any[HeaderCarrier]()))
+      when(mockCompanyRegistrationConnector.retrieveTradingDetails(ArgumentMatchers.eq(regID))(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(tradingDetailsTrue)))
 
       when(mockTradingDetailsService.retrieveTradingDetails(ArgumentMatchers.eq(regID))(ArgumentMatchers.any[HeaderCarrier]()))
@@ -104,7 +104,7 @@ class TradingDetailsControllerSpec extends SCRSSpec with GuiceOneAppPerSuite wit
 
         when(mockTradingDetailsService.fetchRegistrationID(ArgumentMatchers.any[HeaderCarrier]())).thenReturn(Future.successful(regID))
 
-        when(mockCompanyRegistrationConnector.updateTradingDetails(ArgumentMatchers.eq(regID), ArgumentMatchers.eq(tradingDetailsTrue))(ArgumentMatchers.any[HeaderCarrier]()))
+        when(mockCompanyRegistrationConnector.updateTradingDetails(ArgumentMatchers.eq(regID), ArgumentMatchers.eq(tradingDetailsTrue))(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
           .thenReturn(Future.successful(tradingDetailsSuccessResponseTrue))
 
         when(mockTradingDetailsService.updateCompanyInformation(ArgumentMatchers.eq(tradingDetailsTrue))(ArgumentMatchers.any[HeaderCarrier]()))
@@ -134,7 +134,7 @@ class TradingDetailsControllerSpec extends SCRSSpec with GuiceOneAppPerSuite wit
 
         when(mockTradingDetailsService.fetchRegistrationID(ArgumentMatchers.any[HeaderCarrier]())).thenReturn(Future.successful(regID))
 
-        when(mockCompanyRegistrationConnector.updateTradingDetails(ArgumentMatchers.eq(regID), ArgumentMatchers.eq(tradingDetailsTrue))(ArgumentMatchers.any[HeaderCarrier]()))
+        when(mockCompanyRegistrationConnector.updateTradingDetails(ArgumentMatchers.eq(regID), ArgumentMatchers.eq(tradingDetailsTrue))(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
           .thenReturn(Future.successful(tradingDetailsErrorResponse))
 
         when(mockTradingDetailsService.updateCompanyInformation(ArgumentMatchers.eq(tradingDetailsTrue))(ArgumentMatchers.any[HeaderCarrier]()))
@@ -152,7 +152,7 @@ class TradingDetailsControllerSpec extends SCRSSpec with GuiceOneAppPerSuite wit
 
         when(mockTradingDetailsService.fetchRegistrationID(ArgumentMatchers.any[HeaderCarrier]())).thenReturn(Future.successful(regID))
 
-        when(mockCompanyRegistrationConnector.updateTradingDetails(ArgumentMatchers.eq(regID), ArgumentMatchers.eq(tradingDetailsTrue))(ArgumentMatchers.any[HeaderCarrier]()))
+        when(mockCompanyRegistrationConnector.updateTradingDetails(ArgumentMatchers.eq(regID), ArgumentMatchers.eq(tradingDetailsTrue))(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
           .thenReturn(Future.successful(tradingDetailsNotFoundResponse))
 
         when(mockTradingDetailsService.updateCompanyInformation(ArgumentMatchers.eq(tradingDetailsTrue))(ArgumentMatchers.any[HeaderCarrier]()))
@@ -170,7 +170,7 @@ class TradingDetailsControllerSpec extends SCRSSpec with GuiceOneAppPerSuite wit
 
         when(mockTradingDetailsService.fetchRegistrationID(ArgumentMatchers.any[HeaderCarrier]())).thenReturn(Future.successful(regID))
 
-        when(mockCompanyRegistrationConnector.updateTradingDetails(ArgumentMatchers.eq(regID), ArgumentMatchers.eq(tradingDetailsTrue))(ArgumentMatchers.any[HeaderCarrier]()))
+        when(mockCompanyRegistrationConnector.updateTradingDetails(ArgumentMatchers.eq(regID), ArgumentMatchers.eq(tradingDetailsTrue))(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
           .thenReturn(Future.successful(tradingDetailsForbiddenResponse))
 
         when(mockTradingDetailsService.updateCompanyInformation(ArgumentMatchers.eq(tradingDetailsTrue))(ArgumentMatchers.any[HeaderCarrier]()))

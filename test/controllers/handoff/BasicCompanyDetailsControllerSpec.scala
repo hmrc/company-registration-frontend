@@ -78,7 +78,7 @@ class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture wit
 
         mockKeystoreFetchAndGet("registrationID", Some("1"))
 
-        when(mockCompanyRegistrationConnector.retrieveEmail(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(Some(Email("foo", "bar", true, true, true))))
+        when(mockCompanyRegistrationConnector.retrieveEmail(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(Email("foo", "bar", true, true, true))))
 
         when(mockHandOffService.companyNamePayload(ArgumentMatchers.eq("1"), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier]()))
           .thenReturn(Future.successful(Some(("testUrl/basic-company-details", "testEncryptedPayload"))))
@@ -100,7 +100,7 @@ class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture wit
       val encryptedPayload = jweInstance().encrypt[CompanyNameHandOffIncoming](validCompanyNameHandBack).get
 
       mockKeystoreFetchAndGet("registrationID", Some("1"))
-      when(mockCompanyRegistrationConnector.retrieveEmail(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(Some(Email("foo", "bar", true, true, true))))
+      when(mockCompanyRegistrationConnector.retrieveEmail(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(Email("foo", "bar", true, true, true))))
       when(mockHandOffService.companyNamePayload(ArgumentMatchers.eq("1"), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(Some(("testUrl/basic-company-details", encryptedPayload))))
 
@@ -119,7 +119,7 @@ class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture wit
     "return a 400 and display an error page when nothing is retrieved from user details" in new Setup {
 
       mockKeystoreFetchAndGet("registrationID", Some("1"))
-      when(mockCompanyRegistrationConnector.retrieveEmail(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(Some(Email("foo", "bar", true, true, true))))
+      when(mockCompanyRegistrationConnector.retrieveEmail(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(Email("foo", "bar", true, true, true))))
       when(mockHandOffService.companyNamePayload(ArgumentMatchers.eq("1"), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier]()))
         .thenReturn(Future.successful(None))
 
@@ -131,7 +131,7 @@ class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture wit
     "return a Redirect to post sign in if email block is None" in new Setup {
 
       mockKeystoreFetchAndGet("registrationID", Some("1"))
-      when(mockCompanyRegistrationConnector.retrieveEmail(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+      when(mockCompanyRegistrationConnector.retrieveEmail(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
       showWithAuthorisedUserRetrieval(testController.basicCompanyDetails, authDetails) {
         result =>
           status(result) mustBe 303

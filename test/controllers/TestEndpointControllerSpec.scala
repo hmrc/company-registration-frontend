@@ -144,7 +144,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
       CTRegistrationConnectorMocks.retrieveTradingDetails(Some(TradingDetails("true")))
       CTRegistrationConnectorMocks.retrieveAccountingDetails(validAccountingResponse)
 
-      when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(corporationTaxModel))
 
       showWithAuthorisedUserRetrieval(controller.getAllS4LEntries, internalID) {
@@ -164,7 +164,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
       CTRegistrationConnectorMocks.retrieveContactDetails(CompanyContactDetailsNotFoundResponse)
       CTRegistrationConnectorMocks.retrieveTradingDetails(None)
       CTRegistrationConnectorMocks.retrieveAccountingDetails(AccountingDetailsNotFoundResponse)
-      when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(corporationTaxModel))
 
       showWithAuthorisedUserRetrieval(controller.getAllS4LEntries, internalID) {
@@ -320,9 +320,9 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
 
     "return a 200 and a successful email response" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some(registrationId))
-      when(mockCompanyRegistrationConnector.retrieveEmail(ArgumentMatchers.eq(registrationId))(ArgumentMatchers.any()))
+      when(mockCompanyRegistrationConnector.retrieveEmail(ArgumentMatchers.eq(registrationId))(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(email)))
-      when(mockCompanyRegistrationConnector.verifyEmail(ArgumentMatchers.eq(registrationId), ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockCompanyRegistrationConnector.verifyEmail(ArgumentMatchers.eq(registrationId), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(json))
       when(mockBusinessRegistrationConnector.retrieveMetadata(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(brResponse))
@@ -338,7 +338,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
       mockKeystoreFetchAndGet("registrationID", Some(registrationId))
       when(mockBusinessRegistrationConnector.retrieveMetadata(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(brResponse))
-      when(mockCompanyRegistrationConnector.retrieveEmail(ArgumentMatchers.eq(registrationId))(ArgumentMatchers.any()))
+      when(mockCompanyRegistrationConnector.retrieveEmail(ArgumentMatchers.eq(registrationId))(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(None))
 
       showWithAuthorisedUser(controller.verifyEmail(true)) {
@@ -392,7 +392,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
 
       mockKeystoreFetchAndGet("registrationID", Some(registrationID))
 
-      when(mockCompanyRegistrationConnector.updateReferences(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockCompanyRegistrationConnector.updateReferences(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(response))
 
       showWithAuthorisedUser(controller.handOff6(Some(transId))) {
@@ -407,7 +407,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
 
       mockKeystoreFetchAndGet("registrationID", Some(registrationID))
 
-      when(mockCompanyRegistrationConnector.updateReferences(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockCompanyRegistrationConnector.updateReferences(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(response))
 
       showWithAuthorisedUser(controller.handOff6(Some(transId))) {

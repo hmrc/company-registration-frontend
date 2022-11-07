@@ -16,8 +16,10 @@
 
 package connectors
 
-import java.util.UUID
+import ch.qos.logback.classic.Level
+import config.LangConstants
 
+import java.util.UUID
 import fixtures._
 import helpers.SCRSSpec
 import models._
@@ -27,11 +29,12 @@ import org.mockito.ArgumentMatchers.{any, anyString}
 import org.mockito.Mockito._
 import play.api.libs.json.{JsObject, JsValue, Json}
 import uk.gov.hmrc.http._
+import utils.LogCapturingHelper
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class CompanyRegistrationConnectorSpec extends SCRSSpec with CTDataFixture with CompanyContactDetailsFixture with CompanyDetailsFixture
-  with AccountingDetailsFixture with TradingDetailsFixtures with CorporationTaxFixture {
+  with AccountingDetailsFixture with TradingDetailsFixtures with CorporationTaxFixture with LogCapturingHelper {
 
   trait Setup {
     val connector = new CompanyRegistrationConnector {
@@ -40,6 +43,7 @@ class CompanyRegistrationConnectorSpec extends SCRSSpec with CTDataFixture with 
     }
   }
 
+  implicit val ec = scala.concurrent.ExecutionContext.Implicits.global
   val regID = UUID.randomUUID.toString
 
   "CompanyRegistrationConnector" should {
@@ -845,6 +849,30 @@ class CompanyRegistrationConnectorSpec extends SCRSSpec with CTDataFixture with 
       mockHttpFailedPOST("", new Exception(""))
       val res = await(connector.shareholderListValidationEndpoint(List.empty))
       res mustBe List.empty
+    }
+  }
+
+  "calling .updateLanguage(regId: String, language: Language)" should {
+
+    val registrationId = "12345"
+    val lang = Language(LangConstants.english)
+
+    "return response from the HttpParser on success" in new Setup {
+
+      mockHttpPUT[Language, Boolean]("testUrl", true)
+
+      await(connector.updateLanguage(registrationId, lang)) mustBe true
+    }
+
+    "return false if future unexpectedly fails and log error message" in new Setup {
+
+      mockHttpFailedPUT[Language, Boolean]("testUrl", new RuntimeException("bang"))
+
+      withCaptureOfLoggingFrom(connector.logger) { logs =>
+        await(connector.updateLanguage(registrationId, lang)) mustBe false
+
+        logs.containsMsg(Level.ERROR, s"[updateLanguage] An unexpected Exception of type 'RuntimeException' occurred when trying to update language to: '${lang.code}' for regId: '$registrationId'")
+      }
     }
   }
 }

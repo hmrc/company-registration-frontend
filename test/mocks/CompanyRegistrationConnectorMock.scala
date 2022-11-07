@@ -26,7 +26,7 @@ import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.JsValue
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 trait CompanyRegistrationConnectorMock extends CorporationTaxFixture {
   this: MockitoSugar =>
@@ -36,68 +36,68 @@ trait CompanyRegistrationConnectorMock extends CorporationTaxFixture {
   object CTRegistrationConnectorMocks {
     def retrieveCTData(ctData: Option[CorporationTaxRegistrationResponse]): OngoingStubbing[Future[Option[CorporationTaxRegistrationResponse]]] = {
       when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistrationDetails(ArgumentMatchers.anyString())
-      (ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[HttpReads[CorporationTaxRegistrationResponse]]()))
+      (ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext](), ArgumentMatchers.any[HttpReads[CorporationTaxRegistrationResponse]]()))
         .thenReturn(Future.successful(ctData))
     }
 
     def retrieveCTRegistration(ctData: JsValue = buildCorporationTaxModel()) = {
       when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(ArgumentMatchers.anyString())
-      (ArgumentMatchers.any[HeaderCarrier]()))
+      (ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(ctData))
     }
 
     def createCTDataEntry(reg: CorporationTaxRegistrationResponse): OngoingStubbing[Future[CorporationTaxRegistrationResponse]] = {
-      when(mockCompanyRegistrationConnector.createCorporationTaxRegistrationDetails(ArgumentMatchers.any[String]())(ArgumentMatchers.any[HeaderCarrier]()))
+      when(mockCompanyRegistrationConnector.createCorporationTaxRegistrationDetails(ArgumentMatchers.any[String]())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(reg))
     }
 
     def retrieveCompanyDetails(response: Option[CompanyDetails]) = {
-      when(mockCompanyRegistrationConnector.retrieveCompanyDetails(ArgumentMatchers.anyString())(ArgumentMatchers.any[HeaderCarrier]()))
+      when(mockCompanyRegistrationConnector.retrieveCompanyDetails(ArgumentMatchers.anyString())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(response))
     }
 
     def updateCompanyDetails(response : CompanyDetails) = {
-      when(mockCompanyRegistrationConnector.updateCompanyDetails(ArgumentMatchers.anyString(), ArgumentMatchers.any[CompanyDetails]())(ArgumentMatchers.any()))
+      when(mockCompanyRegistrationConnector.updateCompanyDetails(ArgumentMatchers.anyString(), ArgumentMatchers.any[CompanyDetails]())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(response))
     }
 
     def retrieveContactDetails(response: CompanyContactDetailsResponse) = {
-      when(mockCompanyRegistrationConnector.retrieveContactDetails(ArgumentMatchers.anyString())(ArgumentMatchers.any()))
+      when(mockCompanyRegistrationConnector.retrieveContactDetails(ArgumentMatchers.anyString())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(response))
     }
 
     def updateContactDetails(response: CompanyContactDetailsResponse) ={
-      when(mockCompanyRegistrationConnector.updateContactDetails(ArgumentMatchers.anyString(), ArgumentMatchers.any[CompanyContactDetailsApi]())(ArgumentMatchers.any()))
+      when(mockCompanyRegistrationConnector.updateContactDetails(ArgumentMatchers.anyString(), ArgumentMatchers.any[CompanyContactDetailsApi]())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(response))
     }
 
     def retrieveTradingDetails(response : Option[TradingDetails]) = {
-      when(mockCompanyRegistrationConnector.retrieveTradingDetails(ArgumentMatchers.anyString())(ArgumentMatchers.any[HeaderCarrier]()))
+      when(mockCompanyRegistrationConnector.retrieveTradingDetails(ArgumentMatchers.anyString())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(response))
     }
 
     def updateTradingDetails(response : TradingDetailsResponse) = {
-      when(mockCompanyRegistrationConnector.updateTradingDetails(ArgumentMatchers.anyString(), ArgumentMatchers.eq(TradingDetails("false")))(ArgumentMatchers.any[HeaderCarrier]()))
+      when(mockCompanyRegistrationConnector.updateTradingDetails(ArgumentMatchers.anyString(), ArgumentMatchers.eq(TradingDetails("false")))(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(response))
     }
 
     def retrieveAccountingDetails(response: AccountingDetailsResponse) = {
-      when(mockCompanyRegistrationConnector.retrieveAccountingDetails(ArgumentMatchers.anyString())(ArgumentMatchers.any[HeaderCarrier]()))
+      when(mockCompanyRegistrationConnector.retrieveAccountingDetails(ArgumentMatchers.anyString())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(response))
     }
 
     def updateAccountingDetails(response: AccountingDetailsResponse) = {
-      when(mockCompanyRegistrationConnector.updateAccountingDetails(ArgumentMatchers.anyString(), ArgumentMatchers.any[AccountingDetailsRequest]())(ArgumentMatchers.any[HeaderCarrier]()))
+      when(mockCompanyRegistrationConnector.updateAccountingDetails(ArgumentMatchers.anyString(), ArgumentMatchers.any[AccountingDetailsRequest]())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(response))
     }
 
     def fetchAcknowledgementReference(regID: String, returns: ConfirmationReferencesResponse) = {
-      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(ArgumentMatchers.contains(regID))(ArgumentMatchers.any()))
+      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(ArgumentMatchers.contains(regID))(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(returns))
     }
 
     def validateRegisteredOfficeAddress(registrationID: String, ro: CHROAddress)(response: Future[Option[NewAddress]]): Unit = {
-      when(mockCompanyRegistrationConnector.validateRegisteredOfficeAddress(ArgumentMatchers.eq(registrationID), ArgumentMatchers.eq(ro))(ArgumentMatchers.any[HeaderCarrier]))
+      when(mockCompanyRegistrationConnector.validateRegisteredOfficeAddress(ArgumentMatchers.eq(registrationID), ArgumentMatchers.eq(ro))(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]()))
         .thenReturn(response)
     }
   }

@@ -85,7 +85,7 @@ class PPOBControllerSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixtur
     def mockCheckStatus(ret: Option[String] = Some(regId)) = {
       when(mockKeystoreConnector.fetchAndGet[String](eqTo("registrationID"))(any(), any()))
         .thenReturn(Future.successful(ret))
-      when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(eqTo(regId))(any()))
+      when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(eqTo(regId))(any(), any()))
         .thenReturn(Future.successful(buildCorporationTaxModel(rid = regId)))
     }
   }
@@ -215,7 +215,7 @@ class PPOBControllerSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixtur
 
     "handle an invalid address type correctly" in new Setup {
       mockCheckStatus()
-      when(mockCompanyRegistrationConnector.retrieveCompanyDetails(ArgumentMatchers.anyString())(ArgumentMatchers.any[HeaderCarrier]()))
+      when(mockCompanyRegistrationConnector.retrieveCompanyDetails(ArgumentMatchers.anyString())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(validCompanyDetails)))
 
       submitWithAuthorisedUserRetrieval(controller.submit, submission("Bad"), credID) {

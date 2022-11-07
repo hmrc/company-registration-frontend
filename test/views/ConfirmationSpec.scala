@@ -71,7 +71,7 @@ class ConfirmationSpec extends SCRSSpec with CompanyDetailsFixture with GuiceOne
       val ackref = "ABCD00000000123"
       val txId = "tx123"
       CTRegistrationConnectorMocks.fetchAcknowledgementReference("testRegID", ConfirmationReferencesSuccessResponse(ConfirmationReferences(txId,Some(paymentRef),Some(payment),ackref)))
-      when(mockCompanyRegistrationConnector.retrieveCompanyDetails(ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockCompanyRegistrationConnector.retrieveCompanyDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(validCompanyDetailsResponse)))
 
       showWithAuthorisedUser(controller.show) {

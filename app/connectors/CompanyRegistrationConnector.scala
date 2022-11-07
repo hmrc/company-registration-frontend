@@ -16,17 +16,15 @@
 
 package connectors
 
-import javax.inject.Inject
-
+import _root_.connectors.httpParsers.CompanyRegistrationHttpParsers
 import config.{AppConfig, WSHttp}
 import models._
 import models.connectors.ConfirmationReferences
-import utils.Logging
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.http._
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
 
 class CompanyRegistrationConnectorImpl @Inject()(val appConfig: AppConfig,
                                                  val wsHttp: WSHttp) extends CompanyRegistrationConnector {
@@ -39,12 +37,12 @@ case object FootprintForbiddenResponse extends FootprintResponse
 case object FootprintTooManyRequestsResponse extends FootprintResponse
 case class FootprintErrorResponse(err: Exception) extends FootprintResponse
 
-trait CompanyRegistrationConnector extends Logging {
+trait CompanyRegistrationConnector extends CompanyRegistrationHttpParsers {
 
   val companyRegUrl: String
   val wsHttp: CoreGet with CorePost with CorePut with CoreDelete
 
-  def fetchRegistrationStatus(regId: String)(implicit hc: HeaderCarrier): Future[Option[String]] = {
+  def fetchRegistrationStatus(regId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[String]] = {
     retrieveCorporationTaxRegistration(regId) map {
       json => (json \ "status").asOpt[String]
     } recover {
@@ -52,13 +50,13 @@ trait CompanyRegistrationConnector extends Logging {
     }
   }
 
-  def fetchCompanyName(regId: String)(implicit hc: HeaderCarrier): Future[String] = {
+  def fetchCompanyName(regId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[String] = {
     retrieveCorporationTaxRegistration(regId).map {
       json => (json \ "companyDetails" \ "companyName").validate[String].getOrElse(throw new Exception(s"Missing company Name for regId $regId"))
     }
   }
 
-  def retrieveCorporationTaxRegistration(registrationID: String)(implicit hc: HeaderCarrier): Future[JsValue] = {
+  def retrieveCorporationTaxRegistration(registrationID: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[JsValue] = {
     wsHttp.GET[JsValue](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/corporation-tax-registration") recover {
       case ex: BadRequestException =>
         logger.error(s"[retrieveCorporationTaxRegistration] for RegId: $registrationID - ${ex.responseCode} ${ex.message}")
@@ -75,7 +73,7 @@ trait CompanyRegistrationConnector extends Logging {
     }
   }
 
-  def checkROValidPPOB(registrationID: String, ro: CHROAddress)(implicit hc: HeaderCarrier): Future[Option[NewAddress]] = {
+  def checkROValidPPOB(registrationID: String, ro: CHROAddress)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[NewAddress]] = {
     implicit val roWrites = CHROAddress.formats
     val json = Json.toJson(ro)
 
@@ -93,7 +91,7 @@ trait CompanyRegistrationConnector extends Logging {
     }
   }
 
-  def validateRegisteredOfficeAddress(registrationID: String, ro: CHROAddress)(implicit hc: HeaderCarrier): Future[Option[NewAddress]] = {
+  def validateRegisteredOfficeAddress(registrationID: String, ro: CHROAddress)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[NewAddress]] = {
     implicit val roWrites = CHROAddress.formats
     val json = Json.toJson(ro)
 
@@ -108,7 +106,7 @@ trait CompanyRegistrationConnector extends Logging {
     }
   }
 
-  def retrieveOrCreateFootprint()(implicit hc: HeaderCarrier): Future[FootprintResponse] = {
+  def retrieveOrCreateFootprint()(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[FootprintResponse] = {
 
     wsHttp.GET[ThrottleResponse](s"$companyRegUrl/company-registration/throttle/check-user-access") map {
       response => {
@@ -134,7 +132,7 @@ trait CompanyRegistrationConnector extends Logging {
 
   }
 
-  def createCorporationTaxRegistrationDetails(regId: String)(implicit hc: HeaderCarrier): Future[CorporationTaxRegistrationResponse] = {
+  def createCorporationTaxRegistrationDetails(regId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[CorporationTaxRegistrationResponse] = {
     val json = Json.toJson[CorporationTaxRegistrationRequest](CorporationTaxRegistrationRequest("en"))
     wsHttp.PUT[JsValue, CorporationTaxRegistrationResponse](s"$companyRegUrl/company-registration/corporation-tax-registration/$regId", json) recover {
       case ex: BadRequestException =>
@@ -153,7 +151,7 @@ trait CompanyRegistrationConnector extends Logging {
   }
 
   def retrieveCorporationTaxRegistrationDetails(registrationID: String)
-                                               (implicit hc: HeaderCarrier, rds: HttpReads[CorporationTaxRegistrationResponse]): Future[Option[CorporationTaxRegistrationResponse]] = {
+                                               (implicit hc: HeaderCarrier, ec: ExecutionContext, rds: HttpReads[CorporationTaxRegistrationResponse]): Future[Option[CorporationTaxRegistrationResponse]] = {
     wsHttp.GET[Option[CorporationTaxRegistrationResponse]](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID") recover {
       case ex: BadRequestException =>
         logger.error(s"[retrieveCorporationTaxRegistrationDetails] for RegId: $registrationID - ${ex.responseCode} ${ex.message}")
@@ -170,7 +168,7 @@ trait CompanyRegistrationConnector extends Logging {
     }
   }
 
-  def updateCompanyDetails(registrationID: String, companyDetails: CompanyDetails)(implicit hc: HeaderCarrier): Future[CompanyDetails] = {
+  def updateCompanyDetails(registrationID: String, companyDetails: CompanyDetails)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[CompanyDetails] = {
     val json = Json.toJson[CompanyDetails](companyDetails)
     wsHttp.PUT[JsValue, CompanyDetails](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/company-details", json) recover {
       case ex: BadRequestException =>
@@ -188,7 +186,7 @@ trait CompanyRegistrationConnector extends Logging {
     }
   }
 
-  def retrieveCompanyDetails(registrationID: String)(implicit hc: HeaderCarrier): Future[Option[CompanyDetails]] = {
+  def retrieveCompanyDetails(registrationID: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[CompanyDetails]] = {
     wsHttp.GET[Option[CompanyDetails]](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/company-details") recover {
       case ex: BadRequestException =>
         logger.error(s"[retrieveCompanyDetails] for RegId: $registrationID - ${ex.responseCode} ${ex.message}")
@@ -205,7 +203,7 @@ trait CompanyRegistrationConnector extends Logging {
     }
   }
 
-  def retrieveTradingDetails(registrationID: String)(implicit hc: HeaderCarrier): Future[Option[TradingDetails]] = {
+  def retrieveTradingDetails(registrationID: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[TradingDetails]] = {
     wsHttp.GET[Option[TradingDetails]](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/trading-details") recover {
       case ex: BadRequestException =>
         logger.error(s"[retrieveTradingDetails] for RegId: $registrationID - ${ex.responseCode} ${ex.message}")
@@ -222,7 +220,7 @@ trait CompanyRegistrationConnector extends Logging {
     }
   }
 
-  def updateTradingDetails(registrationID: String, tradingDetails: TradingDetails)(implicit hc: HeaderCarrier): Future[TradingDetailsResponse] = {
+  def updateTradingDetails(registrationID: String, tradingDetails: TradingDetails)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[TradingDetailsResponse] = {
     wsHttp.PUT[JsValue, TradingDetails](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/trading-details", Json.toJson[TradingDetails](tradingDetails))
       .map {
         tradingDetailsResp =>
@@ -243,7 +241,7 @@ trait CompanyRegistrationConnector extends Logging {
     }
   }
 
-  def retrieveContactDetails(registrationID: String)(implicit hc: HeaderCarrier): Future[CompanyContactDetailsResponse] = {
+  def retrieveContactDetails(registrationID: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[CompanyContactDetailsResponse] = {
     wsHttp.GET[CompanyContactDetails](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/contact-details") map {
       response => CompanyContactDetailsSuccessResponse(response)
     } recover {
@@ -262,7 +260,7 @@ trait CompanyRegistrationConnector extends Logging {
     }
   }
 
-  def updateContactDetails(registrationID: String, contactDetails: CompanyContactDetailsApi)(implicit hc: HeaderCarrier): Future[CompanyContactDetailsResponse] = {
+  def updateContactDetails(registrationID: String, contactDetails: CompanyContactDetailsApi)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[CompanyContactDetailsResponse] = {
     val json = Json.toJson(contactDetails)
     wsHttp.PUT[JsValue, CompanyContactDetails](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/contact-details", json) map {
       response => CompanyContactDetailsSuccessResponse(response)
@@ -282,7 +280,7 @@ trait CompanyRegistrationConnector extends Logging {
     }
   }
 
-  def retrieveAccountingDetails(registrationID: String)(implicit hc: HeaderCarrier): Future[AccountingDetailsResponse] = {
+  def retrieveAccountingDetails(registrationID: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[AccountingDetailsResponse] = {
     wsHttp.GET[AccountingDetails](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/accounting-details") map {
       response => AccountingDetailsSuccessResponse(response)
     } recover {
@@ -298,7 +296,7 @@ trait CompanyRegistrationConnector extends Logging {
     }
   }
 
-  def updateAccountingDetails(registrationID: String, accountingDetails: AccountingDetailsRequest)(implicit hc: HeaderCarrier): Future[AccountingDetailsResponse] = {
+  def updateAccountingDetails(registrationID: String, accountingDetails: AccountingDetailsRequest)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[AccountingDetailsResponse] = {
     val json = Json.toJson(accountingDetails)
     wsHttp.PUT[JsValue, AccountingDetails](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/accounting-details", json) map {
       response => AccountingDetailsSuccessResponse(response)
@@ -315,7 +313,7 @@ trait CompanyRegistrationConnector extends Logging {
     }
   }
 
-  def fetchConfirmationReferences(registrationID: String)(implicit hc: HeaderCarrier): Future[ConfirmationReferencesResponse] = {
+  def fetchConfirmationReferences(registrationID: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[ConfirmationReferencesResponse] = {
     wsHttp.GET[ConfirmationReferences](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/confirmation-references") map {
       res => ConfirmationReferencesSuccessResponse(res)
     } recover {
@@ -331,7 +329,7 @@ trait CompanyRegistrationConnector extends Logging {
     }
   }
 
-  def updateReferences(registrationID: String, payload: ConfirmationReferences)(implicit hc: HeaderCarrier): Future[ConfirmationReferencesResponse] = {
+  def updateReferences(registrationID: String, payload: ConfirmationReferences)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[ConfirmationReferencesResponse] = {
     wsHttp.PUT[JsValue, ConfirmationReferences](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/confirmation-references", Json.toJson(payload)) map {
       res => ConfirmationReferencesSuccessResponse(res)
     } recover {
@@ -349,7 +347,7 @@ trait CompanyRegistrationConnector extends Logging {
     }
   }
 
-  def fetchHeldSubmissionTime(registrationId: String)(implicit hc: HeaderCarrier): Future[Option[JsValue]] = {
+  def fetchHeldSubmissionTime(registrationId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[JsValue]] = {
     wsHttp.GET[JsValue](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationId/fetch-held-time") map {
       res => Some(res)
     } recover {
@@ -368,7 +366,7 @@ trait CompanyRegistrationConnector extends Logging {
     }
   }
 
-  def getGroups(registrationId:String)(implicit hc:HeaderCarrier): Future[Option[Groups]] = {
+  def getGroups(registrationId:String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[Groups]] = {
     wsHttp.GET[HttpResponse](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationId/groups").map {
       res => if (res.status == 200) {
         res.json.validate[Groups].fold[Option[Groups]](errors => {
@@ -382,7 +380,7 @@ trait CompanyRegistrationConnector extends Logging {
   }
 
 
-  def updateGroups(registrationId:String, groups: Groups)(implicit hc:HeaderCarrier): Future[Groups] = {
+  def updateGroups(registrationId:String, groups: Groups)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Groups] = {
     wsHttp.PUT[Groups, HttpResponse](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationId/groups", groups).map {
           res => res.json.validate[Groups].fold[Groups](errors => {
         logger.error(s"[getGroups] could not parse groups json to Groups $registrationId for keys ${errors.map(_._1)}")
@@ -391,7 +389,7 @@ trait CompanyRegistrationConnector extends Logging {
     }
   }
 
-  def deleteGroups(registrationId:String)(implicit hc:HeaderCarrier): Future[Boolean] = {
+  def deleteGroups(registrationId:String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Boolean] = {
     wsHttp.DELETE[HttpResponse](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationId/groups").map{
       _ => true
     }.recoverWith {
@@ -401,7 +399,7 @@ trait CompanyRegistrationConnector extends Logging {
     }
   }
 
-  def shareholderListValidationEndpoint(listOfShareholders: List[String])(implicit hc:HeaderCarrier): Future[List[String]] = {
+  def shareholderListValidationEndpoint(listOfShareholders: List[String])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[List[String]] = {
     wsHttp.POST[List[String], HttpResponse](s"$companyRegUrl/company-registration/corporation-tax-registration/check-list-of-group-names", listOfShareholders).map { res =>
       if(res.status == 200) {
         res.json.validate[List[String]].getOrElse {
@@ -419,7 +417,7 @@ trait CompanyRegistrationConnector extends Logging {
     }
   }
 
-  def retrieveEmail(registrationId: String)(implicit hc: HeaderCarrier): Future[Option[Email]] = {
+  def retrieveEmail(registrationId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[Email]] = {
     wsHttp.GET[Email](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationId/retrieve-email").map {
       e => Some(e)
     } recover {
@@ -431,7 +429,7 @@ trait CompanyRegistrationConnector extends Logging {
     }
   }
 
-  def updateEmail(registrationId: String, email: Email)(implicit hc: HeaderCarrier): Future[Option[Email]] = {
+  def updateEmail(registrationId: String, email: Email)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[Email]] = {
     val json = Json.toJson(email)
     wsHttp.PUT[JsValue, Email](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationId/update-email", json).map {
       e => Some(e)
@@ -442,7 +440,7 @@ trait CompanyRegistrationConnector extends Logging {
     }
   }
 
-  def verifyEmail(registrationId: String, email: Email)(implicit hc: HeaderCarrier): Future[JsValue] = {
+  def verifyEmail(registrationId: String, email: Email)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[JsValue] = {
     val json = Json.toJson(email)
     wsHttp.PUT[JsValue, JsValue](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationId/update-email", json)
       .recover {
@@ -450,17 +448,17 @@ trait CompanyRegistrationConnector extends Logging {
       }
   }
 
-  def updateRegistrationProgress(registrationID: String, progress: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+  def updateRegistrationProgress(registrationID: String, progress: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse] = {
     val json = Json.obj("registration-progress" -> progress)
     wsHttp.PUT[JsValue, HttpResponse](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/progress", json)
   }
 
-  def deleteRegistrationSubmission(registrationId: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+  def deleteRegistrationSubmission(registrationId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse] = {
     wsHttp.DELETE[HttpResponse](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationId/delete-submission")
   }
 
 
-  def saveTXIDAfterHO2(registrationID: String, txid: String)(implicit hc: HeaderCarrier): Future[Option[HttpResponse]] = {
+  def saveTXIDAfterHO2(registrationID: String, txid: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[HttpResponse]] = {
     val json = Json.obj("transaction_id" -> txid)
     wsHttp.PUT[JsValue, HttpResponse](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/handOff2Reference-ackRef-save", json).map  {
       res => Some(res)} recover {
@@ -478,5 +476,14 @@ trait CompanyRegistrationConnector extends Logging {
         None
     }
   }
+
+  def updateLanguage(registrationId: String, language: Language)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Boolean] =
+    wsHttp.PUT[Language, Boolean](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationId/language", language)(
+      Language.fmt, updateLanguageHttpReads(registrationId, language), hc, ec
+    ) recover {
+      case ex: Exception =>
+        logger.error(s"[updateLanguage] An unexpected Exception of type '${ex.getClass.getSimpleName}' occurred when trying to update language to: '${language.code}' for regId: '$registrationId'")
+        false
+    }
 
 }

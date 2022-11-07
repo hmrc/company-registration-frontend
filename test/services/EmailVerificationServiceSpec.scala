@@ -146,14 +146,14 @@ class EmailVerificationServiceSpec extends UnitSpec with SCRSSpec with UserDetai
       when(mockAuditService.emailVerifiedEventDetail(ArgumentMatchers.any(),ArgumentMatchers.any(),ArgumentMatchers.any(),ArgumentMatchers.any(),ArgumentMatchers.any(),ArgumentMatchers.any())
       (ArgumentMatchers.any(),ArgumentMatchers.any(),ArgumentMatchers.any()))
         .thenReturn(Future.successful(Success))
-      when(mockCompanyRegistrationConnector.updateEmail(ArgumentMatchers.any(),ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+      when(mockCompanyRegistrationConnector.updateEmail(ArgumentMatchers.any(),ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
       val res = await(stubbedService.saveEmailBlock("foo",Email("fooemail","type",true,true,true),"provId","extId"))
 
 
     }
     "save email block + NOT send audit event if verified == false" in new Setup {
-      when(mockCompanyRegistrationConnector.updateEmail(ArgumentMatchers.any(),ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+      when(mockCompanyRegistrationConnector.updateEmail(ArgumentMatchers.any(),ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
       val res = await(stubbedService.saveEmailBlock("foo",Email("fooemail","type",true,false,true),"provId","extId"))
 
@@ -169,7 +169,7 @@ class EmailVerificationServiceSpec extends UnitSpec with SCRSSpec with UserDetai
       when(mockKsConnector.cache(ArgumentMatchers.eq("email"), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(CacheMap("x", Map())))
 
-      when(mockCrConnector.updateEmail(ArgumentMatchers.eq(regId), ArgumentMatchers.any[Email]())(ArgumentMatchers.any[HeaderCarrier]()))
+      when(mockCrConnector.updateEmail(ArgumentMatchers.eq(regId), ArgumentMatchers.any[Email]())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
         .thenAnswer((i: InvocationOnMock) => Future.successful(Some(i.getArguments()(1).asInstanceOf[Email])))
 
 
@@ -187,7 +187,7 @@ class EmailVerificationServiceSpec extends UnitSpec with SCRSSpec with UserDetai
       when(mockKsConnector.cache(ArgumentMatchers.eq("email"), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(CacheMap("x", Map())))
 
-      when(mockCrConnector.updateEmail(ArgumentMatchers.eq(regId), ArgumentMatchers.any[Email]())(ArgumentMatchers.any[HeaderCarrier]()))
+      when(mockCrConnector.updateEmail(ArgumentMatchers.eq(regId), ArgumentMatchers.any[Email]())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
         .thenReturn(Future.successful(None))
 
       when(mockAuditConnector.sendExtendedEvent(ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]()))
@@ -205,7 +205,7 @@ class EmailVerificationServiceSpec extends UnitSpec with SCRSSpec with UserDetai
       when(mockEmailConnector.requestVerificationEmailReturnVerifiedEmailStatus(ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(true))
 
-      when(mockCrConnector.updateEmail(ArgumentMatchers.eq(regId), ArgumentMatchers.any[Email]())(ArgumentMatchers.any[HeaderCarrier]()))
+      when(mockCrConnector.updateEmail(ArgumentMatchers.eq(regId), ArgumentMatchers.any[Email]())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
         .thenReturn(Future.successful(None))
       when(mockAuditService.emailVerifiedEventDetail(ArgumentMatchers.any(),ArgumentMatchers.any(),ArgumentMatchers.any(),ArgumentMatchers.any(),ArgumentMatchers.any(),ArgumentMatchers.any())
       (ArgumentMatchers.any(),ArgumentMatchers.any(),ArgumentMatchers.any()))
@@ -221,7 +221,7 @@ class EmailVerificationServiceSpec extends UnitSpec with SCRSSpec with UserDetai
       when(mockEmailConnector.requestVerificationEmailReturnVerifiedEmailStatus(ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(false))
 
-      when(mockCrConnector.updateEmail(ArgumentMatchers.eq(regId), ArgumentMatchers.any[Email]())(ArgumentMatchers.any[HeaderCarrier]()))
+      when(mockCrConnector.updateEmail(ArgumentMatchers.eq(regId), ArgumentMatchers.any[Email]())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
         .thenAnswer((i: InvocationOnMock) => Future.successful(Some(i.getArguments()(1).asInstanceOf[Email])))
 
       when(mockAuditService.emailVerifiedEventDetail(ArgumentMatchers.any(),ArgumentMatchers.any(),ArgumentMatchers.any(),ArgumentMatchers.any(),ArgumentMatchers.any(),ArgumentMatchers.any())

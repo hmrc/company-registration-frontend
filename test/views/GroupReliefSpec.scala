@@ -72,9 +72,9 @@ class GroupReliefSpec extends SCRSSpec with UserDetailsFixture with AuthBuilder 
 
       mockKeystoreFetchAndGet("registrationID", Some("1"))
       CTRegistrationConnectorMocks.retrieveCTRegistration(ctDocFirstTimeThrough)
-      when(mockCompanyRegistrationConnector.fetchCompanyName(any())(any()))
+      when(mockCompanyRegistrationConnector.fetchCompanyName(any())(any(), any()))
         .thenReturn(Future.successful("testCompanyname1"))
-      when(mockCompanyRegistrationConnector.retrieveEmail(any())(any()))
+      when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any()))
         .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
       when(mockGroupService.retrieveGroups(any())(any()))
         .thenReturn(Future.successful(Some(Groups(groupRelief = true, None, None, None))))

@@ -73,7 +73,7 @@ class ConfirmationControllerSpec(implicit val messages: Messages) extends SCRSSp
     "Return a 200 and display the Confirmation page" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("testRegID"))
       CTRegistrationConnectorMocks.fetchAcknowledgementReference("testRegID", ConfirmationReferencesSuccessResponse(ConfirmationReferences("a", Some("b"), Some("c"), "ABCDEFG0000")))
-      when(mockCompanyRegistrationConnector.retrieveCompanyDetails(ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockCompanyRegistrationConnector.retrieveCompanyDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(validCompanyDetailsResponse)))
 
       showWithAuthorisedUser(controller.show) {
