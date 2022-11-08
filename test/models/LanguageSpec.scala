@@ -18,6 +18,7 @@ package models
 
 import config.LangConstants
 import helpers.SCRSSpec
+import play.api.i18n.Lang
 import play.api.libs.json.Json
 
 class LanguageSpec extends SCRSSpec {
@@ -33,6 +34,10 @@ class LanguageSpec extends SCRSSpec {
 
     "deserialize from JSON correctly" in {
       languageJson.as[Language] mustBe language
+    }
+
+    "be able to be constructed from a Lang instance" in {
+      Language(Lang(LangConstants.english)) mustBe language
     }
   }
 }
