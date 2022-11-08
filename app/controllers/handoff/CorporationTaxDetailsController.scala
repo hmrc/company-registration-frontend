@@ -19,17 +19,18 @@ package controllers.handoff
 import config.AppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthenticatedController
+
 import javax.inject.Inject
 import utils.Logging
 import play.api.i18n.{I18nSupport, Lang}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.{HandBackService, HandOffService, NavModelNotFoundException}
+import services.{HandBackService, HandOffService, LanguageService, NavModelNotFoundException}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.http.SessionKeys
 import utils.{DecryptionError, PayloadError, SessionRegistration}
 import views.html.error_template_restart
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
 class CorporationTaxDetailsController @Inject()(val authConnector: PlayAuthConnector,
@@ -38,7 +39,8 @@ class CorporationTaxDetailsController @Inject()(val authConnector: PlayAuthConne
                                                 val compRegConnector: CompanyRegistrationConnector,
                                                 val handBackService: HandBackService,
                                                 val controllerComponents: MessagesControllerComponents,
-                                                error_template_restart: error_template_restart)
+                                                error_template_restart: error_template_restart,
+                                                languageService: LanguageService)
                                                (implicit val appConfig: AppConfig, implicit val ec: ExecutionContext)
   extends AuthenticatedController with SessionRegistration with I18nSupport with Logging {
 
@@ -56,20 +58,25 @@ class CorporationTaxDetailsController @Inject()(val authConnector: PlayAuthConne
         else {
           logger.warn("[corporationTaxDetails][HO2] hcAuth and session auth present but not equal")
         }
-        case (Some(hcAuth), None) => logger.debug("[corporationTaxDetails][HO2] hcAuth present, session auth not")
-        case (None, Some(sAuth)) => logger.debug("[corporationTaxDetails][HO2] session auth present, hcAuth auth not")
-        case (None, None) => logger.warn("[corporationTaxDetails][HO2] neither session auth or hcAuth present")
+        case (Some(_), None) => logger.debug("[corporationTaxDetails][HO2] hcAuth present, session auth not")
+        case (None, Some(_)) => logger.debug("[corporationTaxDetails][HO2] session auth present, hcAuth auth not")
+        case (None, None) => logger.debug("[corporationTaxDetails][HO2] neither session auth or hcAuth present")
       }
       ctAuthorisedHandoff("HO2", requestData) {
-        registeredHandOff("HO2", requestData) { _ =>
-          handBackService.processCompanyDetailsHandBack(requestData).map {
-            case Success(payload) => Redirect(controllers.reg.routes.PPOBController.show).withLang(Lang(payload.language))
-            case Failure(PayloadError) => BadRequest(error_template_restart("2", "PayloadError"))
-            case Failure(DecryptionError) => BadRequest(error_template_restart("2", "DecryptionError"))
-            case unknown => {
+        registeredHandOff("HO2", requestData) { regId =>
+          handBackService.processCompanyDetailsHandBack(requestData).flatMap {
+            case Success(payload) =>
+              val lang = Lang(payload.language)
+              languageService.updateLanguage(regId, lang).map { _ =>
+                Redirect(controllers.reg.routes.PPOBController.show).withLang(lang)
+              }
+            case Failure(PayloadError) =>
+              Future.successful(BadRequest(error_template_restart("2", "PayloadError")))
+            case Failure(DecryptionError) =>
+              Future.successful(BadRequest(error_template_restart("2", "DecryptionError")))
+            case unknown =>
               logger.warn(s"[corporationTaxDetails][HO2] Unexpected result, sending to post-sign-in : ${unknown}")
-              Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))
-            }
+              Future.successful(Redirect(controllers.reg.routes.SignInOutController.postSignIn(None)))
           } recover {
             case ex: NavModelNotFoundException => Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))
           }

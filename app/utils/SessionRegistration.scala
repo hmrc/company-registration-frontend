@@ -30,6 +30,9 @@ trait SessionRegistration extends Logging {
   val keystoreConnector: KeystoreConnector
   val compRegConnector: CompanyRegistrationConnector
 
+  def withOptionalRegId(f: => Option[String] => Future[Result])(implicit hc: HeaderCarrier) =
+    keystoreConnector.fetchAndGet[String]("registrationID") flatMap f
+
   def registered(f: => String => Future[Result])(implicit hc: HeaderCarrier): Future[Result] = registered()(f)
 
   def registeredHandOff(handOff: String, payload: String)(f: => String => Future[Result])(implicit hc: HeaderCarrier): Future[Result] = {

@@ -24,13 +24,13 @@ import controllers.reg.ControllerErrorHandler
 import javax.inject.Inject
 import play.api.i18n.{I18nSupport, Lang}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.{HandBackService, HandOffService, NavModelNotFoundException}
+import services.{HandBackService, HandOffService, LanguageService, NavModelNotFoundException}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import utils.{DecryptionError, PayloadError, SessionRegistration}
 import views.html.{error_template, error_template_restart}
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
 class BusinessActivitiesController @Inject()(val authConnector: PlayAuthConnector,
@@ -42,8 +42,8 @@ class BusinessActivitiesController @Inject()(val authConnector: PlayAuthConnecto
                                              val controllerErrorHandler: ControllerErrorHandler,
                                              handOffUtils: HandOffUtils,
                                              error_template: error_template,
-                                             error_template_restart: error_template_restart
-                                            )
+                                             error_template_restart: error_template_restart,
+                                             languageService: LanguageService)
                                             (implicit val appConfig: AppConfig, implicit val ec: ExecutionContext)
   extends AuthenticatedController with SessionRegistration with I18nSupport {
 
@@ -67,12 +67,19 @@ class BusinessActivitiesController @Inject()(val authConnector: PlayAuthConnecto
   def businessActivitiesBack(request: String): Action[AnyContent] = Action.async {
     implicit _request =>
       ctAuthorisedHandoff("HO3b", request) {
-        registeredHandOff("HO3b", request) { _ =>
-          handBackService.processBusinessActivitiesHandBack(request).map {
-            case Success(payload) => Redirect(controllers.reg.routes.TradingDetailsController.show).withLang(handOffUtils.readLang(_request, payload))
-            case Failure(PayloadError) => BadRequest(error_template_restart("3b", "PayloadError"))
-            case Failure(DecryptionError) => BadRequest(error_template_restart("3b", "DecryptionError"))
-            case _ => InternalServerError(controllerErrorHandler.defaultErrorPage)
+        registeredHandOff("HO3b", request) { regId =>
+          handBackService.processBusinessActivitiesHandBack(request).flatMap {
+            case Success(payload) =>
+              val lang = handOffUtils.readLang(payload)
+              languageService.updateLanguage(regId, lang).map { _ =>
+                Redirect(controllers.reg.routes.TradingDetailsController.show).withLang(lang)
+              }
+            case Failure(PayloadError) =>
+              Future.successful(BadRequest(error_template_restart("3b", "PayloadError")))
+            case Failure(DecryptionError) =>
+              Future.successful(BadRequest(error_template_restart("3b", "DecryptionError")))
+            case _ =>
+              Future.successful(InternalServerError(controllerErrorHandler.defaultErrorPage))
           }
         }
       }

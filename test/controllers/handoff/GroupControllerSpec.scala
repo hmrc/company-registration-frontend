@@ -27,16 +27,18 @@ import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.i18n.Lang
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.{AnyContentAsFormUrlEncoded, MessagesControllerComponents}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{defaultAwaitTimeout, redirectLocation}
 import services.NavModelNotFoundException
+import uk.gov.hmrc.http.HeaderCarrier
 import utils.JweCommon
 import views.html.error_template_restart
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
 
@@ -61,7 +63,8 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
       mockMcc,
       mockControllerErrorHandler,
       app.injector.instanceOf[HandOffUtils],
-      errorTemplateRestartPage
+      errorTemplateRestartPage,
+      mockLanguageService
     )(
       mockAppConfig,
       global
@@ -119,6 +122,8 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
           NavLinks("t", "b"),
           Some(true))))
       )
+    when(mockLanguageService.updateLanguage(ArgumentMatchers.eq("1"), ArgumentMatchers.eq(Lang(LangConstants.english)))(ArgumentMatchers.any[HeaderCarrier], ArgumentMatchers.any[ExecutionContext]))
+      .thenReturn(Future.successful(true))
 
     showWithAuthorisedUser(testController.groupHandBack("fooBar")) {
       result =>
@@ -147,6 +152,8 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
           NavLinks("t", "b"),
           Some(true))))
       )
+    when(mockLanguageService.updateLanguage(ArgumentMatchers.eq("1"), ArgumentMatchers.eq(Lang(LangConstants.english)))(ArgumentMatchers.any[HeaderCarrier], ArgumentMatchers.any[ExecutionContext]))
+      .thenReturn(Future.successful(true))
 
     showWithAuthorisedUser(testController.groupHandBack("fooBar")) {
       result =>

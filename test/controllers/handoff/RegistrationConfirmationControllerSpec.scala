@@ -26,6 +26,7 @@ import models.{ConfirmationReferencesSuccessResponse, DESFailureDeskpro, DESFail
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.i18n.Lang
 import play.api.libs.json.Json
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.Helpers._
@@ -35,7 +36,7 @@ import utils.{DecryptionError, JweCommon}
 import views.html.{error_template, error_template_restart}
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
 class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixture with LoginFixture with AuthBuilder with GuiceOneAppPerSuite {
@@ -59,7 +60,8 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
       mockMcc,
       errorTemplateRestartPage,
       errorTemplatePage,
-      app.injector.instanceOf[HandOffUtils]
+      app.injector.instanceOf[HandOffUtils],
+      mockLanguageService
     )(appConfig, global)
 
   }
@@ -88,6 +90,9 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
       when(mockHandBackService.payloadHasForwardLinkAndNoPaymentRefs(ArgumentMatchers.any()))
         .thenReturn(false)
 
+      when(mockLanguageService.updateLanguage(ArgumentMatchers.eq("1"), ArgumentMatchers.eq(Lang(LangConstants.english)))(ArgumentMatchers.any[HeaderCarrier], ArgumentMatchers.any[ExecutionContext]))
+        .thenReturn(Future.successful(true))
+
       showWithAuthorisedUserRetrieval(testController.registrationConfirmation(payloadEncr), externalID) {
         result =>
           status(result) mustBe SEE_OTHER
@@ -110,6 +115,9 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
       when(mockHandOffService.buildPaymentConfirmationHandoff(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Some(("coho-url", "encrypted-payload")))
 
       when(mockHandOffService.buildHandOffUrl(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn("coho-url?request=encrypted-payload")
+
+      when(mockLanguageService.updateLanguage(ArgumentMatchers.eq("1"), ArgumentMatchers.eq(Lang(LangConstants.english)))(ArgumentMatchers.any[HeaderCarrier], ArgumentMatchers.any[ExecutionContext]))
+        .thenReturn(Future.successful(true))
 
       showWithAuthorisedUserRetrieval(testController.registrationConfirmation(payloadEncr), externalID) {
         result =>
@@ -145,6 +153,9 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
 
       when(mockHandOffService.buildPaymentConfirmationHandoff(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
+      when(mockLanguageService.updateLanguage(ArgumentMatchers.eq("1"), ArgumentMatchers.eq(Lang(LangConstants.english)))(ArgumentMatchers.any[HeaderCarrier], ArgumentMatchers.any[ExecutionContext]))
+        .thenReturn(Future.successful(true))
+
       showWithAuthorisedUserRetrieval(testController.registrationConfirmation(payloadEncr), externalID) {
         result =>
           status(result) mustBe BAD_REQUEST
@@ -159,6 +170,9 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
 
       when(mockHandBackService.storeConfirmationHandOff(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(DESFailureDeskpro))
+
+      when(mockLanguageService.updateLanguage(ArgumentMatchers.eq("1"), ArgumentMatchers.eq(Lang(LangConstants.english)))(ArgumentMatchers.any[HeaderCarrier], ArgumentMatchers.any[ExecutionContext]))
+        .thenReturn(Future.successful(true))
 
       showWithAuthorisedUserRetrieval(testController.registrationConfirmation(payloadEncr), externalID) {
         result =>
@@ -175,6 +189,9 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
 
       when(mockHandBackService.storeConfirmationHandOff(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
         .thenReturn(Future.successful(DESFailureRetriable))
+
+      when(mockLanguageService.updateLanguage(ArgumentMatchers.eq("1"), ArgumentMatchers.eq(Lang(LangConstants.english)))(ArgumentMatchers.any[HeaderCarrier], ArgumentMatchers.any[ExecutionContext]))
+        .thenReturn(Future.successful(true))
 
       showWithAuthorisedUserRetrieval(testController.registrationConfirmation(payloadEncr), externalID) {
         result =>
@@ -221,6 +238,9 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
 
       when(mockHandBackService.payloadHasForwardLinkAndNoPaymentRefs(ArgumentMatchers.any()))
         .thenReturn(false)
+
+      when(mockLanguageService.updateLanguage(ArgumentMatchers.eq("1"), ArgumentMatchers.eq(Lang(LangConstants.english)))(ArgumentMatchers.any[HeaderCarrier], ArgumentMatchers.any[ExecutionContext]))
+        .thenReturn(Future.successful(true))
 
       showWithAuthorisedUserRetrieval(testController.paymentConfirmation(payloadEncr), externalID) {
         result =>

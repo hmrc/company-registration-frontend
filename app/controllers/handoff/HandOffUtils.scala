@@ -35,7 +35,7 @@ class HandOffUtils @Inject() (languageUtils: LanguageUtils) {
     }
   }
 
-  def readLang(implicit request: MessagesRequest[AnyContent], payload: JsValue): Lang = {
+  def readLang(payload: JsValue)(implicit request: MessagesRequest[AnyContent]): Lang = {
     payload.as[Option[String]](Reads.nullable(__ \ "language")).fold(Lang(getCurrentLang(request)))(Lang(_))
   }
 }

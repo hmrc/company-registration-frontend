@@ -20,10 +20,11 @@ import config.AppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthenticatedController
 import controllers.reg.ControllerErrorHandler
+
 import javax.inject.Inject
 import play.api.i18n.{I18nSupport, Lang}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.{HandBackService, HandOffService, NavModelNotFoundException}
+import services.{HandBackService, HandOffService, LanguageService, NavModelNotFoundException}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import utils.{DecryptionError, PayloadError, SessionRegistration}
 import views.html.{error_template, error_template_restart}
@@ -40,8 +41,8 @@ class BasicCompanyDetailsController @Inject()(val authConnector: PlayAuthConnect
                                               val controllerErrorHandler: ControllerErrorHandler,
                                               error_template: error_template,
                                               error_template_restart: error_template_restart,
-                                              handOffUtils: HandOffUtils
-                                             )
+                                              handOffUtils: HandOffUtils,
+                                              languageService: LanguageService)
                                              (implicit val appConfig: AppConfig, implicit val ec: ExecutionContext)
   extends AuthenticatedController with SessionRegistration with I18nSupport {
 
@@ -67,12 +68,19 @@ class BasicCompanyDetailsController @Inject()(val authConnector: PlayAuthConnect
   def returnToAboutYou(request: String): Action[AnyContent] = Action.async {
     implicit _request =>
       ctAuthorisedHandoff("HO1b", request) {
-        registeredHandOff("HO1b", request) { _ =>
-          handBackService.processCompanyNameReverseHandBack(request).map {
-            case Success(payload) => Redirect(controllers.reg.routes.CompletionCapacityController.show).withLang(handOffUtils.readLang(_request, payload))
-            case Failure(PayloadError) => BadRequest(error_template_restart("1b", "PayloadError"))
-            case Failure(DecryptionError) => BadRequest(error_template_restart("1b", "DecryptionError"))
-            case _ => InternalServerError(controllerErrorHandler.defaultErrorPage)
+        registeredHandOff("HO1b", request) { regId =>
+          handBackService.processCompanyNameReverseHandBack(request).flatMap {
+            case Success(payload) =>
+              val lang = handOffUtils.readLang(payload)
+              languageService.updateLanguage(regId, lang).map { _ =>
+                Redirect(controllers.reg.routes.CompletionCapacityController.show).withLang(lang)
+              }
+            case Failure(PayloadError) =>
+              Future.successful(BadRequest(error_template_restart("1b", "PayloadError")))
+            case Failure(DecryptionError) =>
+              Future.successful(BadRequest(error_template_restart("1b", "DecryptionError")))
+            case _ =>
+              Future.successful(InternalServerError(controllerErrorHandler.defaultErrorPage))
           } recover {
             case ex: NavModelNotFoundException => Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))
           }

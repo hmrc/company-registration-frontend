@@ -30,31 +30,31 @@ import scala.concurrent.{ExecutionContext, Future}
 
 trait AuthenticatedController extends FrontendBaseController with AuthorisedFunctions with Logging {
   val appConfig: AppConfig
-  val baseFunction: AuthorisedFunction = authorised(AuthProviders(GovernmentGateway) and ConfidenceLevel.L50)
+  val baseAuthFunction: AuthorisedFunction = authorised(AuthProviders(GovernmentGateway) and ConfidenceLevel.L50)
   implicit val ec: ExecutionContext
 
   def ctAuthorised(body: => Future[Result])(implicit request: Request[AnyContent]): Future[Result] = {
-    baseFunction(body) recover authErrorHandling()
+    baseAuthFunction(body) recover authErrorHandling()
   }
 
   def ctAuthorisedHandoff(hoID: String, payload: String)(body: => Future[Result])(implicit request: Request[AnyContent]): Future[Result] = {
-    baseFunction(body) recover authErrorHandling(Some(hoID), Some(payload))
+    baseAuthFunction(body) recover authErrorHandling(Some(hoID), Some(payload))
   }
 
   def ctAuthorisedOptStr(retrieval: Retrieval[Option[String]])(body: => (String) => Future[Result])
                         (implicit request: Request[AnyContent]): Future[Result] = {
-    baseFunction.retrieve(retrieval) {
+    baseAuthFunction.retrieve(retrieval) {
       case Some(ret) => body(ret)
       case _ => Future.failed(InternalError(s"[AuthConnector] ctAuthorisedOptStr returned None when expecting Some of ${retrieval.propertyNames}"))
     } recover authErrorHandling()
   }
 
   def ctAuthorisedExternalIDIncomplete(body: => (Option[String]) => Future[Result])(implicit request: Request[AnyContent]): Future[Result] = {
-    baseFunction.retrieve(externalId)(body(_)) recover authErrorHandlingIncomplete
+    baseAuthFunction.retrieve(externalId)(body(_)) recover authErrorHandlingIncomplete
   }
 
   def ctAuthorisedBasicCompanyDetails(body: => (BasicCompanyAuthDetails) => Future[Result])(implicit request: Request[AnyContent]): Future[Result] = {
-    baseFunction.retrieve(name and email and externalId) {
+    baseAuthFunction.retrieve(name and email and externalId) {
       case Some(nm) ~ Some(em) ~ Some(ei) => body(BasicCompanyAuthDetails(nm.name.get, em, ei))
       case nm ~ None ~ Some(ei) => {
         logger.info("[ctAuthorisedBasicCompanyDetails] user does not have email on gg record (call from auth)")
@@ -65,7 +65,7 @@ trait AuthenticatedController extends FrontendBaseController with AuthorisedFunc
   }
 
   def ctAuthorisedCompanyContact(body: => (String) => Future[Result])(implicit request: Request[AnyContent]): Future[Result] = {
-    baseFunction.retrieve(name and email) {
+    baseAuthFunction.retrieve(name and email) {
       case nm ~ Some(em) => body(em)
       case nm ~ None => {
         logger.info("[ctAuthorisedCompanyContact] user does not have email on gg record (call from auth)")
@@ -78,7 +78,7 @@ trait AuthenticatedController extends FrontendBaseController with AuthorisedFunc
 
   def ctAuthorisedEmailCredsExtId(body: => (String, String, String) => Future[Result])
                                  (implicit request: Request[AnyContent]): Future[Result] = {
-    baseFunction.retrieve(name and email and credentials and externalId) {
+    baseAuthFunction.retrieve(name and email and credentials and externalId) {
       case nm ~ Some(em) ~ Some(cr) ~ Some(ei) => body(em, cr.providerId, ei)
       case nm ~ None ~ cr ~ Some(ei) => {
         logger.info("[ctAuthorisedEmailCredsExtId] user does not have email on gg record (call from auth)")
@@ -89,7 +89,7 @@ trait AuthenticatedController extends FrontendBaseController with AuthorisedFunc
   }
 
   def ctAuthorisedCredID(body: => String => Future[Result])(implicit request: Request[AnyContent]): Future[Result] = {
-    baseFunction.retrieve(credentials) {
+    baseAuthFunction.retrieve(credentials) {
       case Some(cr) => body(cr.providerId)
       case _ => Future.failed(InternalError("ctAuthorisedCredID auth response was incorrect to what we expected when we were extracting Retrievals"))
     } recover authErrorHandling()
@@ -97,7 +97,7 @@ trait AuthenticatedController extends FrontendBaseController with AuthorisedFunc
 
 
   def ctAuthorisedPostSignIn(body: => (AuthDetails) => Future[Result])(implicit request: Request[AnyContent]): Future[Result] = {
-    baseFunction.retrieve(affinityGroup and allEnrolments and email and internalId and credentials) {
+    baseAuthFunction.retrieve(affinityGroup and allEnrolments and email and internalId and credentials) {
       case Some(ag) ~ ae ~ Some(em) ~ Some(ii) ~ Some(api) => body(AuthDetails(ag, ae, em, ii, api.providerId))
       case Some(ag) ~ ae ~ None ~ Some(ii) ~ api => {
         logger.info("[ctAuthorisedPostSignIn] user does not have email on gg record (call from auth)")
@@ -143,7 +143,7 @@ trait AuthenticatedController extends FrontendBaseController with AuthorisedFunc
   }
 
   def scpVerifiedEmail(implicit request: Request[AnyContent]): Future[Boolean] = {
-    baseFunction.retrieve(emailVerified) {
+    baseAuthFunction.retrieve(emailVerified) {
       case Some(em) => Future.successful(em)
       case _ => Future.successful(false)
     } recover {
