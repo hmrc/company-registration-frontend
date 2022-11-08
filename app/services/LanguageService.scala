@@ -14,16 +14,19 @@
  * limitations under the License.
  */
 
-package models
+package services
 
+import connectors.CompanyRegistrationConnector
+import models.Language
 import play.api.i18n.Lang
-import play.api.libs.json.{Format, Json}
+import uk.gov.hmrc.http.HeaderCarrier
 
-case class Language(code: String)
+import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
 
-object Language {
+class LanguageService @Inject()(compRegConnector: CompanyRegistrationConnector) {
 
-  def apply(lang: Lang): Language = Language(lang.code)
+  def updateLanguage(regId: String, lang: Lang)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Boolean] =
+    compRegConnector.updateLanguage(regId, Language(lang))
 
-  implicit val fmt: Format[Language] = Json.format[Language]
 }
