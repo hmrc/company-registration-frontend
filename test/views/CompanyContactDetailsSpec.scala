@@ -18,6 +18,7 @@ package views
 
 import _root_.helpers.SCRSSpec
 import builders.AuthBuilder
+import config.AppConfig
 import controllers.reg.{CompanyContactDetailsController, ControllerErrorHandler}
 import fixtures.{CompanyContactDetailsFixture, UserDetailsFixture}
 import models.Email
@@ -30,6 +31,7 @@ import play.api.mvc.MessagesControllerComponents
 import play.api.test.Helpers._
 import services.MetricsService
 import views.html.reg.{CompanyContactDetails => CompanyContactDetailsView}
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -38,6 +40,7 @@ class CompanyContactDetailsSpec extends SCRSSpec with CompanyContactDetailsFixtu
   lazy val mockControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
   lazy val mockControllerErrorHandler = app.injector.instanceOf[ControllerErrorHandler]
   lazy val mockCompanyContactDetailsView = app.injector.instanceOf[CompanyContactDetailsView]
+  lazy implicit val appConfig = app.injector.instanceOf[AppConfig]
 
   class Setup {
 
@@ -56,7 +59,7 @@ class CompanyContactDetailsSpec extends SCRSSpec with CompanyContactDetailsFixtu
       mockCompanyContactDetailsView
     )
     (
-      mockAppConfig,
+      appConfig,
       global
       )
 

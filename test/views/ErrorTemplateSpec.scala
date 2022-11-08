@@ -16,6 +16,7 @@
 
 package views
 
+import config.AppConfig
 import helpers.SCRSSpec
 import org.jsoup.Jsoup
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -24,9 +25,10 @@ import play.api.i18n.{Lang, MessagesApi}
 class ErrorTemplateSpec extends SCRSSpec with GuiceOneAppPerSuite {
 
   val errorTemplate = app.injector.instanceOf[views.html.error_template]
+  val appConfig = app.injector.instanceOf[AppConfig]
   val messages = app.injector.instanceOf[MessagesApi].preferred(Seq(Lang("en")))
 
-  val errorPage = errorTemplate("Title", "Heading", "Msg")(fakeRequest(), messages, mockAppConfig)
+  val errorPage = errorTemplate("Title", "Heading", "Msg")(fakeRequest(), messages, appConfig)
   val document = Jsoup.parse(errorPage.toString)
 
   "Rendering the errorTemplate" must {

@@ -19,6 +19,7 @@ package controllers
 import java.time._
 
 import builders.AuthBuilder
+import config.AppConfig
 import connectors._
 import controllers.dashboard.CancelRegistrationController
 import forms.CancelForm
@@ -43,6 +44,7 @@ class CancelRegistrationControllerSpec extends SCRSSpec with MockitoSugar with G
   lazy val cancelPayeView = app.injector.instanceOf[CancelPayeView]
   lazy val cancelVatView = app.injector.instanceOf[CancelVatView]
   lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
+  lazy implicit val appConfig = app.injector.instanceOf[AppConfig]
 
 
   class Setup(r: Request[AnyContent]) {
@@ -56,7 +58,7 @@ class CancelRegistrationControllerSpec extends SCRSSpec with MockitoSugar with G
       cancelPayeView,
       cancelVatView
     )(
-      mockAppConfig,
+      appConfig,
       global
     )
     implicit val request = r

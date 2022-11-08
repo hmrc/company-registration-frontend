@@ -30,6 +30,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class ReturningUserSpec extends SCRSSpec with AuthBuilder with GuiceOneAppPerSuite {
   lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
   lazy val mockReturningUserView = app.injector.instanceOf[ReturningUserView]
+  lazy implicit val appConfig = app.injector.instanceOf[AppConfig]
 
   class Setup {
 
@@ -39,7 +40,7 @@ class ReturningUserSpec extends SCRSSpec with AuthBuilder with GuiceOneAppPerSui
       mockReturningUserView
     )(
       global,
-      mockAppConfig
+      appConfig
     ) {
       override lazy val createGGWAccountUrl = "CreateGGWAccountURL"
       override lazy val eligUri = "/eligibility-for-setting-up-company"

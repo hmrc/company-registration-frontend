@@ -29,7 +29,7 @@ class PolicyControllerSpec extends SCRSSpec with GuiceOneAppPerSuite {
 
   lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
   lazy val mockPolicies = app.injector.instanceOf[policies]
-
+  lazy implicit val appConfig = app.injector.instanceOf[AppConfig]
 
   class Setup {
     val controller = new PolicyController(
@@ -37,7 +37,7 @@ class PolicyControllerSpec extends SCRSSpec with GuiceOneAppPerSuite {
       mockPolicies
     )
     (
-      mockAppConfig,
+      appConfig,
       global
     )
   }

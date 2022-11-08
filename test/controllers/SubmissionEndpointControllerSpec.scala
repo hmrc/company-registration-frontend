@@ -33,7 +33,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 class SubmissionEndpointControllerSpec extends SCRSSpec with SCRSFixtures with GuiceOneAppPerSuite with AuthBuilder {
 
   val cacheMap = CacheMap("", Map("" -> Json.toJson("")))
-  lazy val appConfig: AppConfig = app.injector.instanceOf[AppConfig]
+  lazy implicit val appConfig = app.injector.instanceOf[AppConfig]
   lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
   lazy val mockSubmissionEndpointView = app.injector.instanceOf[SubmissionEndpointView]
   class Setup {

@@ -18,6 +18,7 @@ package views
 
 import _root_.helpers.SCRSSpec
 import builders.AuthBuilder
+import config.AppConfig
 import controllers.groups.GroupUtrController
 import controllers.reg.ControllerErrorHandler
 import fixtures.UserDetailsFixture
@@ -39,6 +40,7 @@ class GroupUtrSpec extends SCRSSpec with UserDetailsFixture
   with GuiceOneAppPerSuite with AuthBuilder {
 
   val testRegId = "1"
+  lazy implicit val appConfig = app.injector.instanceOf[AppConfig]
 
   class Setup {
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
@@ -49,7 +51,7 @@ class GroupUtrSpec extends SCRSSpec with UserDetailsFixture
       mockCompanyRegistrationConnector,
       app.injector.instanceOf[MessagesControllerComponents],
       app.injector.instanceOf[GroupUtrView]
-    )
+    )(appConfig)
 
     case class funcMatcher(func: Groups => Future[Result]) extends ArgumentMatcher[Groups => Future[Result]] {
       override def matches(argument: Groups => Future[Result]): Boolean = true
