@@ -85,8 +85,8 @@ class CompanyContactDetailsSpec extends SCRSSpec with CompanyContactDetailsFixtu
       CompanyContactDetailsServiceMocks.fetchContactDetails(validCompanyContactDetailsModel)
       mockKeystoreFetchAndGet("registrationID", Some("1"))
       CTRegistrationConnectorMocks.retrieveCTRegistration(ctDocFirstTimeThrough)
-      when(mockCompanyRegistrationConnector.fetchCompanyName(any())(any())).thenReturn(Future.successful("testCompanyname1"))
-      when(mockCompanyRegistrationConnector.retrieveEmail(any())(any())).thenReturn(Future.successful(Some(Email("verified@email", "GG", true, true, true))))
+      when(mockCompanyRegistrationConnector.fetchCompanyName(any())(any(), any())).thenReturn(Future.successful("testCompanyname1"))
+      when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any())).thenReturn(Future.successful(Some(Email("verified@email", "GG", true, true, true))))
 
       showWithAuthorisedUser(controller.show) {
         result =>

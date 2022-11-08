@@ -179,7 +179,7 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with GuiceOneAppP
         Future.successful(SummaryList(testCompletionBlock))
       )
 
-      when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(corporationTaxModel))
 
       showWithAuthorisedUser(controller.show) {

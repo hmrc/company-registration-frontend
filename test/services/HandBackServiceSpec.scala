@@ -21,6 +21,7 @@ import fixtures.{CompanyDetailsFixture, PayloadFixture, SubmissionFixture}
 import helpers.SCRSSpec
 import models.handoff._
 import models.{CompanyDetails, RegistrationConfirmationPayload}
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.mockito.{ArgumentCaptor, ArgumentMatchers}
 import play.api.libs.json.{JsValue, Json}
@@ -38,6 +39,8 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
   val testJwe = new JweCommon {
     override val key = "Fak3-t0K3n-f0r-pUBLic-r3p0SiT0rY"
   }
+
+  implicit val ec = scala.concurrent.ExecutionContext.Implicits.global
 
   trait Setup {
     val service = new HandBackService {
@@ -61,11 +64,11 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
       .thenReturn(Future.successful(Some(navModel)))
 
   def mockCrRetrieve(regId: String, details: Option[CompanyDetails]) =
-    when(mockCompanyRegistrationConnector.retrieveCompanyDetails(ArgumentMatchers.eq(regId))(ArgumentMatchers.any[HeaderCarrier])).
+    when(mockCompanyRegistrationConnector.retrieveCompanyDetails(ArgumentMatchers.eq(regId))(ArgumentMatchers.any[HeaderCarrier], any())).
       thenReturn(Future.successful(details))
 
   def mockCrUpdate(regId: String, details: CompanyDetails) =
-    when(mockCompanyRegistrationConnector.updateCompanyDetails(ArgumentMatchers.eq(regId), ArgumentMatchers.any[CompanyDetails])(ArgumentMatchers.any[HeaderCarrier]))
+    when(mockCompanyRegistrationConnector.updateCompanyDetails(ArgumentMatchers.eq(regId), ArgumentMatchers.any[CompanyDetails])(ArgumentMatchers.any[HeaderCarrier], any()))
       .thenReturn(Future.successful(details))
 
   def simpleRequest(user: String = "xxx",
@@ -106,7 +109,7 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
       val captor = ArgumentCaptor.forClass(classOf[CompanyDetails])
       val hcCaptor = ArgumentCaptor.forClass(classOf[HeaderCarrier])
 
-      verify(mockCompanyRegistrationConnector).updateCompanyDetails(ArgumentMatchers.eq(registrationID), captor.capture())(hcCaptor.capture())
+      verify(mockCompanyRegistrationConnector).updateCompanyDetails(ArgumentMatchers.eq(registrationID), captor.capture())(hcCaptor.capture(), any())
 
     }
   }
@@ -177,7 +180,7 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
       val captor = ArgumentCaptor.forClass(classOf[CompanyDetails])
       val hcCaptor = ArgumentCaptor.forClass(classOf[HeaderCarrier])
 
-      verify(mockCompanyRegistrationConnector).updateCompanyDetails(ArgumentMatchers.eq(registrationID), captor.capture())(hcCaptor.capture())
+      verify(mockCompanyRegistrationConnector).updateCompanyDetails(ArgumentMatchers.eq(registrationID), captor.capture())(hcCaptor.capture(), any())
 
       val details = captor.getValue
       details.companyName mustBe name

@@ -24,6 +24,7 @@ import mocks.{KeystoreMock, NavModelRepoMock}
 import models._
 import models.handoff._
 import org.mockito.ArgumentMatchers
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.{JsObject, Json}
@@ -91,7 +92,7 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
       when(mockNavModelRepoObj.getNavModel(registrationID))
         .thenReturn(Future.successful(Some(testNavModel)))
 
-      when(mockCompanyRegistrationConnector.retrieveCompanyDetails(ArgumentMatchers.eq(registrationID))(ArgumentMatchers.any[HeaderCarrier]()))
+      when(mockCompanyRegistrationConnector.retrieveCompanyDetails(ArgumentMatchers.eq(registrationID))(ArgumentMatchers.any[HeaderCarrier](), any()))
         .thenReturn(Future.successful(Some(validCompanyDetailsResponseDifferentAddresses)))
 
       val result = await(service.buildBusinessActivitiesPayload(registrationID, externalID, LangConstants.english))
@@ -410,7 +411,7 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
       when(mockNavModelRepoObj.getNavModel("12345"))
         .thenReturn(Future.successful(Some(handOffNavModel)))
 
-      when(mockCompanyRegistrationConnector.updateRegistrationProgress(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockCompanyRegistrationConnector.updateRegistrationProgress(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), any()))
         .thenReturn(Future.successful(HttpResponse(200, "")))
 
       val result = await(service.summaryHandOff(externalID, LangConstants.english)).get

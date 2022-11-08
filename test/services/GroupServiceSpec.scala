@@ -44,7 +44,7 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
 
   "retrieveGroups" should {
     "gets groups" in new Setup {
-      when(mockCompanyRegistrationConnector.getGroups(any())(any()))
+      when(mockCompanyRegistrationConnector.getGroups(any())(any(), any()))
         .thenReturn(Some(Groups(groupRelief = true, None, None, None)))
 
       val res: Option[Groups] = await(service.retrieveGroups("foo"))
@@ -62,47 +62,47 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
     )
 
     "return empty groups with relief = false when choosing false with prepop data" in new Setup {
-      when(mockCompanyRegistrationConnector.getGroups(any())(any()))
+      when(mockCompanyRegistrationConnector.getGroups(any())(any(), any()))
         .thenReturn(Some(groups))
-      when(mockCompanyRegistrationConnector.updateGroups(any(), any())(any()))
+      when(mockCompanyRegistrationConnector.updateGroups(any(), any())(any(), any()))
         .thenReturn(Future.successful(defaultGroups))
 
       val res: Groups = await(service.updateGroupRelief(groupRelief = false, "foo"))
       res mustBe defaultGroups
-      verify(mockCompanyRegistrationConnector, times(1)).updateGroups(any(), any())(any())
+      verify(mockCompanyRegistrationConnector, times(1)).updateGroups(any(), any())(any(), any())
     }
 
     "return empty groups with relief = false when choosing false with no prepop data" in new Setup {
-      when(mockCompanyRegistrationConnector.getGroups(any())(any()))
+      when(mockCompanyRegistrationConnector.getGroups(any())(any(), any()))
         .thenReturn(None)
-      when(mockCompanyRegistrationConnector.updateGroups(any(), any())(any()))
+      when(mockCompanyRegistrationConnector.updateGroups(any(), any())(any(), any()))
         .thenReturn(Future.successful(defaultGroups))
 
       val res: Groups = await(service.updateGroupRelief(groupRelief = false, "foo"))
       res mustBe defaultGroups
-      verify(mockCompanyRegistrationConnector, times(1)).updateGroups(any(), any())(any())
+      verify(mockCompanyRegistrationConnector, times(1)).updateGroups(any(), any())(any(), any())
     }
 
     "return empty groups with relief = truew when choosing true with no prepop data" in new Setup {
-      when(mockCompanyRegistrationConnector.getGroups(any())(any()))
+      when(mockCompanyRegistrationConnector.getGroups(any())(any(), any()))
         .thenReturn(None)
-      when(mockCompanyRegistrationConnector.updateGroups(any(), any())(any()))
+      when(mockCompanyRegistrationConnector.updateGroups(any(), any())(any(), any()))
         .thenReturn(Future.successful(defaultGroups.copy(groupRelief = true)))
 
       val res: Groups = await(service.updateGroupRelief(groupRelief = true, "foo"))
       res mustBe defaultGroups.copy(groupRelief = true)
-      verify(mockCompanyRegistrationConnector, times(1)).updateGroups(any(), any())(any())
+      verify(mockCompanyRegistrationConnector, times(1)).updateGroups(any(), any())(any(), any())
     }
 
     "return groups with relief = true when choosing true with prepop data" in new Setup {
-      when(mockCompanyRegistrationConnector.getGroups(any())(any()))
+      when(mockCompanyRegistrationConnector.getGroups(any())(any(), any()))
         .thenReturn(Some(groups))
-      when(mockCompanyRegistrationConnector.updateGroups(any(), any())(any()))
+      when(mockCompanyRegistrationConnector.updateGroups(any(), any())(any(), any()))
         .thenReturn(Future.successful(groups))
 
       val res: Groups = await(service.updateGroupRelief(groupRelief = true, "foo"))
       res mustBe groups
-      verify(mockCompanyRegistrationConnector, times(1)).updateGroups(any(), any())(any())
+      verify(mockCompanyRegistrationConnector, times(1)).updateGroups(any(), any())(any(), any())
     }
   }
 
@@ -121,9 +121,9 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
     )
 
     "return a group block with the updated group address" in new Setup {
-      when(mockCompanyRegistrationConnector.updateGroups(any(), any())(any()))
+      when(mockCompanyRegistrationConnector.updateGroups(any(), any())(any(), any()))
         .thenReturn(Future.successful(completeGroupsBlock))
-      when(mockCompanyRegistrationConnector.getGroups(any())(any()))
+      when(mockCompanyRegistrationConnector.getGroups(any())(any(), any()))
         .thenReturn(Some(completeGroupsBlock))
 
       val res: Groups = await(service.updateGroupAddress(
@@ -135,13 +135,13 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
       ))
 
       res mustBe completeGroupsBlock
-      verify(mockCompanyRegistrationConnector, times(1)).updateGroups(any(), any())(any())
+      verify(mockCompanyRegistrationConnector, times(1)).updateGroups(any(), any())(any(), any())
     }
 
     "return a group block with the updated group address but remove the UTR block if the address has changed" in new Setup {
-      when(mockCompanyRegistrationConnector.updateGroups(any(), any())(any()))
+      when(mockCompanyRegistrationConnector.updateGroups(any(), any())(any(), any()))
         .thenReturn(Future.successful(groups))
-      when(mockCompanyRegistrationConnector.getGroups(any())(any()))
+      when(mockCompanyRegistrationConnector.getGroups(any())(any(), any()))
         .thenReturn(Some(completeGroupsBlock))
 
       val res: Groups = await(service.updateGroupAddress(
@@ -153,7 +153,7 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
       ))
 
       res mustBe groups
-      verify(mockCompanyRegistrationConnector, times(1)).updateGroups(any(), any())(any())
+      verify(mockCompanyRegistrationConnector, times(1)).updateGroups(any(), any())(any(), any())
     }
   }
 
@@ -167,37 +167,37 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
 
     "updates existing block with different UTR value" in new Setup {
       val updatedGroups: Groups = groups.copy(groupUTR = Some(GroupUTR(Some("1ABC"))))
-      when(mockCompanyRegistrationConnector.updateGroups(eqTo("bar"), eqTo(updatedGroups))(any()))
+      when(mockCompanyRegistrationConnector.updateGroups(eqTo("bar"), eqTo(updatedGroups))(any(), any()))
         .thenReturn(Future.successful(updatedGroups))
 
       val res: Groups = await(service.updateGroupUtr(GroupUTR(Some("1ABC")), groups, "bar"))
       res mustBe updatedGroups
 
-      verify(mockCompanyRegistrationConnector, times(1)).updateGroups(any(), any())(any())
+      verify(mockCompanyRegistrationConnector, times(1)).updateGroups(any(), any())(any(), any())
     }
 
     "update with no utr" in new Setup {
       val updatedGroups: Groups = groups.copy(groupUTR = Some(GroupUTR(None)))
-      when(mockCompanyRegistrationConnector.updateGroups(eqTo("bar"), eqTo(updatedGroups))(any()))
+      when(mockCompanyRegistrationConnector.updateGroups(eqTo("bar"), eqTo(updatedGroups))(any(), any()))
         .thenReturn(Future.successful(updatedGroups))
 
       val res: Groups = await(service.updateGroupUtr(GroupUTR(None), groups, "bar"))
       res mustBe updatedGroups
 
-      verify(mockCompanyRegistrationConnector, times(1)).updateGroups(any(), any())(any())
+      verify(mockCompanyRegistrationConnector, times(1)).updateGroups(any(), any())(any(), any())
     }
   }
 
   "fetchTxID" should {
     "return future string if call to compRegConnector is successful" in new Setup {
-      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any()))
+      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any(), any()))
         .thenReturn(Future.successful(ConfirmationReferencesSuccessResponse(ConfirmationReferences("foo", None, None, ""))))
 
       val res: String = await(service.fetchTxID("bar"))
       res mustBe "foo"
     }
     "return exception if call to compRegConnector isnt successful" in new Setup {
-      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any()))
+      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any(), any()))
         .thenReturn(Future.successful(ConfirmationReferencesErrorResponse))
 
       intercept[Exception](await(service.fetchTxID("bar")))
@@ -297,7 +297,7 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
     val groupCompanyName = GroupCompanyName("big company", "CohoEntered")
 
     "return address if returnListOfShareholdersFromTxApi returns right and name of company IS in list" in new Setup {
-      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any()))
+      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any(), any()))
         .thenReturn(Future.successful(ConfirmationReferencesSuccessResponse(ConfirmationReferences("foo", None, None, ""))))
       when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(any()))
         .thenReturn(Future.successful(Right(listOfShareholders)))
@@ -318,7 +318,7 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
         )
       )
 
-      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any()))
+      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any(), any()))
         .thenReturn(Future.successful(ConfirmationReferencesSuccessResponse(ConfirmationReferences("foo", None, None, ""))))
       when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(any()))
         .thenReturn(Future.successful(Right(identical)))
@@ -329,7 +329,7 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
 
     "return None if returnListOfShareholdersFromTxApi returns right and name of company IS NOT in list" in new Setup {
       val groupCompanyNameDoesntMatch = GroupCompanyName("big company ", "CohoEntered")
-      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any()))
+      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any(), any()))
         .thenReturn(Future.successful(ConfirmationReferencesSuccessResponse(ConfirmationReferences("foo", None, None, ""))))
       when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(any()))
         .thenReturn(Future.successful(Right(listOfShareholders)))
@@ -340,7 +340,7 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
 
     "return None if returnListOfShareholdersFromTxApi returns right and list is empty" in new Setup {
 
-      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any()))
+      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any(), any()))
         .thenReturn(Future.successful(ConfirmationReferencesSuccessResponse(ConfirmationReferences("foo", None, None, ""))))
       when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(any()))
         .thenReturn(Future.successful(Right(List.empty)))
@@ -351,7 +351,7 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
 
     "return left exception if returnListOfShareholdersFromTxApi returns exception" in new Setup {
       val ex = new Exception("foo")
-      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any()))
+      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any(), any()))
         .thenReturn(Future.successful(ConfirmationReferencesSuccessResponse(ConfirmationReferences("foo", None, None, ""))))
       when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(any()))
         .thenReturn(Future.successful(Left(ex)))
@@ -361,7 +361,7 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
     }
 
     "return exception if fetch confirmation references returns exception" in new Setup {
-      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any()))
+      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any(), any()))
         .thenReturn(Future.successful(ConfirmationReferencesErrorResponse))
 
       intercept[Exception](await(service.returnAddressFromTxAPI(groupCompanyName, "foo")))
@@ -379,7 +379,7 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
     )
 
     "return exception if there is no groupCompanyName" in new Setup {
-      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any())).thenReturn(Future.successful(
+      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any(), any())).thenReturn(Future.successful(
         ConfirmationReferencesSuccessResponse(ConfirmationReferences("foo", None, None, ""))))
       when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(any()))
         .thenReturn(Future.successful(Left(new Exception(""))))
@@ -390,11 +390,11 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
 
     "return address when address is valid" in new Setup {
       val address = NewAddress("1", "2", Some("3"), Some("4"), Some("5"), Some("6"), None)
-      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any()))
+      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any(), any()))
         .thenReturn(Future.successful(ConfirmationReferencesSuccessResponse(ConfirmationReferences("foo", None, None, ""))))
       when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(any()))
         .thenReturn(Future.successful(Right(listOfShareholder)))
-      when(mockCompanyRegistrationConnector.validateRegisteredOfficeAddress(any(), any())(any()))
+      when(mockCompanyRegistrationConnector.validateRegisteredOfficeAddress(any(), any())(any(), any()))
         .thenReturn(Future.successful(Some(address)))
 
       val res: Option[NewAddress] = await(service.retreiveValidatedTxApiAddress(
@@ -409,11 +409,11 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
 
     "return no address when address invalid" in new Setup {
       val address = NewAddress("1", "2", Some("3"), Some("4"), Some("5"), Some("6"), None)
-      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any()))
+      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any(), any()))
         .thenReturn(Future.successful(ConfirmationReferencesSuccessResponse(ConfirmationReferences("foo", None, None, ""))))
       when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(any()))
         .thenReturn(Future.successful(Right(listOfShareholder)))
-      when(mockCompanyRegistrationConnector.validateRegisteredOfficeAddress(any(), any())(any()))
+      when(mockCompanyRegistrationConnector.validateRegisteredOfficeAddress(any(), any())(any(), any()))
         .thenReturn(Future.successful(None))
 
       val res: Option[NewAddress] = await(service.retreiveValidatedTxApiAddress(
@@ -443,25 +443,25 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
     )
 
     "return groups after dropping old address and companyUtr if the address does not match" in new Setup {
-      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any()))
+      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any(), any()))
         .thenReturn(Future.successful(ConfirmationReferencesSuccessResponse(ConfirmationReferences("foo", None, None, ""))))
-      when(mockCompanyRegistrationConnector.updateGroups(any(), any())(any()))
+      when(mockCompanyRegistrationConnector.updateGroups(any(), any())(any(), any()))
         .thenReturn(Future.successful(Groups(groupRelief = true, None, None, None)))
 
       val res: Groups = await(service.dropOldFields(groups, address, "foo"))
       res mustBe Groups(groupRelief = true, None, None, None)
-      verify(mockCompanyRegistrationConnector, times(1)).updateGroups(any(), any())(any())
+      verify(mockCompanyRegistrationConnector, times(1)).updateGroups(any(), any())(any(), any())
 
     }
     "return unchanged groups if the address matches" in new Setup {
-      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any()))
+      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any(), any()))
         .thenReturn(Future.successful(ConfirmationReferencesSuccessResponse(ConfirmationReferences("foo", None, None, ""))))
-      when(mockCompanyRegistrationConnector.validateRegisteredOfficeAddress(any(), any())(any()))
+      when(mockCompanyRegistrationConnector.validateRegisteredOfficeAddress(any(), any())(any(), any()))
         .thenReturn(Future.successful(Some(address)))
 
       val res: Groups = await(service.dropOldFields(groupsWithSameAddress, address, "foo"))
       res mustBe groupsWithSameAddress
-      verify(mockCompanyRegistrationConnector, times(0)).updateGroups(any(), any())(any())
+      verify(mockCompanyRegistrationConnector, times(0)).updateGroups(any(), any())(any(), any())
     }
 
   }
@@ -479,7 +479,7 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
     )
 
     "return a left exception if txapi has a blip and connector call returns left" in new Setup {
-      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any()))
+      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any(), any()))
         .thenReturn(Future.successful(ConfirmationReferencesSuccessResponse(ConfirmationReferences("foo", None, None, ""))))
       when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(any()))
         .thenReturn(Future.successful(Left(new Exception("foo"))))
@@ -492,13 +492,13 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
     }
 
     "return a  right updated group block, and update groups if returns address after validation" in new Setup {
-      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any())).thenReturn(Future.successful(
+      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any(), any())).thenReturn(Future.successful(
         ConfirmationReferencesSuccessResponse(ConfirmationReferences("foo", None, None, ""))))
       when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(any()))
         .thenReturn(Future.successful(Right(listOfShareholders)))
-      when(mockCompanyRegistrationConnector.validateRegisteredOfficeAddress(any(), any())(any()))
+      when(mockCompanyRegistrationConnector.validateRegisteredOfficeAddress(any(), any())(any(), any()))
         .thenReturn(Future.successful(Some(address)))
-      when(mockCompanyRegistrationConnector.updateGroups(any(), any())(any()))
+      when(mockCompanyRegistrationConnector.updateGroups(any(), any())(any(), any()))
         .thenReturn(Future.successful(Groups(groupRelief = false, None, None, None)))
 
       val res: Either[Exception, Groups] = await(service.saveTxShareHolderAddress(
@@ -516,11 +516,11 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
     )
 
     "return Future list of string and groups for OTHER name, no drop occurs in cr even though name matches" in new Setup {
-      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any()))
+      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any(), any()))
         .thenReturn(Future.successful(ConfirmationReferencesSuccessResponse(ConfirmationReferences("footxID", None, None, "foo"))))
       when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(any()))
         .thenReturn(Future.successful(Right(shareholders)))
-      when(mockCompanyRegistrationConnector.shareholderListValidationEndpoint(any())(any()))
+      when(mockCompanyRegistrationConnector.shareholderListValidationEndpoint(any())(any(), any()))
         .thenReturn(Future.successful(List("foo", "bar", "wiZZ 123")))
 
       val res: (List[String], Groups) = await(service.returnValidShareholdersAndUpdateGroups(
@@ -530,17 +530,17 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
 
       res._1 mustBe List("foo", "bar", "wiZZ 123")
       res._2 mustBe Groups(groupRelief = true, Some(GroupCompanyName("wiZZ 123", "Other")), None, None)
-      verify(mockCompanyRegistrationConnector, times(0)).updateGroups(any(), any())(any())
+      verify(mockCompanyRegistrationConnector, times(0)).updateGroups(any(), any())(any(), any())
     }
 
     "return a future list removing duplicates if groups name is empty" in new Setup {
-      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any()))
+      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any(), any()))
         .thenReturn(Future.successful(ConfirmationReferencesSuccessResponse(ConfirmationReferences("footxID", None, None, "foo"))))
       when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(any()))
         .thenReturn(Future.successful(Right(shareholders)))
-      when(mockCompanyRegistrationConnector.shareholderListValidationEndpoint(eqTo(List("foo", "bar")))(any()))
+      when(mockCompanyRegistrationConnector.shareholderListValidationEndpoint(eqTo(List("foo", "bar")))(any(), any()))
         .thenReturn(Future.successful(List("foo", "foo", "foo", "bar", "bar", "bar", "wiZZ 123")))
-      when(mockCompanyRegistrationConnector.updateGroups(any(), any())(any()))
+      when(mockCompanyRegistrationConnector.updateGroups(any(), any())(any(), any()))
         .thenReturn(Future.successful(Groups(groupRelief = false, None, None, None)))
 
       val res: (List[String], Groups) = await(service.returnValidShareholdersAndUpdateGroups(
@@ -553,13 +553,13 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
     }
 
     "return future list of string and group where name does not exist - a drop takes place of all other fields" in new Setup {
-      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any()))
+      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any(), any()))
         .thenReturn(Future.successful(ConfirmationReferencesSuccessResponse(ConfirmationReferences("footxID", None, None, "foo"))))
       when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(any()))
         .thenReturn(Future.successful(Right(shareholders)))
-      when(mockCompanyRegistrationConnector.shareholderListValidationEndpoint(eqTo(List("foo", "bar")))(any()))
+      when(mockCompanyRegistrationConnector.shareholderListValidationEndpoint(eqTo(List("foo", "bar")))(any(), any()))
         .thenReturn(Future.successful(List("foo", "bar", "wiZZ 123")))
-      when(mockCompanyRegistrationConnector.updateGroups(any(), any())(any()))
+      when(mockCompanyRegistrationConnector.updateGroups(any(), any())(any(), any()))
         .thenReturn(Future.successful(Groups(groupRelief = false, None, None, None)))
 
       val res: (List[String], Groups) = await(service.returnValidShareholdersAndUpdateGroups(
@@ -569,15 +569,15 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
 
       res._1 mustBe List("foo", "bar", "wiZZ 123")
       res._2 mustBe Groups(groupRelief = false, None, None, None)
-      verify(mockCompanyRegistrationConnector, times(1)).updateGroups(any(), any())(any())
+      verify(mockCompanyRegistrationConnector, times(1)).updateGroups(any(), any())(any(), any())
     }
 
     "return future  filtered list of string and group where name is in list and is not Other" in new Setup {
-      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any()))
+      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any(), any()))
         .thenReturn(Future.successful(ConfirmationReferencesSuccessResponse(ConfirmationReferences("footxID", None, None, "foo"))))
       when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(any()))
         .thenReturn(Future.successful(Right(shareholders)))
-      when(mockCompanyRegistrationConnector.shareholderListValidationEndpoint(any())(any()))
+      when(mockCompanyRegistrationConnector.shareholderListValidationEndpoint(any())(any(), any()))
         .thenReturn(Future.successful(List("foo", "bar", "wiZZ 123")))
 
       val res: (List[String], Groups) = await(service.returnValidShareholdersAndUpdateGroups(
@@ -587,17 +587,17 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
 
       res._1 mustBe List("foo", "bar", "wiZZ 123")
       res._2 mustBe Groups(groupRelief = true, Some(GroupCompanyName("wiZZ 123", "CohoEntered")), None, None)
-      verify(mockCompanyRegistrationConnector, times(0)).updateGroups(any(), any())(any())
+      verify(mockCompanyRegistrationConnector, times(0)).updateGroups(any(), any())(any(), any())
     }
 
     "return future NON filtered list of string and group where name is NOT in the list and is NOT Other" in new Setup {
-      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any()))
+      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any(), any()))
         .thenReturn(Future.successful(ConfirmationReferencesSuccessResponse(ConfirmationReferences("footxID", None, None, "foo"))))
       when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(any()))
         .thenReturn(Future.successful(Right(shareholders)))
-      when(mockCompanyRegistrationConnector.shareholderListValidationEndpoint(eqTo(List("foo", "bar")))(any()))
+      when(mockCompanyRegistrationConnector.shareholderListValidationEndpoint(eqTo(List("foo", "bar")))(any(), any()))
         .thenReturn(Future.successful(List("foo", "bar", "wiZZ 123")))
-      when(mockCompanyRegistrationConnector.updateGroups(any(), any())(any()))
+      when(mockCompanyRegistrationConnector.updateGroups(any(), any())(any(), any()))
         .thenReturn(Future.successful(Groups(groupRelief = true, None, None, None)))
 
       val res: (List[String], Groups) = await(service.returnValidShareholdersAndUpdateGroups(
@@ -607,11 +607,11 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
 
       res._1 mustBe List("foo", "bar", "wiZZ 123")
       res._2 mustBe Groups(groupRelief = true, None, None, None)
-      verify(mockCompanyRegistrationConnector, times(1)).updateGroups(any(), any())(any())
+      verify(mockCompanyRegistrationConnector, times(1)).updateGroups(any(), any())(any(), any())
     }
 
     "return empty list and  groups passed in if Left returned from returnListOfShareholdersFromTxApi and nothing updated because coho had a wobble" in new Setup {
-      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any()))
+      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any(), any()))
         .thenReturn(Future.successful(ConfirmationReferencesSuccessResponse(ConfirmationReferences("footxID", None, None, "foo"))))
       when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(any()))
         .thenReturn(Future.successful(Left(new Exception("foo uh oh"))))
@@ -623,11 +623,11 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
 
       res._1 mustBe List.empty
       res._2 mustBe Groups(groupRelief = true, Some(GroupCompanyName("wiZZ 123 1", "CohoEntered")), None, None)
-      verify(mockCompanyRegistrationConnector, times(0)).updateGroups(any(), any())(any())
+      verify(mockCompanyRegistrationConnector, times(0)).updateGroups(any(), any())(any(), any())
     }
 
     "return exception if confirmation references is not a success" in new Setup {
-      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any()))
+      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any(), any()))
         .thenReturn(Future.successful(ConfirmationReferencesErrorResponse))
 
       intercept[Exception](await(service.returnValidShareholdersAndUpdateGroups(
@@ -644,89 +644,89 @@ class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
     )
 
     "return an empty list if there arent any shareholders" in new Setup {
-      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any())).thenReturn(Future.successful(
+      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any(), any())).thenReturn(Future.successful(
         ConfirmationReferencesSuccessResponse(ConfirmationReferences("foo", None, None, ""))))
-      when(mockCompanyRegistrationConnector.deleteGroups(any())(any())).thenReturn(Future.successful(true))
+      when(mockCompanyRegistrationConnector.deleteGroups(any())(any(), any())).thenReturn(Future.successful(true))
 
       val res: List[Shareholder] = await(service.dropOldGroups(Right(List.empty), "123"))
       res mustBe List.empty
     }
 
     "drop groups if groups block does not exist because name is not in list" in new Setup {
-      when(mockCompanyRegistrationConnector.getGroups(any())(any()))
+      when(mockCompanyRegistrationConnector.getGroups(any())(any(), any()))
         .thenReturn(Future.successful(None))
       when(mockCompanyRegistrationConnector
-        .shareholderListValidationEndpoint(any())(any())).thenReturn(Future.successful(List("foo")))
+        .shareholderListValidationEndpoint(any())(any(), any())).thenReturn(Future.successful(List("foo")))
 
       val res: List[Shareholder] = await(service.dropOldGroups(Right(listOfShareholders), "foo"))
       res mustBe listOfShareholders
-      verify(mockCompanyRegistrationConnector, times(0)).deleteGroups(any())(any())
+      verify(mockCompanyRegistrationConnector, times(0)).deleteGroups(any())(any(), any())
     }
 
     "drop groups block if user has groups block, name is NOT other AND name not in list of shareholders" in new Setup {
-      when(mockCompanyRegistrationConnector.getGroups(any())(any()))
+      when(mockCompanyRegistrationConnector.getGroups(any())(any(), any()))
         .thenReturn(Future.successful(Some(Groups(
           groupRelief = true,
           Some(GroupCompanyName("foo", "sausages")),
           None,
           None
         ))))
-      when(mockCompanyRegistrationConnector.shareholderListValidationEndpoint(any())(any()))
+      when(mockCompanyRegistrationConnector.shareholderListValidationEndpoint(any())(any(), any()))
         .thenReturn(Future.successful(List("wizzle", "bar")))
-      when(mockCompanyRegistrationConnector.deleteGroups(any())(any()))
+      when(mockCompanyRegistrationConnector.deleteGroups(any())(any(), any()))
         .thenReturn(Future.successful(true))
 
       val res: List[Shareholder] = await(service.dropOldGroups(Right(listOfShareholders), "foo"))
       res mustBe listOfShareholders
-      verify(mockCompanyRegistrationConnector, times(1)).deleteGroups(any())(any())
+      verify(mockCompanyRegistrationConnector, times(1)).deleteGroups(any())(any(), any())
     }
 
     "do not drop groups block if name is other but name is NOT in the list" in new Setup {
-      when(mockCompanyRegistrationConnector.getGroups(any())(any()))
+      when(mockCompanyRegistrationConnector.getGroups(any())(any(), any()))
         .thenReturn(Future.successful(Some(Groups(
           groupRelief = true,
           Some(GroupCompanyName("walls", "Other")),
           None,
           None
         ))))
-      when(mockCompanyRegistrationConnector.shareholderListValidationEndpoint(any())(any()))
+      when(mockCompanyRegistrationConnector.shareholderListValidationEndpoint(any())(any(), any()))
         .thenReturn(Future.successful(List("foo")))
 
       val res: List[Shareholder] = await(service.dropOldGroups(Right(listOfShareholders), "foo"))
       res mustBe listOfShareholders
-      verify(mockCompanyRegistrationConnector, times(0)).deleteGroups(any())(any())
+      verify(mockCompanyRegistrationConnector, times(0)).deleteGroups(any())(any(), any())
     }
 
     "do not drop groups block if name is other and name is in the list" in new Setup {
-      when(mockCompanyRegistrationConnector.getGroups(any())(any()))
+      when(mockCompanyRegistrationConnector.getGroups(any())(any(), any()))
         .thenReturn(Future.successful(Some(Groups(
           groupRelief = true,
           Some(GroupCompanyName("foo", "Other")),
           None,
           None
         ))))
-      when(mockCompanyRegistrationConnector.shareholderListValidationEndpoint(any())(any()))
+      when(mockCompanyRegistrationConnector.shareholderListValidationEndpoint(any())(any(), any()))
         .thenReturn(Future.successful(List("foo")))
 
       val res: List[Shareholder] = await(service.dropOldGroups(Right(listOfShareholders), "foo"))
       res mustBe listOfShareholders
-      verify(mockCompanyRegistrationConnector, times(0)).deleteGroups(any())(any())
+      verify(mockCompanyRegistrationConnector, times(0)).deleteGroups(any())(any(), any())
     }
 
     "do not drop groups block if groups block exists but does not have name block" in new Setup {
-      when(mockCompanyRegistrationConnector.getGroups(any())(any()))
+      when(mockCompanyRegistrationConnector.getGroups(any())(any(), any()))
         .thenReturn(Future.successful(Some(Groups(
           groupRelief = true,
           None,
           None,
           None
         ))))
-      when(mockCompanyRegistrationConnector.shareholderListValidationEndpoint(any())(any()))
+      when(mockCompanyRegistrationConnector.shareholderListValidationEndpoint(any())(any(), any()))
         .thenReturn(Future.successful(List("foo")))
 
       val res: List[Shareholder] = await(service.dropOldGroups(Right(listOfShareholders), "bar"))
       res mustBe listOfShareholders
-      verify(mockCompanyRegistrationConnector, times(0)).deleteGroups(any())(any())
+      verify(mockCompanyRegistrationConnector, times(0)).deleteGroups(any())(any(), any())
     }
   }
 }

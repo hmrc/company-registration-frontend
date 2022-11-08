@@ -77,7 +77,7 @@ class CompanyContactDetailsControllerSpec extends SCRSSpec with UserDetailsFixtu
   "show" should {
     "return a 200 when fetchContactDetails returns a model from S4L" in new Setup {
       CTRegistrationConnectorMocks.retrieveCTRegistration()
-      when(mockCompanyRegistrationConnector.fetchCompanyName(any())(any())).thenReturn(Future.successful("foo"))
+      when(mockCompanyRegistrationConnector.fetchCompanyName(any())(any(), any())).thenReturn(Future.successful("foo"))
       mockKeystoreFetchAndGet("registrationID", Some("1"))
       CompanyContactDetailsServiceMocks.fetchContactDetails(validCompanyContactDetailsModel)
 
@@ -89,7 +89,7 @@ class CompanyContactDetailsControllerSpec extends SCRSSpec with UserDetailsFixtu
 
     "return a 200 when fetchContactDetails returns nothing from S4L but returns a model from UserDetailsService" in new Setup {
       CTRegistrationConnectorMocks.retrieveCTRegistration()
-      when(mockCompanyRegistrationConnector.fetchCompanyName(any())(any())).thenReturn(Future.successful("foo"))
+      when(mockCompanyRegistrationConnector.fetchCompanyName(any())(any(), any())).thenReturn(Future.successful("foo"))
       mockKeystoreFetchAndGet("registrationID", Some("1"))
       CompanyContactDetailsServiceMocks.fetchContactDetails(validCompanyContactDetailsModel)
 
@@ -130,7 +130,7 @@ class CompanyContactDetailsControllerSpec extends SCRSSpec with UserDetailsFixtu
     }
 
     "return a 400 with an invalid form" in new Setup {
-      when(mockCompanyRegistrationConnector.fetchCompanyName(any())(any())).thenReturn(Future.successful("foo"))
+      when(mockCompanyRegistrationConnector.fetchCompanyName(any())(any(), any())).thenReturn(Future.successful("foo"))
       CTRegistrationConnectorMocks.retrieveCTRegistration()
       when(mockKeystoreConnector.fetchAndGet[String](any())(any(), any()))
         .thenReturn(Future.successful(Some("test")))

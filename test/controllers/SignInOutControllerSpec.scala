@@ -103,13 +103,13 @@ class SignInOutControllerSpec extends SCRSSpec
       when(mockEnrolmentsService.hasBannedRegimes(ArgumentMatchers.any()))
         .thenReturn(Future.successful(false))
 
-      when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(ArgumentMatchers.any()))
+      when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(FootprintFound(expected)))
 
       when(mockEmailService.checkEmailStatus(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(VerifiedEmail()))
 
-      when(mockCompanyRegistrationConnector.fetchRegistrationStatus(ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockCompanyRegistrationConnector.fetchRegistrationStatus(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(None))
 
       when(mockHandOffService.cacheRegistrationID(ArgumentMatchers.eq(registrationID))(ArgumentMatchers.any()))
@@ -161,10 +161,10 @@ class SignInOutControllerSpec extends SCRSSpec
     "return a 303 if accessing with authorisation for an existing journey" in new Setup {
       val expected = ThrottleResponse("12345", false, false, false, Some(Email("email", "GG", false, false, false)))
 
-      when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(ArgumentMatchers.any()))
+      when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(FootprintFound(expected)))
 
-      when(mockCompanyRegistrationConnector.fetchRegistrationStatus(ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockCompanyRegistrationConnector.fetchRegistrationStatus(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(None))
 
       when(mockHandOffService.cacheRegistrationID(ArgumentMatchers.eq(registrationID))(ArgumentMatchers.any()))
@@ -186,10 +186,10 @@ class SignInOutControllerSpec extends SCRSSpec
 
       val expected = ThrottleResponse("12345", false, false, false, registrationProgress = Some(HO5))
 
-      when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(ArgumentMatchers.any()))
+      when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(FootprintFound(expected)))
 
-      when(mockCompanyRegistrationConnector.fetchRegistrationStatus(ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockCompanyRegistrationConnector.fetchRegistrationStatus(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(None))
 
       when(mockHandOffService.cacheRegistrationID(ArgumentMatchers.eq(registrationID))(ArgumentMatchers.any()))
@@ -212,10 +212,10 @@ class SignInOutControllerSpec extends SCRSSpec
 
       val expected = ThrottleResponse("12345", false, true, false, registrationProgress = Some(HO5))
 
-      when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(ArgumentMatchers.any()))
+      when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(FootprintFound(expected)))
 
-      when(mockCompanyRegistrationConnector.fetchRegistrationStatus(ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockCompanyRegistrationConnector.fetchRegistrationStatus(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some("locked")))
 
       when(mockHandOffService.cacheRegistrationID(ArgumentMatchers.eq(registrationID))(ArgumentMatchers.any()))
@@ -234,10 +234,10 @@ class SignInOutControllerSpec extends SCRSSpec
 
       val expected = ThrottleResponse("12345", false, true, false, registrationProgress = Some(HO5))
 
-      when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(ArgumentMatchers.any()))
+      when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(FootprintFound(expected)))
 
-      when(mockCompanyRegistrationConnector.fetchRegistrationStatus(ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockCompanyRegistrationConnector.fetchRegistrationStatus(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some("held")))
 
       when(mockHandOffService.cacheRegistrationID(ArgumentMatchers.eq(registrationID))(ArgumentMatchers.any()))
@@ -253,10 +253,10 @@ class SignInOutControllerSpec extends SCRSSpec
     "return a 303 if accessing with authorisation for a complete journey" in new Setup {
       val expected = ThrottleResponse("12345", false, true, true)
 
-      when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(ArgumentMatchers.any()))
+      when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(FootprintFound(expected)))
 
-      when(mockCompanyRegistrationConnector.fetchRegistrationStatus(ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockCompanyRegistrationConnector.fetchRegistrationStatus(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some("held")))
 
       when(mockHandOffService.cacheRegistrationID(ArgumentMatchers.eq(registrationID))(ArgumentMatchers.any()))
@@ -275,13 +275,13 @@ class SignInOutControllerSpec extends SCRSSpec
       when(mockEnrolmentsService.hasBannedRegimes(ArgumentMatchers.any()))
         .thenReturn(Future.successful(true))
 
-      when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(ArgumentMatchers.any()))
+      when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(FootprintFound(expected)))
 
       when(mockEmailService.checkEmailStatus(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(VerifiedEmail()))
 
-      when(mockCompanyRegistrationConnector.fetchRegistrationStatus(ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockCompanyRegistrationConnector.fetchRegistrationStatus(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(None))
 
       when(mockHandOffService.cacheRegistrationID(ArgumentMatchers.eq(registrationID))(ArgumentMatchers.any()))
@@ -295,7 +295,7 @@ class SignInOutControllerSpec extends SCRSSpec
     }
 
     "handle the too many requests case appropriately" in new Setup {
-      when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(ArgumentMatchers.any()))
+      when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(FootprintTooManyRequestsResponse))
 
       showWithAuthorisedUserRetrieval(controller.postSignIn(None), authDetails) {
@@ -307,7 +307,7 @@ class SignInOutControllerSpec extends SCRSSpec
       when(mockEnrolmentsService.hasBannedRegimes(ArgumentMatchers.any()))
         .thenReturn(Future.successful(false))
 
-      when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(ArgumentMatchers.any()))
+      when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(FootprintForbiddenResponse))
 
       showWithAuthorisedUserRetrieval(controller.postSignIn(None), authDetails) {
@@ -319,7 +319,7 @@ class SignInOutControllerSpec extends SCRSSpec
       when(mockEnrolmentsService.hasBannedRegimes(ArgumentMatchers.any()))
         .thenReturn(Future.successful(false))
 
-      when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(ArgumentMatchers.any()))
+      when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(FootprintErrorResponse(new Exception("Stuff happened"))))
 
       showWithAuthorisedUserRetrieval(controller.postSignIn(None), authDetails) {

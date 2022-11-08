@@ -236,22 +236,22 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
     val dateAsJson = Json.toJson(date)
 
     "return a correct IncorpAndCTDashboard when the status is held" in new Setup {
-      when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(eqTo(regId))(any())).thenReturn(Future.successful(ctRegJson("held")))
-      when(mockCompanyRegistrationConnector.fetchHeldSubmissionTime(eqTo(regId))(any())).thenReturn(Future.successful(Some(dateAsJson)))
+      when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(eqTo(regId))(any(), any())).thenReturn(Future.successful(ctRegJson("held")))
+      when(mockCompanyRegistrationConnector.fetchHeldSubmissionTime(eqTo(regId))(any(), any())).thenReturn(Future.successful(Some(dateAsJson)))
 
       val res = await(service.buildIncorpCTDashComponent(regId, noEnrolments))
       res mustBe IncorpAndCTDashboard("held", Some("10 October 2017"), Some(transId), Some(payRef), None, None, Some(ackRef), None, None)
     }
     "return a correct IncorpAndCTDashboard when the status is locked" in new Setup {
-      when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(eqTo(regId))(any())).thenReturn(Future.successful(ctRegJson("locked")))
-      when(mockCompanyRegistrationConnector.fetchHeldSubmissionTime(eqTo(regId))(any())).thenReturn(Future.successful(None))
+      when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(eqTo(regId))(any(), any())).thenReturn(Future.successful(ctRegJson("locked")))
+      when(mockCompanyRegistrationConnector.fetchHeldSubmissionTime(eqTo(regId))(any(), any())).thenReturn(Future.successful(None))
 
       val res = await(service.buildIncorpCTDashComponent(regId, noEnrolments))
       res mustBe IncorpAndCTDashboard("locked", None, Some(transId), Some(payRef), None, None, Some(ackRef), None, None)
     }
 
     "return a correct IncorpAndCTDashboard when the status is submitted" in new Setup {
-      when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(eqTo(regId))(any()))
+      when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(eqTo(regId))(any(), any()))
         .thenReturn(Future.successful(ctRegJson("submitted")))
 
       val res = await(service.buildIncorpCTDashComponent(regId, noEnrolments))
@@ -259,7 +259,7 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
     }
 
     "return a correct IncorpAndCTDashboard when the status is acknowledged and enrolment has no CTUTR" in new Setup {
-      when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(eqTo(regId))(any())).thenReturn(Future.successful(ctRegJson("acknowledged")))
+      when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(eqTo(regId))(any(), any())).thenReturn(Future.successful(ctRegJson("acknowledged")))
 
       val res = await(service.buildIncorpCTDashComponent(regId, noEnrolments))
       res mustBe IncorpAndCTDashboard("acknowledged", None, Some(transId), Some(payRef), None, None, Some(ackRef), Some("04"), None)
@@ -268,21 +268,21 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
     def acknowledgedDashboard(ctutr: Option[String]) = IncorpAndCTDashboard("acknowledged", None, Some(transId), Some(payRef), None, None, Some(ackRef), Some("04"), ctutr)
 
     "return a correct IncorpAndCTDashboard when the status is acknowledged with a matching CTUTR on enrolment" in new Setup {
-      when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(eqTo(regId))(any())).thenReturn(Future.successful(ctRegJson("acknowledged")))
+      when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(eqTo(regId))(any(), any())).thenReturn(Future.successful(ctRegJson("acknowledged")))
 
       val res = await(service.buildIncorpCTDashComponent(regId, ctEnrolment("CTUTR", active = true)))
       res mustBe acknowledgedDashboard(Some("CTUTR"))
     }
 
     "return a correct IncorpAndCTDashboard when the status is acknowledged but there is an inactive enrolment" in new Setup {
-      when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(eqTo(regId))(any())).thenReturn(Future.successful(ctRegJson("acknowledged")))
+      when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(eqTo(regId))(any(), any())).thenReturn(Future.successful(ctRegJson("acknowledged")))
 
       val res = await(service.buildIncorpCTDashComponent(regId, ctEnrolment("CTUTR", active = false)))
       res mustBe acknowledgedDashboard(None)
     }
 
     "ignore UTR in IncorpAndCTDashboard when the status is acknowledged and our CTUTR doesn't match an active enrolment" in new Setup {
-      when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(eqTo(regId))(any())).thenReturn(Future.successful(ctRegJson("acknowledged")))
+      when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(eqTo(regId))(any(), any())).thenReturn(Future.successful(ctRegJson("acknowledged")))
 
       val res = await(service.buildIncorpCTDashComponent(regId, ctEnrolment("mismatched UTR", active = true)))
       res mustBe acknowledgedDashboard(None)
@@ -373,7 +373,7 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
     val companyName = "testCompanyName"
 
     "return the company name returned from incorporation information" in new Setup {
-      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(eqTo(regId))(any()))
+      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(eqTo(regId))(any(), any()))
         .thenReturn(Future.successful(ConfirmationReferencesSuccessResponse(confRefs)))
       when(mockIncorpInfoConnector.getCompanyName(eqTo(transId))(any())).thenReturn(Future.successful(companyName))
 
@@ -383,7 +383,7 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
     }
 
     "throw a ComfirmationRefsNotFoundException when confirmation refs cannot be retrieved" in new Setup {
-      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(eqTo(regId))(any()))
+      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(eqTo(regId))(any(), any()))
         .thenReturn(Future.successful(ConfirmationReferencesErrorResponse))
       intercept[ConfirmationRefsNotFoundException](await(service.getCompanyName(regId)))
     }
@@ -397,7 +397,7 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
       val date = LocalDate.parse("2017-10-10")
       val dateAsJson = Json.toJson(date)
 
-      when(mockCompanyRegistrationConnector.fetchHeldSubmissionTime(eqTo(regId))(any()))
+      when(mockCompanyRegistrationConnector.fetchHeldSubmissionTime(eqTo(regId))(any(), any()))
         .thenReturn(Future.successful(Some(dateAsJson)))
 
       val result = await(service.buildHeld(regId, ctRegJson("held")))
@@ -407,7 +407,7 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
       val expected = IncorpAndCTDashboard("locked", None, Some(transId),
         Some(payRef), None, None, Some(ackRef), None, None)
 
-      when(mockCompanyRegistrationConnector.fetchHeldSubmissionTime(eqTo(regId))(any()))
+      when(mockCompanyRegistrationConnector.fetchHeldSubmissionTime(eqTo(regId))(any(), any()))
         .thenReturn(Future.successful(None))
 
       val result = await(service.buildHeld(regId, ctRegJson("locked")))
@@ -448,7 +448,7 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
         (ArgumentMatchers.any(),ArgumentMatchers.any(),ArgumentMatchers.any()))
           .thenReturn(Future.successful(Success))
 
-        when(mockCompanyRegistrationConnector.retrieveEmail(any())(any()))
+        when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any()))
           .thenReturn(Future.successful(Some(email)))
 
         when(mockKeystoreConnector.cache(eqTo("emailMismatchAudit"), any())(any(), any()))
@@ -465,7 +465,7 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
         when(mockKeystoreConnector.fetchAndGet(eqTo("emailMismatchAudit"))(any(), any()))
           .thenReturn(Future.successful(None))
 
-        when(mockCompanyRegistrationConnector.retrieveEmail(any())(any()))
+        when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any()))
           .thenReturn(Future.successful(Some(email.copy(address = matchingEmail))))
 
         when(mockKeystoreConnector.cache(eqTo("emailMismatchAudit"), any())(any(), any()))
@@ -480,7 +480,7 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
         when(mockKeystoreConnector.fetchAndGet(eqTo("emailMismatchAudit"))(any(), any()))
           .thenReturn(Future.successful(None))
 
-        when(mockCompanyRegistrationConnector.retrieveEmail(any())(any()))
+        when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any()))
           .thenReturn(Future.successful(None))
 
         await(service.checkForEmailMismatch(regId, authDetails)) mustBe false
