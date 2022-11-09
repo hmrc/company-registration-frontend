@@ -75,10 +75,7 @@ class GroupController @Inject()(val authConnector: PlayAuthConnector,
           navModel <- handOffService.fetchNavModel()
           backPayload <- handOffService.buildBackHandOff(externalID, handOffUtils.getCurrentLang(request))
         } yield {
-          logger.info(s"Decrypted backPayload in GroupController ${backPayload}")
           val payload = jwe.encrypt[BackHandoff](backPayload).getOrElse("")
-          logger.info(s"Encrypted backPayload in GroupController ${payload}")
-          logger.info(s"Handoff URL back to CH in GroupController ${handOffService.buildHandOffUrl(s"${navModel.receiver.nav("3-1").reverse}", payload)}")
           Redirect(handOffService.buildHandOffUrl(s"${navModel.receiver.nav("3-1").reverse}", payload))
         }) recover {
           case ex: NavModelNotFoundException => Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))
