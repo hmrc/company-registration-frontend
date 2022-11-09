@@ -27,7 +27,7 @@ hmrcLayout: HmrcLayout,
 standardBetaBanner: StandardBetaBanner
 )
 
-@(pageTitle: Option[String] = None, beforeContentBlock: Option[Html] = None, backLink: Boolean = true, signOutLink: Boolean = true, timeout: Boolean = true)(contentBlock: Html)(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
+@(pageTitle: Option[String] = None, beforeContentBlock: Option[Html] = None, backLink: Boolean = true, signOutLink: Boolean = true, timeout: Boolean = true, backlinkUrl: String = "#")(contentBlock: Html)(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
 @head = {
 <!--[if lte IE 8]><link href=' @controllers.routes.Assets.at("stylesheets/application-ie-8.css")' rel="stylesheet" type="text/css" /><![endif]-->
@@ -71,7 +71,7 @@ standardBetaBanner: StandardBetaBanner
     signOutUrl = if (signOutLink) Some(controllers.reg.routes.SignInOutController.signOut().url) else None,
     serviceUrl = Some("/register-your-company"),
     phaseBanner = Some(standardBetaBanner(url = appConfig.betaFeedbackUrl)),
-    backLinkUrl = if (backLink) Some("#") else None,
+    backLinkUrl = if (backLink) Some(backlinkUrl) else None,
     displayHmrcBanner = false,
     accessibilityStatementUrl = Some(appConfig.accessibilityStatementUrl),
     nonce = CSPNonce.get,

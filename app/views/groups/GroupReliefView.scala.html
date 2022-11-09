@@ -28,7 +28,7 @@
 
 @(groupRelief: Form[Boolean], companyName: String)(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
-@layout(Some(title(groupRelief, messages("page.groups.groupRelief.title", companyName)))) {
+@layout(Some(title(groupRelief, messages("page.groups.groupRelief.title", companyName))), backlinkUrl = controllers.handoff.routes.GroupController.back.url) {
 
     @errorSummary(groupRelief.errors)
 
