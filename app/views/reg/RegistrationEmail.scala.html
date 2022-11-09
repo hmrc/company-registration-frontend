@@ -14,10 +14,11 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
+@import uk.gov.hmrc.govukfrontend.views.Aliases.{Label, Text}
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
-@import uk.gov.hmrc.govukfrontend.views.Aliases.Text
+@import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
 @import views.ViewUtils._
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 
 @this(layout: templates.layout,
         errorSummary: components.errorSummary,
@@ -26,6 +27,7 @@
         h1: components.h1,
         p: components.p,
         button: components.button,
+        span: components.span,
         formWithCSRF: FormWithCSRF)
 
 @(registrationEmail: Form[RegistrationEmailModel], email: String)(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
@@ -60,8 +62,11 @@
                 items = Seq(
                     RadioItem(
                         id = Some("registrationEmail"),
-                        content = Text(messages("page.reg.registrationEmail.radio1", email)),
                         value = Some("currentEmail"),
+                        content = HtmlContent(span(
+                            msg = messages("page.reg.registrationEmail.radio1", email),
+                            optClasses = Some("word-wrap")
+                        )),
                         checked = registrationEmail("registrationEmail").value.contains("currentEmail")
                     ),
                     RadioItem(

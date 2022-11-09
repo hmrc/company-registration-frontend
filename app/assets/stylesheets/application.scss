@@ -20,3 +20,12 @@ $hmrc-assets-path: "/register-your-company/assets/lib/hmrc-frontend/hmrc/";
     width: 80%;
   }
 }
+
+/*
+  This was raised by DAC, it's used on the play back of the email address. Force wrapping to break anywhere otherwise
+  it overflows out of the display port and on 400% zoom using a11y tools it would be cut-off. DAC preferred this approach
+  to wrap at anypoint onto the next line so the full email is visible to the User.
+ */
+.word-wrap {
+  overflow-wrap: anywhere;
+}
