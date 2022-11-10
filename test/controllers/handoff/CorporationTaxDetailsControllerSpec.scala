@@ -26,6 +26,7 @@ import models.handoff.CompanyNameHandOffIncoming
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.i18n.Lang
 import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.Helpers._
@@ -34,7 +35,7 @@ import utils.{DecryptionError, JweCommon, PayloadError}
 import views.html.error_template_restart
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
 class CorporationTaxDetailsControllerSpec extends SCRSSpec with PayloadFixture with LoginFixture with GuiceOneAppPerSuite with AuthBuilder {
@@ -53,7 +54,8 @@ class CorporationTaxDetailsControllerSpec extends SCRSSpec with PayloadFixture w
       mockCompanyRegistrationConnector,
       mockHandBackService,
       mockMcc,
-      errorTemplateRestartPage
+      errorTemplateRestartPage,
+      mockLanguageService
     )(
       mockAppConfig,global
     )
@@ -109,10 +111,12 @@ class CorporationTaxDetailsControllerSpec extends SCRSSpec with PayloadFixture w
       }
     }
 
-    "return a SEE_OTHER if submitting with request data and with authorisation" in new Setup {
+    "return a SEE_OTHER if submitting with request data and with authorisation (updating the stored language in CompReg BE)" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("1"))
       when(mockHandBackService.processCompanyDetailsHandBack(ArgumentMatchers.eq(payloadEncrypted.get))(ArgumentMatchers.any[HeaderCarrier]))
         .thenReturn(Future.successful(Success(handBackPayload)))
+      when(mockLanguageService.updateLanguage(ArgumentMatchers.eq("1"), ArgumentMatchers.eq(Lang(LangConstants.english)))(ArgumentMatchers.any[HeaderCarrier], ArgumentMatchers.any[ExecutionContext]))
+        .thenReturn(Future.successful(true))
 
       showWithAuthorisedUser(testController.corporationTaxDetails(payloadEncrypted.get)) {
         result =>

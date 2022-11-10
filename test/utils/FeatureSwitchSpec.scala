@@ -17,11 +17,11 @@
 package utils
 
 import java.time.Instant
-
 import helpers.SCRSSpec
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 class FeatureSwitchSpec extends SCRSSpec with MockitoSugar {
 
@@ -38,6 +38,7 @@ class FeatureSwitchSpec extends SCRSSpec with MockitoSugar {
 
   class SetupForFeatureManager {
     val fMan = new FeatureSwitchManager {
+      override val config: ServicesConfig = mockServicesConfig
     }
   }
 
@@ -50,7 +51,7 @@ class FeatureSwitchSpec extends SCRSSpec with MockitoSugar {
     }
 
     "create an instance of BooleanFeatureSwitch which inherits FeatureSwitch" in new SetupForFeatureManager {
-
+      when(mockServicesConfig.getString("feature.test")).thenThrow(new RuntimeException("NotFound"))
       fMan.apply("test") mustBe a[BooleanFeatureSwitch]
     }
 
@@ -92,6 +93,7 @@ class FeatureSwitchSpec extends SCRSSpec with MockitoSugar {
   "unapply" should {
 
     "deconstruct a given FeatureSwitch into it's name and a false enabled value if undefined as a system property" in new SetupForFeatureManager {
+      when(mockServicesConfig.getString("feature.test")).thenThrow(new RuntimeException("NotFound"))
       val fs = fMan("test")
 
       fMan.unapply(fs) mustBe Some("test" -> false)
@@ -121,8 +123,18 @@ class FeatureSwitchSpec extends SCRSSpec with MockitoSugar {
 
   "getProperty" should {
 
-    "return a disabled feature switch if the system property is undefined" in new SetupForFeatureManager {
+    "return a disabled feature switch if the system property is undefined AND no app-config entry is defined" in new SetupForFeatureManager {
+
+      when(mockServicesConfig.getString("feature.test")).thenThrow(new RuntimeException("NotFound"))
+
       fMan.getProperty("test") mustBe BooleanFeatureSwitch("test", enabled = false)
+    }
+
+    "return an enabled feature switch if the system property is undefined BUT app-config entry is defined and set to true" in new SetupForFeatureManager {
+
+      when(mockServicesConfig.getString("feature.test")).thenReturn("true")
+
+      fMan.getProperty("test") mustBe BooleanFeatureSwitch("test", enabled = true)
     }
 
     "return an enabled feature switch if the system property is defined as 'true'" in new SetupForFeatureManager {
@@ -168,6 +180,8 @@ class FeatureSwitchSpec extends SCRSSpec with MockitoSugar {
 
   "enable" should {
     "set the value for the supplied key to 'true'" in new SetupForFeatureManager {
+
+      when(mockServicesConfig.getString("feature.test")).thenThrow(new RuntimeException("NotFound"))
       val fs = fMan("test")
       System.setProperty("feature.test", "false")
 
@@ -177,6 +191,8 @@ class FeatureSwitchSpec extends SCRSSpec with MockitoSugar {
 
   "disable" should {
     "set the value for the supplied key to 'false'" in new SetupForFeatureManager {
+
+      when(mockServicesConfig.getString("feature.test")).thenThrow(new RuntimeException("NotFound"))
       val fs = fMan("test")
       System.setProperty("feature.test", "true")
 
@@ -185,6 +201,7 @@ class FeatureSwitchSpec extends SCRSSpec with MockitoSugar {
   }
 
   "dynamic toggling should be supported" in new SetupForFeatureManager {
+    when(mockServicesConfig.getString("feature.test")).thenThrow(new RuntimeException("NotFound"))
     val fs = fMan("test")
 
     fMan.disable(fs).enabled mustBe false
@@ -261,6 +278,7 @@ class FeatureSwitchSpec extends SCRSSpec with MockitoSugar {
 
   class Setup {
     val fMan = new FeatureSwitchManager {
+      override val config: ServicesConfig = mockServicesConfig
     }
     System.setProperty("feature.sausages", "")
     val scrsFeatureSwitch = new SCRSFeatureSwitches {

@@ -17,7 +17,7 @@
 package controllers.handoff
 
 import builders.AuthBuilder
-import config.AppConfig
+import config.{AppConfig, LangConstants}
 import controllers.reg.ControllerErrorHandler
 import fixtures.PayloadFixture
 import helpers.SCRSSpec
@@ -26,6 +26,7 @@ import models.handoff.CompanyNameHandOffIncoming
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.i18n.Lang
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.Helpers._
@@ -35,7 +36,7 @@ import utils.{DecryptionError, JweCommon, PayloadError}
 import views.html.{error_template, error_template_restart}
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
 class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture with GuiceOneAppPerSuite with AuthBuilder {
@@ -58,7 +59,8 @@ class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture wit
       mockControllerErrorHandler,
       errorTemplatePage,
       errorTemplateRestartPage,
-      app.injector.instanceOf[HandOffUtils]
+      app.injector.instanceOf[HandOffUtils],
+      mockLanguageService
     )(
       appConfig,
       global
@@ -144,19 +146,21 @@ class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture wit
 
   "returnToAboutYou" should {
     val payload = Json.obj(
-      "user_id" -> Json.toJson("testUserID"),
-      "journey_id" -> Json.toJson("testJourneyID"),
+      "user_id" -> "testUserID",
+      "journey_id" -> "testJourneyID",
       "hmrc" -> Json.obj(),
       "ch" -> Json.obj(),
-      "language" -> Json.toJson("language"),
+      "language" -> LangConstants.welsh,
       "links" -> Json.obj()
     )
 
-    "return a 303 when hand back service decrypts the reverse hand off payload successfully" in new Setup {
+    "return a 303 when hand back service decrypts the reverse hand off payload successfully (updating the stored language in CompReg BE)" in new Setup {
       val encryptedPayload = jweInstance().encrypt[JsValue](payload).get
       mockKeystoreFetchAndGet("registrationID", Some("1"))
       when(mockHandBackService.processCompanyNameReverseHandBack(ArgumentMatchers.eq(encryptedPayload))(ArgumentMatchers.any[HeaderCarrier]))
         .thenReturn(Future.successful(Success(payload)))
+      when(mockLanguageService.updateLanguage(ArgumentMatchers.eq("1"), ArgumentMatchers.eq(Lang(LangConstants.welsh)))(ArgumentMatchers.any[HeaderCarrier], ArgumentMatchers.any[ExecutionContext]))
+        .thenReturn(Future.successful(true))
 
       showWithAuthorisedUser(testController.returnToAboutYou(encryptedPayload)) {
         result =>

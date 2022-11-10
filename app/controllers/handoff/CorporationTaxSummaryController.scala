@@ -24,37 +24,43 @@ import javax.inject.Inject
 import utils.Logging
 import play.api.i18n.{I18nSupport, Lang}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.{HandBackService, HandOffService, NavModelNotFoundException}
+import services.{HandBackService, HandOffService, LanguageService, NavModelNotFoundException}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import utils.{DecryptionError, PayloadError, SessionRegistration}
 import views.html.error_template_restart
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
 class CorporationTaxSummaryController @Inject()(val authConnector: PlayAuthConnector,
-                                                    val keystoreConnector: KeystoreConnector,
-                                                    val handOffService: HandOffService,
-                                                    val compRegConnector: CompanyRegistrationConnector,
-                                                    val handBackService: HandBackService,
-                                                    val controllerComponents: MessagesControllerComponents,
-                                                    error_template_restart: error_template_restart)
-                                                   (implicit val appConfig: AppConfig, implicit val ec: ExecutionContext)
+                                                val keystoreConnector: KeystoreConnector,
+                                                val handOffService: HandOffService,
+                                                val compRegConnector: CompanyRegistrationConnector,
+                                                val handBackService: HandBackService,
+                                                val controllerComponents: MessagesControllerComponents,
+                                                error_template_restart: error_template_restart,
+                                                languageService: LanguageService)
+                                               (implicit val appConfig: AppConfig, implicit val ec: ExecutionContext)
   extends AuthenticatedController with I18nSupport with SessionRegistration with Logging {
 
   //HO4
   def corporationTaxSummary(requestData: String): Action[AnyContent] = Action.async {
     implicit _request =>
       ctAuthorisedHandoff("HO4", requestData) {
-        registeredHandOff("HO4", requestData) { _ =>
-          handBackService.processSummaryPage1HandBack(requestData).map {
-            case Success(payload) => Redirect(controllers.reg.routes.SummaryController.show).withLang(Lang(payload.language))
-            case Failure(PayloadError) => BadRequest(error_template_restart("4", "PayloadError"))
-            case Failure(DecryptionError) => BadRequest(error_template_restart("4", "DecryptionError"))
-            case unknown => {
+        registeredHandOff("HO4", requestData) { regId =>
+          handBackService.processSummaryPage1HandBack(requestData).flatMap {
+            case Success(payload) =>
+              val lang = Lang(payload.language)
+              languageService.updateLanguage(regId, lang).map { _ =>
+                Redirect(controllers.reg.routes.SummaryController.show).withLang(lang)
+              }
+            case Failure(PayloadError) =>
+              Future.successful(BadRequest(error_template_restart("4", "PayloadError")))
+            case Failure(DecryptionError) =>
+              Future.successful(BadRequest(error_template_restart("4", "DecryptionError")))
+            case unknown =>
               logger.warn(s"[corporationTaxSummary][HO4] Unexpected result, sending to post-sign-in : ${unknown}")
-              Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))
-            }
+              Future.successful(Redirect(controllers.reg.routes.SignInOutController.postSignIn(None)))
           } recover {
             case ex: NavModelNotFoundException => Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))
           }

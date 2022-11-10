@@ -25,6 +25,7 @@ import models.handoff.{NavLinks, SummaryPage1HandOffIncoming}
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.i18n.Lang
 import play.api.libs.json.Json
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.Helpers._
@@ -33,7 +34,7 @@ import utils.{DecryptionError, JweCommon, PayloadError}
 import views.html.{error_template, error_template_restart}
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
 class CorporationTaxSummaryControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPerSuite with AuthBuilder {
@@ -53,7 +54,8 @@ class CorporationTaxSummaryControllerSpec extends SCRSSpec with LoginFixture wit
       mockCompanyRegistrationConnector,
       mockHandBackService,
       mockMcc,
-      errorTemplateRestartPage
+      errorTemplateRestartPage,
+      mockLanguageService
     )(
       mockAppConfig,global
     )
@@ -115,6 +117,8 @@ class CorporationTaxSummaryControllerSpec extends SCRSSpec with LoginFixture wit
 
       when(mockHandBackService.processSummaryPage1HandBack(ArgumentMatchers.eq(encryptedPayload))(ArgumentMatchers.any[HeaderCarrier]))
         .thenReturn(Future.successful(Success(handBackPayload)))
+      when(mockLanguageService.updateLanguage(ArgumentMatchers.eq("1"), ArgumentMatchers.eq(Lang(LangConstants.english)))(ArgumentMatchers.any[HeaderCarrier], ArgumentMatchers.any[ExecutionContext]))
+        .thenReturn(Future.successful(true))
 
       showWithAuthorisedUser(testController.corporationTaxSummary(encryptedPayload)) {
         result =>

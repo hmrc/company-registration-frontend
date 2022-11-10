@@ -16,7 +16,7 @@
 
 package controllers.handoff
 
-import config.{AppConfig}
+import config.AppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthenticatedController
 import controllers.reg.ControllerErrorHandler
@@ -25,8 +25,9 @@ import javax.inject.Inject
 import models.Groups
 import models.handoff.{BackHandoff, GroupHandBackModel}
 import play.api.i18n.{I18nSupport, Lang}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import services.{GroupService, HandBackService, HandOffService, NavModelNotFoundException}
+import play.api.libs.json.JsValue
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, MessagesRequest, Result}
+import services.{GroupService, HandBackService, HandOffService, LanguageService, NavModelNotFoundException}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.http.HeaderCarrier
@@ -46,7 +47,8 @@ class GroupController @Inject()(val authConnector: PlayAuthConnector,
                                 val controllerComponents: MessagesControllerComponents,
                                 val controllerErrorHandler: ControllerErrorHandler,
                                 handOffUtils: HandOffUtils,
-                                error_template_restart: error_template_restart
+                                error_template_restart: error_template_restart,
+                                languageService: LanguageService
                                )(implicit val appConfig: AppConfig, implicit val ec: ExecutionContext)
   extends AuthenticatedController with I18nSupport with SessionRegistration {
 
@@ -56,17 +58,33 @@ class GroupController @Inject()(val authConnector: PlayAuthConnector,
       ctAuthorisedHandoff("HO3-1", requestData) {
         registeredHandOff("HO3-1", requestData) { regID =>
           handBackService.processGroupsHandBack(requestData).flatMap {
-            case Success(GroupHandBackModel(_, _, _, _, lang, _ , Some(true))) =>
-              pscHandOffToGroupsIfDataInTxApi(regID, lang)
-            case payload@Success(GroupHandBackModel(_, _, _, _, lang, _ , Some(false))) =>
-              groupService.dropGroups(regID).map { _ =>
-                Redirect(controllers.handoff.routes.GroupController.PSCGroupHandOff).withLang(Lang(lang))
-              }
-            case _ => Future.successful(BadRequest(error_template_restart("3-1", "PayloadError")))
+            case Success(GroupHandBackModel(_, _, _, _, lang, _ , Some(hasShareholders))) =>
+              if (hasShareholders) pscHandOffToGroupsIfDataInTxApi(regID, lang) else pscHandOffToGroups(regID, lang)
+            case _ =>
+              Future.successful(BadRequest(error_template_restart("3-1", "PayloadError")))
           }
         }
       }
   }
+
+  private[controllers] def pscHandOffToGroups(regID: String, updatedLanguage: String)(implicit hc: HeaderCarrier): Future[Result] =
+    for {
+      _ <- groupService.dropGroups(regID)
+      lang = Lang(updatedLanguage)
+      _ <- languageService.updateLanguage(regID, lang)
+    } yield Redirect(controllers.handoff.routes.GroupController.PSCGroupHandOff).withLang(lang)
+
+  private[controllers] def pscHandOffToGroupsIfDataInTxApi(regID: String, updatedLanguage: String)(implicit hc: HeaderCarrier): Future[Result] =
+    for {
+      txId <- groupService.fetchTxID(regID)
+      eitherShareholders <- groupService.returnListOfShareholders(txId)
+      shareholders <- groupService.dropOldGroups(eitherShareholders, regID)
+      lang = Lang(updatedLanguage)
+      _ <- languageService.updateLanguage(regID, lang)
+    } yield shareholders match {
+      case Nil => Redirect(controllers.handoff.routes.GroupController.PSCGroupHandOff).withLang(lang)
+      case _ => Redirect(controllers.groups.routes.GroupReliefController.show).withLang(lang)
+    }
 
   def back: Action[AnyContent] = Action.async {
     implicit request =>
@@ -81,17 +99,6 @@ class GroupController @Inject()(val authConnector: PlayAuthConnector,
           case ex: NavModelNotFoundException => Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))
         }
       }
-  }
-
-  private[controllers] def pscHandOffToGroupsIfDataInTxApi(regID: String, updatedLanguage: String)(implicit hc: HeaderCarrier): Future[Result] = {
-    groupService.fetchTxID(regID).flatMap { txId =>
-      groupService.returnListOfShareholders(txId).flatMap { eitherShareholders =>
-        groupService.dropOldGroups(eitherShareholders, regID)
-      }
-    }.flatMap {
-      case Nil => Future.successful(Redirect(controllers.handoff.routes.GroupController.PSCGroupHandOff).withLang(Lang(updatedLanguage)))
-      case _ => Future.successful(Redirect(controllers.groups.routes.GroupReliefController.show).withLang(Lang(updatedLanguage)))
-    }
   }
 
   // 3.2 hand off
@@ -114,28 +121,30 @@ class GroupController @Inject()(val authConnector: PlayAuthConnector,
   // 3b-1 hand back, back link from Coho
   def pSCGroupHandBack(request: String): Action[AnyContent] = Action.async {
     implicit _request =>
-      def groupsRedirect(handbackLanguage: Lang) = (optGroups: Option[Groups]) => {
-        optGroups.fold(Redirect(controllers.reg.routes.SignInOutController.postSignIn())) { groupsExist =>
-          if (!groupsExist.groupRelief) {
-            Redirect(controllers.groups.routes.GroupReliefController.show).withLang(handbackLanguage)
-          } else {
-            Redirect(controllers.groups.routes.GroupUtrController.show).withLang(handbackLanguage)
-          }
-        }
-      }
       ctAuthorisedHandoff("HO3b-1", request) {
         registeredHandOff("HO3b-1", request) { regID =>
           handBackService.processGroupsHandBck(request).flatMap {
-            case Success(payload) => {
-              groupService.retrieveGroups(regID).map(
-              groupsRedirect(handOffUtils.readLang(_request, payload))
-              )
-            }
+            case Success(payload) => pSCGroupHandBackSuccessRedirect(regID, payload)
             case Failure(PayloadError) => Future.successful(BadRequest(error_template_restart("3b-1", "PayloadError")))
             case Failure(DecryptionError) => Future.successful(BadRequest(error_template_restart("3b-1", "DecryptionError")))
             case _ => Future.successful(InternalServerError(controllerErrorHandler.defaultErrorPage))
           }
         }
       }
+  }
+
+  private[controllers] def pSCGroupHandBackSuccessRedirect(regId: String, payload: JsValue)(implicit hc: HeaderCarrier, request: MessagesRequest[AnyContent]): Future[Result] = {
+    val lang = handOffUtils.readLang(payload)
+    for {
+      _ <- languageService.updateLanguage(regId, lang)
+      optGroups <- groupService.retrieveGroups(regId)
+    } yield optGroups match {
+      case Some(groups) if groups.groupRelief =>
+        Redirect(controllers.groups.routes.GroupUtrController.show).withLang(lang)
+      case Some(_) =>
+        Redirect(controllers.groups.routes.GroupReliefController.show).withLang(lang)
+      case None =>
+        Redirect(controllers.reg.routes.SignInOutController.postSignIn())
+    }
   }
 }

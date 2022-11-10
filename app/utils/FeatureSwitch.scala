@@ -16,12 +16,14 @@
 
 package utils
 
-import javax.inject.Inject
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 import java.time._
+import javax.inject.Inject
+import scala.util.Try
 
 
-sealed trait FeatureSwitch extends FeatureSwitchManager {
+sealed trait FeatureSwitch {
   def name: String
   def enabled: Boolean
   def value: String
@@ -50,15 +52,18 @@ case class ValueSetFeatureSwitch(name: String, setValue: String) extends Feature
   override def value   = setValue
 }
 
-class FeatureSwitchManagerImpl @Inject()() extends FeatureSwitchManager
+class FeatureSwitchManagerImpl @Inject()(val config: ServicesConfig) extends FeatureSwitchManager
 
 trait FeatureSwitchManager {
+
+  val config: ServicesConfig
 
   val DatesIntervalExtractor = """(\S+)_(\S+)""".r
   val UNSPECIFIED            = "X"
 
   private[utils] def getProperty(name: String): FeatureSwitch = {
-    val value = sys.props.get(systemPropertyName(name))
+
+    val value = sys.props.get(systemPropertyName(name)).fold(Try(config.getString(systemPropertyName(name))).toOption)(Some(_))
 
     value match {
       case Some("true")                                                => BooleanFeatureSwitch(name, enabled = true)

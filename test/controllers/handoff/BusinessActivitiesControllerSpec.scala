@@ -17,7 +17,7 @@
 package controllers.handoff
 
 import builders.AuthBuilder
-import config.AppConfig
+import config.{AppConfig, LangConstants}
 import controllers.reg.ControllerErrorHandler
 import fixtures.{LoginFixture, PayloadFixture}
 import helpers.SCRSSpec
@@ -25,6 +25,7 @@ import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.{eq => eqTo}
 import org.mockito.Mockito._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.i18n.Lang
 import play.api.libs.json.Json
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.Helpers._
@@ -34,7 +35,7 @@ import utils.{DecryptionError, JweCommon, PayloadError}
 import views.html.{error_template, error_template_restart}
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
 class BusinessActivitiesControllerSpec extends SCRSSpec with PayloadFixture with LoginFixture with GuiceOneAppPerSuite with AuthBuilder {
@@ -56,7 +57,8 @@ class BusinessActivitiesControllerSpec extends SCRSSpec with PayloadFixture with
       mockControllerErrorHandler,
       app.injector.instanceOf[HandOffUtils],
       errorTemplatePage,
-      errorTemplateRestartPage
+      errorTemplateRestartPage,
+      mockLanguageService
     )(
       mockAppConfig,
       global
@@ -154,11 +156,13 @@ class BusinessActivitiesControllerSpec extends SCRSSpec with PayloadFixture with
       }
     }
 
-    "return a 303 if submitting with request data and with authorisation" in new Setup {
+    "return a 303 if submitting with request data and with authorisation (updating the stored language in CompReg BE)" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
       val payload = validEncryptedBusinessActivities(jweInstance())
       when(mockHandBackService.processBusinessActivitiesHandBack(eqTo(payload))(ArgumentMatchers.any[HeaderCarrier]))
         .thenReturn(Future.successful(Success(Json.toJson(validBusinessActivitiesPayload))))
+      when(mockLanguageService.updateLanguage(ArgumentMatchers.eq("12345"), ArgumentMatchers.eq(Lang(LangConstants.english)))(ArgumentMatchers.any[HeaderCarrier], ArgumentMatchers.any[ExecutionContext]))
+        .thenReturn(Future.successful(true))
 
       showWithAuthorisedUser(controller.businessActivitiesBack(payload)) {
         result =>

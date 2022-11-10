@@ -1,3 +1,5 @@
+GET        /hmrc-frontend/language/:lang            controllers.LanguageSwitchController.setLanguage(lang: String)
+
 ->         /hmrc-frontend                           hmrcfrontend.Routes
 
 GET        /assets/*file                            controllers.Assets.at(path="/public", file)

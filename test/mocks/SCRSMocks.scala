@@ -30,6 +30,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.cache.client.{CacheMap, SessionCache}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.model.Audit
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import utils.{BooleanFeatureSwitch, FeatureSwitchManager, JweCommon, SCRSFeatureSwitches}
 
 import scala.concurrent.Future
@@ -72,6 +73,8 @@ trait SCRSMocks extends CompanyContactDetailsServiceMock
   lazy val mockConfiguration = mock[Configuration]
   lazy val mockTimeService = mock[TimeService]
   lazy val mockGroupService = mock[GroupService]
+  lazy val mockLanguageService = mock[LanguageService]
+  lazy val mockServicesConfig = mock[ServicesConfig]
 
 
   def mockFetchRegistrationID[T <: CommonService](response: String, mock: T) = {
@@ -115,5 +118,7 @@ trait SCRSMocks extends CompanyContactDetailsServiceMock
     reset(mockTimeService)
     reset(mockMetricsService)
     reset(mockGroupService)
+    reset(mockLanguageService)
+    reset(mockServicesConfig)
   }
 }

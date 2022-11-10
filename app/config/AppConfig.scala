@@ -128,7 +128,10 @@ class AppConfig @Inject()(val servicesConfig: ServicesConfig, featureSwitch: SCR
 
   def languageMap: Map[String, Lang] = Map(
     "english" -> Lang("en"),
-    "cymraeg" -> Lang("cy"))
+    "cymraeg" -> Lang("cy"),
+    "en" -> Lang("en"),
+    "cy" -> Lang("cy")
+  )
 
   lazy val feedbackFrontendUrl = loadConfig("microservice.services.feedback-frontend.host")
   lazy val betaFeedbackUrl = s"$feedbackFrontendUrl/feedback/$contactFormServiceIdentifier"
