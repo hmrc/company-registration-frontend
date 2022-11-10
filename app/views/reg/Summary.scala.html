@@ -39,7 +39,7 @@
 }
 
 
-@layout(pageTitle = Some(titleNoForm(messages("page.reg.summary.description")))){
+@layout(pageTitle = Some(titleNoForm(messages("page.reg.summary.description"))), backlinkUrl = controllers.reg.routes.SummaryController.back.url){
 
     @h1(messages("page.reg.summary.description"))
 
