@@ -49,24 +49,26 @@
 
         @h1(messages("page.groups.groupName.heading"))
 
-        @inputRadio(
-            form = shareholdersForm,
-            fieldName = "groupName",
-            legend = messages("page.groups.groupName.heading"),
-            items = (shareholderNames ++ List(messages("page.groups.groupName.somethingElse"))).zipWithIndex.map { case (name, idx) =>
-                RadioItem(
-                    content = HtmlContent(name.capitalize),
-                    value = if(name == "Something else") { Some("otherName") } else Some(s"$name"),
-                    checked = shareholdersForm(s"groupName").value.contains(if(name == "Something else") { "otherName" } else s"$name"),
-                    id = if(name == "Something else"){ Some(s"otherNameOption") } else Some(s"groupName-$idx"),
-                    conditionalHtml = if(name == "Something else") { Some(otherHidden) } else None
-                )
-            },
-            legendAsHeading = false,
-            classes = "govuk-visually-hidden"
-        )
+        @defining(messages("page.groups.groupName.somethingElse")) { somethingElseText =>
+            @inputRadio(
+                form = shareholdersForm,
+                fieldName = "groupName",
+                legend = messages("page.groups.groupName.heading"),
+                items = (shareholderNames ++ List(somethingElseText)).zipWithIndex.map { case (name, idx) =>
+                    RadioItem(
+                        content = HtmlContent(name.capitalize),
+                        value = if(name == somethingElseText) Some("otherName") else Some(s"$name"),
+                        checked = shareholdersForm(s"groupName").value.contains(if(name == somethingElseText) "otherName" else s"$name"),
+                        id = if(name == somethingElseText) Some(s"otherNameOption") else Some(s"groupName-$idx"),
+                        conditionalHtml = if(name == somethingElseText) Some(otherHidden) else None
+                    )
+                },
+                legendAsHeading = false,
+                classes = "govuk-visually-hidden"
+            )
 
-        @button("common.button.snc")
+            @button("common.button.snc")
+        }
     }
 
 }
