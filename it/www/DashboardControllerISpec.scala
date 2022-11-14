@@ -16,14 +16,14 @@
 
 package www
 
-import java.util.UUID
-
 import com.github.tomakehurst.wiremock.client.WireMock._
 import itutil.{IntegrationSpecBase, LoginStub}
-import java.time.LocalDate
 import org.jsoup.Jsoup
 import play.api.http.HeaderNames
 import play.api.libs.crypto.DefaultCookieSigner
+
+import java.time.LocalDate
+import java.util.UUID
 
 class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
 
@@ -41,6 +41,32 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
        |   "lastUpdate": "$timestamp",
        |   "cancelURL": "testCancelURL/$regId/del"
        |}""".stripMargin
+
+  val companyProfileExpectedResponse =
+    s"""
+                        {"company_type":"ltd",
+                        "type":"ltd",
+                        "registered_office_address":{
+                        "country":"United Kingdom",
+                        "address_line_2":"foo2",
+                        "premises":"98",
+                        "postal_code":"post1",
+                        "address_line_1":"lim1",
+                        "locality":"WORTHING"},
+                        "company_name":"MOOO LIMITED",
+                        "company_number":"crn1",
+                        "sic_codes":[{"sic_code":"84240","sic_description":""},{"sic_code":"01410","sic_description":""}],
+                        "company_status":"foo"}
+    """.stripMargin
+
+  val confirmationReferencesExpectedResponse =
+    s"""  {
+       |        "acknowledgement-reference" : "ABCD00000000001",
+       |        "transaction-id" : "txid-1",
+       |        "payment-reference" : "PAY_REF-123456789",
+       |        "payment-amount" : "12"
+       |    }""".stripMargin
+
 
   val emailResult = """{ "address": "a@a.a", "type": "GG", "link-sent": true, "verified": false , "return-link-email-sent" : false}"""
 
@@ -194,6 +220,8 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
       stubVATThresholdAmount(LocalDate.now())
 
       stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR("held", regId))
+      stubGet(s"/incorporation-information/txid-1/company-profile", 200, companyProfileExpectedResponse)
+      stubGet(s"/company-registration/corporation-tax-registration/$regId/confirmation-references", 200, confirmationReferencesExpectedResponse)
       stubGet(s"/company-registration/corporation-tax-registration/$regId/fetch-held-time", 200, "1504774767050")
       stubGet(s"/company-registration/corporation-tax-registration/$regId/retrieve-email", 200, emailResult)
       stubGet(s"/paye-registration/$regId/status", 200, payeRejected)
@@ -230,6 +258,8 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
       setupSimpleAuthWithEnrolmentsMocks(enrolmentsURI)
       stubVATThresholdAmount(LocalDate.now())
       stubKeystoreDashboardMismatchedResult(SessionId, regId, "|||fake|||email", true)
+      stubGet(s"/incorporation-information/txid-1/company-profile", 200, companyProfileExpectedResponse)
+      stubGet(s"/company-registration/corporation-tax-registration/$regId/confirmation-references", 200, confirmationReferencesExpectedResponse)
       stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR("held", regId))
       stubGet(s"/company-registration/corporation-tax-registration/$regId/fetch-held-time", 200, "1504774767050")
       stubGet(s"/company-registration/corporation-tax-registration/$regId/retrieve-email", 200, emailResult)
@@ -258,6 +288,8 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
       stubKeystoreDashboard(SessionId, regId, "|||fake|||email")
       stubKeystoreCache(SessionId, "emailMismatchAudit")
 
+      stubGet(s"/incorporation-information/txid-1/company-profile", 200, companyProfileExpectedResponse)
+      stubGet(s"/company-registration/corporation-tax-registration/$regId/confirmation-references", 200, confirmationReferencesExpectedResponse)
       stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR("submitted", regId))
       stubGet(s"/company-registration/corporation-tax-registration/$regId/fetch-held-time", 200, "1504774767050")
       stubGet(s"/company-registration/corporation-tax-registration/$regId/retrieve-email", 200, emailResult)
@@ -309,6 +341,8 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
         stubKeystoreDashboard(SessionId, regId, "|||fake|||email")
         stubKeystoreCache(SessionId, "emailMismatchAudit")
 
+        stubGet(s"/incorporation-information/txid-1/company-profile", 200, companyProfileExpectedResponse)
+        stubGet(s"/company-registration/corporation-tax-registration/$regId/confirmation-references", 200, confirmationReferencesExpectedResponse)
         stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR("submitted", regId))
         stubGet(s"/company-registration/corporation-tax-registration/$regId/fetch-held-time", 200, "1504774767050")
         stubGet(s"/company-registration/corporation-tax-registration/$regId/retrieve-email", 200, emailResult)
@@ -333,6 +367,8 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
         stubKeystoreDashboard(SessionId, regId, "|||fake|||email")
         stubKeystoreCache(SessionId, "emailMismatchAudit")
 
+        stubGet(s"/incorporation-information/txid-1/company-profile", 200, companyProfileExpectedResponse)
+        stubGet(s"/company-registration/corporation-tax-registration/$regId/confirmation-references", 200, confirmationReferencesExpectedResponse)
         stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR("held", regId))
         stubGet(s"/company-registration/corporation-tax-registration/$regId/fetch-held-time", 200, "1504774767050")
         stubGet(s"/company-registration/corporation-tax-registration/$regId/retrieve-email", 200, emailResult)
@@ -357,6 +393,8 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
         stubKeystoreDashboard(SessionId, regId, "|||fake|||email")
         stubKeystoreCache(SessionId, "emailMismatchAudit")
 
+        stubGet(s"/incorporation-information/txid-1/company-profile", 200, companyProfileExpectedResponse)
+        stubGet(s"/company-registration/corporation-tax-registration/$regId/confirmation-references", 200, confirmationReferencesExpectedResponse)
         stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR("held", regId))
         stubGet(s"/company-registration/corporation-tax-registration/$regId/fetch-held-time", 200, "1504774767050")
         stubGet(s"/company-registration/corporation-tax-registration/$regId/retrieve-email", 200, emailResult)
@@ -384,6 +422,8 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
         stubKeystoreDashboard(SessionId, regId, "|||fake|||email")
         stubKeystoreCache(SessionId, "emailMismatchAudit")
 
+        stubGet(s"/incorporation-information/txid-1/company-profile", 200, companyProfileExpectedResponse)
+        stubGet(s"/company-registration/corporation-tax-registration/$regId/confirmation-references", 200, confirmationReferencesExpectedResponse)
         stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR("submitted", regId))
         stubGet(s"/company-registration/corporation-tax-registration/$regId/fetch-held-time", 200, "1504774767050")
         stubGet(s"/company-registration/corporation-tax-registration/$regId/retrieve-email", 200, emailResult)
@@ -409,6 +449,8 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
         stubKeystoreCache(SessionId, "emailMismatchAudit")
 
         stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR("submitted", regId))
+        stubGet(s"/incorporation-information/txid-1/company-profile", 200, companyProfileExpectedResponse)
+        stubGet(s"/company-registration/corporation-tax-registration/$regId/confirmation-references", 200, confirmationReferencesExpectedResponse)
         stubGet(s"/company-registration/corporation-tax-registration/$regId/fetch-held-time", 200, "1504774767050")
         stubGet(s"/company-registration/corporation-tax-registration/$regId/retrieve-email", 200, emailResult)
         stubGet(s"/paye-registration/$regId/status", 200, jsonOtherRegStatusDraft)

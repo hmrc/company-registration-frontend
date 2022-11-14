@@ -226,7 +226,7 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
 
       mockVatFeature(false)
       val res = await(service.buildDashboard(regId, vatEnrolment))
-      res mustBe DashboardBuilt(Dashboard("", heldDash, payeDash, vatDashOTRS, hasVATCred = true))
+      res mustBe DashboardBuilt(Dashboard("testCompanyName", heldDash, payeDash, vatDashOTRS, hasVATCred = true))
     }
   }
 
