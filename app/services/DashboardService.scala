@@ -154,7 +154,6 @@ trait DashboardService extends SCRSExceptions with AlertLogging with CommonServi
 
     thresholdService.getVatThreshold() match {
       case Some(vatThreshold) => {
-        println(vatThreshold.amount)
         if (featureFlag.vat.enabled) {
           statusToServiceDashboard(vatConnector.getStatus(regId), enrolments, List(appConfig.HMCE_VATDEC_ORG, appConfig.HMCE_VATVAR_ORG), Some(Map("yearly" -> vatThreshold.amount)))
         } else {
