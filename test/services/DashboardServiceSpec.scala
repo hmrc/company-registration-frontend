@@ -100,9 +100,13 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
       override val auditService = mockAuditService
 
 
-      override def buildIncorpCTDashComponent(regId: String, enrolments: Enrolments)(implicit hc: HeaderCarrier) = Future.successful(dash)
+      override def buildIncorpCTDashComponent(regId: String, enrolments: Enrolments)(implicit hc: HeaderCarrier): Future[IncorpAndCTDashboard]
+      = Future.successful(dash)
 
       override def getCompanyName(regId: String)(implicit hc: HeaderCarrier) = Future.successful("testCompanyName")
+
+      override def buildVATDashComponent(regId: String, enrolments: Enrolments)(implicit hc: HeaderCarrier): Future[ServiceDashboard]
+      = Future.successful(ServiceDashboard("notEnabled", None, None, ServiceLinks("test/vat-uri", "OTRS url", None, None), Some(vatThresholds)))
     }
   }
 

@@ -16,15 +16,20 @@
 
 package config
 
+import com.typesafe.config.{ConfigList, ConfigRenderOptions}
 import controllers.reg.routes
+import models.VatThreshold
+import play.api.Configuration
 import play.api.i18n.Lang
+import play.api.libs.json.Json
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import utils.SCRSFeatureSwitches
 
 import java.net.URLEncoder
+import java.time.LocalDate
 import javax.inject.Inject
 
-class AppConfig @Inject()(val servicesConfig: ServicesConfig, featureSwitch: SCRSFeatureSwitches) {
+class AppConfig @Inject()(val servicesConfig: ServicesConfig, featureSwitch: SCRSFeatureSwitches, configuration: Configuration) {
 
   private def loadConfig(key: String) = servicesConfig.getString(key)
 
@@ -116,6 +121,9 @@ class AppConfig @Inject()(val servicesConfig: ServicesConfig, featureSwitch: SCR
   lazy val companyRegistrationUrl: String = servicesConfig.baseUrl("company-registration")
 
   lazy val taxYearStartDate: String = servicesConfig.getString("tax-year-start-date")
+
+  lazy val thresholdString: String = configuration.get[ConfigList]("vat-threshold").render(ConfigRenderOptions.concise())
+  lazy val thresholds: Seq[VatThreshold] = Json.parse(thresholdString).as[List[VatThreshold]]
 
   lazy val vatThreshold: Int = servicesConfig.getInt("vat-threshold")
   lazy val currentPayeWeeklyThreshold: Int = servicesConfig.getInt("paye.weekly-threshold")
