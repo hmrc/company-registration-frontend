@@ -103,9 +103,6 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
       override def buildIncorpCTDashComponent(regId: String, enrolments: Enrolments)(implicit hc: HeaderCarrier) = Future.successful(dash)
 
       override def getCompanyName(regId: String)(implicit hc: HeaderCarrier) = Future.successful("testCompanyName")
-
-      override def getCurrentVatThreshold(implicit hc: HeaderCarrier) = ("85000")
-
     }
   }
 

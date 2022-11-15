@@ -18,7 +18,6 @@ package services
 
 import builders.AuthBuilder
 import config.AppConfig
-import connectors.VatThresholdConnector
 import helpers.SCRSSpec
 import mocks.ServiceConnectorMock
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -28,8 +27,6 @@ import java.time._
 
 
 class ThresholdServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthBuilder with GuiceOneAppPerSuite {
-
-  val mockVatThresholdConnector: VatThresholdConnector = mock[VatThresholdConnector]
 
   object TestAppConfig extends AppConfig(mock[ServicesConfig], mock[SCRSFeatureSwitches]) {
     override lazy val taxYearStartDate: String = LocalDate.now().toString
@@ -43,7 +40,7 @@ class ThresholdServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
 
   "fetchCurrentPayeThresholds" should {
     "return the old tax years thresholds if the date is before the tax year start date" in {
-      object TestService extends ThresholdService(mockVatThresholdConnector)(TestAppConfig) {
+      object TestService extends ThresholdService()(TestAppConfig) {
         override def now: LocalDate = LocalDate.now().minusDays(1)
       }
 
@@ -52,14 +49,14 @@ class ThresholdServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
     }
 
     "return the new tax years thresholds if the date is on the tax year start date" in {
-      object TestService extends ThresholdService(mockVatThresholdConnector)(TestAppConfig)
+      object TestService extends ThresholdService()(TestAppConfig)
 
       val result = TestService.fetchCurrentPayeThresholds()
       result mustBe Map("weekly" -> 10, "monthly" -> 20, "annually" -> 30)
     }
 
     "return the new tax years thresholds if the date is after the tax year start date" in {
-      object TestService extends ThresholdService(mockVatThresholdConnector)(TestAppConfig) {
+      object TestService extends ThresholdService()(TestAppConfig) {
         override def now: LocalDate = LocalDate.now().plusDays(1)
       }
 

@@ -154,20 +154,12 @@ trait DashboardService extends SCRSExceptions with AlertLogging with CommonServi
     implicit val startURL: String = s"$vatBaseUrl$vatUri"
     implicit val cancelURL: Call = controllers.dashboard.routes.CancelRegistrationController.showCancelVAT
 
-    getCurrentVatThreshold flatMap { threshold =>
-      Try(threshold.toInt) match {
-        case Success(intThreshold) => if (featureFlag.vat.enabled) {
-          statusToServiceDashboard(vatConnector.getStatus(regId), enrolments, List(appConfig.HMCE_VATDEC_ORG, appConfig.HMCE_VATVAR_ORG), Some(Map("yearly" -> intThreshold)))
+    if (featureFlag.vat.enabled) {
+          statusToServiceDashboard(vatConnector.getStatus(regId), enrolments, List(appConfig.HMCE_VATDEC_ORG, appConfig.HMCE_VATVAR_ORG), Some(Map("yearly" -> appConfig.vatThreshold)))
         } else {
-          Future.successful(toDashboard(OtherRegStatus(Statuses.NOT_ENABLED, None, None, None, None), Some(Map("yearly" -> intThreshold))))
+          Future.successful(toDashboard(OtherRegStatus(Statuses.NOT_ENABLED, None, None, None, None), Some(Map("yearly" -> appConfig.vatThreshold))))
         }
-        case Failure(ex) => throw new Exception(s"Value from Vat Reg Threshold not an int for regid: ${regId} Exception was $ex")
-      }
     }
-  }
-
-  private[services] def getCurrentVatThreshold(implicit hc: HeaderCarrier): Future[String] =
-    thresholdService.fetchCurrentVatThreshold
 
   private[services] def buildIncorpCTDashComponent(regId: String, enrolments: Enrolments)(implicit hc: HeaderCarrier): Future[IncorpAndCTDashboard] = {
     companyRegistrationConnector.retrieveCorporationTaxRegistration(regId) flatMap {

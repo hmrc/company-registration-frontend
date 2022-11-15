@@ -127,38 +127,6 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
     )
   }
 
-  def stubVATThresholdAmount(date: LocalDate) = {
-    val vatThresholdUrl = s"/vatreg/threshold/${date}"
-    stubFor(get(urlMatching(vatThresholdUrl))
-      .willReturn(
-        aResponse().
-          withStatus(200).
-          withBody(
-            s"""{
-               |"taxable-threshold": "85000",
-               |"since": "2017-04-01"
-               |}""".stripMargin
-          )
-      )
-    )
-  }
-
-  def stubIncorrectVATThresholdAmount(date: LocalDate) = {
-    val vatThresholdUrl = s"/vatreg/threshold/${date}"
-    stubFor(get(urlMatching(vatThresholdUrl))
-      .willReturn(
-        aResponse().
-          withStatus(200).
-          withBody(
-            s"""{
-               |"taxable-threshold": "85000pounds",
-               |"since": "2017-04-01"
-               |}""".stripMargin
-          )
-      )
-    )
-  }
-
 
   def stubKeystoreDashboardMismatchedResult(session: String, regId: String, email: String, mismatchResult: Boolean) = {
     val keystoreUrl = s"/keystore/company-registration-frontend/${session}"
@@ -217,7 +185,6 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
 
       stubKeystoreDashboard(SessionId, regId, "|||fake|||email")
       stubKeystoreCache(SessionId, "emailMismatchAudit")
-      stubVATThresholdAmount(LocalDate.now())
 
       stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR("held", regId))
       stubGet(s"/incorporation-information/txid-1/company-profile", 200, companyProfileExpectedResponse)
@@ -256,7 +223,6 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
 
       stubSuccessfulLogin(userId = userId)
       setupSimpleAuthWithEnrolmentsMocks(enrolmentsURI)
-      stubVATThresholdAmount(LocalDate.now())
       stubKeystoreDashboardMismatchedResult(SessionId, regId, "|||fake|||email", true)
       stubGet(s"/incorporation-information/txid-1/company-profile", 200, companyProfileExpectedResponse)
       stubGet(s"/company-registration/corporation-tax-registration/$regId/confirmation-references", 200, confirmationReferencesExpectedResponse)
@@ -284,7 +250,6 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
     "not display the VAT block when the vat feature switch is OFF" in {
       stubSuccessfulLogin(userId = userId)
       setupSimpleAuthWithEnrolmentsMocks(enrolmentsURI)
-      stubVATThresholdAmount(LocalDate.now())
       stubKeystoreDashboard(SessionId, regId, "|||fake|||email")
       stubKeystoreCache(SessionId, "emailMismatchAudit")
 
@@ -311,7 +276,6 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
     "not display the dashboard if we get a non int value for the threshold" in {
       stubSuccessfulLogin(userId = userId)
       setupSimpleAuthWithEnrolmentsMocks(enrolmentsURI)
-      stubIncorrectVATThresholdAmount(LocalDate.now())
       stubKeystoreDashboard(SessionId, regId, "|||fake|||email")
       stubKeystoreCache(SessionId, "emailMismatchAudit")
 
@@ -337,7 +301,6 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
 
         stubSuccessfulLogin(userId = userId)
         setupSimpleAuthWithEnrolmentsMocks(enrolmentsURI)
-        stubVATThresholdAmount(LocalDate.now())
         stubKeystoreDashboard(SessionId, regId, "|||fake|||email")
         stubKeystoreCache(SessionId, "emailMismatchAudit")
 
@@ -363,7 +326,6 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
 
         stubSuccessfulLogin(userId = userId)
         setupSimpleAuthWithEnrolmentsMocks(enrolmentsURI)
-        stubVATThresholdAmount(LocalDate.now())
         stubKeystoreDashboard(SessionId, regId, "|||fake|||email")
         stubKeystoreCache(SessionId, "emailMismatchAudit")
 
@@ -389,7 +351,6 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
 
         stubSuccessfulLogin(userId = userId)
         setupSimpleAuthWithEnrolmentsMocks(enrolmentsURI)
-        stubVATThresholdAmount(LocalDate.now())
         stubKeystoreDashboard(SessionId, regId, "|||fake|||email")
         stubKeystoreCache(SessionId, "emailMismatchAudit")
 
@@ -418,7 +379,6 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
 
         stubSuccessfulLogin(userId = userId)
         setupSimpleAuthWithEnrolmentsMocks(enrolmentsURI)
-        stubVATThresholdAmount(LocalDate.now())
         stubKeystoreDashboard(SessionId, regId, "|||fake|||email")
         stubKeystoreCache(SessionId, "emailMismatchAudit")
 
@@ -444,7 +404,6 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
 
         stubSuccessfulLogin(userId = userId)
         setupSimpleAuthWithEnrolmentsMocks(enrolmentsURI)
-        stubVATThresholdAmount(LocalDate.now())
         stubKeystoreDashboard(SessionId, regId, "|||fake|||email")
         stubKeystoreCache(SessionId, "emailMismatchAudit")
 

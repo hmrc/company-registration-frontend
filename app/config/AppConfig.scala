@@ -117,6 +117,7 @@ class AppConfig @Inject()(val servicesConfig: ServicesConfig, featureSwitch: SCR
 
   lazy val taxYearStartDate: String = servicesConfig.getString("tax-year-start-date")
 
+  lazy val vatThreshold: Int = servicesConfig.getInt("vat-threshold")
   lazy val currentPayeWeeklyThreshold: Int = servicesConfig.getInt("paye.weekly-threshold")
   lazy val currentPayeMonthlyThreshold: Int = servicesConfig.getInt("paye.monthly-threshold")
   lazy val currentPayeAnnualThreshold: Int = servicesConfig.getInt("paye.annual-threshold")
