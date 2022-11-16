@@ -17,21 +17,22 @@
 package services
 
 import config.AppConfig
+import models.VatThreshold
 
-import javax.inject.{Inject, Singleton}
-import connectors.VatThresholdConnector
-import uk.gov.hmrc.http.HeaderCarrier
 import java.time._
-
-import scala.concurrent.Future
+import javax.inject.{Inject, Singleton}
 
 @Singleton
-class ThresholdService @Inject()(vatThresholdConnector: VatThresholdConnector)
+class ThresholdService @Inject()()
                                 (implicit appConfig: AppConfig) {
 
   def now: LocalDate = LocalDate.now()
 
-  def fetchCurrentVatThreshold(implicit hc: HeaderCarrier): Future[String] = vatThresholdConnector.getVATThreshold(now)
+  def getVatThreshold(): Option[VatThreshold] = {
+    appConfig.thresholds
+      .sortWith(_.date isAfter _.date)
+      .find(model => now.isAfter(model.date) || now.isEqual(model.date))
+  }
 
   def fetchCurrentPayeThresholds(): Map[String, Int] = {
     val taxYearStartDate = LocalDate.parse(appConfig.taxYearStartDate)

@@ -16,12 +16,8 @@
 
 package services
 
-import java.time._
-import java.time.format.DateTimeFormatter
-
 import _root_.connectors._
 import config.AppConfig
-import javax.inject.Inject
 import models._
 import models.auth.AuthDetails
 import models.external.{OtherRegStatus, Statuses}
@@ -32,10 +28,12 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import utils._
 
+import java.time._
+import java.time.format.DateTimeFormatter
+import javax.inject.Inject
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.control.NoStackTrace
-import scala.util.{Failure, Success, Try}
 
 class DashboardServiceImpl @Inject()(val keystoreConnector: KeystoreConnector,
                                      val companyRegistrationConnector: CompanyRegistrationConnector,
@@ -154,20 +152,17 @@ trait DashboardService extends SCRSExceptions with AlertLogging with CommonServi
     implicit val startURL: String = s"$vatBaseUrl$vatUri"
     implicit val cancelURL: Call = controllers.dashboard.routes.CancelRegistrationController.showCancelVAT
 
-    getCurrentVatThreshold flatMap { threshold =>
-      Try(threshold.toInt) match {
-        case Success(intThreshold) => if (featureFlag.vat.enabled) {
-          statusToServiceDashboard(vatConnector.getStatus(regId), enrolments, List(appConfig.HMCE_VATDEC_ORG, appConfig.HMCE_VATVAR_ORG), Some(Map("yearly" -> intThreshold)))
+    thresholdService.getVatThreshold() match {
+      case Some(vatThreshold) => {
+        if (featureFlag.vat.enabled) {
+          statusToServiceDashboard(vatConnector.getStatus(regId), enrolments, List(appConfig.HMCE_VATDEC_ORG, appConfig.HMCE_VATVAR_ORG), Some(Map("yearly" -> vatThreshold.amount)))
         } else {
-          Future.successful(toDashboard(OtherRegStatus(Statuses.NOT_ENABLED, None, None, None, None), Some(Map("yearly" -> intThreshold))))
+          Future.successful(toDashboard(OtherRegStatus(Statuses.NOT_ENABLED, None, None, None, None), Some(Map("yearly" -> vatThreshold.amount))))
         }
-        case Failure(ex) => throw new Exception(s"Value from Vat Reg Threshold not an int for regid: ${regId} Exception was $ex")
       }
+      case _ => throw new Exception("[buildVATDashComponent] - Couldn't find Vat Threshold amount")
     }
   }
-
-  private[services] def getCurrentVatThreshold(implicit hc: HeaderCarrier): Future[String] =
-    thresholdService.fetchCurrentVatThreshold
 
   private[services] def buildIncorpCTDashComponent(regId: String, enrolments: Enrolments)(implicit hc: HeaderCarrier): Future[IncorpAndCTDashboard] = {
     companyRegistrationConnector.retrieveCorporationTaxRegistration(regId) flatMap {

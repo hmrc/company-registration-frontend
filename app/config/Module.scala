@@ -61,7 +61,6 @@ class Module extends AbstractModule {
     bind(classOf[SendTemplatedEmailConnector]).to(classOf[SendTemplatedEmailConnectorImpl]).asEagerSingleton()
     bind(classOf[PAYEConnector]).to(classOf[PAYEConnectorImpl]).asEagerSingleton()
     bind(classOf[VATConnector]).to(classOf[VATConnectorImpl]).asEagerSingleton()
-    bind(classOf[VatThresholdConnector]).to(classOf[VatThresholdConnectorImpl]).asEagerSingleton()
 
     bind(classOf[SCRSFeatureSwitches]).to(classOf[SCRSFeatureSwitchesImpl]).asEagerSingleton()
     bind(classOf[FeatureSwitchManager]).to(classOf[FeatureSwitchManagerImpl]).asEagerSingleton()
