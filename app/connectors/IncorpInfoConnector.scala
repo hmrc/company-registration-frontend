@@ -40,10 +40,7 @@ trait IncorpInfoConnector extends Logging {
   val metricsService: MetricsService
 
   def getCompanyName(transId: String)(implicit hc: HeaderCarrier): Future[String] = {
-    getCompanyProfile(transId).map(js => (js \ "company_name").as[String]) recover { case _ =>
-      logger.error(s"[getCompany Name] - Couldn't find company name")
-      ""
-    }
+    getCompanyProfile(transId).map(js => (js \ "company_name").as[String])
   }
 
   def getCompanyProfile(transId: String)(implicit hc: HeaderCarrier): Future[JsValue] = {

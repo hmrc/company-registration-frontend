@@ -110,12 +110,11 @@ trait DashboardService extends SCRSExceptions with AlertLogging with CommonServi
       payeDash <- buildPAYEDashComponent(regId, enrolments)
       hasVatCred = hasEnrolment(enrolments, List(appConfig.HMCE_VATDEC_ORG, appConfig.HMCE_VATVAR_ORG))
       vatDash <- buildVATDashComponent(regId, enrolments)
-      companyName <- getCompanyName(regId)
     } yield {
       incorpCTDash.status match {
         case "draft" => CouldNotBuild
         case "rejected" => RejectedIncorp
-        case _ => DashboardBuilt(Dashboard(companyName, incorpCTDash, payeDash, vatDash, hasVatCred, featureFlag.vat.enabled))
+        case _ => DashboardBuilt(Dashboard("", incorpCTDash, payeDash, vatDash, hasVatCred, featureFlag.vat.enabled)) //todo: leaving company name blank until story gets played to add it back
       }
     }
   }
