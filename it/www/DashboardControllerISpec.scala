@@ -42,6 +42,32 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
        |   "cancelURL": "testCancelURL/$regId/del"
        |}""".stripMargin
 
+  val companyProfileExpectedResponse =
+    s"""
+                        {"company_type":"ltd",
+                        "type":"ltd",
+                        "registered_office_address":{
+                        "country":"United Kingdom",
+                        "address_line_2":"foo2",
+                        "premises":"98",
+                        "postal_code":"post1",
+                        "address_line_1":"lim1",
+                        "locality":"WORTHING"},
+                        "company_name":"MOOO LIMITED",
+                        "company_number":"crn1",
+                        "sic_codes":[{"sic_code":"84240","sic_description":""},{"sic_code":"01410","sic_description":""}],
+                        "company_status":"foo"}
+    """.stripMargin
+
+  val confirmationReferencesExpectedResponse =
+    s"""  {
+       |        "acknowledgement-reference" : "ABCD00000000001",
+       |        "transaction-id" : "txid-1",
+       |        "payment-reference" : "PAY_REF-123456789",
+       |        "payment-amount" : "12"
+       |    }""".stripMargin
+
+
   val emailResult = """{ "address": "a@a.a", "type": "GG", "link-sent": true, "verified": false , "return-link-email-sent" : false}"""
 
   def statusResponseFromCR(status: String = "draft", rID: String = "5") =
@@ -159,7 +185,6 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
 
       stubKeystoreDashboard(SessionId, regId, "|||fake|||email")
       stubKeystoreCache(SessionId, "emailMismatchAudit")
-
       stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR("held", regId))
       stubGet(s"/company-registration/corporation-tax-registration/$regId/fetch-held-time", 200, "1504774767050")
       stubGet(s"/company-registration/corporation-tax-registration/$regId/retrieve-email", 200, emailResult)
@@ -238,28 +263,6 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
 
       val doc = Jsoup.parse(response.body)
       a[NullPointerException] mustBe thrownBy(doc.getElementById("vatThreshold").text)
-    }
-
-
-    "not display the dashboard if we get a non int value for the threshold" in {
-      stubSuccessfulLogin(userId = userId)
-      setupSimpleAuthWithEnrolmentsMocks(enrolmentsURI)
-      stubKeystoreDashboard(SessionId, regId, "|||fake|||email")
-      stubKeystoreCache(SessionId, "emailMismatchAudit")
-
-      stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR("submitted", regId))
-      stubGet(s"/company-registration/corporation-tax-registration/$regId/fetch-held-time", 200, "1504774767050")
-      stubGet(s"/company-registration/corporation-tax-registration/$regId/retrieve-email", 200, emailResult)
-      stubGet(s"/paye-registration/$regId/status", 200, jsonOtherRegStatusDraft)
-      stubGet(s"$enrolmentsURI", 200, """[]""")
-
-      val fResponse = buildClient("/company-registration-overview").
-        withHttpHeaders(HeaderNames.COOKIE -> getSessionCookie(userId = userId)).
-        get()
-
-      val response = await(fResponse)
-      response.status mustBe 500
-
     }
 
 
