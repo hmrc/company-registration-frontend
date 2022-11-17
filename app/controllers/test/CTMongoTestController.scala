@@ -21,6 +21,7 @@ import javax.inject.Inject
 import play.api.libs.json.JsValue
 import play.api.mvc.MessagesControllerComponents
 import uk.gov.hmrc.http.{HeaderCarrier, HttpGet}
+import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -37,7 +38,7 @@ abstract class CTMongoTestController(mcc: MessagesControllerComponents) extends 
 
   val wSHttp: HttpGet
   val ctUrl: String
-  implicit val ec: ExecutionContext = mcc.executionContext
+  implicit val ec: scala.concurrent.ExecutionContext = scala.concurrent.ExecutionContext.global
 
   def dropCollection = Action.async {
     implicit request =>
@@ -50,6 +51,6 @@ abstract class CTMongoTestController(mcc: MessagesControllerComponents) extends 
   }
 
   def dropCTCollection(implicit hc: HeaderCarrier): Future[JsValue] = {
-    wSHttp.GET[JsValue](s"$ctUrl/company-registration/test-only/drop-ct")
+    wSHttp.GET[JsValue](s"$ctUrl/company-registration/test-only/drop-ct")(readJsValue, hc, ec)
   }
 }

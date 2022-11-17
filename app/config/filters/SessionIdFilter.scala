@@ -17,14 +17,13 @@
 package config.filters
 
 import javax.inject.Inject
-
 import akka.stream.Materializer
 import utils.Logging
 import play.api.http.DefaultHttpFilters
 import play.api.mvc.Results.Redirect
 import play.api.mvc.{Filter, RequestHeader, Result}
+import uk.gov.hmrc.play.bootstrap.frontend.filters.FrontendFilters
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
-import uk.gov.hmrc.play.bootstrap.filters.FrontendFilters
 import utils.SCRSValidators.desSessionRegex
 
 import scala.concurrent.Future

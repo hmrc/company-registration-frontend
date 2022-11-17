@@ -17,13 +17,12 @@
 package connectors
 
 import config.{AppConfig, WSHttp}
-
-import javax.inject.{Inject, Singleton}
-import models.{CHROAddress, NewAddress, PPOBChoice}
-import utils.Logging
+import models.NewAddress
 import play.api.libs.json._
 import uk.gov.hmrc.http._
+import utils.Logging
 
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton

@@ -18,14 +18,14 @@ package connectors
 
 import javax.inject.Inject
 import config.{AppConfig, WSHttp}
+import connectors.httpParsers.AddressLookupHttpParsers._
 import models.EmailVerificationRequest
 import utils.Logging
 import play.api.http.Status._
 import play.api.libs.json.{JsObject, Json}
 import uk.gov.hmrc.http._
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NoStackTrace
 
 private[connectors] class EmailErrorResponse(s: String) extends NoStackTrace
@@ -44,7 +44,7 @@ trait EmailVerificationConnector extends HttpErrorFunctions with Logging {
     def read(http: String, url: String, res: HttpResponse) = customRead(http, url, res)
   }
 
-  def checkVerifiedEmail(email : String)(implicit hc : HeaderCarrier) : Future[Boolean] = {
+  def checkVerifiedEmail(email : String)(implicit hc : HeaderCarrier, ec: ExecutionContext) : Future[Boolean] = {
     def errorMsg(status: String) = {
       logger.debug(s"[checkVerifiedEmail] request to check verified email returned a $status - email not found / not verified")
       false
@@ -60,13 +60,13 @@ trait EmailVerificationConnector extends HttpErrorFunctions with Logging {
     }
   }
 
-  def requestVerificationEmailReturnVerifiedEmailStatus(emailRequest : EmailVerificationRequest)(implicit hc : HeaderCarrier) : Future[Boolean] = {
+  def requestVerificationEmailReturnVerifiedEmailStatus(emailRequest : EmailVerificationRequest)(implicit hc : HeaderCarrier, ec: ExecutionContext) : Future[Boolean] = {
     def errorMsg(status: String, ex: HttpException) = {
       logger.error(s"[requestVerificationEmail] request to send verification email returned a $status - email not sent - reason = ${ex.getMessage}")
       throw new EmailErrorResponse(status)
     }
 
-    wSHttp.POST[EmailVerificationRequest, HttpResponse] (s"$sendVerificationEmailURL", emailRequest) map { r =>
+    wSHttp.POST[EmailVerificationRequest, HttpResponse] (s"$sendVerificationEmailURL", emailRequest)(implicitly, rawReads, hc, ec) map { r =>
       r.status match {
         case CREATED => {
           logger.debug("[requestVerificationEmailReturnVerifiedEmailStatus] request to verification service successful")
@@ -84,13 +84,19 @@ trait EmailVerificationConnector extends HttpErrorFunctions with Logging {
     }
   }
 
-  private[connectors] def customRead(http: String, url: String, response: HttpResponse) =
+  private[connectors] def customRead(http: String, url: String, response: HttpResponse): HttpResponse = {
     response.status match {
-      case 400 => throw new BadRequestException("Provided incorrect data to Email Verification")
-      case 404 => throw new NotFoundException("Email not found")
-      case 409 => response
-      case 500 => throw new InternalServerException("Email service returned an error")
-      case 502 => throw new BadGatewayException("Email service returned an upstream error")
-      case _ => handleResponse(http, url)(response)
+      case BAD_REQUEST => throw new BadRequestException("Provided incorrect data to Email Verification")
+      case NOT_FOUND => throw new NotFoundException("Email not found")
+      case CONFLICT => response
+      case INTERNAL_SERVER_ERROR => throw new InternalServerException("Email service returned an error")
+      case BAD_GATEWAY => throw new BadGatewayException("Email service returned an upstream error")
+      case _ => handleResponseEither(http, url)(response) match {
+        case Left(upstreamErrorResponse) => {
+          throw new Exception(s"$http to $url failed with status ${upstreamErrorResponse.statusCode}. Response body: '${response.body}'")
+        }
+        case Right(response) => response
+      }
     }
+  }
 }

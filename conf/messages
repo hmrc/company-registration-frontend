@@ -1,7 +1,7 @@
 ## Global
 global.error.title                                                  = Sorry, we’re experiencing technical difficulties
 global.error.heading                                                = Sorry, we’re experiencing technical difficulties
-global.error.message                                                = You can try again by <a href={0}>restarting</a> your registration.
+global.error.message                                                = You can try again by <a href="{0}">restarting</a> your registration.
 
 service.name                                                    = Set up a limited company and register for Corporation Tax
 site.govuk                                                      = GOV.UK

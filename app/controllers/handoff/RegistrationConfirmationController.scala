@@ -19,9 +19,10 @@ package controllers.handoff
 import config.AppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthenticatedController
+import models.handoff.RegistrationConfirmationPayload
 
 import javax.inject.Inject
-import models.{ConfirmationReferencesSuccessResponse, DESFailureRetriable, RegistrationConfirmationPayload}
+import models.{ConfirmationReferencesSuccessResponse, DESFailureRetriable}
 import utils.Logging
 import play.api.i18n.{I18nSupport, Lang}
 import play.api.libs.json.JsValue

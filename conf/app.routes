@@ -41,7 +41,7 @@ GET        /resend-verification                     controllers.verification.Ema
 GET        /post-sign-in                            controllers.reg.SignInOutController.postSignIn(resend: Option[Boolean] ?= None, handOffID: Option[String] ?= None, payload: Option[String] ?= None)
 POST       /post-sign-in                            controllers.reg.SignInOutController.postSignIn(resend: Option[Boolean] ?= None, handOffID: Option[String] ?= None, payload: Option[String] ?= None)
 
-GET        /sign-out                                controllers.reg.SignInOutController.signOut(continueUrl: Option[ContinueUrl] ?= None)
+GET        /sign-out                                controllers.reg.SignInOutController.signOut(continueUrl: Option[uk.gov.hmrc.play.bootstrap.binders.RedirectUrl] ?= None)
 
 GET        /ticket-submitted                        controllers.reg.ConfirmationController.submittedTicket
 

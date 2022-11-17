@@ -24,6 +24,7 @@ import utils.Logging
 import play.api.libs.json._
 import services.MetricsService
 import uk.gov.hmrc.http.{CorePost, HeaderCarrier}
+import uk.gov.hmrc.http.HttpReads.Implicits._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future

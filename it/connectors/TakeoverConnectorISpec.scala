@@ -77,11 +77,6 @@ class TakeoverConnectorISpec extends IntegrationSpecBase with TakeoverStub {
       }
     }
     "throw an exception" when {
-      "company registration returns any other status" in {
-        stubPutTakeoverDetails(testRegistrationId, INTERNAL_SERVER_ERROR, testTakeoverDetails)
-
-        intercept[Exception](await(takeoverConnector.updateTakeoverDetails(testRegistrationId, testTakeoverDetails)))
-      }
       "company registration returns invalid JSON" in {
         stubPut(takeoverUrl(testRegistrationId), Json.toJson(testTakeoverDetails).toString)(OK, "{}")
 

@@ -29,6 +29,7 @@ class AddressLookupConnectorSpec extends SCRSSpec {
 
   trait Setup {
     val connector = new AddressLookupConnector {
+      override implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
       override val addressLookupFrontendURL = "testAddressLookupUrl"
       override val wSHttp = mockWSHttp
     }

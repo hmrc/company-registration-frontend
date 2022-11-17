@@ -33,7 +33,8 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import repositories.NavModelRepo
 import services._
 import uk.gov.hmrc.auth.core.PlayAuthConnector
-import uk.gov.hmrc.auth.core.retrieve.Retrievals
+import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
+import uk.gov.hmrc.http.HttpReads.Implicits
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads}
 import utils._
 import views.html.dashboard.{Dashboard => DashboardView}

@@ -22,7 +22,8 @@ import controllers.reg.ControllerErrorHandler
 import fixtures.{LoginFixture, PayloadFixture}
 import helpers.SCRSSpec
 import models.connectors.ConfirmationReferences
-import models.{ConfirmationReferencesSuccessResponse, DESFailureDeskpro, DESFailureRetriable, RegistrationConfirmationPayload}
+import models.handoff.RegistrationConfirmationPayload
+import models.{ConfirmationReferencesSuccessResponse, DESFailureDeskpro, DESFailureRetriable}
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite

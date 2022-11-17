@@ -23,6 +23,7 @@ import models.SendTemplatedEmailRequest
 import utils.Logging
 import play.api.http.Status._
 import uk.gov.hmrc.http._
+import uk.gov.hmrc.http.HttpReads.Implicits._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -66,6 +67,11 @@ trait SendTemplatedEmailConnector extends HttpErrorFunctions with Logging {
       case 409 => response
       case 500 => throw new InternalServerException("Email service returned an error")
       case 502 => throw new BadGatewayException("Email service returned an upstream error")
-      case _ => handleResponse(http, url)(response)
+      case _ => handleResponseEither(http, url)(response) match {
+        case Left(upstreamErrorResponse) => {
+          throw new Exception(s"$http to $url failed with status ${upstreamErrorResponse.statusCode}. Response body: '${response.body}'")
+        }
+        case Right(response) => response
+      }
     }
 }

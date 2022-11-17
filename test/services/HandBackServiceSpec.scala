@@ -20,8 +20,8 @@ import config.{AppConfig, LangConstants}
 import fixtures.{CompanyDetailsFixture, PayloadFixture, SubmissionFixture}
 import helpers.SCRSSpec
 import models.handoff._
-import models.{CompanyDetails, RegistrationConfirmationPayload}
 import org.mockito.ArgumentMatchers.any
+import models.CompanyDetails
 import org.mockito.Mockito._
 import org.mockito.{ArgumentCaptor, ArgumentMatchers}
 import play.api.libs.json.{JsValue, Json}

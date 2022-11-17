@@ -18,6 +18,7 @@ package services.internal
 
 import connectors.IncorpInfoConnector
 import helpers.UnitSpec
+import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
@@ -39,30 +40,30 @@ class TestIncorporationServiceSpec extends UnitSpec with MockitoSugar {
     val transId = "transactionID"
 
     "return exception if the incorporation update did not get injected correctly" in new Setup {
-      when(mockIncorpInfoConnector.injectTestIncorporationUpdate(eqTo(transId), eqTo(true))(any[HeaderCarrier]()))
+      when(mockIncorpInfoConnector.injectTestIncorporationUpdate(eqTo(transId), eqTo(true))(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.failed(new Exception("foo")))
 
-      when(mockIncorpInfoConnector.manuallyTriggerIncorporationUpdate(any[HeaderCarrier]()))
+      when(mockIncorpInfoConnector.manuallyTriggerIncorporationUpdate()(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(true))
 
       intercept[Exception](await(service.incorporateTransactionId(transId, isSuccess = true)))
     }
 
     "return false if the trigger was not fired correctly" in new Setup {
-      when(mockIncorpInfoConnector.injectTestIncorporationUpdate(eqTo(transId), eqTo(false))(any[HeaderCarrier]()))
+      when(mockIncorpInfoConnector.injectTestIncorporationUpdate(eqTo(transId), eqTo(false))(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(true))
 
-      when(mockIncorpInfoConnector.manuallyTriggerIncorporationUpdate(any[HeaderCarrier]()))
+      when(mockIncorpInfoConnector.manuallyTriggerIncorporationUpdate()(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.failed(new Exception("foo")))
 
       intercept[Exception](await(service.incorporateTransactionId(transId, isSuccess = false)))
     }
 
     "create an Incorporation Update and trigger a response from II" in new Setup {
-      when(mockIncorpInfoConnector.injectTestIncorporationUpdate(eqTo(transId), eqTo(false))(any[HeaderCarrier]()))
+      when(mockIncorpInfoConnector.injectTestIncorporationUpdate(eqTo(transId), eqTo(false))(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(true))
 
-      when(mockIncorpInfoConnector.manuallyTriggerIncorporationUpdate(any[HeaderCarrier]()))
+      when(mockIncorpInfoConnector.manuallyTriggerIncorporationUpdate()(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(true))
 
       await(service.incorporateTransactionId(transId, isSuccess = false)) mustBe true

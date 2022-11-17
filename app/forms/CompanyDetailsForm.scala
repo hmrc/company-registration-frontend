@@ -35,7 +35,7 @@ object CompanyDetailsForm {
         "region" -> optional(text)
       )(CHROAddress.apply)(CHROAddress.unapply),
       "pPOBAddress" -> mapping(
-        "type" -> default(text, "DEFAULT_SET_IN_FORM"),//todo - SCRS-3708: fix default
+        "type" -> default(text, "DEFAULT_SET_IN_FORM"),
         "address" -> optional(mapping(
         "houseNameNumber" -> optional(text),
         "addressLine1" -> text,

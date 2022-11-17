@@ -224,7 +224,7 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
     "return a DashboardBuilt DashboardStatus when the status of the registration is any other status" in new SetupWithDash(heldDash) {
       getStatusMock(regId)(SuccessfulResponse(payeStatus))
       when(mockThresholdService.fetchCurrentPayeThresholds()).thenReturn(Map("weekly" -> 120, "monthly" -> 520, "annually" -> 6240))
-      when(mockIncorpInfoConnector.getCompanyName(eqTo(transId))(any())).thenReturn(Future.successful("testCompanyName"))
+      when(mockIncorpInfoConnector.getCompanyName(eqTo(transId))(any(), any())).thenReturn(Future.successful("testCompanyName"))
 
       mockVatFeature(false)
       val res = await(service.buildDashboard(regId, vatEnrolment))
@@ -373,7 +373,7 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
     val companyName = "testCompanyName"
 
     "return the company name returned from incorporation information" in new Setup {
-      when(mockIncorpInfoConnector.getCompanyName(eqTo(transId))(any())).thenReturn(Future.successful(companyName))
+      when(mockIncorpInfoConnector.getCompanyName(eqTo(transId))(any(), any())).thenReturn(Future.successful(companyName))
 
       val res = await(service.getCompanyName(transId))
       res mustBe companyName
@@ -381,7 +381,7 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
     }
 
     "return an empty company name when no transId is given" in new Setup {
-      when(mockIncorpInfoConnector.getCompanyName(eqTo(""))(any())).thenReturn(Future.successful(""))
+      when(mockIncorpInfoConnector.getCompanyName(eqTo(""))(any(), any())).thenReturn(Future.successful(""))
       await(service.getCompanyName("")) mustBe ""
     }
   }
