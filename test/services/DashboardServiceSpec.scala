@@ -224,10 +224,11 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
     "return a DashboardBuilt DashboardStatus when the status of the registration is any other status" in new SetupWithDash(heldDash) {
       getStatusMock(regId)(SuccessfulResponse(payeStatus))
       when(mockThresholdService.fetchCurrentPayeThresholds()).thenReturn(Map("weekly" -> 120, "monthly" -> 520, "annually" -> 6240))
+      when(mockIncorpInfoConnector.getCompanyName(eqTo(transId))(any())).thenReturn(Future.successful("testCompanyName"))
 
       mockVatFeature(false)
       val res = await(service.buildDashboard(regId, vatEnrolment))
-      res mustBe DashboardBuilt(Dashboard("", heldDash, payeDash, vatDashOTRS, hasVATCred = true))
+      res mustBe DashboardBuilt(Dashboard("testCompanyName", heldDash, payeDash, vatDashOTRS, hasVATCred = true))
     }
   }
 
@@ -369,24 +370,19 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
   }
 
   "getCompanyName" should {
-
-    val confRefs = ConfirmationReferences(transId, Some(payRef), Some("12"), ackRef)
     val companyName = "testCompanyName"
 
     "return the company name returned from incorporation information" in new Setup {
-      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(eqTo(regId))(any(), any()))
-        .thenReturn(Future.successful(ConfirmationReferencesSuccessResponse(confRefs)))
       when(mockIncorpInfoConnector.getCompanyName(eqTo(transId))(any())).thenReturn(Future.successful(companyName))
 
-      val res = await(service.getCompanyName(regId))
+      val res = await(service.getCompanyName(transId))
       res mustBe companyName
 
     }
 
-    "throw a ComfirmationRefsNotFoundException when confirmation refs cannot be retrieved" in new Setup {
-      when(mockCompanyRegistrationConnector.fetchConfirmationReferences(eqTo(regId))(any(), any()))
-        .thenReturn(Future.successful(ConfirmationReferencesErrorResponse))
-      intercept[ConfirmationRefsNotFoundException](await(service.getCompanyName(regId)))
+    "return an empty company name when no transId is given" in new Setup {
+      when(mockIncorpInfoConnector.getCompanyName(eqTo(""))(any())).thenReturn(Future.successful(""))
+      await(service.getCompanyName("")) mustBe ""
     }
   }
 

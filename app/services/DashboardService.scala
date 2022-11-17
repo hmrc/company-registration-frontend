@@ -110,11 +110,12 @@ trait DashboardService extends SCRSExceptions with AlertLogging with CommonServi
       payeDash <- buildPAYEDashComponent(regId, enrolments)
       hasVatCred = hasEnrolment(enrolments, List(appConfig.HMCE_VATDEC_ORG, appConfig.HMCE_VATVAR_ORG))
       vatDash <- buildVATDashComponent(regId, enrolments)
+      companyName <- getCompanyName(incorpCTDash.transId.getOrElse(""))
     } yield {
       incorpCTDash.status match {
         case "draft" => CouldNotBuild
         case "rejected" => RejectedIncorp
-        case _ => DashboardBuilt(Dashboard("", incorpCTDash, payeDash, vatDash, hasVatCred, featureFlag.vat.enabled)) //todo: leaving company name blank until story gets played to add it back
+        case _ => DashboardBuilt(Dashboard(companyName, incorpCTDash, payeDash, vatDash, hasVatCred, featureFlag.vat.enabled))
       }
     }
   }
@@ -174,13 +175,8 @@ trait DashboardService extends SCRSExceptions with AlertLogging with CommonServi
     }
   }
 
-  private[services] def getCompanyName(regId: String)(implicit hc: HeaderCarrier): Future[String] = {
+  private[services] def getCompanyName(transId: String)(implicit hc: HeaderCarrier): Future[String] = {
     for {
-      confRefs <- companyRegistrationConnector.fetchConfirmationReferences(regId) map {
-        case ConfirmationReferencesSuccessResponse(refs) => refs
-        case _ => throw new ConfirmationRefsNotFoundException
-      }
-      transId = confRefs.transactionId
       companyName <- incorpInfoConnector.getCompanyName(transId)
     } yield companyName
   }
