@@ -31,6 +31,7 @@
         h1: components.h1,
         h2: components.h2,
         p: components.p,
+        headingWithCaption: components.headingWithCaption,
         govukTable : GovukTable,
         registrationActions: displayRegistrationActions,
         registrationStatus: displayRegistrationStatus,
@@ -186,9 +187,7 @@
 
 @layout(pageTitle = Some(titleNoForm(messages("page.reg.Dashboard.description")))) {
 
-    @h1(messages("page.reg.Dashboard.description"))
-
-    @dash.companyName
+    @headingWithCaption(messages("page.reg.Dashboard.description"), dash.companyName)
 
             @if(dash.incDash.status == "held" || dash.incDash.status == "locked") {
                 @govukTable(Table(
