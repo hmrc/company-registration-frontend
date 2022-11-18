@@ -21,12 +21,11 @@ import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthenticatedController
 import javax.inject.{Inject, Singleton}
 import play.api.i18n.I18nSupport
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{MessagesControllerComponents}
 import services.DeleteSubmissionService
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import utils.SessionRegistration
 import views.html.reg.{RegistrationUnsuccessful => RegistrationUnsuccessfulView}
-import views.html.errors.{incorporationRejected => IncorporationRejectedView}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -36,11 +35,8 @@ class RegistrationUnsuccessfulController @Inject()(val authConnector: PlayAuthCo
                                                    val compRegConnector: CompanyRegistrationConnector,
                                                    val deleteSubService: DeleteSubmissionService,
                                                    val controllerComponents: MessagesControllerComponents,
-                                                   viewRegistrationUnsuccessful: RegistrationUnsuccessfulView,
-                                                   viewincorporationRejectedView: IncorporationRejectedView)
+                                                   viewRegistrationUnsuccessful: RegistrationUnsuccessfulView)
                                                   (implicit val appConfig: AppConfig, implicit val ec: ExecutionContext) extends AuthenticatedController with SessionRegistration with I18nSupport {
-
-  lazy val registerCompanyGOVUKLink = appConfig.servicesConfig.getConfString("gov-uk.register-your-company", throw new Exception("Could not find config for key: gov-uk.register-your-company"))
 
   def show = Action.async { implicit request =>
     ctAuthorised {
@@ -59,30 +55,5 @@ class RegistrationUnsuccessfulController @Inject()(val authConnector: PlayAuthCo
         }
       }
     }
-  }
-
-  def rejectionShow: Action[AnyContent] = Action.async {
-    implicit request =>
-      ctAuthorised {
-        Future.successful(Ok(viewincorporationRejectedView()))
-      }
-  }
-
-  def rejectionSubmit: Action[AnyContent] = Action.async {
-    implicit request =>
-      ctAuthorised {
-        registered { regId =>
-          deleteSubService.deleteSubmission(regId) flatMap {
-            if (_) {
-              keystoreConnector.remove() map {
-                _ => Redirect(registerCompanyGOVUKLink)
-              }
-            }
-            else {
-              Future.successful(InternalServerError)
-            }
-          }
-        }
-      }
   }
 }

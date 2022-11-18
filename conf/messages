@@ -426,17 +426,6 @@ errorPages.deskproSubmitted.description                             = Thank you
 errorPages.deskproSubmitted.p1                                      = Your submission has been received.
 errorPages.deskproSubmitted.p2                                      = We’ll be in touch as soon as we can to help you complete your application.
 
-## Incorporation Rejected
-errorPages.incorporationRejected.title                              = Sorry, you can’t continue
-errorPages.incorporationRejected.header                             = Sorry, you can’t continue
-errorPages.incorporationRejected.para1                              = We’ve just found out from Companies House that they haven’t been able to set up the company. This means you can’t continue with this service.
-errorPages.incorporationRejected.header2                            = What happens next?
-errorPages.incorporationRejected.para2                              = We’ll send you an email with the reason why and will refund any payments you made within 24 hours. This can take up to 4 days to show on your bank statement.
-errorPages.incorporationRejected.para3                              = For security, any details you’ve entered will be deleted.
-errorPages.incorporationRejected.para4                              = If you still want to set up a limited company, you’ll need to start the registration process again using the link on the <a href="{0}">Register a company</a>
-errorPages.incorporationRejected.link                               = https://www.gov.uk/limited-company-formation/register-your-company
-errorPages.incorporationRejected.para4.1                            = GOV.UK page.
-
 ## TakeoverInformationNeeded
 errorPages.takeoverInformationNeeded.title                          = We need some additional information
 errorPages.takeoverInformationNeeded.header                         = We need some additional information
