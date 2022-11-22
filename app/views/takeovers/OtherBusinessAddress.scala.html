@@ -57,8 +57,8 @@
                 case ((address), idx) =>
                     RadioItem(
                         content = HtmlContent(address.toString),
-                        value = if(address == "A different address") { Some("Other") } else {Some(idx.toString)},
-                        checked = otherBusinessAddressForm(s"otherBusinessAddress").value.contains(if(address == "A different address") { Some("Other").toString } else { idx.toString}),
+                        value = if(address == messages("common.differentAddress")) { Some("Other") } else {Some(idx.toString)},
+                        checked = otherBusinessAddressForm(s"otherBusinessAddress").value.contains(if(address == messages("common.differentAddress")) { Some("Other").toString } else { idx.toString}),
                         id = Some(s"otherBusinessAddress-$idx")
                     )
             },
