@@ -15,6 +15,7 @@ common.button.start =	Dechrau nawr
 common.button.startAgain	= Dechrau eto
 app.common.yes    = Iawn
 app.common.no     = Na
+app.getHelp       = A yw’r dudalen hon yn gweithio’n iawn? (yn agor tab newydd)
 common.button.yes	= Iawn
 common.button.no	 = Na
 common.errorSummary.label =	Mae gwallau ar y dudalen hon
