@@ -23,20 +23,24 @@ import models.connectors.ConfirmationReferences
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.i18n.{Messages, MessagesApi, MessagesProvider}
 import uk.gov.hmrc.http.{HeaderCarrier, InternalServerException}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-class GroupServiceSpec extends UnitSpec with MockitoSugar with SCRSMocks {
+class GroupServiceSpec()(implicit messagesProvider: MessagesProvider) extends UnitSpec with MockitoSugar with SCRSMocks with GuiceOneAppPerSuite {
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
 
   class Setup {
+    val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
     val service: GroupService = new GroupService(
       mockKeystoreConnector,
       mockCompanyRegistrationConnector,
-      mockIncorpInfoConnector
+      mockIncorpInfoConnector,
+      messagesApi
     )
 
     reset(mockCompanyRegistrationConnector)

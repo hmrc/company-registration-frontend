@@ -20,7 +20,7 @@ import connectors.{CompanyRegistrationConnector, IncorpInfoConnector, KeystoreCo
 
 import javax.inject.{Inject, Singleton}
 import models._
-import play.api.i18n.Messages
+import play.api.i18n.{Messages, MessagesApi, MessagesProvider}
 import uk.gov.hmrc.http.{HeaderCarrier, InternalServerException}
 import utils.SCRSExceptions
 
@@ -29,7 +29,8 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class GroupService @Inject()(val keystoreConnector: KeystoreConnector,
                              val compRegConnector: CompanyRegistrationConnector,
-                             val incorpInfoConnector: IncorpInfoConnector
+                             val incorpInfoConnector: IncorpInfoConnector,
+                             val messagesApi: MessagesApi
                             )(implicit ec: ExecutionContext)
   extends CommonService with SCRSExceptions {
 
@@ -100,7 +101,7 @@ class GroupService @Inject()(val keystoreConnector: KeystoreConnector,
     }
   }
 
-  def createAddressMap(optPrepopAddressAndType: Option[GroupsAddressAndType], address: NewAddress)(implicit mc: Messages): Map[String, String] = {
+  def createAddressMap(optPrepopAddressAndType: Option[GroupsAddressAndType], address: NewAddress)(implicit messagesProvider: MessagesProvider): Map[String, String] = {
     optPrepopAddressAndType match {
       case Some(prepopAddressAndType) =>
         if (prepopAddressAndType.address.toString == address.toString) {

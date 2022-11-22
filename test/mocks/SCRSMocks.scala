@@ -23,6 +23,7 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.Configuration
+import play.api.i18n.{Messages, MessagesApi}
 import play.api.libs.json.JsValue
 import play.api.test.FakeRequest
 import services._
@@ -75,6 +76,7 @@ trait SCRSMocks extends CompanyContactDetailsServiceMock
   lazy val mockGroupService = mock[GroupService]
   lazy val mockLanguageService = mock[LanguageService]
   lazy val mockServicesConfig = mock[ServicesConfig]
+  lazy val mockMessagesApi = mock[MessagesApi]
 
 
   def mockFetchRegistrationID[T <: CommonService](response: String, mock: T) = {
