@@ -55,7 +55,7 @@ class GroupAddressController @Inject()(val authConnector: PlayAuthConnector,
               case ("Other", Some(addressAndType)) =>
                 Future.successful(Ok(view(
                   GroupAddressForm.form.fill(GroupAddressChoice(addressAndType.addressType)),
-                  Map("ALF" -> addressAndType.address.toString, "Other" -> "A different address"),
+                  Map("ALF" -> addressAndType.address.toString),
                   companyName.name))
                 )
               case ("Other", None) => alfRedirect(regID, groups)

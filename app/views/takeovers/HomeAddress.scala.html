@@ -46,8 +46,8 @@
                 case (address, idx) =>
                     RadioItem(
                         content = HtmlContent(address.toString),
-                        value = if(address == "A different address") { Some("Other") } else {Some(idx.toString)},
-                        checked = homeAddressForm(s"homeAddress").value.contains(if(address == "A different address") { "Other" } else { idx.toString}),
+                        value = if(address == messages("page.reg.ppob.differentAddress")) { Some("Other") } else {Some(idx.toString)},
+                        checked = homeAddressForm(s"homeAddress").value.contains(if(address == messages("page.reg.ppob.differentAddress")) { "Other" } else { idx.toString}),
                         id = if(idx == 0) { Some("homeAddress") } else Some(s"homeAddress-$idx")
                     )
             },

@@ -47,7 +47,7 @@ object VatDashboardMessages extends Viewtils {
   object Welsh extends Messages {
     override val dashboardHeading = "TAW"
     override val vatStatusHeading = "Statws:"
-    override val registerForVATLink = "Cofrestru gan ddefnyddio gwasanaeth CThEM arall. (cysylltiad yn agor tab newydd)"
+    override val registerForVATLink = "Cofrestru gan ddefnyddio gwasanaeth CThEF arall. (cysylltiad yn agor tab newydd)"
     override val disclosureHeading = "Oes angen i chi gofrestru ar gyfer TAW?"
     override val disclosureP1 = "Os nad yw cwmni’n bodloni’r meini prawf hyn, gallwch gofrestru cwmni’n wirfoddol os yw’n gwerthu neu’n bwriadu gwerthu nwyddau neu wasanaethau trethadwy TAW."
     override def disclosureBullet1(threshold: Int) = s"oedd eich gwerthiant trethadwy dros ${monetary(threshold)} ar ddiwedd unrhyw fis yn ystod y flwyddyn ddiwethaf"

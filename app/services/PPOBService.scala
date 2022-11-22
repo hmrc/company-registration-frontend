@@ -20,6 +20,7 @@ import audit.events._
 import connectors.{CompanyRegistrationConnector, KeystoreConnector, S4LConnector}
 import javax.inject.Inject
 import models.{Address => OldAddress, _}
+import play.api.i18n.Messages
 import play.api.libs.json.JsValue
 import play.api.mvc.{AnyContent, Request}
 import uk.gov.hmrc.http.HeaderCarrier
@@ -27,7 +28,7 @@ import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import utils.SCRSExceptions
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class PPOBServiceImpl @Inject()(val compRegConnector: CompanyRegistrationConnector,
                                 val keystoreConnector: KeystoreConnector,
@@ -51,26 +52,26 @@ trait PPOBService extends SCRSExceptions with AuditService {
     }
   }
 
-  def getAddresses(address:(Option[CHROAddress], Option[NewAddress], PPOBChoice))(implicit hc: HeaderCarrier): Map[String, Any]  = {
+  def getAddresses(address:(Option[CHROAddress], Option[NewAddress], PPOBChoice))(implicit hc: HeaderCarrier, mc: Messages): Map[String, Any]  = {
     address match {
       case (None, None, _) =>
-        Map("Other" -> "A different address")
+        Map("Other" -> Messages("page.reg.ppob.differentAddress"))
       case (None, Some(_), _) =>
         Map("PPOB" -> address._2.getOrElse(throw new InternalError("Address not found2")),
-          "Other" -> "A different address")
+          "Other" -> Messages("page.reg.ppob.differentAddress"))
       case (Some(_), None, _) =>
         Map("RO" -> address._1.getOrElse(throw new InternalError("Address not found1")),
-          "Other" -> "A different address")
+          "Other" -> Messages("page.reg.ppob.differentAddress"))
       case (Some(_), Some(_), _) =>
         if(address._1.toString == address._2.toString) {
           Map(
             "RO" -> address._1.getOrElse(throw new InternalError("Address not found1")),
-            "Other" -> "A different address"
+            "Other" -> Messages("page.reg.ppob.differentAddress")
           )
         } else {
           Map("RO" -> address._1.getOrElse(throw new InternalError("Address not found1")),
             "PPOB" -> address._2.getOrElse(throw new InternalError("Address not found2")),
-            "Other" -> "A different address")
+            "Other" -> Messages("page.reg.ppob.differentAddress"))
         }
     }
   }

@@ -64,7 +64,7 @@ object SCRSValidators {
     text =>
       val textTrimmed = text.trim
       val errors = textTrimmed match {
-        case t if t.length == 0 => Seq(ValidationError("page.groups.groupName.noCompanyNameEntered"))
+        case t if t.isEmpty => Seq(ValidationError("page.groups.groupName.noCompanyNameEntered"))
         case t if t.length > 20 => Seq(ValidationError("page.groups.groupName.20CharsOrLess"))
         case t if !t.matches(shareholderNameRegex) => Seq(ValidationError("page.groups.groupName.invalidFormat"))
         case t if t.matches(shareholderNameRegex) => Nil
