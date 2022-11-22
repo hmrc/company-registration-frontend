@@ -563,7 +563,7 @@ page.takeovers.otherBusinessName.field                                 = Enter t
 error.otherBusinessName.required                                       = Tell us the name of the other business
 error.otherBusinessName.over100Characters                              = Enter the name using 100 characters or less
 error.otherBusinessName.invalidCharacter                               = Business name must not include {0}
-error.otherBusinessName.invalidCharacters                              = Business name must not include ©, Æ and ф
+error.otherBusinessName.invalidCharacters                              = Business name must not include {0} or {1}
 
 page.takeovers.otherBusinessAddress.title                              = What is {0}’s address?
 page.takeovers.otherBusinessAddress.heading                            = What is {0}’s address?

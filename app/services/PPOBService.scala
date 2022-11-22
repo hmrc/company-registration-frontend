@@ -55,10 +55,10 @@ trait PPOBService extends SCRSExceptions with AuditService {
   def getAddresses(address:(Option[CHROAddress], Option[NewAddress], PPOBChoice))(implicit hc: HeaderCarrier, mc: Messages): Map[String, Any]  = {
     address match {
       case (None, None, _) =>
-        Map("Other" -> "A different address")
+        Map("Other" -> Messages("page.reg.ppob.differentAddress"))
       case (None, Some(_), _) =>
         Map("PPOB" -> address._2.getOrElse(throw new InternalError("Address not found2")),
-          "Other" -> "A different address")
+          "Other" -> Messages("page.reg.ppob.differentAddress"))
       case (Some(_), None, _) =>
         Map("RO" -> address._1.getOrElse(throw new InternalError("Address not found1")),
           "Other" -> Messages("page.reg.ppob.differentAddress"))
@@ -66,12 +66,12 @@ trait PPOBService extends SCRSExceptions with AuditService {
         if(address._1.toString == address._2.toString) {
           Map(
             "RO" -> address._1.getOrElse(throw new InternalError("Address not found1")),
-            "Other" -> "A different address"
+            "Other" -> Messages("page.reg.ppob.differentAddress")
           )
         } else {
           Map("RO" -> address._1.getOrElse(throw new InternalError("Address not found1")),
             "PPOB" -> address._2.getOrElse(throw new InternalError("Address not found2")),
-            "Other" -> "A different address")
+            "Other" -> Messages("page.reg.ppob.differentAddress"))
         }
     }
   }

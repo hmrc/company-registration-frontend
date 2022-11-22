@@ -17,8 +17,10 @@
 package services
 
 import connectors.{CompanyRegistrationConnector, IncorpInfoConnector, KeystoreConnector}
+
 import javax.inject.{Inject, Singleton}
 import models._
+import play.api.i18n.Messages
 import uk.gov.hmrc.http.{HeaderCarrier, InternalServerException}
 import utils.SCRSExceptions
 
@@ -98,18 +100,18 @@ class GroupService @Inject()(val keystoreConnector: KeystoreConnector,
     }
   }
 
-  def createAddressMap(optPrepopAddressAndType: Option[GroupsAddressAndType], address: NewAddress): Map[String, String] = {
+  def createAddressMap(optPrepopAddressAndType: Option[GroupsAddressAndType], address: NewAddress)(implicit mc: Messages): Map[String, String] = {
     optPrepopAddressAndType match {
       case Some(prepopAddressAndType) =>
         if (prepopAddressAndType.address.toString == address.toString) {
-          Map(prepopAddressAndType.addressType -> prepopAddressAndType.address.toString, "Other" -> "A different address")
+          Map(prepopAddressAndType.addressType -> prepopAddressAndType.address.toString, "Other" -> Messages("page.reg.ppob.differentAddress"))
         }
         else {
           Map(prepopAddressAndType.addressType -> prepopAddressAndType.address.toString,
-            "TxAPI" -> address.toString, "Other" -> "A different address")
+            "TxAPI" -> address.toString, "Other" -> Messages("page.reg.ppob.differentAddress"))
         }
       case _ =>
-        Map("TxAPI" -> address.toString, "Other" -> "A different address")
+        Map("TxAPI" -> address.toString, "Other" -> Messages("page.reg.ppob.differentAddress"))
     }
   }
 

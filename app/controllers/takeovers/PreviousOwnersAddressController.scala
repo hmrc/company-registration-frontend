@@ -80,7 +80,7 @@ class PreviousOwnersAddressController @Inject()(val authConnector: PlayAuthConne
                       HomeAddressForm.form(addressSeq.length)
                   }
 
-                  Ok(view(prepopulatedForm, previousOwnersName, addressSeq ++ Seq("A different address")))
+                  Ok(view(prepopulatedForm, previousOwnersName, addressSeq ++ Seq(Messages("page.reg.ppob.differentAddress"))))
                     .addingToSession(addressSeqKey -> Json.toJson(addressSeq).toString())
               }
             case None =>
@@ -101,7 +101,7 @@ class PreviousOwnersAddressController @Inject()(val authConnector: PlayAuthConne
                 case (Some(TakeoverDetails(_, _, _, Some(previousOwnersName), _)), Some(addressSeq)) =>
                   HomeAddressForm.form(addressSeq.length).bindFromRequest.fold(
                     formWithErrors =>
-                      Future.successful(BadRequest(view(formWithErrors, previousOwnersName, addressSeq ++ Seq("A different address")))),
+                      Future.successful(BadRequest(view(formWithErrors, previousOwnersName, addressSeq ++ Seq(Messages("page.reg.ppob.differentAddress"))))),
                     {
                       case OtherAddress =>
                         addressLookupFrontendService.initialiseAlfJourney(
