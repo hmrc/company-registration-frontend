@@ -35,8 +35,8 @@ object SCRSValidators {
   val datePatternRegex = """([12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))"""
   val shareholderNameRegex = """[A-Z a-z 0-9\\'-]{1,20}$"""
   val whoAgreedTakeoverRegex = """[A-Z a-z 0-9\\'-]{1,100}$"""
-  val otherBusinessNameRegex = """^[A-Z a-z 0-9\\'@?><;:+\/=(),.!¥#_•€&%£$\[\]{}~*«»-]{1,100}$"""
-  val otherBusinessNameInverseRegex = """[^A-Z a-z 0-9\\'@?><;:+\/=(),.!¥#_•€&%£$\[\]{}~*«»-]"""
+  val otherBusinessNameRegex = """^[A-Z a-z 0-9\\'@?><;:+\=(),.!¥#_•€&%£$\[\]{}~*«»-]{1,100}$"""
+  val otherBusinessNameInverseRegex = """[^A-Z a-z 0-9\\'@?><;:+\=(),.!¥#_•€&%£$\[\]{}~*«»-]"""
 
   def isValidPhoneNo(phone: String): Either[String, String] = {
     def isValidNumber(s: String) = s.replaceAll(" ", "").matches("[0-9]+")
@@ -75,7 +75,7 @@ object SCRSValidators {
   val otherBusinessNameValidation: Constraint[String] = Constraint("constraints.otherBusinessName")({
     text =>
       val errors = text.trim match {
-        case name if name.length == 0 => Seq(ValidationError("error.otherBusinessName.required"))
+        case name if name.isEmpty => Seq(ValidationError("error.otherBusinessName.required"))
         case name if name.length > 100 => Seq(ValidationError("error.otherBusinessName.over100Characters"))
         case name if !name.matches(otherBusinessNameRegex) =>
           val nonMatchingList = otherBusinessNameInverseRegex.r.findAllIn(name).toList.distinct
@@ -86,7 +86,7 @@ object SCRSValidators {
             Seq(ValidationError(
               "error.otherBusinessName.invalidCharacters",
               nonMatchingList.dropRight(1).toString().replace("List(", "").replace(")", ""),
-              nonMatchingList.last.toString
+              nonMatchingList.last
             ))
           }
         case _ => Nil
@@ -97,7 +97,7 @@ object SCRSValidators {
   val whoAgreedTakeoverValidation: Constraint[String] = Constraint("constraints.whoAgreedTakeover")({
     text =>
       val errors = text.trim match {
-        case name if name.length == 0 => Seq(ValidationError("error.whoAgreedTakeover.required"))
+        case name if name.isEmpty => Seq(ValidationError("error.whoAgreedTakeover.required"))
         case name if name.length > 100 => Seq(ValidationError("error.whoAgreedTakeover.over100Characters"))
         case name if !name.matches(whoAgreedTakeoverRegex) => Seq(ValidationError("error.whoAgreedTakeover.invalidCharacters"))
         case _ => Nil
@@ -108,7 +108,7 @@ object SCRSValidators {
   val UtrValidation: Constraint[String] = Constraint("constraints.utr")({
     text =>
       val errors = text match {
-        case t if t.length == 0 => Seq(ValidationError("error.groupUtr.yesButNoUtr"))
+        case t if t.isEmpty => Seq(ValidationError("error.groupUtr.yesButNoUtr"))
         case t if t.matches(utrRegex) => Nil
         case t if t.length > 10 => Seq(ValidationError("error.groupUtr.utrMoreThan10Chars"))
         case t if !t.matches("[0-9]+") => Seq(ValidationError("error.groupUtr.utrHasSymbols"))
@@ -148,13 +148,6 @@ trait SCRSValidatorsT {
 
   val timeService: TimeService
   val now: LocalDate
-
-  private val nameRegex = """^[a-zA-Z-]+(?:\W+[a-zA-Z-]+)+$""".r
-
-  private val addresslinelongRegex = """^$|[a-zA-Z0-9,.\(\)/&'"\-]{1}[a-zA-Z0-9, .\(\)/&'"\-]{0,26}$""".r
-  private val addressline4Regex = """^$|[a-zA-Z0-9,.\(\)/&'"\-]{1}[a-zA-Z0-9, .\(\)/&'"\-]{0,17}$""".r
-  private val nonEmptyRegex = """^(?=\s*\S).*$""".r
-
 
   val desSessionRegex = "^([A-Za-z0-9-]{0,60})$"
 
@@ -224,9 +217,7 @@ trait SCRSValidatorsT {
                 Invalid(Seq(ValidationError("page.reg.accountingDates.date.invalid-date", "futureDate.Day")))
               }
             }
-          case _ => {
-            Valid
-          }
+          case _ => Valid
         }
     })
   }
