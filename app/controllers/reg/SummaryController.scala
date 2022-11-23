@@ -64,11 +64,20 @@ class SummaryController @Inject()(val authConnector: PlayAuthConnector,
           (for {
             accountingBlock <- summaryService.getAccountingDates(regID)
             completionCapacity <- summaryService.getCompletionCapacity(regID)
-            contactDetails <- summaryService.getCompanyDetailsBlock(regID)
-            companyDetails <- summaryService.getContactDetailsBlock(regID)
-            takeoverDetails <- summaryService.getTakeoverBlock(regID)
+            contactDetailsBlock <- summaryService.getCompanyDetailsBlock(regID)
+            companyDetailsBlock <- summaryService.getContactDetailsBlock(regID)
+            takeoverDetailsBlock <- summaryService.getTakeoverBlock(regID)
+            optTakeoverDetails <- takeoverService.getTakeoverDetails(regID)
           } yield {
-            Ok(view(accountingBlock, takeoverDetails, companyDetails, contactDetails, completionCapacity))
+            optTakeoverDetails match {
+              case Some(TakeoverDetails(true, Some(_), Some(_), Some(_), Some(_))) =>
+                Ok(view(accountingBlock, takeoverDetailsBlock, companyDetailsBlock, contactDetailsBlock, completionCapacity))
+              case None | Some(TakeoverDetails(false, None, None, None, None)) =>
+                Ok(view(accountingBlock, takeoverDetailsBlock, companyDetailsBlock, contactDetailsBlock, completionCapacity))
+              case _ =>
+                logger.error("[SummaryController] [show] Takeover details in unexpected state")
+                Redirect(controllers.takeovers.routes.TakeoverInformationNeededController.show)
+            }
           }) recover {
             case ex: Throwable =>
               logger.error(s"[show] Error occurred while loading the summary page - ${ex.getMessage}")
