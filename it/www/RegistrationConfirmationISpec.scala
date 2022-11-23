@@ -20,8 +20,7 @@ import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, stubFor,
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import config.LangConstants
 import itutil.{IntegrationSpecBase, LoginStub}
-import models.RegistrationConfirmationPayload
-import models.handoff.{HandOffNavModel, NavLinks, Receiver, Sender}
+import models.handoff.{HandOffNavModel, NavLinks, Receiver, RegistrationConfirmationPayload, Sender}
 import play.api.http.HeaderNames
 import play.api.libs.crypto.DefaultCookieSigner
 import play.api.libs.json.{JsObject, Json}

@@ -20,20 +20,22 @@ import fixtures.BusinessRegistrationFixture
 import helpers.SCRSSpec
 import models.{Address, BusinessRegistration, CompanyContactDetailsApi}
 import org.mockito.ArgumentMatchers
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
-import play.api.libs.json.JsValue
+import play.api.libs.json.{JsObject, JsValue}
 import uk.gov.hmrc.http._
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class BusinessRegistrationConnectorSpec extends SCRSSpec with BusinessRegistrationFixture {
 
-  val mockBusRegConnector = mock[BusinessRegistrationConnector]
+  val mockBusRegConnector = mock[BusinessRegistrationConnectorImpl]
 
-  trait Setup {
+  class Setup {
     val connector = new BusinessRegistrationConnector {
       override val businessRegUrl = "testBusinessRegUrl"
       override val wsHttp = mockWSHttp
+      override implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
     }
   }
 

@@ -39,6 +39,8 @@ class EmailVerificationConnectorSpec extends SCRSSpec with UnitSpec with Mockito
     }
   }
 
+  implicit val ec = scala.concurrent.ExecutionContext.Implicits.global
+
   val verifiedEmail = "foo@bar.com"
 
   val verificationRequest = EmailVerificationRequest(
@@ -169,7 +171,7 @@ class EmailVerificationConnectorSpec extends SCRSSpec with UnitSpec with Mockito
     }
     "return an upstream 4xx" in new Setup {
       val response = HttpResponse(UNAUTHORIZED, "")
-      intercept[UpstreamErrorResponse](connector.customRead("test", "test", response))
+      intercept[Exception](connector.customRead("test", "test", response))
     }
   }
 

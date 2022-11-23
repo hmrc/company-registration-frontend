@@ -17,6 +17,8 @@
 package connectors
 
 import config.{AppConfig, WSHttp}
+import connectors.httpParsers.AddressLookupHttpParsers.rawReads
+
 import javax.inject.Inject
 import models.TakeoverDetails
 import utils.Logging
@@ -50,7 +52,7 @@ class TakeoverConnector @Inject()(appConfig: AppConfig,
 
 
   def updateTakeoverDetails(registrationId: String, takeoverDetails: TakeoverDetails)(implicit hc: HeaderCarrier): Future[TakeoverDetails] = {
-    http.PUT[TakeoverDetails, HttpResponse](takeOverDetailsUrl(registrationId), takeoverDetails).map {
+    http.PUT[TakeoverDetails, HttpResponse](takeOverDetailsUrl(registrationId), takeoverDetails)(implicitly, rawReads, hc, ec).map {
       res =>
         res.json.validate[TakeoverDetails] match {
           case JsSuccess(takeOverDetails, _) =>

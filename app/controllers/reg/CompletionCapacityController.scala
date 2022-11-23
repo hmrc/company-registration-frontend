@@ -27,6 +27,7 @@ import services.{MetaDataService, MetricsService}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import utils.SessionRegistration
 import views.html.reg.{CompletionCapacity => CompletionCapacityView}
+import uk.gov.hmrc.http.HttpReads.Implicits
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -45,9 +46,14 @@ class CompletionCapacityController @Inject()(
 
   def show(): Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
-      checkStatus { regId =>
+      checkStatus { _ =>
         businessRegConnector.retrieveMetadata map {
-          case BusinessRegistrationSuccessResponse(x) => Ok(view(AboutYouForm.populateForm(x.completionCapacity.getOrElse("")))) //todo double check empty cc
+          case BusinessRegistrationSuccessResponse(response) => {
+            response.completionCapacity match {
+              case Some(cc) =>  Ok(view(AboutYouForm.populateForm(cc)))
+              case _ =>  Ok(view(AboutYouForm.aboutYouFilled))
+            }
+          }
           case _ => Ok(view(AboutYouForm.aboutYouFilled))
         }
       }
@@ -56,7 +62,7 @@ class CompletionCapacityController @Inject()(
 
   def submit: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
-      registered { a =>
+      registered { _ =>
         AboutYouForm.form.bindFromRequest.fold(
           errors => Future.successful(BadRequest(view(errors))),
           success => {

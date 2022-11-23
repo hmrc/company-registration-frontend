@@ -110,22 +110,20 @@ object NewAddress {
     )
   }
 
-  val addressLookupReads: Reads[NewAddress] = new Reads[NewAddress] {
-    def reads(json: JsValue): JsResult[NewAddress] = {
+  val addressLookupReads: Reads[NewAddress] = (json: JsValue) => {
 
-      val unvalidatedPostCode = (json \ "address" \ "postcode").asOpt[String]
-      val validatedPostcode = validatePostcode(unvalidatedPostCode)
+    val unvalidatedPostCode = (json \ "address" \ "postcode").asOpt[String]
+    val validatedPostcode = validatePostcode(unvalidatedPostCode)
 
-      val addressLines = (json \ "address" \ "lines").as[List[String]]
-      val countryName = (json \ "address" \ "country" \ "name").asOpt[String]
-      val auditRef = (json \ "auditRef").asOpt[String]
+    val addressLines = (json \ "address" \ "lines").as[List[String]]
+    val countryName = (json \ "address" \ "country" \ "name").asOpt[String]
+    val auditRef = (json \ "auditRef").asOpt[String]
 
-      (validatedPostcode, countryName, addressLines) match {
-        case (None, None, _) => JsError(JsonValidationError(s"no country or valid postcode"))
-        case (_, _, lines) if lines.length < 2 => JsError(JsonValidationError(s"only ${lines.length} lines provided from address-lookup-frontend"))
-        case (None, c@Some(_), lines) => JsSuccess(makeAddress(None, c, lines, auditRef))
-        case (p@Some(pc), _, lines) => JsSuccess(makeAddress(p, None, lines, auditRef))
-      }
+    (validatedPostcode, countryName, addressLines) match {
+      case (None, None, _) => JsError(JsonValidationError(s"no country or valid postcode"))
+      case (_, _, lines) if lines.length < 2 => JsError(JsonValidationError(s"only ${lines.length} lines provided from address-lookup-frontend"))
+      case (None, c@Some(_), lines) => JsSuccess(makeAddress(None, c, lines, auditRef))
+      case (p@Some(pc), _, lines) => JsSuccess(makeAddress(p, None, lines, auditRef))
     }
   }
 }

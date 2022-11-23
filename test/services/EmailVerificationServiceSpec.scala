@@ -163,7 +163,7 @@ class EmailVerificationServiceSpec extends UnitSpec with SCRSSpec with UserDetai
 
   "checkVerifiedEmail" should {
     "return true when email is verified" in new Setup {
-      when(mockEmailConnector.checkVerifiedEmail(ArgumentMatchers.anyString())(ArgumentMatchers.any()))
+      when(mockEmailConnector.checkVerifiedEmail(ArgumentMatchers.anyString())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(true))
 
       when(mockKsConnector.cache(ArgumentMatchers.eq("email"), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
@@ -181,7 +181,7 @@ class EmailVerificationServiceSpec extends UnitSpec with SCRSSpec with UserDetai
       await(emailService.verifyEmailAddressAndSaveEmailBlockWithFlag("testEmail", regId,"provId", "extId")) mustBe Some(true)
     }
     "return false when email is unverified" in new Setup {
-      when(mockEmailConnector.checkVerifiedEmail(ArgumentMatchers.anyString())(ArgumentMatchers.any()))
+      when(mockEmailConnector.checkVerifiedEmail(ArgumentMatchers.anyString())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(false))
 
       when(mockKsConnector.cache(ArgumentMatchers.eq("email"), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
@@ -202,7 +202,7 @@ class EmailVerificationServiceSpec extends UnitSpec with SCRSSpec with UserDetai
       when(mockKsConnector.cache(ArgumentMatchers.eq("email"), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(CacheMap("x", Map())))
 
-      when(mockEmailConnector.requestVerificationEmailReturnVerifiedEmailStatus(ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockEmailConnector.requestVerificationEmailReturnVerifiedEmailStatus(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(true))
 
       when(mockCrConnector.updateEmail(ArgumentMatchers.eq(regId), ArgumentMatchers.any[Email]())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
@@ -218,7 +218,7 @@ class EmailVerificationServiceSpec extends UnitSpec with SCRSSpec with UserDetai
       when(mockKsConnector.cache(ArgumentMatchers.eq("email"), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(CacheMap("x", Map())))
 
-      when(mockEmailConnector.requestVerificationEmailReturnVerifiedEmailStatus(ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockEmailConnector.requestVerificationEmailReturnVerifiedEmailStatus(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(false))
 
       when(mockCrConnector.updateEmail(ArgumentMatchers.eq(regId), ArgumentMatchers.any[Email]())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))

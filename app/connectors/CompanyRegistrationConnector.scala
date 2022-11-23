@@ -16,12 +16,15 @@
 
 package connectors
 
-import _root_.connectors.httpParsers.CompanyRegistrationHttpParsers
+import connectors.httpParsers.CompanyRegistrationHttpParsers._
 import config.{AppConfig, WSHttp}
 import models._
 import models.connectors.ConfirmationReferences
+import play.api.http.Status.{BAD_REQUEST, OK}
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.http._
+import uk.gov.hmrc.http.HttpReads.Implicits._
+import utils.Logging
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -37,7 +40,7 @@ case object FootprintForbiddenResponse extends FootprintResponse
 case object FootprintTooManyRequestsResponse extends FootprintResponse
 case class FootprintErrorResponse(err: Exception) extends FootprintResponse
 
-trait CompanyRegistrationConnector extends CompanyRegistrationHttpParsers {
+trait CompanyRegistrationConnector extends Logging {
 
   val companyRegUrl: String
   val wsHttp: CoreGet with CorePost with CorePut with CoreDelete
@@ -57,7 +60,7 @@ trait CompanyRegistrationConnector extends CompanyRegistrationHttpParsers {
   }
 
   def retrieveCorporationTaxRegistration(registrationID: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[JsValue] = {
-    wsHttp.GET[JsValue](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/corporation-tax-registration") recover {
+    wsHttp.GET[JsValue](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/corporation-tax-registration")(readJsValue, hc, ec) recover {
       case ex: BadRequestException =>
         logger.error(s"[retrieveCorporationTaxRegistration] for RegId: $registrationID - ${ex.responseCode} ${ex.message}")
         throw ex
@@ -73,41 +76,7 @@ trait CompanyRegistrationConnector extends CompanyRegistrationHttpParsers {
     }
   }
 
-  def checkROValidPPOB(registrationID: String, ro: CHROAddress)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[NewAddress]] = {
-    implicit val roWrites = CHROAddress.formats
-    val json = Json.toJson(ro)
-
-    wsHttp.POST[JsValue, HttpResponse](s"$companyRegUrl/company-registration/corporation-tax-registration/check-ro-address", json) map { result =>
-      result.status match {
-        case 200 => result.json.asOpt[NewAddress](NewAddress.verifyRoToPPOB)
-        case 400 => None
-      }
-    } recover {
-      case _: BadRequestException =>
-        None
-      case ex: Exception =>
-        logger.error(s"[checkROAddress] for RegId: $registrationID")
-        throw ex
-    }
-  }
-
-  def validateRegisteredOfficeAddress(registrationID: String, ro: CHROAddress)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[NewAddress]] = {
-    implicit val roWrites = CHROAddress.formats
-    val json = Json.toJson(ro)
-
-    wsHttp.POST[JsValue, HttpResponse](s"$companyRegUrl/company-registration/corporation-tax-registration/check-return-business-address", json) map {
-      _.json.asOpt[NewAddress](Groups.formatsNewAddressGroups)
-    } recover {
-      case _: BadRequestException =>
-        None
-      case ex: Exception =>
-        logger.error(s"[checkROAddress] for RegId: $registrationID")
-        throw ex
-    }
-  }
-
   def retrieveOrCreateFootprint()(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[FootprintResponse] = {
-
     wsHttp.GET[ThrottleResponse](s"$companyRegUrl/company-registration/throttle/check-user-access") map {
       response => {
         logger.debug(s"[retrieveOrCreateFootprint] response is $response")
@@ -132,189 +101,32 @@ trait CompanyRegistrationConnector extends CompanyRegistrationHttpParsers {
 
   }
 
-  def createCorporationTaxRegistrationDetails(regId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[CorporationTaxRegistrationResponse] = {
-    val json = Json.toJson[CorporationTaxRegistrationRequest](CorporationTaxRegistrationRequest("en"))
-    wsHttp.PUT[JsValue, CorporationTaxRegistrationResponse](s"$companyRegUrl/company-registration/corporation-tax-registration/$regId", json) recover {
-      case ex: BadRequestException =>
-        logger.error(s"[createCorporationTaxRegistrationDetails] for RegId: $regId - ${ex.responseCode} ${ex.message}")
-        throw ex
-      case ex: NotFoundException =>
-        logger.warn(s"[createCorporationTaxRegistrationDetails] for RegId: $regId - ${ex.responseCode} ${ex.message}")
-        throw ex
-      case ex: UpstreamErrorResponse =>
-        logger.error(s"[createCorporationTaxRegistrationDetails] for RegId: $regId - ${ex.statusCode} ${ex.message}")
-        throw ex
-      case ex: Exception =>
-        logger.error(s"[createCorporationTaxRegistrationDetails] for RegId: $regId - Unexpected error occurred: $ex")
-        throw ex
-    }
-  }
-
-  def retrieveCorporationTaxRegistrationDetails(registrationID: String)
-                                               (implicit hc: HeaderCarrier, ec: ExecutionContext, rds: HttpReads[CorporationTaxRegistrationResponse]): Future[Option[CorporationTaxRegistrationResponse]] = {
-    wsHttp.GET[Option[CorporationTaxRegistrationResponse]](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID") recover {
-      case ex: BadRequestException =>
-        logger.error(s"[retrieveCorporationTaxRegistrationDetails] for RegId: $registrationID - ${ex.responseCode} ${ex.message}")
-        None
-      case ex: NotFoundException =>
-        logger.warn(s"[retrieveCorporationTaxRegistrationDetails] for RegId: $registrationID - ${ex.responseCode} ${ex.message}")
-        None
-      case ex: UpstreamErrorResponse =>
-        logger.error(s"[retrieveCorporationTaxRegistrationDetails] for RegId: $registrationID - ${ex.statusCode} ${ex.message}")
-        None
-      case ex: Exception =>
-        logger.error(s"[retrieveCorporationTaxRegistrationDetails] for RegId: $registrationID - Unexpected error occurred: $ex")
-        None
-    }
-  }
-
-  def updateCompanyDetails(registrationID: String, companyDetails: CompanyDetails)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[CompanyDetails] = {
-    val json = Json.toJson[CompanyDetails](companyDetails)
-    wsHttp.PUT[JsValue, CompanyDetails](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/company-details", json) recover {
-      case ex: BadRequestException =>
-        logger.error(s"[updateCompanyDetails] for RegId: $registrationID - ${ex.responseCode} ${ex.message}")
-        throw ex
-      case ex: NotFoundException =>
-        logger.warn(s"[updateCompanyDetails] for RegId: $registrationID - ${ex.responseCode} ${ex.message}")
-        throw ex
-      case ex: UpstreamErrorResponse =>
-        logger.error(s"[updateCompanyDetails] for RegId: $registrationID - ${ex.statusCode} ${ex.message}")
-        throw ex
-      case ex: Exception =>
-        logger.error(s"[updateCompanyDetails] for RegId: $registrationID - Unexpected error occurred: $ex")
-        throw ex
-    }
+  def retrieveCorporationTaxRegistrationDetails(registrationID: String)(implicit hc: HeaderCarrier,
+                                                ec: ExecutionContext,
+                                                rds: HttpReads[CorporationTaxRegistrationResponse]): Future[Option[CorporationTaxRegistrationResponse]] = {
+    wsHttp.GET[Option[CorporationTaxRegistrationResponse]](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID")(corporationTaxRegistrationHttpReads(registrationID), hc, ec)
   }
 
   def retrieveCompanyDetails(registrationID: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[CompanyDetails]] = {
-    wsHttp.GET[Option[CompanyDetails]](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/company-details") recover {
-      case ex: BadRequestException =>
-        logger.error(s"[retrieveCompanyDetails] for RegId: $registrationID - ${ex.responseCode} ${ex.message}")
-        None
-      case ex: NotFoundException =>
-        logger.warn(s"[retrieveCompanyDetails] for RegId: $registrationID - ${ex.responseCode} ${ex.message}")
-        None
-      case ex: UpstreamErrorResponse =>
-        logger.error(s"[retrieveCompanyDetails] for RegId: $registrationID - ${ex.statusCode} ${ex.message}")
-        None
-      case ex: Exception =>
-        logger.error(s"[retrieveCompanyDetails] for RegId: $registrationID - Unexpected error occurred: $ex")
-        None
-    }
+    wsHttp.GET[Option[CompanyDetails]](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/company-details")(companyRegistrationDetailsHttpReads(registrationID), hc, ec)
   }
 
   def retrieveTradingDetails(registrationID: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[TradingDetails]] = {
-    wsHttp.GET[Option[TradingDetails]](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/trading-details") recover {
-      case ex: BadRequestException =>
-        logger.error(s"[retrieveTradingDetails] for RegId: $registrationID - ${ex.responseCode} ${ex.message}")
-        None
-      case ex: NotFoundException =>
-        logger.warn(s"[retrieveTradingDetails] for RegId: $registrationID - ${ex.responseCode} ${ex.message}")
-        None
-      case ex: UpstreamErrorResponse =>
-        logger.error(s"[retrieveTradingDetails] for RegId: $registrationID - ${ex.statusCode} ${ex.message}")
-        None
-      case ex: Exception =>
-        logger.error(s"[retrieveTradingDetails] for RegId: $registrationID - Unexpected error occurred: $ex")
-        None
-    }
-  }
-
-  def updateTradingDetails(registrationID: String, tradingDetails: TradingDetails)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[TradingDetailsResponse] = {
-    wsHttp.PUT[JsValue, TradingDetails](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/trading-details", Json.toJson[TradingDetails](tradingDetails))
-      .map {
-        tradingDetailsResp =>
-          TradingDetailsSuccessResponse(tradingDetailsResp)
-      } recover {
-      case ex: BadRequestException =>
-        logger.error(s"[updateTradingDetails] for RegId: $registrationID - ${ex.responseCode} ${ex.message}")
-        TradingDetailsNotFoundResponse
-      case ex: NotFoundException =>
-        logger.warn(s"[updateTradingDetails] for RegId: $registrationID - ${ex.responseCode} ${ex.message}")
-        TradingDetailsNotFoundResponse
-      case ex: UpstreamErrorResponse =>
-        logger.error(s"[updateTradingDetails] for RegId: $registrationID - ${ex.statusCode} ${ex.message}")
-        TradingDetailsNotFoundResponse
-      case ex: Exception =>
-        logger.error(s"[updateTradingDetails] for RegId: $registrationID - Unexpected error occurred: $ex")
-        TradingDetailsNotFoundResponse
-    }
+    wsHttp.GET[Option[TradingDetails]](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/trading-details")(tradingDetailsHttpReads(registrationID), hc, ec)
   }
 
   def retrieveContactDetails(registrationID: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[CompanyContactDetailsResponse] = {
-    wsHttp.GET[CompanyContactDetails](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/contact-details") map {
-      response => CompanyContactDetailsSuccessResponse(response)
-    } recover {
-      case e: BadRequestException =>
-        logger.error(s"[retrieveContactDetails] Received a Bad Request status code when expecting contact details from Company-Registration")
-        CompanyContactDetailsBadRequestResponse
-      case e: NotFoundException =>
-        logger.warn(s"[retrieveContactDetails] Received a Not Found status code when expecting contact details from Company-Registration")
-        CompanyContactDetailsNotFoundResponse
-      case e: ForbiddenException =>
-        logger.error(s"[retrieveContactDetails] Received a Forbidden status code when expecting contact details from Company-Registration")
-        CompanyContactDetailsForbiddenResponse
-      case e: Exception =>
-        logger.error(s"[retrieveContactDetails] Received an error when expecting contact details from Company-Registration - ${e.getMessage}")
-        CompanyContactDetailsBadRequestResponse
-    }
-  }
-
-  def updateContactDetails(registrationID: String, contactDetails: CompanyContactDetailsApi)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[CompanyContactDetailsResponse] = {
-    val json = Json.toJson(contactDetails)
-    wsHttp.PUT[JsValue, CompanyContactDetails](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/contact-details", json) map {
-      response => CompanyContactDetailsSuccessResponse(response)
-    } recover {
-      case e: BadRequestException =>
-        logger.error(s"[updateContactDetails] Received a Bad Request status code when expecting contact details from Company-Registration")
-        CompanyContactDetailsBadRequestResponse
-      case e: NotFoundException =>
-        logger.warn(s"[updateContactDetails] Received a Not Found status code when expecting contact details from Company-Registration")
-        CompanyContactDetailsNotFoundResponse
-      case e: ForbiddenException =>
-        logger.error(s"[updateContactDetails] Received a Forbidden status code when expecting contact details from Company-Registration")
-        CompanyContactDetailsForbiddenResponse
-      case e: Exception =>
-        logger.error(s"[updateContactDetails] Received an error when expecting contact details from Company-Registration - ${e.getMessage}")
-        CompanyContactDetailsBadRequestResponse
-    }
+    wsHttp.GET[CompanyContactDetailsResponse](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/contact-details")(contactDetailsHttpReads(registrationID), hc,ec)
   }
 
   def retrieveAccountingDetails(registrationID: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[AccountingDetailsResponse] = {
-    wsHttp.GET[AccountingDetails](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/accounting-details") map {
-      response => AccountingDetailsSuccessResponse(response)
-    } recover {
-      case e: BadRequestException =>
-        logger.error(s"[retrieveAccountingDetails] Received a Bad Request status code when expecting accounting details from Company-Registration")
-        AccountingDetailsBadRequestResponse
-      case e: NotFoundException =>
-        logger.warn(s"[retrieveAccountingDetails] Received a Not Found status code when expecting accounting details from Company-Registration")
-        AccountingDetailsNotFoundResponse
-      case e: Exception =>
-        logger.error(s"[retrieveAccountingDetails] Received an error when expecting accounting details from Company-Registration - ${e.getMessage}")
-        AccountingDetailsBadRequestResponse
-    }
-  }
-
-  def updateAccountingDetails(registrationID: String, accountingDetails: AccountingDetailsRequest)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[AccountingDetailsResponse] = {
-    val json = Json.toJson(accountingDetails)
-    wsHttp.PUT[JsValue, AccountingDetails](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/accounting-details", json) map {
-      response => AccountingDetailsSuccessResponse(response)
-    } recover {
-      case e: BadRequestException =>
-        logger.error(s"[updateAccountingDetails] Received a Bad Request status code when expecting accounting details from Company-Registration")
-        AccountingDetailsBadRequestResponse
-      case e: NotFoundException =>
-        logger.warn(s"[updateAccountingDetails] Received a Not Found status code when expecting accounting details from Company-Registration")
-        AccountingDetailsNotFoundResponse
-      case e: Exception =>
-        logger.error(s"[updateAccountingDetails] Received an error when expecting accounting details from Company-Registration - ${e.getMessage}")
-        AccountingDetailsBadRequestResponse
-    }
+    wsHttp.GET[AccountingDetailsResponse](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/accounting-details")(accountingDetailsHttpReads(registrationID), hc, ec)
   }
 
   def fetchConfirmationReferences(registrationID: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[ConfirmationReferencesResponse] = {
-    wsHttp.GET[ConfirmationReferences](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/confirmation-references") map {
+    wsHttp.GET[ConfirmationReferences](
+      s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/confirmation-references"
+    ) map {
       res => ConfirmationReferencesSuccessResponse(res)
     } recover {
       case e: BadRequestException =>
@@ -326,24 +138,6 @@ trait CompanyRegistrationConnector extends CompanyRegistrationHttpParsers {
       case e: Exception =>
         logger.error(s"[fetchConfirmationReferences] Received an error when expecting acknowledgement ref from Company-Registration - ${e.getMessage}")
         ConfirmationReferencesErrorResponse
-    }
-  }
-
-  def updateReferences(registrationID: String, payload: ConfirmationReferences)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[ConfirmationReferencesResponse] = {
-    wsHttp.PUT[JsValue, ConfirmationReferences](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/confirmation-references", Json.toJson(payload)) map {
-      res => ConfirmationReferencesSuccessResponse(res)
-    } recover {
-      case ex: UpstreamErrorResponse =>
-        if(UpstreamErrorResponse.Upstream4xxResponse.unapply(ex).isDefined) {
-          logger.error(s"[updateReferences] Received a upstream 4xx code when expecting acknowledgement ref from Company-Registration")
-          DESFailureDeskpro
-        } else {
-          logger.warn(s"[updateReferences] Received a upstream 5xx status code when expecting acknowledgement ref from Company-Registration")
-          DESFailureRetriable
-        }
-      case e: Exception =>
-        logger.error(s"[updateReferences] Received an unknown error when expecting acknowledgement ref from Company-Registration - ${e.getMessage}")
-        DESFailureDeskpro
     }
   }
 
@@ -379,6 +173,79 @@ trait CompanyRegistrationConnector extends CompanyRegistrationHttpParsers {
     }
   }
 
+  def createCorporationTaxRegistrationDetails(regId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[CorporationTaxRegistrationResponse] = {
+    val json = Json.toJson[CorporationTaxRegistrationRequest](CorporationTaxRegistrationRequest("en"))
+    wsHttp.PUT[JsValue, CorporationTaxRegistrationResponse](s"$companyRegUrl/company-registration/corporation-tax-registration/$regId", json
+    )(implicitly, createCorporationTaxRegistrationDetailsHttpReads(regId), hc,ec)
+  }
+
+  def checkROValidPPOB(registrationID: String, ro: CHROAddress)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[NewAddress]] = {
+    wsHttp.POST[JsValue, HttpResponse](s"$companyRegUrl/company-registration/corporation-tax-registration/check-ro-address", Json.toJson(ro)
+    )(implicitly, checkROValidPPOBHttpReads(registrationID), hc, ec) map { result =>
+      result.status match {
+        case OK => result.json.asOpt[NewAddress](NewAddress.verifyRoToPPOB)
+        case BAD_REQUEST => None
+      }
+    } recover {
+      case _: BadRequestException =>
+        None
+      case ex: Exception =>
+        logger.error(s"[checkROAddress] for RegId: $registrationID")
+        throw ex
+    }
+  }
+
+  def validateRegisteredOfficeAddress(registrationID: String, ro: CHROAddress)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[NewAddress]] = {
+    wsHttp.POST[JsValue, Option[NewAddress]](s"$companyRegUrl/company-registration/corporation-tax-registration/check-return-business-address", Json.toJson(ro)
+    )(implicitly, validateRegisteredOfficeAddressHttpReads(registrationID), hc, ec)
+  }
+
+  def updateCompanyDetails(registrationID: String, companyDetails: CompanyDetails)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[CompanyDetails] = {
+    val json = Json.toJson[CompanyDetails](companyDetails)
+    wsHttp.PUT[JsValue, CompanyDetails](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/company-details", json
+    )(implicitly, updateCompanyDetailsHttpReads(registrationID), hc, ec)
+  }
+
+  def updateTradingDetails(registrationID: String, tradingDetails: TradingDetails)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[TradingDetailsResponse] = {
+    wsHttp.PUT[JsValue, TradingDetails](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/trading-details", Json.toJson[TradingDetails](tradingDetails)
+    )(implicitly, updateTradingDetailsHttpReads(registrationID), hc, ec) map {
+      tradingDetailsResp =>
+        TradingDetailsSuccessResponse(tradingDetailsResp)
+    }
+  }
+
+  def updateContactDetails(registrationID: String, contactDetails: CompanyContactDetailsApi)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[CompanyContactDetailsResponse] = {
+    val json = Json.toJson(contactDetails)
+    wsHttp.PUT[JsValue, CompanyContactDetails](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/contact-details", json
+    )(implicitly, updateContactDetailsHttpReads(registrationID), hc, ec) map {
+      response => CompanyContactDetailsSuccessResponse(response)
+    }
+  }
+
+  def updateAccountingDetails(registrationID: String, accountingDetails: AccountingDetailsRequest)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[AccountingDetailsResponse] = {
+    val json = Json.toJson(accountingDetails)
+    wsHttp.PUT[JsValue, AccountingDetails](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/accounting-details", json) map {
+      response => AccountingDetailsSuccessResponse(response)
+    }
+  }
+
+  def updateReferences(registrationID: String, payload: ConfirmationReferences)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[ConfirmationReferencesResponse] = {
+    wsHttp.PUT[JsValue, ConfirmationReferences](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/confirmation-references", Json.toJson(payload)) map {
+      res => ConfirmationReferencesSuccessResponse(res)
+    } recover {
+      case ex: UpstreamErrorResponse =>
+        if(UpstreamErrorResponse.Upstream4xxResponse.unapply(ex).isDefined) {
+          logger.error(s"[updateReferences] Received a upstream 4xx code when expecting acknowledgement ref from Company-Registration")
+          DESFailureDeskpro
+        } else {
+          logger.warn(s"[updateReferences] Received a upstream 5xx status code when expecting acknowledgement ref from Company-Registration")
+          DESFailureRetriable
+        }
+      case e: Exception =>
+        logger.error(s"[updateReferences] Received an unknown error when expecting acknowledgement ref from Company-Registration - ${e.getMessage}")
+        DESFailureDeskpro
+    }
+  }
 
   def updateGroups(registrationId:String, groups: Groups)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Groups] = {
     wsHttp.PUT[Groups, HttpResponse](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationId/groups", groups).map {
@@ -390,7 +257,7 @@ trait CompanyRegistrationConnector extends CompanyRegistrationHttpParsers {
   }
 
   def deleteGroups(registrationId:String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Boolean] = {
-    wsHttp.DELETE[HttpResponse](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationId/groups").map{
+    wsHttp.DELETE[HttpResponse](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationId/groups")(readRaw, hc, ec).map{
       _ => true
     }.recoverWith {
       case e =>
@@ -418,15 +285,7 @@ trait CompanyRegistrationConnector extends CompanyRegistrationHttpParsers {
   }
 
   def retrieveEmail(registrationId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[Email]] = {
-    wsHttp.GET[Email](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationId/retrieve-email").map {
-      e => Some(e)
-    } recover {
-      case e: NotFoundException =>
-        None
-      case ex: BadRequestException =>
-        logger.warn(s"[retrieveEmail] Could not find a CT document for rid - $registrationId")
-        None
-    }
+    wsHttp.GET[Option[Email]](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationId/retrieve-email")(retrieveEmailHttpReads(registrationId), hc, ec)
   }
 
   def updateEmail(registrationId: String, email: Email)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[Email]] = {
@@ -442,7 +301,7 @@ trait CompanyRegistrationConnector extends CompanyRegistrationHttpParsers {
 
   def verifyEmail(registrationId: String, email: Email)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[JsValue] = {
     val json = Json.toJson(email)
-    wsHttp.PUT[JsValue, JsValue](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationId/update-email", json)
+    wsHttp.PUT[JsValue, JsValue](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationId/update-email", json)(implicitly, readJsValue, hc, ec)
       .recover {
         case ex: Exception => Json.toJson(ex.getMessage)
       }
@@ -450,17 +309,18 @@ trait CompanyRegistrationConnector extends CompanyRegistrationHttpParsers {
 
   def updateRegistrationProgress(registrationID: String, progress: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse] = {
     val json = Json.obj("registration-progress" -> progress)
-    wsHttp.PUT[JsValue, HttpResponse](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/progress", json)
+    wsHttp.PUT[JsValue, HttpResponse](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/progress", json)(implicitly, readRaw, hc, ec)
   }
 
   def deleteRegistrationSubmission(registrationId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse] = {
-    wsHttp.DELETE[HttpResponse](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationId/delete-submission")
+    wsHttp.DELETE[HttpResponse](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationId/delete-submission")(readRaw, hc, ec)
   }
 
 
   def saveTXIDAfterHO2(registrationID: String, txid: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[HttpResponse]] = {
     val json = Json.obj("transaction_id" -> txid)
-    wsHttp.PUT[JsValue, HttpResponse](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/handOff2Reference-ackRef-save", json).map  {
+    wsHttp.PUT[JsValue, HttpResponse](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/handOff2Reference-ackRef-save", json
+    )(implicitly, readRaw, hc, ec).map  {
       res => Some(res)} recover {
       case ex: BadRequestException =>
         logger.error(s"[saveTXIDAfterHO2] for RegId: $registrationID - ${ex.responseCode} ${ex.message}")

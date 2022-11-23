@@ -17,17 +17,17 @@
 package connectors
 
 import config.{AppConfig, WSHttp}
-import javax.inject.Inject
+import connectors.httpParsers.AddressLookupHttpParsers.{addressHttpReads, onRampHttpReads}
 import models.{AlfJourneyConfig, NewAddress}
-import utils.Logging
 import uk.gov.hmrc.http._
+import utils.Logging
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NoStackTrace
 
 class AddressLookupConnectorImpl @Inject()(val wSHttp: WSHttp,
-                                           appConfig: AppConfig) extends AddressLookupConnector {
+                                           appConfig: AppConfig)(implicit val ec: ExecutionContext) extends AddressLookupConnector {
   lazy val addressLookupFrontendURL: String = appConfig.servicesConfig.baseUrl("address-lookup-frontend")
 }
 
@@ -35,24 +35,17 @@ class ALFLocationHeaderNotSet extends NoStackTrace
 
 trait AddressLookupConnector extends Logging {
 
+  implicit val ec: ExecutionContext
   val addressLookupFrontendURL: String
   val wSHttp: CoreGet with CorePost
 
   def getOnRampURL(alfJourneyConfig: AlfJourneyConfig)(implicit hc: HeaderCarrier): Future[String] = {
-    val onRampUrl = s"$addressLookupFrontendURL/api/v2/init"
-    val locationKey = "Location"
-
-    wSHttp.POST[AlfJourneyConfig, HttpResponse](onRampUrl, alfJourneyConfig) map {
-      response =>
-        response.header(key = locationKey).getOrElse {
-          logger.error("[getOnRampURL] Location header not set in Address Lookup response")
-          throw new ALFLocationHeaderNotSet
-        }
-    }
+    wSHttp.POST[AlfJourneyConfig, String](s"$addressLookupFrontendURL/api/v2/init", alfJourneyConfig)(AlfJourneyConfig.journeyConfigFormat, onRampHttpReads, hc, ec)
   }
 
   def getAddress(id: String)(implicit hc: HeaderCarrier): Future[NewAddress] = {
-    implicit val rds = NewAddress.addressLookupReads
-    wSHttp.GET[NewAddress](s"$addressLookupFrontendURL/api/confirmed?id=$id")
+    wSHttp.GET[NewAddress](s"$addressLookupFrontendURL/api/confirmed?id=$id")(addressHttpReads, hc, ec)
   }
 }
+
+class ALFLocationHeaderNotSetException extends NoStackTrace

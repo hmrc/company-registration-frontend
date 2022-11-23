@@ -20,7 +20,7 @@ import javax.inject.Inject
 import config.AppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import models.handoff.{BusinessActivitiesModel, CompanyNameHandOffModel, HandoffPPOB, _}
-import models.{ConfirmationReferencesSuccessResponse, Groups, SummaryHandOff}
+import models.{ConfirmationReferencesSuccessResponse, Groups}
 import play.api.libs.json.{JsObject, JsString, Json}
 import repositories.NavModelRepo
 import uk.gov.hmrc.http.HeaderCarrier

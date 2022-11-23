@@ -14,15 +14,9 @@
  * limitations under the License.
  */
 
-package models
+package models.handoff
 
 import play.api.libs.json.{JsObject, Json}
-
-// TODO - check for usage and either remove or move to handoff package
-
-case class AccountingDatesHandOffModel(OID: String,
-                         return_url: String,
-                         address: Option[Address])
 
 case class SummaryHandOff(user_id : String,
                           journey_id : String,
@@ -33,8 +27,4 @@ case class SummaryHandOff(user_id : String,
 
 object SummaryHandOff {
   implicit val format = Json.format[SummaryHandOff]
-}
-
-object AccountingDatesHandOffModel {
-  implicit val format = Json.format[AccountingDatesHandOffModel]
 }

@@ -21,6 +21,7 @@ import javax.inject.Inject
 import play.api.libs.json.JsValue
 import play.api.mvc.MessagesControllerComponents
 import uk.gov.hmrc.http.CoreGet
+import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import scala.concurrent.ExecutionContext
@@ -39,7 +40,7 @@ abstract class ModifyThrottledUsersController(mcc: MessagesControllerComponents)
 
   def modifyThrottledUsers(usersIn: Int) = Action.async {
     implicit request =>
-      wSHttp.GET[JsValue](s"$crUrl/company-registration/test-only/modify-throttled-users/$usersIn").map { res =>
+      wSHttp.GET[JsValue](s"$crUrl/company-registration/test-only/modify-throttled-users/$usersIn")(readJsValue, hc, ec).map { res =>
         val usersIn = (res \ "users_in").as[Int]
         Ok(s"users_in set to $usersIn")
       }

@@ -93,10 +93,7 @@ object Address {
       val postcode = (json \ "postcode").asOpt[String]
       val country = (json \ "country").asOpt[String]
 
-      JsSuccess(Address(None, line1, line2, line3, line4, postcode))
-
-      //todo: pull out each line and build address - this will stop postcode failing on test endpoint load as postcode is "postCode" in json ._.
-      //todo: also check what is happening to country on manual address empty - suspect its not getting defaulted to UK
+      JsSuccess(Address(country, line1, line2, line3, line4, postcode))
     }
   }
 

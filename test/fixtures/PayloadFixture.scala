@@ -18,7 +18,7 @@ package fixtures
 
 import config.LangConstants
 import models.handoff._
-import models.{AccountingDatesHandOffModel, HandBackPayloadModel, _}
+import models.{CHROAddress, _}
 import play.api.libs.json.{JsObject, Json}
 import uk.gov.hmrc.http.cache.client.CacheMap
 import utils.JweCommon
@@ -63,7 +63,7 @@ trait PayloadFixture extends AddressFixture with JweFixture {
   lazy val payloadEncrypted3 = JweWithTestKey.encrypt(Json.toJson(testHandBackData3))
   lazy val emptyPayloadEncrypted = JweWithTestKey.encrypt(Json.toJson(emptyHandBackData))
 
-  lazy val validFirstHandBack = HandBackPayloadModel(
+  lazy val validFirstHandBack = handoff.HandBackPayloadModel(
     "testOID",
     "testReturnUrl",
     "testFullName",
@@ -121,18 +121,6 @@ trait PayloadFixture extends AddressFixture with JweFixture {
       JsObject(Seq()),
       LangConstants.english,
       NavLinks("testLink", "testReverseLink")
-  )
-
-  lazy val validAccountingDatesHandOffModelWithAddress = AccountingDatesHandOffModel(
-    "testOID",
-    "testReturnUrl",
-    Some(validAddressWithHouseName)
-  )
-
-  lazy val validAccountingDatesHandOffModelWithNoAddress = AccountingDatesHandOffModel(
-    "testOID",
-    "testReturnUrl",
-    None
   )
 
   val confirmationHandoffPayload = RegistrationConfirmationPayload(

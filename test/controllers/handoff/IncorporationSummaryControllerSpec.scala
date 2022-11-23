@@ -21,7 +21,7 @@ import config.{AppConfig, LangConstants}
 import controllers.reg.ControllerErrorHandler
 import fixtures.PayloadFixture
 import helpers.SCRSSpec
-import models.SummaryHandOff
+import models.handoff.SummaryHandOff
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite

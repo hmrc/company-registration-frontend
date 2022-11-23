@@ -118,7 +118,7 @@ class SendTemplatedEmailConnectorSpec extends SCRSSpec with UnitSpec with Mockit
     }
     "return an upstream 4xx" in new Setup {
       val response = HttpResponse(UNAUTHORIZED, "")
-      intercept[UpstreamErrorResponse](connector.customRead("test","test", response))
+      intercept[Exception](connector.customRead("test","test", response))
     }
   }
 }

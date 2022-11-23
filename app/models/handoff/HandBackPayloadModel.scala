@@ -14,12 +14,11 @@
  * limitations under the License.
  */
 
-package models
+package models.handoff
 
+import models.CHROAddress
 import models.connectors.ConfirmationReferences
 import play.api.libs.json.{JsObject, Json}
-
-// TODO - check for usage and either remove or move to handoff package
 
 case class HandBackPayloadModel(OID: String,
                                 return_url: String,

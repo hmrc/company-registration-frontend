@@ -17,12 +17,12 @@
 package controllers.reg
 
 import java.io.File
-
 import config.AppConfig
 import connectors._
 import controllers.auth.AuthenticatedController
 import controllers.handoff.{routes => handoffRoutes}
 import controllers.verification.{routes => emailRoutes}
+
 import javax.inject.Inject
 import models.ThrottleResponse
 import utils.Logging
@@ -32,6 +32,7 @@ import services._
 import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolments, PlayAuthConnector}
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 import uk.gov.hmrc.play.binders.ContinueUrl
+import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 import utils.SCRSExceptions
 import views.html.{timeout => timeoutView}
 
@@ -169,10 +170,10 @@ class SignInOutController @Inject()(val authConnector: PlayAuthConnector,
     } else f
   }
 
-  def signOut(continueUrl: Option[ContinueUrl] = None): Action[AnyContent] = Action.async {
+  def signOut(continueUrl: Option[RedirectUrl] = None): Action[AnyContent] = Action.async {
     implicit request =>
       val c = continueUrl match {
-        case Some(str) => str.url
+        case Some(str) => str.unsafeValue
         case None => appConfig.betaFeedbackUrl
       }
       Future.successful(Redirect(appConfig.logoutURL, Map("continue" -> Seq(c))))

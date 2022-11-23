@@ -17,16 +17,14 @@
 package connectors
 
 import javax.inject.Inject
-
 import config.{AppConfig, WSHttp}
 import models.Shareholder
 import utils.Logging
 import play.api.libs.json.JsValue
 import services.MetricsService
 import uk.gov.hmrc.http.{CoreGet, HeaderCarrier, HttpException, HttpResponse}
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import uk.gov.hmrc.http.HttpReads.Implicits._
+import scala.concurrent.{ExecutionContext, Future}
 
 class IncorpInfoConnectorImpl @Inject()(appConfig: AppConfig, val wSHttp: WSHttp, val metricsService: MetricsService) extends IncorpInfoConnector {
 
@@ -39,21 +37,21 @@ trait IncorpInfoConnector extends Logging {
 
   val metricsService: MetricsService
 
-  def getCompanyName(transId: String)(implicit hc: HeaderCarrier): Future[String] = {
+  def getCompanyName(transId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[String] = {
     getCompanyProfile(transId).map(js => (js \ "company_name").as[String]) recover { case _ =>
       logger.info(s"[getCompany Name] - Couldn't find company name")
       ""
     }
   }
 
-  def getCompanyProfile(transId: String)(implicit hc: HeaderCarrier): Future[JsValue] = {
+  def getCompanyProfile(transId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[JsValue] = {
     metricsService.processDataResponseWithMetrics[JsValue](metricsService.retrieveCompanyProfileIITimer.time()) {
-      wSHttp.GET[JsValue](s"$incorpInfoUrl/$transId/company-profile") recover handleError(transId, "getCompanyProfile")
+      wSHttp.GET[JsValue](s"$incorpInfoUrl/$transId/company-profile")(readJsValue, hc, ec) recover handleError(transId, "getCompanyProfile")
     }
   }
 
-  def returnListOfShareholdersFromTxApi(transId: String)(implicit hc: HeaderCarrier): Future[Either[Exception,List[Shareholder]]] = {
-    wSHttp.GET[HttpResponse](s"$incorpInfoUrl/shareholders/$transId").map { res =>
+  def returnListOfShareholdersFromTxApi(transId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[Exception,List[Shareholder]]] = {
+    wSHttp.GET[HttpResponse](s"$incorpInfoUrl/shareholders/$transId")(readRaw, hc, ec).map { res =>
       if(res.status == 200) {
         res.json.validate[List[Shareholder]].asEither match {
           case Right(l) => Right(l)
@@ -78,17 +76,17 @@ trait IncorpInfoConnector extends Logging {
       throw new Exception
   }
 
-  def injectTestIncorporationUpdate(transId: String, isSuccess: Boolean)(implicit hc: HeaderCarrier): Future[Boolean] = {
+  def injectTestIncorporationUpdate(transId: String, isSuccess: Boolean)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Boolean] = {
     val queryString = s"txId=$transId&date=2018-01-01${if(isSuccess) "&crn=12345678" else ""}&success=$isSuccess"
 
-    wSHttp.GET[HttpResponse](s"$incorpInfoUrl/test-only/add-incorp-update/?$queryString") map (_ => true) recover { case _ =>
+    wSHttp.GET[HttpResponse](s"$incorpInfoUrl/test-only/add-incorp-update/?$queryString")(readRaw, hc, ec) map (_ => true) recover { case _ =>
         logger.error(s"[injectTestIncorporationUpdate] Failed to inject a test incorporation update into II for $transId")
         false
     }
   }
 
-  def manuallyTriggerIncorporationUpdate(implicit hc:HeaderCarrier): Future[Boolean] = {
-    wSHttp.GET[HttpResponse](s"$incorpInfoUrl/test-only/manual-trigger/fireSubs") map (_ => true) recover { case _ =>
+  def manuallyTriggerIncorporationUpdate()(implicit hc:HeaderCarrier, ec: ExecutionContext): Future[Boolean] = {
+    wSHttp.GET[HttpResponse](s"$incorpInfoUrl/test-only/manual-trigger/fireSubs")(readRaw, hc, ec) map (_ => true) recover { case _ =>
         logger.error(s"[manuallyTriggerIncorporationUpdate] Failed to trigger subscription processing on II")
         false
     }

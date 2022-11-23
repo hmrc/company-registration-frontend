@@ -19,14 +19,17 @@ package controllers.verification
 import config.AppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthenticatedController
+
 import javax.inject.{Inject, Singleton}
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import services.EmailVerificationService
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.play.binders.ContinueUrl
+import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 import utils.SessionRegistration
 import views.html.verification.{CreateGGWAccount, CreateNewGGWAccount, createNewAccount, verifyYourEmail}
+
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
@@ -94,27 +97,25 @@ class EmailVerificationController @Inject()(val authConnector: PlayAuthConnector
   }
 
   val createSubmit: Action[AnyContent] = Action.async { implicit request =>
-    //TODO change this to create account - need to remove auth context from session / logout
     Future.successful(Redirect(controllers.reg.routes.ReturningUserController.show))
   }
 
   val createGGWAccountAffinityShow: Action[AnyContent] = Action.async {
     implicit request =>
       val redirect = controllers.reg.routes.ReturningUserController.show.url
-      val url = controllers.reg.routes.SignInOutController.signOut(Some(ContinueUrl(s"$frontEndUrl$redirect"))).url
+      val url = controllers.reg.routes.SignInOutController.signOut(Some(RedirectUrl(s"$frontEndUrl$redirect"))).url
       Future.successful(Ok(CreateGGWAccount(url)))
 
   }
 
   val createGGWAccountSubmit: Action[AnyContent] = Action.async { implicit request =>
-    //TODO change this to create account - need to remove auth context from session / logout
     Future.successful(Redirect(controllers.reg.routes.SignInOutController.signOut(None)).withNewSession)
   }
 
   val createNewGGWAccountShow: Action[AnyContent] = Action.async {
     implicit request =>
       val redirect = controllers.reg.routes.ReturningUserController.show.url
-      val url = controllers.reg.routes.SignInOutController.signOut(Some(ContinueUrl(s"$frontEndUrl$redirect"))).url
+      val url = controllers.reg.routes.SignInOutController.signOut(Some(RedirectUrl(s"$frontEndUrl$redirect"))).url
       Future.successful(Ok(CreateNewGGWAccount(url)))
   }
 

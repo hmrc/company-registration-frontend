@@ -20,6 +20,7 @@ import helpers.UnitSpec
 import mocks.SCRSMocks
 import models._
 import models.connectors.ConfirmationReferences
+import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
@@ -220,7 +221,7 @@ class GroupServiceSpec()(implicit messagesProvider: MessagesProvider) extends Un
     )
 
     "return a list of shareholders from coho and filter out shareholders without all 3 voting rights" in new Setup {
-      when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(any()))
+      when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Right(listOfShareholders)))
 
       val res: Either[Exception, List[Shareholder]] = await(service.returnListOfShareholders("foo"))
@@ -240,7 +241,7 @@ class GroupServiceSpec()(implicit messagesProvider: MessagesProvider) extends Un
         Shareholder("big company 4", Some(75.0), Some(73.0), Some(7.0), CHROAddress("11", "Add L1", Some("Add L2"), "London", "United Kingdom", None, Some("ZZ1 1ZZ"), None)),
         Shareholder("big company 5", Some(75.01), Some(0), Some(7.0), CHROAddress("11", "Add L1", Some("Add L2"), "London", "United Kingdom", None, Some("ZZ1 1ZZ"), None))
       )
-      when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(any()))
+      when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Right(listOfShareholdersLowerThan75)))
 
       val res: Either[Exception, List[Shareholder]] = await(service.returnListOfShareholders("foo"))
@@ -248,7 +249,7 @@ class GroupServiceSpec()(implicit messagesProvider: MessagesProvider) extends Un
     }
 
     "return an empty list if ii returns an empty list" in new Setup {
-      when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(any())).thenReturn(
+      when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(
         Future.successful(Right(List.empty[Shareholder])))
 
       val res: Either[Exception, List[Shareholder]] = await(service.returnListOfShareholders("foo"))
@@ -257,7 +258,7 @@ class GroupServiceSpec()(implicit messagesProvider: MessagesProvider) extends Un
 
     "if II returns Left exception failed. this returns a Left exception" in new Setup {
       val ex = new InternalServerException("")
-      when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(any()))
+      when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Left(ex)))
 
       await(service.returnListOfShareholders("foo")).left.get mustBe ex
@@ -303,7 +304,7 @@ class GroupServiceSpec()(implicit messagesProvider: MessagesProvider) extends Un
     "return address if returnListOfShareholdersFromTxApi returns right and name of company IS in list" in new Setup {
       when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any(), any()))
         .thenReturn(Future.successful(ConfirmationReferencesSuccessResponse(ConfirmationReferences("foo", None, None, ""))))
-      when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(any()))
+      when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Right(listOfShareholders)))
 
       val res: Either[Exception, Option[CHROAddress]] = await(service.returnAddressFromTxAPI(groupCompanyName, "foo"))
@@ -324,7 +325,7 @@ class GroupServiceSpec()(implicit messagesProvider: MessagesProvider) extends Un
 
       when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any(), any()))
         .thenReturn(Future.successful(ConfirmationReferencesSuccessResponse(ConfirmationReferences("foo", None, None, ""))))
-      when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(any()))
+      when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Right(identical)))
 
       val res: Either[Exception, Option[CHROAddress]] = await(service.returnAddressFromTxAPI(groupCompanyName, "foo"))
@@ -335,7 +336,7 @@ class GroupServiceSpec()(implicit messagesProvider: MessagesProvider) extends Un
       val groupCompanyNameDoesntMatch = GroupCompanyName("big company ", "CohoEntered")
       when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any(), any()))
         .thenReturn(Future.successful(ConfirmationReferencesSuccessResponse(ConfirmationReferences("foo", None, None, ""))))
-      when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(any()))
+      when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Right(listOfShareholders)))
 
       val res: Either[Exception, Option[CHROAddress]] = await(service.returnAddressFromTxAPI(groupCompanyNameDoesntMatch, "foo"))
@@ -346,7 +347,7 @@ class GroupServiceSpec()(implicit messagesProvider: MessagesProvider) extends Un
 
       when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any(), any()))
         .thenReturn(Future.successful(ConfirmationReferencesSuccessResponse(ConfirmationReferences("foo", None, None, ""))))
-      when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(any()))
+      when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Right(List.empty)))
 
       val res: Either[Exception, Option[CHROAddress]] = await(service.returnAddressFromTxAPI(groupCompanyName, "foo"))
@@ -357,7 +358,7 @@ class GroupServiceSpec()(implicit messagesProvider: MessagesProvider) extends Un
       val ex = new Exception("foo")
       when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any(), any()))
         .thenReturn(Future.successful(ConfirmationReferencesSuccessResponse(ConfirmationReferences("foo", None, None, ""))))
-      when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(any()))
+      when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Left(ex)))
 
       val res: Either[Exception, Option[CHROAddress]] = await(service.returnAddressFromTxAPI(groupCompanyName, "foo"))
@@ -385,7 +386,7 @@ class GroupServiceSpec()(implicit messagesProvider: MessagesProvider) extends Un
     "return exception if there is no groupCompanyName" in new Setup {
       when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any(), any())).thenReturn(Future.successful(
         ConfirmationReferencesSuccessResponse(ConfirmationReferences("foo", None, None, ""))))
-      when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(any()))
+      when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Left(new Exception(""))))
 
       val res: InternalServerException = intercept[InternalServerException](service.retreiveValidatedTxApiAddress(Groups(groupRelief = false, None, None, None), "foo"))
@@ -396,7 +397,7 @@ class GroupServiceSpec()(implicit messagesProvider: MessagesProvider) extends Un
       val address = NewAddress("1", "2", Some("3"), Some("4"), Some("5"), Some("6"), None)
       when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any(), any()))
         .thenReturn(Future.successful(ConfirmationReferencesSuccessResponse(ConfirmationReferences("foo", None, None, ""))))
-      when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(any()))
+      when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Right(listOfShareholder)))
       when(mockCompanyRegistrationConnector.validateRegisteredOfficeAddress(any(), any())(any(), any()))
         .thenReturn(Future.successful(Some(address)))
@@ -415,7 +416,7 @@ class GroupServiceSpec()(implicit messagesProvider: MessagesProvider) extends Un
       val address = NewAddress("1", "2", Some("3"), Some("4"), Some("5"), Some("6"), None)
       when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any(), any()))
         .thenReturn(Future.successful(ConfirmationReferencesSuccessResponse(ConfirmationReferences("foo", None, None, ""))))
-      when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(any()))
+      when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Right(listOfShareholder)))
       when(mockCompanyRegistrationConnector.validateRegisteredOfficeAddress(any(), any())(any(), any()))
         .thenReturn(Future.successful(None))
@@ -485,7 +486,7 @@ class GroupServiceSpec()(implicit messagesProvider: MessagesProvider) extends Un
     "return a left exception if txapi has a blip and connector call returns left" in new Setup {
       when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any(), any()))
         .thenReturn(Future.successful(ConfirmationReferencesSuccessResponse(ConfirmationReferences("foo", None, None, ""))))
-      when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(any()))
+      when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Left(new Exception("foo"))))
 
       val res: Either[Exception, Groups] = await(service.saveTxShareHolderAddress(
@@ -498,7 +499,7 @@ class GroupServiceSpec()(implicit messagesProvider: MessagesProvider) extends Un
     "return a  right updated group block, and update groups if returns address after validation" in new Setup {
       when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any(), any())).thenReturn(Future.successful(
         ConfirmationReferencesSuccessResponse(ConfirmationReferences("foo", None, None, ""))))
-      when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(any()))
+      when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Right(listOfShareholders)))
       when(mockCompanyRegistrationConnector.validateRegisteredOfficeAddress(any(), any())(any(), any()))
         .thenReturn(Future.successful(Some(address)))
@@ -522,7 +523,7 @@ class GroupServiceSpec()(implicit messagesProvider: MessagesProvider) extends Un
     "return Future list of string and groups for OTHER name, no drop occurs in cr even though name matches" in new Setup {
       when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any(), any()))
         .thenReturn(Future.successful(ConfirmationReferencesSuccessResponse(ConfirmationReferences("footxID", None, None, "foo"))))
-      when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(any()))
+      when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Right(shareholders)))
       when(mockCompanyRegistrationConnector.shareholderListValidationEndpoint(any())(any(), any()))
         .thenReturn(Future.successful(List("foo", "bar", "wiZZ 123")))
@@ -540,7 +541,7 @@ class GroupServiceSpec()(implicit messagesProvider: MessagesProvider) extends Un
     "return a future list removing duplicates if groups name is empty" in new Setup {
       when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any(), any()))
         .thenReturn(Future.successful(ConfirmationReferencesSuccessResponse(ConfirmationReferences("footxID", None, None, "foo"))))
-      when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(any()))
+      when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Right(shareholders)))
       when(mockCompanyRegistrationConnector.shareholderListValidationEndpoint(eqTo(List("foo", "bar")))(any(), any()))
         .thenReturn(Future.successful(List("foo", "foo", "foo", "bar", "bar", "bar", "wiZZ 123")))
@@ -559,7 +560,7 @@ class GroupServiceSpec()(implicit messagesProvider: MessagesProvider) extends Un
     "return future list of string and group where name does not exist - a drop takes place of all other fields" in new Setup {
       when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any(), any()))
         .thenReturn(Future.successful(ConfirmationReferencesSuccessResponse(ConfirmationReferences("footxID", None, None, "foo"))))
-      when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(any()))
+      when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Right(shareholders)))
       when(mockCompanyRegistrationConnector.shareholderListValidationEndpoint(eqTo(List("foo", "bar")))(any(), any()))
         .thenReturn(Future.successful(List("foo", "bar", "wiZZ 123")))
@@ -579,7 +580,7 @@ class GroupServiceSpec()(implicit messagesProvider: MessagesProvider) extends Un
     "return future  filtered list of string and group where name is in list and is not Other" in new Setup {
       when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any(), any()))
         .thenReturn(Future.successful(ConfirmationReferencesSuccessResponse(ConfirmationReferences("footxID", None, None, "foo"))))
-      when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(any()))
+      when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Right(shareholders)))
       when(mockCompanyRegistrationConnector.shareholderListValidationEndpoint(any())(any(), any()))
         .thenReturn(Future.successful(List("foo", "bar", "wiZZ 123")))
@@ -597,7 +598,7 @@ class GroupServiceSpec()(implicit messagesProvider: MessagesProvider) extends Un
     "return future NON filtered list of string and group where name is NOT in the list and is NOT Other" in new Setup {
       when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any(), any()))
         .thenReturn(Future.successful(ConfirmationReferencesSuccessResponse(ConfirmationReferences("footxID", None, None, "foo"))))
-      when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(any()))
+      when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Right(shareholders)))
       when(mockCompanyRegistrationConnector.shareholderListValidationEndpoint(eqTo(List("foo", "bar")))(any(), any()))
         .thenReturn(Future.successful(List("foo", "bar", "wiZZ 123")))
@@ -617,7 +618,7 @@ class GroupServiceSpec()(implicit messagesProvider: MessagesProvider) extends Un
     "return empty list and  groups passed in if Left returned from returnListOfShareholdersFromTxApi and nothing updated because coho had a wobble" in new Setup {
       when(mockCompanyRegistrationConnector.fetchConfirmationReferences(any())(any(), any()))
         .thenReturn(Future.successful(ConfirmationReferencesSuccessResponse(ConfirmationReferences("footxID", None, None, "foo"))))
-      when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(any()))
+      when(mockIncorpInfoConnector.returnListOfShareholdersFromTxApi(any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Left(new Exception("foo uh oh"))))
 
       val res: (List[String], Groups) = await(service.returnValidShareholdersAndUpdateGroups(

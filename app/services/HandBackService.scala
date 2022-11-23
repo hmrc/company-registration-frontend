@@ -26,7 +26,9 @@ import play.api.libs.json.{Format, JsObject, JsValue}
 import repositories._
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.binders.ContinueUrl
+import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 import utils._
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.util.control.NoStackTrace
@@ -84,7 +86,7 @@ trait HandBackService extends HandOffNavigator with Logging {
   }
 
   private def validateLink(link: String): Unit = {
-    ContinueUrl(link)
+    RedirectUrl(link)
   }
 
   private def validateLinks(links: NavLinks) {

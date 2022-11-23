@@ -17,7 +17,6 @@
 package controllers
 
 import java.time.LocalDate
-
 import builders.AuthBuilder
 import config.AppConfig
 import connectors._
@@ -39,7 +38,9 @@ import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolments}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.binders.ContinueUrl
+import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 import views.html.{timeout => timeoutView}
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -340,23 +341,16 @@ class SignInOutControllerSpec extends SCRSSpec
 
     "redirect to the gg sign out url with a continue query string pointing to the specified relative page" in new Setup {
       val continueUrl = "/wibble"
-      val result = controller.signOut(Some(ContinueUrl(continueUrl)))(FakeRequest())
+      val result = controller.signOut(Some(RedirectUrl(continueUrl)))(FakeRequest())
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some(s"http://localhost:9553/bas-gateway/sign-out-without-state?continue=${encodeURL(continueUrl)}")
     }
 
     "redirect to the gg sign out url with a continue query string pointing to the specified absolute page" in new Setup {
       val continueUrl = "https://foo.gov.uk/wibble"
-      val result = controller.signOut(Some(ContinueUrl(continueUrl)))(FakeRequest())
+      val result = controller.signOut(Some(RedirectUrl(continueUrl)))(FakeRequest())
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some(s"http://localhost:9553/bas-gateway/sign-out-without-state?continue=${encodeURL(continueUrl)}")
-    }
-
-    "NOT redirect if the url starts with //" in new Setup {
-      val continueUrl = "//foo.gov.uk/wibble"
-      intercept[IllegalArgumentException] {
-        controller.signOut(Some(ContinueUrl(continueUrl)))(FakeRequest())
-      }
     }
   }
 
