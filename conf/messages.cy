@@ -13,6 +13,7 @@ common.button.sign-in =	Mewngofnodi
 common.button.back = Yn ôl
 common.button.start =	Dechrau nawr
 common.button.startAgain	= Dechrau eto
+app.common.errorSummaryLabel   = Mae gwallau ar y dudalen hon
 app.common.yes    = Iawn
 app.common.no     = Na
 app.getHelp       = A yw’r dudalen hon yn gweithio’n iawn? (yn agor tab newydd)
