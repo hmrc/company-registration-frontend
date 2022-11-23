@@ -27,6 +27,7 @@ import models.connectors.ConfirmationReferences
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.{any, anyString}
 import org.mockito.Mockito._
+import play.api.http.Status.OK
 import play.api.libs.json.{JsObject, JsValue, Json}
 import uk.gov.hmrc.http._
 import utils.LogCapturingHelper
@@ -246,6 +247,11 @@ class CompanyRegistrationConnectorSpec extends SCRSSpec with CTDataFixture with 
 
       await(connector.retrieveCorporationTaxRegistrationDetails("123")) mustBe Some(validCTDataResponse)
     }
+    "return a 404" in new Setup {
+      mockHttpGet[Option[CorporationTaxRegistrationResponse]]("testUrl", None)
+
+      await(connector.retrieveCorporationTaxRegistrationDetails("123")) mustBe None
+    }
     "return any other exception" in new Setup {
       when(mockWSHttp.GET[Option[CorporationTaxRegistrationResponse]](ArgumentMatchers.anyString(),ArgumentMatchers.any(),ArgumentMatchers.any())
         (ArgumentMatchers.any(), ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
@@ -261,6 +267,12 @@ class CompanyRegistrationConnectorSpec extends SCRSSpec with CTDataFixture with 
 
       await(connector.retrieveTradingDetails(regID)) mustBe Some(tradingDetailsTrue)
     }
+    "return a 404" in new Setup {
+      mockHttpGet[Option[TradingDetails]]("testUrl", None)
+
+      await(connector.retrieveTradingDetails("123")) mustBe None
+    }
+
     "return any other exception" in new Setup {
       when(mockWSHttp.GET[Option[TradingDetails]](ArgumentMatchers.anyString(),ArgumentMatchers.any(),ArgumentMatchers.any())
         (ArgumentMatchers.any(), ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
@@ -328,6 +340,13 @@ class CompanyRegistrationConnectorSpec extends SCRSSpec with CTDataFixture with 
 
       await(connector.retrieveCompanyDetails("12345")) mustBe Some(validCompanyDetailsResponse)
     }
+
+    "return a 404" in new Setup {
+      mockHttpGet[Option[CompanyDetails]]("testUrl", None)
+
+      await(connector.retrieveCompanyDetails("12345")) mustBe None
+    }
+
     "return any other exception" in new Setup {
       when(mockWSHttp.GET[JsObject](any(), any(), any())(any(), any[HeaderCarrier](), any()))
         .thenReturn(Future.failed(new Exception("foo")))
@@ -349,6 +368,19 @@ class CompanyRegistrationConnectorSpec extends SCRSSpec with CTDataFixture with 
         .thenReturn(Future.failed(new Exception("foo")))
 
       intercept[Exception](await(connector.updateReferences("testRegId", validConfirmationReferences)))
+    }
+  }
+
+  "updateRegistrationProgress" should {
+    "update registration progress" in new Setup {
+      mockHttpPUT[JsValue, HttpResponse]("testUrl", HttpResponse(OK, ""))
+      await(connector.updateRegistrationProgress("12345", "")).status mustBe OK
+    }
+    "return any other exception" in new Setup {
+      when(mockWSHttp.GET[JsObject](any(), any(), any())(any(), any[HeaderCarrier](), any()))
+        .thenReturn(Future.failed(new Exception("foo")))
+
+      intercept[Exception](await(connector.updateRegistrationProgress("testRegId", "")))
     }
   }
 

@@ -19,13 +19,8 @@ package config
 import com.google.inject.AbstractModule
 import config.filters.{SessionIdFilter, SessionIdFilterImpl}
 import connectors._
-import controllers.dashboard.{CancelRegistrationController, DashboardController}
-import controllers.handoff._
-import controllers.healthcheck.{HealthCheckController}
 import controllers.reg._
 import controllers.test._
-import controllers.verification.{EmailVerificationController}
-import controllers.{PolicyController}
 import repositories.{NavModelRepo, NavModelRepoImpl}
 import services._
 import services.internal.{TestIncorporationService, TestIncorporationServiceImpl}

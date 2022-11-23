@@ -181,7 +181,7 @@ trait CompanyRegistrationConnector extends Logging {
 
   def checkROValidPPOB(registrationID: String, ro: CHROAddress)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[NewAddress]] = {
     wsHttp.POST[JsValue, HttpResponse](s"$companyRegUrl/company-registration/corporation-tax-registration/check-ro-address", Json.toJson(ro)
-    )(implicitly, checkROValidPPOBHttpReads(registrationID), hc, ec) map { result =>
+    )(implicitly, rawReads, hc, ec) map { result =>
       result.status match {
         case OK => result.json.asOpt[NewAddress](NewAddress.verifyRoToPPOB)
         case BAD_REQUEST => None
