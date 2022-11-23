@@ -337,15 +337,6 @@ errorPages.failedSubmission.error.message_required =	Rhowch fanylion yr hyn yr o
 errorPages.deskproSubmitted.description =	Diolch
 errorPages.deskproSubmitted.p1 =	Mae’ch cyflwyniad wedi dod i law.
 errorPages.deskproSubmitted.p2 =	Byddwn yn cysylltu â chi cyn gynted ag y gallwn i’ch helpu i lenwi’ch cais.
-errorPages.incorporationRejected.title =	Yn anffodus, ni allwch fynd yn eich blaen
-errorPages.incorporationRejected.header =	Yn anffodus, ni allwch fynd yn eich blaen
-errorPages.incorporationRejected.para1 =	Rydym newydd gael gwybod gan Dŷ'r Cwmnïau nad yw wedi gallu sefydlu’r cwmni. Mae hyn yn golygu na allwch fynd yn eich blaen â’r gwasanaeth hwn.
-errorPages.incorporationRejected.header2 =	Beth sy’n digwydd nesaf?
-errorPages.incorporationRejected.para2 =	Byddwn yn anfon e-bost atoch gyda’r rheswm pam a byddwn yn ad-dalu unrhyw daliadau a wnaethoch o fewn 24 awr. Gall hyn gymryd hyd at 4 diwrnod i ymddangos ar eich cyfriflen banc.
-errorPages.incorporationRejected.para3 =	Er diogelwch, bydd unrhyw fanylion rydych wedi’u cofnodi yn cael eu dileu.
-errorPages.incorporationRejected.para4 =	Os ydych yn dal eisiau sefydlu cwmni cyfyngedig, bydd angen i chi ddechrau’r broses gofrestru eto gan ddefnyddio’r cysylltiad ar <a href="{0}">Cofrestru cwmni</a>
-errorPages.incorporationRejected.link =	https://www.gov.uk/limited-company-formation/register-your-company
-errorPages.incorporationRejected.para4.1 =	dudalen GOV.UK.
 errorPages.takeoverInformationNeeded.title =	Mae angen rhywfaint o wybodaeth ychwanegol arnom
 errorPages.takeoverInformationNeeded.header =	Mae angen rhywfaint o wybodaeth ychwanegol arnom
 errorPages.takeoverInformationNeeded.p1 =	Cyn i chi barhau â’r cofrestriad, mae angen rhagor o wybodaeth arnom ynghylch eich cwmni’n cymryd cwmni arall drosodd.

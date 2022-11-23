@@ -14,9 +14,6 @@ GET        /renew-session                           controllers.reg.SignInOutCon
 GET        /error/destroy-session                   controllers.reg.SignInOutController.destroySession
 GET        /error/timeout                           controllers.reg.SignInOutController.timeoutShow
 
-GET        /cant-continue                           controllers.reg.RegistrationUnsuccessfulController.rejectionShow
-GET        /cant-continue-submit                    controllers.reg.RegistrationUnsuccessfulController.rejectionSubmit
-
 GET        /something-went-wrong                    controllers.reg.ConfirmationController.deskproPage
 POST       /something-went-wrong                    controllers.reg.ConfirmationController.submitTicket
 
