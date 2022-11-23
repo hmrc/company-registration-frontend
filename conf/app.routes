@@ -86,8 +86,6 @@ POST       /enter-your-details                      controllers.verification.Ema
 GET        /sign-in-complete-application            controllers.reg.IncompleteRegistrationController.show
 POST       /sign-in-complete-application            controllers.reg.IncompleteRegistrationController.submit
 
-GET        /cookies-privacy-terms                   controllers.PolicyController.policyLinks
-
 ## HANDOFF / HANDBACK ROUTES ##
 
 #HO1 / HO1b

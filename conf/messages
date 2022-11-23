@@ -476,30 +476,6 @@ page.addressLookup.takeovers.homeAddress.confirm.description            = Confir
 page.addressLookup.confirm.continue                                 = Confirm and continue
 page.addressLookup.confirm.change                                   = Change
 
-## Cookies, Policy, Terms and Conditions
-page.policy.title                                                   = Cookies, privacy and terms
-page.policy.heading                                                 = Cookies, privacy and terms
-page.policy.p1                                                      = This is a joint service from Companies House and HM Revenue & Customs (HMRC). The departments have their own cookie policies, privacy policies and terms and conditions. They also share data collected through the service.
-page.shared.h2                                                      = Data shared between departments
-page.shared.p1                                                      = Companies House shares the following data with HMRC:
-page.shared.l1                                                      = the company name
-page.shared.l2                                                      = the company’s registered office address
-page.shared.l3                                                      = each director’s name, their correspondence address and date of birth
-page.shared.l4                                                      = whether incorporation has been successful or not
-page.shared.l5                                                      = (if successful) the company registration number
-page.shared.p2                                                      = HMRC shares the following with Companies House:
-page.shared.l6                                                      = the email address used for Government Gateway registration
-page.shared.p3                                                      = Each department has its own policies to ensure the protection of your personal information.
-page.policy.cookies                                                 = Cookie policies
-page.policy.cookies.li1                                             = Companies House cookie policy
-page.policy.cookies.li2                                             = HMRC cookie policy
-page.policy.privacy                                                 = Privacy policies
-page.policy.privacy.li1                                             = Companies House personal information charter
-page.policy.privacy.li2                                             = HMRC privacy policy
-page.policy.termsAndConditions                                      = Terms and conditions
-page.policy.termsAndConditions.li1                                  = Companies House service information
-page.policy.termsAndConditions.li2                                  = HMRC service information
-
 ## Help text
 footer.phone.h1                                                     = Get phone support
 footer.phone.call_support                                           = Call our support team
