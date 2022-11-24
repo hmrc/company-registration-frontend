@@ -24,6 +24,9 @@
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 @import uk.gov.hmrc.govukfrontend.views.Aliases.HeadCell
 @import views.ViewUtils._
+@import uk.gov.hmrc.play.language.LanguageUtils
+@import java.time._
+@import java.time.format.DateTimeFormatter
 
 @this(layout: templates.layout,
         h1: components.h1,
@@ -35,7 +38,9 @@
         registrationStatus: displayRegistrationStatus,
         bullets: components.bullets,
         link: components.link,
-        vatDashboard: vatDashboard )
+        vatDashboard: vatDashboard,
+        utils: LanguageUtils
+)
 
 @(dash: models.Dashboard, cohoSignIn: String)(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
@@ -122,7 +127,9 @@
     rows = Seq(
         Seq(
             TableRow(content = Text(messages("page.reg.Dashboard.submissionDate")), classes = "govuk-!-width-one-half"),
-            TableRow(content = HtmlContent(dash.payeDash.lastUpdate.fold("NONE")(ref => ref)), attributes = Map("id" -> "PAYEDate"), classes = "govuk-!-width-one-half"),
+            TableRow(content = HtmlContent(
+                utils.Dates.formatDate(LocalDate.parse(dash.payeDash.lastUpdate.fold("NONE")(ref => ref), DateTimeFormatter.ofPattern("dd MMMM yyyy")))),
+                attributes = Map("id" -> "PAYEDate"), classes = "govuk-!-width-one-half"),
         ),
     ),
     captionClasses = "govuk-table__caption--m",
@@ -193,7 +200,7 @@
                         Seq(
                             TableRow(content = Text(messages("page.reg.Dashboard.submissionDate"))),
                             TableRow(content = Text(dash.incDash.submissionDate match {
-                                case Some(value) => value
+                                case Some(value) => utils.Dates.formatDate(LocalDate.parse(value, DateTimeFormatter.ofPattern("dd MMMM yyyy")))
                                 case None => ""
                             }), attributes = Map("id" -> "incorpSubmissionDate"))
                         ),
@@ -320,7 +327,7 @@
                         Seq(
                             TableRow(content = Text(messages("page.reg.Dashboard.submissionDate"))),
                             TableRow(content = Text(dash.incDash.ctSubmissionDate match {
-                                case Some(value) => value
+                                case Some(value) => utils.Dates.formatDate(LocalDate.parse(value, DateTimeFormatter.ofPattern("dd MMMM yyyy")))
                                 case None => ""
                             }))
                         ),

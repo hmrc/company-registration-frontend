@@ -328,7 +328,7 @@ class TestEndpointController @Inject()(val authConnector: PlayAuthConnector,
     implicit request =>
       val incorpAndCTDash = IncorpAndCTDashboard(
         incorpCTStatus,
-        Some("submissionDate"),
+        Some("10 October 2017"),
         Some("transactionID"),
         Some("payementRef"),
         Some("crn"),

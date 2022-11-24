@@ -17,9 +17,11 @@
 package controllers.reg
 
 import config.AppConfig
+
 import javax.inject.{Inject, Singleton}
 import play.api.i18n.Messages
 import play.api.mvc.Request
+import play.twirl.api.Html
 import views.html.{error_template => errorTemplateView}
 
 @Singleton
@@ -28,6 +30,6 @@ class ControllerErrorHandler @Inject()(error_template: errorTemplateView)(implic
   def defaultErrorPage(implicit request: Request[_], message: Messages) = error_template(
     Messages("global.error.title"),
     Messages("global.error.heading"),
-    Messages("global.error.message", controllers.reg.routes.CompletionCapacityController.show)
+    Messages("global.error.message")
   )
 }

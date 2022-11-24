@@ -130,7 +130,15 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
       val dashboard = Dashboard(
         "testCompanyName",
         IncorpAndCTDashboard(
-          "locked", None, Some("trans-12345"), Some("pay-12345"), None, None, Some("ack-12345"), None, None
+          "locked",
+          None,
+          Some("trans-12345"),
+          Some("pay-12345"),
+          None,
+          None,
+          Some("ack-12345"),
+          None,
+          None
         ),
         ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo")), Some(payeThresholds)),
         ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
@@ -207,7 +215,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
       val dashboard = Dashboard(
         "testCompanyName",
         IncorpAndCTDashboard(
-          "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), None, Some("CTUTR")
+          "acknowledged", Some("10 October 2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11 October 2017"), Some("ack-12345"), None, Some("CTUTR")
         ),
         ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo")), Some(payeThresholds)),
         ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
@@ -246,7 +254,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
         val dashboard = Dashboard(
           "testCompanyName",
           IncorpAndCTDashboard(
-            "submitted", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some(status), None
+            "submitted", Some("10 October 2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11 October 2017"), Some("ack-12345"), Some(status), None
           ),
           ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo")), None),
           ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
@@ -284,7 +292,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
         val dashboard = Dashboard(
           "testCompanyName",
           IncorpAndCTDashboard(
-            "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some(status), Some("exampleUTR")
+            "acknowledged", Some("10 October 2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11 October 2017"), Some("ack-12345"), Some(status), Some("exampleUTR")
           ),
           ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo")), Some(payeThresholds)),
           ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
@@ -323,7 +331,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
         val dashboard = Dashboard(
           "testCompanyName",
           IncorpAndCTDashboard(
-            "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some(status), None
+            "acknowledged", Some("10 October 2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11 October 2017"), Some("ack-12345"), Some(status), None
           ),
           ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo")), Some(payeThresholds)),
           ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
@@ -363,7 +371,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
         val dashboard = Dashboard(
           "testCompanyName",
           IncorpAndCTDashboard(
-            "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some(status), None
+            "acknowledged", Some("10 October 2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11 October 2017"), Some("ack-12345"), Some(status), None
           ),
           ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo")), Some(payeThresholds)),
           ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
@@ -402,7 +410,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
       val dashboard = Dashboard(
         "testCompanyName",
         IncorpAndCTDashboard(
-          "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04"), Some("CTUTR")
+          "acknowledged", Some("10 October 2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11 October 2017"), Some("ack-12345"), Some("04"), Some("CTUTR")
         ),
         ServiceDashboard("notEligible", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo")), None),
         ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
@@ -430,7 +438,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
       val dashboard = Dashboard(
         "testCompanyName",
         IncorpAndCTDashboard(
-          "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04"), Some("CTUTR")
+          "acknowledged", Some("10 October 2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11 October 2017"), Some("ack-12345"), Some("04"), Some("CTUTR")
         ),
         ServiceDashboard(Statuses.UNAVAILABLE, None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo")), None),
         ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
@@ -458,7 +466,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
       val dashboard = Dashboard(
         "testCompanyName",
         IncorpAndCTDashboard(
-          "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04"), Some("CTUTR")
+          "acknowledged", Some("10 October 2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11 October 2017"), Some("ack-12345"), Some("04"), Some("CTUTR")
         ),
         ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo")), Some(payeThresholds)),
         ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
@@ -486,7 +494,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
       val dashboard = Dashboard(
         "testCompanyName",
         IncorpAndCTDashboard(
-          "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04"), Some("CTUTR")
+          "acknowledged", Some("10 October 2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11 October 2017"), Some("ack-12345"), Some("04"), Some("CTUTR")
         ),
         ServiceDashboard("draft", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo")), Some(payeThresholds)),
         ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
@@ -515,7 +523,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
       val dashboard = Dashboard(
         "testCompanyName",
         IncorpAndCTDashboard(
-          "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04"), Some("CTUTR")
+          "acknowledged", Some("10 October 2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11 October 2017"), Some("ack-12345"), Some("04"), Some("CTUTR")
         ),
         ServiceDashboard("held", None, Some("ABCD12345678901"), ServiceLinks("payeURL", "otrsUrl", None, Some("foo")), None),
         ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
@@ -549,7 +557,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
       val dashboard = Dashboard(
         "testCompanyName",
         IncorpAndCTDashboard(
-          "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04"), Some("CTUTR")
+          "acknowledged", Some("10 October 2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11 October 2017"), Some("ack-12345"), Some("04"), Some("CTUTR")
         ),
         ServiceDashboard("submitted", Some("15 May 2017"), Some("ABCD12345678901"), ServiceLinks("payeURL", "otrsUrl", None, Some("foo")), Some(payeThresholds)),
         ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
@@ -584,7 +592,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
       val dashboard = Dashboard(
         "testCompanyName",
         IncorpAndCTDashboard(
-          "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04"), Some("CTUTR")
+          "acknowledged", Some("10 October 2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11 October 2017"), Some("ack-12345"), Some("04"), Some("CTUTR")
         ),
         ServiceDashboard("acknowledged", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo")), Some(payeThresholds)),
         ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
@@ -614,7 +622,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
         val dashboard = Dashboard(
           "testCompanyName",
           IncorpAndCTDashboard(
-            "submitted", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some(status), None
+            "submitted", Some("10 October 2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11 October 2017"), Some("ack-12345"), Some(status), None
           ),
           ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, None), None),
           ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds)),
@@ -644,7 +652,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
       val dashboard = Dashboard(
         "testCompanyName",
         IncorpAndCTDashboard(
-          "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04"), Some("CTUTR")
+          "acknowledged", Some("10 October 2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11 October 2017"), Some("ack-12345"), Some("04"), Some("CTUTR")
         ),
         ServiceDashboard("invalid", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo")), Some(payeThresholds)),
         ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
@@ -674,7 +682,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
       val dashboard = Dashboard(
         "testCompanyName",
         IncorpAndCTDashboard(
-          "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04"), Some("CTUTR")
+          "acknowledged", Some("10 October 2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11 October 2017"), Some("ack-12345"), Some("04"), Some("CTUTR")
         ),
         ServiceDashboard("rejected", None, None, ServiceLinks("payeURL", "otrsUrl", Some("bar"), None), Some(payeThresholds)),
         ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
@@ -701,7 +709,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
       val dashboard = Dashboard(
         "testCompanyName",
         IncorpAndCTDashboard(
-          "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04"), Some("CTUTR")
+          "acknowledged", Some("10 October 2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11 October 2017"), Some("ack-12345"), Some("04"), Some("CTUTR")
         ),
         ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, None), Some(payeThresholds)),
         ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds)),
@@ -732,7 +740,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
         val dashboard = Dashboard(
           "testCompanyName",
           IncorpAndCTDashboard(
-            "submitted", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some(status), Some("CTUTR")
+            "submitted", Some("10 October 2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11 October 2017"), Some("ack-12345"), Some(status), Some("CTUTR")
           ),
           ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, None), Some(payeThresholds)),
           ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds)),
@@ -761,7 +769,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
       val dashboard = Dashboard(
         "testCompanyName",
         IncorpAndCTDashboard(
-          "submitted", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), None, Some("CTUTR")
+          "submitted", Some("10 October 2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11 October 2017"), Some("ack-12345"), None, Some("CTUTR")
         ),
         ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, None), Some(payeThresholds)),
         ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds)),
@@ -789,7 +797,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
       val dashboard = Dashboard(
         "testCompanyName",
         IncorpAndCTDashboard(
-          "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), None, Some("CTUTR")
+          "acknowledged", Some("10 October 2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11 October 2017"), Some("ack-12345"), None, Some("CTUTR")
         ),
         ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, None), Some(payeThresholds)),
         ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds)),
@@ -818,7 +826,13 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
       val dashboard = Dashboard(
         "testCompanyName",
         IncorpAndCTDashboard(
-          "held", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), None, None
+          "held",
+          Some("10 October 2017"),
+          Some("trans-12345"),
+          Some("pay-12345"),
+          Some("crn123"),
+          Some("11 November 2017"),
+          Some("ack-12345"), None, None
         ),
         ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, None), Some(payeThresholds)),
         ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds)),
@@ -848,7 +862,15 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
       val dashboard = Dashboard(
         "testCompanyName",
         IncorpAndCTDashboard(
-          "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04"), Some("CTUTR")
+          "acknowledged",
+          Some("10 October 2017"),
+          Some("trans-12345"),
+          Some("pay-12345"),
+          Some("crn123"),
+          Some("11 November 2017"),
+          Some("ack-12345"),
+          Some("04"),
+          Some("CTUTR")
         ),
         ServiceDashboard("draft", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("cancelURL")), Some(payeThresholds)),
         ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
@@ -875,7 +897,15 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
       val dashboard = Dashboard(
         "testCompanyName",
         IncorpAndCTDashboard(
-          "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04"), Some("CTUTR")
+          "acknowledged",
+          Some("10 October 2017"),
+          Some("trans-12345"),
+          Some("pay-12345"),
+          Some("crn123"),
+          Some("11 November 2017"),
+          Some("ack-12345"),
+          Some("04"),
+          Some("CTUTR")
         ),
         ServiceDashboard("draft", None, None, ServiceLinks("payeURL", "otrsUrl", None, None), Some(payeThresholds)),
         ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
@@ -905,7 +935,15 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
       val dashboard = Dashboard(
         "testCompanyName",
         IncorpAndCTDashboard(
-          "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04"), Some("CTUTR")
+          "acknowledged",
+          Some("10 October 2017"),
+          Some("trans-12345"),
+          Some("pay-12345"),
+          Some("crn123"),
+          Some("11 November 2017"),
+          Some("ack-12345"),
+          Some("04"),
+          Some("CTUTR")
         ),
         ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo")), Some(payeThresholds)),
         ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
@@ -931,7 +969,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
       val dashboard = Dashboard(
         "testCompanyName",
         IncorpAndCTDashboard(
-          "acknowledged", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11-10-2017"), Some("ack-12345"), Some("04"), Some("CTUTR")
+          "acknowledged", Some("10 October 2017"), Some("trans-12345"), Some("pay-12345"), Some("crn123"), Some("11 October 2017"), Some("ack-12345"), Some("04"), Some("CTUTR")
         ),
         ServiceDashboard("notStarted", None, None, ServiceLinks("payeURL", "otrsUrl", None, Some("foo")), Some(newPayeThresholds)),
         ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))

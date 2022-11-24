@@ -86,7 +86,7 @@ class DashboardControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Aut
     val dashboard = Dashboard(
       companyName = "testCompanyName",
       IncorpAndCTDashboard(
-        "held", Some("10-10-2017"), Some("trans-12345"), Some("pay-12345"), None, None, Some("ack-12345"), None, None
+        "held", Some("10 October 2017"), Some("trans-12345"), Some("pay-12345"), None, None, Some("ack-12345"), None, None
       ),
       ServiceDashboard("draft", None, None, ServiceLinks("", "", None, Some("")), Some(payeThresholds)),
       ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
