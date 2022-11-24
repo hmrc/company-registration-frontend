@@ -19,12 +19,16 @@
 @import uk.gov.hmrc.govukfrontend.views.Aliases.TableRow
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 @import models.external.Statuses._
+@import uk.gov.hmrc.play.language.LanguageUtils
+@import java.time._
+@import java.time.format.DateTimeFormatter
 
 @import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.table.HeadCell
 
 @this(govukTable: GovukTable,
         link: components.link,
+        utils: LanguageUtils,
         p: components.p)
 
 @(dash: ServiceDashboard, prefixHtmlId: String)(implicit request: Request[_], messages: Messages)
@@ -73,7 +77,9 @@
     rows = Seq(
         Seq(
             TableRow(content = Text(messages("page.reg.Dashboard.submissionDate")), classes = "govuk-!-width-one-half"),
-            TableRow(content = Text(dash.ackRef.get),
+            TableRow(content = HtmlContent(
+                utils.Dates.formatDate(LocalDate.parse(dash.ackRef.get, DateTimeFormatter.ofPattern("dd MMMM yyyy")))
+            ),
             )
         ),
     ),

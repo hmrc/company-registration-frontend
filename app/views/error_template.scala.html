@@ -24,5 +24,8 @@
 
   @h1(heading)
 
-  @p{@message}
+ @p {
+  @Html(messages(message,
+   controllers.reg.routes.RegistrationUnsuccessfulController.rejectionSubmit))
+ }
  }
