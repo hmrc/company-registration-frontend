@@ -16,11 +16,6 @@
 
 package audit.events
 
-import play.api.mvc.{AnyContent, Request}
-import uk.gov.hmrc.http.HeaderCarrier
-
-
-
 object AuditEventConstants {
   val EXT_USER_ID = "externalUserId"
   val AUTH_PROVIDER_ID = "authProviderId"

@@ -172,14 +172,6 @@ trait CompanyRegistrationHttpParsers extends BaseHttpReads {
     }
   }
 
-  def checkROValidPPOBHttpReads(regId: String): HttpReads[HttpResponse] = (_: String, _: String, response: HttpResponse) => {
-    response.status match {
-      case OK => response
-      case status =>
-        unexpectedStatusHandling()("checkROValidPPOBHttpReads", "", status, Some(regId))
-    }
-  }
-
   def validateRegisteredOfficeAddressHttpReads(regId: String): HttpReads[Option[NewAddress]] = (_: String, _: String, response: HttpResponse) => {
     response.status match {
       case OK => Try(response.json.asOpt[NewAddress](Groups.formatsNewAddressGroups)) match {

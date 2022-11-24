@@ -187,6 +187,40 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with GuiceOneAppP
           status(result) mustBe OK
       }
     }
+
+    "return a 303 and redirect to the Takeover Information Needed page if Takeover information is missing but replacingAnotherBusiness is true" in new Setup {
+      mockS4LFetchAndGet("HandBackData", Some(validCompanyNameHandBack))
+
+      mockKeystoreFetchAndGet("registrationID", Some(testRegId))
+      mockGetTakeoverDetails(testRegId)(Future.successful(Some(TakeoverDetails(replacingAnotherBusiness = true))))
+      mockS4LFetchAndGet("CompanyContactDetails", Some(validCompanyContactDetailsModel))
+
+
+      when(mockSummaryService.getCompanyDetailsBlock(ArgumentMatchers.eq(testRegId))(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any())).thenReturn(
+        Future.successful(SummaryList(testCompanyDetailsBlock))
+      )
+      when(mockSummaryService.getTakeoverBlock(ArgumentMatchers.eq(testRegId))(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any())).thenReturn(
+        Future.successful(SummaryList(testTakeoverBlock))
+      )
+      when(mockSummaryService.getContactDetailsBlock(ArgumentMatchers.eq(testRegId))(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any())).thenReturn(
+        Future.successful(SummaryList(testContactDetailsBlock))
+      )
+      when(mockSummaryService.getAccountingDates(ArgumentMatchers.eq(testRegId))(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any())).thenReturn(
+        Future.successful(SummaryList(testAccountingBlock))
+      )
+      when(mockSummaryService.getCompletionCapacity(ArgumentMatchers.eq(testRegId))(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any())).thenReturn(
+        Future.successful(SummaryList(testCompletionBlock))
+      )
+
+      when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+        .thenReturn(Future.successful(corporationTaxModel))
+
+      showWithAuthorisedUser(controller.show) {
+        result =>
+          status(result) mustBe 303
+          redirectLocation(result) mustBe Some("/register-your-company/takeover-information-needed")
+      }
+    }
   }
 
   "Post to the Summary Controller" should {

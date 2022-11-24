@@ -25,7 +25,7 @@ import uk.gov.hmrc.http._
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import scala.concurrent.{ExecutionContext, Future}
 
-class DynamicStubConnectorImpl @Inject()(val wSHttp: WSHttp, appConfig: AppConfig) extends DynamicStubConnector {
+class DynamicStubConnectorImpl @Inject()(val wSHttp: WSHttp, appConfig: AppConfig)(implicit val ec: ExecutionContext) extends DynamicStubConnector {
 
  lazy val busRegDyUrl = s"${appConfig.servicesConfig.baseUrl("business-registration-dynamic-stub")}/business-registration"
 }
@@ -33,17 +33,18 @@ class DynamicStubConnectorImpl @Inject()(val wSHttp: WSHttp, appConfig: AppConfi
 trait DynamicStubConnector {
   val wSHttp: CoreGet with CorePost with CorePut
   val busRegDyUrl : String
+  implicit val ec: ExecutionContext
 
   implicit val hc: HeaderCarrier = HeaderCarrier().withExtraHeaders("Accept" -> "application/vnd.hmrc.1.0+json")
 
   implicit val rds = Json.reads[IncorporationResponse]
   hc.withExtraHeaders("Accept" -> "application/vnd.hmrc.1.0+json")
 
-  def postETMPNotificationData(etmp : ETMPNotification)(implicit hc : HeaderCarrier, ec: ExecutionContext) : Future[HttpResponse] = {
+  def postETMPNotificationData(etmp : ETMPNotification)(implicit hc : HeaderCarrier) : Future[HttpResponse] = {
     wSHttp.POST[JsValue, HttpResponse](s"$busRegDyUrl/cache-etmp-notification", Json.toJson(etmp))(implicitly, readRaw, hc, ec)
   }
 
-  def simulateDesPost(ackRef: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse] = {
+  def simulateDesPost(ackRef: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
     wSHttp.GET[HttpResponse](s"$busRegDyUrl/simulate-des-post/$ackRef")(readRaw, hc, ec)
   }
 }

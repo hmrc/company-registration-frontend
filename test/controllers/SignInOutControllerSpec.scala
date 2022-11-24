@@ -352,6 +352,13 @@ class SignInOutControllerSpec extends SCRSSpec
       status(result) mustBe SEE_OTHER
       redirectLocation(result) mustBe Some(s"http://localhost:9553/bas-gateway/sign-out-without-state?continue=${encodeURL(continueUrl)}")
     }
+
+    "NOT redirect if the url starts with //" in new Setup {
+      val continueUrl = "//foo.gov.uk/wibble"
+      intercept[IllegalArgumentException] {
+        controller.signOut(Some(RedirectUrl(continueUrl)))(FakeRequest())
+      }
+    }
   }
 
   "processDeferredHandOff" should {
