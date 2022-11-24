@@ -1,6 +1,6 @@
 global.error.title =	Mae’n ddrwg gennym, rydym yn profi anawsterau technegol
 global.error.heading =	Mae’n ddrwg gennym, rydym yn profi anawsterau technegol
-global.error.message =	Gallwch roi cynnig arall arni drwy ailgychwyn eich cofrestriad.
+global.error.message =	Rhowch gynnig arall arni mewn ychydig o funudau.
 common.service.name = Sefydlu cwmni cofrestredig a chofrestru ar gyfer Treth Gorfforaeth
 service.name = Sefydlu cwmni cofrestredig a chofrestru ar gyfer Treth Gorfforaeth
 common.govuk.label = GOV.UK/CYMRAEG
