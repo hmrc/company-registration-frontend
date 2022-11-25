@@ -22,7 +22,7 @@ import connectors.httpParsers.exceptions.DownstreamExceptions
 import helpers.SCRSSpec
 import models.AccountingDatesModel.FUTURE_DATE
 import models.{AccountingDetails, AccountingDetailsNotFoundResponse, AccountingDetailsSuccessResponse, Address, CHROAddress, CompanyContactDetails, CompanyContactDetailsNotFoundResponse, CompanyContactDetailsSuccessResponse, CompanyDetails, CorporationTaxRegistrationResponse, Email, Language, Links, NewAddress, PPOB, TradingDetails}
-import play.api.http.Status.{INTERNAL_SERVER_ERROR, NOT_FOUND, NO_CONTENT, OK}
+import play.api.http.Status.{BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND, NO_CONTENT, OK}
 import play.api.libs.json.{JsResultException, Json}
 import uk.gov.hmrc.http.HttpResponse
 import utils.LogCapturingHelper
@@ -326,41 +326,18 @@ class CompanyRegistrationHttpParsersSpec extends SCRSSpec with LogCapturingHelpe
       val newAddressResponseJson = Json.obj()
 
       "response is OK and JSON is valid" must {
-        "return the email" in {
-          CompanyRegistrationHttpParsers.validateRegisteredOfficeAddressHttpReads(regId).read("", "",
+        "return the registered office address" in {
+          CompanyRegistrationHttpParsers.validateRegisteredOfficeAddressHttpReads(regId).read("PUT", "/company-registration/corporation-tax-registration/check-return-business-address",
             HttpResponse(OK, json = newAddressResponseJson, Map())
           ) mustBe None
         }
       }
 
-      "response is any other status, e.g ISE" must {
-
-        "return an Upstream Error response and log an error" in {
+      "response is BAD_REQUEST" must {
+        "return a None and log an info message" in {
           withCaptureOfLoggingFrom(CompanyRegistrationHttpParsers.logger) { logs =>
-            intercept[DownstreamExceptions.CompanyRegistrationException](CompanyRegistrationHttpParsers.validateRegisteredOfficeAddressHttpReads(regId).read("", "", HttpResponse(INTERNAL_SERVER_ERROR, "")))
-            logs.containsMsg(Level.ERROR, s"[validateRegisteredOfficeAddressHttpReads] Calling url: '' returned unexpected status: '$INTERNAL_SERVER_ERROR' for regId: '$regId'")
+            CompanyRegistrationHttpParsers.validateRegisteredOfficeAddressHttpReads(regId).read("PUT", "/company-registration/corporation-tax-registration/check-return-business-address", HttpResponse(BAD_REQUEST, "")) mustBe None
           }
-        }
-      }
-    }
-
-    "calling .checkROValidPPOBHttpReads(regId: String)" when {
-      val newAddress = NewAddress(
-        "addressLine1",
-        "addressLine2",
-        Some("addressLine3"),
-        Some("addressLine4"),
-        Some("TE1 1ST"),
-        Some("testCountry")
-      )
-
-      val newAddressResponseJson = Json.obj()
-
-      "response is OK and JSON is valid" must {
-        "return the email" in {
-          CompanyRegistrationHttpParsers.validateRegisteredOfficeAddressHttpReads(regId).read("", "",
-            HttpResponse(OK, json = newAddressResponseJson, Map())
-          ) mustBe None
         }
       }
 
