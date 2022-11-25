@@ -17,8 +17,7 @@
 package connectors.httpParsers
 
 import connectors.httpParsers.exceptions.DownstreamExceptions
-import models.{ConfirmationReferencesResponse, _}
-import models.connectors.ConfirmationReferences
+import models._
 import play.api.http.Status.{BAD_REQUEST, NOT_FOUND, NO_CONTENT, OK}
 import uk.gov.hmrc.http.{HttpReads, HttpResponse}
 
@@ -175,7 +174,9 @@ trait CompanyRegistrationHttpParsers extends BaseHttpReads {
   def validateRegisteredOfficeAddressHttpReads(regId: String): HttpReads[Option[NewAddress]] = (_: String, _: String, response: HttpResponse) => {
     response.status match {
       case OK => Try(response.json.asOpt[NewAddress](Groups.formatsNewAddressGroups)) match {
-        case Success(response) => response
+        case Success(response) =>  {
+          response
+        }
         case Failure(e: DownstreamExceptions.CompanyRegistrationException) =>
           logger.error(s"[validateRegisteredOfficeAddressHttpReads] Received an error when expecting NewAddress for reg id: $regId")
           throw e
@@ -183,6 +184,7 @@ trait CompanyRegistrationHttpParsers extends BaseHttpReads {
           logger.error(s"[validateRegisteredOfficeAddressHttpReads] JSON returned from validation could not be parsed to NewAddress model for reg id: $regId")
           throw e
       }
+      case BAD_REQUEST => None
       case status =>
         unexpectedStatusHandling()("validateRegisteredOfficeAddressHttpReads", "", status, Some(regId))
     }
