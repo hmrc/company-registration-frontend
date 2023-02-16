@@ -1,5 +1,5 @@
 @*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,13 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.play.views.html.helpers.FormWithCSRF
-@import uk.gov.hmrc.play.views.html.helpers.InputRadioGroup
+@import uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
 @import views.ViewUtils._
 
 @this(layout: templates.layout,
         h1: components.h1,
         h2: components.h2,
-        inputRadioGroup: InputRadioGroup,
+        inputRadioGroup: components.inputRadioGroup,
         button: components.button,
         formWithCsrf: FormWithCSRF)
 
@@ -38,8 +37,8 @@
             @inputRadioGroup(
                 featureSwitchForm("firstHandOff"),
                 Seq("true" -> "CoHo", "false" -> "Stub"),
-                '_labelClass -> "block-label radio-label",
-                '_groupClass -> "form-group inline"
+                Seq(Symbol("_labelClass") -> "block-label radio-label"),
+                Seq(Symbol("_groupClass") -> "form-group inline")
             )
 
             @h2(messages("Legacy Env"))
@@ -47,8 +46,8 @@
             @inputRadioGroup(
                 featureSwitchForm("legacyEnv"),
                 Seq("true" -> "DCD (Legacy)", "false" -> "AWS"),
-                '_labelClass -> "block-label radio-label",
-                '_groupClass -> "form-group inline"
+                Seq(Symbol("_labelClass") -> "block-label radio-label"),
+                Seq(Symbol("_groupClass") -> "form-group inline")
             )
 
             @h2(messages("Takeovers section"))
@@ -56,8 +55,8 @@
             @inputRadioGroup(
                 featureSwitchForm("takeovers"),
                 Seq("true" -> "Enabled", "false" -> "Disabled"),
-                '_labelClass -> "block-label radio-label",
-                '_groupClass -> "form-group inline"
+                Seq(Symbol("_labelClass") -> "block-label radio-label"),
+                Seq(Symbol("_groupClass") -> "form-group inline")
             )
 
             @button(messages("app.common.continue"))

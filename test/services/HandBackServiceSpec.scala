@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import org.mockito.{ArgumentCaptor, ArgumentMatchers}
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.http.cache.client.CacheMap
-import uk.gov.hmrc.play.binders.ContinueUrl
+import uk.gov.hmrc.play.bootstrap.binders._
 import utils._
 
 import scala.concurrent.Future
@@ -49,7 +49,7 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
       override val s4LConnector = mockS4LConnector
       override val navModelMongo = mockNavModelRepo
       override val jwe = testJwe
-      val continueUrl = mock[ContinueUrl]
+      val continueUrl = mock[RedirectUrl]
       override val scrsFeatureSwitches: SCRSFeatureSwitches = mockSCRSFeatureSwitches
       override val appConfig: AppConfig = mockAppConfig
     }
