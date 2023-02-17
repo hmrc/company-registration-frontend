@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 HM Revenue & Customs
+ * Copyright 2023 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,6 @@ import play.api.mvc._
 import services._
 import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolments, PlayAuthConnector}
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
-import uk.gov.hmrc.play.binders.ContinueUrl
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 import utils.SCRSExceptions
 import views.html.{timeout => timeoutView}
@@ -50,8 +49,8 @@ class SignInOutController @Inject()(val authConnector: PlayAuthConnector,
                                     timeoutView: timeoutView)(implicit val appConfig: AppConfig, implicit val ec: ExecutionContext)
   extends AuthenticatedController with CommonService with SCRSExceptions with I18nSupport with Logging {
 
-  lazy val cRFEBaseUrl = appConfig.self
-  lazy val corsRenewHost = appConfig.corsRenewHost
+  lazy val cRFEBaseUrl: String = appConfig.self
+  lazy val corsRenewHost: Option[String] = appConfig.corsRenewHost
 
   def postSignIn(resend: Option[Boolean] = None, handOffID: Option[String] = None, payload: Option[String] = None): Action[AnyContent] = Action.async {
     implicit request =>

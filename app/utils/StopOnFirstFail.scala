@@ -14,14 +14,17 @@
  * limitations under the License.
  */
 
-package helpers
+package utils
+import play.api.data.validation._
+object StopOnFirstFail {
 
-import play.api.mvc.Call
-import play.api.test.WsTestClient
-
-trait TestHelpers extends WsTestClient {
-
-  def urlFromCall(call: Call)(implicit port: Port): String = {
-    wsCall(call).url
+  def apply[T](constraints: Constraint[T]*): Constraint[T] = Constraint { field: T =>
+    constraints.toList dropWhile (_(field) == Valid) match {
+      case Nil             => Valid
+      case constraint :: _ => constraint(field)
+    }
   }
+
+  def constraint[T](message: String, validator: (T) => Boolean): Constraint[T] =
+    Constraint((data: T) => if (validator(data)) Valid else Invalid(Seq(ValidationError(message))))
 }
