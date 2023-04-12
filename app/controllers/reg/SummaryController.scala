@@ -29,11 +29,11 @@ import repositories.NavModelRepo
 import services._
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
-import utils.{Logging, _}
+import utils._
 import views.html.reg.{Summary => SummaryView}
 
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 @Singleton
 class SummaryController @Inject()(val authConnector: PlayAuthConnector,
@@ -91,7 +91,25 @@ class SummaryController @Inject()(val authConnector: PlayAuthConnector,
   val submit: Action[AnyContent] = Action.async {
     implicit request =>
       ctAuthorised {
-        Future.successful(Redirect(controllers.handoff.routes.IncorporationSummaryController.incorporationSummary))
+        checkStatus { regID =>
+          (for {
+            optTakeoverDetails <- takeoverService.getTakeoverDetails(regID)
+          } yield {
+            optTakeoverDetails match {
+              case Some(TakeoverDetails(true, Some(_), Some(_), Some(_), Some(_))) =>
+                Redirect(controllers.handoff.routes.IncorporationSummaryController.incorporationSummary)
+              case None | Some(TakeoverDetails(false, None, None, None, None)) =>
+                Redirect(controllers.handoff.routes.IncorporationSummaryController.incorporationSummary)
+              case _ =>
+                logger.error("[SummaryController] [submit] Takeover details in unexpected state")
+                Redirect(controllers.takeovers.routes.TakeoverInformationNeededController.show)
+            }
+          }) recover {
+            case ex: Throwable =>
+              logger.error(s"[show] Error occurred while submitting the summary page - ${ex.getMessage}")
+              InternalServerError(controllerErrorHandler.defaultErrorPage)
+          }
+        }
       }
   }
 
