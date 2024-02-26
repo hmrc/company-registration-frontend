@@ -21,7 +21,7 @@ private object AppDependencies {
     "org.bitbucket.b_c"       %   "jose4j"                          %  "0.9.2",
     "commons-validator"       %   "commons-validator"               %  "1.7",
     "uk.gov.hmrc"             %%  "play-language"                   % s"6.1.0$playVersion",
-    "uk.gov.hmrc"             %%  "play-frontend-hmrc"              % s"6.3.0$playVersion",
+    "uk.gov.hmrc"             %%  "play-frontend-hmrc-play-28"              % s"8.5.0",
   )
 
   val test = Seq(
