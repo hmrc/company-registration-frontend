@@ -20,6 +20,8 @@ import builders.AuthBuilder
 import config.AppConfig
 import helpers.SCRSSpec
 import mocks.ServiceConnectorMock
+import models.VatThreshold
+import org.mockito.Mockito.{reset, when}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.Configuration
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
@@ -29,7 +31,25 @@ import java.time._
 
 
 class ThresholdServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthBuilder with GuiceOneAppPerSuite {
+  implicit val mockConfig: AppConfig = mock[AppConfig]
+  class TestThresholdService(fakeNow: LocalDate) extends ThresholdService()(mockConfig) {
+    override def now: LocalDate = fakeNow
+  }
 
+  def testService(fakeNow: LocalDate = LocalDate.now()) = new TestThresholdService(fakeNow)
+
+  val dateTime: LocalDate = LocalDate.of(2017, 4, 1)
+  val amount: Int = 85000
+  val testThreshold: VatThreshold = VatThreshold(dateTime, amount)
+
+  val dateTime2: LocalDate = LocalDate.of(2024, 4, 1)
+  val amount2: Int = 90000
+  val testThreshold2: VatThreshold = VatThreshold(dateTime2, amount2)
+
+  override def afterEach(): Unit = {
+    reset(mockConfig)
+  }
+  
   object TestAppConfig extends AppConfig(mock[ServicesConfig], mock[SCRSFeatureSwitches], mock[Configuration]) {
     override lazy val taxYearStartDate: String = LocalDate.now().toString
     override lazy val currentPayeWeeklyThreshold: Int = 10
@@ -40,7 +60,7 @@ class ThresholdServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
     override lazy val oldPayeAnnualThreshold: Int = 15
   }
 
-  "fetchCurrentPayeThresholds" should {
+  "fetchCurrentPayeThresholds" must {
     "return the old tax years thresholds if the date is before the tax year start date" in {
       object TestService extends ThresholdService()(TestAppConfig) {
         override def now: LocalDate = LocalDate.now().minusDays(1)
@@ -67,4 +87,56 @@ class ThresholdServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
     }
   }
 
+  "getVatThreshold" when {
+    "there is a single threshold in the config" must {
+      "return the threshold value" in {
+        when(mockConfig.thresholds).thenReturn(Seq(testThreshold))
+        val expectedResults = Some(testThreshold)
+        val actualResult = testService().getVatThreshold()
+
+        expectedResults mustBe actualResult
+      }
+    }
+
+    "there are multiple thresholds in the config before today" must {
+      "return the newest threshold value" in {
+        when(mockConfig.thresholds).thenReturn(Seq(testThreshold, testThreshold2))
+        val expectedResults = Some(testThreshold2)
+        val actualResult = testService(dateTime2.plusDays(1)).getVatThreshold()
+
+        expectedResults mustBe actualResult
+      }
+    }
+
+    "there are multiple thresholds in the config but only 1 before today" must {
+      "return the threshold in the past" in {
+        when(mockConfig.thresholds).thenReturn(Seq(testThreshold, testThreshold2))
+        val expectedResults = Some(testThreshold)
+        val actualResult = testService(dateTime2.minusDays(1)).getVatThreshold()
+
+        expectedResults mustBe actualResult
+      }
+    }
+
+
+    "there are no thresholds in the config before today" must {
+      "return none" in {
+        when(mockConfig.thresholds).thenReturn(Seq(testThreshold, testThreshold2))
+        val expectedResults = None
+        val actualResult = testService(dateTime.minusDays(1)).getVatThreshold()
+
+        expectedResults mustBe actualResult
+      }
+    }
+
+    "there are no thresholds in the config" must {
+      "return none" in {
+        when(mockConfig.thresholds).thenReturn(Seq())
+        val expectedResults = None
+        val actualResult = testService().getVatThreshold()
+
+        expectedResults mustBe actualResult
+      }
+    }
+  }
 }
