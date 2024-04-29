@@ -21,7 +21,7 @@ import play.api.data.Form
 import play.api.data.Forms._
 
 object SubmissionForm {
-  def form() = Form(
+  def form = Form(
     mapping(
       "submissionStatus" -> nonEmptyText,
       "submissionRef" -> nonEmptyText

@@ -21,7 +21,7 @@ import play.api.data.Form
 import play.api.data.Forms._
 
 object CompanyDetailsForm {
-  def form() = Form(
+  def form = Form(
     mapping(
       "companyName" -> text,
       "chROAddress" -> mapping(

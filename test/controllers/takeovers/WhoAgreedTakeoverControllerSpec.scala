@@ -16,8 +16,8 @@
 
 package controllers.takeovers
 
-import akka.actor.ActorSystem
-import akka.stream.Materializer
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.stream.Materializer
 import builders.AuthBuilder
 import config.AppConfig
 import controllers.reg.ControllerErrorHandler

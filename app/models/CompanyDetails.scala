@@ -40,7 +40,7 @@ case class Address(houseNameNumber: Option[String],
 }
 
 object Address {
-  implicit val formats = Json.format[Address]
+  implicit val formats: OFormat[Address] = Json.format[Address]
 
   def generateTxId = UUID.randomUUID().toString
 
@@ -167,8 +167,8 @@ case class CompanyDetails(companyName: String,
                           jurisdiction: String)
 
 object CompanyDetails {
-  implicit val formatCH = Json.format[CHROAddress]
-  implicit val formats = Json.format[CompanyDetails]
+  implicit val formatCH: OFormat[CHROAddress] = Json.format[CHROAddress]
+  implicit val formats: OFormat[CompanyDetails] = Json.format[CompanyDetails]
 
   def createFromHandoff(companyName: String, roAddress: CHROAddress, ppob: PPOB, jurisdiction: String): CompanyDetails = {
     CompanyDetails(companyName, roAddress, ppob, jurisdiction = jurisdiction)

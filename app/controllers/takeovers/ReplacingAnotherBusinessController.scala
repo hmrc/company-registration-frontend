@@ -66,7 +66,7 @@ class ReplacingAnotherBusinessController @Inject()(val authConnector: PlayAuthCo
   val submit: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
       registered { regId =>
-        ReplacingAnotherBusinessForm.form.bindFromRequest.fold(
+        ReplacingAnotherBusinessForm.form.bindFromRequest().fold(
           errors =>
             Future.successful(BadRequest(view(errors))),
           replacingAnotherBusiness =>

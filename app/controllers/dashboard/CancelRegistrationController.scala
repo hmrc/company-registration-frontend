@@ -81,7 +81,7 @@ class CancelRegistrationController @Inject()(val payeConnector: PAYEConnector,
 
   private[controllers] def submitCancelService(service: ServiceConnector, cancelPage: (Form[Boolean]) => Html)(implicit request: Request[AnyContent]): Future[Result] = {
     checkStatuses { regID =>
-      CancelForm.form.bindFromRequest.fold(
+      CancelForm.form.bindFromRequest().fold(
         errors =>
           Future.successful(BadRequest(cancelPage(errors))),
         success =>

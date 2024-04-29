@@ -22,7 +22,7 @@ import play.api.data.Form
 import play.api.data.Forms.{mapping, optional, text}
 
 object FirstHandBackForm {
-  def form() = Form(
+  def form = Form(
     mapping(
       "journey_id" -> optional(text),
       "user_id" -> text,

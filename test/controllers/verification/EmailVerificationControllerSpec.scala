@@ -16,8 +16,8 @@
 
 package controllers.verification
 
-import akka.actor.ActorSystem
-import akka.stream.{ActorMaterializer, Materializer}
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.stream.{ActorMaterializer, Materializer}
 import builders.AuthBuilder
 import config.AppConfig
 import helpers.SCRSSpec

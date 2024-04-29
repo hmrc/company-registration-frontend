@@ -40,7 +40,7 @@ trait EmailVerificationConnector extends HttpErrorFunctions with Logging {
   val sendVerificationEmailURL : String
   val checkVerifiedEmailURL : String
 
-  implicit val reads = new HttpReads[HttpResponse] {
+  implicit val reads: HttpReads[HttpResponse] = new HttpReads[HttpResponse] {
     def read(http: String, url: String, res: HttpResponse) = customRead(http, url, res)
   }
 

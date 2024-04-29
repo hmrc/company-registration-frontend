@@ -16,7 +16,7 @@
 
 package models
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 
 case class PPOBModel(ppob : PPOB,
                      addressID: String = "",
@@ -24,7 +24,7 @@ case class PPOBModel(ppob : PPOB,
                      action: String = "")
 
 object PPOBModel {
-  implicit val format = Json.format[PPOBModel]
+  implicit val format: OFormat[PPOBModel] = Json.format[PPOBModel]
 }
 
 case class PPOBChoice(choice: String)

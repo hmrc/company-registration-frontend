@@ -16,7 +16,7 @@
 
 package models
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 
 case class MetadataResponse(registrationId: String,
                             formCreationTimestamp: String,
@@ -27,6 +27,6 @@ case class Links(self: Option[String],
                  registration: Option[String] = None)
 
 object MetadataResponse {
-  implicit val formatLinks = Json.format[Links]
-  implicit val formats = Json.format[MetadataResponse]
+  implicit val formatLinks: OFormat[Links] = Json.format[Links]
+  implicit val formats: OFormat[MetadataResponse] = Json.format[MetadataResponse]
 }

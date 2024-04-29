@@ -16,8 +16,8 @@
 
 package controllers.test
 
-import akka.actor.ActorSystem
-import akka.stream.{ActorMaterializer, Materializer}
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.stream.{ActorMaterializer, Materializer}
 import helpers.UnitSpec
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito._

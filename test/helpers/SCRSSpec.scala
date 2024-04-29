@@ -16,8 +16,8 @@
 
 package helpers
 
-import akka.actor.ActorSystem
-import akka.stream.{ActorMaterializer, Materializer}
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.stream.{ActorMaterializer, Materializer}
 import mocks.SCRSMocks
 import org.mockito.Mockito._
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}

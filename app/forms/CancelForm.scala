@@ -21,7 +21,7 @@ import play.api.data.Forms._
 
 object CancelForm {
 
-  def form() = Form(
+  def form = Form(
     mapping(
       "cancelService" -> boolean
     )(a => a)(a => Some(a))

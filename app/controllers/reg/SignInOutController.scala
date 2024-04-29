@@ -103,7 +103,7 @@ class SignInOutController @Inject()(val authConnector: PlayAuthConnector,
 
   private def hasFootprint(f: ThrottleResponse => Future[Result])(implicit hc: HeaderCarrier, request: Request[AnyContent]): Future[Result] = {
     val context = metrics.saveFootprintToCRTimer.time()
-    compRegConnector.retrieveOrCreateFootprint flatMap {
+    compRegConnector.retrieveOrCreateFootprint() flatMap {
       case FootprintFound(throttle) =>
         context.stop()
         f(throttle)
@@ -202,7 +202,7 @@ class SignInOutController @Inject()(val authConnector: PlayAuthConnector,
             "Access-Control-Allow-Credentials" -> "true"
           )
         }
-        updateLastActionTimestamp map { _ =>
+        updateLastActionTimestamp() map { _ =>
           Ok.sendFile(new File("conf/renewSession.jpg")).as("image/jpeg").withHeaders(headers: _*)
         }
       }

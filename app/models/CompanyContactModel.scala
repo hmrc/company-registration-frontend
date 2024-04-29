@@ -26,7 +26,7 @@ case class CompanyContactDetailsApi(contactEmail: Option[String],
                                     contactMobileNumber: Option[String])
 
 object CompanyContactDetailsApi {
-  implicit val formats = Json.format[CompanyContactDetailsApi]
+  implicit val formats: OFormat[CompanyContactDetailsApi] = Json.format[CompanyContactDetailsApi]
 
   val prePopWrites = new OWrites[CompanyContactDetailsApi] {
     override def writes(o: CompanyContactDetailsApi): JsObject = {
@@ -51,8 +51,8 @@ case class CompanyContactDetails(contactEmail: Option[String],
                                   links: Links)
 
 object CompanyContactDetails {
-  implicit val formatsLinks = Json.format[Links]
-  implicit val formats      = Json.format[CompanyContactDetails]
+  implicit val formatsLinks: OFormat[Links] = Json.format[Links]
+  implicit val formats: OFormat[CompanyContactDetails]  = Json.format[CompanyContactDetails]
 
   def toApiModel(companyContactDetails: CompanyContactDetails): CompanyContactDetailsApi = {
     CompanyContactDetailsApi(

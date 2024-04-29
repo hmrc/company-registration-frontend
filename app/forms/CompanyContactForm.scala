@@ -24,7 +24,7 @@ import utils.SCRSValidators.{companyContactDetailsValidation, emailValidation}
 
 
 object CompanyContactForm extends PhoneNoForm {
-  def form() = Form(
+  def form = Form(
     mapping(
       "contactEmail" -> optional(text.verifying(emailValidation)),
       "contactDaytimeTelephoneNumber" -> phoneNoField,

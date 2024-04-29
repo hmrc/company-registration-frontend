@@ -48,7 +48,7 @@ object AboutYouForm extends EmptyStringValidator {
     }
   }
 
-  def endpointForm() = Form(
+  def endpointForm = Form(
     mapping(
       "completionCapacity" -> text
     )(AboutYouChoice.apply)(AboutYouChoice.unapply)

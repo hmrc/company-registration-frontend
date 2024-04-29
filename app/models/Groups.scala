@@ -37,10 +37,10 @@ object Groups {
     (__ \ "postcode").formatNullable[String]
     )((l1,l2,l3,l4,coun,post) => NewAddress.apply(l1,l2,l3,l4,post,coun,None),
     nAddress => (nAddress.addressLine1, nAddress.addressLine2, nAddress.addressLine3, nAddress.addressLine4, nAddress.country, nAddress.postcode))
-  implicit val formatsGCN = Json.format[GroupCompanyName]
-  implicit val formatsGAAT = Json.format[GroupsAddressAndType]
-  implicit val formatsGU = Json.format[GroupUTR]
-  implicit val formats =  Json.format[Groups]
+  implicit val formatsGCN: OFormat[GroupCompanyName] = Json.format[GroupCompanyName]
+  implicit val formatsGAAT: OFormat[GroupsAddressAndType] = Json.format[GroupsAddressAndType]
+  implicit val formatsGU: OFormat[GroupUTR] = Json.format[GroupUTR]
+  implicit val formats: OFormat[Groups] =  Json.format[Groups]
 }
 
 case class GroupAddressChoice(choice: String)
@@ -49,7 +49,7 @@ case class GroupCompanyName(name: String, nameType: String)
 case class GroupUTR(UTR : Option[String])
 
 object GroupUTR{
-  implicit val format = Json.format[GroupUTR]
+  implicit val format: OFormat[GroupUTR] = Json.format[GroupUTR]
 }
 case class GroupsAddressAndType(addressType: String, address: NewAddress)
 
@@ -58,7 +58,7 @@ case class GroupRelief(
                       )
 
 object GroupRelief {
-  implicit val format = Json.format[GroupRelief]
+  implicit val format: OFormat[GroupRelief] = Json.format[GroupRelief]
 }
 
 

@@ -37,7 +37,7 @@ lazy val microservice = Project(appName, file("."))
     Test / fork := false,
     retrieveManaged := true,
     routesImport ++= Seq("uk.gov.hmrc.play.bootstrap.binders._"),
-    scalaVersion := "2.13.8"
+    scalaVersion := "2.13.13"
   )
   .settings(PlayKeys.devSettings := Seq(
     "akka.http.parsing.max-uri-length" -> "16k")

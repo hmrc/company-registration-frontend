@@ -51,7 +51,7 @@ class ReturningUserController @Inject()(val authConnector: PlayAuthConnector,
 
   def submit = Action.async {
     implicit request => {
-      ReturningUserForm.form.bindFromRequest.fold(
+      ReturningUserForm.form.bindFromRequest().fold(
         errors => Future.successful(BadRequest(view(errors, hc.authorization.isDefined))),
         success => {
           success.returningUser match {

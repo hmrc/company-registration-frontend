@@ -16,12 +16,12 @@
 
 package audit.events
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 
 case class EmailMismatchEventDetail(externalUserId: String,
                                     authProviderId: String,
                                     journeyId: String)
 
 object EmailMismatchEventDetail {
-  implicit val format = Json.format[EmailMismatchEventDetail]
+  implicit val format :  OFormat[EmailMismatchEventDetail] = Json.format[EmailMismatchEventDetail]
 }

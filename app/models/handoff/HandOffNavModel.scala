@@ -28,7 +28,7 @@ case class NavLinks(forward: String,
                     reverse: String)
 
 object NavLinks {
-  implicit val formats = Json.format[NavLinks]
+  implicit val formats: OFormat[NavLinks] = Json.format[NavLinks]
 }
 
 case class JumpLinks(company_name : String,

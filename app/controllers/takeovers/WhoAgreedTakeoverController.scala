@@ -68,7 +68,7 @@ class WhoAgreedTakeoverController @Inject()(val authConnector: PlayAuthConnector
   val submit: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
       registered { regId =>
-        WhoAgreedTakeoverForm.form.bindFromRequest.fold(
+        WhoAgreedTakeoverForm.form.bindFromRequest().fold(
           formWithErrors =>
             takeoverService.getTakeoverDetails(regId).flatMap {
               case Some(TakeoverDetails(_, Some(businessName), _, _, _)) =>

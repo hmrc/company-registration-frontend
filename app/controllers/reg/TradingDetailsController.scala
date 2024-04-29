@@ -56,7 +56,7 @@ class TradingDetailsController @Inject()(val authConnector: PlayAuthConnector,
   val submit = Action.async { implicit request =>
     ctAuthorised {
       registered { _ =>
-        TradingDetailsForm.form.bindFromRequest.fold(
+        TradingDetailsForm.form.bindFromRequest().fold(
           errors => Future.successful(BadRequest(view(errors))),
           payments => {
             val context = metricsService.saveTradingDetailsToCRTimer.time()

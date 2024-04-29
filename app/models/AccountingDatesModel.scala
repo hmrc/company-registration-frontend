@@ -16,7 +16,7 @@
 
 package models
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 import services.TimeHelper
 
 import scala.language.implicitConversions
@@ -35,7 +35,7 @@ object AccountingDatesModel {
   val FUTURE_DATE = "FUTURE_DATE"
   val NOT_PLANNING_TO_YET = "NOT_PLANNING_TO_YET"
 
-  implicit val format = Json.format[AccountingDatesModel]
+  implicit val format: OFormat[AccountingDatesModel] = Json.format[AccountingDatesModel]
 
   def empty = AccountingDatesModel("", None, None, None)
 
@@ -60,15 +60,15 @@ case class AccountingDetails(accountingDateStatus : String,
 }
 
 object AccountingDetails {
-  implicit val formatLinks = Json.format[Links]
-  implicit val formats = Json.format[AccountingDetails]
+  implicit val formatLinks: OFormat[Links] = Json.format[Links]
+  implicit val formats: OFormat[AccountingDetails] = Json.format[AccountingDetails]
 }
 
 case class AccountingDetailsRequest(accountingDateStatus : String,
                                     startDateOfBusiness : Option[String])
 
 object AccountingDetailsRequest {
-  implicit val formats = Json.format[AccountingDetailsRequest]
+  implicit val formats: OFormat[AccountingDetailsRequest] = Json.format[AccountingDetailsRequest]
 
   def toRequest(accDates: AccountingDatesModel) : AccountingDetailsRequest = {
       val formattedDate = TimeHelper.toDateTime(accDates.day, accDates.month, accDates.year).map(_.toString())

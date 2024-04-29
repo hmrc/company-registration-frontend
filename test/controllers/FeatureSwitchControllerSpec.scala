@@ -16,8 +16,8 @@
 
 package controllers
 
-import akka.actor.ActorSystem
-import akka.stream.{ActorMaterializer, Materializer}
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.stream.{ActorMaterializer, Materializer}
 import controllers.test.FeatureSwitchController
 import helpers.SCRSSpec
 import org.mockito.ArgumentMatchers

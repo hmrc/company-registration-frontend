@@ -16,8 +16,8 @@
 
 package helpers
 
-import akka.stream.Materializer
-import akka.util.ByteString
+import org.apache.pekko.stream.Materializer
+import org.apache.pekko.util.ByteString
 import org.scalatestplus.play.PlaySpec
 import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Result

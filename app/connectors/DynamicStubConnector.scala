@@ -20,9 +20,10 @@ import javax.inject.Inject
 import config.{AppConfig, WSHttp}
 import models.IncorporationResponse
 import models.test.ETMPNotification
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.{JsValue, Json, Reads}
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.http.HttpReads.Implicits._
+
 import scala.concurrent.{ExecutionContext, Future}
 
 class DynamicStubConnectorImpl @Inject()(val wSHttp: WSHttp, appConfig: AppConfig)(implicit val ec: ExecutionContext) extends DynamicStubConnector {
@@ -37,7 +38,7 @@ trait DynamicStubConnector {
 
   implicit val hc: HeaderCarrier = HeaderCarrier().withExtraHeaders("Accept" -> "application/vnd.hmrc.1.0+json")
 
-  implicit val rds = Json.reads[IncorporationResponse]
+  implicit val rds: Reads[IncorporationResponse] = Json.reads[IncorporationResponse]
   hc.withExtraHeaders("Accept" -> "application/vnd.hmrc.1.0+json")
 
   def postETMPNotificationData(etmp : ETMPNotification)(implicit hc : HeaderCarrier) : Future[HttpResponse] = {

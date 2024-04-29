@@ -16,13 +16,14 @@
 
 package config
 
-import akka.actor.ActorSystem
+import org.apache.pekko.actor.ActorSystem
 import com.typesafe.config.Config
+
 import javax.inject.Inject
 import play.api.Configuration
 import play.api.libs.ws.WSClient
 import uk.gov.hmrc.auth.core.PlayAuthConnector
-import uk.gov.hmrc.crypto.ApplicationCrypto
+import uk.gov.hmrc.crypto.{ApplicationCrypto, Decrypter, Encrypter}
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.http.cache.client.{SessionCache, ShortLivedCache, ShortLivedHttpCaching}
 import uk.gov.hmrc.http.hooks.HttpHooks
@@ -61,7 +62,7 @@ class SCRSShortLivedHttpCaching @Inject()(val wSHttp: WSHttp, appConfig: AppConf
 }
 
 class SCRSShortLivedCache @Inject()(cryptoInitialiser: CryptoInitialiser, val shortLiveCache: ShortLivedHttpCaching) extends ShortLivedCache {
-  override implicit lazy val crypto = cryptoInitialiser.cryptoInstance.JsonCrypto
+  override implicit lazy val crypto: Encrypter with Decrypter = cryptoInitialiser.cryptoInstance.JsonCrypto
 }
 class CryptoInitialiserImpl @Inject()(val applicationCrypto: ApplicationCrypto) extends CryptoInitialiser
 
