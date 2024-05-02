@@ -62,7 +62,9 @@ class EmailVerificationServiceSpec extends UnitSpec with SCRSSpec with UserDetai
       val auditService = mockAuditService
 
 
-      override def verifyEmailAddressAndSaveEmailBlockWithFlag(s: String, e: String, authProviderId: String, externalId: String)(implicit hc: HeaderCarrier, req: Request[AnyContent]) =
+      override def verifyEmailAddressAndSaveEmailBlockWithFlag(s: String, e: String, authProviderId: String,
+                                                               externalId: String)(implicit hc: HeaderCarrier,
+                                                                                   ec: ExecutionContext, req: Request[AnyContent]) =
         Future.successful(
           Some(e match {
             case "verified" => true
@@ -70,7 +72,9 @@ class EmailVerificationServiceSpec extends UnitSpec with SCRSSpec with UserDetai
           })
         )
 
-      override def sendVerificationLink(address: String, rId: String, authProviderId: String, externalId: String)(implicit hc: HeaderCarrier, req: Request[AnyContent]) =
+      override def sendVerificationLink(address: String, rId: String, authProviderId: String,
+                                        externalId: String)(implicit hc: HeaderCarrier,
+                                                            ec: ExecutionContext, req: Request[AnyContent]) =
         Future.successful(
           Some(address match {
             case "existing" => true
@@ -122,7 +126,7 @@ class EmailVerificationServiceSpec extends UnitSpec with SCRSSpec with UserDetai
     "return verified when a user has an SCRS verified email " in new Setup {
       val expected = VerifiedEmail()
 
-      when(mockHandOffService.cacheRegistrationID(ArgumentMatchers.eq(regId))(ArgumentMatchers.any()))
+      when(mockHandOffService.cacheRegistrationID(ArgumentMatchers.eq(regId))(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(CacheMap("x", Map())))
 
       await(stubbedService.checkEmailStatus(regId, Some(testVerifiedEmail), authDetails)) mustBe expected
@@ -133,7 +137,7 @@ class EmailVerificationServiceSpec extends UnitSpec with SCRSSpec with UserDetai
     "return notVerified when a user has not got an SCRS verified email " in new Setup {
       val expected = NotVerifiedEmail()
 
-      when(mockHandOffService.cacheRegistrationID(ArgumentMatchers.eq(regId))(ArgumentMatchers.any()))
+      when(mockHandOffService.cacheRegistrationID(ArgumentMatchers.eq(regId))(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(CacheMap("x", Map())))
 
       await(stubbedService.checkEmailStatus(regId, Some(testUnverifiedEmail), authDetails)) mustBe expected
@@ -166,7 +170,7 @@ class EmailVerificationServiceSpec extends UnitSpec with SCRSSpec with UserDetai
       when(mockEmailConnector.checkVerifiedEmail(ArgumentMatchers.anyString())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(true))
 
-      when(mockKsConnector.cache(ArgumentMatchers.eq("email"), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockKsConnector.cache(ArgumentMatchers.eq("email"), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(CacheMap("x", Map())))
 
       when(mockCrConnector.updateEmail(ArgumentMatchers.eq(regId), ArgumentMatchers.any[Email]())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
@@ -184,7 +188,7 @@ class EmailVerificationServiceSpec extends UnitSpec with SCRSSpec with UserDetai
       when(mockEmailConnector.checkVerifiedEmail(ArgumentMatchers.anyString())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(false))
 
-      when(mockKsConnector.cache(ArgumentMatchers.eq("email"), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockKsConnector.cache(ArgumentMatchers.eq("email"), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(CacheMap("x", Map())))
 
       when(mockCrConnector.updateEmail(ArgumentMatchers.eq(regId), ArgumentMatchers.any[Email]())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
@@ -199,7 +203,7 @@ class EmailVerificationServiceSpec extends UnitSpec with SCRSSpec with UserDetai
 
   "sendVerificationLink" should {
     "should return false when a link has been sent, audit event sent because verified = true" in new Setup {
-      when(mockKsConnector.cache(ArgumentMatchers.eq("email"), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockKsConnector.cache(ArgumentMatchers.eq("email"), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(CacheMap("x", Map())))
 
       when(mockEmailConnector.requestVerificationEmailReturnVerifiedEmailStatus(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
@@ -215,7 +219,7 @@ class EmailVerificationServiceSpec extends UnitSpec with SCRSSpec with UserDetai
     }
     "should return true when a link has not been sent due to a conflict, no audit event sent" in new Setup {
 
-      when(mockKsConnector.cache(ArgumentMatchers.eq("email"), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockKsConnector.cache(ArgumentMatchers.eq("email"), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(CacheMap("x", Map())))
 
       when(mockEmailConnector.requestVerificationEmailReturnVerifiedEmailStatus(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))

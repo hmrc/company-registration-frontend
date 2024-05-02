@@ -4,15 +4,17 @@ import play.sbt.routes.RoutesCompiler.autoImport._
 import sbt.Keys._
 import sbt._
 import scoverage.ScoverageKeys
-import uk.gov.hmrc.DefaultBuildSettings.{defaultSettings, scalaSettings}
+import uk.gov.hmrc.DefaultBuildSettings.{addTestReportOption, defaultSettings, scalaSettings}
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin
-import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
 import uk.gov.hmrc.versioning.SbtGitVersioning.autoImport.majorVersion
-import uk.gov.hmrc.SbtAutoBuildPlugin
+import uk.gov.hmrc.{DefaultBuildSettings, SbtAutoBuildPlugin}
 
 val appName = "company-registration-frontend"
 
 lazy val appDependencies: Seq[ModuleID] = AppDependencies()
+
+ThisBuild / majorVersion := 3
+ThisBuild / scalaVersion := "2.13.13"
 
 lazy val scoverageSettings = {
   // Semicolon-separated list of regexs matching classes to exclude
@@ -25,31 +27,28 @@ lazy val scoverageSettings = {
 }
 
 lazy val microservice = Project(appName, file("."))
-  .enablePlugins(Seq(PlayScala, SbtAutoBuildPlugin, SbtDistributablesPlugin): _*)
+  .enablePlugins(Seq(PlayScala, SbtAutoBuildPlugin, SbtDistributablesPlugin) *)
   .settings(scoverageSettings: _*)
-  .settings(scalaSettings: _*)
+  .settings(scalaSettings *)
   .settings(scalacOptions ++= Seq("-feature", "-unchecked", "-deprecation", "-language:reflectiveCalls"))
-  .settings(publishingSettings: _*)
-  .settings(defaultSettings(): _*)
+  .settings(defaultSettings() *)
   .settings(
     scalacOptions += "-Xlint:-unused",
     libraryDependencies ++= appDependencies,
     Test / fork := false,
     retrieveManaged := true,
     routesImport ++= Seq("uk.gov.hmrc.play.bootstrap.binders._"),
-    scalaVersion := "2.13.8"
   )
   .settings(PlayKeys.devSettings := Seq(
     "akka.http.parsing.max-uri-length" -> "16k")
   )
-  .configs(IntegrationTest)
-  .settings(inConfig(IntegrationTest)(Defaults.itSettings): _*)
-  .settings(majorVersion := 2)
-  .settings(
-    IntegrationTest / fork := true,
-    IntegrationTest / javaOptions += "-Dlogger.resource=logback-test.xml",
-    IntegrationTest / parallelExecution := false,
-    IntegrationTest / unmanagedSourceDirectories := (IntegrationTest / baseDirectory) (base => Seq(base / "it")).value
-  )
   .disablePlugins(JUnitXmlReportPlugin) //Required to prevent https://github.com/scalatest/scalatest/issues/1427
 
+lazy val it = project.in(file("it"))
+  .enablePlugins(PlayScala)
+  .dependsOn(microservice % "test->test") // the "test->test" allows reusing test code and test dependencies
+  .settings(DefaultBuildSettings.itSettings(true))
+  .settings(
+    libraryDependencies ++= appDependencies,
+    addTestReportOption(Test, "int-test-reports")
+  )

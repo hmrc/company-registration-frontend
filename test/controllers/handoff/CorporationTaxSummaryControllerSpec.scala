@@ -33,7 +33,6 @@ import uk.gov.hmrc.http.HeaderCarrier
 import utils.{DecryptionError, JweCommon, PayloadError}
 import views.html.{error_template, error_template_restart}
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
@@ -57,7 +56,7 @@ class CorporationTaxSummaryControllerSpec extends SCRSSpec with LoginFixture wit
       errorTemplateRestartPage,
       mockLanguageService
     )(
-      mockAppConfig,global
+      mockAppConfig,ec
     )
 
     val jweInstance = () => app.injector.instanceOf[JweCommon]
@@ -87,7 +86,7 @@ class CorporationTaxSummaryControllerSpec extends SCRSSpec with LoginFixture wit
 
     "return a BAD_REQUEST if sending an empty request with authorisation" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("1"))
-      when(mockHandBackService.processSummaryPage1HandBack(ArgumentMatchers.eq(""))(ArgumentMatchers.any[HeaderCarrier]))
+      when(mockHandBackService.processSummaryPage1HandBack(ArgumentMatchers.eq(""))(ArgumentMatchers.any[HeaderCarrier], ArgumentMatchers.any[ExecutionContext]))
         .thenReturn(Future.successful(Failure(DecryptionError)))
 
       showWithAuthorisedUser(testController.corporationTaxSummary("")) {
@@ -101,7 +100,7 @@ class CorporationTaxSummaryControllerSpec extends SCRSSpec with LoginFixture wit
       mockKeystoreFetchAndGet("registrationID", Some("1"))
       val encryptedPayload = jweInstance().encrypt[SummaryPage1HandOffIncoming](handBackPayload).get
 
-      when(mockHandBackService.processSummaryPage1HandBack(ArgumentMatchers.eq(encryptedPayload))(ArgumentMatchers.any[HeaderCarrier]))
+      when(mockHandBackService.processSummaryPage1HandBack(ArgumentMatchers.eq(encryptedPayload))(ArgumentMatchers.any[HeaderCarrier], ArgumentMatchers.any[ExecutionContext]))
         .thenReturn(Future.successful(Failure(PayloadError)))
 
       showWithAuthorisedUser(testController.corporationTaxSummary(encryptedPayload)) {
@@ -115,7 +114,7 @@ class CorporationTaxSummaryControllerSpec extends SCRSSpec with LoginFixture wit
       mockKeystoreFetchAndGet("registrationID", Some("1"))
       val encryptedPayload = jweInstance().encrypt[SummaryPage1HandOffIncoming](handBackPayload).get
 
-      when(mockHandBackService.processSummaryPage1HandBack(ArgumentMatchers.eq(encryptedPayload))(ArgumentMatchers.any[HeaderCarrier]))
+      when(mockHandBackService.processSummaryPage1HandBack(ArgumentMatchers.eq(encryptedPayload))(ArgumentMatchers.any[HeaderCarrier], ArgumentMatchers.any[ExecutionContext]))
         .thenReturn(Future.successful(Success(handBackPayload)))
       when(mockLanguageService.updateLanguage(ArgumentMatchers.eq("1"), ArgumentMatchers.eq(Lang(LangConstants.english)))(ArgumentMatchers.any[HeaderCarrier], ArgumentMatchers.any[ExecutionContext]))
         .thenReturn(Future.successful(true))
@@ -131,7 +130,7 @@ class CorporationTaxSummaryControllerSpec extends SCRSSpec with LoginFixture wit
       mockKeystoreFetchAndGet("registrationID", None)
       val encryptedPayload = jweInstance().encrypt[SummaryPage1HandOffIncoming](handBackPayload).get
 
-      when(mockHandBackService.processSummaryPage1HandBack(ArgumentMatchers.eq(encryptedPayload))(ArgumentMatchers.any[HeaderCarrier]))
+      when(mockHandBackService.processSummaryPage1HandBack(ArgumentMatchers.eq(encryptedPayload))(ArgumentMatchers.any[HeaderCarrier], ArgumentMatchers.any[ExecutionContext]))
         .thenReturn(Future.successful(Success(handBackPayload)))
 
       showWithAuthorisedUser(testController.corporationTaxSummary(encryptedPayload)) {

@@ -31,7 +31,7 @@ trait HandOffServiceMock {
 
   object HandOffServiceMocks {
     def cacheRegistrationID(cacheMap: CacheMap) = {
-      when(mockHandOffService.cacheRegistrationID(ArgumentMatchers.anyString())(ArgumentMatchers.any()))
+      when(mockHandOffService.cacheRegistrationID(ArgumentMatchers.anyString())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(cacheMap))
     }
   }

@@ -20,16 +20,16 @@ import javax.inject.Inject
 import connectors.CompanyRegistrationConnector
 import utils.Logging
 import uk.gov.hmrc.http.HeaderCarrier
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+
+import scala.concurrent.{ExecutionContext, Future}
 
 
-class DeleteSubmissionServiceImpl @Inject()(val crConnector: CompanyRegistrationConnector) extends DeleteSubmissionService
+class DeleteSubmissionServiceImpl @Inject()(val crConnector: CompanyRegistrationConnector)(implicit val ec: ExecutionContext) extends DeleteSubmissionService
 
 trait DeleteSubmissionService extends Logging {
   val crConnector: CompanyRegistrationConnector
 
-  def deleteSubmission(regId: String)(implicit hc: HeaderCarrier): Future[Boolean] = {
+  def deleteSubmission(regId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Boolean] = {
     crConnector.deleteRegistrationSubmission(regId) map { res => true} recover {
       case ex: Exception =>
         logger.error(s"[deleteSubmission] Submission was not deleted.  Message received was ${ex.getMessage}")

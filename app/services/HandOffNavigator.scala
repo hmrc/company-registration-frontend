@@ -17,7 +17,6 @@
 package services
 
 import java.util.NoSuchElementException
-
 import config.AppConfig
 import controllers.handoff._
 import models.handoff.{HandOffNavModel, NavLinks, Receiver, Sender}
@@ -26,8 +25,7 @@ import repositories._
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.{SCRSExceptions, SCRSFeatureSwitches}
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 import scala.util.control.NoStackTrace
 
@@ -75,7 +73,7 @@ trait HandOffNavigator extends CommonService with SCRSExceptions with Logging {
 
   private val HANDOFF_NAV_KEY: String = "HandOffNavigation"
 
-  def fetchNavModel(canCreate: Boolean = false)(implicit hc: HeaderCarrier): Future[HandOffNavModel] = {
+  def fetchNavModel(canCreate: Boolean = false)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[HandOffNavModel] = {
     fetchRegistrationID flatMap  { reg =>
       navModelMongo.getNavModel(reg).flatMap {
         case Some(s) => Future.successful(s)
@@ -85,7 +83,7 @@ trait HandOffNavigator extends CommonService with SCRSExceptions with Logging {
     }
   }
 
-  private def initNavModel(implicit hc: HeaderCarrier): Future[HandOffNavModel] = {
+  private def initNavModel(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[HandOffNavModel] = {
     val model = HandOffNavModel(
       Sender(Map(
         "1"   -> NavLinks(corporationTaxDetails, aboutYouUrl),
@@ -95,10 +93,10 @@ trait HandOffNavigator extends CommonService with SCRSExceptions with Logging {
         "5-2" -> NavLinks(forwardConfirmationUrl,""))),
       Receiver(Map("0" -> NavLinks(firstHandoffURL, "")).withDefaultValue(NavLinks(postSignInUrl,postSignInUrl))))
 
-    cacheNavModel(model, hc) map (_ => model)
+    cacheNavModel(model, hc, ec) map (_ => model)
   }
 
-  def cacheNavModel(implicit navModel: HandOffNavModel, hc: HeaderCarrier): Future[Option[HandOffNavModel]] = {
+  def cacheNavModel(implicit navModel: HandOffNavModel, hc: HeaderCarrier, ec: ExecutionContext): Future[Option[HandOffNavModel]] = {
     fetchRegistrationID flatMap  { reg =>
       navModelMongo.insertNavModel(reg, navModel)
     }

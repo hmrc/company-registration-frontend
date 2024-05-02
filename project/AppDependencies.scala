@@ -5,35 +5,29 @@ import sbt._
 
 private object AppDependencies {
 
-  val playVersion                 = "-play-28"
-  val bootsrapVersion             = "7.13.0"
-  val hmrcMongoVersion            = "0.74.0"
-  val scalaTestVersion            = "3.2.15"
+  val playVersion                 = "-play-29"
+  val bootsrapVersion             = "8.5.0"
+  val hmrcMongoVersion            = "1.7.0"
+  val scalaTestVersion            = "3.2.18"
 
 
   val compile = Seq(
     ws,
     "uk.gov.hmrc"             %% s"bootstrap-frontend$playVersion"  %  bootsrapVersion,
     "uk.gov.hmrc.mongo"       %% s"hmrc-mongo$playVersion"          %  hmrcMongoVersion,
-    "uk.gov.hmrc"             %%  "play-partials"                   % s"8.3.0$playVersion",
-    "uk.gov.hmrc"             %%  "http-caching-client"             % s"10.0.0$playVersion",
-    "uk.gov.hmrc"             %%  "play-conditional-form-mapping"   % s"1.12.0$playVersion",
-    "org.bitbucket.b_c"       %   "jose4j"                          %  "0.9.2",
-    "commons-validator"       %   "commons-validator"               %  "1.7",
-    "uk.gov.hmrc"             %%  "play-language"                   % s"6.1.0$playVersion",
-    "uk.gov.hmrc"             %%  "play-frontend-hmrc-play-28"              % s"8.5.0",
+    "uk.gov.hmrc"             %% s"play-partials$playVersion"                 % "9.1.0",
+    "uk.gov.hmrc"             %% s"http-caching-client$playVersion"           % "11.2.0",
+    "uk.gov.hmrc"             %% s"play-conditional-form-mapping$playVersion" % "2.0.0",
+    "org.bitbucket.b_c"       %   "jose4j"                                    %  "0.9.6",
+    "commons-validator"       %   "commons-validator"                         %  "1.8.0",
+    "uk.gov.hmrc"             %%  "play-language"                             %  "7.0.0",
+    "uk.gov.hmrc"             %%  s"play-frontend-hmrc$playVersion"           % bootsrapVersion
   )
 
   val test = Seq(
-    "uk.gov.hmrc"             %% s"bootstrap-test$playVersion"      %  bootsrapVersion          % "test, it",
-    "uk.gov.hmrc.mongo"       %% s"hmrc-mongo-test$playVersion"     %  hmrcMongoVersion         % "test, it",
-    "org.scalatest"           %%  "scalatest"                       %  scalaTestVersion         % "test, it",
-    "org.scalatestplus.play"  %%  "scalatestplus-play"              %  "5.1.0"                  % "test, it",
-    "com.vladsch.flexmark"    %   "flexmark-all"                    %  "0.64.0"                 % "test, it",
-    "org.scalatestplus"       %%  "mockito-4-5"                     %  "3.2.12.0"               % "test, it",
-    "org.jsoup"               %   "jsoup"                           %  "1.15.3"                 % "test, it",
-    "com.typesafe.play"       %%  "play-test"                       %  PlayVersion.current      % "test, it",
-    "com.github.tomakehurst"  %   "wiremock-jre8-standalone"        %  "2.35.0"                 % "it"
+    "uk.gov.hmrc"             %% s"bootstrap-test$playVersion"      %  bootsrapVersion          % Test,
+    "uk.gov.hmrc.mongo"       %% s"hmrc-mongo-test$playVersion"     %  hmrcMongoVersion         % Test,
+    "org.jsoup"               %   "jsoup"                           %  "1.17.2"                 % Test
   )
 
   def apply() = compile ++ test

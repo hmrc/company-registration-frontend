@@ -34,9 +34,10 @@ import play.api.mvc.{AnyContentAsEmpty, MessagesControllerComponents}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.HeaderCarrier
-import scala.concurrent.ExecutionContext.Implicits.global
+
 import views.html.groups.GroupAddressView
-import scala.concurrent.Future
+
+import scala.concurrent.{ExecutionContext, Future}
 
 class GroupAddressControllerSpec()(implicit lang: Lang) extends SCRSSpec with GuiceOneAppPerSuite with MockitoSugar with AuthBuilder {
 
@@ -63,7 +64,7 @@ class GroupAddressControllerSpec()(implicit lang: Lang) extends SCRSSpec with Gu
     )
     (
       mockAppConfig,
-      global
+      ec
     )
   }
 
@@ -78,7 +79,7 @@ class GroupAddressControllerSpec()(implicit lang: Lang) extends SCRSSpec with Gu
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
       when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any()))
         .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
-      when(mockGroupService.retrieveGroups(any())(any()))
+      when(mockGroupService.retrieveGroups(any())(any(), any()))
         .thenReturn(Future.successful(Some(testGroups)))
 
       showWithAuthorisedUser(controller.show) {
@@ -97,7 +98,7 @@ class GroupAddressControllerSpec()(implicit lang: Lang) extends SCRSSpec with Gu
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
       when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any()))
         .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
-      when(mockGroupService.retrieveGroups(any())(any()))
+      when(mockGroupService.retrieveGroups(any())(any(), any()))
         .thenReturn(Future.successful(Some(testGroups)))
       showWithAuthorisedUser(controller.show) {
         result =>
@@ -114,7 +115,7 @@ class GroupAddressControllerSpec()(implicit lang: Lang) extends SCRSSpec with Gu
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
       when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any()))
         .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
-      when(mockGroupService.retrieveGroups(any())(any()))
+      when(mockGroupService.retrieveGroups(any())(any(), any()))
         .thenReturn(Future.successful(Some(testGroups)))
       when(mockAddressLookupService.initialiseAlfJourney(any(), any(), any(), any())(any[HeaderCarrier], any[MessagesProvider]))
         .thenReturn(Future.successful("foo"))
@@ -133,9 +134,9 @@ class GroupAddressControllerSpec()(implicit lang: Lang) extends SCRSSpec with Gu
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
       when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any()))
         .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
-      when(mockGroupService.retrieveGroups(any())(any()))
+      when(mockGroupService.retrieveGroups(any())(any(), any()))
         .thenReturn(Future.successful(Some(testGroups)))
-      when(mockGroupService.retreiveValidatedTxApiAddress(any(), any())(any()))
+      when(mockGroupService.retreiveValidatedTxApiAddress(any(), any())(any(), any()))
         .thenReturn(Future.successful(None))
       when(mockAddressLookupService.initialiseAlfJourney(any(), any(), any(), any())(any[HeaderCarrier], any[MessagesProvider]))
         .thenReturn(Future.successful("foo"))
@@ -154,11 +155,11 @@ class GroupAddressControllerSpec()(implicit lang: Lang) extends SCRSSpec with Gu
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
       when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any()))
         .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
-      when(mockGroupService.retrieveGroups(any())(any()))
+      when(mockGroupService.retrieveGroups(any())(any(), any()))
         .thenReturn(Future.successful(Some(testGroups)))
-      when(mockGroupService.retreiveValidatedTxApiAddress(any(), any())(any()))
+      when(mockGroupService.retreiveValidatedTxApiAddress(any(), any())(any(), any()))
         .thenReturn(Future.successful(Some(testAddress)))
-      when(mockGroupService.dropOldFields(any(), any(), any())(any()))
+      when(mockGroupService.dropOldFields(any(), any(), any())(any(), any()))
         .thenReturn(Future.successful(testGroups))
       when(mockGroupService.createAddressMap(any(), any()))
         .thenReturn(Map("foo" -> "bar"))
@@ -182,11 +183,11 @@ class GroupAddressControllerSpec()(implicit lang: Lang) extends SCRSSpec with Gu
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
       when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any()))
         .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
-      when(mockGroupService.retrieveGroups(any())(any()))
+      when(mockGroupService.retrieveGroups(any())(any(), any()))
         .thenReturn(Future.successful(Some(testGroups)))
-      when(mockGroupService.retreiveValidatedTxApiAddress(any(), any())(any()))
+      when(mockGroupService.retreiveValidatedTxApiAddress(any(), any())(any(), any()))
         .thenReturn(Future.successful(Some(testAddress)))
-      when(mockGroupService.dropOldFields(any(), any(), any())(any()))
+      when(mockGroupService.dropOldFields(any(), any(), any())(any(), any()))
         .thenReturn(Future.successful(testGroups))
       when(mockGroupService.createAddressMap(any(), any()))
         .thenReturn(Map("foo" -> "bar"))
@@ -212,9 +213,9 @@ class GroupAddressControllerSpec()(implicit lang: Lang) extends SCRSSpec with Gu
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
       when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any()))
         .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
-      when(mockGroupService.retrieveGroups(any())(any()))
+      when(mockGroupService.retrieveGroups(any())(any(), any()))
         .thenReturn(Future.successful(Some(testGroups)))
-      when(mockGroupService.retreiveValidatedTxApiAddress(any(), any())(any()))
+      when(mockGroupService.retreiveValidatedTxApiAddress(any(), any())(any(), any()))
         .thenReturn(Future.successful(Some(testAddress)))
       when(mockGroupService.createAddressMap(any(), any()))
         .thenReturn(Map("foo" -> "bar"))
@@ -229,9 +230,9 @@ class GroupAddressControllerSpec()(implicit lang: Lang) extends SCRSSpec with Gu
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
       when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any()))
         .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
-      when(mockGroupService.retrieveGroups(any())(any()))
+      when(mockGroupService.retrieveGroups(any())(any(), any()))
         .thenReturn(Future.successful(Some(testGroups)))
-      when(mockGroupService.saveTxShareHolderAddress(any(), any())(any())).thenReturn(Future.successful(Right(testGroups)))
+      when(mockGroupService.saveTxShareHolderAddress(any(), any())(any(), any())).thenReturn(Future.successful(Right(testGroups)))
       submitWithAuthorisedUser(controller.submit, FakeRequest().withFormUrlEncodedBody("groupAddress" -> "TxAPI")) {
         result =>
           status(result) mustBe 303
@@ -244,10 +245,10 @@ class GroupAddressControllerSpec()(implicit lang: Lang) extends SCRSSpec with Gu
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
       when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any()))
         .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
-      when(mockGroupService.retrieveGroups(any())(any()))
+      when(mockGroupService.retrieveGroups(any())(any(), any()))
         .thenReturn(Future.successful(Some(testGroups)))
       when(mockAddressLookupService.initialiseAlfJourney(any(), any(), any(), any())(any[HeaderCarrier], any[MessagesProvider])).thenReturn(Future.successful("foo"))
-      when(mockGroupService.saveTxShareHolderAddress(any(), any())(any())).thenReturn(Future.successful(Left(new Exception(""))))
+      when(mockGroupService.saveTxShareHolderAddress(any(), any())(any(), any())).thenReturn(Future.successful(Left(new Exception(""))))
       submitWithAuthorisedUser(controller.submit, FakeRequest().withFormUrlEncodedBody("groupAddress" -> "TxAPI")) {
         result =>
           status(result) mustBe 303
@@ -260,7 +261,7 @@ class GroupAddressControllerSpec()(implicit lang: Lang) extends SCRSSpec with Gu
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
       when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any()))
         .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
-      when(mockGroupService.retrieveGroups(any())(any()))
+      when(mockGroupService.retrieveGroups(any())(any(), any()))
         .thenReturn(Future.successful(Some(testGroups)))
       submitWithAuthorisedUser(controller.submit, FakeRequest().withFormUrlEncodedBody("groupAddress" -> "ALF")) {
         result =>
@@ -274,7 +275,7 @@ class GroupAddressControllerSpec()(implicit lang: Lang) extends SCRSSpec with Gu
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
       when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any()))
         .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
-      when(mockGroupService.retrieveGroups(any())(any()))
+      when(mockGroupService.retrieveGroups(any())(any(), any()))
         .thenReturn(Future.successful(Some(testGroups)))
       when(mockAddressLookupService.initialiseAlfJourney(any(), any(), any(), any())(any[HeaderCarrier], any[MessagesProvider])).thenReturn(Future.successful("foo"))
       submitWithAuthorisedUser(controller.submit, FakeRequest().withFormUrlEncodedBody("groupAddress" -> "Other")) {
@@ -289,7 +290,7 @@ class GroupAddressControllerSpec()(implicit lang: Lang) extends SCRSSpec with Gu
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
       when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any()))
         .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
-      when(mockGroupService.retrieveGroups(any())(any()))
+      when(mockGroupService.retrieveGroups(any())(any(), any()))
         .thenReturn(Future.successful(Some(testGroups)))
       submitWithAuthorisedUser(controller.submit, FakeRequest().withFormUrlEncodedBody("groupAddress" -> "CohoEntered")) {
         result =>
@@ -310,13 +311,13 @@ class GroupAddressControllerSpec()(implicit lang: Lang) extends SCRSSpec with Gu
       when(mockCompanyRegistrationConnector.retrieveEmail(ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier], any()))
         .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
 
-      when(mockGroupService.retrieveGroups(ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier]))
+      when(mockGroupService.retrieveGroups(ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier], ArgumentMatchers.any[ExecutionContext]))
         .thenReturn(Future.successful(Some(testGroups)))
 
       when(mockAddressLookupService.getAddress(ArgumentMatchers.eq(alfId))(ArgumentMatchers.any[HeaderCarrier]))
         .thenReturn(Future.successful(NewAddress("l1", "l2", None, None, None, None, None)))
 
-      when(mockGroupService.updateGroupAddress(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier]))
+      when(mockGroupService.updateGroupAddress(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier], ArgumentMatchers.any[ExecutionContext]))
         .thenReturn(Future.successful(testGroups))
 
       showWithAuthorisedUser(controller.handbackFromALF(Some(alfId))) {

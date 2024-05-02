@@ -32,7 +32,6 @@ import play.api.test.Helpers._
 import services.MetricsService
 import views.html.reg.{CompanyContactDetails => CompanyContactDetailsView}
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class CompanyContactDetailsSpec extends SCRSSpec with CompanyContactDetailsFixture with UserDetailsFixture with GuiceOneAppPerSuite
@@ -60,7 +59,7 @@ class CompanyContactDetailsSpec extends SCRSSpec with CompanyContactDetailsFixtu
     )
     (
       appConfig,
-      global
+      ec
       )
 
 

@@ -37,7 +37,6 @@ import views.html.reg.{Confirmation => ConfirmationView}
 import views.html.errors.{submissionFailed => submissionFailedView}
 import views.html.errors.{deskproSubmitted => deskproSubmittedView}
 import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
 
 class ConfirmationControllerSpec(implicit val messages: Messages) extends SCRSSpec with CompanyDetailsFixture with GuiceOneAppPerSuite with AuthBuilder {
 
@@ -60,7 +59,7 @@ class ConfirmationControllerSpec(implicit val messages: Messages) extends SCRSSp
       mockSubmissionFailedView,
       mockDeskproSubmittedView
     )
-    (mockAppConfig,global)
+    (mockAppConfig,ec)
   }
 
   val regId = "reg12345"
@@ -121,7 +120,7 @@ class ConfirmationControllerSpec(implicit val messages: Messages) extends SCRSSp
         "message" -> "I can't provide a good email address"
       )
 
-      when(mockDeskproService.submitTicket(ArgumentMatchers.eq(regId), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockDeskproService.submitTicket(ArgumentMatchers.eq(regId), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(ticketId))
 
       submitWithAuthorisedUserRetrieval(controller.submitTicket, request, testUri) {

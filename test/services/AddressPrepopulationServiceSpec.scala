@@ -21,7 +21,6 @@ import helpers.SCRSSpec
 import models.{CompanyDetails, NewAddress}
 import uk.gov.hmrc.http.InternalServerException
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class AddressPrepopulationServiceSpec extends SCRSSpec with AddressFixture with CompanyDetailsFixture {

@@ -17,24 +17,22 @@
 package services
 
 import javax.inject.Inject
-
 import connectors.{BusinessRegistrationConnector, BusinessRegistrationSuccessResponse, KeystoreConnector}
 import models.{AboutYouChoice, AboutYouChoiceForm, BusinessRegistration}
 import utils.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.SCRSExceptions
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class MetaDataServiceImpl @Inject()(val businessRegConnector: BusinessRegistrationConnector,
-                                    val keystoreConnector: KeystoreConnector) extends MetaDataService
+                                    val keystoreConnector: KeystoreConnector)(implicit val ec: ExecutionContext) extends MetaDataService
 
 trait MetaDataService extends CommonService with SCRSExceptions with Logging {
 
   val businessRegConnector : BusinessRegistrationConnector
 
-  def updateCompletionCapacity(completionCapacity : AboutYouChoiceForm)(implicit hc : HeaderCarrier) : Future[BusinessRegistration] = {
+  def updateCompletionCapacity(completionCapacity : AboutYouChoiceForm)(implicit hc : HeaderCarrier, ec: ExecutionContext) : Future[BusinessRegistration] = {
     for {
       regID <- fetchRegistrationID
       updateCC <- businessRegConnector.retrieveAndUpdateCompletionCapacity(regID, getItemToSave(completionCapacity))
@@ -50,7 +48,7 @@ trait MetaDataService extends CommonService with SCRSExceptions with Logging {
     }
   }
 
-  def getApplicantData(regId: String)(implicit hc : HeaderCarrier) : Future[AboutYouChoice] = {
+  def getApplicantData(regId: String)(implicit hc : HeaderCarrier, ec: ExecutionContext) : Future[AboutYouChoice] = {
     businessRegConnector.retrieveMetadata(regId) map {
       case BusinessRegistrationSuccessResponse(resp) => AboutYouChoice(resp.completionCapacity.getOrElse(
         throw new RuntimeException(s"Completion capacity missing at Summary for regId: $regId"))
@@ -62,7 +60,7 @@ trait MetaDataService extends CommonService with SCRSExceptions with Logging {
     }
   }
 
-  def updateApplicantDataEndpoint(applicantData : AboutYouChoice)(implicit hc : HeaderCarrier) : Future[BusinessRegistration] = {
+  def updateApplicantDataEndpoint(applicantData : AboutYouChoice)(implicit hc : HeaderCarrier, ec: ExecutionContext) : Future[BusinessRegistration] = {
     for {
       regId <- fetchRegistrationID
       updateCC <- businessRegConnector.retrieveAndUpdateCompletionCapacity(regId, applicantData.completionCapacity)

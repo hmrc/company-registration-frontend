@@ -31,8 +31,6 @@ class LanguageServiceSpec extends SCRSSpec {
   val regId = "reg12345"
   val lang = Lang(LangConstants.english)
 
-  implicit val ec = ExecutionContext.Implicits.global
-
   object TestLanguageService extends LanguageService(mockCompanyRegistrationConnector)
 
   "LanguageService" when {

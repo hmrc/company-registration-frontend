@@ -17,22 +17,20 @@
 package services
 
 import java.time.LocalDate
-
 import connectors.KeystoreConnector
 import utils.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.cache.client.CacheMap
 import utils.SCRSExceptions
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 trait CommonService extends Logging {
   self : SCRSExceptions =>
 
   val keystoreConnector: KeystoreConnector
 
-  def fetchRegistrationID(implicit hc: HeaderCarrier): Future[String] = {
+  def fetchRegistrationID(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[String] = {
     keystoreConnector.fetchAndGet[String]("registrationID").map {
       case Some(regID) => regID
       case None =>
@@ -41,11 +39,11 @@ trait CommonService extends Logging {
     }
   }
 
-  def cacheRegistrationID(registrationID: String)(implicit hc: HeaderCarrier): Future[CacheMap] = {
+  def cacheRegistrationID(registrationID: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[CacheMap] = {
     keystoreConnector.cache("registrationID", registrationID)
   }
 
-  def updateLastActionTimestamp()(implicit hc: HeaderCarrier): Future[CacheMap] = {
+  def updateLastActionTimestamp()(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[CacheMap] = {
     keystoreConnector.cache("lastActionTimestamp", LocalDate.now)
   }
 

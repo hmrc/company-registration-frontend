@@ -18,6 +18,7 @@ package services
 
 import config.AppConfig
 import connectors.{CompanyRegistrationConnector, EmailVerificationConnector, KeystoreConnector, SendTemplatedEmailConnector}
+
 import javax.inject.Inject
 import models.Email.GG
 import models.auth.AuthDetails
@@ -26,8 +27,7 @@ import play.api.mvc.{AnyContent, Request, Result, Results}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NoStackTrace
 
 private[services] class EmailBlockNotFound extends NoStackTrace
@@ -44,7 +44,7 @@ class EmailVerificationServiceImpl @Inject()(val emailConnector: EmailVerificati
                                              val handOffService: HandOffService,
                                              val appConfig: AppConfig,
                                              val templatedEmailConnector: SendTemplatedEmailConnector,
-                                            val auditService: AuditService) extends EmailVerificationService {
+                                            val auditService: AuditService)(implicit val ec: ExecutionContext) extends EmailVerificationService {
   lazy val returnUrl = appConfig.self
   lazy val sendTemplatedEmailURL = appConfig.servicesConfig.getConfString("email.returnToSCRSURL", throw new Exception("email.returnToSCRSURL not found"))
 }
@@ -65,7 +65,7 @@ trait EmailVerificationService {
   val auditService: AuditService
 
 
-  private def emailChecks(compRegEmailOpt: Option[Email], rId:String, authDetails: AuthDetails)(implicit hc: HeaderCarrier,req: Request[AnyContent]): Future[Option[Email]] = {
+  private def emailChecks(compRegEmailOpt: Option[Email], rId:String, authDetails: AuthDetails)(implicit hc: HeaderCarrier, ec: ExecutionContext,req: Request[AnyContent]): Future[Option[Email]] = {
   compRegEmailOpt match {
     case _ if authDetails.email == "" => Future.successful(None)
     case Some(Email(address,_,_,_,_)) if address == "" => Future.successful(None)
@@ -74,7 +74,7 @@ trait EmailVerificationService {
     case em@Some(e) => Future.successful(em)
   }
 }
-  private def noEmailBlock(regId:String, authDetails: AuthDetails)(implicit hc: HeaderCarrier,req: Request[AnyContent]) = {
+  private def noEmailBlock(regId:String, authDetails: AuthDetails)(implicit hc: HeaderCarrier, ec: ExecutionContext,req: Request[AnyContent]) = {
     val email = Email(authDetails.email, "GG", linkSent = false, verified = false, returnLinkEmailSent = false)
     saveEmailBlock(regId, email,authDetails.authProviderId, authDetails.externalId) map { x =>
       email
@@ -82,7 +82,7 @@ trait EmailVerificationService {
   }
 
   def checkEmailStatus(rId: String, oEmail: Option[Email], authDetails : AuthDetails)
-  (implicit hc: HeaderCarrier, req: Request[AnyContent]): Future[EmailVerified] = {
+  (implicit hc: HeaderCarrier, ec: ExecutionContext, req: Request[AnyContent]): Future[EmailVerified] = {
 
     def cacheReg(emv: EmailVerified) = handOffService.cacheRegistrationID(rId).map(_ => emv)
 
@@ -102,7 +102,7 @@ trait EmailVerificationService {
 
 
   def verifyEmailAddressAndSaveEmailBlockWithFlag(address: String, rId: String, authProviderId: String, externalId: String)
-                                                                   (implicit hc: HeaderCarrier, req: Request[AnyContent]): Future[Option[Boolean]] = {
+                                                                   (implicit hc: HeaderCarrier, ec: ExecutionContext, req: Request[AnyContent]): Future[Option[Boolean]] = {
       emailConnector.checkVerifiedEmail(address) flatMap { emailVerified =>
         saveEmailBlock(rId, Email(address, GG, linkSent = true, verified = emailVerified, returnLinkEmailSent = false), authProviderId, externalId) map {
           _ => Some(emailVerified)
@@ -111,7 +111,7 @@ trait EmailVerificationService {
   }
 
   def sendVerificationLink(address: String, rId: String, authProviderId: String, externalId:String)
-                                            (implicit hc: HeaderCarrier, req: Request[AnyContent]): Future[Option[Boolean]] = {
+                                            (implicit hc: HeaderCarrier, ec: ExecutionContext, req: Request[AnyContent]): Future[Option[Boolean]] = {
       emailConnector.requestVerificationEmailReturnVerifiedEmailStatus(generateEmailRequest(address)) flatMap {
         verified =>
           saveEmailBlock(rId, Email(address, GG, !verified, verified, false),authProviderId,externalId) map { seb =>
@@ -129,11 +129,11 @@ trait EmailVerificationService {
       continueUrl = s"$returnUrl/register-your-company/post-sign-in"
     )
   }
-  def fetchEmailBlock(regId: String)(implicit hc: HeaderCarrier):Future[Option[Email]] ={
+  def fetchEmailBlock(regId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext):Future[Option[Email]] ={
     crConnector.retrieveEmail(regId)
   }
 
-  def emailVerifiedStatusInSCRS(rId:String, f: () => Future[Result])(implicit hc: HeaderCarrier): Future[Result] = {
+  def emailVerifiedStatusInSCRS(rId:String, f: () => Future[Result])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Result] = {
 
     fetchEmailBlock(rId).flatMap {
       e =>
@@ -145,7 +145,7 @@ trait EmailVerificationService {
     }
   }
 
-  def saveEmailBlock(regId: String, email: Email, authProviderId: String, externalId: String)(implicit hc: HeaderCarrier, req: Request[AnyContent]): Future[Option[Email]] = {
+  def saveEmailBlock(regId: String, email: Email, authProviderId: String, externalId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext, req: Request[AnyContent]): Future[Option[Email]] = {
     crConnector.updateEmail(regId, email)
       .flatMap { emailFromUpdate =>
         if(email.verified) {
@@ -157,7 +157,7 @@ trait EmailVerificationService {
   }
 
   private def emailAuditing(rId : String, emailAddress : String, authProviderId: String, externalId: String)
-                           (implicit hc : HeaderCarrier, req: Request[AnyContent]) = {
+                           (implicit hc : HeaderCarrier, ec: ExecutionContext, req: Request[AnyContent]) = {
     for {
       result <- auditService.emailVerifiedEventDetail(externalId,
         authProviderId,

@@ -47,6 +47,7 @@ class S4LConnectorSpec extends UnitSpec with MockitoSugar with GuiceOneAppPerSui
   }
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
+  implicit val ec = scala.concurrent.ExecutionContext.Implicits.global
 
   val dateModel = AccountingDatesModel("", Some("1"), Some("1"), Some("2019"))
   val cacheMap = CacheMap("", Map("" -> Json.toJson(dateModel)))

@@ -35,7 +35,6 @@ import uk.gov.hmrc.http.HeaderCarrier
 import utils.{DecryptionError, JweCommon, PayloadError}
 import views.html.{error_template, error_template_restart}
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
@@ -63,7 +62,7 @@ class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture wit
       mockLanguageService
     )(
       appConfig,
-      global
+      ec
     )
 
     val jweInstance = () => app.injector.instanceOf[JweCommon]
@@ -82,9 +81,11 @@ class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture wit
 
         mockKeystoreFetchAndGet("registrationID", Some("1"))
 
-        when(mockCompanyRegistrationConnector.retrieveEmail(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(Email("foo", "bar", true, true, true))))
+        when(mockCompanyRegistrationConnector.retrieveEmail(ArgumentMatchers.any())(ArgumentMatchers.any(),
+          ArgumentMatchers.any())).thenReturn(Future.successful(Some(Email("foo", "bar", true, true, true))))
 
-        when(mockHandOffService.companyNamePayload(ArgumentMatchers.eq("1"), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier]()))
+        when(mockHandOffService.companyNamePayload(ArgumentMatchers.eq("1"), ArgumentMatchers.any(), ArgumentMatchers.any(),
+          ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]()))
           .thenReturn(Future.successful(Some(("testUrl/basic-company-details", "testEncryptedPayload"))))
 
         when(mockHandOffService.buildHandOffUrl(ArgumentMatchers.eq("testUrl/basic-company-details"), ArgumentMatchers.eq("testEncryptedPayload")))
@@ -104,8 +105,10 @@ class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture wit
       val encryptedPayload = jweInstance().encrypt[CompanyNameHandOffIncoming](validCompanyNameHandBack).get
 
       mockKeystoreFetchAndGet("registrationID", Some("1"))
-      when(mockCompanyRegistrationConnector.retrieveEmail(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(Email("foo", "bar", true, true, true))))
-      when(mockHandOffService.companyNamePayload(ArgumentMatchers.eq("1"), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier]()))
+      when(mockCompanyRegistrationConnector.retrieveEmail(ArgumentMatchers.any())(ArgumentMatchers.any(),
+        ArgumentMatchers.any())).thenReturn(Future.successful(Some(Email("foo", "bar", true, true, true))))
+      when(mockHandOffService.companyNamePayload(ArgumentMatchers.eq("1"), ArgumentMatchers.any(), ArgumentMatchers.any(),
+        ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(Some(("testUrl/basic-company-details", encryptedPayload))))
 
       when(mockHandOffService.buildHandOffUrl(ArgumentMatchers.eq("testUrl/basic-company-details"), ArgumentMatchers.eq(encryptedPayload)))
@@ -123,8 +126,10 @@ class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture wit
     "return a 400 and display an error page when nothing is retrieved from user details" in new Setup {
 
       mockKeystoreFetchAndGet("registrationID", Some("1"))
-      when(mockCompanyRegistrationConnector.retrieveEmail(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(Email("foo", "bar", true, true, true))))
-      when(mockHandOffService.companyNamePayload(ArgumentMatchers.eq("1"), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier]()))
+      when(mockCompanyRegistrationConnector.retrieveEmail(ArgumentMatchers.any())(ArgumentMatchers.any(),
+        ArgumentMatchers.any())).thenReturn(Future.successful(Some(Email("foo", "bar", true, true, true))))
+      when(mockHandOffService.companyNamePayload(ArgumentMatchers.eq("1"), ArgumentMatchers.any(),
+        ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(None))
 
       showWithAuthorisedUserRetrieval(testController.basicCompanyDetails, authDetails) {

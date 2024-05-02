@@ -30,7 +30,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.cache.client.CacheMap
 import utils.{BooleanFeatureSwitch, SCRSFeatureSwitches}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class HandOffNavigatorSpec extends SCRSSpec with MockitoSugar with GuiceOneAppPerSuite with NavModelRepoMock {
 
@@ -44,7 +44,7 @@ class HandOffNavigatorSpec extends SCRSSpec with MockitoSugar with GuiceOneAppPe
       override val keystoreConnector = mockKeyStoreConnector
       override val navModelMongo = mockNavModelRepoObj
 
-      override def fetchRegistrationID(implicit hc: HeaderCarrier) = Future.successful("foo")
+      override def fetchRegistrationID(implicit hc: HeaderCarrier, ec: ExecutionContext) = Future.successful("foo")
 
       override val appConfig: AppConfig = app.injector.instanceOf[AppConfig]
 
@@ -58,7 +58,7 @@ class HandOffNavigatorSpec extends SCRSSpec with MockitoSugar with GuiceOneAppPe
       override val keystoreConnector = mockKeyStoreConnector
       override val navModelMongo = mockNavModelRepoObj
 
-      override def fetchRegistrationID(implicit hc: HeaderCarrier) = Future.successful("foo")
+      override def fetchRegistrationID(implicit hc: HeaderCarrier, ec: ExecutionContext) = Future.successful("foo")
 
       override val appConfig: AppConfig = app.injector.instanceOf[AppConfig]
       override val scrsFeatureSwitches: SCRSFeatureSwitches = mockSCRSFeatureSwitches
@@ -124,7 +124,7 @@ class HandOffNavigatorSpec extends SCRSSpec with MockitoSugar with GuiceOneAppPe
     "return a new initialised nav model when a nav model cannot be found in keystore OR Mongo" in new SetupWithMongoRepo {
       when(mockSCRSFeatureSwitches.legacyEnv).thenReturn(BooleanFeatureSwitch("", true))
       when(mockSCRSFeatureSwitches.cohoFirstHandOff).thenReturn(BooleanFeatureSwitch("", false))
-      when(mockKeyStoreConnector.fetchAndGet[HandOffNavModel](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockKeyStoreConnector.fetchAndGet[HandOffNavModel](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(None))
       mockGetNavModel(handOffNavModel = None)
       mockInsertNavModel()
@@ -141,7 +141,7 @@ class HandOffNavigatorSpec extends SCRSSpec with MockitoSugar with GuiceOneAppPe
     "return a HandOffNavModel on a successful insert to mongo" in new SetupWithMongoRepo {
       mockInsertNavModel()
       mockGetNavModel()
-      val result = await(navigator.cacheNavModel(handOffNavModel, hc))
+      val result = await(navigator.cacheNavModel(handOffNavModel, hc, ec))
       result.get mustBe handOffNavModel
     }
   }

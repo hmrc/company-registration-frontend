@@ -39,8 +39,6 @@ class EmailVerificationConnectorSpec extends SCRSSpec with UnitSpec with Mockito
     }
   }
 
-  implicit val ec = scala.concurrent.ExecutionContext.Implicits.global
-
   val verifiedEmail = "foo@bar.com"
 
   val verificationRequest = EmailVerificationRequest(

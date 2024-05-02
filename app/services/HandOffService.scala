@@ -26,8 +26,7 @@ import repositories.NavModelRepo
 import uk.gov.hmrc.http.HeaderCarrier
 import utils._
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class HandOffServiceImpl @Inject()(
 
@@ -36,7 +35,7 @@ class HandOffServiceImpl @Inject()(
                                    val appConfig: AppConfig,
                                    val navModelRepo: NavModelRepo,
                                    val compRegConnector: CompanyRegistrationConnector,
-                                   val scrsFeatureSwitches: SCRSFeatureSwitches) extends HandOffService {
+                                   val scrsFeatureSwitches: SCRSFeatureSwitches)(implicit val ec: ExecutionContext) extends HandOffService {
 
   lazy val returnUrl                 = appConfig.self
   lazy val externalUrl               = appConfig.selfFull
@@ -97,7 +96,7 @@ trait HandOffService extends HandOffNavigator {
     }
   }
 
-  def buildPSCPayload(regId: String, externalId: String, groups: Option[Groups], currentLanguage: String)(implicit hc: HeaderCarrier): Future[Option[(String,String)]] = {
+  def buildPSCPayload(regId: String, externalId: String, groups: Option[Groups], currentLanguage: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[(String,String)]] = {
     val navModel = fetchNavModel() map {
       implicit model =>
         (forwardTo("3-2"), hmrcLinks("3-2"), model.receiver.chData)
@@ -132,7 +131,7 @@ trait HandOffService extends HandOffNavigator {
     }
   }
 
-  def buildBusinessActivitiesPayload(regId: String, externalId : String, currentLang: String)(implicit hc : HeaderCarrier) : Future[Option[(String, String)]] = {
+  def buildBusinessActivitiesPayload(regId: String, externalId : String, currentLang: String)(implicit hc : HeaderCarrier, ec: ExecutionContext) : Future[Option[(String, String)]] = {
     val navModel = fetchNavModel() map {
       implicit model =>
         (forwardTo(3), hmrcLinks("3"), model.receiver.chData)
@@ -156,7 +155,7 @@ trait HandOffService extends HandOffNavigator {
   }
 
   def companyNamePayload(regId: String, email : String, name : String, extID : String, currentLang: String)
-                        (implicit hc : HeaderCarrier) : Future[Option[(String, String)]] = {
+                        (implicit hc : HeaderCarrier, ec: ExecutionContext) : Future[Option[(String, String)]] = {
     val navModel = fetchNavModel(canCreate = true) map {
       implicit model =>
         (forwardTo(1), hmrcLinks("1"), model.receiver.chData)
@@ -201,7 +200,7 @@ trait HandOffService extends HandOffNavigator {
     }
   }
 
-  def buildBackHandOff(externalID : String, currentLanguage: String)(implicit hc : HeaderCarrier) : Future[BackHandoff] = {
+  def buildBackHandOff(externalID : String, currentLanguage: String)(implicit hc : HeaderCarrier, ec: ExecutionContext) : Future[BackHandoff] = {
     for {
       regID <- fetchRegistrationID
       navModel <- fetchNavModel()
@@ -217,7 +216,7 @@ trait HandOffService extends HandOffNavigator {
     }
   }
 
-  def summaryHandOff(externalID : String, currentLanguage: String)(implicit hc : HeaderCarrier) : Future[Option[(String, String)]] = {
+  def summaryHandOff(externalID : String, currentLanguage: String)(implicit hc : HeaderCarrier, ec: ExecutionContext) : Future[Option[(String, String)]] = {
     val navModel = fetchNavModel() map {
       implicit model =>
         (forwardTo(5), hmrcLinks("5"), model.receiver.chData)
@@ -241,7 +240,7 @@ trait HandOffService extends HandOffNavigator {
     }
   }
 
-  def buildPaymentConfirmationHandoff(externalID : Option[String], currentLanguage: String)(implicit hc : HeaderCarrier): Future[Option[(String,String)]] = {
+  def buildPaymentConfirmationHandoff(externalID : Option[String], currentLanguage: String)(implicit hc : HeaderCarrier, ec: ExecutionContext): Future[Option[(String,String)]] = {
     def navModel = {
       fetchNavModel() map {
         implicit model =>
@@ -269,7 +268,7 @@ trait HandOffService extends HandOffNavigator {
     }
   }
 
-  private[services] def updateRegistrationProgressHO5(registrationId: String)(implicit hc: HeaderCarrier) = {
+  private[services] def updateRegistrationProgressHO5(registrationId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext) = {
     import constants.RegistrationProgressValues.HO5
     compRegConnector.updateRegistrationProgress(registrationId, HO5)
   }

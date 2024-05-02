@@ -28,8 +28,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
 import utils._
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NoStackTrace
 import scala.util.{Failure, Success, Try}
 
@@ -39,7 +38,7 @@ class HandBackServiceImpl @Inject()(val compRegConnector: CompanyRegistrationCon
                                     val navModelRepo: NavModelRepo,
                                     val jwe: JweCommon,
                                     val appConfig: AppConfig,
-                                    val scrsFeatureSwitches: SCRSFeatureSwitches) extends HandBackService {
+                                    val scrsFeatureSwitches: SCRSFeatureSwitches)(implicit val ec: ExecutionContext) extends HandBackService {
 
   lazy val navModelMongo = navModelRepo.repository
 }
@@ -109,7 +108,7 @@ trait HandBackService extends HandOffNavigator with Logging {
   }
 
 
-  def processCompanyDetailsHandBack(request : String)(implicit hc : HeaderCarrier) : Future[Try[CompanyNameHandOffIncoming]] = {
+  def processCompanyDetailsHandBack(request : String)(implicit hc : HeaderCarrier, ec: ExecutionContext) : Future[Try[CompanyNameHandOffIncoming]] = {
     def processNavModel(model: HandOffNavModel, payload: CompanyNameHandOffIncoming): Future[Option[HandOffNavModel]] = {
       val navLinks = payload.links.as[NavLinks]
       val jumpLinks = payload.links.as[JumpLinks]
@@ -121,7 +120,7 @@ trait HandBackService extends HandOffNavigator with Logging {
         "company_address" -> jumpLinks.company_address,
         "company_jurisdiction" -> jumpLinks.company_jurisdiction
       )))
-      cacheNavModel(updatedNavModel, hc)
+      cacheNavModel(updatedNavModel, hc, ec)
     }
 
     decryptHandBackRequest[CompanyNameHandOffIncoming](request){
@@ -139,11 +138,11 @@ trait HandBackService extends HandOffNavigator with Logging {
 
   }
 
-  def processGroupsHandBack(request: String)(implicit hc: HeaderCarrier):Future[Try[GroupHandBackModel]] = {
+  def processGroupsHandBack(request: String)(implicit hc: HeaderCarrier, ec: ExecutionContext):Future[Try[GroupHandBackModel]] = {
     def processNavModel(model: HandOffNavModel, payload: GroupHandBackModel): Future[Option[HandOffNavModel]] = {
       validateLinks(payload.links)
       val updatedModel = updateNavModelWithLinksAndCHDataFromCOHO("3-1", payload.links, payload.ch, model)
-      cacheNavModel(updatedModel, hc)
+      cacheNavModel(updatedModel, hc, ec)
     }
 
     decryptHandBackRequest[GroupHandBackModel](request) {
@@ -162,11 +161,11 @@ trait HandBackService extends HandOffNavigator with Logging {
       }
     }
 
-  def processSummaryPage1HandBack(request: String)(implicit hc : HeaderCarrier) : Future[Try[SummaryPage1HandOffIncoming]] = {
+  def processSummaryPage1HandBack(request: String)(implicit hc : HeaderCarrier, ec: ExecutionContext) : Future[Try[SummaryPage1HandOffIncoming]] = {
     def processNavModel(model: HandOffNavModel, payload: SummaryPage1HandOffIncoming): Future[Option[HandOffNavModel]] = {
       validateLinks(payload.links)
       val updatedModel = updateNavModelWithLinksAndCHDataFromCOHO("4", payload.links, payload.ch, model)
-      cacheNavModel(updatedModel, hc)
+      cacheNavModel(updatedModel, hc, ec)
     }
 
     decryptHandBackRequest[SummaryPage1HandOffIncoming](request){
@@ -186,13 +185,13 @@ trait HandBackService extends HandOffNavigator with Logging {
     }
   }
 
-  def decryptConfirmationHandback(request : String)(implicit hc : HeaderCarrier) : Future[Try[RegistrationConfirmationPayload]] = {
+  def decryptConfirmationHandback(request : String)(implicit hc : HeaderCarrier, ec: ExecutionContext) : Future[Try[RegistrationConfirmationPayload]] = {
 
     def processNavModel(model: HandOffNavModel, payload: RegistrationConfirmationPayload): Future[Option[HandOffNavModel]] = {
       validateLink(getForwardUrl(payload).get)
       val navLinks = NavLinks(getForwardUrl(payload).get,"")
       val updatedModel = updateNavModelWithLinksAndCHDataFromCOHO("5-1", navLinks, payload.ch, model)
-      cacheNavModel(updatedModel, hc)
+      cacheNavModel(updatedModel, hc, ec)
     }
 
     decryptHandBackRequest[RegistrationConfirmationPayload](request){
@@ -208,7 +207,7 @@ trait HandBackService extends HandOffNavigator with Logging {
     }
   }
 
-  private[services] def updateCompanyDetails(registrationID: String, handoff: CompanyNameHandOffIncoming)(implicit hc: HeaderCarrier): Future[CompanyDetails] = {
+  private[services] def updateCompanyDetails(registrationID: String, handoff: CompanyNameHandOffIncoming)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[CompanyDetails] = {
     compRegConnector.retrieveCompanyDetails(registrationID).map{
       case Some(existing) => {
         CompanyDetails.updateFromHandoff(existing, handoff.company_name, handoff.registered_office_address, handoff.jurisdiction)
@@ -222,18 +221,18 @@ trait HandBackService extends HandOffNavigator with Logging {
     }
   }
 
-  private[services] def storeCompanyDetails(payload : CompanyNameHandOffIncoming, regId:String)(implicit hc : HeaderCarrier) : Future[CompanyDetails] = {
+  private[services] def storeCompanyDetails(payload : CompanyNameHandOffIncoming, regId:String)(implicit hc : HeaderCarrier, ec: ExecutionContext) : Future[CompanyDetails] = {
      updateCompanyDetails(regId, payload)
 
   }
 
-  private[services] def storeSimpleHandOff(payload : SummaryPage1HandOffIncoming)(implicit hc : HeaderCarrier) : Future[Boolean] = {
+  private[services] def storeSimpleHandOff(payload : SummaryPage1HandOffIncoming)(implicit hc : HeaderCarrier, ec: ExecutionContext) : Future[Boolean] = {
     for {
       regID <- fetchRegistrationID
     } yield true
   }
 
-  def storeConfirmationHandOff(payload : RegistrationConfirmationPayload, regID : String)(implicit hc: HeaderCarrier): Future[ConfirmationReferencesResponse] = {
+  def storeConfirmationHandOff(payload : RegistrationConfirmationPayload, regID : String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[ConfirmationReferencesResponse] = {
     compRegConnector.updateReferences(regID, RegistrationConfirmationPayload.getReferences(payload))
   }
 

@@ -27,8 +27,8 @@ import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+
+import scala.concurrent.{ExecutionContext, Future}
 import views.html.reg.{RegistrationUnsuccessful => RegistrationUnsuccessfulView}
 
 class RegistrationUnsuccessfulControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
@@ -49,13 +49,13 @@ class RegistrationUnsuccessfulControllerSpec extends SCRSSpec with GuiceOneAppPe
       mockRegistrationUnsuccessfulView
     )(
       mockAppConfig,
-      global
+      ec
     )
   }
   "show" should {
     "return a 200 when the address type is RO" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
-      when(mockDeleteSubmissionService.deleteSubmission(ArgumentMatchers.eq("12345"))(ArgumentMatchers.any[HeaderCarrier]()))
+      when(mockDeleteSubmissionService.deleteSubmission(ArgumentMatchers.eq("12345"))(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(true))
 
       showWithAuthorisedUser(controller.show) {
@@ -68,9 +68,9 @@ class RegistrationUnsuccessfulControllerSpec extends SCRSSpec with GuiceOneAppPe
   "submit" should {
     "return a 303" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
-      when(mockDeleteSubmissionService.deleteSubmission(ArgumentMatchers.eq("12345"))(ArgumentMatchers.any[HeaderCarrier]()))
+      when(mockDeleteSubmissionService.deleteSubmission(ArgumentMatchers.eq("12345"))(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(true))
-      when(mockKeystoreConnector.remove()(ArgumentMatchers.any()))
+      when(mockKeystoreConnector.remove()(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(HttpResponse(200, "")))
 
       submitWithAuthorisedUser(controller.submit, FakeRequest().withFormUrlEncodedBody(Nil: _*)) {

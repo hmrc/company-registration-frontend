@@ -40,7 +40,6 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
     override val key = "Fak3-t0K3n-f0r-pUBLic-r3p0SiT0rY"
   }
 
-  implicit val ec = scala.concurrent.ExecutionContext.Implicits.global
 
   trait Setup {
     val service = new HandBackService {
@@ -369,7 +368,7 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
     "return a RegistrationConfirmationPayload with no link and a payment reference and amount if it is an old HO6" in new Setup {
       val encryptedPayloadString = testJwe.encrypt[RegistrationConfirmationPayload](registrationConfirmationPayload).get
 
-      val result = await(service.decryptConfirmationHandback(encryptedPayloadString)(hc)).get
+      val result = await(service.decryptConfirmationHandback(encryptedPayloadString)(hc, ec)).get
       result mustBe registrationConfirmationPayload
       result.links mustBe Json.obj()
       result.payment_reference.isDefined mustBe true
@@ -383,7 +382,7 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
 
       val encryptedPayloadString = testJwe.encrypt[RegistrationConfirmationPayload](confirmationHandoffPayload).get
 
-      val result = await(service.decryptConfirmationHandback(encryptedPayloadString)(hc)).get
+      val result = await(service.decryptConfirmationHandback(encryptedPayloadString)(hc, ec)).get
       result mustBe confirmationHandoffPayload
       result.links mustBe Json.obj("forward" -> "/redirect-url")
       result.payment_reference.isDefined mustBe false

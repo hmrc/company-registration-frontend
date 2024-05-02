@@ -18,6 +18,7 @@ package services
 
 import audit.events._
 import connectors.{CompanyRegistrationConnector, KeystoreConnector, S4LConnector}
+
 import javax.inject.Inject
 import models.{Address => OldAddress, _}
 import play.api.i18n.Messages
@@ -27,13 +28,12 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import utils.SCRSExceptions
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class PPOBServiceImpl @Inject()(val compRegConnector: CompanyRegistrationConnector,
                                 val keystoreConnector: KeystoreConnector,
                                 val s4LConnector: S4LConnector,
-                                val auditConnector: AuditConnector) extends PPOBService
+                                val auditConnector: AuditConnector)(implicit val ec: ExecutionContext) extends PPOBService
 
 trait PPOBService extends SCRSExceptions with AuditService {
   val keystoreConnector: KeystoreConnector
@@ -41,7 +41,7 @@ trait PPOBService extends SCRSExceptions with AuditService {
   val s4LConnector : S4LConnector
   val auditConnector : AuditConnector
 
-  def retrieveCompanyDetails(regID: String)(implicit hc: HeaderCarrier): Future[CompanyDetails] = {
+  def retrieveCompanyDetails(regID: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[CompanyDetails] = {
     for {
       companyDetails <- compRegConnector.retrieveCompanyDetails(regID)
     } yield {
@@ -76,7 +76,7 @@ trait PPOBService extends SCRSExceptions with AuditService {
     }
   }
 
-  def fetchAddressesAndChoice(regId: String)(implicit hc: HeaderCarrier): Future[(Option[CHROAddress], Option[NewAddress], PPOBChoice)] = {
+  def fetchAddressesAndChoice(regId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[(Option[CHROAddress], Option[NewAddress], PPOBChoice)] = {
     compRegConnector.retrieveCorporationTaxRegistration(regId) flatMap { ctReg =>
       val ro = (ctReg \\ "cHROAddress").head.as[CHROAddress]
       val ppob = ctReg.asOpt(NewAddress.ppobFormats)
@@ -98,20 +98,22 @@ trait PPOBService extends SCRSExceptions with AuditService {
   }
 
   def auditROAddress(regId: String, credID: String, companyName: String, chro: CHROAddress)
-                    (implicit hc: HeaderCarrier, request: Request[AnyContent]): Future[AuditResult] =
+                    (implicit hc: HeaderCarrier, ec: ExecutionContext, request: Request[AnyContent]): Future[AuditResult] =
     sendEvent(
       auditType = "ROAddress",
       detail = ROUsedAsPPOBAuditEventDetail(regId, credID, companyName, chro)
     )
 
-  private def retrieveNewAddress(regId : String, cD: CompanyDetails, addressType : String, optAddress : Option[NewAddress])(implicit hc : HeaderCarrier): Future[Option[NewAddress]] =
+  private def retrieveNewAddress(regId : String, cD: CompanyDetails, addressType : String, optAddress : Option[NewAddress])
+                                (implicit hc : HeaderCarrier, ec: ExecutionContext): Future[Option[NewAddress]] =
     (addressType, optAddress) match {
       case ("RO", _) => compRegConnector.checkROValidPPOB(regId, cD.cHROAddress)
       case ("PPOB", a) => Future.successful(a)
       case _ => Future.successful(None)
     }
 
-  def buildAddress(regId : String, cD: CompanyDetails, addressType: String, optAddress: Option[NewAddress])(implicit hc : HeaderCarrier): Future[CompanyDetails] = {
+  def buildAddress(regId : String, cD: CompanyDetails, addressType: String, optAddress: Option[NewAddress])
+                  (implicit hc : HeaderCarrier, ec: ExecutionContext): Future[CompanyDetails] = {
     retrieveNewAddress(regId, cD, addressType, optAddress) map { result =>
       result map { a =>
         OldAddress(
@@ -138,7 +140,7 @@ trait PPOBService extends SCRSExceptions with AuditService {
     }
   }
 
-  def saveAddress(regId: String, addressType: String, address: Option[NewAddress] = None)(implicit hc: HeaderCarrier): Future[CompanyDetails] = {
+  def saveAddress(regId: String, addressType: String, address: Option[NewAddress] = None)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[CompanyDetails] = {
     for {
       details     <- retrieveCompanyDetails(regId)
       newDetails  <- buildAddress(regId, details, addressType, address)

@@ -33,7 +33,6 @@ import uk.gov.hmrc.http.HeaderCarrier
 import utils.{DecryptionError, JweCommon, PayloadError}
 import views.html.error_template_restart
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
@@ -58,7 +57,7 @@ class IncorporationSummaryControllerSpec extends SCRSSpec with PayloadFixture wi
       errorTemplateRestartPage,
       mockLanguageService
     )(
-      appConfig,global
+      appConfig,ec
     )
     val jweInstance = () => app.injector.instanceOf[JweCommon]
   }
@@ -73,7 +72,7 @@ class IncorporationSummaryControllerSpec extends SCRSSpec with PayloadFixture wi
     "return a 303 if user details are retrieved" in new Setup {
       val payload = summaryEncryptedPayload(jweInstance())
       mockKeystoreFetchAndGet("registrationID", Some("1"))
-      when(mockHandOffService.summaryHandOff(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockHandOffService.summaryHandOff(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(("testLink", payload))))
 
       when(mockHandOffService.buildHandOffUrl(ArgumentMatchers.eq("testLink"), ArgumentMatchers.eq(payload)))
@@ -91,7 +90,7 @@ class IncorporationSummaryControllerSpec extends SCRSSpec with PayloadFixture wi
 
     "return a 400 if no link or payload are returned" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("1"))
-      when(mockHandOffService.summaryHandOff(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockHandOffService.summaryHandOff(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(None))
 
       showWithAuthorisedUserRetrieval(testController.incorporationSummary, extID) {

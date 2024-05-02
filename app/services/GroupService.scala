@@ -36,7 +36,7 @@ class GroupService @Inject()(val keystoreConnector: KeystoreConnector,
 
   val votingRightsThreshold: Int = 75
 
-  def updateGroupRelief(groupRelief: Boolean, registrationId: String)(implicit hc: HeaderCarrier): Future[Groups] = {
+  def updateGroupRelief(groupRelief: Boolean, registrationId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Groups] = {
     compRegConnector.getGroups(registrationId).flatMap {
       case Some(groups) if groupRelief =>
         compRegConnector.updateGroups(registrationId, groups.copy(groupRelief = groupRelief))
@@ -45,7 +45,7 @@ class GroupService @Inject()(val keystoreConnector: KeystoreConnector,
     }
   }
 
-  def updateGroupName(groupCompanyName: GroupCompanyName, groups: Groups, registrationID: String)(implicit hc: HeaderCarrier): Future[Groups] = {
+  def updateGroupName(groupCompanyName: GroupCompanyName, groups: Groups, registrationID: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Groups] = {
     if (groups.nameOfCompany.contains(groupCompanyName)) {
       compRegConnector.updateGroups(
         registrationID,
@@ -60,19 +60,19 @@ class GroupService @Inject()(val keystoreConnector: KeystoreConnector,
     }
   }
 
-  def updateGroupUtr(groupUtr: GroupUTR, groups: Groups, registrationId: String)(implicit hc: HeaderCarrier): Future[Groups] = {
+  def updateGroupUtr(groupUtr: GroupUTR, groups: Groups, registrationId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Groups] = {
     compRegConnector.updateGroups(registrationId, groups.copy(groupUTR = Some(groupUtr)))
   }
 
-  def retrieveGroups(registrationId: String)(implicit hc: HeaderCarrier): Future[Option[Groups]] = {
+  def retrieveGroups(registrationId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[Groups]] = {
     compRegConnector.getGroups(registrationId)
   }
 
-  def dropGroups(registrationId: String)(implicit hc: HeaderCarrier): Future[Boolean] = {
+  def dropGroups(registrationId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Boolean] = {
     compRegConnector.deleteGroups(registrationId)
   }
 
-  def retreiveValidatedTxApiAddress(groups: Groups, registrationId: String)(implicit hc: HeaderCarrier): Future[Option[NewAddress]] = {
+  def retreiveValidatedTxApiAddress(groups: Groups, registrationId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[NewAddress]] = {
     groups.nameOfCompany match {
       case Some(groupCompanyName) =>
         returnAddressFromTxAPI(groupCompanyName, registrationId).flatMap { eitherAddress =>
@@ -93,7 +93,7 @@ class GroupService @Inject()(val keystoreConnector: KeystoreConnector,
     }
   }
 
-  def dropOldFields(groups: Groups, address: NewAddress, registrationId: String)(implicit hc: HeaderCarrier): Future[Groups] = {
+  def dropOldFields(groups: Groups, address: NewAddress, registrationId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Groups] = {
     groups.addressAndType match {
       case Some(addressAndType) if addressAndType.address.toString != address.toString && addressAndType.addressType != "ALF" =>
         compRegConnector.updateGroups(registrationId, groups.copy(addressAndType = None, groupUTR = None))
@@ -116,7 +116,7 @@ class GroupService @Inject()(val keystoreConnector: KeystoreConnector,
     }
   }
 
-  def updateGroupAddress(address: GroupsAddressAndType, registrationId: String)(implicit hc: HeaderCarrier): Future[Groups] = {
+  def updateGroupAddress(address: GroupsAddressAndType, registrationId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Groups] = {
     compRegConnector.getGroups(registrationId).flatMap {
       case Some(groups) =>
         val updatedGroupsBlock =
@@ -132,7 +132,7 @@ class GroupService @Inject()(val keystoreConnector: KeystoreConnector,
     }
   }
 
-  def saveTxShareHolderAddress(groups: Groups, registrationID: String)(implicit hc: HeaderCarrier): Future[Either[Exception, Groups]] = {
+  def saveTxShareHolderAddress(groups: Groups, registrationID: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[Exception, Groups]] = {
     retreiveValidatedTxApiAddress(groups, registrationID).flatMap {
       case Some(address) =>
         val updatedGroups = groups.copy(addressAndType = Some(GroupsAddressAndType("CohoEntered", address)))
@@ -142,7 +142,7 @@ class GroupService @Inject()(val keystoreConnector: KeystoreConnector,
     }
   }
 
-  def returnListOfShareholders(txId: String)(implicit hc: HeaderCarrier): Future[Either[Exception, List[Shareholder]]] = {
+  def returnListOfShareholders(txId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[Exception, List[Shareholder]]] = {
     incorpInfoConnector.returnListOfShareholdersFromTxApi(txId).map { list =>
       list.fold[Either[Exception, List[Shareholder]]](
         e => Left(e),
@@ -153,7 +153,7 @@ class GroupService @Inject()(val keystoreConnector: KeystoreConnector,
     }
   }
 
-  def dropOldGroups(eitherShareholders: Either[Exception, List[Shareholder]], regId: String)(implicit hc: HeaderCarrier): Future[List[Shareholder]] = {
+  def dropOldGroups(eitherShareholders: Either[Exception, List[Shareholder]], regId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[List[Shareholder]] = {
     eitherShareholders.fold(
       error => Future.successful(List.empty),
       listShareholders => {
@@ -174,14 +174,14 @@ class GroupService @Inject()(val keystoreConnector: KeystoreConnector,
     )
   }
 
-  def fetchTxID(registrationId: String)(implicit hc: HeaderCarrier): Future[String] = {
+  def fetchTxID(registrationId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[String] = {
     compRegConnector.fetchConfirmationReferences(registrationId).map {
       case ConfirmationReferencesSuccessResponse(refs) => refs.transactionId
       case _ => throw new InternalServerException(s"[GroupService] no txId returned for $registrationId")
     }
   }
 
-  def returnAddressFromTxAPI(groupCompanyName: GroupCompanyName, registrationId: String)(implicit hc: HeaderCarrier): Future[Either[Exception, Option[CHROAddress]]] = {
+  def returnAddressFromTxAPI(groupCompanyName: GroupCompanyName, registrationId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[Exception, Option[CHROAddress]]] = {
     fetchTxID(registrationId).flatMap { txId =>
       returnListOfShareholders(txId).map { eitherShareholders =>
         eitherShareholders.fold(
@@ -196,7 +196,7 @@ class GroupService @Inject()(val keystoreConnector: KeystoreConnector,
     }
   }
 
-  def returnValidShareholdersAndUpdateGroups(groups: Groups, registrationId: String)(implicit hc: HeaderCarrier): Future[(List[String], Groups)] = {
+  def returnValidShareholdersAndUpdateGroups(groups: Groups, registrationId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[(List[String], Groups)] = {
     fetchTxID(registrationId).flatMap { txId =>
       returnListOfShareholders(txId).flatMap { eitherShareholders =>
         eitherShareholders.fold(

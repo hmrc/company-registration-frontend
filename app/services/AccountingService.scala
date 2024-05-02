@@ -17,24 +17,22 @@
 package services
 
 import javax.inject.Inject
-
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import models.AccountingDatesModel.{FUTURE_DATE, NOT_PLANNING_TO_YET, WHEN_REGISTERED}
 import models.{AccountingDatesModel, AccountingDetailsRequest, AccountingDetailsResponse, AccountingDetailsSuccessResponse}
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.SCRSExceptions
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class AccountingServiceImpl @Inject()(val companyRegistrationConnector: CompanyRegistrationConnector,
-                                      val keystoreConnector: KeystoreConnector) extends AccountingService
+                                      val keystoreConnector: KeystoreConnector)(implicit val ec: ExecutionContext) extends AccountingService
 
 trait AccountingService extends CommonService with SCRSExceptions {
 
   val companyRegistrationConnector: CompanyRegistrationConnector
 
-  def fetchAccountingDetails(implicit hc: HeaderCarrier): Future[AccountingDatesModel] = {
+  def fetchAccountingDetails(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[AccountingDatesModel] = {
     for {
       registrationID <- fetchRegistrationID
       accountingDetails <- companyRegistrationConnector.retrieveAccountingDetails(registrationID)
@@ -51,7 +49,7 @@ trait AccountingService extends CommonService with SCRSExceptions {
     }
   }
 
-  def updateAccountingDetails(accountingDetails: AccountingDatesModel)(implicit hc: HeaderCarrier): Future[AccountingDetailsResponse] = {
+  def updateAccountingDetails(accountingDetails: AccountingDatesModel)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[AccountingDetailsResponse] = {
     for {
       registrationID <- fetchRegistrationID
       accDetailsResp <- companyRegistrationConnector.updateAccountingDetails(registrationID, AccountingDetailsRequest.toRequest(accountingDetails))

@@ -31,7 +31,6 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name, ~}
 import views.html.reg.{CompanyContactDetails => CompanyContactDetailsView}
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class CompanyContactDetailsControllerSpec extends SCRSSpec with UserDetailsFixture with CompanyContactDetailsFixture
@@ -57,7 +56,7 @@ class CompanyContactDetailsControllerSpec extends SCRSSpec with UserDetailsFixtu
     )
     (
       appConfig,
-      global
+      ec
     )
   }
 
@@ -112,10 +111,10 @@ class CompanyContactDetailsControllerSpec extends SCRSSpec with UserDetailsFixtu
 
   "submit" should {
     "return a 303 with a valid form and redirect to the accounting dates controller" in new Setup {
-      when(mockKeystoreConnector.fetchAndGet[String](any())(any(), any()))
+      when(mockKeystoreConnector.fetchAndGet[String](any())(any(), any(), any()))
         .thenReturn(Future.successful(Some("test")))
       CompanyContactDetailsServiceMocks.updateContactDetails(CompanyContactDetailsSuccessResponse(validCompanyContactDetailsResponse))
-      when(mockCompanyContactDetailsService.checkIfAmendedDetails(any(), any(), any(), any())(any(), any()))
+      when(mockCompanyContactDetailsService.checkIfAmendedDetails(any(), any(), any(), any())(any(), any(), any()))
         .thenReturn(Future.successful(false))
       when(mockCompanyContactDetailsService.updatePrePopContactDetails(any(), any())(any()))
         .thenReturn(Future.successful(true))
@@ -132,7 +131,7 @@ class CompanyContactDetailsControllerSpec extends SCRSSpec with UserDetailsFixtu
     "return a 400 with an invalid form" in new Setup {
       when(mockCompanyRegistrationConnector.fetchCompanyName(any())(any(), any())).thenReturn(Future.successful("foo"))
       CTRegistrationConnectorMocks.retrieveCTRegistration()
-      when(mockKeystoreConnector.fetchAndGet[String](any())(any(), any()))
+      when(mockKeystoreConnector.fetchAndGet[String](any())(any(), any(), any()))
         .thenReturn(Future.successful(Some("test")))
       when(mockCompanyContactDetailsService.updatePrePopContactDetails(any(), any())(any()))
         .thenReturn(Future.successful(true))

@@ -32,7 +32,6 @@ import play.api.test.Helpers._
 import services.DeskproService
 
 import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
 import views.html.reg.{Confirmation => ConfirmationView}
 import views.html.errors.{submissionFailed => submissionFailedView}
 import views.html.errors.{deskproSubmitted => deskproSubmittedView}
@@ -61,7 +60,7 @@ class ConfirmationSpec extends SCRSSpec with CompanyDetailsFixture with GuiceOne
     )
     (
       appConfig,
-      global
+      ec
     )
 
   }

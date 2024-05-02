@@ -17,7 +17,6 @@
 package connectors
 
 import javax.inject.Inject
-
 import config.{AppConfig, WSHttp}
 import models.SendTemplatedEmailRequest
 import utils.Logging
@@ -25,13 +24,12 @@ import play.api.http.Status._
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.http.HttpReads.Implicits._
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NoStackTrace
 
 private[connectors] class TemplateEmailErrorResponse(s: String) extends NoStackTrace
 
-class SendTemplatedEmailConnectorImpl @Inject()(appConfig: AppConfig, val wSHttp: WSHttp) extends SendTemplatedEmailConnector {
+class SendTemplatedEmailConnectorImpl @Inject()(appConfig: AppConfig, val wSHttp: WSHttp)(implicit val ec: ExecutionContext) extends SendTemplatedEmailConnector {
   lazy val sendTemplatedEmailURL = appConfig.servicesConfig.getConfString("email.sendAnEmailURL", throw new Exception("email.sendAnEmailURL not found"))
 }
 
@@ -39,7 +37,7 @@ trait SendTemplatedEmailConnector extends HttpErrorFunctions with Logging {
   val wSHttp : CorePost
   val sendTemplatedEmailURL : String
 
-  def requestTemplatedEmail(templatedEmailRequest : SendTemplatedEmailRequest)(implicit hc : HeaderCarrier) : Future[Boolean] = {
+  def requestTemplatedEmail(templatedEmailRequest : SendTemplatedEmailRequest)(implicit hc : HeaderCarrier, ec: ExecutionContext) : Future[Boolean] = {
     def errorMsg(status: String, ex: HttpException) = {
       logger.error(s"[sendTemplatedEmail] request to send templated email returned a $status - email not sent - reason = ${ex.getMessage}")
       throw new TemplateEmailErrorResponse(status)

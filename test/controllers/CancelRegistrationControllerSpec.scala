@@ -35,7 +35,6 @@ import play.api.test.FakeRequest
 import uk.gov.hmrc.play.http.ws.WSHttp
 import views.html.dashboard.{CancelPaye => CancelPayeView, CancelVat => CancelVatView}
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class CancelRegistrationControllerSpec extends SCRSSpec with MockitoSugar with GuiceOneAppPerSuite with ServiceConnectorMock with AuthBuilder {
@@ -59,7 +58,7 @@ class CancelRegistrationControllerSpec extends SCRSSpec with MockitoSugar with G
       cancelVatView
     )(
       appConfig,
-      global
+      ec
     )
     implicit val request = r
     implicit val messagesApi: Messages = controller.messagesApi.preferred(Seq(Lang("en")))

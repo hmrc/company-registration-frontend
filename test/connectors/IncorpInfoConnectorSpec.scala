@@ -36,7 +36,6 @@ class mockHttpPOSTIncorpInfoConnectorSpec extends SCRSSpec {
          }
      }
 
-    implicit val ec = scala.concurrent.ExecutionContext.Implicits.global
     val transId = "txID-12345"
     val companyProfileUrl = s"$iiUrl/$transId/company-profile"
 

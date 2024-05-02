@@ -32,12 +32,12 @@ trait CompanyContactDetailsServiceMock {
 
   object CompanyContactDetailsServiceMocks {
     def fetchContactDetails(response: CompanyContactDetailsApi): OngoingStubbing[Future[CompanyContactDetailsApi]] = {
-      when(mockCompanyContactDetailsService.fetchContactDetails(ArgumentMatchers.any()))
+      when(mockCompanyContactDetailsService.fetchContactDetails(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(response))
     }
 
     def updateContactDetails(response: CompanyContactDetailsResponse): OngoingStubbing[Future[CompanyContactDetailsResponse]] = {
-      when(mockCompanyContactDetailsService.updateContactDetails(ArgumentMatchers.any[CompanyContactDetailsApi]())(ArgumentMatchers.any()))
+      when(mockCompanyContactDetailsService.updateContactDetails(ArgumentMatchers.any[CompanyContactDetailsApi]())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(response))
     }
   }

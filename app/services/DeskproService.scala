@@ -17,14 +17,14 @@
 package services
 
 import javax.inject.Inject
-
 import connectors.DeskproConnector
 import models.external.Ticket
 import models.{Ticket => TicketForm}
 import uk.gov.hmrc.http.HeaderCarrier
-import scala.concurrent.Future
 
-class DeskproServiceImpl @Inject()(val deskproConnector: DeskproConnector) extends DeskproService
+import scala.concurrent.{ExecutionContext, Future}
+
+class DeskproServiceImpl @Inject()(val deskproConnector: DeskproConnector)(implicit val ec: ExecutionContext) extends DeskproService
 
 trait DeskproService {
   val deskproConnector : DeskproConnector
@@ -46,7 +46,7 @@ trait DeskproService {
       service = "SCRS"
     )
 
-  def submitTicket(regId: String, data: TicketForm, uri : String)(implicit hc: HeaderCarrier) : Future[Long] = {
+  def submitTicket(regId: String, data: TicketForm, uri : String)(implicit hc: HeaderCarrier, ec: ExecutionContext) : Future[Long] = {
     deskproConnector.submitTicket(buildTicket(regId, data, uri))
   }
 

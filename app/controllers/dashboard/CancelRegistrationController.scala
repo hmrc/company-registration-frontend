@@ -71,22 +71,22 @@ class CancelRegistrationController @Inject()(val payeConnector: PAYEConnector,
     }
   }
 
-  private[controllers] def showCancelService(service: ServiceConnector, cancelPage: Html)(implicit request: Request[AnyContent]): Future[Result] = {
+  private[controllers] def showCancelService(service: ServiceConnector, cancelPage: Html)(implicit request: Request[AnyContent], ec: ExecutionContext): Future[Result] = {
     checkStatuses { regID =>
-      service.canStatusBeCancelled(regID)(service.getStatus)(hc).map(_ => Ok(cancelPage))
+      service.canStatusBeCancelled(regID)(service.getStatus)(hc, ec).map(_ => Ok(cancelPage))
     } recoverWith {
       case a: cantCancelT => Future.successful(Redirect(controllers.reg.routes.SignInOutController.postSignIn(None)))
     }
   }
 
-  private[controllers] def submitCancelService(service: ServiceConnector, cancelPage: (Form[Boolean]) => Html)(implicit request: Request[AnyContent]): Future[Result] = {
+  private[controllers] def submitCancelService(service: ServiceConnector, cancelPage: (Form[Boolean]) => Html)(implicit request: Request[AnyContent], ec: ExecutionContext): Future[Result] = {
     checkStatuses { regID =>
       CancelForm.form.bindFromRequest.fold(
         errors =>
           Future.successful(BadRequest(cancelPage(errors))),
         success =>
           if (success) {
-            service.cancelReg(regID)(service.getStatus)(hc).map { _ =>
+            service.cancelReg(regID)(service.getStatus)(hc, ec).map { _ =>
               Redirect(routes.DashboardController.show)
             }
           }

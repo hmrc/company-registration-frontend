@@ -17,7 +17,6 @@
 package services
 
 import java.time.LocalDate
-
 import helpers.SCRSSpec
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
@@ -26,7 +25,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.cache.client.CacheMap
 import utils.{SCRSException, SCRSExceptions}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class CommonServiceSpec extends SCRSSpec {
 
@@ -69,7 +68,8 @@ class CommonServiceSpec extends SCRSSpec {
     val timestampCacheMap = CacheMap("lastActionTimestamp", Map("lastActionTimestamp" -> Json.toJson(LocalDate.now())))
 
     "cache the passed timestamp in keystore" in new Setup {
-      when(mockKeystoreConnector.cache(ArgumentMatchers.contains("lastActionTimestamp"), ArgumentMatchers.any[LocalDate]())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
+      when(mockKeystoreConnector.cache(ArgumentMatchers.contains("lastActionTimestamp"), ArgumentMatchers.any[LocalDate]())(ArgumentMatchers.any[HeaderCarrier](),
+        ArgumentMatchers.any[ExecutionContext](), ArgumentMatchers.any()))
         .thenReturn(Future.successful(timestampCacheMap))
 
       await(service.updateLastActionTimestamp()) mustBe timestampCacheMap

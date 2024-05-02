@@ -42,8 +42,7 @@ import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import utils.SCRSFeatureSwitches
 import views.html.reg.{PrinciplePlaceOfBusiness => PrinciplePlaceOfBusinessView}
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class PPOBControllerSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixture with GuiceOneAppPerSuite with AuthBuilder {
 
@@ -79,11 +78,11 @@ class PPOBControllerSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixtur
     )
     (
       mockAppConfig,
-      global
+      ec
     )
 
     def mockCheckStatus(ret: Option[String] = Some(regId)) = {
-      when(mockKeystoreConnector.fetchAndGet[String](eqTo("registrationID"))(any(), any()))
+      when(mockKeystoreConnector.fetchAndGet[String](eqTo("registrationID"))(any(), any(), any()))
         .thenReturn(Future.successful(ret))
       when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(eqTo(regId))(any(), any()))
         .thenReturn(Future.successful(buildCorporationTaxModel(rid = regId)))
@@ -97,7 +96,7 @@ class PPOBControllerSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixtur
 
     "return a 303 an redirect back to post sign in when navmodel not found thrown" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
-      when(mockHandOffService.fetchNavModel(ArgumentMatchers.any[Boolean])(ArgumentMatchers.any())).thenReturn(Future.failed[HandOffNavModel](new NavModelNotFoundException))
+      when(mockHandOffService.fetchNavModel(ArgumentMatchers.any[Boolean])(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.failed[HandOffNavModel](new NavModelNotFoundException))
 
       showWithAuthorisedUserRetrieval(controller.back, extID) {
         result =>
@@ -120,8 +119,8 @@ class PPOBControllerSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixtur
       when(mockJweCommon.encrypt[BackHandoff](ArgumentMatchers.any[BackHandoff])(ArgumentMatchers.any[Writes[BackHandoff]])).thenReturn(None)
 
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
-      when(mockHandOffService.fetchNavModel(ArgumentMatchers.any[Boolean])(ArgumentMatchers.any())).thenReturn(Future.successful(handOffNavModelData))
-      when(mockHandOffService.buildBackHandOff(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockHandOffService.fetchNavModel(ArgumentMatchers.any[Boolean])(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(handOffNavModelData))
+      when(mockHandOffService.buildBackHandOff(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(BackHandoff("ext-xxxx-xxxx", "12345", Json.obj(), Json.obj(), LangConstants.english, Json.obj())))
 
       showWithAuthorisedUserRetrieval(controller.back, extID) {
@@ -135,7 +134,7 @@ class PPOBControllerSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixtur
 
     "return a 200 and show the page when check status returns Some of reg id" in new Setup {
       mockCheckStatus()
-      when(mockPPOBService.fetchAddressesAndChoice(ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockPPOBService.fetchAddressesAndChoice(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful((Some(CHROAddress("38", "line 1", None, "Telford", "UK", None, None, None)), Some(NewAddress("line 1", "line 2", None, None, None, None, None)), PPOBChoice(""))))
       showWithAuthorisedUser(controller.show) {
         result =>
@@ -172,11 +171,14 @@ class PPOBControllerSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixtur
       val validUserDetails = UserDetailsModel("", "", "", None, None, None, None, "", "")
 
       mockCheckStatus()
-      when(mockPPOBService.saveAddress(ArgumentMatchers.anyString(), ArgumentMatchers.anyString(), ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier]()))
+      when(mockPPOBService.saveAddress(ArgumentMatchers.anyString(), ArgumentMatchers.anyString(),
+        ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier](),
+        ArgumentMatchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(validCompanyDetails))
-      when(mockPPOBService.retrieveCompanyDetails(ArgumentMatchers.anyString())(ArgumentMatchers.any[HeaderCarrier]()))
+      when(mockPPOBService.retrieveCompanyDetails(ArgumentMatchers.anyString())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(validCompanyDetails))
-      when(mockPPOBService.auditROAddress(ArgumentMatchers.anyString(), ArgumentMatchers.any(), ArgumentMatchers.anyString(), ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
+      when(mockPPOBService.auditROAddress(ArgumentMatchers.anyString(), ArgumentMatchers.any(), ArgumentMatchers.anyString(),
+        ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(AuditResult.Success))
 
       submitWithAuthorisedUserRetrieval(controller.submit, submission("RO"), credID) {
@@ -200,7 +202,7 @@ class PPOBControllerSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixtur
 
     "handle an invalid submission correctly" in new Setup {
       mockCheckStatus()
-      when(mockPPOBService.fetchAddressesAndChoice(ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockPPOBService.fetchAddressesAndChoice(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful((
           Some(CHROAddress("38", "line 1", None, "Telford", "UK", None, None, None)),
           Some(NewAddress("line 1", "line 2", None, None, None, None, None)),
@@ -235,7 +237,8 @@ class PPOBControllerSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixtur
       when(mockAddressLookupFrontendService.getAddress(ArgumentMatchers.eq(alfId))(ArgumentMatchers.any[HeaderCarrier]))
         .thenReturn(validNewAddress)
 
-      when(mockPPOBService.saveAddress(ArgumentMatchers.anyString(), ArgumentMatchers.anyString(), ArgumentMatchers.any[Option[NewAddress]]())(ArgumentMatchers.any[HeaderCarrier]()))
+      when(mockPPOBService.saveAddress(ArgumentMatchers.anyString(), ArgumentMatchers.anyString(),
+        ArgumentMatchers.any[Option[NewAddress]]())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(validCompanyDetails))
 
       when(mockBusinessRegConnector.updatePrePopAddress(ArgumentMatchers.any[String], ArgumentMatchers.any[Address])(ArgumentMatchers.any[HeaderCarrier]))

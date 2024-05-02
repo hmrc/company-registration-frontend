@@ -34,7 +34,7 @@ import uk.gov.hmrc.play.audit.model.Audit
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import utils.{BooleanFeatureSwitch, FeatureSwitchManager, JweCommon, SCRSFeatureSwitches}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 trait SCRSMocks extends CompanyContactDetailsServiceMock
   with AccountingServiceMock
@@ -80,12 +80,12 @@ trait SCRSMocks extends CompanyContactDetailsServiceMock
 
 
   def mockFetchRegistrationID[T <: CommonService](response: String, mock: T) = {
-    when(mock.fetchRegistrationID(ArgumentMatchers.any[HeaderCarrier]()))
+    when(mock.fetchRegistrationID(ArgumentMatchers.any[HeaderCarrier](),ArgumentMatchers.any[ExecutionContext]()))
       .thenReturn(Future.successful(response))
   }
 
   def mockCacheRegistrationID(registrationId: String, mock: KeystoreConnector = mockKeystoreConnector) = {
-    when(mock.cache[String](any(), any())(any(), any())).thenReturn(Future.successful(CacheMap("", Map.empty[String, JsValue])))
+    when(mock.cache[String](any(), any())(any(), any(), any())).thenReturn(Future.successful(CacheMap("", Map.empty[String, JsValue])))
   }
 
   def fakeRequest(method: String = "GET") = FakeRequest(method, "")

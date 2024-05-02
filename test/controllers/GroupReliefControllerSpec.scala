@@ -121,7 +121,7 @@ class GroupReliefControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with M
       mockKeystoreFetchAndGet("registrationID", None)
       when(mockCompanyRegistrationConnector.fetchCompanyName(any[String]())(any[HeaderCarrier](), any[ExecutionContext]()))
         .thenReturn(Future.successful("Company Name"))
-      when(mockGroupService.retrieveGroups(any())(any()))
+      when(mockGroupService.retrieveGroups(any())(any(), any()))
         .thenReturn(Future.successful(None))
 
       showWithAuthorisedUser(controller.show) {
@@ -137,7 +137,7 @@ class GroupReliefControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with M
       mockKeystoreFetchAndGet("registrationID", Some("reg123"))
 
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("held", ""))
-      when(mockGroupService.retrieveGroups(any[String])(any[HeaderCarrier]))
+      when(mockGroupService.retrieveGroups(any[String])(any[HeaderCarrier], any[ExecutionContext]))
         .thenReturn(Future.successful(None))
       when(mockCompanyRegistrationConnector.fetchCompanyName(any[String]())(any[HeaderCarrier](), any[ExecutionContext]()))
         .thenReturn(Future.successful("Company Name"))
@@ -157,7 +157,7 @@ class GroupReliefControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with M
       mockKeystoreFetchAndGet("registrationID", Some("reg123"))
 
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", groupBlock))
-      when(mockGroupService.retrieveGroups(any[String])(any[HeaderCarrier]))
+      when(mockGroupService.retrieveGroups(any[String])(any[HeaderCarrier], any[ExecutionContext]))
         .thenReturn(Future.successful(None))
       when(mockCompanyRegistrationConnector.fetchCompanyName(any[String]())(any[HeaderCarrier](), any[ExecutionContext]()))
         .thenReturn(Future.successful("Company Name"))
@@ -175,7 +175,7 @@ class GroupReliefControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with M
       mockKeystoreFetchAndGet("registrationID", Some("reg123"))
 
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
-      when(mockGroupService.retrieveGroups(any[String])(any[HeaderCarrier]))
+      when(mockGroupService.retrieveGroups(any[String])(any[HeaderCarrier], any[ExecutionContext]))
         .thenReturn(Future.successful(None))
       when(mockCompanyRegistrationConnector.fetchCompanyName(any[String]())(any[HeaderCarrier](), any[ExecutionContext]()))
         .thenReturn(Future.successful("Company Name"))
@@ -193,11 +193,11 @@ class GroupReliefControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with M
       mockKeystoreFetchAndGet("registrationID", Some("reg123"))
 
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
-      when(mockGroupService.retrieveGroups(any[String])(any[HeaderCarrier]))
+      when(mockGroupService.retrieveGroups(any[String])(any[HeaderCarrier], any[ExecutionContext]))
         .thenReturn(Future.successful(None))
       when(mockCompanyRegistrationConnector.fetchCompanyName(any[String]())(any[HeaderCarrier](), any[ExecutionContext]()))
         .thenReturn(Future.successful("Company Name"))
-      when(mockGroupService.updateGroupRelief(any[Boolean], any[String])(any[HeaderCarrier]))
+      when(mockGroupService.updateGroupRelief(any[Boolean], any[String])(any[HeaderCarrier], any[ExecutionContext]))
         .thenReturn(Future.successful(Groups(groupRelief = true, None, None, None)))
 
       submitWithAuthorisedUser(controller.submit, FakeRequest().withFormUrlEncodedBody("groupRelief" -> "true")) {
@@ -211,11 +211,11 @@ class GroupReliefControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with M
       mockKeystoreFetchAndGet("registrationID", Some("reg123"))
 
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
-      when(mockGroupService.retrieveGroups(any[String])(any[HeaderCarrier]))
+      when(mockGroupService.retrieveGroups(any[String])(any[HeaderCarrier], any[ExecutionContext]))
         .thenReturn(Future.successful(None))
       when(mockCompanyRegistrationConnector.fetchCompanyName(any[String]())(any[HeaderCarrier](), any[ExecutionContext]()))
         .thenReturn(Future.successful("Company Name"))
-      when(mockGroupService.updateGroupRelief(any[Boolean], any[String])(any[HeaderCarrier]))
+      when(mockGroupService.updateGroupRelief(any[Boolean], any[String])(any[HeaderCarrier], any[ExecutionContext]))
         .thenReturn(Future.successful(Groups(groupRelief = true, None, None, None)))
 
       submitWithAuthorisedUser(controller.submit, FakeRequest().withFormUrlEncodedBody("groupRelief" -> "false")) {
@@ -229,11 +229,11 @@ class GroupReliefControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with M
       mockKeystoreFetchAndGet("registrationID", Some("reg123"))
 
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
-      when(mockGroupService.retrieveGroups(any[String])(any[HeaderCarrier]))
+      when(mockGroupService.retrieveGroups(any[String])(any[HeaderCarrier], any[ExecutionContext]))
         .thenReturn(Future.successful(None))
       when(mockCompanyRegistrationConnector.fetchCompanyName(any[String]())(any[HeaderCarrier](), any[ExecutionContext]()))
         .thenReturn(Future.successful("d"))
-      when(mockGroupService.updateGroupRelief(any[Boolean], any[String])(any[HeaderCarrier]))
+      when(mockGroupService.updateGroupRelief(any[Boolean], any[String])(any[HeaderCarrier], any[ExecutionContext]))
         .thenReturn(Future.successful(Groups(groupRelief = true, None, None, None)))
 
       submitWithAuthorisedUser(controller.submit, FakeRequest().withFormUrlEncodedBody("groupRelief" -> "maybe")) {

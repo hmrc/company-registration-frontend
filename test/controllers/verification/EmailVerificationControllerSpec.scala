@@ -34,9 +34,9 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name, ~}
 import uk.gov.hmrc.http.HeaderCarrier
 import views.BaseSelectors
-
-import scala.concurrent.ExecutionContext.Implicits.global
 import views.html.verification.{CreateGGWAccount, CreateNewGGWAccount, createNewAccount, verifyYourEmail}
+
+import scala.concurrent.ExecutionContext
 
 
 class EmailVerificationControllerSpec extends SCRSSpec with CompanyRegistrationConnectorMock with MockitoSugar with SCRSMocks
@@ -72,7 +72,7 @@ class EmailVerificationControllerSpec extends SCRSSpec with CompanyRegistrationC
       mockCreateNewAccount
     )(
       appConfig,
-      global
+      ec
     ) {
       override lazy val createGGWAccountUrl = "testURL"
       override lazy val callbackUrl = "testCallBack"
@@ -96,7 +96,7 @@ class EmailVerificationControllerSpec extends SCRSSpec with CompanyRegistrationC
       val email = "We are going to send a message to verified. Check your junk folder. If it’s not there, you’ll need to start again or we can resend it If we resend an email, any previous links will expire."
       mockKeystoreFetchAndGet[String]("registrationID", Some("regid"))
 
-      when(mockEmailService.fetchEmailBlock(ArgumentMatchers.eq("regid"))(ArgumentMatchers.any[HeaderCarrier]())).
+      when(mockEmailService.fetchEmailBlock(ArgumentMatchers.eq("regid"))(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]())).
         thenReturn(Some(testVerifiedEmail))
 
       showWithAuthorisedUser(controller.verifyShow)(
@@ -123,10 +123,11 @@ class EmailVerificationControllerSpec extends SCRSSpec with CompanyRegistrationC
       val email = "unverified"
       mockKeystoreFetchAndGet[String]("registrationID", Some("regid"))
 
-      when(mockEmailService.fetchEmailBlock(ArgumentMatchers.eq("regid"))(ArgumentMatchers.any[HeaderCarrier]())).
+      when(mockEmailService.fetchEmailBlock(ArgumentMatchers.eq("regid"))(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]())).
         thenReturn(Some(testUnVerifiedEmail))
 
-      when(mockEmailService.sendVerificationLink(ArgumentMatchers.eq(email), ArgumentMatchers.eq("regid"), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any())).
+      when(mockEmailService.sendVerificationLink(ArgumentMatchers.eq(email), ArgumentMatchers.eq("regid"),
+        ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any(), ArgumentMatchers.any())).
         thenReturn(Some(false))
 
       showWithAuthorisedUserRetrieval(controller.resendVerificationLink, authResult) {

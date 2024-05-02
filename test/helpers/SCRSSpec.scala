@@ -30,6 +30,7 @@ import scala.util.Random
 
 trait SCRSSpec extends UnitSpec with MockitoSugar with SCRSMocks with BeforeAndAfterEach with BeforeAndAfterAll with JsonHelpers {
   implicit val hc = HeaderCarrier()
+  implicit val ec = scala.concurrent.ExecutionContext.Implicits.global
 
   def cTDoc(status: String, groupBlock: String) = Json.parse(
     s"""

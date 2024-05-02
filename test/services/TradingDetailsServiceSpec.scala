@@ -41,12 +41,14 @@ class TradingDetailsServiceSpec extends SCRSSpec with SCRSMocks with TradingDeta
 
   "Updating the trading details data for a given user" should {
     "return a TradingDetailsSuccessResponse" in new Setup {
-      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.eq("registrationID"))(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[Format[String]]()))
+      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.eq("registrationID"))(ArgumentMatchers.any[HeaderCarrier](),
+        ArgumentMatchers.any[ExecutionContext](), ArgumentMatchers.any[Format[String]]()))
         .thenReturn(Future.successful(Some(regID)))
 
-      when(mockCommonService.fetchRegistrationID(ArgumentMatchers.any[HeaderCarrier]())).thenReturn(Future.successful(regID))
+      when(mockCommonService.fetchRegistrationID(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]())).thenReturn(Future.successful(regID))
 
-      when(mockCompanyRegistrationConnector.updateTradingDetails(ArgumentMatchers.eq(regID), ArgumentMatchers.eq(tradingDetailsTrue))(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]()))
+      when(mockCompanyRegistrationConnector.updateTradingDetails(ArgumentMatchers.eq(regID),
+        ArgumentMatchers.eq(tradingDetailsTrue))(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(tradingDetailsSuccessResponseTrue))
 
       val result = TestService.updateCompanyInformation(tradingDetailsTrue)

@@ -17,20 +17,18 @@
 package services.internal
 
 import javax.inject.Inject
-
 import connectors.IncorpInfoConnector
 import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-class TestIncorporationServiceImpl @Inject()(val incorpInfoConnector: IncorpInfoConnector) extends TestIncorporationService
+class TestIncorporationServiceImpl @Inject()(val incorpInfoConnector: IncorpInfoConnector)(implicit val ec: ExecutionContext) extends TestIncorporationService
 
 trait TestIncorporationService {
 
   val incorpInfoConnector: IncorpInfoConnector
 
-  def incorporateTransactionId(transId: String, isSuccess: Boolean)(implicit hc: HeaderCarrier): Future[Boolean] = {
+  def incorporateTransactionId(transId: String, isSuccess: Boolean)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Boolean] = {
     for {
       incorporate <- incorpInfoConnector.injectTestIncorporationUpdate(transId, isSuccess)
       triggerResponse <- incorpInfoConnector.manuallyTriggerIncorporationUpdate

@@ -31,7 +31,6 @@ import play.api.test.Helpers._
 import services.{AccountingService, TimeService}
 import uk.gov.hmrc.http.cache.client.CacheMap
 import views.html.reg.{AccountingDates => AccountingDatesView}
-import scala.concurrent.ExecutionContext.Implicits.global
 
 class AccountingDatesControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with AccountingDatesFixture with AccountingDetailsFixture
   with LoginFixture with AuthBuilder {
@@ -55,7 +54,7 @@ class AccountingDatesControllerSpec extends SCRSSpec with GuiceOneAppPerSuite wi
       mockControllerErrorHandler,
       accountingDatesView
     )(mockAppConfig,
-      global)
+      ec)
 
   }
 

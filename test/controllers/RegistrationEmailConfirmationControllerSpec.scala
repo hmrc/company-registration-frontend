@@ -33,7 +33,6 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name, ~}
 import uk.gov.hmrc.http.HeaderCarrier
 import views.html.reg.{ConfirmRegistrationEmail => ConfirmRegistrationEmailView}
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 
@@ -53,7 +52,7 @@ class RegistrationEmailConfirmationControllerSpec extends SCRSSpec with GuiceOne
       mockConfirmRegistrationEmailView
     )(
       appConfig,
-      global
+      ec
     ){
       def showLogicFun(f: Future[Result] = TestController.showLogic(HeaderCarrier(), FakeRequest())) = f
 
@@ -82,7 +81,8 @@ class RegistrationEmailConfirmationControllerSpec extends SCRSSpec with GuiceOne
       mockKeystoreFetchAndGet[RegistrationEmailModel]("RegEmail", Some(RegistrationEmailModel("test@test.com", Some("tester@tester.com"))))
       val awaitedFun = await(TestController.showLogicFun())
 
-      when(mockEmailService.emailVerifiedStatusInSCRS(ArgumentMatchers.any(), ArgumentMatchers.argThat(funcMatcher(mockOfFunction)))(ArgumentMatchers.any())).thenReturn(Future.successful(awaitedFun))
+      when(mockEmailService.emailVerifiedStatusInSCRS(ArgumentMatchers.any(),
+        ArgumentMatchers.argThat(funcMatcher(mockOfFunction)))(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(awaitedFun))
 
       showWithAuthorisedUser(TestController.show) {
         result =>
@@ -98,7 +98,8 @@ class RegistrationEmailConfirmationControllerSpec extends SCRSSpec with GuiceOne
         mockKeystoreFetchAndGet[RegistrationEmailModel]("RegEmail", Some(RegistrationEmailModel("test@test.com", Some("tester@tester.com"))))
         val awaitedFun = await(TestController.showLogicFun())
 
-        when(mockEmailService.emailVerifiedStatusInSCRS(ArgumentMatchers.any(), ArgumentMatchers.argThat(funcMatcher(mockOfFunction)))(ArgumentMatchers.any())).thenReturn(Future.successful(awaitedFun))
+        when(mockEmailService.emailVerifiedStatusInSCRS(ArgumentMatchers.any(),
+          ArgumentMatchers.argThat(funcMatcher(mockOfFunction)))(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(awaitedFun))
 
         result =>
           status(result) mustBe OK
@@ -115,7 +116,8 @@ class RegistrationEmailConfirmationControllerSpec extends SCRSSpec with GuiceOne
         mockKeystoreFetchAndGet[RegistrationEmailModel]("RegEmail", None)
         val awaitedFun = await(TestController.showLogicFun())
 
-        when(mockEmailService.emailVerifiedStatusInSCRS(ArgumentMatchers.any(), ArgumentMatchers.argThat(funcMatcher(mockOfFunction)))(ArgumentMatchers.any())).thenReturn(Future.successful(awaitedFun))
+        when(mockEmailService.emailVerifiedStatusInSCRS(ArgumentMatchers.any(),
+          ArgumentMatchers.argThat(funcMatcher(mockOfFunction)))(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(awaitedFun))
         result =>
           status(result) mustBe SEE_OTHER
           redirectLocation(result) mustBe Some("/register-your-company/post-sign-in")
@@ -145,9 +147,11 @@ class RegistrationEmailConfirmationControllerSpec extends SCRSSpec with GuiceOne
         mockKeystoreFetchAndGet[String]("registrationID", Some("regid"))
         val requestForTest = FakeRequest().withFormUrlEncodedBody("confirmRegistrationEmail" -> "true")
         mockKeystoreFetchAndGet[RegistrationEmailModel]("RegEmail", Some(RegistrationEmailModel("test@test.com", Some("tester@tester.com"))))
-        when(mockEmailService.sendVerificationLink(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(true)))
+        when(mockEmailService.sendVerificationLink(ArgumentMatchers.any(), ArgumentMatchers.any(),
+          ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(true)))
         val awaitedFun = await(TestController.submitLogicFun(r = requestForTest))
-        when(mockEmailService.emailVerifiedStatusInSCRS(ArgumentMatchers.any(), ArgumentMatchers.argThat(funcMatcher(mockOfFunction)))(ArgumentMatchers.any())).thenReturn(Future.successful(awaitedFun))
+        when(mockEmailService.emailVerifiedStatusInSCRS(ArgumentMatchers.any(),
+          ArgumentMatchers.argThat(funcMatcher(mockOfFunction)))(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(awaitedFun))
 
 
         submitWithAuthorisedUserRetrieval(TestController.submit, requestForTest, authResult) {
@@ -161,7 +165,8 @@ class RegistrationEmailConfirmationControllerSpec extends SCRSSpec with GuiceOne
         val requestForTest = FakeRequest().withFormUrlEncodedBody("confirmRegistrationEmail" -> "false")
         mockKeystoreFetchAndGet[RegistrationEmailModel]("RegEmail", Some(RegistrationEmailModel("test@test.com", Some("tester@tester.com"))))
         val awaitedFun = await(TestController.submitLogicFun(r = requestForTest))
-        when(mockEmailService.emailVerifiedStatusInSCRS(ArgumentMatchers.any(), ArgumentMatchers.argThat(funcMatcher(mockOfFunction)))(ArgumentMatchers.any())).thenReturn(Future.successful(awaitedFun))
+        when(mockEmailService.emailVerifiedStatusInSCRS(ArgumentMatchers.any(),
+          ArgumentMatchers.argThat(funcMatcher(mockOfFunction)))(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(awaitedFun))
 
         submitWithAuthorisedUserRetrieval(TestController.submit, requestForTest, authResult) {
           result =>
@@ -174,7 +179,8 @@ class RegistrationEmailConfirmationControllerSpec extends SCRSSpec with GuiceOne
         val requestForTest = FakeRequest().withFormUrlEncodedBody("confirmRegistrationEmail" -> "true")
         mockKeystoreFetchAndGet[RegistrationEmailModel]("RegEmail", None)
         val awaitedFun = await(TestController.submitLogicFun(r = requestForTest))
-        when(mockEmailService.emailVerifiedStatusInSCRS(ArgumentMatchers.any(), ArgumentMatchers.argThat(funcMatcher(mockOfFunction)))(ArgumentMatchers.any())).thenReturn(Future.successful(awaitedFun))
+        when(mockEmailService.emailVerifiedStatusInSCRS(ArgumentMatchers.any(),
+          ArgumentMatchers.argThat(funcMatcher(mockOfFunction)))(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(awaitedFun))
 
         submitWithAuthorisedUserRetrieval(TestController.submit, requestForTest, authResult) {
           result =>
@@ -188,7 +194,9 @@ class RegistrationEmailConfirmationControllerSpec extends SCRSSpec with GuiceOne
           val requestForTest = FakeRequest().withFormUrlEncodedBody("confirmRegistrationEmail" -> "sdkjfhksd")
           mockKeystoreFetchAndGet[RegistrationEmailModel]("RegEmail", Some(RegistrationEmailModel("sfg@sdf.com", Some("sdgf@dfg.com"))))
           val awaitedFun = await(TestController.submitLogicFun(r = requestForTest))
-          when(mockEmailService.emailVerifiedStatusInSCRS(ArgumentMatchers.any(), ArgumentMatchers.argThat(funcMatcher(mockOfFunction)))(ArgumentMatchers.any())).thenReturn(Future.successful(awaitedFun))
+          when(mockEmailService.emailVerifiedStatusInSCRS(ArgumentMatchers.any(),
+            ArgumentMatchers.argThat(funcMatcher(mockOfFunction)))(ArgumentMatchers.any(),
+            ArgumentMatchers.any())).thenReturn(Future.successful(awaitedFun))
 
           submitWithAuthorisedUserRetrieval(TestController.submit, requestForTest, authResult) {
             result =>

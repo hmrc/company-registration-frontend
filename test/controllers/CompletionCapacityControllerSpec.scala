@@ -33,8 +33,8 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads}
 import views.html.reg.{CompletionCapacity => CompletionCapacityView}
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+
+import scala.concurrent.{ExecutionContext, Future}
 
 class CompletionCapacityControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with MockitoSugar with BusinessRegistrationFixture with AuthBuilder {
 
@@ -56,7 +56,7 @@ class CompletionCapacityControllerSpec extends SCRSSpec with GuiceOneAppPerSuite
       mockMcc,
       mockCompletionCapacityView
     )(
-      global,
+      ec,
       mockAppConfig
     )
 
@@ -100,7 +100,7 @@ class CompletionCapacityControllerSpec extends SCRSSpec with GuiceOneAppPerSuite
 
     "return a 303 if the user has entered valid data" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("foo"))
-      when(mockMetaDataService.updateCompletionCapacity(ArgumentMatchers.eq(AboutYouChoiceForm("director", "")))(ArgumentMatchers.any[HeaderCarrier]()))
+      when(mockMetaDataService.updateCompletionCapacity(ArgumentMatchers.eq(AboutYouChoiceForm("director", "")))(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(validBusinessRegistrationResponse))
 
       submitWithAuthorisedUser(controller.submit, FakeRequest().withFormUrlEncodedBody(
@@ -115,7 +115,7 @@ class CompletionCapacityControllerSpec extends SCRSSpec with GuiceOneAppPerSuite
 
     "return a 303 if the user has no entry in keystore but has valid data" in new Setup {
       mockKeystoreFetchAndGet("registrationID", None)
-      when(mockMetaDataService.updateCompletionCapacity(ArgumentMatchers.eq(AboutYouChoiceForm("director", "")))(ArgumentMatchers.any[HeaderCarrier]()))
+      when(mockMetaDataService.updateCompletionCapacity(ArgumentMatchers.eq(AboutYouChoiceForm("director", "")))(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(validBusinessRegistrationResponse))
 
       submitWithAuthorisedUser(controller.submit, FakeRequest().withFormUrlEncodedBody(

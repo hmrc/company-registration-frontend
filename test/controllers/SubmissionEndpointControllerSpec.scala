@@ -28,7 +28,6 @@ import play.api.mvc.MessagesControllerComponents
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.cache.client.CacheMap
 import views.html.reg.{SubmissionEndpoint => SubmissionEndpointView}
-import scala.concurrent.ExecutionContext.Implicits.global
 
 class SubmissionEndpointControllerSpec extends SCRSSpec with SCRSFixtures with GuiceOneAppPerSuite with AuthBuilder {
 
@@ -45,7 +44,7 @@ class SubmissionEndpointControllerSpec extends SCRSSpec with SCRSFixtures with G
     )
     (
       appConfig,
-      global
+      ec
     )
   }
 
