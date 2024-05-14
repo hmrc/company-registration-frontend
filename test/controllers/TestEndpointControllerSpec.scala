@@ -17,7 +17,6 @@
 package controllers
 
 import java.time._
-
 import builders.AuthBuilder
 import config.AppConfig
 import connectors._
@@ -47,8 +46,7 @@ import views.html.dashboard.{Dashboard => DashboardView}
 import views.html.reg.{TestEndpoint => TestEndpointView}
 import views.html.test.{FeatureSwitch => FeatureSwitchView, PrePopAddresses => PrePopAddressesView, PrePopContactDetails => PrePopContactDetailsView, TestEndpointSummary => TestEndpointSummaryView}
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with MockitoSugar with CorporationTaxFixture with GuiceOneAppPerSuite with AuthBuilder {
 
@@ -100,7 +98,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
       mockDashboardView
     )(
       appConfig,
-      global
+      ec
       ){
       override lazy val accDForm = new AccountingDatesFormT {
         override val timeService = new TimeService {
@@ -136,7 +134,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
 
     "Return a 200" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
-      when(mockMetaDataService.getApplicantData(ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier]()))
+      when(mockMetaDataService.getApplicantData(ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(applicantData))
       CTRegistrationConnectorMocks.retrieveCompanyDetails(Some(validCompanyDetailsResponse))
       mockS4LFetchAndGet[CompanyNameHandOffIncoming]("HandBackData", Some(validCompanyNameHandBack))
@@ -156,7 +154,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
 
     "Return a 200 even if nothing is returned" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
-      when(mockMetaDataService.getApplicantData(ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier]()))
+      when(mockMetaDataService.getApplicantData(ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(applicantDataEmpty))
       CTRegistrationConnectorMocks.retrieveCompanyDetails(None)
       mockS4LFetchAndGet[CompanyNameHandOffIncoming]("HandBackData", None)
@@ -188,7 +186,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
 
     "Return a 303" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
-      when(mockMetaDataService.updateApplicantDataEndpoint(ArgumentMatchers.eq(applicantData))(ArgumentMatchers.any[HeaderCarrier]()))
+      when(mockMetaDataService.updateApplicantDataEndpoint(ArgumentMatchers.eq(applicantData))(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(validBusinessRegistrationResponse))
       mockS4LSaveForm[CompanyNameHandOffIncoming]("HandBackData", cacheMap)
       mockS4LSaveForm[PPOBModel]("PPOB", cacheMap)
@@ -286,7 +284,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
     )
 
     "cache a fully formed nav model for use in acceptance tests" in new Setup {
-      when(mockHandOffService.cacheNavModel(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(navModel)))
+      when(mockHandOffService.cacheNavModel(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(navModel)))
       val result = controller.setupTestNavModel(FakeRequest())
       status(result) mustBe OK
     }

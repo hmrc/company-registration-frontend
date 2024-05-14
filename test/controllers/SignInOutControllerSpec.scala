@@ -40,7 +40,6 @@ import uk.gov.hmrc.play.bootstrap.binders._
 import views.html.{timeout => timeoutView}
 
 import java.time.LocalDate
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class SignInOutControllerSpec extends SCRSSpec
@@ -68,7 +67,7 @@ class SignInOutControllerSpec extends SCRSSpec
       mockTimeoutView
     )(
       mockAppConfig,
-      global
+      ec
     ){
       override lazy val corsRenewHost = corsHost
       override lazy val cRFEBaseUrl = "test-base-url"
@@ -106,13 +105,14 @@ class SignInOutControllerSpec extends SCRSSpec
       when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(FootprintFound(expected)))
 
-      when(mockEmailService.checkEmailStatus(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockEmailService.checkEmailStatus(ArgumentMatchers.any(), ArgumentMatchers.any(),
+        ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(VerifiedEmail()))
 
       when(mockCompanyRegistrationConnector.fetchRegistrationStatus(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(None))
 
-      when(mockHandOffService.cacheRegistrationID(ArgumentMatchers.eq(registrationID))(ArgumentMatchers.any()))
+      when(mockHandOffService.cacheRegistrationID(ArgumentMatchers.eq(registrationID))(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(cacheMap))
 
       showWithAuthorisedUserRetrieval(controller.postSignIn(None), authDetails) {
@@ -167,10 +167,11 @@ class SignInOutControllerSpec extends SCRSSpec
       when(mockCompanyRegistrationConnector.fetchRegistrationStatus(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(None))
 
-      when(mockHandOffService.cacheRegistrationID(ArgumentMatchers.eq(registrationID))(ArgumentMatchers.any()))
+      when(mockHandOffService.cacheRegistrationID(ArgumentMatchers.eq(registrationID))(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(cacheMap))
 
-      when(mockEmailService.checkEmailStatus(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockEmailService.checkEmailStatus(ArgumentMatchers.any(), ArgumentMatchers.any(),
+        ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(VerifiedEmail()))
 
       showWithAuthorisedUserRetrieval(controller.postSignIn(None), authDetails) {
@@ -192,11 +193,11 @@ class SignInOutControllerSpec extends SCRSSpec
       when(mockCompanyRegistrationConnector.fetchRegistrationStatus(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(None))
 
-      when(mockHandOffService.cacheRegistrationID(ArgumentMatchers.eq(registrationID))(ArgumentMatchers.any()))
+      when(mockHandOffService.cacheRegistrationID(ArgumentMatchers.eq(registrationID))(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(cacheMap))
 
       mockKeystoreCache(registrationID, registrationID, cacheMap)
-      when(mockKeystoreConnector.cache(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockKeystoreConnector.cache(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(cacheMap))
 
       showWithAuthorisedUserRetrieval(controller.postSignIn(None), authDetails) {
@@ -218,7 +219,7 @@ class SignInOutControllerSpec extends SCRSSpec
       when(mockCompanyRegistrationConnector.fetchRegistrationStatus(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some("locked")))
 
-      when(mockHandOffService.cacheRegistrationID(ArgumentMatchers.eq(registrationID))(ArgumentMatchers.any()))
+      when(mockHandOffService.cacheRegistrationID(ArgumentMatchers.eq(registrationID))(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(cacheMap))
 
       showWithAuthorisedUserRetrieval(controller.postSignIn(None), authDetails) {
@@ -240,7 +241,7 @@ class SignInOutControllerSpec extends SCRSSpec
       when(mockCompanyRegistrationConnector.fetchRegistrationStatus(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some("held")))
 
-      when(mockHandOffService.cacheRegistrationID(ArgumentMatchers.eq(registrationID))(ArgumentMatchers.any()))
+      when(mockHandOffService.cacheRegistrationID(ArgumentMatchers.eq(registrationID))(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(cacheMap))
 
       showWithAuthorisedUserRetrieval(controller.postSignIn(None), authDetails) {
@@ -259,7 +260,7 @@ class SignInOutControllerSpec extends SCRSSpec
       when(mockCompanyRegistrationConnector.fetchRegistrationStatus(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some("held")))
 
-      when(mockHandOffService.cacheRegistrationID(ArgumentMatchers.eq(registrationID))(ArgumentMatchers.any()))
+      when(mockHandOffService.cacheRegistrationID(ArgumentMatchers.eq(registrationID))(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(cacheMap))
 
       showWithAuthorisedUserRetrieval(controller.postSignIn(None), authDetails) {
@@ -278,13 +279,14 @@ class SignInOutControllerSpec extends SCRSSpec
       when(mockCompanyRegistrationConnector.retrieveOrCreateFootprint()(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(FootprintFound(expected)))
 
-      when(mockEmailService.checkEmailStatus(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockEmailService.checkEmailStatus(ArgumentMatchers.any(), ArgumentMatchers.any(),
+        ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(VerifiedEmail()))
 
       when(mockCompanyRegistrationConnector.fetchRegistrationStatus(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(None))
 
-      when(mockHandOffService.cacheRegistrationID(ArgumentMatchers.eq(registrationID))(ArgumentMatchers.any()))
+      when(mockHandOffService.cacheRegistrationID(ArgumentMatchers.eq(registrationID))(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(cacheMap))
 
       showWithAuthorisedUserRetrieval(controller.postSignIn(None), authDetails) {
@@ -450,7 +452,8 @@ class SignInOutControllerSpec extends SCRSSpec
 
   "renewSession" should {
     "return 200 when hit with Authorised User" in new Setup {
-      when(mockKeystoreConnector.cache(ArgumentMatchers.contains("lastActionTimestamp"), ArgumentMatchers.any[LocalDate]())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
+      when(mockKeystoreConnector.cache(ArgumentMatchers.contains("lastActionTimestamp"),
+        ArgumentMatchers.any[LocalDate]())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(cacheMap))
 
       showWithAuthorisedUser(controller.renewSession()) { a =>
@@ -463,7 +466,8 @@ class SignInOutControllerSpec extends SCRSSpec
     }
 
     "return CORS headers when a cors host is supplied" in new Setup(Some("http://localhost:12345")) {
-      when(mockKeystoreConnector.cache(ArgumentMatchers.contains("lastActionTimestamp"), ArgumentMatchers.any[LocalDate]())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
+      when(mockKeystoreConnector.cache(ArgumentMatchers.contains("lastActionTimestamp"),
+        ArgumentMatchers.any[LocalDate]())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(cacheMap))
 
       showWithAuthorisedUser(controller.renewSession()) { a =>

@@ -33,21 +33,20 @@ import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import uk.gov.hmrc.play.audit.model.ExtendedDataEvent
 import utils.SCRSExceptions
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
 
 class CompanyContactDetailsServiceImpl @Inject()(val businessRegConnector: BusinessRegistrationConnector,
                                                  val companyRegistrationConnector: CompanyRegistrationConnector,
                                                  val keystoreConnector: KeystoreConnector,
                                                  val authConnector: PlayAuthConnector,
-                                                 val auditConnector: AuditConnector) extends CompanyContactDetailsService
+                                                 val auditConnector: AuditConnector)(implicit val ec: ExecutionContext) extends CompanyContactDetailsService
 
 trait CompanyContactDetailsService extends CommonService with AuditService with SCRSExceptions with Logging {
   val businessRegConnector: BusinessRegistrationConnector
   val companyRegistrationConnector: CompanyRegistrationConnector
   val auditConnector: AuditConnector
 
-  def fetchContactDetails(implicit hc: HeaderCarrier): Future[CompanyContactDetailsApi] = {
+  def fetchContactDetails(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[CompanyContactDetailsApi] = {
 
 
     val getVerifiedEmailAndContactDetails: Future[(String, CompanyContactDetailsResponse)] = for {
@@ -88,7 +87,7 @@ trait CompanyContactDetailsService extends CommonService with AuditService with 
   }
 
 
-  def updateContactDetails(contactDetails: CompanyContactDetailsApi)(implicit hc: HeaderCarrier): Future[CompanyContactDetailsResponse] = {
+  def updateContactDetails(contactDetails: CompanyContactDetailsApi)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[CompanyContactDetailsResponse] = {
     for {
       registrationID <- fetchRegistrationID
       contactDetails <- companyRegistrationConnector.updateContactDetails(registrationID, contactDetails)
@@ -98,7 +97,7 @@ trait CompanyContactDetailsService extends CommonService with AuditService with 
   }
 
   def checkIfAmendedDetails(email: String, cred: String, externalID: String, userContactDetails: CompanyContactDetails)
-                           (implicit hc: HeaderCarrier, req: Request[AnyContent]): Future[Boolean] = {
+                           (implicit hc: HeaderCarrier, ec: ExecutionContext, req: Request[AnyContent]): Future[Boolean] = {
     if (isContactDetailsAmended(userContactDetails.contactEmail, email)) {
       for {
         regId <- fetchRegistrationID

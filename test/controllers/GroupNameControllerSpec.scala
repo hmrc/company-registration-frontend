@@ -33,8 +33,9 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.HeaderCarrier
 import views.html.groups.GroupNameView
+
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class GroupNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with MockitoSugar with AuthBuilder {
 
@@ -134,7 +135,7 @@ class GroupNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Moc
     mockKeystoreFetchAndGet("registrationID", Some("reg123"))
     CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("held", ""))
 
-    when(mockGroupService.retrieveGroups(ArgumentMatchers.any[String])(ArgumentMatchers.any[HeaderCarrier]))
+    when(mockGroupService.retrieveGroups(ArgumentMatchers.any[String])(ArgumentMatchers.any[HeaderCarrier], ArgumentMatchers.any[ExecutionContext]))
       .thenReturn(Future.successful(None))
 
     showWithAuthorisedUser(controller.show) {
@@ -158,9 +159,9 @@ class GroupNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Moc
     CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
     when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any()))
       .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
-    when(mockGroupService.retrieveGroups(any())(any()))
+    when(mockGroupService.retrieveGroups(any())(any(), any()))
       .thenReturn(Future.successful(Some(testGroups)))
-    when(mockGroupService.returnValidShareholdersAndUpdateGroups(any(), any())(any()))
+    when(mockGroupService.returnValidShareholdersAndUpdateGroups(any(), any())(any(), any()))
       .thenReturn(Future.successful(List("1") -> testGroups))
 
     showWithAuthorisedUser(controller.show) {
@@ -180,9 +181,9 @@ class GroupNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Moc
     CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
     when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any()))
       .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
-    when(mockGroupService.retrieveGroups(any())(any()))
+    when(mockGroupService.retrieveGroups(any())(any(), any()))
       .thenReturn(Future.successful(Some(testGroups)))
-    when(mockGroupService.returnValidShareholdersAndUpdateGroups(any(), any())(any()))
+    when(mockGroupService.returnValidShareholdersAndUpdateGroups(any(), any())(any(), any()))
       .thenReturn(Future.successful(List("1") -> testGroups))
 
     showWithAuthorisedUser(controller.show) {
@@ -202,11 +203,11 @@ class GroupNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Moc
     CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
     when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any()))
       .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
-    when(mockGroupService.retrieveGroups(any())(any()))
+    when(mockGroupService.retrieveGroups(any())(any(), any()))
       .thenReturn(Future.successful(Some(testGroups)))
-    when(mockGroupService.returnValidShareholdersAndUpdateGroups(any(), any())(any()))
+    when(mockGroupService.returnValidShareholdersAndUpdateGroups(any(), any())(any(), any()))
       .thenReturn(Future.successful(List("1") -> testGroups))
-    when(mockGroupService.updateGroupName(any(), any(), any())(any()))
+    when(mockGroupService.updateGroupName(any(), any(), any())(any(), any()))
       .thenReturn(Future.successful(testGroups))
 
     submitWithAuthorisedUser(controller.submit, FakeRequest().withFormUrlEncodedBody(
@@ -230,11 +231,11 @@ class GroupNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Moc
     CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
     when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any()))
       .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
-    when(mockGroupService.retrieveGroups(any())(any()))
+    when(mockGroupService.retrieveGroups(any())(any(), any()))
       .thenReturn(Future.successful(Some(testGroups)))
-    when(mockGroupService.returnValidShareholdersAndUpdateGroups(any(), any())(any()))
+    when(mockGroupService.returnValidShareholdersAndUpdateGroups(any(), any())(any(), any()))
       .thenReturn(Future.successful(List("1") -> testGroups))
-    when(mockGroupService.updateGroupName(any(), any(), any())(any()))
+    when(mockGroupService.updateGroupName(any(), any(), any())(any(), any()))
       .thenReturn(Future.successful(testGroups))
 
     submitWithAuthorisedUser(controller.submit, FakeRequest().withFormUrlEncodedBody(
@@ -259,11 +260,11 @@ class GroupNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Moc
     CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
     when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any()))
       .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
-    when(mockGroupService.retrieveGroups(any())(any()))
+    when(mockGroupService.retrieveGroups(any())(any(), any()))
       .thenReturn(Future.successful(Some(testGroups)))
-    when(mockGroupService.returnValidShareholdersAndUpdateGroups(any(), any())(any()))
+    when(mockGroupService.returnValidShareholdersAndUpdateGroups(any(), any())(any(), any()))
       .thenReturn(Future.successful(List("1") -> testGroups))
-    when(mockGroupService.updateGroupName(any(), any(), any())(any()))
+    when(mockGroupService.updateGroupName(any(), any(), any())(any(), any()))
       .thenReturn(Future.successful(testGroups))
 
     submitWithAuthorisedUser(controller.submit, FakeRequest().withFormUrlEncodedBody(

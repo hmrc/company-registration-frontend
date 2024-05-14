@@ -78,7 +78,7 @@ class GroupReliefSpec extends SCRSSpec with UserDetailsFixture with AuthBuilder 
         .thenReturn(Future.successful("testCompanyname1"))
       when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any()))
         .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
-      when(mockGroupService.retrieveGroups(any())(any()))
+      when(mockGroupService.retrieveGroups(any())(any(), any()))
         .thenReturn(Future.successful(Some(Groups(groupRelief = true, None, None, None))))
 
       showWithAuthorisedUser(controller.show) {

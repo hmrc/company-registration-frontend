@@ -31,8 +31,7 @@ import utils._
 import java.time._
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NoStackTrace
 
 class DashboardServiceImpl @Inject()(val keystoreConnector: KeystoreConnector,
@@ -45,7 +44,7 @@ class DashboardServiceImpl @Inject()(val keystoreConnector: KeystoreConnector,
                                      val thresholdService: ThresholdService,
                                      val auditService: AuditService,
                                      val appConfig: AppConfig
-                                    ) extends DashboardService {
+                                    )(implicit val ec: ExecutionContext) extends DashboardService {
 
 
   lazy val otrsUrl = appConfig.servicesConfig.getConfString("otrs.url", throw new Exception("Could not find config for key: otrs.url"))
@@ -104,7 +103,7 @@ trait DashboardService extends SCRSExceptions with AlertLogging with CommonServi
     )
   }
 
-  def buildDashboard(regId: String, enrolments: Enrolments)(implicit hc: HeaderCarrier): Future[DashboardStatus] = {
+  def buildDashboard(regId: String, enrolments: Enrolments)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[DashboardStatus] = {
     for {
       incorpCTDash <- buildIncorpCTDashComponent(regId, enrolments)
       payeDash <- buildPAYEDashComponent(regId, enrolments)
@@ -125,7 +124,7 @@ trait DashboardService extends SCRSExceptions with AlertLogging with CommonServi
   }
 
   private[services] def statusToServiceDashboard(res: Future[StatusResponse], enrolments: Enrolments, payeEnrolments: Seq[String], thresholds: Option[Map[String, Int]])
-                                                (implicit hc: HeaderCarrier, startURL: String, cancelURL: Call): Future[ServiceDashboard] = {
+                                                (implicit hc: HeaderCarrier, ec: ExecutionContext, startURL: String, cancelURL: Call): Future[ServiceDashboard] = {
     res map {
       case SuccessfulResponse(status) => toDashboard(status, thresholds)
       case ErrorResponse => toDashboard(OtherRegStatus(Statuses.UNAVAILABLE, None, None, None, None), thresholds)
@@ -138,7 +137,7 @@ trait DashboardService extends SCRSExceptions with AlertLogging with CommonServi
     }
   }
 
-  private[services] def buildPAYEDashComponent(regId: String, enrolments: Enrolments)(implicit hc: HeaderCarrier): Future[ServiceDashboard] = {
+  private[services] def buildPAYEDashComponent(regId: String, enrolments: Enrolments)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[ServiceDashboard] = {
     implicit val startURL: String = s"$payeBaseUrl$payeUri"
     implicit val cancelURL: Call = controllers.dashboard.routes.CancelRegistrationController.showCancelPAYE
 
@@ -148,7 +147,7 @@ trait DashboardService extends SCRSExceptions with AlertLogging with CommonServi
 
   def getCurrentPayeThresholds: Map[String, Int] = thresholdService.fetchCurrentPayeThresholds()
 
-  private[services] def buildVATDashComponent(regId: String, enrolments: Enrolments)(implicit hc: HeaderCarrier): Future[ServiceDashboard] = {
+  private[services] def buildVATDashComponent(regId: String, enrolments: Enrolments)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[ServiceDashboard] = {
     implicit val startURL: String = s"$vatBaseUrl$vatUri"
     implicit val cancelURL: Call = controllers.dashboard.routes.CancelRegistrationController.showCancelVAT
 
@@ -166,7 +165,7 @@ trait DashboardService extends SCRSExceptions with AlertLogging with CommonServi
     }
   }
 
-  private[services] def buildIncorpCTDashComponent(regId: String, enrolments: Enrolments)(implicit hc: HeaderCarrier): Future[IncorpAndCTDashboard] = {
+  private[services] def buildIncorpCTDashComponent(regId: String, enrolments: Enrolments)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[IncorpAndCTDashboard] = {
     companyRegistrationConnector.retrieveCorporationTaxRegistration(regId) flatMap {
       ctReg =>
         (ctReg \ "status").as[String] match {
@@ -177,13 +176,13 @@ trait DashboardService extends SCRSExceptions with AlertLogging with CommonServi
     }
   }
 
-  private[services] def getCompanyName(transId: String)(implicit hc: HeaderCarrier): Future[String] = {
+  private[services] def getCompanyName(transId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[String] = {
     for {
       companyName <- incorpInfoConnector.getCompanyName(transId)
     } yield companyName
   }
 
-  private[services] def buildHeld(regId: String, ctReg: JsValue)(implicit hc: HeaderCarrier): Future[IncorpAndCTDashboard] = {
+  private[services] def buildHeld(regId: String, ctReg: JsValue)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[IncorpAndCTDashboard] = {
     for {
       heldSubmissionDate <- companyRegistrationConnector.fetchHeldSubmissionTime(regId)
       submissionDate = heldSubmissionDate.map(date => extractSubmissionDate(date))
@@ -215,7 +214,7 @@ trait DashboardService extends SCRSExceptions with AlertLogging with CommonServi
     DateTimeFormatter.ofPattern("dd MMMM yyyy").format(dgdt)
   }
 
-  def checkForEmailMismatch(regID: String, authDetails: AuthDetails)(implicit hc: HeaderCarrier, req: Request[AnyContent]): Future[Boolean] = {
+  def checkForEmailMismatch(regID: String, authDetails: AuthDetails)(implicit hc: HeaderCarrier, ec: ExecutionContext, req: Request[AnyContent]): Future[Boolean] = {
     keystoreConnector.fetchAndGet[Boolean]("emailMismatchAudit") flatMap {
       case Some(mismatchResult) => Future.successful(mismatchResult)
       case _ => companyRegistrationConnector.retrieveEmail(regID) flatMap {

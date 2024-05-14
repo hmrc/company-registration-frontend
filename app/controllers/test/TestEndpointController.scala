@@ -244,7 +244,7 @@ class TestEndpointController @Inject()(val authConnector: PlayAuthConnector,
           )
         )
       )
-      handOffService.cacheNavModel(nav, hc) map (_ => Ok("NavModel created"))
+      handOffService.cacheNavModel(nav, hc, ec) map (_ => Ok("NavModel created"))
   }
 
   def simulateDesPost(ackRef: String) = Action.async {

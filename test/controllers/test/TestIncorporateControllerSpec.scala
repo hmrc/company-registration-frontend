@@ -28,7 +28,7 @@ import play.api.test.FakeRequest
 import services.internal.TestIncorporationService
 import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class TestIncorporateControllerSpec extends UnitSpec with MockitoSugar with GuiceOneAppPerSuite {
 
@@ -50,7 +50,7 @@ class TestIncorporateControllerSpec extends UnitSpec with MockitoSugar with Guic
     implicit val hc = HeaderCarrier()
 
     "return an OK when the endpoints have been hit successfully" in new Setup {
-      when(mockCheckIncorporationService.incorporateTransactionId(eqTo(transId), eqTo(false))(any[HeaderCarrier]()))
+      when(mockCheckIncorporationService.incorporateTransactionId(eqTo(transId), eqTo(false))(any[HeaderCarrier](), any[ExecutionContext]()))
         .thenReturn(Future.successful(true))
 
       val result = await(controller.incorporate(transId, false)(FakeRequest()))
@@ -59,7 +59,7 @@ class TestIncorporateControllerSpec extends UnitSpec with MockitoSugar with Guic
     }
 
     "return a 500 when the endpoints have returned unsuccessfully" in new Setup {
-      when(mockCheckIncorporationService.incorporateTransactionId(eqTo(transId), eqTo(true))(any[HeaderCarrier]()))
+      when(mockCheckIncorporationService.incorporateTransactionId(eqTo(transId), eqTo(true))(any[HeaderCarrier](), any[ExecutionContext]()))
         .thenReturn(Future.failed(new Exception("")))
 
       intercept[Exception](await(controller.incorporate(transId, true)(FakeRequest())))

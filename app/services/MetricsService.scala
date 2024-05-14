@@ -17,44 +17,44 @@
 package services
 
 import javax.inject.Inject
-
 import com.codahale.metrics.{Counter, Timer}
-import com.kenshoo.play.metrics.Metrics
+import com.codahale.metrics.SharedMetricRegistries
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-class MetricsServiceImpl @Inject()(metrics:Metrics) extends MetricsService {
+class MetricsServiceImpl @Inject()(implicit val ec: ExecutionContext) extends MetricsService {
 
-  override lazy val keystoreReadTimer = metrics.defaultRegistry.timer("keystore-read-timer")
-  override lazy val keystoreWriteTimer = metrics.defaultRegistry.timer("keystore-write-timer")
+  private val metricRegistry = SharedMetricRegistries.getOrCreate("deskpro-ticket-queue")
 
-  override lazy val keystoreReadFailed = metrics.defaultRegistry.counter("keystore-read-failed-counter")
-  override lazy val keystoreWriteFailed = metrics.defaultRegistry.counter("keystore-write-failed-counter")
+  override lazy val keystoreReadTimer = metricRegistry.timer("keystore-read-timer")
+  override lazy val keystoreWriteTimer = metricRegistry.timer("keystore-write-timer")
 
-  override lazy val keystoreHitCounter = metrics.defaultRegistry.counter("keystore-hit-counter")
-  override lazy val keystoreMissCounter = metrics.defaultRegistry.counter("keystore-miss-counter")
+  override lazy val keystoreReadFailed = metricRegistry.counter("keystore-read-failed-counter")
+  override lazy val keystoreWriteFailed = metricRegistry.counter("keystore-write-failed-counter")
 
-  override lazy val identityVerificationTimer = metrics.defaultRegistry.timer("identity-verification-timer")
-  override lazy val identityVerificationFailedCounter = metrics.defaultRegistry.counter("identity-verification-failed-counter")
+  override lazy val keystoreHitCounter = metricRegistry.counter("keystore-hit-counter")
+  override lazy val keystoreMissCounter = metricRegistry.counter("keystore-miss-counter")
 
-  override lazy val citizenDetailsTimer = metrics.defaultRegistry.timer("citizen-details-timer")
-  override lazy val numberOfQuestionnairesSubmitted = metrics.defaultRegistry.counter("number-of-questionnaires-submitted")
+  override lazy val identityVerificationTimer = metricRegistry.timer("identity-verification-timer")
+  override lazy val identityVerificationFailedCounter = metricRegistry.counter("identity-verification-failed-counter")
 
-  override lazy val blockedByEnrollment = metrics.defaultRegistry.counter("blocked-by-enrollment")
+  override lazy val citizenDetailsTimer = metricRegistry.timer("citizen-details-timer")
+  override lazy val numberOfQuestionnairesSubmitted = metricRegistry.counter("number-of-questionnaires-submitted")
 
-  override lazy val saveContactDetailsToCRTimer = metrics.defaultRegistry.timer("save-contact-details-to-cr-timer")
-  override lazy val saveAccountingDatesToCRTimer = metrics.defaultRegistry.timer("save-accounting-dates-to-cr-timer")
-  override lazy val saveCompletionCapacityToCRTimer = metrics.defaultRegistry.timer("save-completion-capacity-to-cr-timer")
-  override lazy val savePrepareAccountsToCRTimer = metrics.defaultRegistry.timer("save-prepare-accounts-to-cr-timer")
+  override lazy val blockedByEnrollment = metricRegistry.counter("blocked-by-enrollment")
 
-  override lazy val saveReviewAddressToCRTimer = metrics.defaultRegistry.timer("save-review-address-to-cr-timer")
-  override lazy val saveTradingDetailsToCRTimer = metrics.defaultRegistry.timer("save-trading-details-to-cr-timer")
-  override lazy val saveFootprintToCRTimer = metrics.defaultRegistry.timer("save-footprint-to-cr-timer")
+  override lazy val saveContactDetailsToCRTimer = metricRegistry.timer("save-contact-details-to-cr-timer")
+  override lazy val saveAccountingDatesToCRTimer = metricRegistry.timer("save-accounting-dates-to-cr-timer")
+  override lazy val saveCompletionCapacityToCRTimer = metricRegistry.timer("save-completion-capacity-to-cr-timer")
+  override lazy val savePrepareAccountsToCRTimer = metricRegistry.timer("save-prepare-accounts-to-cr-timer")
 
-  override lazy val retrieveCompanyProfileIITimer = metrics.defaultRegistry.timer("retrieve-company-profile-from-ii-timer")
+  override lazy val saveReviewAddressToCRTimer = metricRegistry.timer("save-review-address-to-cr-timer")
+  override lazy val saveTradingDetailsToCRTimer = metricRegistry.timer("save-trading-details-to-cr-timer")
+  override lazy val saveFootprintToCRTimer = metricRegistry.timer("save-footprint-to-cr-timer")
 
-  override lazy val deskproResponseTimer = metrics.defaultRegistry.timer("deskpro-call-timer")
+  override lazy val retrieveCompanyProfileIITimer = metricRegistry.timer("retrieve-company-profile-from-ii-timer")
+
+  override lazy val deskproResponseTimer = metricRegistry.timer("deskpro-call-timer")
 }
 
 trait MetricsService {
@@ -83,7 +83,7 @@ trait MetricsService {
 
   val retrieveCompanyProfileIITimer: Timer
 
-  def processDataResponseWithMetrics[T](timer: Timer.Context, success: Option[Counter] = None, failed: Option[Counter] = None)(f: => Future[T]): Future[T] = {
+  def processDataResponseWithMetrics[T](timer: Timer.Context, success: Option[Counter] = None, failed: Option[Counter] = None)(f: => Future[T])(implicit ec: ExecutionContext): Future[T] = {
     f map { data =>
       timer.stop()
       success foreach (_.inc(1))

@@ -17,14 +17,14 @@
 package connectors
 
 import config.{AppConfig, WSHttp}
+
 import javax.inject.Inject
 import models.external.OtherRegStatus
 import utils.Logging
 import play.api.http.Status._
 import uk.gov.hmrc.http._
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class PAYEConnectorImpl @Inject()(val appConfig: AppConfig, val wSHttp: WSHttp) extends PAYEConnector
 
@@ -34,7 +34,7 @@ trait PAYEConnector extends ServiceConnector {
   lazy val serviceUri = appConfig.servicesConfig.getConfString("paye-registration.uri", "/paye-registration")
 }
 
-class VATConnectorImpl @Inject()(val appConfig: AppConfig, val wSHttp: WSHttp) extends VATConnector
+class VATConnectorImpl @Inject()(val appConfig: AppConfig, val wSHttp: WSHttp)(implicit val ec: ExecutionContext) extends VATConnector
 
 trait VATConnector extends ServiceConnector {
   val appConfig: AppConfig
@@ -47,7 +47,7 @@ trait ServiceConnector extends Logging {
   val serviceBaseUrl: String
   val serviceUri: String
 
-  def getStatus(regId: String)(implicit hc: HeaderCarrier): Future[StatusResponse] = {
+  def getStatus(regId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[StatusResponse] = {
     val url = s"$serviceBaseUrl$serviceUri/$regId/status"
     wSHttp.GET[OtherRegStatus](url) map {
       SuccessfulResponse
@@ -62,14 +62,14 @@ trait ServiceConnector extends Logging {
     }
   }
 
-  def canStatusBeCancelled(regId: String)(f: String => Future[StatusResponse])(implicit hc: HeaderCarrier): Future[String] = {
+  def canStatusBeCancelled(regId: String)(f: String => Future[StatusResponse])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[String] = {
     f(regId).map {
       case a: SuccessfulResponse => a.status.cancelURL.getOrElse(throw cantCancel)
       case _ => throw cantCancel
     }
   }
 
-  def cancelReg(regID: String)(f: String => Future[StatusResponse])(implicit hc: HeaderCarrier): Future[CancellationResponse] = {
+  def cancelReg(regID: String)(f: String => Future[StatusResponse])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[CancellationResponse] = {
     f(regID).flatMap {
       case a: SuccessfulResponse =>
         wSHttp.DELETE[HttpResponse](a.status.cancelURL.getOrElse(throw cantCancel)).map { resp =>

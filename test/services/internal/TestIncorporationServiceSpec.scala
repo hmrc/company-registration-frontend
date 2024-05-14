@@ -24,7 +24,7 @@ import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class TestIncorporationServiceSpec extends UnitSpec with MockitoSugar {
 
@@ -36,6 +36,7 @@ class TestIncorporationServiceSpec extends UnitSpec with MockitoSugar {
     }
   }
   implicit val hc = HeaderCarrier()
+  implicit val ec = ExecutionContext.global
   "incorporateTransactionId" should {
     val transId = "transactionID"
 

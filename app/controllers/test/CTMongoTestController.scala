@@ -29,16 +29,15 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class CTMongoTestControllerImpl @Inject()(val wSHttp: WSHttp,
                                           val appConfig: AppConfig,
-                                          mcc: MessagesControllerComponents) extends CTMongoTestController(mcc) {
+                                          mcc: MessagesControllerComponents)(implicit override val ec: ExecutionContext) extends CTMongoTestController(mcc)(ec) {
 
   lazy val ctUrl = appConfig.servicesConfig.baseUrl("company-registration")
 }
 
-abstract class CTMongoTestController(mcc: MessagesControllerComponents) extends FrontendController(mcc) {
+abstract class CTMongoTestController(mcc: MessagesControllerComponents)(implicit val ec: ExecutionContext) extends FrontendController(mcc) {
 
   val wSHttp: HttpGet
   val ctUrl: String
-  implicit val ec: scala.concurrent.ExecutionContext = scala.concurrent.ExecutionContext.global
 
   def dropCollection = Action.async {
     implicit request =>

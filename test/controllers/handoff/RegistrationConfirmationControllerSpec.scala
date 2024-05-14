@@ -36,7 +36,6 @@ import uk.gov.hmrc.http.HeaderCarrier
 import utils.{DecryptionError, JweCommon}
 import views.html.{error_template, error_template_restart}
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
@@ -63,7 +62,7 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
       errorTemplatePage,
       app.injector.instanceOf[HandOffUtils],
       mockLanguageService
-    )(appConfig, global)
+    )(appConfig, ec)
 
   }
 
@@ -82,10 +81,10 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
     "return a SEE_OTHER if sending a valid request with authorisation" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("1"))
       val payloadEncr = confirmationPayload(jweInstance())
-      when(mockHandBackService.decryptConfirmationHandback(ArgumentMatchers.eq(payloadEncr))(ArgumentMatchers.any()))
+      when(mockHandBackService.decryptConfirmationHandback(ArgumentMatchers.eq(payloadEncr))(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Success(payload)))
 
-      when(mockHandBackService.storeConfirmationHandOff(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockHandBackService.storeConfirmationHandOff(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(ConfirmationReferencesSuccessResponse(ConfirmationReferences("test", Some("test"), Some("test"), "test"))))
 
       when(mockHandBackService.payloadHasForwardLinkAndNoPaymentRefs(ArgumentMatchers.any()))
@@ -104,16 +103,16 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
     "redirect to next url if Handoff 5.1 and if sending a valid request with authorisation" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("1"))
       val payloadEncr = confirmationPayload(jweInstance())
-      when(mockHandBackService.decryptConfirmationHandback(ArgumentMatchers.eq(payloadEncr))(ArgumentMatchers.any()))
+      when(mockHandBackService.decryptConfirmationHandback(ArgumentMatchers.eq(payloadEncr))(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Success(payload)))
 
-      when(mockHandBackService.storeConfirmationHandOff(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockHandBackService.storeConfirmationHandOff(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(ConfirmationReferencesSuccessResponse(ConfirmationReferences("test", None, None, "test"))))
 
       when(mockHandBackService.payloadHasForwardLinkAndNoPaymentRefs(ArgumentMatchers.any()))
         .thenReturn(true)
 
-      when(mockHandOffService.buildPaymentConfirmationHandoff(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Some(("coho-url", "encrypted-payload")))
+      when(mockHandOffService.buildPaymentConfirmationHandoff(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Some(("coho-url", "encrypted-payload")))
 
       when(mockHandOffService.buildHandOffUrl(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn("coho-url?request=encrypted-payload")
 
@@ -130,7 +129,7 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
     "redirect to signInOutController if no nav model is found" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("1"))
       val payloadEncr = confirmationPayload(jweInstance())
-      when(mockHandBackService.decryptConfirmationHandback(ArgumentMatchers.eq(payloadEncr))(ArgumentMatchers.any()))
+      when(mockHandBackService.decryptConfirmationHandback(ArgumentMatchers.eq(payloadEncr))(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.failed(new NavModelNotFoundException))
 
       showWithAuthorisedUserRetrieval(testController.registrationConfirmation(payloadEncr), externalID) {
@@ -143,16 +142,16 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
     "return a BadRequest if a confirmation handoff cannot be built" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("1"))
       val payloadEncr = confirmationPayload(jweInstance())
-      when(mockHandBackService.decryptConfirmationHandback(ArgumentMatchers.eq(payloadEncr))(ArgumentMatchers.any()))
+      when(mockHandBackService.decryptConfirmationHandback(ArgumentMatchers.eq(payloadEncr))(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Success(payload)))
 
-      when(mockHandBackService.storeConfirmationHandOff(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockHandBackService.storeConfirmationHandOff(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(ConfirmationReferencesSuccessResponse(ConfirmationReferences("test", None, None, "test"))))
 
       when(mockHandBackService.payloadHasForwardLinkAndNoPaymentRefs(ArgumentMatchers.any()))
         .thenReturn(true)
 
-      when(mockHandOffService.buildPaymentConfirmationHandoff(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(None))
+      when(mockHandOffService.buildPaymentConfirmationHandoff(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
 
       when(mockLanguageService.updateLanguage(ArgumentMatchers.eq("1"), ArgumentMatchers.eq(Lang(LangConstants.english)))(ArgumentMatchers.any[HeaderCarrier], ArgumentMatchers.any[ExecutionContext]))
         .thenReturn(Future.successful(true))
@@ -166,10 +165,10 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
     "return a SEE_OTHER if sending a request with authorisation but has a deskpro error" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("1"))
       val payloadEncr = confirmationPayload(jweInstance())
-      when(mockHandBackService.decryptConfirmationHandback(ArgumentMatchers.eq(payloadEncr))(ArgumentMatchers.any()))
+      when(mockHandBackService.decryptConfirmationHandback(ArgumentMatchers.eq(payloadEncr))(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Success(payload)))
 
-      when(mockHandBackService.storeConfirmationHandOff(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockHandBackService.storeConfirmationHandOff(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(DESFailureDeskpro))
 
       when(mockLanguageService.updateLanguage(ArgumentMatchers.eq("1"), ArgumentMatchers.eq(Lang(LangConstants.english)))(ArgumentMatchers.any[HeaderCarrier], ArgumentMatchers.any[ExecutionContext]))
@@ -185,10 +184,10 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
     "return a SEE_OTHER if sending a request with authorisation but is put into a retriable state" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("1"))
       val payloadEncr = confirmationPayload(jweInstance())
-      when(mockHandBackService.decryptConfirmationHandback(ArgumentMatchers.eq(payloadEncr))(ArgumentMatchers.any()))
+      when(mockHandBackService.decryptConfirmationHandback(ArgumentMatchers.eq(payloadEncr))(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Success(payload)))
 
-      when(mockHandBackService.storeConfirmationHandOff(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockHandBackService.storeConfirmationHandOff(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(DESFailureRetriable))
 
       when(mockLanguageService.updateLanguage(ArgumentMatchers.eq("1"), ArgumentMatchers.eq(Lang(LangConstants.english)))(ArgumentMatchers.any[HeaderCarrier], ArgumentMatchers.any[ExecutionContext]))
@@ -204,7 +203,7 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
     "return a SEE_OTHER if sending a valid request with auth but keystore does not exist" in new Setup {
       mockKeystoreFetchAndGet("registrationID", None)
       val payloadEncr = confirmationPayload(jweInstance())
-      when(mockHandBackService.decryptConfirmationHandback(ArgumentMatchers.eq(payloadEncr))(ArgumentMatchers.any()))
+      when(mockHandBackService.decryptConfirmationHandback(ArgumentMatchers.eq(payloadEncr))(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Success(payload)))
 
       showWithAuthorisedUserRetrieval(testController.registrationConfirmation(payloadEncr), externalID) {
@@ -216,7 +215,7 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
 
     "return a BAD_REQUEST if payload cant be decrypted" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("1"))
-      when(mockHandBackService.decryptConfirmationHandback(ArgumentMatchers.eq(""))(ArgumentMatchers.any[HeaderCarrier]))
+      when(mockHandBackService.decryptConfirmationHandback(ArgumentMatchers.eq(""))(ArgumentMatchers.any[HeaderCarrier], ArgumentMatchers.any[ExecutionContext]))
         .thenReturn(Future.successful(Failure(DecryptionError)))
 
       showWithAuthorisedUserRetrieval(testController.registrationConfirmation(""), externalID) {
@@ -231,10 +230,10 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
     "redirect to the Confirmation page" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("1"))
       val payloadEncr = confirmationPayload(jweInstance())
-      when(mockHandBackService.decryptConfirmationHandback(ArgumentMatchers.eq(payloadEncr))(ArgumentMatchers.any()))
+      when(mockHandBackService.decryptConfirmationHandback(ArgumentMatchers.eq(payloadEncr))(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Success(payload)))
 
-      when(mockHandBackService.storeConfirmationHandOff(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockHandBackService.storeConfirmationHandOff(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(ConfirmationReferencesSuccessResponse(ConfirmationReferences("test", Some("test"), Some("test"), "test"))))
 
       when(mockHandBackService.payloadHasForwardLinkAndNoPaymentRefs(ArgumentMatchers.any()))

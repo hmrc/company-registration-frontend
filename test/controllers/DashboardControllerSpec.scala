@@ -95,9 +95,9 @@ class DashboardControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Aut
     "return a 200 and render the dashboard view" when {
       "the dashboard has a held registration and the incorporation is not rejected" in new Setup {
         mockKeystoreFetchAndGet("registrationID", Some(regId))
-        when(mockDashboardService.buildDashboard(eqTo(regId), any())(any()))
+        when(mockDashboardService.buildDashboard(eqTo(regId), any())(any(), any()))
           .thenReturn(Future.successful(DashboardBuilt(dashboard)))
-        when(mockDashboardService.checkForEmailMismatch(any(), any())(any(), any()))
+        when(mockDashboardService.checkForEmailMismatch(any(), any())(any(), any(), any()))
           .thenReturn(Future.successful(true))
 
         showWithAuthorisedUserRetrieval(controller.show, authDetails) {
@@ -109,16 +109,16 @@ class DashboardControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Aut
             document.title must include("Company registration overview")
         }
 
-        verify(mockDashboardService, times(1)).checkForEmailMismatch(any(), any())(any(), any())
+        verify(mockDashboardService, times(1)).checkForEmailMismatch(any(), any())(any(), any(), any())
       }
     }
 
     "return a 200 and render the Registration unsuccessful view" when {
       "the users incorporation is rejected" in new Setup {
         mockKeystoreFetchAndGet("registrationID", Some(regId))
-        when(mockDashboardService.buildDashboard(eqTo(regId), any())(any()))
+        when(mockDashboardService.buildDashboard(eqTo(regId), any())(any(), any()))
           .thenReturn(Future.successful(RejectedIncorp))
-        when(mockDashboardService.checkForEmailMismatch(any(), any())(any(), any()))
+        when(mockDashboardService.checkForEmailMismatch(any(), any())(any(), any(), any()))
           .thenReturn(Future.successful(true))
 
         showWithAuthorisedUserRetrieval(controller.show, authDetails) {
@@ -130,16 +130,16 @@ class DashboardControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Aut
             document.title must include("Your company registration was unsuccessful")
         }
 
-        verify(mockDashboardService, times(1)).checkForEmailMismatch(any(), any())(any(), any())
+        verify(mockDashboardService, times(1)).checkForEmailMismatch(any(), any())(any(), any(), any())
       }
     }
 
     "return a 303 and redirect to HO1" when {
       "the dashboard case class could not be created, i.e. the ct document is in draft" in new Setup {
         mockKeystoreFetchAndGet("registrationID", Some(regId))
-        when(mockDashboardService.buildDashboard(eqTo(regId), any())(any()))
+        when(mockDashboardService.buildDashboard(eqTo(regId), any())(any(), any()))
           .thenReturn(Future.successful(CouldNotBuild))
-        when(mockDashboardService.checkForEmailMismatch(any(), any())(any(), any()))
+        when(mockDashboardService.checkForEmailMismatch(any(), any())(any(), any(), any()))
           .thenReturn(Future.successful(true))
 
         showWithAuthorisedUserRetrieval(controller.show, authDetails) {
@@ -149,16 +149,16 @@ class DashboardControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Aut
             redirectLocation(res) mustBe Some("/register-your-company/basic-company-details")
         }
 
-        verify(mockDashboardService, times(1)).checkForEmailMismatch(any(), any())(any(), any())
+        verify(mockDashboardService, times(1)).checkForEmailMismatch(any(), any())(any(), any(), any())
       }
     }
 
     "return a 500" when {
       "building the dashboard returns something unexpected" in new Setup {
         mockKeystoreFetchAndGet("registrationID", Some(regId))
-        when(mockDashboardService.buildDashboard(eqTo(regId), any())(any()))
+        when(mockDashboardService.buildDashboard(eqTo(regId), any())(any(), any()))
           .thenReturn(Future.failed(new Exception("")))
-        when(mockDashboardService.checkForEmailMismatch(any(), any())(any(), any()))
+        when(mockDashboardService.checkForEmailMismatch(any(), any())(any(), any(), any()))
           .thenReturn(Future.successful(true))
 
         showWithAuthorisedUserRetrieval(controller.show, authDetails) {
@@ -167,7 +167,7 @@ class DashboardControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Aut
             status(res) mustBe 500
         }
 
-        verify(mockDashboardService, times(1)).checkForEmailMismatch(any(), any())(any(), any())
+        verify(mockDashboardService, times(1)).checkForEmailMismatch(any(), any())(any(), any(), any())
       }
     }
   }

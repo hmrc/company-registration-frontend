@@ -42,7 +42,6 @@ import utils.SCRSFeatureSwitchesImpl
 import views.html.reg.{Summary => SummaryView}
 
 import java.util.UUID
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with GuiceOneAppPerSuite with AccountingDetailsFixture with TradingDetailsFixtures
@@ -96,7 +95,7 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with GuiceOneAppP
       mockSummaryView
     )(
       appConfig,
-      global
+      ec
       )
 
   }
@@ -302,9 +301,9 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with GuiceOneAppP
 
   "back" should {
     "redirect to post sign in if no navModel exists" in new Setup {
-      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.eq("registrationID"))(ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.eq("registrationID"))(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(testRegId)))
-      when(mockHandOffService.fetchNavModel(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.failed(new NavModelNotFoundException))
+      when(mockHandOffService.fetchNavModel(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.failed(new NavModelNotFoundException))
       showWithAuthorisedUserRetrieval(controller.back, Some("extID")) {
         res =>
           status(res) mustBe SEE_OTHER
@@ -314,13 +313,13 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with GuiceOneAppP
     "redirect to the previous stub page" in new Setup {
       val request = FakeRequest().withFormUrlEncodedBody()
 
-      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.eq("registrationID"))(ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.eq("registrationID"))(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(testRegId)))
       when(mockJweCommon.encrypt[BackHandoff](ArgumentMatchers.any[BackHandoff]())(ArgumentMatchers.any[Writes[BackHandoff]])).thenReturn(Some("foo"))
 
-      when(mockHandOffService.fetchNavModel(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(handOffNavModel))
+      when(mockHandOffService.fetchNavModel(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(handOffNavModel))
 
-      when(mockHandOffService.buildBackHandOff(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockHandOffService.buildBackHandOff(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(BackHandoff("EXT-123456", testRegId, Json.obj(), Json.obj(), LangConstants.english, Json.obj())))
 
       when(mockHandOffService.buildHandOffUrl(ArgumentMatchers.eq("testReverseLinkFromReceiver4"), ArgumentMatchers.eq("foo")))
@@ -345,9 +344,9 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with GuiceOneAppP
           jump = Map("testJumpKey" -> "testJumpLink")
         )
       )
-      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.eq("registrationID"))(ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.eq("registrationID"))(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(testRegId)))
-      when(mockHandOffService.fetchNavModel(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(navModel))
+      when(mockHandOffService.fetchNavModel(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(navModel))
       when(mockJweCommon.encrypt[JsObject](ArgumentMatchers.any[JsObject]())(ArgumentMatchers.any[Writes[JsObject]])).thenReturn(Some("foo"))
 
       when(mockHandOffService.buildHandOffUrl(ArgumentMatchers.eq("testJumpLink"), ArgumentMatchers.eq("foo")))
@@ -365,10 +364,10 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with GuiceOneAppP
         Sender(Map("1" -> NavLinks("testForwardLinkFromSender1", "testReverseLinkFromSender1"))),
         Receiver(Map("0" -> NavLinks("testForwardLinkFromReceiver0", "testReverseLinkFromReceiver0")))
       )
-      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.eq("registrationID"))(ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.eq("registrationID"))(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(testRegId)))
       when(mockJweCommon.encrypt[JsObject](ArgumentMatchers.any[JsObject]())(ArgumentMatchers.any[Writes[JsObject]])).thenReturn(Some("foo"))
-      when(mockHandOffService.fetchNavModel(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(Future.successful(handOffNavModel))
+      when(mockHandOffService.fetchNavModel(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(handOffNavModel))
       showWithAuthorisedUserRetrieval(controller.summaryBackLink("foo"), Some("extID")) {
         res =>
           val ex = intercept[NoSuchElementException](status(res) mustBe SEE_OTHER)

@@ -17,23 +17,21 @@
 package services
 
 import javax.inject.Inject
-
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import models.{TradingDetails, TradingDetailsResponse}
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.SCRSExceptions
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class TradingDetailsServiceImpl @Inject()(val keystoreConnector: KeystoreConnector,
-                                          val compRegConnector: CompanyRegistrationConnector) extends TradingDetailsService
+                                          val compRegConnector: CompanyRegistrationConnector)(implicit val ec: ExecutionContext) extends TradingDetailsService
 
 trait TradingDetailsService extends CommonService with SCRSExceptions {
 
   val compRegConnector: CompanyRegistrationConnector
 
-  def updateCompanyInformation(tradingDetails : TradingDetails)(implicit hc: HeaderCarrier) : Future[TradingDetailsResponse] = {
+  def updateCompanyInformation(tradingDetails : TradingDetails)(implicit hc: HeaderCarrier, ec: ExecutionContext) : Future[TradingDetailsResponse] = {
     for {
       regID <- fetchRegistrationID
       tD <- compRegConnector.updateTradingDetails(regID, tradingDetails)
@@ -42,7 +40,7 @@ trait TradingDetailsService extends CommonService with SCRSExceptions {
     }
   }
 
-  def retrieveTradingDetails(registrationID : String)(implicit hc: HeaderCarrier) : Future[TradingDetails] = {
+  def retrieveTradingDetails(registrationID : String)(implicit hc: HeaderCarrier, ec: ExecutionContext) : Future[TradingDetails] = {
     compRegConnector.retrieveTradingDetails(registrationID).map(_.fold(TradingDetails())(t => t))
   }
 }

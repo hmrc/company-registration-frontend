@@ -53,7 +53,6 @@ class WhoAgreedTakeoverControllerSpec extends SCRSSpec
   implicit val actorMaterializer: Materializer = Materializer(actorSystem)
   implicit lazy val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
   val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
-  implicit val ec: ExecutionContext = mockMcc.executionContext
 
   val page = app.injector.instanceOf[WhoAgreedTakeover]
   val mockControllerErrorHandler = app.injector.instanceOf[ControllerErrorHandler]

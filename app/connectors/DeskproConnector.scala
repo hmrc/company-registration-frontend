@@ -17,7 +17,6 @@
 package connectors
 
 import javax.inject.Inject
-
 import config.{AppConfig, WSHttp}
 import models.external.Ticket
 import utils.Logging
@@ -26,11 +25,10 @@ import services.MetricsService
 import uk.gov.hmrc.http.{CorePost, HeaderCarrier}
 import uk.gov.hmrc.http.HttpReads.Implicits._
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class DeskproConnectorImpl @Inject()(val appConfig: AppConfig,
-                                     val wSHttp: WSHttp, val metricsService: MetricsService) extends DeskproConnector {
+                                     val wSHttp: WSHttp, val metricsService: MetricsService)(implicit val ec: ExecutionContext) extends DeskproConnector {
   override lazy val deskProUrl: String = appConfig.servicesConfig.baseUrl("hmrc-deskpro")
 }
 
@@ -40,7 +38,7 @@ trait DeskproConnector extends Logging {
   val deskProUrl : String
   val metricsService: MetricsService
 
-  def submitTicket(t: Ticket)(implicit hc: HeaderCarrier) : Future[Long] = {
+  def submitTicket(t: Ticket)(implicit hc: HeaderCarrier, ec: ExecutionContext) : Future[Long] = {
     val deskproTimer = metricsService.deskproResponseTimer.time()
     wSHttp.POST[Ticket, JsObject](s"$deskProUrl/deskpro/ticket", t) map {
       res =>

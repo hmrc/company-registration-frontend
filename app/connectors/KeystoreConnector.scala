@@ -17,32 +17,30 @@
 package connectors
 
 import javax.inject.Inject
-
 import play.api.libs.json.Format
 import uk.gov.hmrc.http.cache.client.{CacheMap, SessionCache}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
-class KeystoreConnectorImpl @Inject()(val sessionCache: SessionCache) extends KeystoreConnector
+class KeystoreConnectorImpl @Inject()(val sessionCache: SessionCache)(implicit val ec: ExecutionContext) extends KeystoreConnector
 
 trait KeystoreConnector {
   val sessionCache: SessionCache
 
-  def cache[T](formId: String, body : T)(implicit hc: HeaderCarrier, format: Format[T]): Future[CacheMap] = {
+  def cache[T](formId: String, body : T)(implicit hc: HeaderCarrier, ec: ExecutionContext, format: Format[T]): Future[CacheMap] = {
     sessionCache.cache[T](formId, body)
   }
 
-  def fetch()(implicit hc : HeaderCarrier) : Future[Option[CacheMap]] = {
+  def fetch()(implicit hc : HeaderCarrier, ec: ExecutionContext) : Future[Option[CacheMap]] = {
     sessionCache.fetch()
   }
 
-  def fetchAndGet[T](key : String)(implicit hc: HeaderCarrier, format: Format[T]): Future[Option[T]] = {
+  def fetchAndGet[T](key : String)(implicit hc: HeaderCarrier, ec: ExecutionContext, format: Format[T]): Future[Option[T]] = {
     sessionCache.fetchAndGetEntry(key)
   }
 
-  def remove()(implicit hc : HeaderCarrier) : Future[HttpResponse] = {
+  def remove()(implicit hc : HeaderCarrier, ec: ExecutionContext) : Future[HttpResponse] = {
     sessionCache.remove()
   }
 }

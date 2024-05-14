@@ -34,7 +34,6 @@ import uk.gov.hmrc.play.language.LanguageUtils
 import utils.{DecryptionError, JweCommon, PayloadError}
 import views.html.{error_template, error_template_restart}
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
@@ -61,7 +60,7 @@ class BusinessActivitiesControllerSpec extends SCRSSpec with PayloadFixture with
       mockLanguageService
     )(
       mockAppConfig,
-      global
+      ec
     )
   val jweInstance = () => app.injector.instanceOf[JweCommon]
   }
@@ -77,7 +76,8 @@ class BusinessActivitiesControllerSpec extends SCRSSpec with PayloadFixture with
     "return a 303 when keystore returns none but has authorisation" in new Setup {
       mockKeystoreFetchAndGet("registrationID", None)
 
-      when(mockHandOffService.buildBusinessActivitiesPayload(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockHandOffService.buildBusinessActivitiesPayload(ArgumentMatchers.any(), ArgumentMatchers.any(),
+        ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some("testUrl" -> validEncryptedBusinessActivities(jweInstance()))))
 
       showWithAuthorisedUserRetrieval(controller.businessActivities, externalID) {
@@ -91,7 +91,8 @@ class BusinessActivitiesControllerSpec extends SCRSSpec with PayloadFixture with
       val payload = validEncryptedBusinessActivities(jweInstance())
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
 
-      when(mockHandOffService.buildBusinessActivitiesPayload(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockHandOffService.buildBusinessActivitiesPayload(ArgumentMatchers.any(), ArgumentMatchers.any(),
+        ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some("testUrl" -> payload)))
 
       when(mockHandOffService.buildHandOffUrl(ArgumentMatchers.eq("testUrl"), ArgumentMatchers.eq(payload)))
@@ -108,7 +109,8 @@ class BusinessActivitiesControllerSpec extends SCRSSpec with PayloadFixture with
     "return a bad request if a url and payload are not returned" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
 
-      when(mockHandOffService.buildBusinessActivitiesPayload(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any()))
+      when(mockHandOffService.buildBusinessActivitiesPayload(ArgumentMatchers.any(),
+        ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(None))
 
       showWithAuthorisedUserRetrieval(controller.businessActivities, externalID) {

@@ -44,7 +44,6 @@ class CompanyRegistrationConnectorSpec extends SCRSSpec with CTDataFixture with 
     }
   }
 
-  implicit val ec = scala.concurrent.ExecutionContext.Implicits.global
   val regID = UUID.randomUUID.toString
 
   "CompanyRegistrationConnector" should {

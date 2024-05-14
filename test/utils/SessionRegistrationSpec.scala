@@ -28,17 +28,19 @@ import play.api.mvc.Results
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 class SessionRegistrationSpec extends UnitSpec with CompanyRegistrationConnectorMock with KeystoreMock with MockitoSugar with BeforeAndAfter with LogCapturing with LoneElement with Eventually {
 
     implicit val hc = HeaderCarrier()
+    implicit val executionContext = ExecutionContext.global
 
     val mockKeyStore = mockKeystoreConnector
 
     object SessionRegistration extends SessionRegistration {
         val keystoreConnector = mockKeyStore
         val compRegConnector = mockCompanyRegistrationConnector
+        override implicit val ec: ExecutionContext = executionContext
     }
 
     before {

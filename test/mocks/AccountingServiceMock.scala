@@ -23,7 +23,7 @@ import org.scalatestplus.mockito.MockitoSugar
 import services._
 import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 trait AccountingServiceMock {
   this: MockitoSugar =>
@@ -32,12 +32,12 @@ trait AccountingServiceMock {
 
   object AccountingServiceMocks {
     def fetchAccountingDetails(details: AccountingDatesModel) = {
-      when(mockAccountingService.fetchAccountingDetails(ArgumentMatchers.any[HeaderCarrier]()))
+      when(mockAccountingService.fetchAccountingDetails(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(details))
     }
 
     def updateAccountingDetails(accountingDetailsResponse: AccountingDetailsResponse) = {
-      when(mockAccountingService.updateAccountingDetails(ArgumentMatchers.any[AccountingDatesModel]())(ArgumentMatchers.any[HeaderCarrier]()))
+      when(mockAccountingService.updateAccountingDetails(ArgumentMatchers.any[AccountingDatesModel]())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(accountingDetailsResponse))
     }
   }

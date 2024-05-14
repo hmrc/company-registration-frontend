@@ -41,7 +41,6 @@ class ReplacingAnotherBusinessControllerSpec extends SCRSSpec with GuiceOneAppPe
   with LoginFixture with AuthBuilder with TakeoverServiceMock with I18nSupport {
   implicit lazy val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
   val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
-  implicit val ec: ExecutionContext = app.injector.instanceOf[ExecutionContext]
   lazy implicit val appConfig = app.injector.instanceOf[AppConfig]
 
   class Setup {

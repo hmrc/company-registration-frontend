@@ -36,8 +36,6 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class LanguageSwitchControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
 
-  implicit val ec = ExecutionContext.Implicits.global
-
   object TestLanguageSwitchController extends LanguageSwitchController(
     mockAppConfig,
     app.injector.instanceOf[LanguageUtils],
