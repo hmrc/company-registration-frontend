@@ -39,6 +39,9 @@
     @formWithCsrf(action = controllers.reg.routes.CompanyContactDetailsController.submit) {
 
         @p{
+            @messages("page.reg.company-contact-details.helpMessage0")
+        }
+        @p{
             @messages("page.reg.company-contact-details.helpMessage1")
         }
 
@@ -56,6 +59,7 @@
                     name = "contactEmail",
                     id = "contactEmail",
                     label = messages("page.reg.company-contact-details.label-two"),
+                    hint = Some(Html(messages("page.reg.company-contact-details.label-two-hint"))),
                     isPageHeading = false,
                 )
 
