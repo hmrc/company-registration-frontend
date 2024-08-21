@@ -27,6 +27,7 @@ import models.{Email, ThrottleResponse}
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.http.HeaderNames.CACHE_CONTROL
 import play.api.libs.json.Json
 import play.api.mvc.{MessagesControllerComponents, Results}
 import play.api.test.FakeRequest
@@ -462,6 +463,7 @@ class SignInOutControllerSpec extends SCRSSpec
         await(a).header.headers.toString().contains("""renewSession.jpg""") mustBe true
         header("Access-Control-Allow-Origin", a) mustBe None
         header("Access-Control-Allow-Credentials", a) mustBe None
+        header(CACHE_CONTROL, a) mustBe Some("no-cache,no-store,max-age=0")
       }
     }
 
@@ -474,6 +476,7 @@ class SignInOutControllerSpec extends SCRSSpec
         status(a) mustBe 200
         header("Access-Control-Allow-Origin", a) mustBe Some("http://localhost:12345")
         header("Access-Control-Allow-Credentials", a) mustBe Some("true")
+        header(CACHE_CONTROL, a) mustBe Some("no-cache,no-store,max-age=0")
       }
     }
   }

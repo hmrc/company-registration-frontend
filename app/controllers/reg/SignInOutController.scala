@@ -32,6 +32,7 @@ import services._
 import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolments, PlayAuthConnector}
 import uk.gov.hmrc.http.{HeaderCarrier, SessionKeys}
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
+import uk.gov.hmrc.play.bootstrap.filters.CacheControlFilter
 import utils.SCRSExceptions
 import views.html.{timeout => timeoutView}
 
@@ -195,15 +196,22 @@ class SignInOutController @Inject()(val authConnector: PlayAuthConnector,
         case _ => logger.debug("[renewSession] neither session auth or hcAuth present")
       }
       ctAuthorised {
+        val cacheHeader = Seq(CACHE_CONTROL -> CacheControlFilter.headerValue)
         type Headers = Seq[Tuple2[String, String]]
         val headers = corsRenewHost.fold[Headers](Seq()) { host =>
           Seq(
             "Access-Control-Allow-Origin" -> host,
             "Access-Control-Allow-Credentials" -> "true"
           )
-        }
-        updateLastActionTimestamp map { _ =>
+        } ++ cacheHeader
+
+        updateLastActionTimestamp.map( _ => {
           Ok.sendFile(new File("conf/renewSession.jpg")).as("image/jpeg").withHeaders(headers: _*)
+        }
+        ).recover{
+          case e: Exception =>
+            logger.error(s"[SingInOutController][renewSession] Error updating keystore - ${e.getMessage}", e)
+            InternalServerError.withHeaders(cacheHeader: _*)
         }
       }
     }
