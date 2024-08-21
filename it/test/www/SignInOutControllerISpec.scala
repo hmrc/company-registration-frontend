@@ -480,6 +480,7 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with R
       response.status mustBe 200
       response.header("Content-Type") mustBe Some("image/jpeg")
       response.header("Content-Disposition") mustBe Some("""inline; filename="renewSession.jpg"""")
+      response.header(HeaderNames.CACHE_CONTROL) mustBe Some("no-cache,no-store,max-age=0")
 
       val request = getPUTRequestJsonBody(s"/keystore/company-registration-frontend/$SessionId/data/lastActionTimestamp")
       request.as[String] mustBe LocalDate.now.toString
@@ -495,6 +496,7 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with R
         .get())
 
       response.status mustBe 500
+      response.header(HeaderNames.CACHE_CONTROL) mustBe Some("no-cache,no-store,max-age=0")
     }
   }
 }
