@@ -16,10 +16,11 @@
 
 package connectors
 
-import config.{AppConfig, WSHttp}
+import config.AppConfig
 import models.NewAddress
 import play.api.libs.json._
 import uk.gov.hmrc.http._
+import uk.gov.hmrc.http.client.HttpClientV2
 import utils.Logging
 
 import javax.inject.{Inject, Singleton}
@@ -27,11 +28,13 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class PrepopAddressConnector @Inject()(appConfig: AppConfig,
-                                       http: WSHttp
+                                       httpClientV2: HttpClientV2
                                       )(implicit executionContext: ExecutionContext) extends Logging {
 
-  def getPrepopAddresses(registrationId: String)(implicit hc: HeaderCarrier): Future[Seq[NewAddress]] =
-    http.GET[HttpResponse](appConfig.prepopAddressUrl(registrationId)) map { response =>
+  def getPrepopAddresses(registrationId: String)(implicit hc: HeaderCarrier): Future[Seq[NewAddress]] = {
+    val url = appConfig.prepopAddressUrl(registrationId)
+
+    httpClientV2.get(url"$url").execute[HttpResponse] map { response =>
       (response.json \ "addresses").validate[Seq[NewAddress]] match {
         case JsSuccess(addresses, _) =>
           addresses
@@ -49,15 +52,20 @@ class PrepopAddressConnector @Inject()(appConfig: AppConfig,
         logger.error(s"[getPrepopAddresses] Unexpected error calling business registration (${e.getMessage})")
         Nil
     }
+  }
 
-  def updatePrepopAddress(registrationId: String, address: NewAddress)(implicit hc: HeaderCarrier): Future[Boolean] =
-    http.POST[JsValue, HttpResponse](appConfig.prepopAddressUrl(registrationId), Json.toJson(address))
-      .map (_ => true)
+  def updatePrepopAddress(registrationId: String, address: NewAddress)(implicit hc: HeaderCarrier): Future[Boolean] = {
+    val url = appConfig.prepopAddressUrl(registrationId)
+    httpClientV2.post(url"$url")
+      .withBody(Json.toJson(address))
+      .execute[HttpResponse]
+      .map(_ => true)
       .recover {
         case e: Exception =>
           logger.error(s"[updatePrepopAddress] Unexpected error updating prepop address (${e.getMessage})")
           false
       }
+  }
 
 }
 

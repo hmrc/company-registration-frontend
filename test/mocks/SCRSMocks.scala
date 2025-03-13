@@ -29,6 +29,7 @@ import play.api.test.FakeRequest
 import services._
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.cache.client.{CacheMap, SessionCache}
+import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.model.Audit
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
@@ -65,7 +66,7 @@ trait SCRSMocks extends CompanyContactDetailsServiceMock
   lazy val mockAddressLookupService = mock[AddressLookupFrontendService]
   lazy val mockEmailVerificationConnector = mock[EmailVerificationConnector]
   lazy val mockSendTemplateEmailConnector = mock[SendTemplatedEmailConnector]
-  lazy implicit val mockAppConfig = mock[AppConfig]
+  lazy implicit val mockAppConfig: AppConfig = mock[AppConfig]
   lazy val mockPAYEConnector = mock[PAYEConnector]
   lazy val mockVATConnector = mock[VATConnector]
   lazy val mockSCRSFeatureSwitches = mock[SCRSFeatureSwitches]
@@ -77,6 +78,7 @@ trait SCRSMocks extends CompanyContactDetailsServiceMock
   lazy val mockLanguageService = mock[LanguageService]
   lazy val mockServicesConfig = mock[ServicesConfig]
   lazy val mockMessagesApi = mock[MessagesApi]
+
 
 
   def mockFetchRegistrationID[T <: CommonService](response: String, mock: T) = {
@@ -93,7 +95,7 @@ trait SCRSMocks extends CompanyContactDetailsServiceMock
   def resetMocks(): Unit = {
     reset(mockAuditConnector)
     reset(mockS4LConnector)
-    reset(mockWSHttp)
+    reset(mockHttpClientV2)
     reset(mockKeystoreConnector)
     reset(mockSessionCache)
     reset(mockCompanyRegistrationConnector)
@@ -122,5 +124,7 @@ trait SCRSMocks extends CompanyContactDetailsServiceMock
     reset(mockGroupService)
     reset(mockLanguageService)
     reset(mockServicesConfig)
+    reset(mockHttpClientV2)
+    reset(mockRequestBuilder)
   }
 }

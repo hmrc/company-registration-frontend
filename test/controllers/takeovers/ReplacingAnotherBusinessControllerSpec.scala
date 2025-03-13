@@ -16,8 +16,6 @@
 
 package controllers.takeovers
 
-import akka.actor.ActorSystem
-import akka.stream.{ActorMaterializer, Materializer}
 import builders.AuthBuilder
 import config.AppConfig
 import controllers.reg.ControllerErrorHandler
@@ -27,12 +25,13 @@ import forms.takeovers.ReplacingAnotherBusinessForm.replacingAnotherBusinessKey
 import helpers.SCRSSpec
 import mocks.TakeoverServiceMock
 import models.TakeoverDetails
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.stream.Materializer
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.http.NotFoundException
 import views.html.takeovers.ReplacingAnotherBusiness
 
 import scala.concurrent.{ExecutionContext, Future}

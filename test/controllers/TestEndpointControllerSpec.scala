@@ -322,7 +322,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
         .thenReturn(Future.successful(Some(email)))
       when(mockCompanyRegistrationConnector.verifyEmail(ArgumentMatchers.eq(registrationId), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(json))
-      when(mockBusinessRegistrationConnector.retrieveMetadata(ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockBusinessRegistrationConnector.retrieveMetadata(ArgumentMatchers.any()))
         .thenReturn(Future.successful(brResponse))
 
       showWithAuthorisedUser(controller.verifyEmail(true)) {
@@ -334,7 +334,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
 
     "return a 200 and an unsuccessful email response if an email couldn't be found" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some(registrationId))
-      when(mockBusinessRegistrationConnector.retrieveMetadata(ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockBusinessRegistrationConnector.retrieveMetadata(ArgumentMatchers.any()))
         .thenReturn(Future.successful(brResponse))
       when(mockCompanyRegistrationConnector.retrieveEmail(ArgumentMatchers.eq(registrationId))(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(None))

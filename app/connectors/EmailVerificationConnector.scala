@@ -17,39 +17,43 @@
 package connectors
 
 import javax.inject.Inject
-import config.{AppConfig, WSHttp}
+import config.AppConfig
 import connectors.httpParsers.AddressLookupHttpParsers._
 import models.EmailVerificationRequest
 import utils.Logging
 import play.api.http.Status._
 import play.api.libs.json.{JsObject, Json}
 import uk.gov.hmrc.http._
+import uk.gov.hmrc.http.client.HttpClientV2
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NoStackTrace
 
 private[connectors] class EmailErrorResponse(s: String) extends NoStackTrace
 
-class EmailVerificationConnectorImpl @Inject()(val wSHttp: WSHttp, val appConfig: AppConfig) extends EmailVerificationConnector {
-  lazy val sendVerificationEmailURL = appConfig.servicesConfig.getConfString("email-vs.sendVerificationEmailURL", throw new Exception("email.sendVerificationEmailURL not found"))
-  lazy val checkVerifiedEmailURL = appConfig.servicesConfig.getConfString("email-vs.checkVerifiedEmailURL", throw new Exception("email.checkVerifiedEmailURL not found"))
+class EmailVerificationConnectorImpl @Inject()(val httpClientV2: HttpClientV2, val appConfig: AppConfig) extends EmailVerificationConnector {
+  lazy val sendVerificationEmailURL: String = appConfig.servicesConfig.getConfString("email-vs.sendVerificationEmailURL", throw new Exception("email.sendVerificationEmailURL not found"))
+  lazy val checkVerifiedEmailURL: String = appConfig.servicesConfig.getConfString("email-vs.checkVerifiedEmailURL", throw new Exception("email.checkVerifiedEmailURL not found"))
 }
 
 trait EmailVerificationConnector extends HttpErrorFunctions with Logging {
-  val wSHttp : CoreGet with CorePost with CorePut
+  val httpClientV2: HttpClientV2
   val sendVerificationEmailURL : String
   val checkVerifiedEmailURL : String
 
-  implicit val reads = new HttpReads[HttpResponse] {
-    def read(http: String, url: String, res: HttpResponse) = customRead(http, url, res)
-  }
+//  implicit val reads: HttpReads[HttpResponse] = new HttpReads[HttpResponse] {
+//    def read(http: String, url: String, res: HttpResponse) = customRead(http, url, res)
+//  }
 
   def checkVerifiedEmail(email : String)(implicit hc : HeaderCarrier, ec: ExecutionContext) : Future[Boolean] = {
     def errorMsg(status: String) = {
       logger.debug(s"[checkVerifiedEmail] request to check verified email returned a $status - email not found / not verified")
       false
     }
-    wSHttp.POST[JsObject, HttpResponse](s"$checkVerifiedEmailURL", Json.obj("email" -> email)) map {
+
+    httpClientV2.post(url"$checkVerifiedEmailURL")
+      .withBody(Json.obj("email" -> email))
+      .execute[HttpResponse] map {
       _.status match {
         case OK => true
       }
@@ -60,13 +64,15 @@ trait EmailVerificationConnector extends HttpErrorFunctions with Logging {
     }
   }
 
-  def requestVerificationEmailReturnVerifiedEmailStatus(emailRequest : EmailVerificationRequest)(implicit hc : HeaderCarrier, ec: ExecutionContext) : Future[Boolean] = {
-    def errorMsg(status: String, ex: HttpException) = {
+  def requestVerificationEmailReturnVerifiedEmailStatus(emailRequest: EmailVerificationRequest)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Boolean] = {
+    def errorMsg(status: String, ex: HttpException): Nothing = {
       logger.error(s"[requestVerificationEmail] request to send verification email returned a $status - email not sent - reason = ${ex.getMessage}")
       throw new EmailErrorResponse(status)
     }
 
-    wSHttp.POST[EmailVerificationRequest, HttpResponse] (s"$sendVerificationEmailURL", emailRequest)(implicitly, rawReads, hc, ec) map { r =>
+    httpClientV2.post(url"$sendVerificationEmailURL")
+      .withBody(Json.toJson(emailRequest))
+      .execute[HttpResponse] map { r =>
       r.status match {
         case CREATED => {
           logger.debug("[requestVerificationEmailReturnVerifiedEmailStatus] request to verification service successful")

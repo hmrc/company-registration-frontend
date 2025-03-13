@@ -17,7 +17,6 @@
 package controllers
 
 import java.time._
-
 import builders.AuthBuilder
 import config.AppConfig
 import connectors._
@@ -32,14 +31,14 @@ import play.api.http.Status._
 import play.api.i18n.{Lang, Messages}
 import play.api.mvc.{AnyContent, MessagesControllerComponents, Request}
 import play.api.test.FakeRequest
-import uk.gov.hmrc.play.http.ws.WSHttp
+import uk.gov.hmrc.http.client.HttpClientV2
 import views.html.dashboard.{CancelPaye => CancelPayeView, CancelVat => CancelVatView}
 
 import scala.concurrent.Future
 
 class CancelRegistrationControllerSpec extends SCRSSpec with MockitoSugar with GuiceOneAppPerSuite with ServiceConnectorMock with AuthBuilder {
 
-  val mockHttp = mock[WSHttp]
+  val mockHttp = mock[HttpClientV2]
   lazy val cancelPayeView = app.injector.instanceOf[CancelPayeView]
   lazy val cancelVatView = app.injector.instanceOf[CancelVatView]
   lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]

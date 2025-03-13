@@ -25,22 +25,23 @@ import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpGet}
-import uk.gov.hmrc.play.http.ws.WSGet
+import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
+import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class ModifyThrottledUsersControllerSpec extends UnitSpec with MockitoSugar with GuiceOneAppPerSuite {
 
-  val mockHttp = mock[HttpGet with WSGet]
-  lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
+  val mockHttp: HttpClientV2 = mock[HttpClientV2]
+  val mockRequestBuilder: RequestBuilder = mock[RequestBuilder]
+  lazy val mockMcc: MessagesControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
 
-  implicit val hc = HeaderCarrier()
+  implicit val hc: HeaderCarrier = HeaderCarrier()
 
   class Setup {
     val controller = new ModifyThrottledUsersController(mockMcc) {
-      val crUrl: String = "test.url"
-      val wSHttp: HttpGet = mockHttp
+      val crUrl: String = "http://test.url"
+      val httpClientV2: HttpClientV2 = mockHttp
     }
   }
 
@@ -49,7 +50,8 @@ class ModifyThrottledUsersControllerSpec extends UnitSpec with MockitoSugar with
     val jsonResponse = Json.parse(s"""{"users_in" : 5}""")
 
     "return a 200" in new Setup {
-      when(mockHttp.GET[JsValue](ArgumentMatchers.anyString(),ArgumentMatchers.any(),ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any[ExecutionContext]()))
+      when(mockHttp.get(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(mockRequestBuilder)
+      when(mockRequestBuilder.execute[JsValue](ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(jsonResponse))
 
       val result = controller.modifyThrottledUsers(5)(FakeRequest())

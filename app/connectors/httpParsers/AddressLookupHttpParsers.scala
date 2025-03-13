@@ -17,9 +17,9 @@
 package connectors.httpParsers
 
 import connectors.ALFLocationHeaderNotSetException
-import models.{Address, NewAddress}
+import models.NewAddress
 import play.api.http.HeaderNames
-import uk.gov.hmrc.http.HttpReads.is2xx
+import uk.gov.hmrc.http.HttpErrorFunctions.is2xx
 import uk.gov.hmrc.http.{HttpReads, HttpResponse}
 
 import scala.util.{Failure, Success, Try}

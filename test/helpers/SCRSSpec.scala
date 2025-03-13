@@ -16,10 +16,7 @@
 
 package helpers
 
-import akka.actor.ActorSystem
-import akka.stream.{ActorMaterializer, Materializer}
 import mocks.SCRSMocks
-import org.mockito.Mockito._
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.libs.json.Json
@@ -89,9 +86,4 @@ trait SCRSSpec extends UnitSpec with MockitoSugar with SCRSMocks with BeforeAndA
   private val alpha = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
   def randStr(n: Int) = (1 to n).map(x => alpha(Random.nextInt.abs % alpha.length)).mkString
-}
-
-trait TestActorSystem {
-  implicit val system = ActorSystem("test")
-  implicit val materializer: Materializer = Materializer(system)
 }

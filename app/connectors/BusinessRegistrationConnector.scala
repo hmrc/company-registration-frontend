@@ -17,16 +17,18 @@
 package connectors
 
 import uk.gov.hmrc.http.HttpReads.Implicits._
-import config.{AppConfig, WSHttp}
+import config.AppConfig
+
 import javax.inject.Inject
 import models._
 import utils.Logging
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.http._
+import uk.gov.hmrc.http.client.HttpClientV2
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class BusinessRegistrationConnectorImpl @Inject()(val wsHttp: WSHttp, val appConfig: AppConfig)(implicit val ec: ExecutionContext) extends BusinessRegistrationConnector {
+class BusinessRegistrationConnectorImpl @Inject()(val httpClientV2: HttpClientV2, val appConfig: AppConfig)(implicit val ec: ExecutionContext) extends BusinessRegistrationConnector {
   lazy val businessRegUrl = appConfig.servicesConfig.baseUrl("business-registration")
 }
 
@@ -44,18 +46,21 @@ trait BusinessRegistrationConnector extends Logging {
   implicit val ec: ExecutionContext
 
   val businessRegUrl: String
-  val wsHttp: CoreGet with CorePost
+  val httpClientV2: HttpClientV2
 
   def createMetadataEntry(implicit hc: HeaderCarrier): Future[BusinessRegistration] = {
     val json = Json.toJson[BusinessRegistrationRequest](BusinessRegistrationRequest("en"))
-    wsHttp.POST[JsValue, BusinessRegistration](s"$businessRegUrl/business-registration/business-tax-registration", json)
+    httpClientV2.post(url"$businessRegUrl/business-registration/business-tax-registration")
+      .withBody(json)
+      .execute[BusinessRegistration]
   }
 
   def retrieveAndUpdateCompletionCapacity(registrationID: String, completionCapacity: String)(implicit hc: HeaderCarrier): Future[BusinessRegistration] = {
     retrieveMetadata(registrationID) flatMap {
       case BusinessRegistrationSuccessResponse(resp) =>
-        wsHttp.POST[JsValue, BusinessRegistration](s"$businessRegUrl/business-registration/business-tax-registration/update/$registrationID",
-          Json.toJson[BusinessRegistration](resp.copy(completionCapacity = Some(completionCapacity))))
+        httpClientV2.post(url"$businessRegUrl/business-registration/business-tax-registration/update/$registrationID")
+          .withBody(Json.toJson[BusinessRegistration](resp.copy(completionCapacity = Some(completionCapacity))))
+          .execute[BusinessRegistration]
       case unknown => {
         logger.warn(s"[retrieveAndUpdateCompletionCapacity] Unexpected result, unable to get BR doc : ${unknown}")
         throw new RuntimeException("Missing BR document for signed in user")
@@ -64,63 +69,72 @@ trait BusinessRegistrationConnector extends Logging {
   }
 
   def retrieveMetadata(regId: String)(implicit hc: HeaderCarrier, rds: HttpReads[BusinessRegistration]): Future[BusinessRegistrationResponse] = {
-    wsHttp.GET[BusinessRegistration](s"$businessRegUrl/business-registration/business-tax-registration/$regId")(rds, hc, ec) map {
-      metaData =>
-        BusinessRegistrationSuccessResponse(metaData)
-    } recover {
-      case e: NotFoundException =>
-        logger.warn(s"[retrieveMetadata] Received a NotFound status code when expecting metadata from Business-Registration")
-        BusinessRegistrationNotFoundResponse
-      case e: ForbiddenException =>
-        logger.error(s"[retrieveMetadata] Received a Forbidden status code when expecting metadata from Business-Registration")
-        BusinessRegistrationForbiddenResponse
-      case e: Exception =>
-        logger.error(s"[retrieveMetadata] Received error when expecting metadata from Business-Registration - Error ${e.getMessage}")
-        BusinessRegistrationErrorResponse(e)
-    }
+    httpClientV2.get(url"$businessRegUrl/business-registration/business-tax-registration/$regId")
+      .execute[BusinessRegistration]
+      .map {
+        metaData =>
+          BusinessRegistrationSuccessResponse(metaData)
+      } recover {
+        case e: NotFoundException =>
+          logger.warn(s"[retrieveMetadata] Received a NotFound status code when expecting metadata from Business-Registration")
+          BusinessRegistrationNotFoundResponse
+        case e: ForbiddenException =>
+          logger.error(s"[retrieveMetadata] Received a Forbidden status code when expecting metadata from Business-Registration")
+          BusinessRegistrationForbiddenResponse
+        case e: Exception =>
+          logger.error(s"[retrieveMetadata] Received error when expecting metadata from Business-Registration - Error ${e.getMessage}")
+          BusinessRegistrationErrorResponse(e)
+      }
   }
 
-  def retrieveMetadata(implicit hc: HeaderCarrier, rds: HttpReads[BusinessRegistration]): Future[BusinessRegistrationResponse] = {
-    wsHttp.GET[BusinessRegistration](s"$businessRegUrl/business-registration/business-tax-registration")(rds, hc,ec) map {
-      metaData =>
-        BusinessRegistrationSuccessResponse(metaData)
-    } recover {
-      case e: NotFoundException =>
-        logger.warn(s"[retrieveMetadata] Received a NotFound status code when expecting metadata from Business-Registration")
-        BusinessRegistrationNotFoundResponse
-      case e: ForbiddenException =>
-        logger.error(s"[retrieveMetadata] Received a Forbidden status code when expecting metadata from Business-Registration")
-        BusinessRegistrationForbiddenResponse
-      case e: Exception =>
-        logger.error(s"[retrieveMetadata] Received error when expecting metadata from Business-Registration - Error ${e.getMessage}")
-        BusinessRegistrationErrorResponse(e)
-    }
+  def retrieveMetadata(implicit hc: HeaderCarrier): Future[BusinessRegistrationResponse] = {
+    httpClientV2.get(url"$businessRegUrl/business-registration/business-tax-registration")
+      .execute[BusinessRegistration]
+      .map {
+        metaData =>
+          BusinessRegistrationSuccessResponse(metaData)
+      } recover {
+        case e: NotFoundException =>
+          logger.warn(s"[retrieveMetadata] Received a NotFound status code when expecting metadata from Business-Registration")
+          BusinessRegistrationNotFoundResponse
+        case e: ForbiddenException =>
+          logger.error(s"[retrieveMetadata] Received a Forbidden status code when expecting metadata from Business-Registration")
+          BusinessRegistrationForbiddenResponse
+        case e: Exception =>
+          logger.error(s"[retrieveMetadata] Received error when expecting metadata from Business-Registration - Error ${e.getMessage}")
+          BusinessRegistrationErrorResponse(e)
+      }
   }
 
   def updatePrePopContactDetails(registrationId: String, contactDetails: CompanyContactDetailsApi)(implicit hc: HeaderCarrier): Future[Boolean] = {
-    wsHttp.POST[JsValue, HttpResponse](s"$businessRegUrl/business-registration/$registrationId/contact-details",
-      Json.toJson(contactDetails)(CompanyContactDetailsApi.prePopWrites))(implicitly, readRaw, hc, ec) map
-      (_ => true) recover handlePrePopError("updatePrePopContactDetails")
+    httpClientV2.post(url"$businessRegUrl/business-registration/$registrationId/contact-details")
+      .withBody(Json.toJson(contactDetails)(CompanyContactDetailsApi.prePopWrites))
+      .execute[HttpResponse]
+      .map(_ => true) recover handlePrePopError("updatePrePopContactDetails")
   }
 
   def fetchPrePopContactDetails(registrationId: String)(implicit hc: HeaderCarrier): Future[JsValue] = {
-    val url = s"$businessRegUrl/business-registration/$registrationId/contact-details"
-    wsHttp.GET[HttpResponse](url)(readRaw, hc, ec) map (_.json)
+    val url = url"$businessRegUrl/business-registration/$registrationId/contact-details"
+    httpClientV2.get(url).execute[HttpResponse].map(_.json)
   }
 
   def updatePrePopAddress(registrationId: String, address: Address)(implicit hc: HeaderCarrier): Future[Boolean] = {
-    wsHttp.POST[JsValue, HttpResponse](s"$businessRegUrl/business-registration/$registrationId/addresses",
-      Json.toJson(address)(Address.prePopWrites))(implicitly,readRaw, hc, ec) map (_ => true) recover handlePrePopError("updatePrePopAddress")
+    httpClientV2.post(url"$businessRegUrl/business-registration/$registrationId/addresses")
+      .withBody(Json.toJson(address)(Address.prePopWrites))
+      .execute[HttpResponse].map (_ => true) recover handlePrePopError("updatePrePopAddress")
   }
 
   def updatePrePopAddress(registrationId: String, address: NewAddress)(implicit hc: HeaderCarrier): Future[Boolean] = {
-    wsHttp.POST[JsValue, HttpResponse](s"$businessRegUrl/business-registration/$registrationId/addresses", Json.toJson(address)(NewAddress.prePopWrites)
-    )(implicitly,readRaw, hc, ec) map (
-      _ => true) recover handlePrePopError("updatePrePopAddress")
+    httpClientV2.post(url"$businessRegUrl/business-registration/$registrationId/addresses")
+      .withBody(Json.toJson(address))
+      .execute[HttpResponse]
+      .map (_ => true) recover handlePrePopError("updatePrePopAddress")
   }
 
   def fetchPrePopAddress(registrationId: String)(implicit hc: HeaderCarrier): Future[JsValue] = {
-    wsHttp.GET[HttpResponse](s"$businessRegUrl/business-registration/$registrationId/addresses")(readRaw, hc, ec) map (_.json)
+    httpClientV2.get(url"$businessRegUrl/business-registration/$registrationId/addresses")
+      .execute[HttpResponse]
+      .map (_.json)
   }
 
   private def handlePrePopError(funcName: String): PartialFunction[Throwable, Boolean] = {

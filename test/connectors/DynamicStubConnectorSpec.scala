@@ -31,8 +31,8 @@ class DynamicStubConnectorSpec extends SCRSSpec with BusinessRegistrationFixture
 
   class Setup {
     val connector = new DynamicStubConnector {
-      override val busRegDyUrl = "testBusinessRegUrl"
-      override val wSHttp = mockWSHttp
+      override val busRegDyUrl = "http://testBusinessRegUrl"
+      override val httpClientV2 = mockHttpClientV2
       override implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
     }
   }
@@ -42,13 +42,13 @@ class DynamicStubConnectorSpec extends SCRSSpec with BusinessRegistrationFixture
 
   "DynamicStubConnector" should {
     "use the correct businessRegUrl" in new Setup {
-      connector.busRegDyUrl mustBe "testBusinessRegUrl"
+      connector.busRegDyUrl mustBe "http://testBusinessRegUrl"
     }
   }
 
   "postETMPNotificationData" should {
     "make a http POST request to post ETMP Notification" in new Setup {
-      mockHttpPOST[JsValue, HttpResponse](s"${connector.busRegDyUrl}/cache-etmp-notification", HttpResponse(OK, json = Json.obj(), Map()))
+      mockHttpPOST[JsValue, HttpResponse](url"${connector.busRegDyUrl}/cache-etmp-notification", HttpResponse(OK, json = Json.obj(), Map()))
 
       await(connector.postETMPNotificationData(etmp)).status mustBe OK
     }
@@ -56,7 +56,7 @@ class DynamicStubConnectorSpec extends SCRSSpec with BusinessRegistrationFixture
 
   "simulateDesPost" should {
     "make a http GET request to simulate DES Post" in new Setup {
-      mockHttpGet(s"${connector.busRegDyUrl}/simulate-des-post/12345", Future.successful(HttpResponse(200, "")))
+      mockHttpGET(HttpResponse(200, ""))
       val res = await(connector.simulateDesPost("12345")).status
       res mustBe OK
     }

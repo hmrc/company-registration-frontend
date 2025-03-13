@@ -74,7 +74,7 @@ class TradingDetailsControllerSpec extends SCRSSpec with GuiceOneAppPerSuite wit
 
       when(mockTradingDetailsService.fetchRegistrationID(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]())).thenReturn(Future.successful(regID))
 
-      mockHttpGet[Option[TradingDetails]]("testUrl", Some(tradingDetailsTrue))
+      mockHttpGET[Option[TradingDetails]](Some(tradingDetailsTrue))
 
       when(mockCompanyRegistrationConnector.retrieveTradingDetails(ArgumentMatchers.eq(regID))(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(tradingDetailsTrue)))
