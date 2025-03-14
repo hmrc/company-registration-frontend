@@ -101,7 +101,7 @@ class BusinessRegistrationConnectorSpec extends SCRSSpec with BusinessRegistrati
   "retrieveAndUpdateCompletionCapacity" should {
     "return a business registration model" in new Setup {
       mockHttpGET(validBusinessRegistrationResponse)
-      when(mockBusRegConnector.retrieveMetadata(ArgumentMatchers.any[HeaderCarrier]()))
+      when(mockBusRegConnector.retrieveMetadata(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
         .thenReturn(BusinessRegistrationSuccessResponse(validBusinessRegistrationResponse))
       mockHttpPOST(validBusinessRegistrationResponse)
       await(connector.retrieveAndUpdateCompletionCapacity("","")) mustBe validBusinessRegistrationResponse

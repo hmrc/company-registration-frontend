@@ -46,12 +46,12 @@ trait DynamicStubConnector {
     httpClientV2//.POST[JsValue, HttpResponse](s"$busRegDyUrl/cache-etmp-notification", Json.toJson(etmp))(implicitly, readRaw, hc, ec)
       .post(url"$busRegDyUrl/cache-etmp-notification")
       .withBody(Json.toJson(etmp))
-      .execute[HttpResponse]
+      .execute[HttpResponse](readRaw, ec)
   }
 
   def simulateDesPost(ackRef: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
     httpClientV2
       .get(url"$busRegDyUrl/simulate-des-post/$ackRef")
-      .execute[HttpResponse]
+      .execute[HttpResponse](readRaw, ec)
   }
 }

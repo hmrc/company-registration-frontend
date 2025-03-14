@@ -70,7 +70,7 @@ trait BusinessRegistrationConnector extends Logging {
 
   def retrieveMetadata(regId: String)(implicit hc: HeaderCarrier, rds: HttpReads[BusinessRegistration]): Future[BusinessRegistrationResponse] = {
     httpClientV2.get(url"$businessRegUrl/business-registration/business-tax-registration/$regId")
-      .execute[BusinessRegistration]
+      .execute[BusinessRegistration](rds, ec)
       .map {
         metaData =>
           BusinessRegistrationSuccessResponse(metaData)
@@ -87,9 +87,9 @@ trait BusinessRegistrationConnector extends Logging {
       }
   }
 
-  def retrieveMetadata(implicit hc: HeaderCarrier): Future[BusinessRegistrationResponse] = {
+  def retrieveMetadata(implicit hc: HeaderCarrier, rds: HttpReads[BusinessRegistration]): Future[BusinessRegistrationResponse] = {
     httpClientV2.get(url"$businessRegUrl/business-registration/business-tax-registration")
-      .execute[BusinessRegistration]
+      .execute[BusinessRegistration](rds, ec)
       .map {
         metaData =>
           BusinessRegistrationSuccessResponse(metaData)

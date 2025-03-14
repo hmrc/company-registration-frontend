@@ -52,8 +52,8 @@ trait ServiceConnector extends Logging {
     val url = url"$serviceBaseUrl$serviceUri/$regId/status"
     httpClientV2.get(url)
       .execute[OtherRegStatus]
-      .map {
-        SuccessfulResponse
+      .map { res =>
+        SuccessfulResponse(res)
       } recover {
         case ex: NotFoundException => NotStarted
         case ex: HttpException =>

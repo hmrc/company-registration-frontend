@@ -17,6 +17,7 @@
 package config
 
 import com.google.inject.AbstractModule
+import config.filters.{SessionIdFilter, SessionIdFilterImpl}
 import connectors._
 import controllers.reg._
 import controllers.test._
@@ -25,13 +26,13 @@ import services._
 import services.internal.{TestIncorporationService, TestIncorporationServiceImpl}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.http.cache.client.{SessionCache, ShortLivedCache, ShortLivedHttpCaching}
-
 import utils._
 
 class Module extends AbstractModule {
   override def configure(): Unit = {
     bind(classOf[CryptoInitialiser]).to(classOf[CryptoInitialiserImpl]).asEagerSingleton()
 
+    bind(classOf[SessionIdFilter]).to(classOf[SessionIdFilterImpl]).asEagerSingleton()
     bind(classOf[JweCommon]).to(classOf[Jwe]).asEagerSingleton()
     bind(classOf[NavModelRepo]).to(classOf[NavModelRepoImpl]).asEagerSingleton()
     // connectors

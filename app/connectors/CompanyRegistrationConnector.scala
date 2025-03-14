@@ -63,7 +63,7 @@ trait CompanyRegistrationConnector extends Logging {
   def retrieveCorporationTaxRegistration(registrationID: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[JsValue] = {
     httpClientV2
       .get(url"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/corporation-tax-registration")
-      .execute[JsValue]
+      .execute(readJsValue, ec)
       .recover {
         case ex: BadRequestException =>
           logger.error(s"[retrieveCorporationTaxRegistration] for RegId: $registrationID - ${ex.responseCode} ${ex.message}")
@@ -111,7 +111,7 @@ trait CompanyRegistrationConnector extends Logging {
                                                 ec: ExecutionContext,
                                                 rds: HttpReads[CorporationTaxRegistrationResponse]): Future[Option[CorporationTaxRegistrationResponse]] = {
     httpClientV2.get(url"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID")
-    .execute[Option[CorporationTaxRegistrationResponse]]
+    .execute[Option[CorporationTaxRegistrationResponse]](corporationTaxRegistrationHttpReads(registrationID), ec)
   }
 
   def retrieveCompanyDetails(registrationID: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[CompanyDetails]] = {
@@ -400,7 +400,7 @@ trait CompanyRegistrationConnector extends Logging {
     httpClientV2
       .put(url"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/progress")
       .withBody(Json.obj("registration-progress" -> progress))
-      .execute
+      .execute(readRaw, ec)
   }
 
   def deleteRegistrationSubmission(registrationId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse] = {

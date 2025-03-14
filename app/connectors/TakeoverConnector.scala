@@ -17,6 +17,7 @@
 package connectors
 
 import config.AppConfig
+import connectors.httpParsers.AddressLookupHttpParsers.rawReads
 
 import javax.inject.Inject
 import models.TakeoverDetails
@@ -57,7 +58,7 @@ class TakeoverConnector @Inject()(appConfig: AppConfig,
     httpClientV2
       .put(url"${takeOverDetailsUrl(registrationId)}")
       .withBody(Json.toJson(takeoverDetails))
-      .execute[HttpResponse]
+      .execute[HttpResponse](rawReads, ec)
       .map {
         res =>
           res.json.validate[TakeoverDetails] match {

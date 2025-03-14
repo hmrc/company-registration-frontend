@@ -17,6 +17,7 @@
 package connectors
 
 import config.AppConfig
+import connectors.httpParsers.AddressLookupHttpParsers.{addressHttpReads, onRampHttpReads}
 import models.{AlfJourneyConfig, NewAddress}
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.{HeaderCarrier, StringContextOps}
@@ -44,12 +45,12 @@ trait AddressLookupConnector extends Logging {
   def getOnRampURL(alfJourneyConfig: AlfJourneyConfig)(implicit hc: HeaderCarrier): Future[String] = {
     httpClientV2.post(url"$addressLookupFrontendURL/api/v2/init")
       .withBody(Json.toJson(alfJourneyConfig))
-      .execute[String]
+      .execute(onRampHttpReads, ec)
   }
 
   def getAddress(id: String)(implicit hc: HeaderCarrier): Future[NewAddress] = {
     httpClientV2.get(url"$addressLookupFrontendURL/api/confirmed?id=$id")
-      .execute[NewAddress]
+      .execute(addressHttpReads, ec)
   }
 }
 

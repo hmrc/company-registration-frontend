@@ -41,9 +41,9 @@ trait EmailVerificationConnector extends HttpErrorFunctions with Logging {
   val sendVerificationEmailURL : String
   val checkVerifiedEmailURL : String
 
-//  implicit val reads: HttpReads[HttpResponse] = new HttpReads[HttpResponse] {
-//    def read(http: String, url: String, res: HttpResponse) = customRead(http, url, res)
-//  }
+  implicit val reads: HttpReads[HttpResponse] = new HttpReads[HttpResponse] {
+    def read(http: String, url: String, res: HttpResponse) = customRead(http, url, res)
+  }
 
   def checkVerifiedEmail(email : String)(implicit hc : HeaderCarrier, ec: ExecutionContext) : Future[Boolean] = {
     def errorMsg(status: String) = {
@@ -53,7 +53,7 @@ trait EmailVerificationConnector extends HttpErrorFunctions with Logging {
 
     httpClientV2.post(url"$checkVerifiedEmailURL")
       .withBody(Json.obj("email" -> email))
-      .execute[HttpResponse] map {
+      .execute(reads, ec) map {
       _.status match {
         case OK => true
       }
@@ -72,7 +72,7 @@ trait EmailVerificationConnector extends HttpErrorFunctions with Logging {
 
     httpClientV2.post(url"$sendVerificationEmailURL")
       .withBody(Json.toJson(emailRequest))
-      .execute[HttpResponse] map { r =>
+      .execute(rawReads, ec) map { r =>
       r.status match {
         case CREATED => {
           logger.debug("[requestVerificationEmailReturnVerifiedEmailStatus] request to verification service successful")
