@@ -16,7 +16,6 @@
 
 package config
 
-import play.api.Configuration
 import play.api.i18n.MessagesApi
 import play.api.mvc.RequestHeader
 import play.twirl.api.Html
@@ -27,7 +26,6 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class ErrorHandler @Inject()(val messagesApi: MessagesApi,
-                             val configuration: Configuration,
                              error_template: error_template
                             )(implicit val ec: ExecutionContext, appConfig: AppConfig) extends FrontendErrorHandler {
 

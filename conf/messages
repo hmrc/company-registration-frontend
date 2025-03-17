@@ -2,6 +2,9 @@
 global.error.title                                                  = Sorry, we’re experiencing technical difficulties
 global.error.heading                                                = Sorry, we’re experiencing technical difficulties
 global.error.message                                                = Please try again in a few minutes.
+global.error.InternalServerError500.title                           = Sorry, we are experiencing technical difficulties - 500
+global.error.InternalServerError500.heading                         = Sorry, we’re experiencing technical difficulties
+global.error.InternalServerError500.message                         = Please try again in a few minutes.
 
 service.name                                                    = Set up a limited company and register for Corporation Tax
 site.govuk                                                      = GOV.UK
