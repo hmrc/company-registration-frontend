@@ -105,8 +105,8 @@ class TestEndpointController @Inject()(val authConnector: PlayAuthConnector,
           handBackData <- s4LConnector.fetchAndGet[CompanyNameHandOffIncoming](internalID, "HandBackData")
           cTRecord <- compRegConnector.retrieveCorporationTaxRegistration(regID)
         } yield {
-          val applicantForm = AboutYouForm.endpointForm.fill(applicantDetails)
-          val companyDetailsForm = CompanyDetailsForm.form.fill(
+          val applicantForm = AboutYouForm.endpointForm().fill(applicantDetails)
+          val companyDetailsForm = CompanyDetailsForm.form().fill(
             companyDetails.getOrElse(
               CompanyDetails("testCompanyName",
                 CHROAddress("testPremises", "testAddressLine1", None, "testLocality", "UK", None, Some("ZZ1 1ZZ"), None), PPOB("RO", None), jurisdiction = "testJurisdiction")
@@ -116,7 +116,7 @@ class TestEndpointController @Inject()(val authConnector: PlayAuthConnector,
             case AccountingDetailsSuccessResponse(success) => success
             case _ => AccountingDatesModel("WHEN_REGISTERED", None, None, None)
           })
-          val handBackForm = FirstHandBackForm.form.fill(handBackData match {
+          val handBackForm = FirstHandBackForm.form().fill(handBackData match {
             case Some(data) => convertToForm(data)
             case _ => CompanyNameHandOffFormModel(None, "", "", CHROAddress("", "", Some(""), "", "", Some(""), Some(""), Some("")), "", "", "", "")
           })
@@ -133,10 +133,10 @@ class TestEndpointController @Inject()(val authConnector: PlayAuthConnector,
   val postAllS4LEntries: Action[AnyContent] = Action.async {
     implicit request =>
       ctAuthorised {
-        val applicantData = AboutYouForm.endpointForm.bindFromRequest().get
+        val applicantData = AboutYouForm.endpointForm().bindFromRequest().get
         lazy val accountingDates = accDForm.form.bindFromRequest().get
         val companyContactDetails = CompanyContactTestEndpointForm.form.bindFromRequest().get
-        val companyDetailsRequest = CompanyDetailsForm.form.bindFromRequest().get
+        val companyDetailsRequest = CompanyDetailsForm.form().bindFromRequest().get
         val tradingDetailsRequest = TradingDetailsForm.form.bindFromRequest().get
         for {
           regID <- fetchRegistrationID
@@ -167,7 +167,7 @@ class TestEndpointController @Inject()(val authConnector: PlayAuthConnector,
       }
   }
 
-  def showFeatureSwitch = Action.async {
+  def showFeatureSwitch: Action[AnyContent] = Action.async {
     implicit request =>
       val firstHandOffSwitch = fetchFirstHandOffSwitch.toString
       val legacyEnvSwitch = fetchLegacyEnvSwitch.toString
@@ -177,7 +177,7 @@ class TestEndpointController @Inject()(val authConnector: PlayAuthConnector,
       Future.successful(Ok(viewFeatureSwitch(form)))
   }
 
-  def updateFeatureSwitch() = Action.async {
+  def updateFeatureSwitch(): Action[AnyContent] = Action.async {
     implicit request =>
       FeatureSwitchForm.form.bindFromRequest().fold(
         errors => Future.successful(BadRequest(viewFeatureSwitch(errors))),
@@ -221,7 +221,7 @@ class TestEndpointController @Inject()(val authConnector: PlayAuthConnector,
     }
   }
 
-  val setupTestNavModel = Action.async {
+  val setupTestNavModel: Action[AnyContent] = Action.async {
     implicit request =>
       val nav = HandOffNavModel(
         Sender(
@@ -247,12 +247,12 @@ class TestEndpointController @Inject()(val authConnector: PlayAuthConnector,
       handOffService.cacheNavModel(nav, hc, ec) map (_ => Ok("NavModel created"))
   }
 
-  def simulateDesPost(ackRef: String) = Action.async {
+  def simulateDesPost(ackRef: String): Action[AnyContent] = Action.async {
     implicit request =>
       dynStubConnector.simulateDesPost(ackRef).map(_ => Ok)
   }
 
-  def verifyEmail(verified: Boolean) = Action.async {
+  def verifyEmail(verified: Boolean): Action[AnyContent] = Action.async {
     implicit request =>
       ctAuthorised {
         def getMetadata(implicit hc: HeaderCarrier, rds: HttpReads[BusinessRegistration]): Future[BusinessRegistration] = {
@@ -279,13 +279,13 @@ class TestEndpointController @Inject()(val authConnector: PlayAuthConnector,
       }
   }
 
-  val testEndpointSummary = Action.async {
+  val testEndpointSummary: Action[AnyContent] = Action.async {
     implicit request =>
       Future.successful(Ok(viewTestEndpointSummary()))
   }
 
 
-  val fetchPrePopAddresses = Action.async {
+  val fetchPrePopAddresses: Action[AnyContent] = Action.async {
     implicit request =>
       ctAuthorised {
         registered { regId =>
@@ -297,7 +297,7 @@ class TestEndpointController @Inject()(val authConnector: PlayAuthConnector,
       }
   }
 
-  val fetchPrePopCompanyContactDetails = Action.async {
+  val fetchPrePopCompanyContactDetails: Action[AnyContent] = Action.async {
     implicit request =>
       ctAuthorised {
         registered { regId =>
@@ -324,7 +324,7 @@ class TestEndpointController @Inject()(val authConnector: PlayAuthConnector,
                        vatStatus: String = "draft",
                        vatCancelUrl: String = "true",
                        ackRefStatus: String = "ackrefStatuses",
-                       ctutr: Option[String] = None) = Action {
+                       ctutr: Option[String] = None): Action[AnyContent] = Action {
     implicit request =>
       val incorpAndCTDash = IncorpAndCTDashboard(
         incorpCTStatus,
@@ -340,7 +340,9 @@ class TestEndpointController @Inject()(val authConnector: PlayAuthConnector,
       payeCancelUrl.toBoolean
       val payeLinks = links(payeCancelUrl.toBoolean, payeRestartUrl.toBoolean)
       val payeDash = ServiceDashboard(payeStatus, Some("lastUpdateDate"), Some("ackrefPaye"), payeLinks, Some(dashboardService.getCurrentPayeThresholds))
-      val vatLinks = links(vatCancelUrl.toBoolean, false)
+      val vatLinks = {
+        links(vatCancelUrl.toBoolean, restartUrl = false)
+      }
       val vatDash = ServiceDashboard(vatStatus, Some("lastUpdateDate"), Some("ack"), vatLinks, Some(Map("yearly" -> 85000)))
 
       val dash = Dashboard("companyNameStubbed", incorpAndCTDash, payeDash, vatDash, hasVATCred = true)

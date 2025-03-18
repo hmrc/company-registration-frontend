@@ -18,7 +18,7 @@ package models.handoff
 
 import models.PPOB
 import play.api.libs.functional.syntax._
-import play.api.libs.json.{JsObject, __}
+import play.api.libs.json.{JsObject, OFormat, __}
 
 case class HandoffPPOB(address_line_1: String,
                        address_line_2: String,
@@ -57,7 +57,7 @@ case class BusinessActivitiesModel(authExtId : String,
 
 object BusinessActivitiesModel {
 
-  implicit val formatPPOB = (
+  implicit val formatPPOB: OFormat[HandoffPPOB] = (
       (__ \ "address_line_1").format[String] and
       (__ \ "address_line_2").format[String] and
       (__ \ "address_line_3").formatNullable[String] and
@@ -67,7 +67,7 @@ object BusinessActivitiesModel {
     )(HandoffPPOB.apply, unlift(HandoffPPOB.unapply))
 
 
-  implicit val format = (
+  implicit val format: OFormat[BusinessActivitiesModel] = (
       (__ \ "user_id").format[String] and
       (__ \ "journey_id").format[String] and
       (__ \ "principal_place_of_business_address").formatNullable[HandoffPPOB] and

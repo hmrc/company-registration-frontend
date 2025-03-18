@@ -16,7 +16,7 @@
 
 package models.handoff
 
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.{JsObject, Json, OFormat}
 
 
 case class BackHandoff (
@@ -28,5 +28,5 @@ case class BackHandoff (
                        links : JsObject
                        )
 object BackHandoff {
-  implicit val format = Json.format[BackHandoff]
+  implicit val format: OFormat[BackHandoff] = Json.format[BackHandoff]
 }

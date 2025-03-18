@@ -17,12 +17,12 @@
 package models
 
 import play.api.libs.functional.syntax._
-import play.api.libs.json.JsPath
+import play.api.libs.json.{JsPath, OFormat}
 
 case class Enrolments(enrolment : String, state: String)
 
 object Enrolments {
-  implicit val formatModel = (
+  implicit val formatModel: OFormat[Enrolments] = (
     (JsPath \ "key").format[String] and
       (JsPath \ "state").format[String]
     )(Enrolments.apply, unlift(Enrolments.unapply))

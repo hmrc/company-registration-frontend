@@ -29,8 +29,8 @@ case class ThrottleResponse(
 )
 
 object ThrottleResponse {
-  implicit val fmtEmail = Format(Email.reads, Email.writes)
-  implicit val format = (
+  implicit val fmtEmail: Format[Email] = Format(Email.reads, Email.writes)
+  implicit val format: OFormat[ThrottleResponse] = (
      (JsPath \ "registration-id").format[String] and
      (JsPath \ "created").format[Boolean] and
      (JsPath \ "confirmation-reference").format[Boolean] and
@@ -51,7 +51,7 @@ case class Email(
 object Email {
   val GG = "GG"
   val SCP = "SCP"
-  implicit val reads = (
+  implicit val reads: Reads[Email] = (
     (__ \ "address").read[String] and
     (__ \ "type").read[String] and
     (__ \ "link-sent").read[Boolean] and
@@ -59,7 +59,7 @@ object Email {
     (__ \ "return-link-email-sent").read[Boolean].orElse(Reads.pure(true))
     )(Email.apply _)
 
-  implicit val writes = (
+  implicit val writes: OWrites[Email] = (
     (__ \ "address").write[String] and
       (__ \ "type").write[String] and
       (__ \ "link-sent").write[Boolean] and
@@ -78,7 +78,7 @@ case class EmailVerificationRequest(
 )
 
 object EmailVerificationRequest {
-  implicit val format = Json.format[EmailVerificationRequest]
+  implicit val format: OFormat[EmailVerificationRequest] = Json.format[EmailVerificationRequest]
 }
 
 case class SendTemplatedEmailRequest(
@@ -89,5 +89,5 @@ case class SendTemplatedEmailRequest(
   force: Boolean
                                     )
 object SendTemplatedEmailRequest {
-  implicit val format = Json.format[SendTemplatedEmailRequest]
+  implicit val format: OFormat[SendTemplatedEmailRequest] = Json.format[SendTemplatedEmailRequest]
 }

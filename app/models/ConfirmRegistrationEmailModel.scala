@@ -16,10 +16,10 @@
 
 package models
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 
 case class ConfirmRegistrationEmailModel(confirmEmail: Boolean)
 
 object ConfirmRegistrationEmailModel {
-  implicit val format = Json.format[ConfirmRegistrationEmailModel]
+  implicit val format: OFormat[ConfirmRegistrationEmailModel] = Json.format[ConfirmRegistrationEmailModel]
 }

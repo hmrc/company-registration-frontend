@@ -20,6 +20,8 @@ import config.AppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthenticatedController
 import forms.AccountingDatesForm
+import models.JavaTimeUtils.BankHolidaySet
+
 import javax.inject.{Inject, Singleton}
 import models.{AccountingDatesModel, AccountingDetailsNotFoundResponse, AccountingDetailsSuccessResponse}
 import play.api.i18n.I18nSupport
@@ -46,7 +48,7 @@ class AccountingDatesController @Inject()(val authConnector: PlayAuthConnector,
 
 
   lazy val accDForm = new AccountingDatesForm(timeService)
-  implicit lazy val bHS = timeService.bHS
+  implicit lazy val bHS: BankHolidaySet = timeService.bHS
 
   val show = Action.async { implicit request =>
     ctAuthorised {

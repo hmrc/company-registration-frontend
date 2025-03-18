@@ -16,12 +16,12 @@
 
 package models
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 
 case class TradingDetails(regularPayments: String = "")
 
 object TradingDetails {
-  implicit val format = Json.format[TradingDetails]
+  implicit val format: OFormat[TradingDetails] = Json.format[TradingDetails]
 }
 
 sealed trait TradingDetailsResponse

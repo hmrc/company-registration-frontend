@@ -16,7 +16,7 @@
 
 package models.handoff
 
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.{JsObject, Json, OFormat}
 
 case class GroupHandBackModel(user_id : String,
                               journey_id : String,
@@ -27,5 +27,5 @@ case class GroupHandBackModel(user_id : String,
                               has_corporate_shareholders: Option[Boolean])
 
 object GroupHandBackModel {
-  implicit val formats = Json.format[GroupHandBackModel]
+  implicit val formats: OFormat[GroupHandBackModel] = Json.format[GroupHandBackModel]
 }

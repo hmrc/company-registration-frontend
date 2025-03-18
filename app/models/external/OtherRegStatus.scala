@@ -26,10 +26,10 @@ case class OtherRegStatus(status: String, lastUpdate: Option[LocalDateTime], ack
 
 object OtherRegStatus {
 
-  implicit val format = Json.format[OtherRegStatus]
+  implicit val format: OFormat[OtherRegStatus] = Json.format[OtherRegStatus]
 
 
-  implicit val reads = (
+  implicit val reads: Reads[OtherRegStatus] = (
     (__ \ "status").read[String] and
     (__ \ "lastUpdate").readNullable[LocalDateTime](dateTimeReads) and
     (__ \ "ackRef").readNullable[String] and

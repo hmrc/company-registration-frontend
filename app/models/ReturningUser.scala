@@ -16,10 +16,10 @@
 
 package models
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 
 case class ReturningUser(returningUser: String)
 
 object ReturningUser {
-  implicit val format = Json.format[ReturningUser]
+  implicit val format: OFormat[ReturningUser] = Json.format[ReturningUser]
 }

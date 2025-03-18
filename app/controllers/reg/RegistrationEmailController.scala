@@ -79,13 +79,13 @@ class RegistrationEmailController @Inject()(val authConnector: PlayAuthConnector
           scpVerifiedEmail.flatMap {
             case true =>
               updateEmailBlockForSCPUsers(regID, emailFromAuth, providerIdFromAuth, externalIdFromAuth).map { res =>
-                Redirect(routes.CompletionCapacityController.show)
+                Redirect(routes.CompletionCapacityController.show())
               }
             case false =>
               emailVerification.sendVerificationLink(emailFromAuth, regID, providerIdFromAuth, externalIdFromAuth).map { emailVerifiedSuccess =>
 
                 if (emailVerifiedSuccess.getOrElse(false)) {
-                  Redirect(routes.CompletionCapacityController.show)
+                  Redirect(routes.CompletionCapacityController.show())
                 }
                 else {
                   Redirect(controllers.verification.routes.EmailVerificationController.verifyShow)
@@ -102,6 +102,6 @@ class RegistrationEmailController @Inject()(val authConnector: PlayAuthConnector
 
   protected def updateEmailBlockForSCPUsers(regId: String, authEmail: String, authProviderId: String, externalId: String)
                                            (implicit hc: HeaderCarrier, request: Request[AnyContent]): Future[Option[Email]] = {
-    emailVerification.saveEmailBlock(regId, Email(authEmail, SCP, false, true, false), authProviderId, externalId)
+    emailVerification.saveEmailBlock(regId, Email(authEmail, SCP, linkSent = false, verified = true, returnLinkEmailSent = false), authProviderId, externalId)
   }
 }

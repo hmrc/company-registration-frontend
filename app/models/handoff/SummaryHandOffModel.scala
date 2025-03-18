@@ -16,7 +16,7 @@
 
 package models.handoff
 
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.{JsObject, Json, OFormat}
 
 case class SummaryHandOff(user_id : String,
                           journey_id : String,
@@ -26,5 +26,5 @@ case class SummaryHandOff(user_id : String,
                           links : JsObject)
 
 object SummaryHandOff {
-  implicit val format = Json.format[SummaryHandOff]
+  implicit val format: OFormat[SummaryHandOff] = Json.format[SummaryHandOff]
 }

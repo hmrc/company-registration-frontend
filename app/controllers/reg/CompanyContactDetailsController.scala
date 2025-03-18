@@ -20,10 +20,11 @@ import config.AppConfig
 import connectors.{CompanyRegistrationConnector, KeystoreConnector, S4LConnector}
 import controllers.auth.AuthenticatedController
 import forms.CompanyContactForm
+
 import javax.inject.{Inject, Singleton}
 import models.{CompanyContactDetailsBadRequestResponse, CompanyContactDetailsForbiddenResponse, CompanyContactDetailsNotFoundResponse, CompanyContactDetailsSuccessResponse}
 import play.api.i18n.I18nSupport
-import play.api.mvc.MessagesControllerComponents
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.{CompanyContactDetailsService, MetricsService}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import utils.{SCRSFeatureSwitches, SessionRegistration}
@@ -45,23 +46,23 @@ class CompanyContactDetailsController @Inject()(val authConnector: PlayAuthConne
                                                (implicit val appConfig: AppConfig, implicit val ec: ExecutionContext) extends AuthenticatedController with SessionRegistration with I18nSupport {
 
 
-  val show = Action.async {
+  val show: Action[AnyContent] = Action.async {
     implicit request =>
       ctAuthorised {
         checkStatus { regId =>
           for {
             contactDetails <- companyContactDetailsService.fetchContactDetails
             companyName <- compRegConnector.fetchCompanyName(regId)
-          } yield Ok(view(CompanyContactForm.form.fill(contactDetails), companyName))
+          } yield Ok(view(CompanyContactForm.form().fill(contactDetails), companyName))
         }
       }
   }
 
-  val submit = Action.async {
+  val submit: Action[AnyContent] = Action.async {
     implicit request =>
       ctAuthorisedEmailCredsExtId { (email, cred, eID) =>
         registered { regId =>
-          CompanyContactForm.form.bindFromRequest().fold(
+          CompanyContactForm.form().bindFromRequest().fold(
             hasErrors =>
               compRegConnector.fetchCompanyName(regId).map(cName => BadRequest(view(hasErrors, cName))),
             data => {

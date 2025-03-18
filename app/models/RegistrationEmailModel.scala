@@ -16,13 +16,13 @@
 
 package models
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 
 case class RegistrationEmailModel(currentEmail: String,
                                   differentEmail: Option[String])
 
 object RegistrationEmailModel {
-  implicit val format = Json.format[RegistrationEmailModel]
+  implicit val format: OFormat[RegistrationEmailModel] = Json.format[RegistrationEmailModel]
 }
 
 

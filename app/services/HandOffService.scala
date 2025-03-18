@@ -66,7 +66,7 @@ trait HandOffService extends HandOffNavigator {
   private[services] val groupsCheckerForPSCHandOff = (groups: Option[Groups]) => groups.map {
     case g@Groups(true, name, addr, utr) if name.isDefined && addr.isDefined && utr.isDefined => g
     case g@Groups(true, name, addr, utr) => throw new Exception(s"[groupsChecker] Groups block incomplete, user skipped journey ${name.isDefined}, ${addr.isDefined}, ${utr.isDefined}")
-    case g@Groups(false,_, _,_) => Groups(false,None,None,None)
+    case g@Groups(false,_, _,_) => Groups(groupRelief = false,None,None,None)
   }
  private[services] val buildTheStaticJumpLinksForGroupsBasedOnGroupsData = (groups: Option[Groups]) => groups.map(
     og => if(!og.groupRelief) {

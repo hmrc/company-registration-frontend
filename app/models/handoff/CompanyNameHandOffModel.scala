@@ -33,7 +33,7 @@ case class CompanyNameHandOffModel(email_address : String,
                                    links: NavLinks)
 
 object CompanyNameHandOffModel {
-  implicit val format = Json.format[CompanyNameHandOffModel]
+  implicit val format: OFormat[CompanyNameHandOffModel] = Json.format[CompanyNameHandOffModel]
 }
 
 case class CompanyNameHandOffFormModel(registration_id : Option[String],
@@ -46,7 +46,7 @@ case class CompanyNameHandOffFormModel(registration_id : Option[String],
                                        language: String)
 
 object CompanyNameHandOffFormModel {
-  implicit val format = Json.format[CompanyNameHandOffFormModel]
+  implicit val format: OFormat[CompanyNameHandOffFormModel] = Json.format[CompanyNameHandOffFormModel]
 }
 
 case class CompanyNameHandOffIncoming(journey_id : Option[String],
@@ -64,7 +64,7 @@ case class CompanyNameHandOffIncoming(journey_id : Option[String],
 }
 
 object CompanyNameHandOffIncoming {
-  implicit val format = (
+  implicit val format: OFormat[CompanyNameHandOffIncoming] = (
     (__ \ "journey_id").formatNullable[String] and
     (__ \ "user_id").format[String] and
     (__ \ "company_name").format[String] and

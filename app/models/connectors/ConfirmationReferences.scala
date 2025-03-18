@@ -17,7 +17,7 @@
 package models.connectors
 
 import play.api.libs.functional.syntax._
-import play.api.libs.json.__
+import play.api.libs.json.{OFormat, __}
 
 case class ConfirmationReferences(transactionId : String,
                                   paymentReference : Option[String],
@@ -26,7 +26,7 @@ case class ConfirmationReferences(transactionId : String,
                                  )
 
 object ConfirmationReferences {
-  implicit val format = (
+  implicit val format: OFormat[ConfirmationReferences] = (
       ( __ \ "transaction-id" ).format[String] and
       ( __ \ "payment-reference" ).formatNullable[String] and
       ( __ \ "payment-amount" ).formatNullable[String] and

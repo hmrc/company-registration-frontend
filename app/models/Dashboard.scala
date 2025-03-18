@@ -40,7 +40,7 @@ case class IncorpAndCTDashboard(status : String,
                                 ctutr: Option[String])
 
 object IncorpAndCTDashboard {
-  val format = Json.format[IncorpAndCTDashboard]
+  val format: OFormat[IncorpAndCTDashboard] = Json.format[IncorpAndCTDashboard]
 
   private val rds = (
     (__ \ "status").read[String] and

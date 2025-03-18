@@ -99,7 +99,7 @@ class PreviousOwnersAddressController @Inject()(val authConnector: PlayAuthConne
               val optAddressSeq: Option[Seq[NewAddress]] = request.session.get(addressSeqKey).map(Json.parse(_).as[Seq[NewAddress]])
               (optTakeoverDetails, optAddressSeq) match {
                 case (Some(TakeoverDetails(_, _, _, Some(previousOwnersName), _)), Some(addressSeq)) =>
-                  HomeAddressForm.form(addressSeq.length).bindFromRequest.fold(
+                  HomeAddressForm.form(addressSeq.length).bindFromRequest().fold(
                     formWithErrors =>
                       Future.successful(BadRequest(view(formWithErrors, previousOwnersName, addressSeq ++ Seq(Messages("page.reg.ppob.differentAddress"))))),
                     {
