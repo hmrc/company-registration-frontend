@@ -34,7 +34,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import views.html.takeovers.ReplacingAnotherBusiness
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 class ReplacingAnotherBusinessControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with AccountingDatesFixture with AccountingDetailsFixture
   with LoginFixture with AuthBuilder with TakeoverServiceMock with I18nSupport {

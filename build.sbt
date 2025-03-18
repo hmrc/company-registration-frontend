@@ -40,7 +40,7 @@ lazy val microservice = Project(appName, file("."))
     routesImport ++= Seq("uk.gov.hmrc.play.bootstrap.binders._"),
   )
   .settings(PlayKeys.devSettings := Seq(
-    "akka.http.parsing.max-uri-length" -> "16k")
+    "pekko.http.parsing.max-uri-length" -> "16k")
   )
   .disablePlugins(JUnitXmlReportPlugin) //Required to prevent https://github.com/scalatest/scalatest/issues/1427
 

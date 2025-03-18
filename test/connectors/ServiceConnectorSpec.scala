@@ -42,34 +42,30 @@ class ServiceConnectorSpec extends SCRSSpec {
 
   "getStatus" should {
 
-    val url = url"$baseUrl$baseUri/$regId/status"
+    val url = s"$baseUrl$baseUri/$regId/status"
     val localDate = LocalDateTime.now()
     val ackRef = "testAckRef"
     val status = OtherRegStatus("testStatus", Some(localDate), Some(ackRef), Some("foo"), Some("bar"))
 
     "return a SuccessfulResponse when a 200 is received" in new Setup {
-//      when(mockHttp.GET[OtherRegStatus](eqTo(url),any(),any())(any(), any(), any())).thenReturn(Future.successful(status))
-      mockHttpGET[OtherRegStatus](url, Future.successful(status))
+      mockHttpGET[OtherRegStatus](url"$url", Future.successful(status))
       val result = await(connector.getStatus(regId))
       result mustBe SuccessfulResponse(status)
     }
 
     "return a NotStarted when a 404 is received" in new Setup {
-//      when(mockHttp.GET[OtherRegStatus](eqTo(url),any(),any())(any(), any(), any())).thenReturn(Future.failed(new NotFoundException("")))
       mockHttpFailedGET(new NotFoundException(""))
       val result = await(connector.getStatus(regId))
       result mustBe NotStarted
     }
 
     "return a ErrorResponse when ArgumentMatchers.any other http response code is returned" in new Setup {
-//      when(mockHttp.GET[OtherRegStatus](eqTo(url),any(),any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.failed(new HttpException("", 500)))
       mockHttpFailedGET(new HttpException("", 500))
       val result = await(connector.getStatus(regId))
       result mustBe ErrorResponse
     }
 
     "return a ErrorResponse when a non-http exception is thrown" in new Setup {
-//      when(mockHttp.GET[OtherRegStatus](eqTo(url),any(),any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.failed(new Throwable("")))
       when(mockHttpClientV2.get(ArgumentMatchers.any())(ArgumentMatchers.any())).thenReturn(mockRequestBuilder)
       when(mockRequestBuilder.execute[OtherRegStatus](ArgumentMatchers.any(),ArgumentMatchers.any()))
         .thenReturn(Future.failed(new Throwable("")))

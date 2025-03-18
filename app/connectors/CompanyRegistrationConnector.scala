@@ -115,28 +115,24 @@ trait CompanyRegistrationConnector extends Logging {
   }
 
   def retrieveCompanyDetails(registrationID: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[CompanyDetails]] = {
-    // wsHttp.GET[Option[CompanyDetails]](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/company-details")(companyRegistrationDetailsHttpReads(registrationID), hc, ec)
     httpClientV2
       .get(url"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/company-details")
       .execute[Option[CompanyDetails]](companyRegistrationDetailsHttpReads(registrationID), ec)
   }
 
   def retrieveTradingDetails(registrationID: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[TradingDetails]] = {
-    // wsHttp.GET[Option[TradingDetails]](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/trading-details")(tradingDetailsHttpReads(registrationID), hc, ec)
     httpClientV2
       .get(url"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/trading-details")
       .execute[Option[TradingDetails]](tradingDetailsHttpReads(registrationID), ec)
   }
 
   def retrieveContactDetails(registrationID: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[CompanyContactDetailsResponse] = {
-    // wsHttp.GET[CompanyContactDetailsResponse](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/contact-details")(contactDetailsHttpReads(registrationID), hc,ec)
     httpClientV2
       .get(url"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/contact-details")
       .execute[CompanyContactDetailsResponse](contactDetailsHttpReads(registrationID), ec)
   }
 
   def retrieveAccountingDetails(registrationID: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[AccountingDetailsResponse] = {
-    // wsHttp.GET[AccountingDetailsResponse](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/accounting-details")(accountingDetailsHttpReads(registrationID), hc, ec)
     httpClientV2
       .get(url"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/accounting-details")
       .execute[AccountingDetailsResponse](accountingDetailsHttpReads(registrationID), ec)
@@ -182,8 +178,9 @@ trait CompanyRegistrationConnector extends Logging {
   }
 
   def getGroups(registrationId:String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[Groups]] = {
+    val url = s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationId/groups"
     httpClientV2
-      .get(url"$companyRegUrl/company-registration/corporation-tax-registration/$registrationId/groups")
+      .get(url"$url")
       .execute[HttpResponse]
       .map {
         res => if (res.status == 200) {
@@ -220,19 +217,6 @@ trait CompanyRegistrationConnector extends Logging {
           logger.error(s"[checkROAddress] for RegId: $registrationID")
           throw ex
       }
-//    wsHttp.POST[JsValue, HttpResponse](s"$companyRegUrl/company-registration/corporation-tax-registration/check-ro-address", Json.toJson(ro)
-//    )(implicitly, rawReads, hc, ec) map { result =>
-//      result.status match {
-//        case OK => result.json.asOpt[NewAddress](NewAddress.verifyRoToPPOB)
-//        case BAD_REQUEST => None
-//      }
-//    } recover {
-//      case _: BadRequestException =>
-//        None
-//      case ex: Exception =>
-//        logger.error(s"[checkROAddress] for RegId: $registrationID")
-//        throw ex
-//    }
   }
 
   def validateRegisteredOfficeAddress(registrationID: String, ro: CHROAddress)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[NewAddress]] = {
@@ -316,13 +300,6 @@ trait CompanyRegistrationConnector extends Logging {
   }
 
   def deleteGroups(registrationId:String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Boolean] = {
-//    wsHttp.DELETE[HttpResponse](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationId/groups")(readRaw, hc, ec).map{
-//      _ => true
-//    }.recoverWith {
-//      case e =>
-//        logger.error(s"Delete of groups block failed for $registrationId ${e.getMessage}")
-//        Future.failed(e)
-//    }
     httpClientV2
       .delete(url"$companyRegUrl/company-registration/corporation-tax-registration/$registrationId/groups")
       .execute(readRaw, ec).map{
@@ -356,21 +333,12 @@ trait CompanyRegistrationConnector extends Logging {
   }
 
   def retrieveEmail(registrationId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[Email]] = {
-    // wsHttp.GET[Option[Email]](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationId/retrieve-email")(retrieveEmailHttpReads(registrationId), hc, ec)
     httpClientV2
       .get(url"$companyRegUrl/company-registration/corporation-tax-registration/$registrationId/retrieve-email")
       .execute(retrieveEmailHttpReads(registrationId), ec)
   }
 
   def updateEmail(registrationId: String, email: Email)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[Email]] = {
-//    val json = Json.toJson(email)
-//    wsHttp.PUT[JsValue, Email](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationId/update-email", json).map {
-//      e => Some(e)
-//    } recover {
-//      case ex: BadRequestException =>
-//        logger.warn(s"[updateEmail] Could not find a CT document for rid - $registrationId")
-//        None
-//    }
     httpClientV2
       .put(url"$companyRegUrl/company-registration/corporation-tax-registration/$registrationId/update-email")
       .withBody(Json.toJson(email))
@@ -395,8 +363,6 @@ trait CompanyRegistrationConnector extends Logging {
   }
 
   def updateRegistrationProgress(registrationID: String, progress: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse] = {
-//    val json = Json.obj("registration-progress" -> progress)
-//    wsHttp.PUT[JsValue, HttpResponse](s"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/progress", json)(implicitly, readRaw, hc, ec)
     httpClientV2
       .put(url"$companyRegUrl/company-registration/corporation-tax-registration/$registrationID/progress")
       .withBody(Json.obj("registration-progress" -> progress))
@@ -433,8 +399,7 @@ trait CompanyRegistrationConnector extends Logging {
   }
 
   def updateLanguage(registrationId: String, language: Language)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Boolean] = {
-    // [Language, Boolean]
-    httpClientV2.put(url"$companyRegUrl/company-registration/corporation-tax-registration/$registrationId/language")
+     httpClientV2.put(url"$companyRegUrl/company-registration/corporation-tax-registration/$registrationId/language")
       .withBody(Json.toJson(language))
     .execute(
       updateLanguageHttpReads(registrationId, language), ec
@@ -444,5 +409,4 @@ trait CompanyRegistrationConnector extends Logging {
         false
     }
   }
-
 }

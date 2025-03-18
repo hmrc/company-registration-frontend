@@ -23,7 +23,7 @@ import play.api.http.Status.OK
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.http._
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 class DynamicStubConnectorSpec extends SCRSSpec with BusinessRegistrationFixture {
 

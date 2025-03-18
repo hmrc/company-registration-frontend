@@ -18,15 +18,10 @@ package connectors
 
 import helpers.{SCRSSpec, UnitSpec}
 import models.SendTemplatedEmailRequest
-import org.mockito.ArgumentMatchers
-import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfter
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.Status._
-import play.api.libs.json.JsValue
 import uk.gov.hmrc.http._
-
-import scala.concurrent.Future
 
 class SendTemplatedEmailConnectorSpec extends SCRSSpec with UnitSpec with MockitoSugar with BeforeAndAfter {
 

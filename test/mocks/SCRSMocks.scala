@@ -33,7 +33,7 @@ import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.model.Audit
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import utils.{BooleanFeatureSwitch, FeatureSwitchManager, JweCommon, SCRSFeatureSwitches}
+import utils.{FeatureSwitchManager, JweCommon, SCRSFeatureSwitches}
 
 import scala.concurrent.{ExecutionContext, Future}
 

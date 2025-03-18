@@ -49,8 +49,8 @@ trait ServiceConnector extends Logging {
   val serviceUri: String
 
   def getStatus(regId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[StatusResponse] = {
-    val url = url"$serviceBaseUrl$serviceUri/$regId/status"
-    httpClientV2.get(url)
+    val url = s"$serviceBaseUrl$serviceUri/$regId/status"
+    httpClientV2.get(url"$url")
       .execute[OtherRegStatus]
       .map { res =>
         SuccessfulResponse(res)
