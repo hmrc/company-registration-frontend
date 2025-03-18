@@ -23,7 +23,12 @@ import org.scalatest.concurrent.{Eventually, ScalaFutures}
 import repositories.{NavModelRepoImpl, NavModelRepoMongo}
 import uk.gov.hmrc.mongo.MongoComponent
 
+import scala.concurrent.ExecutionContext
+import scala.concurrent.ExecutionContext.global
+
 class NavModelRepositorySpec extends IntegrationSpecBase with ScalaFutures with Eventually with HandOffFixtures with MongoHelper {
+
+  implicit def ec: ExecutionContext = global
 
   class Setup {
     val repo = app.injector.instanceOf[NavModelRepoImpl].repository
