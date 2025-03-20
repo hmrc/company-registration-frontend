@@ -77,7 +77,7 @@ class ConfirmationController @Inject()(val authConnector: PlayAuthConnector,
   val submitTicket: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorisedOptStr(Retrievals.userDetailsUri) { uri =>
       fetchRegistrationID.flatMap(regID =>
-        DeskproForm.form.bindFromRequest.fold(
+        DeskproForm.form.bindFromRequest().fold(
           errors => Future.successful(BadRequest(submissionFailedView(errors))),
           success => deskproService.submitTicket(regID, success, uri) map {
             _ => Redirect(controllers.reg.routes.ConfirmationController.submittedTicket)

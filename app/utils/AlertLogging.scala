@@ -28,7 +28,7 @@ trait AlertLogging extends Logging {
   protected val loggingDays: String
   protected val loggingTimes: String
 
-  def pagerduty(key: PagerDutyKeys.Value, message: Option[String] = None) {
+  def pagerduty(key: PagerDutyKeys.Value, message: Option[String] = None): Unit = {
     val log = s"${key.toString}${message.fold("")(msg => s" - $msg")}"
     if(inWorkingHours) logger.error(log) else logger.info(log)
   }

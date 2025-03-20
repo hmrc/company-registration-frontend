@@ -17,21 +17,21 @@
 package connectors
 
 import helpers.SCRSSpec
-import org.mockito.ArgumentMatchers
-import org.mockito.Mockito._
-import play.api.libs.json.{JsObject, Json}
-import uk.gov.hmrc.http.{ForbiddenException, HeaderCarrier, NotFoundException}
+import play.api.libs.json.Json
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{ForbiddenException, NotFoundException}
 
-
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
 class AddressLookupConnectorSpec extends SCRSSpec {
 
   trait Setup {
+    val address = "http://testAddressLookupUrl"
+
     val connector = new AddressLookupConnector {
       override implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
-      override val addressLookupFrontendURL = "testAddressLookupUrl"
-      override val wSHttp = mockWSHttp
+      override val addressLookupFrontendURL = address
+      override val httpClientV2: HttpClientV2 = mockHttpClientV2
     }
   }
 
@@ -39,35 +39,27 @@ class AddressLookupConnectorSpec extends SCRSSpec {
 
   "AddressLookupConnector" should {
     "use the correct addressLookupFrontendURL" in new Setup {
-      connector.addressLookupFrontendURL mustBe "testAddressLookupUrl"
+      connector.addressLookupFrontendURL mustBe address
     }
   }
 
   "getAddress" should {
-    "return an address response" in new Setup {
-      mockHttpGet[JsObject]("testUrl", testAddress)
 
+    "return an address response" in new Setup {
+      mockHttpGET(testAddress)
       await(connector.getAddress("123")) mustBe testAddress
     }
-    "return a Not found response" in new Setup {
-      when(mockWSHttp.GET[JsObject](ArgumentMatchers.anyString(),ArgumentMatchers.any(),ArgumentMatchers.any())
-        (ArgumentMatchers.any(), ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]))
-        .thenReturn(Future.failed(new NotFoundException("")))
 
+    "return a Not found response" in new Setup {
+      mockHttpFailedGET(new NotFoundException(""))
       intercept[NotFoundException](await(connector.getAddress("123")))
     }
     "return a Forbidden response" in new Setup {
-      when(mockWSHttp.GET[JsObject](ArgumentMatchers.anyString(),ArgumentMatchers.any(),ArgumentMatchers.any())
-        (ArgumentMatchers.any(), ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]))
-        .thenReturn(Future.failed(new ForbiddenException("")))
-
+      mockHttpFailedGET(new ForbiddenException(""))
       intercept[ForbiddenException](await(connector.getAddress("123")))
     }
     "return an Exception response" in new Setup {
-      when(mockWSHttp.GET[JsObject](ArgumentMatchers.anyString(),ArgumentMatchers.any(),ArgumentMatchers.any())
-        (ArgumentMatchers.any(), ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]))
-        .thenReturn(Future.failed(new RuntimeException("")))
-
+      mockHttpFailedGET(new RuntimeException(""))
       intercept[RuntimeException](await(connector.getAddress("123")))
     }
   }

@@ -61,7 +61,7 @@ class TradingDetailsServiceSpec extends SCRSSpec with SCRSMocks with TradingDeta
   "Retrieving the trading details data for a given user" should {
     "return a TradingDetails model" in new Setup {
 
-      mockHttpGet[Option[TradingDetails]]("testUrl", Some(tradingDetailsTrue))
+      mockHttpGET[Option[TradingDetails]](Some(tradingDetailsTrue))
 
       when(mockCompanyRegistrationConnector.retrieveTradingDetails(ArgumentMatchers.eq(regID))(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(Some(tradingDetailsTrue)))
@@ -75,7 +75,7 @@ class TradingDetailsServiceSpec extends SCRSSpec with SCRSMocks with TradingDeta
 
     "return an 'empty' TradingDetailsModel" in new Setup {
 
-      mockHttpGet[Option[TradingDetails]]("testUrl", None)
+      mockHttpGET[Option[TradingDetails]](None)
 
       when(mockCompanyRegistrationConnector.retrieveTradingDetails(ArgumentMatchers.eq(regID))(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(None))

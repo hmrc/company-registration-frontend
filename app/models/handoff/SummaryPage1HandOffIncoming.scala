@@ -26,6 +26,6 @@ case class SummaryPage1HandOffIncoming(user_id : String,
                                        links: NavLinks)
 
 object SummaryPage1HandOffIncoming {
-  implicit val format = Json.format[SummaryPage1HandOffIncoming]
+  implicit val format: OFormat[SummaryPage1HandOffIncoming] = Json.format[SummaryPage1HandOffIncoming]
 
 }

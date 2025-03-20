@@ -22,21 +22,26 @@ import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.cache.client.{CacheMap, ShortLivedCache}
+import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 
 import scala.concurrent.Future
 
-class S4LConnectorSpec extends UnitSpec with MockitoSugar with GuiceOneAppPerSuite {
+class S4LConnectorSpec extends UnitSpec with MockitoSugar with GuiceOneAppPerSuite  {
 
   override lazy val app = new GuiceApplicationBuilder()
     .configure(
       "Test.microservices.services.cachable.short-lived.cache.host" -> "test-only",
       "Test.microservices.services.cachable.short-lived.cache.port" -> 99999,
       "Test.microservices.services.cachable.short-lived.cache.domain" -> "save4later"
+    )
+    .overrides(
+      bind[HttpClientV2].toInstance(mock[HttpClientV2])
     )
     .build()
 
@@ -83,7 +88,7 @@ class S4LConnectorSpec extends UnitSpec with MockitoSugar with GuiceOneAppPerSui
         .thenReturn(Future.successful(HttpResponse(OK, "")))
 
       val result = S4LConnectorTest.clear("test")
-      await(result).status mustBe HttpResponse(OK, "").status
+      await(result) mustBe ()
     }
   }
 

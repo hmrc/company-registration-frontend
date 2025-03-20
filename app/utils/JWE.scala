@@ -82,7 +82,7 @@ trait JweDecryptor extends Logging {
   private[utils] def unpack[A](payload:String)(implicit rds: json.Reads[A]) : Try[A] = {
 
     Try(Json.parse(payload).validate[A]) flatMap(
-      _ fold(
+      _.fold(
         errs => {
           logger.error(errs.toString())
           Failure(PayloadError)

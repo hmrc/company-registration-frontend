@@ -169,6 +169,7 @@ trait WiremockHelper {
 
   def stubAudit: StubMapping = {
     stubPost("/write/audit", 200, "{}")
+    stubPost("/write/audit/merged", 200, "{}")
   }
 
 

@@ -29,8 +29,8 @@ class DeskproConnectorSpec extends SCRSSpec with SCRSMocks {
 
   class Setup {
     val connector = new DeskproConnector {
-      override val deskProUrl: String = "testUrl"
-      override val wSHttp = mockWSHttp
+      override val deskProUrl: String = "http://testUrl"
+      override val httpClientV2 = mockHttpClientV2
       override val metricsService: MetricsService = MetricServiceMock
     }
 
@@ -56,19 +56,19 @@ class DeskproConnectorSpec extends SCRSSpec with SCRSMocks {
 
   "submitTicket" should {
     "return a ticket number" in new Setup {
-      mockHttpPOST[Ticket, JsObject](s"${connector.deskProUrl}/deskpro/ticket", Future.successful(response))
+      mockHttpPOST[Ticket, JsObject](Future.successful(response))
 
       await(connector.submitTicket(ticket)) mustBe ticketNum
     }
 
     "throw a bad request exception" in new Setup {
-      mockHttpFailedPOST[Ticket, JsObject](s"${connector.deskProUrl}/deskpro/ticket", new BadRequestException("404"))
+      mockHttpFailedPOST[Ticket, JsObject](new BadRequestException("404"))
 
       intercept[BadRequestException](await(connector.submitTicket(ticket)))
     }
 
     "throw any other exception" in new Setup {
-      mockHttpFailedPOST[Ticket, JsObject](s"${connector.deskProUrl}/deskpro/ticket", new RuntimeException)
+      mockHttpFailedPOST[Ticket, JsObject](new RuntimeException)
 
       intercept[RuntimeException](await(connector.submitTicket(ticket)))
     }

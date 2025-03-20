@@ -71,7 +71,7 @@ class GroupUtrController @Inject()(val authConnector: PlayAuthConnector,
       registered { regID =>
         groupService.retrieveGroups(regID).flatMap {
           case Some(groups@Groups(true, Some(companyName), Some(_), _)) =>
-            GroupUtrForm.form.bindFromRequest.fold(
+            GroupUtrForm.form.bindFromRequest().fold(
               errors =>
                 Future.successful(BadRequest(view(errors, companyName.name))),
               groupUtr => {

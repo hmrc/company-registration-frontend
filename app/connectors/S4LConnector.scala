@@ -37,7 +37,7 @@ trait S4LConnector {
     shortCache.fetchAndGetEntry[T](userId, formId)
   }
 
-  def clear(userId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[HttpResponse] = {
+  def clear(userId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Unit] = {
     shortCache.remove(userId)
   }
 

@@ -18,7 +18,7 @@ package models.handoff
 
 import models.CHROAddress
 import models.connectors.ConfirmationReferences
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.{JsObject, Json, OFormat}
 
 case class HandBackPayloadModel(OID: String,
                                 return_url: String,
@@ -28,7 +28,7 @@ case class HandBackPayloadModel(OID: String,
                                 registeredOfficeAddress : CHROAddress)
 
 object HandBackPayloadModel {
-  implicit val formats = Json.format[HandBackPayloadModel]
+  implicit val formats: OFormat[HandBackPayloadModel] = Json.format[HandBackPayloadModel]
 }
 
 case class RegistrationConfirmationPayload(user_id : String,
@@ -44,7 +44,7 @@ case class RegistrationConfirmationPayload(user_id : String,
 
 
 object RegistrationConfirmationPayload {
-  implicit val formats = Json.format[RegistrationConfirmationPayload]
+  implicit val formats: OFormat[RegistrationConfirmationPayload] = Json.format[RegistrationConfirmationPayload]
 
   def getReferences(references : RegistrationConfirmationPayload) : ConfirmationReferences =
     ConfirmationReferences(

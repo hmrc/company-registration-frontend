@@ -74,7 +74,7 @@ class CompletionCapacityControllerSpec extends SCRSSpec with GuiceOneAppPerSuite
 
     "display the page whilst the user is authorised but with no registration id in session" in new Setup {
       mockKeystoreFetchAndGet("registrationID", None)
-      when(mockBusinessRegConnector.retrieveMetadata(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[HttpReads[BusinessRegistration]]()))
+      when(mockBusinessRegConnector.retrieveMetadata(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
         .thenReturn(Future.successful(BusinessRegistrationSuccessResponse(validBusinessRegistrationResponse)))
 
       showWithAuthorisedUser(controller.show) {
@@ -89,7 +89,7 @@ class CompletionCapacityControllerSpec extends SCRSSpec with GuiceOneAppPerSuite
     "display the page whilst the user is authorised" in new Setup {
       mockKeystoreFetchAndGet("registrationID", Some("1"))
       CTRegistrationConnectorMocks.retrieveCTRegistration()
-      when(mockBusinessRegConnector.retrieveMetadata(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[HttpReads[BusinessRegistration]]()))
+      when(mockBusinessRegConnector.retrieveMetadata(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
         .thenReturn(Future.successful(BusinessRegistrationSuccessResponse(validBusinessRegistrationResponse)))
 
       showWithAuthorisedUser(controller.show) {

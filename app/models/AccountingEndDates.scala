@@ -16,11 +16,11 @@
 
 package models
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 
 case class AccountingEndDates(businessEndDateChoice: String,
                               businessEndDate: Option[String])
 
 object AccountingEndDates {
-  implicit val formats = Json.format[AccountingEndDates]
+  implicit val formats: OFormat[AccountingEndDates] = Json.format[AccountingEndDates]
 }

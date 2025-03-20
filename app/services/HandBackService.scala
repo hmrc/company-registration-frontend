@@ -87,12 +87,12 @@ trait HandBackService extends HandOffNavigator with Logging {
     RedirectUrl(link)
   }
 
-  private def validateLinks(links: NavLinks) {
+  private def validateLinks(links: NavLinks): Unit = {
     validateLink(links.forward)
     validateLink(links.reverse)
   }
 
-  private def validateLinks(links: JumpLinks) {
+  private def validateLinks(links: JumpLinks): Unit = {
     validateLink(links.company_address)
     validateLink(links.company_jurisdiction)
     validateLink(links.company_name)

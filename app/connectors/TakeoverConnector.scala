@@ -16,52 +16,59 @@
 
 package connectors
 
-import config.{AppConfig, WSHttp}
+import config.AppConfig
 import connectors.httpParsers.AddressLookupHttpParsers.rawReads
 
 import javax.inject.Inject
 import models.TakeoverDetails
 import utils.Logging
 import play.api.http.Status._
-import play.api.libs.json.{JsError, JsSuccess}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import play.api.libs.json.{JsError, JsSuccess, Json}
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class TakeoverConnector @Inject()(appConfig: AppConfig,
-                                  http: WSHttp)(implicit ec: ExecutionContext) extends Logging {
+                                  httpClientV2: HttpClientV2)(implicit ec: ExecutionContext) extends Logging {
   def takeOverDetailsUrl(registrationId: String) = s"${appConfig.companyRegistrationUrl}/company-registration/corporation-tax-registration/$registrationId/takeover-details"
 
   def getTakeoverDetails(registrationId: String)(implicit hc: HeaderCarrier): Future[Option[TakeoverDetails]] = {
-    http.GET[HttpResponse](takeOverDetailsUrl(registrationId)).map {
-      res =>
-        res.status match {
-          case OK =>
-            res.json.validate[TakeoverDetails] match {
-              case JsSuccess(takeOverDetails, _) =>
-                Some(takeOverDetails)
-              case JsError(errors) =>
-                logger.error(s"[getTakeoverDetails] could not parse takeover details json to Takeover Details $registrationId for keys ${errors.map(_._1)}")
-                None
-            }
-          case _ =>
-            None
-        }
-    }
+    httpClientV2.get(url"${takeOverDetailsUrl(registrationId)}")
+      .execute[HttpResponse]
+      .map {
+        res =>
+          res.status match {
+            case OK =>
+              res.json.validate[TakeoverDetails] match {
+                case JsSuccess(takeOverDetails, _) =>
+                  Some(takeOverDetails)
+                case JsError(errors) =>
+                  logger.error(s"[getTakeoverDetails] could not parse takeover details json to Takeover Details $registrationId for keys ${errors.map(_._1)}")
+                  None
+              }
+            case _ =>
+              None
+          }
+      }
   }
 
 
   def updateTakeoverDetails(registrationId: String, takeoverDetails: TakeoverDetails)(implicit hc: HeaderCarrier): Future[TakeoverDetails] = {
-    http.PUT[TakeoverDetails, HttpResponse](takeOverDetailsUrl(registrationId), takeoverDetails)(implicitly, rawReads, hc, ec).map {
-      res =>
-        res.json.validate[TakeoverDetails] match {
-          case JsSuccess(takeOverDetails, _) =>
-            takeOverDetails
-          case JsError(errors) =>
-            logger.error(s"[updateTakeoverDetails] could not parse takeover details json to Takeover Details $registrationId for keys ${errors.map(_._1)}")
-            throw new Exception("Update returned invalid json")
-        }
-    }
+    httpClientV2
+      .put(url"${takeOverDetailsUrl(registrationId)}")
+      .withBody(Json.toJson(takeoverDetails))
+      .execute[HttpResponse](rawReads, ec)
+      .map {
+        res =>
+          res.json.validate[TakeoverDetails] match {
+            case JsSuccess(takeOverDetails, _) =>
+              takeOverDetails
+            case JsError(errors) =>
+              logger.error(s"[updateTakeoverDetails] could not parse takeover details json to Takeover Details $registrationId for keys ${errors.map(_._1)}")
+              throw new Exception("Update returned invalid json")
+          }
+      }
   }
 
 }

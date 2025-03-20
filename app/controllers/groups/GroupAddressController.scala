@@ -87,7 +87,7 @@ class GroupAddressController @Inject()(val authConnector: PlayAuthConnector,
       checkStatus { regID =>
         groupService.retrieveGroups(regID).flatMap {
           case Some(groups@Groups(true, Some(companyName), optAddressAndType, _)) =>
-            GroupAddressForm.form.bindFromRequest.fold(
+            GroupAddressForm.form.bindFromRequest().fold(
               errors => {
                 groupService.retreiveValidatedTxApiAddress(groups, regID).flatMap {
                   case Some(address) => Future.successful(BadRequest(view(

@@ -16,7 +16,7 @@
 
 package models.test
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 
 case class ETMPNotification(ackRef : String,
                             timestamp : String,
@@ -25,7 +25,7 @@ case class ETMPNotification(ackRef : String,
                             status : String)
 
 object ETMPNotification {
-  implicit val format = Json.format[ETMPNotification]
+  implicit val format: OFormat[ETMPNotification] = Json.format[ETMPNotification]
 }
 
 case class ETMPCTRecordUpdates(rootStatus : String,
@@ -34,5 +34,5 @@ case class ETMPCTRecordUpdates(rootStatus : String,
                                etmpStatus : String)
 
 object ETMPCTRecordUpdates {
-  implicit val format = Json.format[ETMPCTRecordUpdates]
+  implicit val format: OFormat[ETMPCTRecordUpdates] = Json.format[ETMPCTRecordUpdates]
 }

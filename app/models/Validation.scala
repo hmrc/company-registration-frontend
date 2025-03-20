@@ -73,10 +73,10 @@ trait RequiredBooleanForm {
 
   implicit def requiredBooleanFormatter: Formatter[Boolean] = new Formatter[Boolean] {
 
-    override val format = Some(("format.boolean", Nil))
+    override val format: Option[(String, Nil.type)] = Some(("format.boolean", Nil))
 
     // default play binding is to data.getOrElse(key, "false")
-    def bind(key: String, data: Map[String, String]) = {
+    def bind(key: String, data: Map[String, String]): Either[Seq[FormError], Boolean] = {
       Right(data.getOrElse(key,"")).right.flatMap {
         case "true" => Right(true)
         case "false" => Right(false)
@@ -84,7 +84,7 @@ trait RequiredBooleanForm {
       }
     }
 
-    def unbind(key: String, value: Boolean) = Map(key -> value.toString)
+    def unbind(key: String, value: Boolean): Map[String, String] = Map(key -> value.toString)
   }
 
   val requiredBoolean: Mapping[Boolean] = Forms.of[Boolean](requiredBooleanFormatter)

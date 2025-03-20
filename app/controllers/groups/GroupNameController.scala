@@ -70,7 +70,7 @@ class GroupNameController @Inject()(val authConnector: PlayAuthConnector,
           case Some(groups@Groups(true, _, _, _)) =>
             groupService.returnValidShareholdersAndUpdateGroups(groups, regID).flatMap { res =>
               val (listOfShareholders, updatedGroups) = res
-              GroupNameForm.form.bindFromRequest.fold(
+              GroupNameForm.form.bindFromRequest().fold(
                 errors => {
                   Future.successful(BadRequest(view(errors, updatedGroups.nameOfCompany, listOfShareholders)))
                 },

@@ -43,7 +43,7 @@ class SubmissionEndpointController @Inject()(val authConnector: PlayAuthConnecto
         fetchSubmission <- s4LConnector.fetchAndGet[SubmissionModel](internalID, "SubmissionData")
         submission = fetchSubmission.getOrElse(SubmissionModel("No submission found", "No submission ref"))
       } yield {
-        val submissionForm = SubmissionForm.form.fill(submission)
+        val submissionForm = SubmissionForm.form().fill(submission)
         Ok(view(submissionForm))
       }
     }

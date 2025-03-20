@@ -16,16 +16,16 @@
 
 package models
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 
 case class AboutYouChoice(completionCapacity : String)
 
 object AboutYouChoice {
-  implicit val format = Json.format[AboutYouChoice]
+  implicit val format: OFormat[AboutYouChoice] = Json.format[AboutYouChoice]
 }
 
 case class AboutYouChoiceForm(completionCapacity : String, completionCapacityOther : String)
 
 object AboutYouChoiceForm {
-  implicit val format = Json.format[AboutYouChoiceForm]
+  implicit val format: OFormat[AboutYouChoiceForm] = Json.format[AboutYouChoiceForm]
 }

@@ -63,7 +63,7 @@ class SignInOutController @Inject()(val authConnector: PlayAuthConnector,
                 processDeferredHandoff(handOffID, payload, response) {
                   hasNoEnrolments(authDetails.enrolments) {
                     emailService.checkEmailStatus(response.registrationId, response.emailData, authDetails) map {
-                      case VerifiedEmail() => Redirect(routes.CompletionCapacityController.show)
+                      case VerifiedEmail() => Redirect(routes.CompletionCapacityController.show())
                       case NotVerifiedEmail() => Redirect(routes.RegistrationEmailController.show)
                       case NoEmail() => Redirect(controllers.verification.routes.EmailVerificationController.createShow)
                       case _ => InternalServerError(controllerErrorHandler.defaultErrorPage)
@@ -104,7 +104,7 @@ class SignInOutController @Inject()(val authConnector: PlayAuthConnector,
 
   private def hasFootprint(f: ThrottleResponse => Future[Result])(implicit hc: HeaderCarrier, request: Request[AnyContent]): Future[Result] = {
     val context = metrics.saveFootprintToCRTimer.time()
-    compRegConnector.retrieveOrCreateFootprint flatMap {
+    compRegConnector.retrieveOrCreateFootprint() flatMap {
       case FootprintFound(throttle) =>
         context.stop()
         f(throttle)
@@ -205,7 +205,7 @@ class SignInOutController @Inject()(val authConnector: PlayAuthConnector,
           )
         } ++ cacheHeader
 
-        updateLastActionTimestamp.map( _ => {
+        updateLastActionTimestamp().map( _ => {
           Ok.sendFile(new File("conf/renewSession.jpg")).as("image/jpeg").withHeaders(headers: _*)
         }
         ).recover{

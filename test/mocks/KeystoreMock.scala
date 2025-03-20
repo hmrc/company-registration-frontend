@@ -43,9 +43,9 @@ trait KeystoreMock {
         .thenReturn(Future.successful(cacheMap))
     }
 
-    def mockKeystoreClear(): OngoingStubbing[Future[HttpResponse]] = {
+    def mockKeystoreClear(): OngoingStubbing[Future[Unit]] = {
       when(mockKeystoreConnector.remove()(ArgumentMatchers.any(), ArgumentMatchers.any()))
-        .thenReturn(Future.successful(HttpResponse(200, "")))
+        .thenReturn(Future.successful())
     }
 
   def mockKeystoreFetchAndGetFailed[T](key: String, exception: Throwable): OngoingStubbing[Future[Option[T]]] = {

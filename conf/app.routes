@@ -45,7 +45,7 @@ GET        /ticket-submitted                        controllers.reg.Confirmation
 GET        /register                                controllers.reg.WelcomeController.show
 POST       /register                                controllers.reg.WelcomeController.submit
 
-GET        /relationship-to-company                 controllers.reg.CompletionCapacityController.show
+GET        /relationship-to-company                 controllers.reg.CompletionCapacityController.show()
 POST       /relationship-to-company                 controllers.reg.CompletionCapacityController.submit
 
 GET        /when-start-business                     controllers.reg.AccountingDatesController.show

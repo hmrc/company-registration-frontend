@@ -17,24 +17,26 @@
 package connectors
 
 import javax.inject.Inject
-import config.{AppConfig, WSHttp}
+import config.AppConfig
 import models.SendTemplatedEmailRequest
 import utils.Logging
 import play.api.http.Status._
+import play.api.libs.json.Json
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.client.HttpClientV2
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NoStackTrace
 
 private[connectors] class TemplateEmailErrorResponse(s: String) extends NoStackTrace
 
-class SendTemplatedEmailConnectorImpl @Inject()(appConfig: AppConfig, val wSHttp: WSHttp)(implicit val ec: ExecutionContext) extends SendTemplatedEmailConnector {
+class SendTemplatedEmailConnectorImpl @Inject()(appConfig: AppConfig, val httpClientV2: HttpClientV2)(implicit val ec: ExecutionContext) extends SendTemplatedEmailConnector {
   lazy val sendTemplatedEmailURL = appConfig.servicesConfig.getConfString("email.sendAnEmailURL", throw new Exception("email.sendAnEmailURL not found"))
 }
 
 trait SendTemplatedEmailConnector extends HttpErrorFunctions with Logging {
-  val wSHttp : CorePost
+  val httpClientV2 : HttpClientV2
   val sendTemplatedEmailURL : String
 
   def requestTemplatedEmail(templatedEmailRequest : SendTemplatedEmailRequest)(implicit hc : HeaderCarrier, ec: ExecutionContext) : Future[Boolean] = {
@@ -43,19 +45,22 @@ trait SendTemplatedEmailConnector extends HttpErrorFunctions with Logging {
       throw new TemplateEmailErrorResponse(status)
     }
 
-    wSHttp.POST[SendTemplatedEmailRequest, HttpResponse] (s"$sendTemplatedEmailURL", templatedEmailRequest) map { r =>
-      r.status match {
-        case ACCEPTED => {
-          logger.debug("[sendTemplatedEmail] request to email service was successful")
-          true
+    httpClientV2.post(url"$sendTemplatedEmailURL")
+      .withBody(Json.toJson(templatedEmailRequest))
+      .execute[HttpResponse]
+      .map { r =>
+        r.status match {
+          case ACCEPTED => {
+            logger.debug("[sendTemplatedEmail] request to email service was successful")
+            true
+          }
         }
+      } recover {
+        case ex: BadRequestException => errorMsg("400", ex)
+        case ex: NotFoundException => errorMsg("404", ex)
+        case ex: InternalServerException => errorMsg("500", ex)
+        case ex: BadGatewayException => errorMsg("502", ex)
       }
-    } recover {
-      case ex: BadRequestException => errorMsg("400", ex)
-      case ex: NotFoundException => errorMsg("404", ex)
-      case ex: InternalServerException => errorMsg("500", ex)
-      case ex: BadGatewayException => errorMsg("502", ex)
-    }
   }
 
   private[connectors] def customRead(http: String, url: String, response: HttpResponse) =

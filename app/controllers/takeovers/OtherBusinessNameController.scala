@@ -70,7 +70,7 @@ class OtherBusinessNameController @Inject()(val authConnector: PlayAuthConnector
   val submit: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
       registered { regId =>
-        OtherBusinessNameForm.form.bindFromRequest.fold(
+        OtherBusinessNameForm.form.bindFromRequest().fold(
           errors =>
             Future.successful(BadRequest(view(errors))),
           otherBusinessName => {

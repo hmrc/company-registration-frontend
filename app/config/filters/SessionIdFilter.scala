@@ -16,8 +16,9 @@
 
 package config.filters
 
+import org.apache.pekko.stream.Materializer
+
 import javax.inject.Inject
-import akka.stream.Materializer
 import utils.Logging
 import play.api.http.DefaultHttpFilters
 import play.api.mvc.Results.Redirect

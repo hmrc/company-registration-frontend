@@ -16,11 +16,11 @@
 
 package models
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 
 case class SubmissionModel(submissionStatus : String = "",
                            submissionRef: String)
 
 object SubmissionModel {
-  implicit val formats = Json.format[SubmissionModel]
+  implicit val formats: OFormat[SubmissionModel] = Json.format[SubmissionModel]
 }

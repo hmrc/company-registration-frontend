@@ -38,9 +38,9 @@ trait SaveForLaterMock {
         .thenReturn(Future.successful(model))
     }
 
-    def mockS4LClear(mockS4LConnector: S4LConnector = mockS4LConnector) : OngoingStubbing[Future[HttpResponse]] = {
+    def mockS4LClear(mockS4LConnector: S4LConnector = mockS4LConnector) : OngoingStubbing[Future[Unit]] = {
       when(mockS4LConnector.clear(ArgumentMatchers.anyString())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]()))
-        .thenReturn(Future.successful(HttpResponse(200, "")))
+        .thenReturn(Future.successful())
     }
 
     def mockS4LSaveForm[T](formId: String, cacheMap: CacheMap, mockS4LConnector: S4LConnector = mockS4LConnector) : OngoingStubbing[Future[CacheMap]] = {

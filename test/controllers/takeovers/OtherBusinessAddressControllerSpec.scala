@@ -16,8 +16,6 @@
 
 package controllers.takeovers
 
-import akka.actor.ActorSystem
-import akka.stream.{ActorMaterializer, Materializer}
 import builders.AuthBuilder
 import config.AppConfig
 import controllers.reg.ControllerErrorHandler
@@ -29,6 +27,8 @@ import helpers.SCRSSpec
 import mocks.{AddressLookupFrontendServiceMock, AddressPrepopulationServiceMock, BusinessRegConnectorMock, TakeoverServiceMock}
 import models.takeovers.PreselectedAddress
 import models.{NewAddress, TakeoverDetails}
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.stream.Materializer
 import org.jsoup.Jsoup
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n._
@@ -36,7 +36,6 @@ import play.api.libs.json.Json
 import play.api.mvc._
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.http.NotFoundException
 import views.html.takeovers.OtherBusinessAddress
 
 import scala.concurrent.Future

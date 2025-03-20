@@ -40,11 +40,11 @@ case class Address(houseNameNumber: Option[String],
 }
 
 object Address {
-  implicit val formats = Json.format[Address]
+  implicit val formats: OFormat[Address] = Json.format[Address]
 
-  def generateTxId = UUID.randomUUID().toString
+  def generateTxId: String = UUID.randomUUID().toString
 
-  def concatForRO(str1: String, str2: String) = {
+  def concatForRO(str1: String, str2: String): String = {
     if((str1 + str2).length > 25){
       s"$str1, $str2"
     } else {
@@ -53,7 +53,7 @@ object Address {
   }
 
 
-  val prePopWrites = new Writes[Address] {
+  val prePopWrites: Writes[Address] = new Writes[Address] {
     import utils.RichJson._
 
     override def writes(a: Address): JsValue = {
@@ -71,7 +71,7 @@ object Address {
     }
   }
 
-  val ppobReads = (
+  val ppobReads: Reads[Address] = (
     Reads.pure(None) and
       (__ \ "companyDetails" \ "pPOBAddress" \ "address" \ "addressLine1").read[String] and
       (__ \ "companyDetails" \ "pPOBAddress" \ "address" \ "addressLine2").read[String] and
@@ -84,7 +84,7 @@ object Address {
       Reads.pure(None)
     )(Address.apply _)
 
-  val addressReads = new Reads[Address] {
+  val addressReads: Reads[Address] = new Reads[Address] {
     override def reads(json: JsValue): JsResult[Address] = {
       val line1 = (json \ "addressLine1").as[String]
       val line2 = (json \ "addressLine2").as[String]
@@ -97,7 +97,7 @@ object Address {
     }
   }
 
-  val prePopReads = new Reads[Seq[Address]] {
+  val prePopReads: Reads[Seq[Address]] = new Reads[Seq[Address]] {
     override def reads(json: JsValue): JsResult[Seq[Address]] = {
       JsSuccess((json \ "addresses").as[Seq[Address]](Reads.seq[Address](addressReads)))
     }
@@ -108,9 +108,9 @@ case class PPOB(addressType: String,
                 address: Option[Address])
 
 object PPOB {
-  implicit val formats = Json.format[PPOB]
+  implicit val formats: OFormat[PPOB] = Json.format[PPOB]
 
-  def empty = PPOB("", None)
+  def empty: PPOB = PPOB("", None)
 
   lazy val RO = "RO"
   lazy val LOOKUP = "LOOKUP"
@@ -144,7 +144,7 @@ object CHROAddress extends CHAddressValidator {
       (__ \ "region").formatNullable[String](regionValidator)
     ) (CHROAddress.apply, unlift(CHROAddress.unapply))
 
-  val auditWrites = new Writes[CHROAddress] {
+  val auditWrites: Writes[CHROAddress] = new Writes[CHROAddress] {
     def writes(address: CHROAddress) = {
       Json.obj(
         "premises" -> address.premises,
@@ -167,8 +167,8 @@ case class CompanyDetails(companyName: String,
                           jurisdiction: String)
 
 object CompanyDetails {
-  implicit val formatCH = Json.format[CHROAddress]
-  implicit val formats = Json.format[CompanyDetails]
+  implicit val formatCH: OFormat[CHROAddress] = Json.format[CHROAddress]
+  implicit val formats: OFormat[CompanyDetails] = Json.format[CompanyDetails]
 
   def createFromHandoff(companyName: String, roAddress: CHROAddress, ppob: PPOB, jurisdiction: String): CompanyDetails = {
     CompanyDetails(companyName, roAddress, ppob, jurisdiction = jurisdiction)

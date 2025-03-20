@@ -16,7 +16,7 @@
 
 package models.handoff
 
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.{JsObject, Json, OFormat}
 
 case class PaymentHandoff(
                          user_id: String,
@@ -28,5 +28,5 @@ case class PaymentHandoff(
                          links: JsObject
                          )
 object PaymentHandoff{
-  implicit val format = Json.format[PaymentHandoff]
+  implicit val format: OFormat[PaymentHandoff] = Json.format[PaymentHandoff]
 }

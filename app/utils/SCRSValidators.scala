@@ -16,11 +16,12 @@
 
 package utils
 
+import models.JavaTimeUtils.BankHolidaySet
 import models._
 import play.api.data.validation._
 import services.TimeService
-import java.time._
 
+import java.time._
 import scala.util.{Failure, Success, Try}
 
 object SCRSValidators {
@@ -151,11 +152,11 @@ trait SCRSValidatorsT {
 
   val desSessionRegex = "^([A-Za-z0-9-]{0,60})$"
 
-  implicit lazy val bHS = timeService.bHS
+  implicit lazy val bHS: BankHolidaySet = timeService.bHS
 
   val MAX_NAME_LENGTH = 300
 
-  def accountingDateValidation = {
+  def accountingDateValidation: Constraint[AccountingDatesModel] = {
     Constraint("constraints.twoWorkingDays")({
       (model: AccountingDatesModel) =>
         model.crnDate match {

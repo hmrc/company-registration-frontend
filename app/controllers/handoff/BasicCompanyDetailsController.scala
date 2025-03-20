@@ -73,7 +73,7 @@ class BasicCompanyDetailsController @Inject()(val authConnector: PlayAuthConnect
             case Success(payload) =>
               val lang = handOffUtils.readLang(payload)
               languageService.updateLanguage(regId, lang).map { _ =>
-                Redirect(controllers.reg.routes.CompletionCapacityController.show).withLang(lang)
+                Redirect(controllers.reg.routes.CompletionCapacityController.show()).withLang(lang)
               }
             case Failure(PayloadError) =>
               Future.successful(BadRequest(error_template_restart("1b", "PayloadError")))

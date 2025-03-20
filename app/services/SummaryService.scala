@@ -122,7 +122,7 @@ class SummaryService @Inject()(val authConnector: PlayAuthConnector,
     val companyContactDetails = optSummaryListRowString(
       messages("page.reg.AboutYou.description"),
       Some(aboutYouChoice.completionCapacity.capitalize),
-      Some(controllers.reg.routes.CompletionCapacityController.show.url)
+      Some(controllers.reg.routes.CompletionCapacityController.show().url)
     )
     Seq(
       companyContactDetails

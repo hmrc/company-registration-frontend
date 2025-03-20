@@ -16,17 +16,17 @@
 
 package models
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 
 trait AuthResponse
 case class Authority(ids: String, userDetailsLink: String) extends AuthResponse
 
 object Authority {
-  implicit val format = Json.format[Authority]
+  implicit val format: OFormat[Authority] = Json.format[Authority]
 }
 
 case class UserIDs(internalId: String, externalId: String) extends AuthResponse
 
 object UserIDs {
-  implicit val formats = Json.format[UserIDs]
+  implicit val formats: OFormat[UserIDs] = Json.format[UserIDs]
 }

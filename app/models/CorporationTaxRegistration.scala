@@ -17,12 +17,12 @@
 package models
 
 import models.connectors.ConfirmationReferences
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 
 case class CorporationTaxRegistrationRequest(language: String)
 
 object CorporationTaxRegistrationRequest {
-  implicit val formats = Json.format[CorporationTaxRegistrationRequest]
+  implicit val formats: OFormat[CorporationTaxRegistrationRequest] = Json.format[CorporationTaxRegistrationRequest]
 }
 
 
@@ -30,7 +30,7 @@ case class CorporationTaxRegistrationResponse(registrationID: String,
                                               formCreationTimestamp: String)
 
 object CorporationTaxRegistrationResponse {
-  implicit val formats = Json.format[CorporationTaxRegistrationResponse]
+  implicit val formats: OFormat[CorporationTaxRegistrationResponse] = Json.format[CorporationTaxRegistrationResponse]
 }
 
 sealed trait ConfirmationReferencesResponse

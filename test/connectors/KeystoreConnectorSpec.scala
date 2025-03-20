@@ -85,7 +85,7 @@ class KeystoreConnectorSpec extends SCRSSpec {
         .thenReturn(Future.successful(HttpResponse(OK, "")))
 
       val result = connector.remove()
-      await(result).status mustBe HttpResponse(OK, "").status
+      await(result) mustBe ()
     }
   }
 }

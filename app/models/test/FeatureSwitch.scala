@@ -16,10 +16,10 @@
 
 package models.test
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 
 case class FeatureSwitch(firstHandOff: String, legacyEnv: String, takeovers: String)
 
 object FeatureSwitch {
-  implicit val format = Json.format[FeatureSwitch]
+  implicit val format: OFormat[FeatureSwitch] = Json.format[FeatureSwitch]
 }

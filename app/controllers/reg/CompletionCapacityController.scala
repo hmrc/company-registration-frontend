@@ -63,7 +63,7 @@ class CompletionCapacityController @Inject()(
   def submit: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
       registered { _ =>
-        AboutYouForm.form.bindFromRequest.fold(
+        AboutYouForm.form.bindFromRequest().fold(
           errors => Future.successful(BadRequest(view(errors))),
           success => {
             val context = metricsService.saveCompletionCapacityToCRTimer.time()

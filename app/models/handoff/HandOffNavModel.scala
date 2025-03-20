@@ -28,7 +28,7 @@ case class NavLinks(forward: String,
                     reverse: String)
 
 object NavLinks {
-  implicit val formats = Json.format[NavLinks]
+  implicit val formats: OFormat[NavLinks] = Json.format[NavLinks]
 }
 
 case class JumpLinks(company_name : String,
@@ -36,7 +36,7 @@ case class JumpLinks(company_name : String,
                      company_jurisdiction : String)
 
 object JumpLinks {
-  implicit val format = Json.format[JumpLinks]
+  implicit val format: OFormat[JumpLinks] = Json.format[JumpLinks]
 }
 
 case class Sender(nav: Map[String, NavLinks])
@@ -49,10 +49,10 @@ case class HandOffNavModel(sender: Sender,
                            receiver: Receiver)
 
 object HandOffNavModel {
-  implicit val formatNavLinks = Json.format[NavLinks]
-  implicit val formatReceiver = Json.format[Receiver]
-  implicit val formatSender = Json.format[Sender]
-  implicit val formats = Json.format[HandOffNavModel]
+  implicit val formatNavLinks: OFormat[NavLinks] = Json.format[NavLinks]
+  implicit val formatReceiver: OFormat[Receiver] = Json.format[Receiver]
+  implicit val formatSender: OFormat[Sender] = Json.format[Sender]
+  implicit val formats: OFormat[HandOffNavModel] = Json.format[HandOffNavModel]
 }
 
 case class MongoHandOffNavModel(registrationID: String,
@@ -75,5 +75,5 @@ object MongoHandOffNavModel {
     )
   }
 
-  implicit val format = Format(mongoReads, mongoWrites)
+  implicit val format: Format[MongoHandOffNavModel] = Format(mongoReads, mongoWrites)
 }

@@ -16,13 +16,13 @@
 
 package controllers.verification
 
-import akka.actor.ActorSystem
-import akka.stream.{ActorMaterializer, Materializer}
 import builders.AuthBuilder
 import config.AppConfig
 import helpers.SCRSSpec
 import mocks.{CompanyRegistrationConnectorMock, KeystoreMock, SCRSMocks}
 import models.Email
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.stream.Materializer
 import org.jsoup.Jsoup
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._

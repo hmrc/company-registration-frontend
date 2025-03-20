@@ -47,7 +47,7 @@ class CancelRegistrationController @Inject()(val payeConnector: PAYEConnector,
 
   def showCancelPAYE: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
-      showCancelService(payeConnector, cancelPayeView(CancelForm.form.fill(false)))
+      showCancelService(payeConnector, cancelPayeView(CancelForm.form().fill(false)))
     }
   }
 
@@ -60,7 +60,7 @@ class CancelRegistrationController @Inject()(val payeConnector: PAYEConnector,
 
   def showCancelVAT: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
-      showCancelService(vatConnector, canelVatView(CancelForm.form.fill(false)))
+      showCancelService(vatConnector, canelVatView(CancelForm.form().fill(false)))
     }
   }
 
@@ -81,7 +81,7 @@ class CancelRegistrationController @Inject()(val payeConnector: PAYEConnector,
 
   private[controllers] def submitCancelService(service: ServiceConnector, cancelPage: (Form[Boolean]) => Html)(implicit request: Request[AnyContent], ec: ExecutionContext): Future[Result] = {
     checkStatuses { regID =>
-      CancelForm.form.bindFromRequest.fold(
+      CancelForm.form().bindFromRequest().fold(
         errors =>
           Future.successful(BadRequest(cancelPage(errors))),
         success =>

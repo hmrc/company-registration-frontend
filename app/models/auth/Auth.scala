@@ -16,12 +16,12 @@
 
 package models.auth
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 
 case class EnrolmentIdentifier(key: String, value: String)
 
 object EnrolmentIdentifier {
-  implicit val format = Json.format[EnrolmentIdentifier]
+  implicit val format: OFormat[EnrolmentIdentifier] = Json.format[EnrolmentIdentifier]
 }
 
 case class Enrolment(key: String,
@@ -29,5 +29,5 @@ case class Enrolment(key: String,
                      state: String)
 
 object Enrolment {
-  implicit val format = Json.format[Enrolment]
+  implicit val format: OFormat[Enrolment] = Json.format[Enrolment]
 }

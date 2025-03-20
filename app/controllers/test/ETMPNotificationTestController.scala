@@ -47,7 +47,7 @@ class ETMPNotificationTestController @Inject()(val brdsConnector: DynamicStubCon
 
   def submit: Action[AnyContent] = Action.async {
     implicit request =>
-      ETMPPost.form.bindFromRequest.fold(
+      ETMPPost.form.bindFromRequest().fold(
         errors => Future.successful(BadRequest(viewEMTPPostView(errors))),
         valid =>
           brdsConnector.postETMPNotificationData(valid) map {

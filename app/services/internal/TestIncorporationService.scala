@@ -31,7 +31,7 @@ trait TestIncorporationService {
   def incorporateTransactionId(transId: String, isSuccess: Boolean)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Boolean] = {
     for {
       incorporate <- incorpInfoConnector.injectTestIncorporationUpdate(transId, isSuccess)
-      triggerResponse <- incorpInfoConnector.manuallyTriggerIncorporationUpdate
+      triggerResponse <- incorpInfoConnector.manuallyTriggerIncorporationUpdate()
     } yield incorporate && triggerResponse
   }
 }

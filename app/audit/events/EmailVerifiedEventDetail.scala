@@ -16,7 +16,7 @@
 
 package audit.events
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 
 case class EmailVerifiedEventDetail(externalUserId: String,
                                     authProviderId: String,
@@ -26,6 +26,6 @@ case class EmailVerifiedEventDetail(externalUserId: String,
                                     previouslyVerified: Boolean = true)
 
 object EmailVerifiedEventDetail {
-  implicit val format = Json.format[EmailVerifiedEventDetail]
+  implicit val format: OFormat[EmailVerifiedEventDetail] = Json.format[EmailVerifiedEventDetail]
 }
 

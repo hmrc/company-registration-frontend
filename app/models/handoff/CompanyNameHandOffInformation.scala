@@ -24,7 +24,7 @@ import play.api.libs.json._
 
 
 object DateWriter {
-  implicit def dateTimeWrites = new Writes[LocalDate] {
+  implicit def dateTimeWrites: Writes[LocalDate] = new Writes[LocalDate] {
     private val dateFormat = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss.SSSZ", TimeZone.getTimeZone("UTC"))
 
     def writes(dt: LocalDate): JsValue = JsString(dateFormat.toString)
@@ -38,10 +38,10 @@ case class CompanyNameHandOffInformation(handoffType : String, handoffTime : Loc
 case class CompanyNameHandOffInformationReturned(handoffType : String, data : JsObject)
 
 object CompanyNameHandOffInformation {
-  implicit val dateWriter = DateWriter.dateTimeWrites
-  implicit val format = Json.format[CompanyNameHandOffInformation]
+  implicit val dateWriter: Writes[LocalDate] = DateWriter.dateTimeWrites
+  implicit val format: OFormat[CompanyNameHandOffInformation] = Json.format[CompanyNameHandOffInformation]
 }
 
 object CompanyNameHandOffInformationReturned {
-  implicit val format = Json.format[CompanyNameHandOffInformationReturned]
+  implicit val format: OFormat[CompanyNameHandOffInformationReturned] = Json.format[CompanyNameHandOffInformationReturned]
 }

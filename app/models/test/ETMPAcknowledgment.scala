@@ -16,12 +16,12 @@
 
 package models.test
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 
 case class ETMPAcknowledgment(ctUtr : String,
                               timestamp : String,
                               status : String)
 
 object ETMPAcknowledgment {
-  implicit val format = Json.format[ETMPAcknowledgment]
+  implicit val format: OFormat[ETMPAcknowledgment] = Json.format[ETMPAcknowledgment]
 }

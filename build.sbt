@@ -7,7 +7,7 @@ import scoverage.ScoverageKeys
 import uk.gov.hmrc.DefaultBuildSettings.{addTestReportOption, defaultSettings, scalaSettings}
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin
 import uk.gov.hmrc.versioning.SbtGitVersioning.autoImport.majorVersion
-import uk.gov.hmrc.{DefaultBuildSettings, SbtAutoBuildPlugin}
+import uk.gov.hmrc.DefaultBuildSettings
 
 val appName = "company-registration-frontend"
 
@@ -27,7 +27,7 @@ lazy val scoverageSettings = {
 }
 
 lazy val microservice = Project(appName, file("."))
-  .enablePlugins(Seq(PlayScala, SbtAutoBuildPlugin, SbtDistributablesPlugin) *)
+  .enablePlugins(Seq(PlayScala, SbtDistributablesPlugin) *)
   .settings(scoverageSettings: _*)
   .settings(scalaSettings *)
   .settings(scalacOptions ++= Seq("-feature", "-unchecked", "-deprecation", "-language:reflectiveCalls"))
@@ -40,7 +40,7 @@ lazy val microservice = Project(appName, file("."))
     routesImport ++= Seq("uk.gov.hmrc.play.bootstrap.binders._"),
   )
   .settings(PlayKeys.devSettings := Seq(
-    "akka.http.parsing.max-uri-length" -> "16k")
+    "pekko.http.parsing.max-uri-length" -> "16k")
   )
   .disablePlugins(JUnitXmlReportPlugin) //Required to prevent https://github.com/scalatest/scalatest/issues/1427
 

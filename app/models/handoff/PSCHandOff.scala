@@ -41,8 +41,8 @@ case class ParentCompany(name: String,
                          address: NewAddress,
                          tax_reference: Option[String])
 object PSCHandOff {
-  implicit val jLinksFormats = Json.format[JumpLinksForGroups]
-  val formatTaxRef = (taxRef: Option[String]) => {
+  implicit val jLinksFormats: OFormat[JumpLinksForGroups] = Json.format[JumpLinksForGroups]
+  val formatTaxRef: Option[String] => Option[String] = (taxRef: Option[String]) => {
     taxRef.map(str => {
       val utr = str.takeRight(3)
       str.take(str.size - utr.size)

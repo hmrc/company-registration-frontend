@@ -16,18 +16,20 @@
 
 package controllers.test
 
-import config.{AppConfig, WSHttp}
+import config.AppConfig
+
 import javax.inject.Inject
 import play.api.libs.json.JsValue
 import play.api.mvc.MessagesControllerComponents
-import uk.gov.hmrc.http.{HeaderCarrier, HttpGet}
+import uk.gov.hmrc.http.{HeaderCarrier, StringContextOps}
 import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import scala.concurrent.{ExecutionContext, Future}
 
 
-class CTMongoTestControllerImpl @Inject()(val wSHttp: WSHttp,
+class CTMongoTestControllerImpl @Inject()(val httpClientV2: HttpClientV2,
                                           val appConfig: AppConfig,
                                           mcc: MessagesControllerComponents)(implicit override val ec: ExecutionContext) extends CTMongoTestController(mcc)(ec) {
 
@@ -36,7 +38,7 @@ class CTMongoTestControllerImpl @Inject()(val wSHttp: WSHttp,
 
 abstract class CTMongoTestController(mcc: MessagesControllerComponents)(implicit val ec: ExecutionContext) extends FrontendController(mcc) {
 
-  val wSHttp: HttpGet
+  val httpClientV2: HttpClientV2
   val ctUrl: String
 
   def dropCollection = Action.async {
@@ -50,6 +52,6 @@ abstract class CTMongoTestController(mcc: MessagesControllerComponents)(implicit
   }
 
   def dropCTCollection(implicit hc: HeaderCarrier): Future[JsValue] = {
-    wSHttp.GET[JsValue](s"$ctUrl/company-registration/test-only/drop-ct")(readJsValue, hc, ec)
+    httpClientV2.get(url"$ctUrl/company-registration/test-only/drop-ct").execute[JsValue]
   }
 }

@@ -62,7 +62,7 @@ class GroupReliefController @Inject()(val authConnector: PlayAuthConnector,
   val submit: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
       registered { regID =>
-        GroupReliefForm.form.bindFromRequest.fold(
+        GroupReliefForm.form.bindFromRequest().fold(
           errors =>
             compRegConnector.fetchCompanyName(regID).map { cName =>
               BadRequest(view(errors, cName))

@@ -16,7 +16,7 @@
 
 package models.external
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 
 case class Ticket (name: String,
                    email: String,
@@ -31,5 +31,5 @@ case class Ticket (name: String,
                    service: String)
 
 object Ticket {
-  implicit val format = Json.format[Ticket]
+  implicit val format: OFormat[Ticket] = Json.format[Ticket]
 }

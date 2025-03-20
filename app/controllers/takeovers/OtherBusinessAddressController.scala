@@ -98,7 +98,7 @@ class OtherBusinessAddressController @Inject()(val authConnector: PlayAuthConnec
             optTakeoverDetails =>
               val optAddressSeq: Option[Seq[NewAddress]] = request.session.get(addressSeqKey).map(Json.parse(_).as[Seq[NewAddress]])
               (optTakeoverDetails, optAddressSeq) match {
-                case (Some(TakeoverDetails(_, Some(businessName), _, _, _)), Some(addressSeq)) => OtherBusinessAddressForm.form(businessName, addressSeq.length).bindFromRequest.fold(
+                case (Some(TakeoverDetails(_, Some(businessName), _, _, _)), Some(addressSeq)) => OtherBusinessAddressForm.form(businessName, addressSeq.length).bindFromRequest().fold(
                   formWithErrors =>
                     Future.successful(BadRequest(view(formWithErrors, businessName, addressSeq ++ Seq(Messages("common.differentAddress"))))),
                   {

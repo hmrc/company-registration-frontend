@@ -18,15 +18,10 @@ package connectors
 
 import helpers.{SCRSSpec, UnitSpec}
 import models.SendTemplatedEmailRequest
-import org.mockito.ArgumentMatchers
-import org.mockito.Mockito._
 import org.scalatest.BeforeAndAfter
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.Status._
-import play.api.libs.json.JsValue
 import uk.gov.hmrc.http._
-
-import scala.concurrent.Future
 
 class SendTemplatedEmailConnectorSpec extends SCRSSpec with UnitSpec with MockitoSugar with BeforeAndAfter {
 
@@ -35,14 +30,14 @@ class SendTemplatedEmailConnectorSpec extends SCRSSpec with UnitSpec with Mockit
 
   trait Setup {
     val connector = new SendTemplatedEmailConnector {
-      override val sendTemplatedEmailURL = "test sendTemplatedEmailURL"
-      override val wSHttp = mockWSHttp
+      override val sendTemplatedEmailURL = "http://sendTemplatedEmailURL"
+      override val httpClientV2 = mockHttpClientV2
 
     }
   }
 
   val verifiedEmail = Array("foo@bar.com")
-  val returnLinkURL = "registeryourcompanyurl"
+  val returnLinkURL = "http://registeryourcompanyurl"
   val emailRequest = SendTemplatedEmailRequest(
     verifiedEmail,
     "register_your_company_welcome_email",
@@ -54,36 +49,29 @@ class SendTemplatedEmailConnectorSpec extends SCRSSpec with UnitSpec with Mockit
   "send Templated Email" should {
 
     "Return a true when a request to send a new templated email is successful" in new Setup {
-      mockHttpPOST(connector.sendTemplatedEmailURL, HttpResponse(ACCEPTED, ""))
+      mockHttpPOST(url"${connector.sendTemplatedEmailURL}", HttpResponse(ACCEPTED, ""))
 
       await(connector.requestTemplatedEmail(emailRequest)) mustBe true
     }
 
     "Fail the future when the service cannot be found" in new Setup {
-      when(mockWSHttp.POST[JsValue, HttpResponse](ArgumentMatchers.anyString(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-        .thenReturn(Future.failed(new NotFoundException("error")))
+      mockHttpFailedPOST(new NotFoundException("error"))
 
       intercept[TemplateEmailErrorResponse](await(connector.requestTemplatedEmail(emailRequest)))
     }
 
     "Fail the future when we send a bad request" in new Setup {
-      when(mockWSHttp.POST[JsValue, HttpResponse](ArgumentMatchers.anyString(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-        .thenReturn(Future.failed(new BadRequestException("error")))
-
+      mockHttpFailedPOST(new BadRequestException("error"))
       intercept[TemplateEmailErrorResponse](await(connector.requestTemplatedEmail(emailRequest)))
     }
 
     "Fail the future when EVS returns an internal server error" in new Setup {
-      when(mockWSHttp.POST[JsValue, HttpResponse](ArgumentMatchers.anyString(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-        .thenReturn(Future.failed(new InternalServerException("error")))
-
+      mockHttpFailedPOST(new InternalServerException("error"))
       intercept[TemplateEmailErrorResponse](await(connector.requestTemplatedEmail(emailRequest)))
     }
 
     "Fail the future when EVS returns an upstream error" in new Setup {
-      when(mockWSHttp.POST[JsValue, HttpResponse](ArgumentMatchers.anyString(), ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-        .thenReturn(Future.failed(new BadGatewayException("error")))
-
+      mockHttpFailedPOST(new BadGatewayException("error"))
       intercept[TemplateEmailErrorResponse](await(connector.requestTemplatedEmail(emailRequest)))
     }
 

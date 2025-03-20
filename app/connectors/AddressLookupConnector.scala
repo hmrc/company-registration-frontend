@@ -16,17 +16,19 @@
 
 package connectors
 
-import config.{AppConfig, WSHttp}
+import config.AppConfig
 import connectors.httpParsers.AddressLookupHttpParsers.{addressHttpReads, onRampHttpReads}
 import models.{AlfJourneyConfig, NewAddress}
-import uk.gov.hmrc.http._
+import play.api.libs.json.Json
+import uk.gov.hmrc.http.{HeaderCarrier, StringContextOps}
+import uk.gov.hmrc.http.client.HttpClientV2
 import utils.Logging
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NoStackTrace
 
-class AddressLookupConnectorImpl @Inject()(val wSHttp: WSHttp,
+class AddressLookupConnectorImpl @Inject()(val httpClientV2: HttpClientV2,
                                            appConfig: AppConfig)(implicit val ec: ExecutionContext) extends AddressLookupConnector {
   lazy val addressLookupFrontendURL: String = appConfig.servicesConfig.baseUrl("address-lookup-frontend")
 }
@@ -37,14 +39,17 @@ trait AddressLookupConnector extends Logging {
 
   implicit val ec: ExecutionContext
   val addressLookupFrontendURL: String
-  val wSHttp: CoreGet with CorePost
+  val httpClientV2: HttpClientV2
 
   def getOnRampURL(alfJourneyConfig: AlfJourneyConfig)(implicit hc: HeaderCarrier): Future[String] = {
-    wSHttp.POST[AlfJourneyConfig, String](s"$addressLookupFrontendURL/api/v2/init", alfJourneyConfig)(AlfJourneyConfig.journeyConfigFormat, onRampHttpReads, hc, ec)
+    httpClientV2.post(url"$addressLookupFrontendURL/api/v2/init")
+      .withBody(Json.toJson(alfJourneyConfig))
+      .execute(onRampHttpReads, ec)
   }
 
   def getAddress(id: String)(implicit hc: HeaderCarrier): Future[NewAddress] = {
-    wSHttp.GET[NewAddress](s"$addressLookupFrontendURL/api/confirmed?id=$id")(addressHttpReads, hc, ec)
+    httpClientV2.get(url"$addressLookupFrontendURL/api/confirmed?id=$id")
+      .execute(addressHttpReads, ec)
   }
 }
 

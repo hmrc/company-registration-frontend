@@ -33,7 +33,6 @@ class Module extends AbstractModule {
     bind(classOf[CryptoInitialiser]).to(classOf[CryptoInitialiserImpl]).asEagerSingleton()
 
     bind(classOf[SessionIdFilter]).to(classOf[SessionIdFilterImpl]).asEagerSingleton()
-    bind(classOf[WSHttp]).to(classOf[WSHttpImpl]).asEagerSingleton()
     bind(classOf[JweCommon]).to(classOf[Jwe]).asEagerSingleton()
     bind(classOf[NavModelRepo]).to(classOf[NavModelRepoImpl]).asEagerSingleton()
     // connectors

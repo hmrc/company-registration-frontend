@@ -16,18 +16,20 @@
 
 package controllers.test
 
-import config.{AppConfig, WSHttp}
+import config.AppConfig
+
 import javax.inject.Inject
 import play.api.libs.json.JsValue
 import play.api.mvc.MessagesControllerComponents
-import uk.gov.hmrc.http.CoreGet
+import uk.gov.hmrc.http.StringContextOps
 import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
 import scala.concurrent.ExecutionContext
 
 class ModifyThrottledUsersControllerImpl @Inject()(val appConfig: AppConfig,
-                                                   val wSHttp: WSHttp,
+                                                   val httpClientV2: HttpClientV2,
                                                    mcc: MessagesControllerComponents) extends ModifyThrottledUsersController(mcc) {
   lazy val crUrl = appConfig.servicesConfig.baseUrl("company-registration")
 }
@@ -35,14 +37,17 @@ class ModifyThrottledUsersControllerImpl @Inject()(val appConfig: AppConfig,
 abstract class ModifyThrottledUsersController(mcc: MessagesControllerComponents) extends FrontendController(mcc) {
 
   implicit val ec: ExecutionContext = mcc.executionContext
-  val wSHttp: CoreGet
+  val httpClientV2: HttpClientV2
   val crUrl: String
 
   def modifyThrottledUsers(usersIn: Int) = Action.async {
     implicit request =>
-      wSHttp.GET[JsValue](s"$crUrl/company-registration/test-only/modify-throttled-users/$usersIn")(readJsValue, hc, ec).map { res =>
-        val usersIn = (res \ "users_in").as[Int]
-        Ok(s"users_in set to $usersIn")
-      }
+      httpClientV2
+        .get(url"$crUrl/company-registration/test-only/modify-throttled-users/$usersIn")
+        .execute[JsValue]
+        .map { res =>
+          val usersIn = (res \ "users_in").as[Int]
+          Ok(s"users_in set to $usersIn")
+        }
   }
 }

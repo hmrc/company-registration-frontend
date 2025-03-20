@@ -88,7 +88,7 @@ class RegistrationEmailConfirmationController @Inject()(val emailVerificationSer
               emailVerificationService.sendVerificationLink(diffEmail, regId, providerIdFromAuth, externalIdFromAuth)
                 .map { emailVerifiedSuccess =>
                   if (emailVerifiedSuccess.contains(true)) {
-                    Redirect(routes.CompletionCapacityController.show)
+                    Redirect(routes.CompletionCapacityController.show())
                   } else {
                     Redirect(controllers.verification.routes.EmailVerificationController.verifyShow)
                   }

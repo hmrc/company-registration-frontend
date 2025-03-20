@@ -63,6 +63,7 @@ trait LoginStub extends SessionCookieBaker {
 
   def stubAuthorisation(status: Int = 200, resp: Option[String] = None): StubMapping = {
     stubPostAuth("/write/audit", 200, Some("""{"x":2}"""))
+    stubPostAuth("/write/audit/merged", 200, Some("""{"x":2}"""))
     stubPostAuth(
       url = "/auth/authorise",
       status = status,

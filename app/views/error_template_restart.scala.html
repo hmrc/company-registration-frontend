@@ -15,7 +15,7 @@
  *@
 
 @this(layout: templates.layout)
-@(handOffNumber: String, errorType: String)(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
+@(handOffNumber: String, errorType: String)(implicit request: RequestHeader, messages: Messages, appConfig: config.AppConfig)
 
 
 @layout(pageTitle = Some("Error")) {

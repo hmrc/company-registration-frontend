@@ -16,8 +16,6 @@
 
 package controllers.takeovers
 
-import akka.actor.ActorSystem
-import akka.stream.Materializer
 import builders.AuthBuilder
 import config.AppConfig
 import controllers.reg.ControllerErrorHandler
@@ -27,6 +25,8 @@ import forms.takeovers.WhoAgreedTakeoverForm._
 import helpers.SCRSSpec
 import mocks.TakeoverServiceMock
 import models.{NewAddress, TakeoverDetails}
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.stream.Materializer
 import org.jsoup.Jsoup
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.{I18nSupport, MessagesApi}

@@ -22,16 +22,16 @@
 
 @elements = @{new FieldElements(field.id, field, null, args.toMap, messages) }
 @fieldsetClass = @{if(radioOptions.size < 3 && allowSideBySideOptions)"inline"}
-@labelAfter = @{ elements.args.get('_labelAfter).getOrElse(false).asInstanceOf[Boolean] }
-<div class="govuk-form-group  @elements.args.get('_marginClass) @if(elements.hasErrors){govuk-form-group--error}">
+@labelAfter = @{ elements.args.getOrElse(Symbol("_labelAfter"), false).asInstanceOf[Boolean] }
+<div class="govuk-form-group  @elements.args.get(Symbol("_marginClass")) @if(elements.hasErrors){govuk-form-group--error}">
     <fieldset class="govuk-fieldset @fieldsetClass"
-        @if(elements.args.get('_fieldsetAttributes).isDefined) {
-            @elements.args.get('_fieldsetAttributes)
+        @if(elements.args.contains(Symbol("_fieldsetAttributes"))) {
+            @elements.args.get(Symbol("_fieldsetAttributes"))
         }
     >
-    @if(elements.args.get('_legend).isDefined) {
-        <legend @if(elements.args.get('_legendClass).isDefined) {class="@elements.args.get('_legendClass)"}>
-        @elements.args.get('_legend)
+    @if(elements.args.contains(Symbol("_legend"))) {
+        <legend @if(elements.args.contains(Symbol("_legendClass"))) {class="@elements.args.get(Symbol("_legendClass"))"}>
+        @elements.args.get(Symbol("_legend"))
         </legend>
     }
     @elements.errors.map{error => <span class="govuk-error-message"><span id="visually-hidden-error-prefix" class="govuk-visually-hidden">@messages("error.message.prefix")</span> @messages(error.toString)</span>}
@@ -48,18 +48,18 @@
                 id="@inputId"
                 name="@elements.field.name"
                 value="@value"
-                    @elements.args.get('_inputClass).map{inputClass => class="@inputClass"}
-                    @if(elements.args.contains('_dataAttributes) ){
-                        @elements.args.get('_dataAttributes)@value}
+                    @elements.args.get(Symbol("_inputClass")).map{inputClass => class="@inputClass"}
+                    @if(elements.args.contains(Symbol("_dataAttributes")) ){
+                        @elements.args.get(Symbol("_dataAttributes"))@value}
                     @field.value.filter( _ == value).map{_ => checked="checked"}>
 
 
 
                 <label for="@inputId"
-                    @elements.args.get('_labelClass).map{labelClass => class="@labelClass@field.value.filter( _ == value).map{_ => selected}"}>
+                    @elements.args.get(Symbol("_labelClass")).map{labelClass => class="@labelClass@field.value.filter( _ == value).map{_ => selected}"}>
 
                 @if(!labelAfter) {
-                    @if(elements.args.get('_stackedLabel)) {
+                    @if(elements.args.get(Symbol("_stackedLabel"))) {
                         @if(label.split(" ").length < 2) {<br>@label
                         } else {
                             @for( (l, index) <- label.split(" ").zipWithIndex) {
@@ -76,7 +76,7 @@
                     }
 
                     @if(labelAfter) {
-                        @if(elements.args.get('_stackedLabel)) {
+                        @if(elements.args.get(Symbol("_stackedLabel"))) {
                             @if(label.split(" ").length < 2) {<br>@label
                             } else {
                                 @for( (l, index) <- label.split(" ").zipWithIndex) {

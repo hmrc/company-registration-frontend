@@ -19,7 +19,7 @@ package connectors
 import javax.inject.Inject
 import play.api.libs.json.Format
 import uk.gov.hmrc.http.cache.client.{CacheMap, SessionCache}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -40,7 +40,7 @@ trait KeystoreConnector {
     sessionCache.fetchAndGetEntry(key)
   }
 
-  def remove()(implicit hc : HeaderCarrier, ec: ExecutionContext) : Future[HttpResponse] = {
+  def remove()(implicit hc : HeaderCarrier, ec: ExecutionContext) : Future[Unit] = {
     sessionCache.remove()
   }
 }
