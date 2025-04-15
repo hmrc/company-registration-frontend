@@ -17,30 +17,29 @@
 package connectors
 
 import config.AppConfig
-
-import javax.inject.Inject
 import models.external.OtherRegStatus
-import utils.Logging
 import play.api.http.Status._
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.http.client.HttpClientV2
+import utils.Logging
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class PAYEConnectorImpl @Inject()(val appConfig: AppConfig, val httpClientV2: HttpClientV2) extends PAYEConnector
 
 trait PAYEConnector extends ServiceConnector {
   val appConfig: AppConfig
-  lazy val serviceBaseUrl = appConfig.servicesConfig.baseUrl("paye-registration")
-  lazy val serviceUri = appConfig.servicesConfig.getConfString("paye-registration.uri", "/paye-registration")
+  lazy val serviceBaseUrl: String = appConfig.servicesConfig.baseUrl("paye-registration")
+  lazy val serviceUri: String = appConfig.servicesConfig.getConfString("paye-registration.uri", "/paye-registration")
 }
 
 class VATConnectorImpl @Inject()(val appConfig: AppConfig, val httpClientV2: HttpClientV2)(implicit val ec: ExecutionContext) extends VATConnector
 
 trait VATConnector extends ServiceConnector {
   val appConfig: AppConfig
-  lazy val serviceBaseUrl = appConfig.servicesConfig.baseUrl("vat-registration")
-  lazy val serviceUri = appConfig.servicesConfig.getConfString("vat-registration.uri", "/vatreg")
+  lazy val serviceBaseUrl: String = appConfig.servicesConfig.baseUrl("vat-registration")
+  lazy val serviceUri: String = appConfig.servicesConfig.getConfString("vat-registration.uri", "/vatreg")
 }
 
 trait ServiceConnector extends Logging {
@@ -55,7 +54,7 @@ trait ServiceConnector extends Logging {
       .map { res =>
         SuccessfulResponse(res)
       } recover {
-        case ex: NotFoundException => NotStarted
+        case _: NotFoundException => NotStarted
         case ex: HttpException =>
           logger.error(s"[getStatus] ${ex.responseCode} response code was returned - reason : ${ex.message}", ex)
           ErrorResponse
@@ -65,7 +64,7 @@ trait ServiceConnector extends Logging {
       }
   }
 
-  def canStatusBeCancelled(regId: String)(f: String => Future[StatusResponse])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[String] = {
+  def canStatusBeCancelled(regId: String)(f: String => Future[StatusResponse])(implicit ec: ExecutionContext): Future[String] = {
     f(regId).map {
       case a: SuccessfulResponse => a.status.cancelURL.getOrElse(throw cantCancel)
       case _ => throw cantCancel

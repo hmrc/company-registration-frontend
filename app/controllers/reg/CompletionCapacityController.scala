@@ -20,15 +20,14 @@ import config.AppConfig
 import connectors.{BusinessRegistrationConnector, BusinessRegistrationSuccessResponse, CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthenticatedController
 import forms.AboutYouForm
-import javax.inject.{Inject, Singleton}
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services.{MetaDataService, MetricsService}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import utils.SessionRegistration
 import views.html.reg.{CompletionCapacity => CompletionCapacityView}
-import uk.gov.hmrc.http.HttpReads.Implicits
 
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
@@ -48,12 +47,11 @@ class CompletionCapacityController @Inject()(
     ctAuthorised {
       checkStatus { _ =>
         businessRegConnector.retrieveMetadata map {
-          case BusinessRegistrationSuccessResponse(response) => {
+          case BusinessRegistrationSuccessResponse(response) =>
             response.completionCapacity match {
               case Some(cc) =>  Ok(view(AboutYouForm.populateForm(cc)))
               case _ =>  Ok(view(AboutYouForm.aboutYouFilled))
             }
-          }
           case _ => Ok(view(AboutYouForm.aboutYouFilled))
         }
       }

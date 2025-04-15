@@ -29,7 +29,7 @@ import scala.concurrent.{ExecutionContext, Future}
 trait ServiceConnectorMock {
   this: MockitoSugar =>
 
-  val mockServiceConnector = mock[ServiceConnector]
+  val mockServiceConnector: ServiceConnector = mock[ServiceConnector]
 
   def getStatusMock(regid: String)(response: StatusResponse, mockConn: ServiceConnector = mockServiceConnector): OngoingStubbing[Future[StatusResponse]] = {
     when(mockConn.getStatus(ArgumentMatchers.eq(regid))
@@ -45,7 +45,7 @@ trait ServiceConnectorMock {
   def canStatusBeCancelledMock(regid: String)(response: Future[String], mockConn: ServiceConnector = mockServiceConnector)
   : OngoingStubbing[Future[String]] = {
     when(mockConn.canStatusBeCancelled(ArgumentMatchers.eq(regid))
-    (ArgumentMatchers.any[String => Future[StatusResponse]]())(ArgumentMatchers.any[HeaderCarrier], ArgumentMatchers.any[ExecutionContext]))
+    (ArgumentMatchers.any[String => Future[StatusResponse]]())(ArgumentMatchers.any[ExecutionContext]))
       .thenReturn(response)
   }
 }

@@ -21,28 +21,29 @@ import connectors._
 import controllers.auth.AuthenticatedController
 import forms._
 import forms.test.{CompanyContactTestEndpointForm, FeatureSwitchForm}
-import javax.inject.{Inject, Singleton}
 import models._
 import models.connectors.ConfirmationReferences
 import models.handoff._
 import models.test.FeatureSwitch
-import utils.Logging
 import play.api.i18n.I18nSupport
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import repositories.NavModelRepo
+import repositories.{NavModelRepo, NavModelRepoMongo}
 import services._
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
-import uk.gov.hmrc.http.HttpReads.Implicits
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads}
 import utils._
 import views.html.dashboard.{Dashboard => DashboardView}
 import views.html.reg.{TestEndpoint => TestEndpointView}
-import views.html.test.{TestEndpointSummary => TestEndpointSummaryView}
-import views.html.test.{FeatureSwitch => FeatureSwitchView}
-import views.html.test.{PrePopAddresses => PrePopAddressesView}
-import views.html.test.{PrePopContactDetails => PrePopContactDetailsView}
+import views.html.test.{
+  FeatureSwitch => FeatureSwitchView,
+  PrePopAddresses => PrePopAddressesView,
+  PrePopContactDetails => PrePopContactDetailsView,
+  TestEndpointSummary => TestEndpointSummaryView
+}
+
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
@@ -69,9 +70,9 @@ class TestEndpointController @Inject()(val authConnector: PlayAuthConnector,
                                       )(implicit val appConfig: AppConfig, implicit val ec: ExecutionContext)
   extends AuthenticatedController with CommonService with SCRSExceptions with SessionRegistration with I18nSupport with Logging {
 
-  lazy val navModelMongo = navModelRepo.repository
+  lazy val navModelMongo: NavModelRepoMongo = navModelRepo.repository
 
-  lazy val coHoURL = appConfig.servicesConfig.getConfString("coho-service.sign-in", throw new Exception("Could not find config for coho-sign-in url"))
+  private lazy val coHoURL: String = appConfig.servicesConfig.getConfString("coho-service.sign-in", throw new Exception("Could not find config for coho-sign-in url"))
 
   lazy val accDForm: AccountingDatesFormT = new AccountingDatesForm(timeService)
 
@@ -103,7 +104,7 @@ class TestEndpointController @Inject()(val authConnector: PlayAuthConnector,
           contactDetails <- compRegConnector.retrieveContactDetails(regID)
           tradingDetails <- compRegConnector.retrieveTradingDetails(regID)
           handBackData <- s4LConnector.fetchAndGet[CompanyNameHandOffIncoming](internalID, "HandBackData")
-          cTRecord <- compRegConnector.retrieveCorporationTaxRegistration(regID)
+          _ <- compRegConnector.retrieveCorporationTaxRegistration(regID)
         } yield {
           val applicantForm = AboutYouForm.endpointForm().fill(applicantDetails)
           val companyDetailsForm = CompanyDetailsForm.form().fill(
@@ -153,7 +154,7 @@ class TestEndpointController @Inject()(val authConnector: PlayAuthConnector,
     implicit request =>
       ctAuthorisedOptStr(Retrievals.internalId) { internalID =>
         s4LConnector.clear(internalID) map {
-          _ => Ok(s"S4L for user oid ${internalID} cleared")
+          _ => Ok(s"S4L for user oid $internalID cleared")
         }
       }
   }
@@ -187,10 +188,7 @@ class TestEndpointController @Inject()(val authConnector: PlayAuthConnector,
             BooleanFeatureSwitch(scrsFeatureSwitches.LEGACY_ENV, success.legacyEnv.toBoolean),
             BooleanFeatureSwitch(scrsFeatureSwitches.takeoversKey, success.takeovers.toBoolean)
           ) foreach { fs =>
-            fs.enabled match {
-              case true => featureSwitchManager.enable(fs)
-              case false => featureSwitchManager.disable(fs)
-            }
+            if (fs.enabled) featureSwitchManager.enable(fs) else featureSwitchManager.disable(fs)
           }
 
           val form = FeatureSwitchForm.form.fill(success)
@@ -258,10 +256,9 @@ class TestEndpointController @Inject()(val authConnector: PlayAuthConnector,
         def getMetadata(implicit hc: HeaderCarrier, rds: HttpReads[BusinessRegistration]): Future[BusinessRegistration] = {
           brConnector.retrieveMetadata map {
             case BusinessRegistrationSuccessResponse(metaData) => metaData
-            case unknown => {
-              logger.warn(s"[verifyEmail] HO6 Unexpected result, sending to post-sign-in : ${unknown}")
-              throw new RuntimeException(s"Unexpected result ${unknown}")
-            }
+            case unknown =>
+              logger.warn(s"[verifyEmail] HO6 Unexpected result, sending to post-sign-in : $unknown")
+              throw new RuntimeException(s"Unexpected result $unknown")
           }
         }
 
@@ -365,7 +362,7 @@ class TestEndpointController @Inject()(val authConnector: PlayAuthConnector,
   def generateTxId(transactionId: Option[String], rID: String): String = {
     transactionId match {
       case Some(txid) => txid
-      case _ => s"TRANS-ID-${rID}"
+      case _ => s"TRANS-ID-$rID"
     }
   }
 }
