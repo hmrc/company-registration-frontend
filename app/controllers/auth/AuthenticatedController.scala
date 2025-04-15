@@ -111,6 +111,7 @@ trait AuthenticatedController extends FrontendBaseController with AuthorisedFunc
   lazy val origin: String = appConfig.servicesConfig.getString("appName")
 
   def loginParams(hoID: Option[String], payload: Option[String]) = Map(
+    "accountType" -> Seq("organisation"),
     "continue_url" -> Seq(appConfig.continueURL(hoID, payload)),
     "origin" -> Seq(origin)
   )
