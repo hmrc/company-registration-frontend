@@ -1,8 +1,7 @@
-
 import play.sbt.PlayImport.PlayKeys
-import play.sbt.routes.RoutesCompiler.autoImport._
-import sbt.Keys._
-import sbt._
+import play.sbt.routes.RoutesCompiler.autoImport.*
+import sbt.Keys.*
+import sbt.*
 import scoverage.ScoverageKeys
 import uk.gov.hmrc.DefaultBuildSettings.{addTestReportOption, defaultSettings, scalaSettings}
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin
@@ -14,7 +13,7 @@ val appName = "company-registration-frontend"
 lazy val appDependencies: Seq[ModuleID] = AppDependencies()
 
 ThisBuild / majorVersion := 3
-ThisBuild / scalaVersion := "2.13.13"
+ThisBuild / scalaVersion := "2.13.16"
 
 lazy val scoverageSettings = {
   // Semicolon-separated list of regexs matching classes to exclude
@@ -28,7 +27,7 @@ lazy val scoverageSettings = {
 
 lazy val microservice = Project(appName, file("."))
   .enablePlugins(Seq(PlayScala, SbtDistributablesPlugin) *)
-  .settings(scoverageSettings: _*)
+  .settings(scoverageSettings *)
   .settings(scalaSettings *)
   .settings(scalacOptions ++= Seq("-feature", "-unchecked", "-deprecation", "-language:reflectiveCalls"))
   .settings(defaultSettings() *)
