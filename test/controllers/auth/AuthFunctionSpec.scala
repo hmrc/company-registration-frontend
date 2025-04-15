@@ -317,7 +317,7 @@ class AuthFunctionSpec extends SCRSSpec with PayloadFixture with GuiceOneAppPerS
         s"$test redirect to sign in  with postsignin as continue url for $ex" in new Setup {
           override val controllerComponents = app.injector.instanceOf[ControllerComponents]
           Try(throw AuthorisationException.fromString(ex))
-            .recover(authFunc.authErrorHandling()).get.header.headers(HeaderNames.LOCATION) mustBe "http://localhost:9553/bas-gateway/sign-in?continue_url=http%3A%2F%2Flocalhost%3A9970%2Fregister-your-company%2Fpost-sign-in&origin=company-registration-frontend"
+            .recover(authFunc.authErrorHandling()).get.header.headers(HeaderNames.LOCATION) mustBe "http://localhost:9553/bas-gateway/sign-in?accountType=organisation&continue_url=http%3A%2F%2Flocalhost%3A9970%2Fregister-your-company%2Fpost-sign-in&origin=company-registration-frontend"
         }
     }
   }
