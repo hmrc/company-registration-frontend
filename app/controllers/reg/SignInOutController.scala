@@ -145,7 +145,7 @@ class SignInOutController @Inject()(val authConnector: PlayAuthConnector,
         "HO3b-1" -> controllers.handoff.routes.GroupController.pSCGroupHandBack(payload).url,
         "HO4" -> controllers.handoff.routes.CorporationTaxSummaryController.corporationTaxSummary(payload).url,
         "HO5b" -> controllers.handoff.routes.IncorporationSummaryController.returnToCorporationTaxSummary(payload).url
-      ).mapValues(url => s"${appConfig.self}$url")(handOffID)
+      ).view.mapValues(url => s"${appConfig.self}$url")(handOffID)
     }
 
     (optHandOffID, optPayload) match {
@@ -197,7 +197,7 @@ class SignInOutController @Inject()(val authConnector: PlayAuthConnector,
       }
       ctAuthorised {
         val cacheHeader = Seq(CACHE_CONTROL -> CacheControlFilter.headerValue)
-        type Headers = Seq[Tuple2[String, String]]
+        type Headers = Seq[(String, String)]
         val headers = corsRenewHost.fold[Headers](Seq()) { host =>
           Seq(
             "Access-Control-Allow-Origin" -> host,

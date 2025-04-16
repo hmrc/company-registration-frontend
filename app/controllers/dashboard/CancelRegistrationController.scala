@@ -20,16 +20,15 @@ import config.AppConfig
 import connectors._
 import controllers.auth.AuthenticatedController
 import forms.CancelForm
-import javax.inject.{Inject, Singleton}
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc._
 import play.twirl.api.Html
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import utils.SessionRegistration
-import views.html.dashboard.{CancelPaye => CancelPayeView}
-import views.html.dashboard.{CancelVat => CancelVatView}
+import views.html.dashboard.{CancelPaye => CancelPayeView, CancelVat => CancelVatView}
 
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
@@ -73,13 +72,13 @@ class CancelRegistrationController @Inject()(val payeConnector: PAYEConnector,
 
   private[controllers] def showCancelService(service: ServiceConnector, cancelPage: Html)(implicit request: Request[AnyContent], ec: ExecutionContext): Future[Result] = {
     checkStatuses { regID =>
-      service.canStatusBeCancelled(regID)(service.getStatus)(hc, ec).map(_ => Ok(cancelPage))
+      service.canStatusBeCancelled(regID)(service.getStatus)(ec).map(_ => Ok(cancelPage))
     } recoverWith {
-      case a: cantCancelT => Future.successful(Redirect(controllers.reg.routes.SignInOutController.postSignIn(None)))
+      case _: cantCancelT => Future.successful(Redirect(controllers.reg.routes.SignInOutController.postSignIn(None)))
     }
   }
 
-  private[controllers] def submitCancelService(service: ServiceConnector, cancelPage: (Form[Boolean]) => Html)(implicit request: Request[AnyContent], ec: ExecutionContext): Future[Result] = {
+  private[controllers] def submitCancelService(service: ServiceConnector, cancelPage: Form[Boolean] => Html)(implicit request: Request[AnyContent], ec: ExecutionContext): Future[Result] = {
     checkStatuses { regID =>
       CancelForm.form().bindFromRequest().fold(
         errors =>
