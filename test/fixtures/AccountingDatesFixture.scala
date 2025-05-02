@@ -17,14 +17,14 @@
 package fixtures
 
 import models.AccountingDatesModel
-import java.time.LocalDate
+import models.JavaTimeUtils.DateTimeUtils.currentDate
 
 trait AccountingDatesFixture {
 
   lazy val validAccountingDatesModelCRN = AccountingDatesModel("Yes", None, None, None)
   lazy val validAccountingDatesModelFutureDate = AccountingDatesModel("No", Some("2019"), Some("1"), Some("1"))
 
-  val currentYear = LocalDate.now().getYear
+  val currentYear = currentDate.getYear
   val futureYear = (currentYear + 1).toString
   val pastYear = (currentYear - 1).toString
 

@@ -19,52 +19,56 @@ package services
 import java.text.SimpleDateFormat
 import java.time.format.DateTimeFormatter
 import java.time.{LocalDate, LocalDateTime}
-
 import config.AppConfig
+
 import javax.inject.Inject
 import models.JavaTimeUtils.BankHolidays.LocalDateWithHolidays
-import models.JavaTimeUtils.DateTimeUtils._
+import models.JavaTimeUtils.DateTimeUtils.isEqualOrAfter
 import models.JavaTimeUtils.{BankHoliday, BankHolidaySet}
+import play.api.libs.json.Json
 import utils.SystemDate
 
+import scala.io.Source
 import scala.util.{Failure, Success, Try}
 
 object TimeHelper {
-  val DATE_FORMAT = "yyyy-MM-dd"
-  def splitDate(date: String): Array[String] = {
+  def splitDate(date: String): Array[String] =
     for (i <- date.split("-")) yield i
-  }
-  def toDateTime(d: Option[String], m: Option[String], y: Option[String]): Option[LocalDate] = {
-    if(d.isDefined && m.isDefined && y.isDefined) {
+  def toDateTime(d: Option[String], m: Option[String], y: Option[String]): Option[LocalDate] =
+    if (d.isDefined && m.isDefined && y.isDefined) {
       val (iY, iM, iD) = (y.get.toInt, m.get.toInt, d.get.toInt)
       Some(LocalDate.of(iY, iM, iD))
     } else {
       None
     }
-  }
 
 }
 
-class TimeServiceImpl @Inject()(val appConfig: AppConfig) extends TimeService {
-  override lazy val dayEndHour      = appConfig.servicesConfig.getConfInt("time-service.day-end-hour", throw new Exception("could not find config key time-service.day-end-hour"))
-  override def currentDateTime      = LocalDateTime.now()
-  override def currentLocalDate     = SystemDate.getSystemDate
-  override lazy val bHS: BankHolidaySet       = BankHolidays.bankHolidaySet
+class TimeServiceImpl @Inject() (val appConfig: AppConfig) extends TimeService {
+  override lazy val dayEndHour: Int =
+    appConfig.servicesConfig.getConfInt("time-service.day-end-hour", throw new Exception("could not find config key time-service.day-end-hour"))
+  override def currentDateTime: LocalDateTime = LocalDateTime.now()
+  override def currentLocalDate: LocalDate    = SystemDate.getSystemDate
+  override lazy val bHS: BankHolidaySet       = BankHolidays.fetchEnglandAndWalesBankHolidays
 }
 
 object BankHolidays {
-  val bankHolidaySet: BankHolidaySet = BankHolidaySet("england-and-wales", List(
-    BankHoliday(title = "Christmas Day",          date = LocalDate.of(2018, 12, 25)),
-    BankHoliday(title = "Boxing Day",             date = LocalDate.of(2018, 12, 26)),
-    BankHoliday(title = "New Year's Day",         date = LocalDate.of(2019, 1, 1)),
-    BankHoliday(title = "Good Friday",            date = LocalDate.of(2019, 4, 19)),
-    BankHoliday(title = "Easter Monday",          date = LocalDate.of(2019, 4, 22)),
-    BankHoliday(title = "Early May bank holiday", date = LocalDate.of(2019, 5, 6)),
-    BankHoliday(title = "Spring bank holiday",    date = LocalDate.of(2019, 5, 27)),
-    BankHoliday(title = "Summer bank holiday",    date = LocalDate.of(2019, 8, 26)),
-    BankHoliday(title = "Christmas Day",          date = LocalDate.of(2019, 12, 25)),
-    BankHoliday(title = "Boxing Day",             date = LocalDate.of(2019, 12, 26))
-  ))
+
+  val fetchEnglandAndWalesBankHolidays: BankHolidaySet = {
+    val jsonStr = {
+      val bhSource = Source.fromURL("https://www.gov.uk/bank-holidays.json")
+      try {
+        bhSource.mkString
+      } finally {
+        bhSource.close()
+      }
+    }
+    val json = Json.parse(jsonStr)
+    val events = (json \ "england-and-wales" \ "events").as[List[BankHoliday]]
+
+    BankHolidaySet("england-and-wales", events)
+  }
+
 }
 
 trait TimeService {
@@ -79,35 +83,27 @@ trait TimeService {
 
   def currentLocalDate: LocalDate
 
-  val getCurrentHour = LocalDateTime.now()
+  val getCurrentHour = LocalDateTime.now().getHour
 
-  def isDateSomeWorkingDaysInFuture(futureDate: LocalDate)(implicit bHS: BankHolidaySet): Boolean = {
+  def isDateAtLeastThreeWorkingDaysInFuture(futureDate: LocalDate)(implicit bHS: BankHolidaySet): Boolean =
     isEqualOrAfter(getWorkingDays, futureDate)
-  }
 
-  private def getWorkingDays(implicit bHS: BankHolidaySet): LocalDate = {
-    currentLocalDate plusWorkingDays getDaysInAdvance(getCurrentHour.getHour)
-  }
+  private def getWorkingDays(implicit bHS: BankHolidaySet): LocalDate =
+    currentLocalDate plusWorkingDays getDaysInAdvance(getCurrentHour)
 
-  private def getDaysInAdvance(currentHour: Int)(implicit bHS: BankHolidaySet): Int = {
-    if (LocalDateWithHolidays(currentLocalDate).isWorkingDay) {
-      if (currentHour >= dayEndHour) 3 else 2
-    } else {
-      3
-    }
-  }
+  private def getDaysInAdvance(currentHour: Int)(implicit bHS: BankHolidaySet): Int =
+    if (LocalDateWithHolidays(currentLocalDate).isWorkingDay && currentHour < dayEndHour) 2 else 3
 
-  def futureWorkingDate(date: LocalDate, days: Int)(implicit bHS: BankHolidaySet) : String = {
+  def futureWorkingDate(date: LocalDate, days: Int)(implicit bHS: BankHolidaySet): String = {
     val futureDate = date.plusWorkingDays(days)
     DateTimeFormatter.ofPattern("dd MM yyyy").format(futureDate)
   }
 
-  def splitDate(date: String): Array[String] = {
+  def splitDate(date: String): Array[String] =
     for (i <- date.split("-")) yield i
-  }
 
   def validate(date: String): Boolean = {
-    val format = new SimpleDateFormat("yyyy-MM-dd")
+    val format = new SimpleDateFormat(DATE_FORMAT)
     format.setLenient(false)
 
     Try(format.parse(date)) match {
