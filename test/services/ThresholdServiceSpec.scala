@@ -20,6 +20,7 @@ import builders.AuthBuilder
 import config.AppConfig
 import helpers.SCRSSpec
 import mocks.ServiceConnectorMock
+import models.JavaTimeUtils.DateTimeUtils.currentDate
 import models.VatThreshold
 import org.mockito.Mockito.{reset, when}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -36,7 +37,7 @@ class ThresholdServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
     override def now: LocalDate = fakeNow
   }
 
-  def testService(fakeNow: LocalDate = LocalDate.now()) = new TestThresholdService(fakeNow)
+  def testService(fakeNow: LocalDate = currentDate) = new TestThresholdService(fakeNow)
 
   val dateTime: LocalDate = LocalDate.of(2017, 4, 1)
   val amount: Int = 85000

@@ -102,7 +102,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
       ){
       override lazy val accDForm = new AccountingDatesFormT {
         override val timeService = new TimeService {
-          override val bHS: BankHolidaySet = BankHolidays.bankHolidaySet
+          override val bHS: BankHolidaySet = BankHolidays.fetchEnglandAndWalesBankHolidays
           override val dayEndHour: Int = 1
           override def currentDateTime: LocalDateTime = LocalDateTime.now
           override def currentLocalDate: LocalDate = LocalDate.now

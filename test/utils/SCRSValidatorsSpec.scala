@@ -18,217 +18,122 @@ package utils
 
 import forms.AccountingDatesFormT
 import helpers.UnitSpec
-import java.time.{LocalDate, LocalDateTime, LocalTime, ZonedDateTime}
-
+import models.AccountingDatesModel
 import models.JavaTimeUtils.BankHolidaySet
+import models.JavaTimeUtils.DateTimeUtils.currentDateTime
+import org.scalatest.prop.TableDrivenPropertyChecks
+import play.api.data.Form
 import services.{BankHolidays, TimeService}
 
-class SCRSValidatorsSpec extends UnitSpec {
+import java.time.{LocalDate, LocalDateTime}
 
-  class Setup(newnow : LocalDate = LocalDate.now(), dateTime : LocalDateTime = LocalDateTime.now()) {
-    val testAccDatesForm = new AccountingDatesFormT {
-      override lazy val bHS = BankHolidays.bankHolidaySet
+class SCRSValidatorsSpec extends UnitSpec with TableDrivenPropertyChecks {
+
+  private val testDateTime = LocalDateTime.of(2020, 11, 20, 12, 0)
+  private val testDate     = testDateTime.toLocalDate
+  class Setup(date: LocalDate = testDate, dateTime: LocalDateTime = testDateTime) {
+    val testAccDatesForm: Form[AccountingDatesModel] = new AccountingDatesFormT {
       override val timeService: TimeService = new TimeService {
-        override implicit val bHS: BankHolidaySet = BankHolidays.bankHolidaySet
-        override val dayEndHour: Int = 14
+        override implicit val bHS: BankHolidaySet   = BankHolidays.fetchEnglandAndWalesBankHolidays
+        override val dayEndHour: Int                = 14
         override def currentDateTime: LocalDateTime = dateTime
-        override def currentLocalDate: LocalDate = newnow
+        override def currentLocalDate: LocalDate    = date
+        override val getCurrentHour: Int            = currentDateTime.getHour
       }
-      override val now: LocalDate = newnow
+      override val now: LocalDate = date
     }.form
   }
 
-  "Submitting a Accounting Dates form" should {
-    "return an error message if any of the date fields are empty" in new Setup {
-      val data: Map[String, String] = Map(
-        "businessStartDate" -> "futureDate",
-        "futureDate.Year" -> "",
-        "futureDate.Month" -> "",
-        "futureDate.Day" -> "")
-      val boundForm = testAccDatesForm.bind(data)
-      boundForm.errors.map(_.message) mustBe List("page.reg.accountingDates.date.notFound")
+  private val errorCases = Table(
+    ("testErrorDescription", "year", "month", "day", "expectedErrors"),
+    ("all date fields are empty", "", "", "", List("page.reg.accountingDates.date.notFound")),
+    ("day field is empty", "2017", "11", "", List("page.reg.accountingDates.day.notFound")),
+    ("month field is empty", "2017", "", "11", List("page.reg.accountingDates.month.notFound")),
+    ("year field is empty", "", "11", "11", List("page.reg.accountingDates.year.notFound")),
+    ("date is invalid", "2017", "2", "31", List("page.reg.accountingDates.date.invalid-date")),
+    (
+      "any date fields are invalid",
+      "-0001",
+      "32",
+      "34",
+      List("page.reg.accountingDates.date.invalid-day", "page.reg.accountingDates.date.invalid-month")),
+    ("invalid characters in day field", "2017", "2", "asd", List("page.reg.accountingDates.date.invalid-day")),
+    ("invalid characters in month field", "2017", "asd", "2", List("page.reg.accountingDates.date.invalid-month")),
+    ("invalid characters in year field", "asd", "2", "2", List("page.reg.accountingDates.date.invalid-year")),
+    (
+      "the date is not at least two days in the future",
+      testDate.getYear.toString,
+      testDate.getMonthValue.toString,
+      (testDate.getDayOfMonth + 1).toString,
+      List("page.reg.accountingDates.date.future"))
+  )
 
-    }
-  }
+  "Submitting an Accounting Dates form" should {
+    "return an error message" when {
+      errorCases.foreach { case (testErrorDescription, year, month, day, expectedErrors) =>
+        testErrorDescription in new Setup {
+          val data: Map[String, String] = Map(
+            "businessStartDate" -> "futureDate",
+            "futureDate.Year"   -> year,
+            "futureDate.Month"  -> month,
+            "futureDate.Day"    -> day
+          )
 
-  "Submitting a Accounting Dates form with month and day fields are invalid" should {
-    "return an error message if month and day fields are invalid" in new Setup {
-      val data: Map[String, String] = Map(
-        "businessStartDate" -> "futureDate",
-        "futureDate.Year" -> "0001",
-        "futureDate.Month" -> "32",
-        "futureDate.Day" -> "34")
-      val boundForm = testAccDatesForm.bind(data)
-      boundForm.errors.map(_.message) mustBe List("page.reg.accountingDates.date.invalid-day", "page.reg.accountingDates.date.invalid-month")
-    }
-  }
+          val boundForm: Form[AccountingDatesModel] = testAccDatesForm.bind(data)
+          boundForm.errors.map(_.message) mustBe expectedErrors
+        }
+      }
+      val dateTimeNow = currentDateTime
+      val dateNow     = dateTimeNow.toLocalDate
+      "the date is over three years in the future" in new Setup(dateNow, dateTimeNow) {
+        val data: Map[String, String] = Map(
+          "businessStartDate" -> "futureDate",
+          "futureDate.Year"   -> (dateNow.getYear + 3).toString,
+          "futureDate.Month"  -> dateNow.getMonthValue.toString,
+          "futureDate.Day"    -> (dateNow.getDayOfMonth + 1).toString
+        )
 
-  "Submitting a Accounting Dates form with empty day field" should {
-    "return an error message if day field is empty" in new Setup {
-      val data: Map[String, String] = Map(
-        "businessStartDate" -> "futureDate",
-        "futureDate.Year" -> "2017",
-        "futureDate.Month" -> "11",
-        "futureDate.Day" -> "")
-      val boundForm = testAccDatesForm.bind(data)
-      boundForm.errors.map(_.message) mustBe List("page.reg.accountingDates.day.notFound")
-    }
-  }
-
-
-  "Submitting a Accounting Dates form with empty month field" should {
-    "return an error message if month field is empty" in new Setup {
-      val data: Map[String, String] = Map(
-        "businessStartDate" -> "futureDate",
-        "futureDate.Year" -> "2017",
-        "futureDate.Month" -> "",
-        "futureDate.Day" -> "16")
-      val boundForm = testAccDatesForm.bind(data)
-      boundForm.errors.map(_.message) mustBe List("page.reg.accountingDates.month.notFound")
-    }
-  }
-
-
-  "Submitting a Accounting Dates form with empty year field" should {
-    "return an error message if month field is empty" in new Setup {
-      val data: Map[String, String] = Map(
-        "businessStartDate" -> "futureDate",
-        "futureDate.Year" -> "",
-        "futureDate.Month" -> "11",
-        "futureDate.Day" -> "16")
-      val boundForm = testAccDatesForm.bind(data)
-      boundForm.errors.map(_.message) mustBe List("page.reg.accountingDates.year.notFound")
-    }
-  }
-
-  "Submitting a Accounting Dates form with invalid date" should {
-    "return an error message if date is invalid" in new Setup {
-      val data: Map[String, String] = Map(
-        "businessStartDate" -> "futureDate",
-        "futureDate.Year" -> "2017",
-        "futureDate.Month" -> "2",
-        "futureDate.Day" -> "31")
-      val boundForm = testAccDatesForm.bind(data)
-      boundForm.errors.map(_.message) mustBe List("page.reg.accountingDates.date.invalid-date")
-    }
-  }
-
-
-  "Submitting a Accounting Dates form with invalid characters in day field" should {
-    "return an error message if day field has characters" in new Setup {
-      val data: Map[String, String] = Map(
-        "businessStartDate" -> "futureDate",
-        "futureDate.Year" -> "2017",
-        "futureDate.Month" -> "2",
-        "futureDate.Day" -> "jg")
-      val boundForm = testAccDatesForm.bind(data)
-      boundForm.errors.map(_.message) mustBe List("page.reg.accountingDates.date.invalid-day")
-    }
-  }
-
-
-  "Submitting a Accounting Dates form with invalid year field" should {
-    "return an error message if year is invalid" in new Setup {
-      val data: Map[String, String] = Map(
-        "businessStartDate" -> "futureDate",
-        "futureDate.Year" -> "jklj",
-        "futureDate.Month" -> "2",
-        "futureDate.Day" -> "8")
-      val boundForm = testAccDatesForm.bind(data)
-      boundForm.errors.map(_.message) mustBe List("page.reg.accountingDates.date.invalid-year")
-    }
-  }
-
-  "Submitting a Accounting Dates form with invalid month field" should {
-    "return an error message if month field is invalid" in new Setup {
-      val data: Map[String, String] = Map(
-        "businessStartDate" -> "futureDate",
-        "futureDate.Year" -> "2017",
-        "futureDate.Month" -> "21",
-        "futureDate.Day" -> "1")
-      val boundForm = testAccDatesForm.bind(data)
-      boundForm.errors.map(_.message) mustBe List("page.reg.accountingDates.date.invalid-month")
+        val boundForm: Form[AccountingDatesModel] = testAccDatesForm.bind(data)
+        boundForm.errors.map(_.message) mustBe List("page.reg.accountingDates.date.future")
+      }
     }
 
-    "return an error message if the date is not at least two days in the future" in new Setup {
-      val data: Map[String, String] = Map(
-        "businessStartDate" -> "futureDate",
-        "futureDate.Year" -> (LocalDate.now().getYear - 1).toString,
-        "futureDate.Month" -> "12",
-        "futureDate.Day" -> "23")
+    "bind successfully" when {
+      "date is less than 3 years in the future" in new Setup() {
+        val data: Map[String, String] = Map(
+          "businessStartDate" -> "futureDate",
+          "futureDate.Year"   -> (testDate.getYear + 3).toString,
+          "futureDate.Month"  -> testDate.getMonthValue.toString,
+          "futureDate.Day"    -> testDate.getDayOfMonth.toString
+        )
 
-      val boundForm = testAccDatesForm.bind(data)
-      boundForm.errors.map(err => (err.args.head, err.message)) mustBe List(("futureDate.Day", "page.reg.accountingDates.date.future"))
-    }
+        val boundForm: Form[AccountingDatesModel] = testAccDatesForm.bind(data)
+        boundForm.hasErrors mustBe false
+      }
 
-    "return an error message if the date is more than three years in the future" in new Setup {
-      val data: Map[String, String] = Map(
-        "businessStartDate" -> "futureDate",
-        "futureDate.Year" -> (LocalDate.now().getYear + 4).toString,
-        "futureDate.Month" -> "12",
-        "futureDate.Day" -> "23")
+      "date is 3 working days in future" in new Setup() {
+        val data: Map[String, String] = Map(
+          "businessStartDate" -> "futureDate",
+          "futureDate.Year"   -> testDate.getYear.toString,
+          "futureDate.Month"  -> testDate.getMonthValue.toString,
+          "futureDate.Day"    -> (testDate.getDayOfMonth + 4).toString
+        )
 
-      val boundForm = testAccDatesForm.bind(data)
-      boundForm.errors.map(err => (err.args.head, err.message)) mustBe List(("futureDate.Day", "page.reg.accountingDates.date.future"))
-    }
+        val boundForm: Form[AccountingDatesModel] = testAccDatesForm.bind(data)
+        boundForm.hasErrors mustBe false
+      }
 
-    "return an error message if the date over 3 years in the future when today's date is 29th Feb" in new Setup(LocalDate.of(2020, 2, 29)) {
-      val data: Map[String, String] = Map(
-        "businessStartDate" -> "futureDate",
-        "futureDate.Year" -> "2023",
-        "futureDate.Month" -> "03",
-        "futureDate.Day" -> "1")
+      "date is 28th Feb plus 3 years when today's date is 29th Feb" in new Setup(LocalDate.of(2020, 2, 29), LocalDateTime.of(2020, 2, 29, 15, 0)) {
+        val data: Map[String, String] = Map(
+          "businessStartDate" -> "futureDate",
+          "futureDate.Year"   -> "2023",
+          "futureDate.Month"  -> "02",
+          "futureDate.Day"    -> "28"
+        )
 
-      val boundForm = testAccDatesForm.bind(data)
-      boundForm.errors.map(err => (err.args.head, err.message)) mustBe List(("futureDate.Day","page.reg.accountingDates.date.future"))
-    }
-
-    "return an error message if the day is just before 3 working days" in new Setup(LocalDate.of(18,2,9), LocalDateTime.of(18,2,9,15,0)) {
-      val data: Map[String, String] = Map(
-        "businessStartDate" -> "futureDate",
-        "futureDate.Year" -> "2018",
-        "futureDate.Month" -> "02",
-        "futureDate.Day" -> "13"
-      )
-
-      val boundForm = testAccDatesForm.bind(data)
-      boundForm.errors.map(err => (err.args.head, err.message)) mustBe List(("futureDate.Day", "page.reg.accountingDates.date.future"))
-    }
-  }
-
-  "Submitting a Accounting Dates form with valid data" should {
-    "bind successfully if the day is just before 3 years in the future" in new Setup(LocalDate.of(2020,2,29), LocalDateTime.of(2020,2,29,15,0)) {
-      val data: Map[String, String] = Map(
-        "businessStartDate" -> "futureDate",
-        "futureDate.Year" -> "2023",
-        "futureDate.Month" -> "02",
-        "futureDate.Day" -> "28")
-      val boundForm = testAccDatesForm.bind(data)
-      boundForm.hasErrors mustBe false
-    }
-
-    "bind successfully if the day is just after 3 working days" in new Setup(LocalDate.of(2018, 2 ,9), LocalDateTime.of(2018,2,9,15,0)) {
-      val data: Map[String, String] = Map(
-        "businessStartDate" -> "futureDate",
-        "futureDate.Year" -> "2018",
-        "futureDate.Month" -> "02",
-        "futureDate.Day" -> "14"
-      )
-
-      val boundForm = testAccDatesForm.bind(data)
-      boundForm.hasErrors mustBe false
-    }
-
-    "bind successfully if the date is 28th Feb plus 3 years when todays date is 29th Feb" in new Setup(LocalDate.of(2020,2,29), LocalDateTime.of(2020,2,29,15,0)) {
-      val data: Map[String, String] = Map(
-        "businessStartDate" -> "futureDate",
-        "futureDate.Year" -> "2023",
-        "futureDate.Month" -> "02",
-        "futureDate.Day" -> "28"
-      )
-
-      val boundForm = testAccDatesForm.bind(data)
-      boundForm.hasErrors mustBe false
+        val boundForm: Form[AccountingDatesModel] = testAccDatesForm.bind(data)
+        boundForm.hasErrors mustBe false
+      }
     }
   }
 
