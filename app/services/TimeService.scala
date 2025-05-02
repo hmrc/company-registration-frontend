@@ -16,18 +16,17 @@
 
 package services
 
-import java.text.SimpleDateFormat
-import java.time.format.DateTimeFormatter
-import java.time.{LocalDate, LocalDateTime}
 import config.AppConfig
-
-import javax.inject.Inject
+import models.JavaTimeUtils.BankHolidaySet
 import models.JavaTimeUtils.BankHolidays.LocalDateWithHolidays
 import models.JavaTimeUtils.DateTimeUtils.isEqualOrAfter
-import models.JavaTimeUtils.{BankHoliday, BankHolidaySet}
 import play.api.libs.json.Json
 import utils.SystemDate
 
+import java.text.SimpleDateFormat
+import java.time.format.DateTimeFormatter
+import java.time.{LocalDate, LocalDateTime}
+import javax.inject.Inject
 import scala.io.Source
 import scala.util.{Failure, Success, Try}
 
@@ -57,16 +56,14 @@ object BankHolidays {
   val fetchEnglandAndWalesBankHolidays: BankHolidaySet = {
     val jsonStr = {
       val bhSource = Source.fromURL("https://www.gov.uk/bank-holidays.json")
-      try {
+      try
         bhSource.mkString
-      } finally {
+      finally
         bhSource.close()
-      }
     }
     val json = Json.parse(jsonStr)
-    val events = (json \ "england-and-wales" \ "events").as[List[BankHoliday]]
 
-    BankHolidaySet("england-and-wales", events)
+    (json \ "england-and-wales").as[BankHolidaySet]
   }
 
 }
@@ -83,8 +80,9 @@ trait TimeService {
 
   def currentLocalDate: LocalDate
 
-  val getCurrentHour = LocalDateTime.now().getHour
+  val getCurrentHour: Int = LocalDateTime.now().getHour
 
+  // If today is still within working hours, it is included in the 3 days
   def isDateAtLeastThreeWorkingDaysInFuture(futureDate: LocalDate)(implicit bHS: BankHolidaySet): Boolean =
     isEqualOrAfter(getWorkingDays, futureDate)
 

@@ -27,3 +27,7 @@ case class BankHoliday(title: String, date: LocalDate)
 object BankHoliday {
   implicit val format: OFormat[BankHoliday] = Json.format[BankHoliday]
 }
+
+object BankHolidaySet {
+  implicit val format: OFormat[BankHolidaySet] = Json.format[BankHolidaySet]
+}
