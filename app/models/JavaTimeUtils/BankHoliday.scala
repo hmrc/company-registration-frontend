@@ -16,18 +16,9 @@
 
 package models.JavaTimeUtils
 
-import play.api.libs.json.{Json, OFormat}
-
 import java.time.LocalDate
 
 case class BankHolidaySet(division: String, events: List[BankHoliday])
 
 case class BankHoliday(title: String, date: LocalDate)
 
-object BankHoliday {
-  implicit val format: OFormat[BankHoliday] = Json.format[BankHoliday]
-}
-
-object BankHolidaySet {
-  implicit val format: OFormat[BankHolidaySet] = Json.format[BankHolidaySet]
-}
