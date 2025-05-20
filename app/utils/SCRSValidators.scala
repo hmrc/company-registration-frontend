@@ -17,7 +17,6 @@
 package utils
 
 import models.JavaTimeUtils.BankHolidaySet
-import models.JavaTimeUtils.DateTimeUtils.currentDate
 import models._
 import play.api.data.validation._
 import services.TimeService
@@ -166,7 +165,7 @@ trait SCRSValidatorsT {
               LocalDate.of(model.year.get.toInt, model.month.get.toInt, model.day.get.toInt)
             } match {
               case Success(date) =>
-                if (timeService.isDateAtLeastThreeWorkingDaysInFuture(date) && date.isBefore(currentDate.plusYears(3).plusDays(1))) {
+                if (timeService.isDateSomeWorkingDaysInFuture(date) && date.isBefore(now.plusYears(3).plusDays(1))) {
                   Valid
                 } else {
                   Invalid(Seq(ValidationError("page.reg.accountingDates.date.future", "futureDate.Day")))

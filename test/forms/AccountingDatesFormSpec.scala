@@ -17,11 +17,10 @@
 package forms
 
 import helpers.UnitSpec
-import models.JavaTimeUtils.BankHolidaySet
-import models.JavaTimeUtils.DateTimeUtils.currentDate
 import services.{BankHolidays, TimeService}
-
 import java.time._
+
+import models.JavaTimeUtils.BankHolidaySet
 
 class AccountingDatesFormSpec extends UnitSpec {
 
@@ -30,7 +29,7 @@ class AccountingDatesFormSpec extends UnitSpec {
 
   def testForm(newnow : LocalDate = curLocalDate) = new AccountingDatesFormT {
     override val timeService: TimeService = new TimeService {
-      override val bHS: BankHolidaySet = BankHolidays.fetchEnglandAndWalesBankHolidays
+      override val bHS: BankHolidaySet = BankHolidays.bankHolidaySet
       override val dayEndHour: Int = 14
       override def currentDateTime: LocalDateTime = curDateTime
       override def currentLocalDate: LocalDate = curLocalDate
@@ -38,7 +37,7 @@ class AccountingDatesFormSpec extends UnitSpec {
     override val now: LocalDate = newnow
   }.form
 
-  val currentYear = currentDate.getYear
+  val currentYear = LocalDate.now().getYear
   val futureYear = (2022 + 1).toString
   val pastYear = (2022 - 1).toString
 

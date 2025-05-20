@@ -18,9 +18,11 @@ package models.JavaTimeUtils
 
 import java.time._
 
-object DateTimeUtils {
-  val currentDate: LocalDate = LocalDate.now()
-  def currentDateTime: LocalDateTime = LocalDateTime.now()
+trait DateTimeUtils {
+  def now: LocalDate = LocalDate.now()
 
-  def isEqualOrAfter(date: LocalDate, laterDate: LocalDate): Boolean = date.isEqual(laterDate) || date.isBefore(laterDate)
+  def isEqualOrAfter(date:LocalDate, laterDate:LocalDate):Boolean = date.isEqual(laterDate) || date.isBefore(laterDate)
 }
+
+object DateTimeUtils extends DateTimeUtils
+
