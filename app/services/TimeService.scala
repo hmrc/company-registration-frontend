@@ -19,14 +19,15 @@ package services
 import java.text.SimpleDateFormat
 import java.time.format.DateTimeFormatter
 import java.time.{LocalDate, LocalDateTime}
-
 import config.AppConfig
+
 import javax.inject.Inject
 import models.JavaTimeUtils.BankHolidays.LocalDateWithHolidays
 import models.JavaTimeUtils.DateTimeUtils._
 import models.JavaTimeUtils.{BankHoliday, BankHolidaySet}
 import utils.SystemDate
 
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
 object TimeHelper {
@@ -45,27 +46,13 @@ object TimeHelper {
 
 }
 
-class TimeServiceImpl @Inject()(val appConfig: AppConfig) extends TimeService {
+class TimeServiceImpl @Inject()(bankHolidaysService: BankHolidaysService, val appConfig: AppConfig) extends TimeService {
   override lazy val dayEndHour      = appConfig.servicesConfig.getConfInt("time-service.day-end-hour", throw new Exception("could not find config key time-service.day-end-hour"))
   override def currentDateTime      = LocalDateTime.now()
   override def currentLocalDate     = SystemDate.getSystemDate
-  override lazy val bHS: BankHolidaySet       = BankHolidays.bankHolidaySet
+  override lazy val bHS: BankHolidaySet       = bankHolidaysService.fetchBankHolidays()
 }
 
-object BankHolidays {
-  val bankHolidaySet: BankHolidaySet = BankHolidaySet("england-and-wales", List(
-    BankHoliday(title = "Christmas Day",          date = LocalDate.of(2018, 12, 25)),
-    BankHoliday(title = "Boxing Day",             date = LocalDate.of(2018, 12, 26)),
-    BankHoliday(title = "New Year's Day",         date = LocalDate.of(2019, 1, 1)),
-    BankHoliday(title = "Good Friday",            date = LocalDate.of(2019, 4, 19)),
-    BankHoliday(title = "Easter Monday",          date = LocalDate.of(2019, 4, 22)),
-    BankHoliday(title = "Early May bank holiday", date = LocalDate.of(2019, 5, 6)),
-    BankHoliday(title = "Spring bank holiday",    date = LocalDate.of(2019, 5, 27)),
-    BankHoliday(title = "Summer bank holiday",    date = LocalDate.of(2019, 8, 26)),
-    BankHoliday(title = "Christmas Day",          date = LocalDate.of(2019, 12, 25)),
-    BankHoliday(title = "Boxing Day",             date = LocalDate.of(2019, 12, 26))
-  ))
-}
 
 trait TimeService {
 
