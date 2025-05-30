@@ -59,6 +59,8 @@ class Module extends AbstractModule {
     bind(classOf[SCRSFeatureSwitches]).to(classOf[SCRSFeatureSwitchesImpl]).asEagerSingleton()
     bind(classOf[FeatureSwitchManager]).to(classOf[FeatureSwitchManagerImpl]).asEagerSingleton()
 
+    // BankHoliday cache
+    bind(classOf[BankHolidaysLoader]).asEagerSingleton()
 
     //services
     bind(classOf[DashboardService]).to(classOf[DashboardServiceImpl]).asEagerSingleton()

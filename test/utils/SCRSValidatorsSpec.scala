@@ -18,18 +18,18 @@ package utils
 
 import forms.AccountingDatesFormT
 import helpers.UnitSpec
-import java.time.{LocalDate, LocalDateTime, LocalTime, ZonedDateTime}
 
+import java.time.{LocalDate, LocalDateTime, LocalTime, ZonedDateTime}
 import models.JavaTimeUtils.BankHolidaySet
-import services.{BankHolidays, TimeService}
+import services.{BankHolidaysService, TimeService}
 
 class SCRSValidatorsSpec extends UnitSpec {
 
   class Setup(newnow : LocalDate = LocalDate.now(), dateTime : LocalDateTime = LocalDateTime.now()) {
     val testAccDatesForm = new AccountingDatesFormT {
-      override lazy val bHS = BankHolidays.bankHolidaySet
+      override lazy val bHS = BankHolidaysService.loadFromBankHolidayJson()
       override val timeService: TimeService = new TimeService {
-        override implicit val bHS: BankHolidaySet = BankHolidays.bankHolidaySet
+        override implicit val bHS: BankHolidaySet = BankHolidaysService.loadFromBankHolidayJson()
         override val dayEndHour: Int = 14
         override def currentDateTime: LocalDateTime = dateTime
         override def currentLocalDate: LocalDate = newnow

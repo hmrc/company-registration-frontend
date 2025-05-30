@@ -17,9 +17,9 @@
 package forms
 
 import helpers.UnitSpec
-import services.{BankHolidays, TimeService}
-import java.time._
+import services.{BankHolidaysService, TimeService}
 
+import java.time._
 import models.JavaTimeUtils.BankHolidaySet
 
 class AccountingDatesFormSpec extends UnitSpec {
@@ -29,7 +29,7 @@ class AccountingDatesFormSpec extends UnitSpec {
 
   def testForm(newnow : LocalDate = curLocalDate) = new AccountingDatesFormT {
     override val timeService: TimeService = new TimeService {
-      override val bHS: BankHolidaySet = BankHolidays.bankHolidaySet
+      override val bHS: BankHolidaySet = BankHolidaysService.loadFromBankHolidayJson()
       override val dayEndHour: Int = 14
       override def currentDateTime: LocalDateTime = curDateTime
       override def currentLocalDate: LocalDate = curLocalDate

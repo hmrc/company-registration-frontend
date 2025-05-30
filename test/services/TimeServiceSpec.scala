@@ -24,7 +24,8 @@ import models.JavaTimeUtils.{BankHoliday, BankHolidaySet}
 
 class TimeServiceSpec extends UnitSpec with MockitoSugar {
 
-  implicit val bHSTest: BankHolidaySet = BankHolidays.bankHolidaySet
+  implicit val bHSTest: BankHolidaySet = BankHolidaysService.loadFromBankHolidayJson()
+
   val bhRandomDate = BankHoliday(title="testBH", date= LocalDate.of(2000, 10, 10))
 
   def timeServiceMock(dateTime: LocalDateTime = LocalDateTime.of(2017, 1, 2, 15, 0), dayEnd: Int = 14, bankHolidayDates : List[BankHoliday] = List(bhRandomDate)) = new TimeService {

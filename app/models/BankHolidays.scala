@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,27 @@
  * limitations under the License.
  */
 
-package models.JavaTimeUtils
+package models
 
 import java.time.LocalDate
-import play.api.libs.json.{Json, OFormat}
 
-case class BankHolidaySet(division: String, events: List[BankHoliday])
-
-case class BankHoliday(title: String, date: LocalDate)
+final case class BankHoliday(date: LocalDate)
 
 object BankHoliday {
-  implicit val format: OFormat[BankHoliday] = Json.format[BankHoliday]
+  implicit val ordering: Ordering[BankHoliday] = Ordering.by(_.date)
 }
 
-object BankHolidaySet {
-  implicit val format: OFormat[BankHolidaySet] = Json.format[BankHolidaySet]
+final case class BankHolidays(englandAndWales: Set[BankHoliday],
+                              scotland: Set[BankHoliday],
+                              northernIreland: Set[BankHoliday]
+                             )
+
+sealed trait Region
+
+object Region {
+  case object EnglandAndWales extends Region
+
+  case object NorthernIreland extends Region
+
+  case object Scotland extends Region
 }

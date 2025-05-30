@@ -26,6 +26,7 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.json.Json
 import play.api.test.Helpers._
+import services.BankHolidaysLoader
 import uk.gov.hmrc.http.cache.client.{CacheMap, ShortLivedCache}
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
@@ -41,7 +42,8 @@ class S4LConnectorSpec extends UnitSpec with MockitoSugar with GuiceOneAppPerSui
       "Test.microservices.services.cachable.short-lived.cache.domain" -> "save4later"
     )
     .overrides(
-      bind[HttpClientV2].toInstance(mock[HttpClientV2])
+      bind[HttpClientV2].toInstance(mock[HttpClientV2]),
+      bind[BankHolidaysLoader].toInstance(mock[BankHolidaysLoader])
     )
     .build()
 
