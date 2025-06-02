@@ -37,10 +37,10 @@ class BankHolidaysService @Inject()(val bankHolidaysConnector: BankHolidaysConne
 
   private var cachedBankHolidays : Option[BankHolidaySet] = None
 
-  def getEnglandAndWalesBankHolidays(): Option[BankHolidaySet] = cachedBankHolidays
+  def getEnglandAndWalesBankHolidays: Option[BankHolidaySet] = cachedBankHolidays
 
   def loadEnglandAndWalesBankHolidays(): Future[BankHolidaySet] = {
-    bankHolidaysConnector.getBankHolidays().map { httpResponse =>
+    bankHolidaysConnector.getBankHolidays.map { httpResponse =>
       if (httpResponse.status == OK) {
         httpResponse.json.validate[GDSBankHolidays] match {
           case JsSuccess(gdsBankHolidays, _) =>
@@ -68,7 +68,7 @@ class BankHolidaysService @Inject()(val bankHolidaysConnector: BankHolidaysConne
   }
 
   def fetchBankHolidays(): BankHolidaySet = {
-    getEnglandAndWalesBankHolidays().getOrElse(loadFromBankHolidayJson())
+    getEnglandAndWalesBankHolidays.getOrElse(loadFromBankHolidayJson())
   }
 }
 

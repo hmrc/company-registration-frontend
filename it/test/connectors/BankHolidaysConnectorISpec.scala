@@ -30,15 +30,16 @@ class BankHolidaysConnectorISpec  extends IntegrationSpecBase {
     .configure(Map("microservice.services.address-lookup-frontend.port" -> s"${WiremockHelper.wiremockPort}"))
     .build
 
-  lazy val connector = app.injector.instanceOf[BankHolidaysConnector]
+  lazy val connector: BankHolidaysConnector = app.injector.instanceOf[BankHolidaysConnector]
 
   "BankHolidaysConnector" should {
 
-    "calling getBankHolidays" in {
+    "calling getBankHolidays get success response" in {
 
-      val result = await(connector.getBankHolidays())
+      val result = await(connector.getBankHolidays)
       result.status mustBe 200
       (result.json.validate[GDSBankHolidays].get.`england-and-wales`.events.size > 1) mustBe true
     }
+
   }
 }

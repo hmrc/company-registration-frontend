@@ -32,7 +32,7 @@ class BankHolidaysConnector @Inject() (val httpClientV2: HttpClientV2, val appCo
 
   implicit val hc: HeaderCarrier = HeaderCarrier().withExtraHeaders("Accept" -> "application/vnd.hmrc.1.0+json")
 
-  def getBankHolidays(): Future[HttpResponse] =
+  def getBankHolidays: Future[HttpResponse] =
     httpClientV2
       .get(url"${appConfig.bankHolidaysApiUrl}")
       .setHeader(HeaderNames.FROM -> appConfig.bankHolidaysApiFromEmailAddress)
