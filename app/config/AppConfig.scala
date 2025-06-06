@@ -147,6 +147,4 @@ class AppConfig @Inject()(val servicesConfig: ServicesConfig, featureSwitch: SCR
 
   lazy val bankHolidaysApiUrl: String = servicesConfig.getString("bank-holiday-api.url")
 
-  lazy val bankHolidaysApiFromEmailAddress: String = servicesConfig.getString("bank-holiday-api.from-email-address")
-
 }

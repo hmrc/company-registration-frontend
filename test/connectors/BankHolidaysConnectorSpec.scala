@@ -46,8 +46,6 @@ class BankHolidaysConnectorSpec extends UnitSpec with SCRSMocks {
       val jsonResponse: JsValue = Json.parse(s"""{"holiday" : "5/5/2025"}""")
       mockHttpGET(HttpResponse(OK, "testJson"))
       when(mockAppConfig.bankHolidaysApiUrl).thenReturn("https://www.gov.uk/bank-holidays.json")
-      when(mockAppConfig.bankHolidaysApiFromEmailAddress).thenReturn("test@email.com")
-      when(mockRequestBuilder.setHeader(any())).thenReturn(mockRequestBuilder)
       when(mockRequestBuilder.withProxy).thenReturn(mockRequestBuilder)
 
       val result: HttpResponse = await(testBankHolidayConnector.getBankHolidays)
@@ -59,8 +57,6 @@ class BankHolidaysConnectorSpec extends UnitSpec with SCRSMocks {
 
       mockHttpGET(HttpResponse(NOT_FOUND, ""))
       when(mockAppConfig.bankHolidaysApiUrl).thenReturn("https://www.gov.uk/bank-holidays.json")
-      when(mockAppConfig.bankHolidaysApiFromEmailAddress).thenReturn("test@email.com")
-      when(mockRequestBuilder.setHeader(any())).thenReturn(mockRequestBuilder)
       when(mockRequestBuilder.withProxy).thenReturn(mockRequestBuilder)
 
       val result: HttpResponse = await(testBankHolidayConnector.getBankHolidays)

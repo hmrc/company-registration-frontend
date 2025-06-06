@@ -35,7 +35,6 @@ class BankHolidaysConnector @Inject() (val httpClientV2: HttpClientV2, val appCo
   def getBankHolidays: Future[HttpResponse] =
     httpClientV2
       .get(url"${appConfig.bankHolidaysApiUrl}")
-      .setHeader(HeaderNames.FROM -> appConfig.bankHolidaysApiFromEmailAddress)
       .withProxy
       .execute
 
