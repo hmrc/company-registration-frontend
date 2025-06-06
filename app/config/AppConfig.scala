@@ -144,4 +144,7 @@ class AppConfig @Inject()(val servicesConfig: ServicesConfig, featureSwitch: SCR
 
   lazy val feedbackFrontendUrl = loadConfig("microservice.services.feedback-frontend.host")
   lazy val betaFeedbackUrl = s"$feedbackFrontendUrl/feedback/$contactFormServiceIdentifier"
+
+  lazy val bankHolidaysApiUrl: String = servicesConfig.getString("bank-holiday-api.url")
+
 }

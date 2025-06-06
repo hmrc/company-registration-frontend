@@ -37,7 +37,7 @@ import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import repositories.NavModelRepo
-import services.{BankHolidays, DashboardService, TimeService}
+import services.{BankHolidaysService, DashboardService, TimeService}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
@@ -102,7 +102,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
       ){
       override lazy val accDForm = new AccountingDatesFormT {
         override val timeService = new TimeService {
-          override val bHS: BankHolidaySet = BankHolidays.bankHolidaySet
+          override val bHS: BankHolidaySet = BankHolidaysService.loadFromBankHolidayJson()
           override val dayEndHour: Int = 1
           override def currentDateTime: LocalDateTime = LocalDateTime.now
           override def currentLocalDate: LocalDate = LocalDate.now
