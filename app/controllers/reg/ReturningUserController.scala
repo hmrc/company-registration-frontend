@@ -16,21 +16,23 @@
 
 package controllers.reg
 
+import audit.events.ReturningUserIdentityVerificationAudit
 import config.AppConfig
 import controllers.auth.AuthenticatedController
 import forms.ReturningUserForm
-
-import javax.inject.{Inject, Singleton}
 import models.ReturningUser
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import views.html.reg.ReturningUserView
 
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class ReturningUserController @Inject()(val authConnector: PlayAuthConnector,
+                                        val auditConnector: AuditConnector,
                                         val controllerComponents: MessagesControllerComponents,
                                         view : ReturningUserView)(implicit val ec: ExecutionContext, implicit val appConfig: AppConfig) extends AuthenticatedController with I18nSupport {
   lazy val createGGWAccountUrl: String = appConfig.servicesConfig.getConfString("gg-reg-fe.url", throw new Exception("Could not find config for gg-reg-fe url"))
@@ -55,6 +57,8 @@ class ReturningUserController @Inject()(val authConnector: PlayAuthConnector,
       ReturningUserForm.form.bindFromRequest().fold(
         errors => Future.successful(BadRequest(view(errors, hc.authorization.isDefined))),
         success => {
+          auditConnector.sendExplicitAudit("SCRSReturningUser",
+            ReturningUserIdentityVerificationAudit(Some(success.returningUser)))
           success.returningUser match {
             case "true" => Future.successful(Redirect(buildCreateAccountURL).withNewSession)
             case "false" => Future.successful(Redirect(routes.SignInOutController.postSignIn(None)))

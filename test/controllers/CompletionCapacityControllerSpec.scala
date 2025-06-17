@@ -16,6 +16,7 @@
 
 package controllers
 
+import audit.events.RelationshipIdentityVerificationAudit
 import builders.AuthBuilder
 import config.AppConfig
 import connectors.{BusinessRegistrationConnector, BusinessRegistrationSuccessResponse}
@@ -23,15 +24,19 @@ import controllers.reg.{CompletionCapacityController, ControllerErrorHandler}
 import fixtures.BusinessRegistrationFixture
 import helpers.SCRSSpec
 import mocks.MetricServiceMock
-import models.{AboutYouChoiceForm, BusinessRegistration}
-import org.mockito.ArgumentMatchers
+import models.AboutYouChoiceForm
+import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
+import org.mockito.{ArgumentMatchers, Mockito}
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpReads}
+import services.MetaDataServiceImpl
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.audit.http.config.AuditingConfig
+import uk.gov.hmrc.play.audit.http.connector.AuditResult
 import views.html.reg.{CompletionCapacity => CompletionCapacityView}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -43,6 +48,8 @@ class CompletionCapacityControllerSpec extends SCRSSpec with GuiceOneAppPerSuite
   lazy val mockControllerErrorHandler = app.injector.instanceOf[ControllerErrorHandler]
   lazy val mockCompletionCapacityView = app.injector.instanceOf[CompletionCapacityView]
   override lazy val mockAppConfig = app.injector.instanceOf[AppConfig]
+  lazy val mockMetaDataServiceImpl : MetaDataServiceImpl = new MetaDataServiceImpl(mockBusinessRegConnector,
+    mockKeystoreConnector,mockAuditConnector)
 
   class Setup {
     val controller = new CompletionCapacityController(
@@ -145,5 +152,37 @@ class CompletionCapacityControllerSpec extends SCRSSpec with GuiceOneAppPerSuite
       result =>
         status(result) mustBe BAD_REQUEST
     }
+  }
+
+  "return a 303 if the user has entered valid data with Audit" in new Setup {
+    val testControllerWithAudit = new CompletionCapacityController(
+      mockAuthConnector,
+      mockKeystoreConnector,
+      mockBusinessRegConnector,
+      MetricServiceMock,
+      mockMetaDataServiceImpl,
+      mockCompanyRegistrationConnector,
+      mockMcc,
+      mockCompletionCapacityView
+    )(
+      ec,
+      mockAppConfig
+    )
+    mockKeystoreFetchAndGet("registrationID", Some("foo"))
+
+    when(mockBusinessRegConnector.retrieveAndUpdateCompletionCapacity(ArgumentMatchers.any(),
+      ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier]()))
+      .thenReturn(Future.successful(validBusinessRegistrationResponse))
+
+    submitWithAuthorisedUser(testControllerWithAudit.submit, FakeRequest().withFormUrlEncodedBody(
+      "completionCapacity" -> "director",
+      "completionCapacityOther" -> ""
+    )) {
+      result =>
+        status(result) mustBe SEE_OTHER
+    }
+    Mockito.verify(mockAuditConnector, times(1))
+      .sendExplicitAudit(ArgumentMatchers.eq("SCRSRelationship"),
+        ArgumentMatchers.eq(RelationshipIdentityVerificationAudit(Some("foo"),Some("director"))))(any(), any(), any())
   }
 }
