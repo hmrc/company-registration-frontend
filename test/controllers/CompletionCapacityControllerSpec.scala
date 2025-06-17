@@ -182,7 +182,7 @@ class CompletionCapacityControllerSpec extends SCRSSpec with GuiceOneAppPerSuite
         status(result) mustBe SEE_OTHER
     }
     Mockito.verify(mockAuditConnector, times(1))
-      .sendExplicitAudit(ArgumentMatchers.eq("SCRSRelationshipIdentityVerification"),
+      .sendExplicitAudit(ArgumentMatchers.eq("SCRSRelationship"),
         ArgumentMatchers.eq(RelationshipIdentityVerificationAudit(Some("foo"),Some("director"))))(any(), any(), any())
   }
 }

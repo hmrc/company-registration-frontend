@@ -40,7 +40,7 @@ trait MetaDataService extends CommonService with AuditService with SCRSException
     for {
       regID <- fetchRegistrationID
       updateCC <- businessRegConnector.retrieveAndUpdateCompletionCapacity(regID, getItemToSave(completionCapacity))
-      _ = auditConnector.sendExplicitAudit("SCRSRelationshipIdentityVerification",
+      _ = auditConnector.sendExplicitAudit("SCRSRelationship",
         RelationshipIdentityVerificationAudit(Some(regID), Some(completionCapacity.completionCapacity)))
     } yield {
       updateCC

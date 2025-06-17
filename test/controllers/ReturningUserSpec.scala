@@ -76,7 +76,7 @@ class ReturningUserSpec extends SCRSSpec with AuthBuilder with GuiceOneAppPerSui
 
         val result = testController.submit(FakeRequest().withFormUrlEncodedBody("returningUser" -> "true"))
         Mockito.verify(mockAuditConnector, times(1))
-          .sendExplicitAudit(ArgumentMatchers.eq("SCRSReturningUserIdentityVerification"),
+          .sendExplicitAudit(ArgumentMatchers.eq("SCRSReturningUser"),
             ArgumentMatchers.eq(ReturningUserIdentityVerificationAudit(Some("true"))))(any(), any(), any())
         status(result) mustBe SEE_OTHER
         redirectLocation(result).get must include("EligURL")
@@ -86,7 +86,7 @@ class ReturningUserSpec extends SCRSSpec with AuthBuilder with GuiceOneAppPerSui
 
         val result = testController.submit(FakeRequest().withFormUrlEncodedBody("returningUser" -> "false"))
         Mockito.verify(mockAuditConnector, times(1))
-          .sendExplicitAudit(ArgumentMatchers.eq("SCRSReturningUserIdentityVerification"),
+          .sendExplicitAudit(ArgumentMatchers.eq("SCRSReturningUser"),
             ArgumentMatchers.eq(ReturningUserIdentityVerificationAudit(Some("false"))))(any(), any(), any())
         status(result) mustBe SEE_OTHER
         redirectLocation(result) mustBe Some("/register-your-company/post-sign-in")

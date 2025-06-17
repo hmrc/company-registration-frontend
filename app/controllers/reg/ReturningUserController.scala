@@ -57,7 +57,7 @@ class ReturningUserController @Inject()(val authConnector: PlayAuthConnector,
       ReturningUserForm.form.bindFromRequest().fold(
         errors => Future.successful(BadRequest(view(errors, hc.authorization.isDefined))),
         success => {
-          auditConnector.sendExplicitAudit("SCRSReturningUserIdentityVerification",
+          auditConnector.sendExplicitAudit("SCRSReturningUser",
             ReturningUserIdentityVerificationAudit(Some(success.returningUser)))
           success.returningUser match {
             case "true" => Future.successful(Redirect(buildCreateAccountURL).withNewSession)
