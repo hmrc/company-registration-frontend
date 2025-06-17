@@ -16,19 +16,23 @@
 
 package services
 
+import audit.events.RelationshipIdentityVerificationAudit
+
 import javax.inject.Inject
 import connectors.{BusinessRegistrationConnector, BusinessRegistrationSuccessResponse, KeystoreConnector}
 import models.{AboutYouChoice, AboutYouChoiceForm, BusinessRegistration}
 import utils.Logging
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import utils.SCRSExceptions
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class MetaDataServiceImpl @Inject()(val businessRegConnector: BusinessRegistrationConnector,
-                                    val keystoreConnector: KeystoreConnector)(implicit val ec: ExecutionContext) extends MetaDataService
+                                    val keystoreConnector: KeystoreConnector,
+                                    val auditConnector: AuditConnector)(implicit val ec: ExecutionContext) extends MetaDataService
 
-trait MetaDataService extends CommonService with SCRSExceptions with Logging {
+trait MetaDataService extends CommonService with AuditService with SCRSExceptions with Logging {
 
   val businessRegConnector : BusinessRegistrationConnector
 
@@ -36,6 +40,8 @@ trait MetaDataService extends CommonService with SCRSExceptions with Logging {
     for {
       regID <- fetchRegistrationID
       updateCC <- businessRegConnector.retrieveAndUpdateCompletionCapacity(regID, getItemToSave(completionCapacity))
+      _ = auditConnector.sendExplicitAudit("SCRSRelationshipIdentityVerification",
+        RelationshipIdentityVerificationAudit(Some(regID), Some(completionCapacity.completionCapacity)))
     } yield {
       updateCC
     }

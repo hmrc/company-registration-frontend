@@ -16,15 +16,21 @@
 
 package controllers
 
+import audit.events.ReturningUserIdentityVerificationAudit
 import builders.AuthBuilder
 import config.AppConfig
 import controllers.reg.ReturningUserController
 import helpers.SCRSSpec
+import org.mockito.{ArgumentMatchers, Mockito}
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.times
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
+import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import views.html.reg.ReturningUserView
+
 import scala.concurrent.ExecutionContext.Implicits.global
 
 class ReturningUserSpec extends SCRSSpec with AuthBuilder with GuiceOneAppPerSuite {
@@ -36,6 +42,7 @@ class ReturningUserSpec extends SCRSSpec with AuthBuilder with GuiceOneAppPerSui
 
     val testController = new ReturningUserController(
       mockAuthConnector,
+      mockAuditConnector,
       mockMcc,
       mockReturningUserView
     )(
@@ -68,6 +75,9 @@ class ReturningUserSpec extends SCRSSpec with AuthBuilder with GuiceOneAppPerSui
       "return a 303 and send user to company registration eligibility when they start a new registration" in new Setup {
 
         val result = testController.submit(FakeRequest().withFormUrlEncodedBody("returningUser" -> "true"))
+        Mockito.verify(mockAuditConnector, times(1))
+          .sendExplicitAudit(ArgumentMatchers.eq("SCRSReturningUserIdentityVerification"),
+            ArgumentMatchers.eq(ReturningUserIdentityVerificationAudit(Some("true"))))(any(), any(), any())
         status(result) mustBe SEE_OTHER
         redirectLocation(result).get must include("EligURL")
         redirectLocation(result).get must include("/eligibility-for-setting-up-company")
@@ -75,6 +85,9 @@ class ReturningUserSpec extends SCRSSpec with AuthBuilder with GuiceOneAppPerSui
       "return a 303 and send user to sign-in page when they are not starting a new registration" in new Setup {
 
         val result = testController.submit(FakeRequest().withFormUrlEncodedBody("returningUser" -> "false"))
+        Mockito.verify(mockAuditConnector, times(1))
+          .sendExplicitAudit(ArgumentMatchers.eq("SCRSReturningUserIdentityVerification"),
+            ArgumentMatchers.eq(ReturningUserIdentityVerificationAudit(Some("false"))))(any(), any(), any())
         status(result) mustBe SEE_OTHER
         redirectLocation(result) mustBe Some("/register-your-company/post-sign-in")
       }
