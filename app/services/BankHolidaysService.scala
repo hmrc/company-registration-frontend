@@ -27,6 +27,7 @@ import services.BankHolidaysService.{Event, GDSBankHolidays, loadFromBankHoliday
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import utils.Logging
 
+import java.nio.charset.StandardCharsets
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import scala.concurrent.{ExecutionContext, Future}
@@ -98,7 +99,8 @@ object BankHolidaysService extends Logging {
   def loadFromBankHolidayJson(): BankHolidaySet = {
     val jsonStr = {
       logger.info("Trying to read BankHolidays from conf file")
-      val bhSource = Source.fromFile("conf/bank-holidays.json")
+      val url = getClass.getClassLoader.getResource("bank-holidays.json")
+      val bhSource = Source.fromURL(url, StandardCharsets.UTF_8.name())
       try
         bhSource.mkString
       finally
