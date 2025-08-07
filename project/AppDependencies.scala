@@ -11,7 +11,7 @@ private object AppDependencies {
     ws,
     "uk.gov.hmrc"       %% s"bootstrap-frontend$playVersion"            % bootstrapVersion,
     "uk.gov.hmrc.mongo" %% s"hmrc-mongo$playVersion"                    % hmrcMongoVersion,
-    "uk.gov.hmrc"       %% s"play-partials$playVersion"                 % "10.0.0",
+    "uk.gov.hmrc"       %% s"play-partials$playVersion"                 % "10.1.0",
     "uk.gov.hmrc"       %% s"http-caching-client$playVersion"           % "12.2.0",
     "uk.gov.hmrc"       %% s"play-conditional-form-mapping$playVersion" % "3.3.0",
     "org.bitbucket.b_c"  % "jose4j"                                     % "0.9.6",
