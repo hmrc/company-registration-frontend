@@ -6,6 +6,7 @@ private object AppDependencies {
   val playVersion      = "-play-30"
   val bootstrapVersion = "10.1.0"
   val hmrcMongoVersion = "2.7.0"
+  val scalaTestVersion = "3.2.18"
 
   val compile: Seq[ModuleID] = Seq(
     ws,
@@ -15,7 +16,7 @@ private object AppDependencies {
     "uk.gov.hmrc"       %% s"http-caching-client$playVersion"           % "12.2.0",
     "uk.gov.hmrc"       %% s"play-conditional-form-mapping$playVersion" % "3.3.0",
     "org.bitbucket.b_c"  % "jose4j"                                     % "0.9.6",
-    "commons-validator"  % "commons-validator"                          % "1.10.0",
+    "commons-validator"  % "commons-validator"                          % "1.9.0",
     "uk.gov.hmrc"       %% "play-language"                              % "8.1.0",
     "uk.gov.hmrc"       %% s"play-frontend-hmrc$playVersion"            % "12.8.0"
   )
@@ -23,7 +24,7 @@ private object AppDependencies {
   val test: Seq[ModuleID] = Seq(
     "uk.gov.hmrc"       %% s"bootstrap-test$playVersion"  % bootstrapVersion % Test,
     "uk.gov.hmrc.mongo" %% s"hmrc-mongo-test$playVersion" % hmrcMongoVersion % Test,
-    "org.jsoup"          % "jsoup"                        % "1.21.1"         % Test
+    "org.jsoup"          % "jsoup"                        % "1.19.1"         % Test
   )
 
   def apply(): Seq[ModuleID] = compile ++ test
