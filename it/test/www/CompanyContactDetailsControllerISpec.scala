@@ -246,7 +246,7 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
       response.header(HeaderNames.LOCATION).get mustBe controllers.takeovers.routes.ReplacingAnotherBusinessController.show.url
       intercept[Exception]((Json.parse(getRequestBody("post", "/write/audit")).as[JsObject] \ "detail" \ "businessContactDetails").get)
 
-      findAll(postRequestedFor(urlMatching("/write/audit"))).size() mustBe 1
+      findAll(postRequestedFor(urlMatching("/write/audit"))).size() mustBe 2
     }
   }
 }
