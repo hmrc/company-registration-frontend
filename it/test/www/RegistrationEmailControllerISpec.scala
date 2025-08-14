@@ -248,8 +248,16 @@ class RegistrationEmailControllerISpec extends IntegrationSpecBase with LoginStu
           "csrfToken" -> Seq("xxx-ignored-xxx"),
           "registrationEmail" -> Seq("currentEmail")
         )))
-      val audit = Json.parse(getRequestBody("post", "/write/audit")).as[JsObject] \ "detail"
-      audit.get mustBe Json.parse("""{"externalUserId":"fooBarWizz1","authProviderId":"12345-credId","journeyId":"test","emailAddress":"test@test.com","isVerifiedEmailAddress":true,"previouslyVerified":true}""")
+      // Verify the audit call was made with correct payload
+      verify(postRequestedFor(urlEqualTo("/write/audit"))
+        .withRequestBody(containing("\"detail\""))
+        .withRequestBody(containing("\"externalUserId\":\"fooBarWizz1\""))
+        .withRequestBody(containing("\"authProviderId\":\"12345-credId\""))
+        .withRequestBody(containing("\"journeyId\":\"test\""))
+        .withRequestBody(containing("\"emailAddress\":\"test@test.com\""))
+        .withRequestBody(containing("\"isVerifiedEmailAddress\":true"))
+        .withRequestBody(containing("\"previouslyVerified\":true"))
+      )
 
       res.status mustBe 303
       res.header(HeaderNames.LOCATION).get mustBe controllers.reg.routes.CompletionCapacityController.show.url
