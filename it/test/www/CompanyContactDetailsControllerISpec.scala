@@ -248,9 +248,7 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
       response.status mustBe 303
       response.header(HeaderNames.LOCATION).get mustBe controllers.takeovers.routes.ReplacingAnotherBusinessController.show.url
       findAll(postRequestedFor(urlMatching("/write/audit"))).forEach(
-        auditEvent => {
-          auditEvent.getBodyAsString.contains("\"businessContactDetails\"") mustBe false
-        }
+        auditEvent => auditEvent.getBodyAsString.contains("\"businessContactDetails\"") mustBe false
       )
     }
   }
