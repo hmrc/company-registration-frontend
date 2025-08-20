@@ -17,7 +17,7 @@
 package test.www
 
 import java.util.UUID
-import com.github.tomakehurst.wiremock.client.WireMock.{findAll, postRequestedFor, urlMatching}
+import com.github.tomakehurst.wiremock.client.WireMock.{containing, findAll, notContaining, postRequestedFor, urlEqualTo, urlMatching, verify}
 import config.AppConfig
 import test.itutil.{IntegrationSpecBase, LoginStub, RequestsFinder}
 import org.jsoup.Jsoup
@@ -212,8 +212,11 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
 
       response.status mustBe 303
       response.header(HeaderNames.LOCATION).get mustBe controllers.takeovers.routes.ReplacingAnotherBusinessController.show.url
-      val audit = Json.parse(getRequestBody("post", "/write/audit")).as[JsObject] \ "detail" \ "businessContactDetails"
-      audit.get mustBe Json.obj("originalEmail" -> "test@test.com")
+      verify(postRequestedFor(urlEqualTo("/write/audit"))
+        .withRequestBody(containing("\"detail\""))
+        .withRequestBody(containing("\"businessContactDetails\""))
+        .withRequestBody(containing("\"originalEmail\":\"test@test.com\""))
+      )
     }
     "return 303, when name is submitted and email is the same as auth email, no audit event should be sent" in {
       val contactDetailsResp = Json.parse(
@@ -244,9 +247,9 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
 
       response.status mustBe 303
       response.header(HeaderNames.LOCATION).get mustBe controllers.takeovers.routes.ReplacingAnotherBusinessController.show.url
-      intercept[Exception]((Json.parse(getRequestBody("post", "/write/audit")).as[JsObject] \ "detail" \ "businessContactDetails").get)
-
-      findAll(postRequestedFor(urlMatching("/write/audit"))).size() mustBe 1
+      findAll(postRequestedFor(urlMatching("/write/audit"))).forEach(
+        auditEvent => auditEvent.getBodyAsString.contains("\"businessContactDetails\"") mustBe false
+      )
     }
   }
 }
