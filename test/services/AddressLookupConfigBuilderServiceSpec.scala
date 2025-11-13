@@ -71,8 +71,17 @@ class AddressLookupConfigBuilderServiceSpec()(implicit messagesProvider: Message
           timeoutConfig = TimeoutConfig(
             timeoutAmount = 22666,
             timeoutUrl = "testCompanyRegUrl/register-your-company/error/timeout"
+          ),
+
+          manualAddressEntryConfig = ManualAddressEntryConfig(
+            MandatoryAddressFields(
+              addressLine1 = true,
+              addressLine2 = true,
+              postcode     = true
+            )
           )
         ),
+
         labels = JourneyLabels(en = LanguageLabels(
           appLevelLabels = AppLevelLabels(
             navTitle = Some("Set up a limited company and register for Corporation Tax"),

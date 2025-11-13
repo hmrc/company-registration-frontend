@@ -34,7 +34,8 @@ case class JourneyOptions(continueUrl: String,
                           selectPageConfig: SelectPageConfig,
                           confirmPageConfig: ConfirmPageConfig,
                           timeoutConfig: TimeoutConfig,
-                          disableTranslations: Boolean
+                          disableTranslations: Boolean,
+                          manualAddressEntryConfig: ManualAddressEntryConfig
                          )
 
 case class SelectPageConfig(proposalListLimit: Int,
@@ -49,6 +50,16 @@ case class ConfirmPageConfig(showSearchAgainLink: Boolean,
 case class TimeoutConfig(timeoutAmount: Int,
                          timeoutUrl: String
                         )
+
+case class ManualAddressEntryConfig(
+                                     mandatoryAddressFields: MandatoryAddressFields
+                                   )
+
+case class MandatoryAddressFields(
+                                   addressLine1: Boolean,
+                                   addressLine2: Boolean,
+                                   postcode: Boolean
+                                 )
 
 case class JourneyLabels(en: LanguageLabels,
                          cy: LanguageLabels
@@ -106,4 +117,6 @@ object AlfJourneyConfig {
   implicit lazy val lookupPageLabelsFormat: OFormat[LookupPageLabels] = Json.format[LookupPageLabels]
   implicit lazy val editPageLabelsFormat: OFormat[EditPageLabels] = Json.format[EditPageLabels]
   implicit lazy val confirmPageLabelsFormat: OFormat[ConfirmPageLabels] = Json.format[ConfirmPageLabels]
+  implicit lazy val mandatoryAddressFieldsFormat: OFormat[MandatoryAddressFields] = Json.format[MandatoryAddressFields]
+  implicit lazy val manualAddressEntryConfigFormat: OFormat[ManualAddressEntryConfig] = Json.format[ManualAddressEntryConfig]
 }
