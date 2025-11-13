@@ -21,8 +21,7 @@ import com.github.tomakehurst.wiremock.http.{HttpHeader, HttpHeaders}
 import connectors.httpParsers.exceptions.DownstreamExceptions
 import test.itutil.{IntegrationSpecBase, WiremockHelper}
 import connectors.{ALFLocationHeaderNotSetException, AddressLookupConnector}
-import models.{AlfJourneyConfig, AppLevelLabels, ConfirmPageConfig, ConfirmPageLabels, EditPageLabels,
-  JourneyLabels, JourneyOptions, LanguageLabels, LookupPageLabels, NewAddress, SelectPageConfig, SelectPageLabels, TimeoutConfig}
+import models.{AlfJourneyConfig, AppLevelLabels, ConfirmPageConfig, ConfirmPageLabels, EditPageLabels, JourneyLabels, JourneyOptions, LanguageLabels, LookupPageLabels, MandatoryAddressFields, ManualAddressEntryConfig, NewAddress, SelectPageConfig, SelectPageLabels, TimeoutConfig}
 import play.api.Application
 import play.api.http.HeaderNames
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, NO_CONTENT}
@@ -153,8 +152,17 @@ class AddressLookupConnectorISpec extends IntegrationSpecBase {
           timeoutConfig = TimeoutConfig(
             timeoutAmount = 900,
             timeoutUrl = "http://localhost:9870/register-for-paye/error/timeout"
+          ),
+
+          manualAddressEntryConfig = ManualAddressEntryConfig(
+            MandatoryAddressFields(
+              addressLine1 = true,
+              addressLine2 = true,
+              postcode     = true
+            )
           )
         ),
+
         labels = JourneyLabels(en = LanguageLabels(
           appLevelLabels = AppLevelLabels(
             navTitle = Some("Register an employer for PAYE"),
