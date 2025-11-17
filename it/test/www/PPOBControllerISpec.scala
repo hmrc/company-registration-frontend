@@ -77,8 +77,17 @@ class PPOBControllerISpec extends IntegrationSpecBase with LoginStub with Fixtur
         timeoutConfig = TimeoutConfig(
           timeoutAmount = 999999,
           timeoutUrl = "http://localhost:9970/register-your-company/error/timeout"
+        ),
+
+        manualAddressEntryConfig = ManualAddressEntryConfig(
+          MandatoryAddressFields(
+            addressLine1 = true,
+            addressLine2 = true,
+            postcode     = true
+          )
         )
       ),
+
       labels = JourneyLabels(en = LanguageLabels(
         appLevelLabels = AppLevelLabels(
           navTitle = Some("Set up a limited company and register for Corporation Tax"),

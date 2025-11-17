@@ -51,6 +51,14 @@ class AddressLookupConfigBuilderService @Inject()(appConfig: AppConfig) {
       timeoutUrl = s"$companyRegistrationFrontendURL${controllers.reg.routes.SignInOutController.timeoutShow.url}"
     )
 
+    val manualAddressEntryConfig = ManualAddressEntryConfig(
+        MandatoryAddressFields(
+          addressLine1 = true,
+          addressLine2 = true,
+          postcode     = true
+        )
+    )
+
     val journeyOptions = JourneyOptions(
       continueUrl = s"$companyRegistrationFrontendURL${handbackLocation.url}",
       homeNavHref = "http://www.hmrc.gov.uk/",
@@ -63,7 +71,8 @@ class AddressLookupConfigBuilderService @Inject()(appConfig: AppConfig) {
       selectPageConfig = selectPageConfig,
       confirmPageConfig = confirmPageConfig,
       timeoutConfig = timeoutConfig,
-      disableTranslations = !appConfig.languageTranslationEnabled
+      disableTranslations = !appConfig.languageTranslationEnabled,
+      manualAddressEntryConfig = manualAddressEntryConfig
     )
 
     def appLevelLabels(lang: Lang) = {
