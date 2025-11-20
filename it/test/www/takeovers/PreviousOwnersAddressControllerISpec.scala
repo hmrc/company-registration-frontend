@@ -174,10 +174,10 @@ class PreviousOwnersAddressControllerISpec extends IntegrationSpecBase
           ),
 
           manualAddressEntryConfig = ManualAddressEntryConfig(
-            line1MaxLength = 255,
-            line2MaxLength = 255,
-            line3MaxLength = 255,
-            townMaxLength = 255,
+            line1MaxLength = 27,
+            line2MaxLength = 27,
+            line3MaxLength = 27,
+            townMaxLength = 27,
             mandatoryFields = MandatoryFields(
               addressLine1 = true,
               addressLine2 = true,
