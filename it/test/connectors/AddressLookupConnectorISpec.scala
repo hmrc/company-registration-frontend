@@ -21,7 +21,7 @@ import com.github.tomakehurst.wiremock.http.{HttpHeader, HttpHeaders}
 import connectors.httpParsers.exceptions.DownstreamExceptions
 import test.itutil.{IntegrationSpecBase, WiremockHelper}
 import connectors.{ALFLocationHeaderNotSetException, AddressLookupConnector}
-import models.{AlfJourneyConfig, AppLevelLabels, ConfirmPageConfig, ConfirmPageLabels, EditPageLabels, JourneyLabels, JourneyOptions, LanguageLabels, LookupPageLabels, MandatoryAddressFields, ManualAddressEntryConfig, NewAddress, SelectPageConfig, SelectPageLabels, TimeoutConfig}
+import models.{AlfJourneyConfig, AppLevelLabels, ConfirmPageConfig, ConfirmPageLabels, EditPageLabels, JourneyLabels, JourneyOptions, LanguageLabels, LookupPageLabels, MandatoryFields, ManualAddressEntryConfig, NewAddress, SelectPageConfig, SelectPageLabels, TimeoutConfig}
 import play.api.Application
 import play.api.http.HeaderNames
 import play.api.http.Status.{INTERNAL_SERVER_ERROR, NO_CONTENT}
@@ -155,9 +155,15 @@ class AddressLookupConnectorISpec extends IntegrationSpecBase {
           ),
 
           manualAddressEntryConfig = ManualAddressEntryConfig(
-            MandatoryAddressFields(
+            line1MaxLength = 255,
+            line2MaxLength = 255,
+            line3MaxLength = 255,
+            townMaxLength = 255,
+            mandatoryFields = MandatoryFields(
               addressLine1 = true,
               addressLine2 = true,
+              addressLine3 = false,
+              town         = false,
               postcode     = true
             )
           )

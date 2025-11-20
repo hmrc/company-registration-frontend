@@ -52,12 +52,19 @@ class AddressLookupConfigBuilderService @Inject()(appConfig: AppConfig) {
     )
 
     val manualAddressEntryConfig = ManualAddressEntryConfig(
-        MandatoryAddressFields(
-          addressLine1 = true,
-          addressLine2 = true,
-          postcode     = true
-        )
+      line1MaxLength = 255,
+      line2MaxLength = 255,
+      line3MaxLength = 255,
+      townMaxLength = 255,
+      mandatoryFields = MandatoryFields(
+        addressLine1 = true,
+        addressLine2 = true,
+        addressLine3 = false,
+        town         = false,
+        postcode     = true
+      )
     )
+
 
     val journeyOptions = JourneyOptions(
       continueUrl = s"$companyRegistrationFrontendURL${handbackLocation.url}",

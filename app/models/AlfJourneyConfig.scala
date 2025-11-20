@@ -52,12 +52,18 @@ case class TimeoutConfig(timeoutAmount: Int,
                         )
 
 case class ManualAddressEntryConfig(
-                                     mandatoryAddressFields: MandatoryAddressFields
+                                     line1MaxLength: Int,
+                                     line2MaxLength: Int,
+                                     line3MaxLength: Int,
+                                     townMaxLength: Int,
+                                     mandatoryFields: MandatoryFields
                                    )
 
-case class MandatoryAddressFields(
+case class MandatoryFields(
                                    addressLine1: Boolean,
                                    addressLine2: Boolean,
+                                   addressLine3: Boolean,
+                                   town: Boolean,
                                    postcode: Boolean
                                  )
 
@@ -117,6 +123,6 @@ object AlfJourneyConfig {
   implicit lazy val lookupPageLabelsFormat: OFormat[LookupPageLabels] = Json.format[LookupPageLabels]
   implicit lazy val editPageLabelsFormat: OFormat[EditPageLabels] = Json.format[EditPageLabels]
   implicit lazy val confirmPageLabelsFormat: OFormat[ConfirmPageLabels] = Json.format[ConfirmPageLabels]
-  implicit lazy val mandatoryAddressFieldsFormat: OFormat[MandatoryAddressFields] = Json.format[MandatoryAddressFields]
+  implicit lazy val mandatoryAddressFieldsFormat: OFormat[MandatoryFields] = Json.format[MandatoryFields]
   implicit lazy val manualAddressEntryConfigFormat: OFormat[ManualAddressEntryConfig] = Json.format[ManualAddressEntryConfig]
 }
