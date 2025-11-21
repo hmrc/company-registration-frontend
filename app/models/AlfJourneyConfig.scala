@@ -52,10 +52,6 @@ case class TimeoutConfig(timeoutAmount: Int,
                         )
 
 case class ManualAddressEntryConfig(
-                                     line1MaxLength: Int,
-                                     line2MaxLength: Int,
-                                     line3MaxLength: Int,
-                                     townMaxLength: Int,
                                      mandatoryFields: MandatoryFields
                                    )
 

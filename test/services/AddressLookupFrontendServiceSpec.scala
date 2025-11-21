@@ -105,10 +105,6 @@ class AddressLookupFrontendServiceSpec()(implicit messagesProvider: MessagesProv
           ),
 
           manualAddressEntryConfig = ManualAddressEntryConfig(
-            line1MaxLength = 27,
-            line2MaxLength = 27,
-            line3MaxLength = 27,
-            townMaxLength = 27,
             mandatoryFields = MandatoryFields(
               addressLine1 = true,
               addressLine2 = true,
