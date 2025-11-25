@@ -74,9 +74,11 @@ class AddressLookupConfigBuilderServiceSpec()(implicit messagesProvider: Message
           ),
 
           manualAddressEntryConfig = ManualAddressEntryConfig(
-            MandatoryAddressFields(
+            mandatoryFields = MandatoryFields(
               addressLine1 = true,
               addressLine2 = true,
+              addressLine3 = false,
+              town         = false,
               postcode     = true
             )
           )
