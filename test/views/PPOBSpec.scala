@@ -89,8 +89,8 @@ class PPOBSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixture with Nav
         result =>
           val document = Jsoup.parse(contentAsString(result))
 
-          document.title must include("What is the company's 'principal place of business'?")
-          document.getElementsByTag("h1").first().text mustBe "What is the company's 'principal place of business'?"
+          document.title must include("What is the company's principal place of business?")
+          document.getElementsByTag("h1").first().text mustBe "What is the company's principal place of business?"
           document.getElementById("next").attr("value") mustBe "Save and continue"
 
           document.getElementById("addressChoice").getElementsByAttributeValue("for","addressChoice-ro").text() mustBe "38 line 1, line 2, Telford ZZ1 1ZZ, UK"
@@ -115,8 +115,8 @@ class PPOBSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixture with Nav
         result =>
           val document = Jsoup.parse(contentAsString(result))
 
-          document.title must include("What is the company's 'principal place of business'?")
-          document.getElementsByTag("h1").first().text mustBe "What is the company's 'principal place of business'?"
+          document.title must include("What is the company's principal place of business?")
+          document.getElementsByTag("h1").first().text mustBe "What is the company's principal place of business?"
           document.getElementById("next").attr("value") mustBe "Save and continue"
 
           document.getElementById("addressChoice").getElementsByAttributeValue("for","addressChoice-ro").text() mustBe "38 line 1, line 2, Telford ZZ1 1ZZ, UK"
@@ -142,8 +142,8 @@ class PPOBSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixture with Nav
         result =>
           val document = Jsoup.parse(contentAsString(result))
 
-          document.title must include("What is the company's 'principal place of business'?")
-          document.getElementsByTag("h1").first().text mustBe "What is the company's 'principal place of business'?"
+          document.title must include("What is the company's principal place of business?")
+          document.getElementsByTag("h1").first().text mustBe "What is the company's principal place of business?"
           document.getElementById("next").attr("value") mustBe "Save and continue"
 
           document.getElementById("addressChoice").getElementsByAttributeValue("for","addressChoice-ro").text() mustBe "14 St Test Walk, Testley, Testford, Testshire, TE1 1ST, UK"
@@ -168,8 +168,8 @@ class PPOBSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixture with Nav
       showWithAuthorisedUser(controller.show) {
         result =>
           val document = Jsoup.parse(contentAsString(result))
-          document.title must include("What is the company's 'principal place of business'?")
-          document.getElementsByTag("h1").first.text mustBe "What is the company's 'principal place of business'?"
+          document.title must include("What is the company's principal place of business?")
+          document.getElementsByTag("h1").first.text mustBe "What is the company's principal place of business?"
           document.getElementById("next").attr("value") mustBe "Save and continue"
       }
     }

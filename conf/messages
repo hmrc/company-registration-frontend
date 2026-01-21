@@ -162,12 +162,12 @@ validation.nonEmpty                                                 = This field
 validation.invalid                                                  = Enter your relationship to the business using 100 characters or less
 
 ## PPOB
-page.reg.ppob.description                                           = What is the company’s ‘principal place of business’?
+page.reg.ppob.description                                           = What is the company’s principal place of business?
 page.reg.ppob.differentAddress                                      = A different address
 page.reg.ppob.location                                              = This is where the company will carry out most of its business activities.
-page.reg.ppob.mobileBusiness                                        = If this will be in different locations, use the address where the company will keep its financial or business records.
+page.reg.ppob.mobileBusiness                                        = If this will take place in different locations, use the address where the company will keep its financial or business records.
 page.reg.ppob.publicRecord                                          = This address will not go on the public record.
-page.reg.ppob.noPPOBYet                                             = The company doesn’t have a principal place of business yet
+page.reg.ppob.noPPOBYet                                             = The company does not have a principal place of business yet
 page.reg.ppob.useOfficeAddress                                      = Use the company’s registered office address for now and tell HMRC when it changes.
 error.addressChoice.required                                        = Tell us where the company will carry out most of its business activities
 
