@@ -125,6 +125,7 @@ page.reg.accountingDates.hint1                                      = The compan
 page.reg.accountingDates.radioOne                                   = On the same date it gets set up
 page.reg.accountingDates.radioTwo                                   = On a different future date
 page.reg.accountingDates.radioThree                                 = No plans to start trading or do a business activity yet
+page.reg.accountingDates.radioThree-hint                            = If your completed application is approved, you will get a letter explaining how to tell HMRC when the company becomes active.
 page.reg.accountingDates.date.notFound                              = Enter a date at least 3 working days from now
 page.reg.accountingDates.day.notFound                               = Enter a day
 page.reg.accountingDates.month.notFound                             = Enter a month
