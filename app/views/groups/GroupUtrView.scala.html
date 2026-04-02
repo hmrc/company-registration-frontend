@@ -31,13 +31,17 @@
 @(groupUTR: Form[GroupUTR], parentCompanyName: String)(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
 @differentHidden = {
+<label class="govuk-label govuk-!-font-weight-regular">
+    @messages("page.groups.groupUtr.utrLabel")
+</label>
 @inputText(
     form = groupUTR,
     name = "utr",
     id = "utr",
-    label = messages("page.groups.groupUtr.utrLabel"),
+    label = "",
     hint = Some(Html(messages("page.groups.groupUtr.helpText"))),
     isPageHeading = false,
+    classes = Some("govuk-input--width-10")
 )
 }
 
