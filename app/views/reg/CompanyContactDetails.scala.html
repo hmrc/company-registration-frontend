@@ -39,10 +39,7 @@
     @formWithCsrf(action = controllers.reg.routes.CompanyContactDetailsController.submit) {
 
         @p{
-            @messages("page.reg.company-contact-details.helpMessage0")
-        }
-        @p{
-            @messages("page.reg.company-contact-details.helpMessage1")
+            @messages("page.reg.company-contact-details.helpMessage")
         }
 
                 @inputText(
@@ -50,8 +47,8 @@
                     name = "contactDaytimeTelephoneNumber",
                     id = "contactDaytimeTelephoneNumber",
                     label = messages("page.reg.company-contact-details.label-three"),
-                    hint = Some(Html(messages("page.reg.company-contact-details.label-three-hint"))),
                     isPageHeading = false,
+                    classes = Some("govuk-input--width-20"),
                     attributes = Map("autocomplete" -> "tel")
                 )
                 @inputText(
@@ -61,6 +58,7 @@
                     label = messages("page.reg.company-contact-details.label-two"),
                     hint = Some(Html(messages("page.reg.company-contact-details.label-two-hint"))),
                     isPageHeading = false,
+                    classes = Some("govuk-input--width-20")
                 )
 
             @inputText(
@@ -69,6 +67,7 @@
                 id = "contactMobileNumber",
                 label = messages("page.reg.company-contact-details.label-four"),
                 isPageHeading = false,
+                classes = Some("govuk-input--width-20"),
                 attributes = Map("autocomplete" -> "tel")
             )
 
