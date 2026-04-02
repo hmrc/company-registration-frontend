@@ -15,6 +15,15 @@
  *@
 
 @import uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
+@import uk.gov.hmrc.govukfrontend.views.html.components.GovukRadios
+@import uk.gov.hmrc.govukfrontend.views.Aliases.Radios
+@import uk.gov.hmrc.govukfrontend.views.Aliases.Fieldset
+@import uk.gov.hmrc.govukfrontend.views.Aliases.Legend
+@import uk.gov.hmrc.govukfrontend.views.Aliases.Text
+@import uk.gov.hmrc.govukfrontend.views.Aliases.Hint
+@import uk.gov.hmrc.govukfrontend.views.Aliases.HtmlContent
+@import uk.gov.hmrc.govukfrontend.views.Aliases.RadioItem
+@import uk.gov.hmrc.govukfrontend.views.Aliases.ErrorMessage
 @import views.ViewUtils._
 
 @this(layout: templates.layout,
@@ -24,7 +33,8 @@
         p: components.p,
         bullets: components.bullets,
         button: components.button,
-        formWithCsrf: FormWithCSRF)
+        formWithCsrf: FormWithCSRF,
+        govukRadios: GovukRadios)
 
 @(tradingDetails: Form[TradingDetails])(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
@@ -59,18 +69,33 @@
 
     @formWithCsrf(action = controllers.reg.routes.TradingDetailsController.submit) {
 
-        @yesNoRadio(
-            form = tradingDetails,
-            id = "regularPayments",
-            headingKey = messages("page.reg.ct61.description"),
-            isPageHeading = false,
-            inline = false,
-            classes = "govuk-visually-hidden",
-            fieldName = "regularPayments",
-            hiddenYesContent = Some(trueHiddenContent),
-            hiddenNoContent = Some(falseHiddenContent)
-        )
+      @govukRadios(Radios(
+        idPrefix = Some("regularPayments"),
+        name = "regularPayments",
+        fieldset = Some(Fieldset(
+            legend = Some(Legend(
+                content = Text(messages("page.reg.ct61.description")),
+                isPageHeading = false,
+                classes = "govuk-visually-hidden"
+            ))
+        )),
+        items = Seq(
+            RadioItem(
+                value = Some("true"),
+                content = Text(messages("app.common.yes")),
+                checked = tradingDetails("regularPayments").value.contains("true"),
+                hint = Some(Hint(content = Text(messages("page.reg.ct61.radioYesText"))))
+            ),
+            RadioItem(
+                value = Some("false"),
+                content = Text(messages("app.common.no")),
+                checked = tradingDetails("regularPayments").value.contains("false"),
+                hint = Some(Hint(content = Text(messages("page.reg.ct61.radioNoText"))))
+            )
+        ),
+        errorMessage = tradingDetails.errors.headOption.map { error => ErrorMessage(content = Text(messages(error.message, error.args: _*)))}
+      ))
 
-        @button(messages("common.button.save"))
+      @button(messages("common.button.save"))
     }
 }
