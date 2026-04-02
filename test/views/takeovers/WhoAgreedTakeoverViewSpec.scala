@@ -47,7 +47,7 @@ class WhoAgreedTakeoverViewSpec extends UnitSpec with GuiceOneAppPerSuite with I
     lazy val line1 = "If you’re changing:"
     lazy val bullet1 = "your sole trader business into a limited company, give your own name"
     lazy val bullet2 = "a business partnership into a limited company, give the nominated partner’s name"
-    lazy val field = "Enter name"
+    lazy val field = "Enter full name"
     lazy val saveAndContinue = "Save and continue"
 
     s"have an expected title: $title" in {
