@@ -18,6 +18,8 @@
 @import uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
 @import uk.gov.hmrc.govukfrontend.views.Aliases.Text
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
+@import uk.gov.hmrc.govukfrontend.views.Aliases.HtmlContent
 @import views.ViewUtils.title
 
 @this(layout: templates.layout,
@@ -68,12 +70,14 @@
                 RadioItem(
                     id = Some("agent"),
                     content = Text(messages("page.reg.AboutYou.radio3")),
+                    hint = Some(Hint(content = HtmlContent(messages("page.reg.AboutYou.radio3-hint")))),
                     value = Some("agent"),
                     checked = aboutYou("completionCapacity").value.contains("agent")
                 ),
                 RadioItem(
                     id = Some("other"),
                     content = Text(messages("page.reg.AboutYou.radio4")),
+                    hint = Some(Hint(content = HtmlContent(messages("page.reg.AboutYou.radio4-hint")))),
                     value = Some("other"),
                     checked = aboutYou("completionCapacity").value.contains("other"),
                     conditionalHtml = Some(otherHidden)

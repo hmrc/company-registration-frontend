@@ -92,8 +92,10 @@ error.returningUser.required                                        = Tell us if
 page.reg.AboutYou.description                                       = What is your relationship to the company?
 page.reg.AboutYou.radio1                                            = Company director
 page.reg.AboutYou.radio2                                            = Company secretary
-page.reg.AboutYou.radio3                                            = Agent - for example, an accountant
-page.reg.AboutYou.radio4                                            = Other - for example, a friend of the director
+page.reg.AboutYou.radio3                                            = Agent or example, an accountant
+page.reg.AboutYou.radio3-hint                                       = For example, an accountant
+page.reg.AboutYou.radio4                                            = Other
+page.reg.AboutYou.radio4-hint                                       = For example, a friend of the director
 page.reg.AboutYou.radio4.more                                       = Enter your relationship to the company
 error.completionCapacity.required                                   = Tell us what your relationship is to the company
 
