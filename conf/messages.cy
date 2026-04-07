@@ -416,7 +416,6 @@ error.replacingAnotherBusiness.required =	Rhowch wybod i ni a yw’r cwmni newyd
 page.takeovers.otherBusinessName.title =	Beth yw enw’r busnes arall?
 page.takeovers.otherBusinessName.heading =	Beth yw enw’r busnes arall?
 page.takeovers.otherBusinessName.paragraph =	Rhowch yr enw sydd wedi’i gofrestru gyda CThEF at ddibenion treth.
-page.takeovers.otherBusinessName.field =	Nodwch yr enw
 error.otherBusinessName.required =	Rhowch wybod i ni beth yw enw’r busnes arall
 error.otherBusinessName.over100Characters =	Nodwch yr enw gan ddefnyddio hyd at 100 o gymeriadau
 error.otherBusinessName.invalidCharacter =	Rhaid i enw’r busnes beidio â chynnwys {0}

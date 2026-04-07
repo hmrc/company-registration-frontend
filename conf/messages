@@ -529,7 +529,6 @@ error.replacingAnotherBusiness.required                                = Tell us
 page.takeovers.otherBusinessName.title                                 = What is the name of the other business?
 page.takeovers.otherBusinessName.heading                               = What is the name of the other business?
 page.takeovers.otherBusinessName.paragraph                             = Give the name that’s registered with HMRC for tax purposes.
-page.takeovers.otherBusinessName.field                                 = Enter the name
 error.otherBusinessName.required                                       = Tell us the name of the other business
 error.otherBusinessName.over100Characters                              = Enter the name using 100 characters or less
 error.otherBusinessName.invalidCharacter                               = Business name must not include {0}
