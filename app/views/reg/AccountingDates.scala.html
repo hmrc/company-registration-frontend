@@ -19,7 +19,10 @@
 @import uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
 @import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 @import uk.gov.hmrc.govukfrontend.views.Aliases.RadioItem
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.hint.Hint
+@import uk.gov.hmrc.govukfrontend.views.Aliases.HtmlContent
 @import views.ViewUtils.title
+
 
 @this(layout: templates.layout,
         errorSummary: components.errorSummary,
@@ -98,6 +101,7 @@
                     content = Text(messages("page.reg.accountingDates.radioThree")),
                     value = Some("notPlanningToYet"),
                     checked = accountingDatesForm("businessStartDate").value.contains("notPlanningToYet"),
+                    hint = Some(Hint(content = HtmlContent(messages("page.reg.accountingDates.radioThree-hint")))),
                     conditionalHtml = Some(hiddenContentOther)
                 ),
             ),

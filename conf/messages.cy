@@ -96,6 +96,7 @@ page.reg.accountingDates.hint1 =	Mae’n rhaid i’r cwmni gadw cofnodion ariann
 page.reg.accountingDates.radioOne =	Ar yr un dyddiad mae’n cael ei sefydlu
 page.reg.accountingDates.radioTwo =	Ar ddyddiad gwahanol yn y dyfodol
 page.reg.accountingDates.radioThree =	Dim cynlluniau i ddechrau masnachu na gwneud gweithgaredd busnes eto
+page.reg.accountingDates.radioThree-hint =   Os caiff eich cais cyflawn ei gymeradwyo, byddwch yn cael llythyr yn esbonio sut i roi gwybod i CThEF pan fydd y cwmni’n dod yn weithredol.
 page.reg.accountingDates.date.notFound =	Nodwch ddyddiad o leiaf 3 diwrnod gwaith o heddiw
 page.reg.accountingDates.day.notFound =	Nodwch ddiwrnod
 page.reg.accountingDates.month.notFound =	Nodwch fis
