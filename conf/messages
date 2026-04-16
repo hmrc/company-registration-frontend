@@ -86,6 +86,7 @@ page.reg.returningUser.title                                        = Are you st
 page.reg.returningUser.radioYesLabel                                = Yes
 page.reg.returningUser.radioYesHintText                             = We will sign you out so you can create a new Government Gateway user ID for this company.
 page.reg.returningUser.radioNoLabel                                 = No - I already started one
+page.reg.returningUser.radioNoLabel1                                = No - I’ve already started one
 error.returningUser.required                                        = Tell us if you’re setting up a new limited company
 
 ## About you
