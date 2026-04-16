@@ -46,7 +46,8 @@
                 isPageHeading = false,
                 inline = false,
                 fieldName = "returningUser",
-                hiddenYesContent = Some(yesHiddenContent)
+                hiddenYesContent = Some(yesHiddenContent),
+                noLabel = Some(messages("page.reg.returningUser.radioNoLabel1"))
             )
         } else {
             @yesNoRadio(
@@ -55,7 +56,8 @@
                 headingKey = messages("page.reg.returningUser.description"),
                 isPageHeading = false,
                 inline = false,
-                fieldName = "returningUser"
+                fieldName = "returningUser",
+                noLabel = Some(messages("page.reg.returningUser.radioNoLabel1"))
             )
         }
 
