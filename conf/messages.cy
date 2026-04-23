@@ -62,6 +62,7 @@ page.reg.returningUser.title =	A ydych yn dechrau cais newydd?
 page.reg.returningUser.radioYesLabel =	Iawn
 page.reg.returningUser.radioYesHintText =	Byddwn yn eich allgofnodi er mwyn i chi greu Dynodydd Defnyddiwr (ID) newydd i ddefnyddio Porth y Llywodraeth ar gyfer y cwmni hwn.
 page.reg.returningUser.radioNoLabel =	Nac ydw - rwyf eisoes wedi dechrau un
+page.reg.returningUser.radioNoLabel1 = Na - rwyf eisoes wedi dechrau un
 error.returningUser.required =	Rhowch wybod i ni os ydych yn sefydlu cwmni cyfyngedig newydd
 page.reg.AboutYou.description =	Beth yw eich perthynas â’r busnes?
 page.reg.AboutYou.radio1 =	Cyfarwyddwr cwmni
