@@ -62,6 +62,8 @@ class GroupController @Inject()(val authConnector: PlayAuthConnector,
               if (hasShareholders) pscHandOffToGroupsIfDataInTxApi(regID, lang) else pscHandOffToGroups(regID, lang)
             case _ =>
               Future.successful(BadRequest(error_template_restart("3-1", "PayloadError")))
+          } recover {
+            case _: NavModelNotFoundException => Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))
           }
         }
       }
