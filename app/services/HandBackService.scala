@@ -150,7 +150,7 @@ trait HandBackService extends HandOffNavigator with Logging {
        payload.has_corporate_shareholders match {
          case None => Future.successful(Success(payload))
          case Some(_) => for {
-             nm             <- fetchNavModel()
+             nm             <- fetchNavModel()//
              cachedNavModel <- processNavModel(nm, payload)
            } yield {
              cachedNavModel.fold[Try[GroupHandBackModel]](
