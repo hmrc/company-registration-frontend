@@ -32,15 +32,16 @@ import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.libs.json.Json
+import play.api.libs.json.{JsObject, Json}
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import repositories.NavModelRepo
-import services.{BankHolidaysService, DashboardService, TimeService}
+import services.{BankHolidaysService, DashboardService, DataCacheService, TimeService}
 import uk.gov.hmrc.auth.core.AuthConnector
 import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
+import uk.gov.hmrc.mongo.cache.CacheItem
 import utils.BooleanFeatureSwitch
 import views.html.dashboard.{Dashboard => DashboardView}
 import views.html.reg.{TestEndpoint => TestEndpointView}
@@ -55,7 +56,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
   val applicantDataEmpty = AboutYouChoice("")
   val applicantDataSeq = Seq("completionCapacity" -> "Director")
 
-  val cacheMap = CacheMap("", Map("" -> Json.toJson("")))
+  val cacheItem = CacheItem("id",JsObject.empty,Instant.now,Instant.now)
 
   val userIds = UserIDs("testInternal", "testExternal")
 
@@ -77,7 +78,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
 
     val controller = new TestEndpointController (
       mockAuthConnector,
-      mockS4LConnector,
+      mockDataCacheService,
       mockKeystoreConnector,
       mockCompanyRegistrationConnector,
       mockSCRSFeatureSwitches,
@@ -120,8 +121,8 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
     "use the correct AuthConnector" in new Setup {
       controller.authConnector mustBe a[AuthConnector]
     }
-    "use the correct S4LConnector" in new Setup {
-      controller.s4LConnector mustBe a[S4LConnector]
+    "use the correct DataCacheService" in new Setup {
+      controller.dataCacheService mustBe a[DataCacheService]
     }
     "use the correct company registration connector" in new Setup {
       controller.compRegConnector mustBe a[CompanyRegistrationConnector]
@@ -137,7 +138,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
       when(mockMetaDataService.getApplicantData(ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(applicantData))
       CTRegistrationConnectorMocks.retrieveCompanyDetails(Some(validCompanyDetailsResponse))
-      mockS4LFetchAndGet[CompanyNameHandOffIncoming]("HandBackData", Some(validCompanyNameHandBack))
+      mockFetchForm[CompanyNameHandOffIncoming]("HandBackData", Some(validCompanyNameHandBack))
       CTRegistrationConnectorMocks.retrieveContactDetails(CompanyContactDetailsSuccessResponse(validCompanyContactDetailsResponse))
       CTRegistrationConnectorMocks.retrieveTradingDetails(Some(TradingDetails("true")))
       CTRegistrationConnectorMocks.retrieveAccountingDetails(validAccountingResponse)
@@ -157,8 +158,8 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
       when(mockMetaDataService.getApplicantData(ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(applicantDataEmpty))
       CTRegistrationConnectorMocks.retrieveCompanyDetails(None)
-      mockS4LFetchAndGet[CompanyNameHandOffIncoming]("HandBackData", None)
-      mockS4LFetchAndGet[PPOBModel]("PPOB", None)
+      mockFetchForm[CompanyNameHandOffIncoming]("HandBackData", None)
+      mockFetchForm[PPOBModel]("PPOB", None)
       CTRegistrationConnectorMocks.retrieveContactDetails(CompanyContactDetailsNotFoundResponse)
       CTRegistrationConnectorMocks.retrieveTradingDetails(None)
       CTRegistrationConnectorMocks.retrieveAccountingDetails(AccountingDetailsNotFoundResponse)
@@ -174,7 +175,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
 
   "clearAllS4LEntries" should {
     "Return a 200" in new Setup {
-      mockS4LClear()
+      mockClearCache()
       showWithAuthorisedUserRetrieval(controller.clearAllS4LEntries, internalID) {
         result =>
           status(result) mustBe OK
@@ -188,8 +189,8 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
       mockKeystoreFetchAndGet("registrationID", Some("12345"))
       when(mockMetaDataService.updateApplicantDataEndpoint(ArgumentMatchers.eq(applicantData))(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(validBusinessRegistrationResponse))
-      mockS4LSaveForm[CompanyNameHandOffIncoming]("HandBackData", cacheMap)
-      mockS4LSaveForm[PPOBModel]("PPOB", cacheMap)
+      mockSaveForm[CompanyNameHandOffIncoming]("HandBackData", cacheItem)
+      mockSaveForm[PPOBModel]("PPOB", cacheItem)
       CTRegistrationConnectorMocks.updateCompanyDetails(validCompanyDetailsRequest)
       CTRegistrationConnectorMocks.updateAccountingDetails(validAccountingResponse)
       CTRegistrationConnectorMocks.updateContactDetails(CompanyContactDetailsSuccessResponse(validCompanyContactDetailsResponse))

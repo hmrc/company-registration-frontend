@@ -28,6 +28,7 @@ import utils.SCRSFeatureSwitches
 import java.net.URLEncoder
 import java.time.LocalDate
 import javax.inject.Inject
+import scala.concurrent.duration.{Duration, DurationInt, DurationLong}
 
 class AppConfig @Inject()(val servicesConfig: ServicesConfig, featureSwitch: SCRSFeatureSwitches, configuration: Configuration) {
 
@@ -147,4 +148,7 @@ class AppConfig @Inject()(val servicesConfig: ServicesConfig, featureSwitch: SCR
 
   lazy val bankHolidaysApiUrl: String = servicesConfig.getString("bank-holiday-api.url")
 
+
+  lazy val mongoDbDataCacheExpireAfterMinutes: Duration = servicesConfig.getInt("mongodb.dataCache.timeToLiveInMinutes").minutes
+  lazy val appNameAsDataCacheDbCollection: String = servicesConfig.getString("appName") + "-data-cache"
 }

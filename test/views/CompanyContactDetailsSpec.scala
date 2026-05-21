@@ -47,7 +47,6 @@ class CompanyContactDetailsSpec extends SCRSSpec with CompanyContactDetailsFixtu
 
     val controller = new CompanyContactDetailsController (
       mockAuthConnector,
-      mockS4LConnector,
       mock[MetricsService],
       mockCompanyRegistrationConnector,
       mockKeystoreConnector,

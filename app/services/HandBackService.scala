@@ -18,7 +18,7 @@ package services
 
 import javax.inject.Inject
 import config.AppConfig
-import connectors.{CompanyRegistrationConnector, KeystoreConnector, S4LConnector}
+import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import models._
 import models.handoff._
 import utils.Logging
@@ -34,7 +34,6 @@ import scala.util.{Failure, Success, Try}
 
 class HandBackServiceImpl @Inject()(val compRegConnector: CompanyRegistrationConnector,
                                     val keystoreConnector: KeystoreConnector,
-                                    val s4LConnector: S4LConnector,
                                     val navModelRepo: NavModelRepo,
                                     val jwe: JweCommon,
                                     val appConfig: AppConfig,
@@ -50,7 +49,6 @@ trait HandBackService extends HandOffNavigator with Logging {
   val compRegConnector: CompanyRegistrationConnector
   val jwe : JweCommon
   val keystoreConnector: KeystoreConnector
-  val s4LConnector : S4LConnector
 
   private[services] def decryptHandBackRequest[T](request: String)(f: T => Future[Try[T]])(implicit hc: HeaderCarrier, formats: Format[T]): Future[Try[T]] = {
     request.isEmpty match {

@@ -49,7 +49,6 @@ class PPOBSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixture with Nav
   class SetupPage {
     val controller = new PPOBController(
       mockAuthConnector,
-      mockS4LConnector,
       mockKeystoreConnector,
       mockCompanyRegistrationConnector,
       mockHandOffService,

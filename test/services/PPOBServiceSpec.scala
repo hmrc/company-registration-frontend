@@ -39,7 +39,6 @@ class PPOBServiceSpec extends SCRSSpec with CompanyDetailsFixture with SCRSExcep
     val service = new PPOBService {
       override val compRegConnector = mockCompanyRegistrationConnector
       override val keystoreConnector = mockKeystoreConnector
-      override val s4LConnector = mockS4LConnector
       val auditConnector = mockAuditConnector
     }
   }
@@ -73,8 +72,6 @@ class PPOBServiceSpec extends SCRSSpec with CompanyDetailsFixture with SCRSExcep
 
     when(mockAuditConnector.sendExtendedEvent(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
       .thenReturn(Future.successful(Success))
-
-    mockS4LClear(mockS4LConnector)
   }
 
   "retrieveCompanyDetails" should {

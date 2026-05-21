@@ -16,7 +16,7 @@
 
 package controllers.reg
 
-import _root_.connectors.{BusinessRegistrationConnector, CompanyRegistrationConnector, KeystoreConnector, S4LConnector}
+import _root_.connectors.{BusinessRegistrationConnector, CompanyRegistrationConnector, KeystoreConnector}
 import config.AppConfig
 import controllers.auth.AuthenticatedController
 import controllers.handoff.HandOffUtils
@@ -39,7 +39,6 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class PPOBController @Inject()(val authConnector: PlayAuthConnector,
-                               val s4LConnector: S4LConnector,
                                val keystoreConnector: KeystoreConnector,
                                val compRegConnector: CompanyRegistrationConnector,
                                val handOffService: HandOffService,

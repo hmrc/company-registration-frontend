@@ -38,7 +38,7 @@ class SubmissionEndpointControllerSpec extends SCRSSpec with SCRSFixtures with G
   class Setup {
     val controller = new SubmissionEndpointController(
       mockAuthConnector,
-      mockS4LConnector,
+      mockDataCacheService,
       mockMcc,
       mockSubmissionEndpointView
     )
@@ -53,7 +53,7 @@ class SubmissionEndpointControllerSpec extends SCRSSpec with SCRSFixtures with G
   "getAllS4LEntries" should {
     "Return a 200" in new Setup {
 
-      mockS4LFetchAndGet[SubmissionModel]("SubmissionData", Some(validSubmissionModel))
+      mockFetchForm[SubmissionModel]("SubmissionData", Some(validSubmissionModel))
 
       showWithAuthorisedUserRetrieval(controller.getAllS4LEntries, internalID) {
 
@@ -63,7 +63,7 @@ class SubmissionEndpointControllerSpec extends SCRSSpec with SCRSFixtures with G
     }
     "Also return a 200 when handback contains no payload" in new Setup {
 
-      mockS4LFetchAndGet[SubmissionModel]("SubmissionData", None)
+      mockFetchForm[SubmissionModel]("SubmissionData", None)
 
       showWithAuthorisedUserRetrieval(controller.getAllS4LEntries, internalID) {
 

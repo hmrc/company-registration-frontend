@@ -13,7 +13,7 @@ val appName = "company-registration-frontend"
 lazy val appDependencies: Seq[ModuleID] = AppDependencies()
 
 ThisBuild / majorVersion := 3
-ThisBuild / scalaVersion := "2.13.17"
+ThisBuild / scalaVersion := "2.13.18"
 
 lazy val scoverageSettings = {
   // Semicolon-separated list of regexs matching classes to exclude
