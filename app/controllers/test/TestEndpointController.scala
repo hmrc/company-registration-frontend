@@ -36,19 +36,14 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpReads}
 import utils._
 import views.html.dashboard.{Dashboard => DashboardView}
 import views.html.reg.{TestEndpoint => TestEndpointView}
-import views.html.test.{
-  FeatureSwitch => FeatureSwitchView,
-  PrePopAddresses => PrePopAddressesView,
-  PrePopContactDetails => PrePopContactDetailsView,
-  TestEndpointSummary => TestEndpointSummaryView
-}
+import views.html.test.{FeatureSwitch => FeatureSwitchView, PrePopAddresses => PrePopAddressesView, PrePopContactDetails => PrePopContactDetailsView, TestEndpointSummary => TestEndpointSummaryView}
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class TestEndpointController @Inject()(val authConnector: PlayAuthConnector,
-                                       val s4LConnector: S4LConnector,
+                                       val dataCacheService: DataCacheService,
                                        val keystoreConnector: KeystoreConnector,
                                        val compRegConnector: CompanyRegistrationConnector,
                                        val scrsFeatureSwitches: SCRSFeatureSwitches,
@@ -103,7 +98,7 @@ class TestEndpointController @Inject()(val authConnector: PlayAuthConnector,
           accountingDates <- compRegConnector.retrieveAccountingDetails(regID)
           contactDetails <- compRegConnector.retrieveContactDetails(regID)
           tradingDetails <- compRegConnector.retrieveTradingDetails(regID)
-          handBackData <- s4LConnector.fetchAndGet[CompanyNameHandOffIncoming](internalID, "HandBackData")
+          handBackData <- dataCacheService.fetchForm[CompanyNameHandOffIncoming](internalID, "HandBackData")
           _ <- compRegConnector.retrieveCorporationTaxRegistration(regID)
         } yield {
           val applicantForm = AboutYouForm.endpointForm().fill(applicantDetails)
@@ -153,7 +148,7 @@ class TestEndpointController @Inject()(val authConnector: PlayAuthConnector,
   val clearAllS4LEntries: Action[AnyContent] = Action.async {
     implicit request =>
       ctAuthorisedOptStr(Retrievals.internalId) { internalID =>
-        s4LConnector.clear(internalID) map {
+        dataCacheService.clearCache(internalID) map {
           _ => Ok(s"S4L for user oid $internalID cleared")
         }
       }

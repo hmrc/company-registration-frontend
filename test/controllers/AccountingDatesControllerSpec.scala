@@ -59,7 +59,7 @@ class AccountingDatesControllerSpec extends SCRSSpec with GuiceOneAppPerSuite wi
   }
 
   "The AccountingDatesController" should {
-    "be using the correct save4later connector" in new Setup {
+    "be using the correct accountingService connector" in new Setup {
       controller.accountingService mustBe a[AccountingService]
     }
   }

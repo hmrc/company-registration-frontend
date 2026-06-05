@@ -17,7 +17,7 @@
 package services
 
 import audit.events._
-import connectors.{CompanyRegistrationConnector, KeystoreConnector, S4LConnector}
+import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 
 import javax.inject.Inject
 import models.{Address => OldAddress, _}
@@ -32,13 +32,11 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class PPOBServiceImpl @Inject()(val compRegConnector: CompanyRegistrationConnector,
                                 val keystoreConnector: KeystoreConnector,
-                                val s4LConnector: S4LConnector,
                                 val auditConnector: AuditConnector)(implicit val ec: ExecutionContext) extends PPOBService
 
 trait PPOBService extends SCRSExceptions with AuditService {
   val keystoreConnector: KeystoreConnector
   val compRegConnector: CompanyRegistrationConnector
-  val s4LConnector : S4LConnector
   val auditConnector : AuditConnector
 
   def retrieveCompanyDetails(regID: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[CompanyDetails] = {

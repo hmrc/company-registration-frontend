@@ -79,7 +79,6 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with GuiceOneAppP
   class Setup {
     val controller = new SummaryController (
       mockAuthConnector,
-      mockS4LConnector,
       mockCompanyRegistrationConnector,
       mockKeystoreConnector,
       mockMetaDataService,
@@ -156,11 +155,9 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with GuiceOneAppP
     }
 
     "return a 200 whilst authorised " in new Setup {
-      mockS4LFetchAndGet("HandBackData", Some(validCompanyNameHandBack))
 
       mockKeystoreFetchAndGet("registrationID", Some(testRegId))
       mockGetTakeoverDetails(testRegId)(Future.successful(None))
-      mockS4LFetchAndGet("CompanyContactDetails", Some(validCompanyContactDetailsModel))
 
       when(mockSummaryService.getCompanyDetailsBlock(ArgumentMatchers.eq(testRegId))(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any())).thenReturn(
         Future.successful(SummaryList(testCompanyDetailsBlock))
@@ -188,12 +185,8 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with GuiceOneAppP
     }
 
     "return a 303 and redirect to the Takeover Information Needed page if Takeover information is missing but replacingAnotherBusiness is true" in new Setup {
-      mockS4LFetchAndGet("HandBackData", Some(validCompanyNameHandBack))
-
       mockKeystoreFetchAndGet("registrationID", Some(testRegId))
       mockGetTakeoverDetails(testRegId)(Future.successful(Some(TakeoverDetails(replacingAnotherBusiness = true))))
-      mockS4LFetchAndGet("CompanyContactDetails", Some(validCompanyContactDetailsModel))
-
 
       when(mockSummaryService.getCompanyDetailsBlock(ArgumentMatchers.eq(testRegId))(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any())).thenReturn(
         Future.successful(SummaryList(testCompanyDetailsBlock))
@@ -225,10 +218,8 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with GuiceOneAppP
   "Post to the Summary Controller" should {
     "return a 303 whilst authorised " in new Setup {
 
-      mockS4LFetchAndGet("HandBackData", Some(validCompanyNameHandBack))
       mockKeystoreFetchAndGet("registrationID", Some(testRegId))
       mockGetTakeoverDetails(testRegId)(Future.successful(None))
-      mockS4LFetchAndGet("CompanyContactDetails", Some(validCompanyContactDetailsModel))
 
       when(mockSummaryService.getCompanyDetailsBlock(ArgumentMatchers.eq(testRegId))(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any())).thenReturn(
         Future.successful(SummaryList(testCompanyDetailsBlock))
@@ -258,7 +249,6 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with GuiceOneAppP
     }
     "return a 303 and redirect to the Takeover Information Needed page if Takeover information is missing but replacingAnotherBusiness is true " in new Setup {
 
-      mockS4LFetchAndGet("HandBackData", Some(validCompanyNameHandBack))
       mockKeystoreFetchAndGet("registrationID", Some(testRegId))
       mockGetTakeoverDetails(testRegId)(
         Future.successful(Some(TakeoverDetails(
@@ -269,7 +259,6 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with GuiceOneAppP
           previousOwnersAddress = None
         )))
       )
-      mockS4LFetchAndGet("CompanyContactDetails", Some(validCompanyContactDetailsModel))
 
       when(mockSummaryService.getCompanyDetailsBlock(ArgumentMatchers.eq(testRegId))(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any())).thenReturn(
         Future.successful(SummaryList(testCompanyDetailsBlock))

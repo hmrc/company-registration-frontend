@@ -61,7 +61,6 @@ class PPOBControllerSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixtur
   trait Setup {
     val controller = new PPOBController(
       mockAuthConnector,
-      mockS4LConnector,
       mockKeystoreConnector,
       mockCompanyRegistrationConnector,
       mockHandOffService,

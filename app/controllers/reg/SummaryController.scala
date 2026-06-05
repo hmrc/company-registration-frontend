@@ -17,7 +17,7 @@
 package controllers.reg
 
 import config.AppConfig
-import connectors.{CompanyRegistrationConnector, KeystoreConnector, S4LConnector}
+import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthenticatedController
 import controllers.handoff.HandOffUtils
 import models._
@@ -37,7 +37,6 @@ import scala.concurrent.ExecutionContext
 
 @Singleton
 class SummaryController @Inject()(val authConnector: PlayAuthConnector,
-                                  val s4LConnector: S4LConnector,
                                   val compRegConnector: CompanyRegistrationConnector,
                                   val keystoreConnector: KeystoreConnector,
                                   val metaDataService: MetaDataService,

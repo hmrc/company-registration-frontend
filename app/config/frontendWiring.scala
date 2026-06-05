@@ -16,44 +16,36 @@
 
 package config
 
-import javax.inject.Inject
 import play.api.Configuration
 import uk.gov.hmrc.auth.core.PlayAuthConnector
-import uk.gov.hmrc.crypto.{ApplicationCrypto, Decrypter, Encrypter}
-import uk.gov.hmrc.http.cache.client.{SessionCache, ShortLivedCache, ShortLivedHttpCaching}
+import uk.gov.hmrc.crypto.ApplicationCrypto
+import uk.gov.hmrc.http.cache.client.SessionCache
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.hooks.HttpHooks
 import uk.gov.hmrc.play.audit.http.HttpAuditing
 
+import javax.inject.Inject
 
 trait Hooks extends HttpHooks with HttpAuditing {
   override val hooks = NoneRequired
 }
 
-class FrontendAuthConnector @Inject()(appConfig: AppConfig, val httpClientV2: HttpClientV2) extends PlayAuthConnector {
+class FrontendAuthConnector @Inject() (appConfig: AppConfig, val httpClientV2: HttpClientV2) extends PlayAuthConnector {
   override lazy val serviceUrl = appConfig.servicesConfig.baseUrl("auth")
 }
 
-class SCRSShortLivedHttpCaching @Inject()(val httpClientV2: HttpClientV2, appConfig: AppConfig, val appNameConfiguration:Configuration) extends ShortLivedHttpCaching {
-  override lazy val defaultSource = appConfig.servicesConfig.getString("appName")
-  override lazy val baseUri = appConfig.servicesConfig.baseUrl("cachable.short-lived-cache")
-  override lazy val domain = appConfig.servicesConfig.getConfString("cachable.short-lived-cache.domain",
-    throw new Exception(s"Could not find config 'cachable.short-lived-cache.domain'"))
-}
-
-class SCRSShortLivedCache @Inject()(cryptoInitialiser: CryptoInitialiser, val shortLiveCache: ShortLivedHttpCaching) extends ShortLivedCache {
-  override implicit lazy val crypto: Encrypter with Decrypter = cryptoInitialiser.cryptoInstance.JsonCrypto
-}
-class CryptoInitialiserImpl @Inject()(val applicationCrypto: ApplicationCrypto) extends CryptoInitialiser
+class CryptoInitialiserImpl @Inject() (val applicationCrypto: ApplicationCrypto) extends CryptoInitialiser
 
 trait CryptoInitialiser {
-  val applicationCrypto: ApplicationCrypto
   lazy val cryptoInstance = applicationCrypto
+  val applicationCrypto: ApplicationCrypto
 }
 
-class SCRSSessionCache @Inject()(appConfig: AppConfig, val httpClientV2: HttpClientV2, val appNameConfiguration: Configuration) extends SessionCache {
+class SCRSSessionCache @Inject() (appConfig: AppConfig, val httpClientV2: HttpClientV2, val appNameConfiguration: Configuration)
+    extends SessionCache {
   override lazy val defaultSource = appConfig.servicesConfig.getString("appName")
-  override lazy val baseUri = appConfig.servicesConfig.baseUrl("cachable.session-cache")
-  override lazy val domain = appConfig.servicesConfig.getConfString("cachable.session-cache.domain",
+  override lazy val baseUri       = appConfig.servicesConfig.baseUrl("cachable.session-cache")
+  override lazy val domain = appConfig.servicesConfig.getConfString(
+    "cachable.session-cache.domain",
     throw new Exception(s"Could not find config 'cachable.session-cache.domain'"))
 }

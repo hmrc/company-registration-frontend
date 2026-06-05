@@ -17,7 +17,7 @@
 package controllers.reg
 
 import config.AppConfig
-import connectors.{CompanyRegistrationConnector, KeystoreConnector, S4LConnector}
+import connectors.{CompanyRegistrationConnector, KeystoreConnector}
 import controllers.auth.AuthenticatedController
 import forms.CompanyContactForm
 
@@ -34,7 +34,6 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class CompanyContactDetailsController @Inject()(val authConnector: PlayAuthConnector,
-                                                val s4LConnector: S4LConnector,
                                                 val metricsService: MetricsService,
                                                 val compRegConnector: CompanyRegistrationConnector,
                                                 val keystoreConnector: KeystoreConnector,

@@ -45,7 +45,6 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
     val service = new HandBackService {
       override val compRegConnector = mockCompanyRegistrationConnector
       override val keystoreConnector = mockKeystoreConnector
-      override val s4LConnector = mockS4LConnector
       override val navModelMongo = mockNavModelRepo
       override val jwe = testJwe
       val continueUrl = mock[RedirectUrl]

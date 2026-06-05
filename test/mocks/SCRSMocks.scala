@@ -41,7 +41,7 @@ trait SCRSMocks extends CompanyContactDetailsServiceMock
   with AccountingServiceMock
   with CompanyRegistrationConnectorMock
   with KeystoreMock
-  with SaveForLaterMock
+  with DataCacheServiceMock
   with WSHTTPMock
   with HandOffServiceMock
   with HandBackServiceMock
@@ -94,7 +94,7 @@ trait SCRSMocks extends CompanyContactDetailsServiceMock
 
   def resetMocks(): Unit = {
     reset(mockAuditConnector)
-    reset(mockS4LConnector)
+    reset(mockDataCacheService)
     reset(mockHttpClientV2)
     reset(mockKeystoreConnector)
     reset(mockSessionCache)
