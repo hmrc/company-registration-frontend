@@ -28,8 +28,6 @@ class DataCacheConnectorISpec extends IntegrationSpecBase {
   lazy val connector: DataCacheConnector =
     app.injector.instanceOf[DataCacheConnector]
 
-  implicit val hc: HeaderCarrier                  = HeaderCarrier()
-  implicit val ec: ExecutionContext               = scala.concurrent.ExecutionContext.global
   implicit val reads: Reads[AccountingDatesModel] = Json.reads[AccountingDatesModel]
 
   val userId = "user-1"

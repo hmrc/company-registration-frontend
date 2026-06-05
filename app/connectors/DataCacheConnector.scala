@@ -18,21 +18,20 @@ package connectors
 
 import play.api.libs.json.Format
 import repositories.DataCacheRepository
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.mongo.cache.{CacheItem, DataKey}
 
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 @Singleton
-class DataCacheConnector @Inject() (dataCacheRepository: DataCacheRepository)(implicit ec: ExecutionContext) {
+class DataCacheConnector @Inject() (dataCacheRepository: DataCacheRepository) {
 
-  def saveForm[T](userId: String, formId: String, data: T)(implicit hc: HeaderCarrier, ec: ExecutionContext, format: Format[T]): Future[CacheItem] =
+  def saveForm[T](userId: String, formId: String, data: T)(implicit format: Format[T]): Future[CacheItem] =
     dataCacheRepository.put[T](userId)(DataKey(formId), data)
 
-  def fetchAndGet[T](userId: String, formId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext, format: Format[T]): Future[Option[T]] =
+  def fetchAndGet[T](userId: String, formId: String)(implicit format: Format[T]): Future[Option[T]] =
     dataCacheRepository.get[T](userId)(DataKey(formId))
 
-  def clear(userId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Unit] =
+  def clear(userId: String): Future[Unit] =
     dataCacheRepository.deleteEntity(userId)
 }

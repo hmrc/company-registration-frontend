@@ -68,7 +68,7 @@ class DataCacheServiceSpec extends UnitSpec with GuiceOneAppPerSuite with Mockit
           eqTo(userId),
           eqTo(formId),
           eqTo(data)
-        )(any(), any(), any())
+        )(any())
       ).thenReturn(Future.successful(cacheItem))
 
       val result =
@@ -96,7 +96,7 @@ class DataCacheServiceSpec extends UnitSpec with GuiceOneAppPerSuite with Mockit
         mockConnector.fetchAndGet[TestData](
           eqTo(userId),
           eqTo(formId)
-        )(any(), any(), any())
+        )(any())
       ).thenReturn(Future.successful(Some(cachedData)))
 
       val result =
@@ -119,7 +119,7 @@ class DataCacheServiceSpec extends UnitSpec with GuiceOneAppPerSuite with Mockit
         mockConnector.fetchAndGet[TestData](
           eqTo(userId),
           eqTo(formId)
-        )(any(), any(), any())
+        )(any())
       ).thenReturn(Future.successful(None))
 
       val result =
@@ -141,7 +141,7 @@ class DataCacheServiceSpec extends UnitSpec with GuiceOneAppPerSuite with Mockit
       when(
         mockConnector.clear(
           eqTo(userId)
-        )(any(), any())
+        )
       ).thenReturn(Future.successful(()))
 
       val result: Unit =
