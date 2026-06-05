@@ -17,73 +17,72 @@
 package controllers.handoff
 
 import config.AppConfig
-import connectors.{CompanyRegistrationConnector, KeystoreConnector}
+import connectors.CompanyRegistrationConnector
 import controllers.auth.AuthenticatedController
 import controllers.reg.ControllerErrorHandler
-
-import javax.inject.Inject
-import utils.Logging
-import play.api.i18n.{I18nSupport, Lang}
+import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.{HandBackService, HandOffService, LanguageService, NavModelNotFoundException}
+import services._
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
-import utils.{DecryptionError, PayloadError, SessionRegistration}
+import utils.{DecryptionError, Logging, PayloadError, SessionRegistration}
 import views.html.error_template_restart
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
-class IncorporationSummaryController @Inject()(val authConnector: PlayAuthConnector,
-                                               val keystoreConnector: KeystoreConnector,
-                                               val handOffService: HandOffService,
-                                               val compRegConnector: CompanyRegistrationConnector,
-                                               val handBackService: HandBackService,
-                                               val controllerComponents: MessagesControllerComponents,
-                                               val controllerErrorHandler: ControllerErrorHandler,
-                                               handOffUtils: HandOffUtils,
-                                               error_template_restart: error_template_restart,
-                                               languageService: LanguageService)
-                                              (implicit val appConfig: AppConfig, implicit val ec: ExecutionContext)
-  extends AuthenticatedController with SessionRegistration with I18nSupport with Logging {
+class IncorporationSummaryController @Inject() (
+    val authConnector: PlayAuthConnector,
+    val sessionCacheService: SessionCacheService,
+    val handOffService: HandOffService,
+    val compRegConnector: CompanyRegistrationConnector,
+    val handBackService: HandBackService,
+    val controllerComponents: MessagesControllerComponents,
+    val controllerErrorHandler: ControllerErrorHandler,
+    handOffUtils: HandOffUtils,
+    error_template_restart: error_template_restart,
+    languageService: LanguageService)(implicit val appConfig: AppConfig, implicit val ec: ExecutionContext)
+    extends AuthenticatedController
+    with SessionRegistration
+    with I18nSupport
+    with Logging {
 
-  //HO5
-  def incorporationSummary: Action[AnyContent] = Action.async {
-    implicit request =>
-      ctAuthorisedOptStr(Retrievals.externalId) { externalID =>
-        registered { a =>
-          handOffService.summaryHandOff(externalID, handOffUtils.getCurrentLang(request)) map {
-            case Some((url, payload)) => Redirect(handOffService.buildHandOffUrl(url, payload))
-            case None => BadRequest(controllerErrorHandler.defaultErrorPage)
-          } recover {
-            case ex: NavModelNotFoundException => Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))
-          }
+  // HO5
+  def incorporationSummary: Action[AnyContent] = Action.async { implicit request =>
+    ctAuthorisedOptStr(Retrievals.externalId) { externalID =>
+      registered { a =>
+        handOffService.summaryHandOff(externalID, handOffUtils.getCurrentLang(request)) map {
+          case Some((url, payload)) => Redirect(handOffService.buildHandOffUrl(url, payload))
+          case None                 => BadRequest(controllerErrorHandler.defaultErrorPage)
+        } recover { case ex: NavModelNotFoundException =>
+          Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))
         }
       }
+    }
   }
 
-  //HO5b
-  def returnToCorporationTaxSummary(request: String): Action[AnyContent] = Action.async {
-    implicit _request =>
-      ctAuthorisedHandoff("HO5b", request) {
-        registeredHandOff("HO5b", request) { regId =>
-          handBackService.processCompanyNameReverseHandBack(request).flatMap {
-            case Success(payload) =>
-              val lang = handOffUtils.readLang(payload)
-              languageService.updateLanguage(regId, lang).map { _ =>
-                Redirect(controllers.reg.routes.SummaryController.show).withLang(lang)
-              }
-            case Failure(PayloadError) =>
-              Future.successful(BadRequest(error_template_restart("5b", "PayloadError")))
-            case Failure(DecryptionError) =>
-              Future.successful(BadRequest(error_template_restart("5b", "DecryptionError")))
-            case unknown =>
-              logger.warn(s"[returnToCorporationTaxSummary][HO5b] Unexpected result, sending to post-sign-in : ${unknown}")
-              Future.successful(Redirect(controllers.reg.routes.SignInOutController.postSignIn(None)))
-          } recover {
-            case ex: NavModelNotFoundException => Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))
-          }
+  // HO5b
+  def returnToCorporationTaxSummary(request: String): Action[AnyContent] = Action.async { implicit _request =>
+    ctAuthorisedHandoff("HO5b", request) {
+      registeredHandOff("HO5b", request) { regId =>
+        handBackService.processCompanyNameReverseHandBack(request).flatMap {
+          case Success(payload) =>
+            val lang = handOffUtils.readLang(payload)
+            languageService.updateLanguage(regId, lang).map { _ =>
+              Redirect(controllers.reg.routes.SummaryController.show).withLang(lang)
+            }
+          case Failure(PayloadError) =>
+            Future.successful(BadRequest(error_template_restart("5b", "PayloadError")))
+          case Failure(DecryptionError) =>
+            Future.successful(BadRequest(error_template_restart("5b", "DecryptionError")))
+          case unknown =>
+            logger.warn(s"[returnToCorporationTaxSummary][HO5b] Unexpected result, sending to post-sign-in : ${unknown}")
+            Future.successful(Redirect(controllers.reg.routes.SignInOutController.postSignIn(None)))
+        } recover { case ex: NavModelNotFoundException =>
+          Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))
         }
       }
+    }
   }
 }

@@ -33,7 +33,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class SummaryService @Inject()(val authConnector: PlayAuthConnector,
                                val compRegConnector: CompanyRegistrationConnector,
-                               val keystoreConnector: KeystoreConnector,
+                               val sessionCacheService: SessionCacheService,
                                val metaDataService: MetaDataService,
                                val takeoverService: TakeoverService,
                                val handOffService: HandOffService,

@@ -23,13 +23,11 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito._
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.Configuration
-import play.api.i18n.{Messages, MessagesApi}
-import play.api.libs.json.JsValue
+import play.api.i18n.MessagesApi
 import play.api.test.FakeRequest
 import services._
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.cache.client.{CacheMap, SessionCache}
-import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
+import uk.gov.hmrc.http.cache.client.SessionCache
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.model.Audit
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
@@ -37,58 +35,53 @@ import utils.{FeatureSwitchManager, JweCommon, SCRSFeatureSwitches}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-trait SCRSMocks extends CompanyContactDetailsServiceMock
-  with AccountingServiceMock
-  with CompanyRegistrationConnectorMock
-  with KeystoreMock
-  with DataCacheServiceMock
-  with WSHTTPMock
-  with HandOffServiceMock
-  with HandBackServiceMock
-  with NavModelRepoMock
-  with PrepopAddressConnectorMock
-  with AddressLookupConnectorMock {
+trait SCRSMocks
+    extends CompanyContactDetailsServiceMock
+    with AccountingServiceMock
+    with CompanyRegistrationConnectorMock
+    with SessionCacheServiceMock
+    with DataCacheServiceMock
+    with WSHTTPMock
+    with HandOffServiceMock
+    with HandBackServiceMock
+    with NavModelRepoMock
+    with PrepopAddressConnectorMock
+    with AddressLookupConnectorMock {
   this: MockitoSugar =>
-
+  lazy val mockSessionCache                  = mock[SessionCache]
+  lazy val mockAudit                         = mock[Audit]
+  lazy val mockAuditConnector                = mock[AuditConnector]
+  lazy val mockAuditService                  = mock[AuditService]
+  lazy val mockIncorpInfoConnector           = mock[IncorpInfoConnector]
+  lazy val mockDeleteSubmissionService       = mock[DeleteSubmissionService]
+  lazy val mockEmailService                  = mock[EmailVerificationService]
+  lazy val mockPPOBService                   = mock[PPOBService]
+  lazy val mockCommonService                 = mock[CommonService]
+  lazy val mockMetaDataService               = mock[MetaDataService]
+  lazy val mockThresholdService              = mock[ThresholdService]
+  lazy val mockAddressLookupService          = mock[AddressLookupFrontendService]
+  lazy val mockEmailVerificationConnector    = mock[EmailVerificationConnector]
+  lazy val mockSendTemplateEmailConnector    = mock[SendTemplatedEmailConnector]
+  lazy val mockPAYEConnector                 = mock[PAYEConnector]
+  lazy implicit val mockAppConfig: AppConfig = mock[AppConfig]
+  lazy val mockVATConnector                  = mock[VATConnector]
+  lazy val mockSCRSFeatureSwitches           = mock[SCRSFeatureSwitches]
+  lazy val mockFeatureSwitchManager          = mock[FeatureSwitchManager]
+  lazy val mockJweCommon                     = mock[JweCommon]
+  lazy val mockConfiguration                 = mock[Configuration]
+  lazy val mockTimeService                   = mock[TimeService]
+  lazy val mockGroupService                  = mock[GroupService]
+  lazy val mockLanguageService               = mock[LanguageService]
+  lazy val mockServicesConfig                = mock[ServicesConfig]
+  lazy val mockMessagesApi                   = mock[MessagesApi]
   val mockMetricsService = mock[MetricsService]
 
-  lazy val mockSessionCache = mock[SessionCache]
-  lazy val mockAudit = mock[Audit]
-  lazy val mockAuditConnector = mock[AuditConnector]
-  lazy val mockAuditService = mock[AuditService]
-  lazy val mockIncorpInfoConnector = mock[IncorpInfoConnector]
-  lazy val mockDeleteSubmissionService = mock[DeleteSubmissionService]
-  lazy val mockEmailService = mock[EmailVerificationService]
-  lazy val mockPPOBService = mock[PPOBService]
-  lazy val mockCommonService = mock[CommonService]
-  lazy val mockMetaDataService = mock[MetaDataService]
-  lazy val mockThresholdService = mock[ThresholdService]
-  lazy val mockAddressLookupService = mock[AddressLookupFrontendService]
-  lazy val mockEmailVerificationConnector = mock[EmailVerificationConnector]
-  lazy val mockSendTemplateEmailConnector = mock[SendTemplatedEmailConnector]
-  lazy implicit val mockAppConfig: AppConfig = mock[AppConfig]
-  lazy val mockPAYEConnector = mock[PAYEConnector]
-  lazy val mockVATConnector = mock[VATConnector]
-  lazy val mockSCRSFeatureSwitches = mock[SCRSFeatureSwitches]
-  lazy val mockFeatureSwitchManager = mock[FeatureSwitchManager]
-  lazy val mockJweCommon = mock[JweCommon]
-  lazy val mockConfiguration = mock[Configuration]
-  lazy val mockTimeService = mock[TimeService]
-  lazy val mockGroupService = mock[GroupService]
-  lazy val mockLanguageService = mock[LanguageService]
-  lazy val mockServicesConfig = mock[ServicesConfig]
-  lazy val mockMessagesApi = mock[MessagesApi]
-
-
-
-  def mockFetchRegistrationID[T <: CommonService](response: String, mock: T) = {
-    when(mock.fetchRegistrationID(ArgumentMatchers.any[HeaderCarrier](),ArgumentMatchers.any[ExecutionContext]()))
+  def mockFetchRegistrationID[T <: CommonService](response: String, mock: T) =
+    when(mock.fetchRegistrationID(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]()))
       .thenReturn(Future.successful(response))
-  }
 
-  def mockCacheRegistrationID(registrationId: String, mock: KeystoreConnector = mockKeystoreConnector) = {
-    when(mock.cache[String](any(), any())(any(), any(), any())).thenReturn(Future.successful(CacheMap("", Map.empty[String, JsValue])))
-  }
+  def mockCacheRegistrationID(registrationId: String, mock: SessionCacheService = mockSessionCacheService) =
+    when(mock.save[String](any(), any())(any(), any())).thenReturn(Future.successful(""))
 
   def fakeRequest(method: String = "GET") = FakeRequest(method, "")
 
@@ -96,7 +89,7 @@ trait SCRSMocks extends CompanyContactDetailsServiceMock
     reset(mockAuditConnector)
     reset(mockDataCacheService)
     reset(mockHttpClientV2)
-    reset(mockKeystoreConnector)
+    reset(mockSessionCacheService)
     reset(mockSessionCache)
     reset(mockCompanyRegistrationConnector)
     reset(mockHandBackService)

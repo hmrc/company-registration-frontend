@@ -20,7 +20,7 @@ import builders.AuthBuilder
 import config.{AppConfig, LangConstants}
 import fixtures._
 import helpers.SCRSSpec
-import mocks.{KeystoreMock, NavModelRepoMock}
+import mocks.{NavModelRepoMock, SessionCacheServiceMock}
 import models._
 import models.handoff._
 import org.mockito.ArgumentMatchers
@@ -36,7 +36,7 @@ import scala.concurrent.Future
 class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture with CorporationTaxFixture with AuthBuilder
   with UserDetailsFixture
   with CompanyDetailsFixture
-  with KeystoreMock
+  with SessionCacheServiceMock
   with NavModelRepoMock
   with GuiceOneAppPerSuite {
 
@@ -52,7 +52,7 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
       val compRegConnector = mockCompanyRegistrationConnector
       val returnUrl = "http://test"
       val externalUrl = "http://external"
-      val keystoreConnector = mockKeystoreConnector
+      val sessionCacheService = mockSessionCacheService
       val encryptor = testJwe
       val authConnector = mockAuthConnector
       val navModelMongo = mockNavModelRepoObj
@@ -87,7 +87,7 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
         )))
 
       mockGetNavModel(None)
-      mockKeystoreFetchAndGet("registrationID", Some(registrationID))
+      mockSessionCacheGet("registrationID", Some(registrationID))
 
       when(mockNavModelRepoObj.getNavModel(registrationID))
         .thenReturn(Future.successful(Some(testNavModel)))
@@ -158,7 +158,7 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
         chData = Some(Json.obj("foo" -> "bar")))
     )
     "Return forward URL and encrypted payload with groups of NONE" in new Setup {
-      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.eq("registrationID"))(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockSessionCacheService.get[String](ArgumentMatchers.eq("registrationID"))(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some("12345")))
       mockGetNavModel(Some(validNavModelForThisFunction))
 
@@ -176,7 +176,7 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
           |} """.stripMargin)
     }
     "Return forward URL and encrypted payload with full groups" in new Setup {
-      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.eq("registrationID"))(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockSessionCacheService.get[String](ArgumentMatchers.eq("registrationID"))(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some("12345")))
       mockGetNavModel(Some(validNavModelForThisFunction))
 
@@ -188,7 +188,7 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
           |{"user_id":"12","journey_id":"12345","hmrc":{},"another_company_own_shares":true,"ch":{"foo":"bar"},"parent_company":{"name":"foo","address":{"address_line_1":"1 abc","address_line_2":"2 abc","address_line_3":"3 abc","address_line_4":"4 abc","country":"country A","postal_code":"ZZ1 1ZZ"},"tax_reference":"*******890"},"links":{"forward":"SenderUrlToSummary","reverse":"http://localhost:9970/register-your-company/groups-back-handback","loss_relief_group":"http://localhost:9970/register-your-company/group-relief","parent_address":"http://localhost:9970/register-your-company/owning-companys-address","parent_company_name":"http://localhost:9970/register-your-company/owning-companys-name","parent_tax_reference":"http://localhost:9970/register-your-company/owning-companys-utr"},"loss_relief_group":true, "language": "en"} """.stripMargin)
     }
     "Return forward URL and encrypted payload with groups but relief is false" in new Setup {
-      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.eq("registrationID"))(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockSessionCacheService.get[String](ArgumentMatchers.eq("registrationID"))(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some("12345")))
       mockGetNavModel(Some(validNavModelForThisFunction))
 
@@ -199,7 +199,7 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
         """{"user_id":"12","journey_id":"12345","hmrc":{},"another_company_own_shares":true,"ch":{"foo":"bar"},"language": "en","links":{"forward":"SenderUrlToSummary","reverse":"http://localhost:9970/register-your-company/groups-back-handback","loss_relief_group":"http://localhost:9970/register-your-company/group-relief"},"loss_relief_group":false}""".stripMargin)
     }
     "throw exception if groups block incomplete" in new Setup {
-      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.eq("registrationID"))(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockSessionCacheService.get[String](ArgumentMatchers.eq("registrationID"))(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some("12345")))
       mockGetNavModel(Some(validNavModelForThisFunction))
       intercept[Exception](await(service.buildPSCPayload("12345", "12", Some(Groups(true, None, None, Some(GroupUTR(None)))), LangConstants.english)))
@@ -213,7 +213,7 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
         Receiver(Map(
           "3-1" -> NavLinks("PSCStubPage", "BusinessActivitiesStubPage")
         )))
-      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.eq("registrationID"))(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockSessionCacheService.get[String](ArgumentMatchers.eq("registrationID"))(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some("12345")))
       mockGetNavModel(Some(invalidNavModel))
 
@@ -227,14 +227,14 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
         Receiver(Map(
           "3-123" -> NavLinks("PSCStubPage", "BusinessActivitiesStubPage")
         )))
-      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.eq("registrationID"))(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockSessionCacheService.get[String](ArgumentMatchers.eq("registrationID"))(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some("12345")))
       mockGetNavModel(Some(invalidNavModel))
 
       intercept[Exception](await(service.buildPSCPayload("12345", "12", None, LangConstants.english)))
     }
     "return an exception when keystorefetchAndGet returns an exception" in new Setup {
-      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.eq("registrationID"))(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockSessionCacheService.get[String](ArgumentMatchers.eq("registrationID"))(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.failed(new Exception("foo")))
 
       intercept[Exception](await(service.buildPSCPayload("12345", "12", None, LangConstants.english)))
@@ -366,7 +366,7 @@ class HandOffServiceSpec extends SCRSSpec with PayloadFixture with CTDataFixture
         )
       )
       mockGetNavModel(None)
-      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.eq("registrationID"))(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockSessionCacheService.get[String](ArgumentMatchers.eq("registrationID"))(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some("12345")))
 
       when(mockNavModelRepoObj.getNavModel("12345"))

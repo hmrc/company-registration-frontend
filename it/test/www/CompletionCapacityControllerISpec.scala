@@ -16,16 +16,18 @@
 
 package test.www
 
-import java.util.UUID
+import itutil.SessionStub
 
+import java.util.UUID
 import test.itutil.{IntegrationSpecBase, LoginStub}
 import models.{BusinessRegistration, Links}
 import org.jsoup.Jsoup
 import play.api.http.HeaderNames
 import play.api.libs.crypto.DefaultCookieSigner
 import play.api.libs.json.Json
+import uk.gov.hmrc.mongo.cache.DataKey
 
-class CompletionCapacityControllerISpec extends IntegrationSpecBase with LoginStub {
+class CompletionCapacityControllerISpec extends IntegrationSpecBase with SessionStub {
   val regId = "5"
   val userId = "/bar/foo"
   val csrfToken = UUID.randomUUID().toString
@@ -58,7 +60,7 @@ class CompletionCapacityControllerISpec extends IntegrationSpecBase with LoginSt
     "return 200" in {
       stubAuthorisation()
       stubSuccessfulLogin()
-      stubKeystore(SessionId, regId)
+      cacheSessionData[String](DataKey("registrationID"), regId)
       stubBusinessRegRetrieveMetaDataNoRegId(200, businessRegResponse)
       stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR())
       val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
@@ -76,7 +78,7 @@ class CompletionCapacityControllerISpec extends IntegrationSpecBase with LoginSt
     "redirect with a status of 303 with valid data" in {
       stubAuthorisation()
       stubSuccessfulLogin()
-      stubKeystore(SessionId, regId)
+      cacheSessionData[String](DataKey("registrationID"), regId)
       stubBusinessRegRetrieveMetaDataWithRegId(regId, 200, businessRegResponse)
       stubUpdateBusinessRegistrationCompletionCapacity(regId, 200, businessRegResponse)
       val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
@@ -92,7 +94,7 @@ class CompletionCapacityControllerISpec extends IntegrationSpecBase with LoginSt
     "return 400 to the user and display the appropriate error messages" in {
       stubAuthorisation()
       stubSuccessfulLogin()
-      stubKeystore(SessionId, regId)
+      cacheSessionData[String](DataKey("registrationID"), regId)
       stubBusinessRegRetrieveMetaDataWithRegId(regId, 200, businessRegResponse)
       stubUpdateBusinessRegistrationCompletionCapacity(regId, 200, businessRegResponse)
       val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)

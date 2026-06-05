@@ -20,7 +20,7 @@ import java.util.UUID
 
 import builders.AuthBuilder
 import config.AppConfig
-import connectors.{CompanyRegistrationConnector, KeystoreConnector}
+import connectors.CompanyRegistrationConnector
 import controllers.reg.{ControllerErrorHandler, TradingDetailsController}
 import fixtures.TradingDetailsFixtures
 import helpers.SCRSSpec
@@ -41,7 +41,6 @@ import scala.concurrent.{ExecutionContext, Future}
 class TradingDetailsControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder with TradingDetailsFixtures {
 
   val mockTradingDetailsService = mock[TradingDetailsService]
-  val mockKeyStoreConnector = mock[KeystoreConnector]
   lazy val appConfig: AppConfig = app.injector.instanceOf[AppConfig]
   lazy val mockControllerComponents = app.injector.instanceOf[MessagesControllerComponents]
   lazy val mockControllerErrorHandler = app.injector.instanceOf[ControllerErrorHandler]
@@ -55,7 +54,7 @@ class TradingDetailsControllerSpec extends SCRSSpec with GuiceOneAppPerSuite wit
       mockTradingDetailsService,
       MetricServiceMock,
       mockCompanyRegistrationConnector,
-      mockKeystoreConnector,
+      mockSessionCacheService,
       mockControllerComponents,
       mockControllerErrorHandler,
       mockTradingDetailsView
@@ -70,7 +69,7 @@ class TradingDetailsControllerSpec extends SCRSSpec with GuiceOneAppPerSuite wit
     "return a 200 whilst requesting with an authorised user" in new Setup {
       CTRegistrationConnectorMocks.retrieveCTRegistration(buildCorporationTaxModel(rid = regID))
 
-      mockKeystoreFetchAndGet("registrationID", Some(regID))
+      mockSessionCacheGet("registrationID", Some(regID))
 
       when(mockTradingDetailsService.fetchRegistrationID(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]())).thenReturn(Future.successful(regID))
 
@@ -98,8 +97,8 @@ class TradingDetailsControllerSpec extends SCRSSpec with GuiceOneAppPerSuite wit
   "POSTing the TradingDetailsController" should {
     "return a 303" when {
       "posting with valid data" in new Setup {
-        when(mockKeyStoreConnector.fetchAndGet[String](ArgumentMatchers.eq("registrationID"))(ArgumentMatchers.any[HeaderCarrier](),
-          ArgumentMatchers.any[ExecutionContext](), ArgumentMatchers.any[Format[String]]()))
+        when(mockSessionCacheService.get[String](ArgumentMatchers.eq("registrationID"))(ArgumentMatchers.any[HeaderCarrier](),
+          ArgumentMatchers.any[Format[String]]()))
           .thenReturn(Future.successful(Some(regID)))
 
         when(mockTradingDetailsService.fetchRegistrationID(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]())).thenReturn(Future.successful(regID))
@@ -109,7 +108,7 @@ class TradingDetailsControllerSpec extends SCRSSpec with GuiceOneAppPerSuite wit
 
         when(mockTradingDetailsService.updateCompanyInformation(ArgumentMatchers.eq(tradingDetailsTrue))(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]()))
           .thenReturn(Future.successful(tradingDetailsSuccessResponseTrue))
-        mockKeystoreFetchAndGet("registrationID", Some(regID))
+        mockSessionCacheGet("registrationID", Some(regID))
         submitWithAuthorisedUser(testController.submit, FakeRequest().withFormUrlEncodedBody("regularPayments" -> "true")) {
           result =>
             status(result) mustBe SEE_OTHER
@@ -119,7 +118,7 @@ class TradingDetailsControllerSpec extends SCRSSpec with GuiceOneAppPerSuite wit
     }
 
     "posting with no keystore entry" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", None)
+      mockSessionCacheGet("registrationID", None)
       submitWithAuthorisedUser(testController.submit, FakeRequest().withFormUrlEncodedBody("regularPayments" -> "true")) {
         result =>
           status(result) mustBe SEE_OTHER
@@ -129,9 +128,8 @@ class TradingDetailsControllerSpec extends SCRSSpec with GuiceOneAppPerSuite wit
 
     "return a 400" when {
       "posting with valid data but there was a problem" in new Setup {
-        when(mockKeyStoreConnector.fetchAndGet[String](ArgumentMatchers.eq("registrationID"))(ArgumentMatchers.any[HeaderCarrier](),
-          ArgumentMatchers.any[ExecutionContext](), ArgumentMatchers.any[Format[String]]()))
-          .thenReturn(Future.successful(Some(regID)))
+        when(mockSessionCacheService.get[String](ArgumentMatchers.eq("registrationID"))(ArgumentMatchers.any[HeaderCarrier](),
+          ArgumentMatchers.any[Format[String]]())).thenReturn(Future.successful(Some(regID)))
 
         when(mockTradingDetailsService.fetchRegistrationID(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]())).thenReturn(Future.successful(regID))
 
@@ -140,7 +138,7 @@ class TradingDetailsControllerSpec extends SCRSSpec with GuiceOneAppPerSuite wit
 
         when(mockTradingDetailsService.updateCompanyInformation(ArgumentMatchers.eq(tradingDetailsTrue))(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]()))
           .thenReturn(Future.successful(tradingDetailsErrorResponse))
-        mockKeystoreFetchAndGet("registrationID", Some(regID))
+        mockSessionCacheGet("registrationID", Some(regID))
         submitWithAuthorisedUser(testController.submit, FakeRequest().withFormUrlEncodedBody("regularPayments" -> "true")) {
           result =>
             status(result) mustBe BAD_REQUEST
@@ -148,9 +146,8 @@ class TradingDetailsControllerSpec extends SCRSSpec with GuiceOneAppPerSuite wit
       }
 
       "posting with valid data but the resource wasn't found" in new Setup {
-        when(mockKeyStoreConnector.fetchAndGet[String](ArgumentMatchers.eq("registrationID"))(ArgumentMatchers.any[HeaderCarrier](),
-          ArgumentMatchers.any[ExecutionContext](), ArgumentMatchers.any[Format[String]]()))
-          .thenReturn(Future.successful(Some(regID)))
+        when(mockSessionCacheService.get[String](ArgumentMatchers.eq("registrationID"))(ArgumentMatchers.any[HeaderCarrier](),
+          ArgumentMatchers.any[Format[String]]())).thenReturn(Future.successful(Some(regID)))
 
         when(mockTradingDetailsService.fetchRegistrationID(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]())).thenReturn(Future.successful(regID))
 
@@ -159,7 +156,7 @@ class TradingDetailsControllerSpec extends SCRSSpec with GuiceOneAppPerSuite wit
 
         when(mockTradingDetailsService.updateCompanyInformation(ArgumentMatchers.eq(tradingDetailsTrue))(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]()))
           .thenReturn(Future.successful(tradingDetailsNotFoundResponse))
-        mockKeystoreFetchAndGet("registrationID", Some(regID))
+        mockSessionCacheGet("registrationID", Some(regID))
         submitWithAuthorisedUser(testController.submit, FakeRequest().withFormUrlEncodedBody("regularPayments" -> "true")) {
           result =>
             status(result) mustBe BAD_REQUEST
@@ -167,9 +164,8 @@ class TradingDetailsControllerSpec extends SCRSSpec with GuiceOneAppPerSuite wit
       }
 
       "posting with valid data but the user wasn't authorised to access the resource" in new Setup {
-        when(mockKeyStoreConnector.fetchAndGet[String](ArgumentMatchers.eq("registrationID"))(ArgumentMatchers.any[HeaderCarrier](),
-          ArgumentMatchers.any[ExecutionContext](), ArgumentMatchers.any[Format[String]]()))
-          .thenReturn(Future.successful(Some(regID)))
+        when(mockSessionCacheService.get[String](ArgumentMatchers.eq("registrationID"))(ArgumentMatchers.any[HeaderCarrier](),
+          ArgumentMatchers.any[Format[String]]())).thenReturn(Future.successful(Some(regID)))
 
         when(mockTradingDetailsService.fetchRegistrationID(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]())).thenReturn(Future.successful(regID))
 
@@ -178,7 +174,7 @@ class TradingDetailsControllerSpec extends SCRSSpec with GuiceOneAppPerSuite wit
 
         when(mockTradingDetailsService.updateCompanyInformation(ArgumentMatchers.eq(tradingDetailsTrue))(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]()))
           .thenReturn(Future.successful(tradingDetailsForbiddenResponse))
-        mockKeystoreFetchAndGet("registrationID", Some(regID))
+        mockSessionCacheGet("registrationID", Some(regID))
         submitWithAuthorisedUser(testController.submit, FakeRequest().withFormUrlEncodedBody("regularPayments" -> "true")) {
           result =>
             status(result) mustBe BAD_REQUEST
@@ -186,7 +182,7 @@ class TradingDetailsControllerSpec extends SCRSSpec with GuiceOneAppPerSuite wit
       }
 
       "posting with invalid data" in new Setup {
-        mockKeystoreFetchAndGet("registrationID", Some("foo"))
+        mockSessionCacheGet("registrationID", Some("foo"))
         submitWithAuthorisedUser(testController.submit, FakeRequest().withFormUrlEncodedBody("regularPayments" -> "")) {
           result =>
             status(result) mustBe BAD_REQUEST

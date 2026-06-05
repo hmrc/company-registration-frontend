@@ -17,15 +17,14 @@
 package controllers.takeovers
 
 import config.AppConfig
-import connectors.{CompanyRegistrationConnector, KeystoreConnector}
-import controllers.reg.{ routes => regRoutes}
+import connectors.CompanyRegistrationConnector
 import controllers.auth.AuthenticatedController
-import controllers.reg.ControllerErrorHandler
+import controllers.reg.{ControllerErrorHandler, routes => regRoutes}
 import forms.takeovers.ReplacingAnotherBusinessForm
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.TakeoverService
+import services.{SessionCacheService, TakeoverService}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import utils.{SCRSFeatureSwitches, SessionRegistration}
 import views.html.takeovers.{ReplacingAnotherBusiness => ReplacingAnotherBusinessView}
@@ -34,16 +33,17 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class ReplacingAnotherBusinessController @Inject()(val authConnector: PlayAuthConnector,
-                                                   val takeoverService: TakeoverService,
-                                                   val compRegConnector: CompanyRegistrationConnector,
-                                                   val keystoreConnector: KeystoreConnector,
-                                                   val scrsFeatureSwitches: SCRSFeatureSwitches,
-                                                   val controllerComponents: MessagesControllerComponents,
-                                                   val controllerErrorHandler: ControllerErrorHandler,
-                                                   view: ReplacingAnotherBusinessView
-                                                  )(implicit val appConfig: AppConfig, val ec: ExecutionContext
-                                                  ) extends AuthenticatedController with SessionRegistration with I18nSupport {
+class ReplacingAnotherBusinessController @Inject() (val authConnector: PlayAuthConnector,
+                                                    val takeoverService: TakeoverService,
+                                                    val compRegConnector: CompanyRegistrationConnector,
+                                                    val sessionCacheService: SessionCacheService,
+                                                    val scrsFeatureSwitches: SCRSFeatureSwitches,
+                                                    val controllerComponents: MessagesControllerComponents,
+                                                    val controllerErrorHandler: ControllerErrorHandler,
+                                                    view: ReplacingAnotherBusinessView)(implicit val appConfig: AppConfig, val ec: ExecutionContext)
+    extends AuthenticatedController
+    with SessionRegistration
+    with I18nSupport {
 
   val show: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
@@ -66,19 +66,19 @@ class ReplacingAnotherBusinessController @Inject()(val authConnector: PlayAuthCo
   val submit: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
       registered { regId =>
-        ReplacingAnotherBusinessForm.form.bindFromRequest().fold(
-          errors =>
-            Future.successful(BadRequest(view(errors))),
-          replacingAnotherBusiness =>
-            takeoverService.updateReplacingAnotherBusiness(regId, replacingAnotherBusiness) map {
-              _ =>
+        ReplacingAnotherBusinessForm.form
+          .bindFromRequest()
+          .fold(
+            errors => Future.successful(BadRequest(view(errors))),
+            replacingAnotherBusiness =>
+              takeoverService.updateReplacingAnotherBusiness(regId, replacingAnotherBusiness) map { _ =>
                 if (replacingAnotherBusiness) {
                   Redirect(routes.OtherBusinessNameController.show)
                 } else {
                   Redirect(regRoutes.AccountingDatesController.show)
                 }
-            }
-        )
+              }
+          )
       }
     }
   }

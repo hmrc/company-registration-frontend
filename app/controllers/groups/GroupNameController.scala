@@ -17,15 +17,16 @@
 package controllers.groups
 
 import config.AppConfig
-import connectors.{CompanyRegistrationConnector, KeystoreConnector}
+import connectors.CompanyRegistrationConnector
 import controllers.auth.AuthenticatedController
 import controllers.reg.ControllerErrorHandler
 import forms.GroupNameForm
+
 import javax.inject.{Inject, Singleton}
 import models.Groups
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.GroupService
+import services.{GroupService, SessionCacheService}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.http.InternalServerException
 import utils.SessionRegistration
@@ -37,7 +38,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class GroupNameController @Inject()(val authConnector: PlayAuthConnector,
                                     val groupService: GroupService,
                                     val compRegConnector: CompanyRegistrationConnector,
-                                    val keystoreConnector: KeystoreConnector,
+                                    val sessionCacheService: SessionCacheService,
                                     val controllerComponents: MessagesControllerComponents,
                                     view: GroupNameView
                                    )(implicit val appConfig: AppConfig, implicit val ec: ExecutionContext)

@@ -20,7 +20,7 @@ import java.time.LocalDate
 import helpers.SCRSSpec
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
-import play.api.libs.json.Json
+import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.cache.client.CacheMap
 import utils.{SCRSException, SCRSExceptions}
@@ -31,7 +31,7 @@ class CommonServiceSpec extends SCRSSpec {
 
   trait Setup {
     val service = new CommonService with SCRSExceptions {
-      override val keystoreConnector = mockKeystoreConnector
+      override val sessionCacheService = mockSessionCacheService
     }
   }
 
@@ -40,15 +40,15 @@ class CommonServiceSpec extends SCRSSpec {
 
   "fetchRegistration" should {
     "return a registrationID if one exists in keystore" in new Setup {
-      mockKeystoreFetchAndGet[String]("registrationID", Some("12345"))
+      mockSessionCacheGet[String]("registrationID", Some("12345"))
 
       await(service.fetchRegistrationID) mustBe "12345"
     }
 
     "throw a Not Found Exception when a registrationID does not exist in keystore" in new Setup {
-      mockKeystoreFetchAndGet[String]("registrationID", None)
+      mockSessionCacheGet[String]("registrationID", None)
 
-      val exception = intercept[SCRSException]{
+      val exception: SCRSException = intercept[SCRSException]{
         await(service.fetchRegistrationID)
       }
 
@@ -57,22 +57,22 @@ class CommonServiceSpec extends SCRSSpec {
   }
 
   "cacheRegistrationID" should {
-    "cache the passed registrationID in keystore" in new Setup {
-      mockKeystoreCache("registrationID", "12345", cacheMap)
+    "cache the passed registrationID in session store" in new Setup {
+      mockSessionCacheSave[String]("registrationID", "12345")
 
-      await(service.cacheRegistrationID("12345")) mustBe cacheMap
+      await(service.cacheRegistrationID("12345")) mustBe "12345"
     }
   }
 
   "updateLastActionTimestamp" should {
-    val timestampCacheMap = CacheMap("lastActionTimestamp", Map("lastActionTimestamp" -> Json.toJson(LocalDate.now())))
+    val jsValueTime = Json.toJson(LocalDate.now())
 
-    "cache the passed timestamp in keystore" in new Setup {
-      when(mockKeystoreConnector.cache(ArgumentMatchers.contains("lastActionTimestamp"), ArgumentMatchers.any[LocalDate]())(ArgumentMatchers.any[HeaderCarrier](),
-        ArgumentMatchers.any[ExecutionContext](), ArgumentMatchers.any()))
-        .thenReturn(Future.successful(timestampCacheMap))
+    "cache the passed timestamp in session store" in new Setup {
+      when(mockSessionCacheService.save[JsValue](ArgumentMatchers.any(), ArgumentMatchers.any())
+        (ArgumentMatchers.any(), ArgumentMatchers.any()))
+        .thenReturn(Future.successful(jsValueTime))
 
-      await(service.updateLastActionTimestamp()) mustBe timestampCacheMap
+      await(service.updateLastActionTimestamp()) mustBe jsValueTime
     }
   }
 }

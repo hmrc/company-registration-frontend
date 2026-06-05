@@ -16,18 +16,21 @@
 
 package test.www
 
-import java.util.UUID
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import controllers.reg.routes
-import test.itutil.{IntegrationSpecBase, LoginStub, RequestsFinder}
+import itutil.SessionStub
 import org.jsoup.Jsoup
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.HeaderNames
 import play.api.libs.crypto.DefaultCookieSigner
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.{JsObject, JsValue, Json}
+import test.itutil.{IntegrationSpecBase, RequestsFinder}
+import uk.gov.hmrc.mongo.cache.DataKey
 
-class RegistrationEmailControllerISpec extends IntegrationSpecBase with LoginStub with MockitoSugar with RequestsFinder {
+import java.util.UUID
+
+class RegistrationEmailControllerISpec extends IntegrationSpecBase with SessionStub with MockitoSugar with RequestsFinder {
 
   class Setup {
     val userId = "test-user-id"
@@ -75,7 +78,7 @@ class RegistrationEmailControllerISpec extends IntegrationSpecBase with LoginStu
 
       stubAuthorisation()
       stubSuccessfulLogin(userId = userId, otherParamsForAuth = Some(Json.obj("name" -> Json.obj("name" -> "testName"))))
-      stubKeystore(SessionId, regId)
+      cacheSessionData[String](DataKey("registrationID"), "test")
       val emailResponseFromCr =
         """ {
           |  "address": "foo@bar.wibble",
@@ -86,18 +89,15 @@ class RegistrationEmailControllerISpec extends IntegrationSpecBase with LoginStu
           |
           | }
         """.stripMargin
-      val data: String =
+      val data: JsValue = Json.parse(
         """
           |{
-          |"RegEmail" : {
           | "currentEmail": "differentEmail",
           | "differentEmail": "sausage"
-          |},
-          | "registrationID" : "test"
           |}
-        """.stripMargin
+        """.stripMargin)
       stubGet("/company-registration/corporation-tax-registration/test/retrieve-email", 200, emailResponseFromCr)
-      stubKeystoreGetWithJson(SessionId, regId, 200, data)
+      cacheSessionData[JsValue](DataKey("RegEmail"), data)
       val res = await(buildClient(controllers.reg.routes.RegistrationEmailController.show.url)
         .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
         .get())
@@ -111,7 +111,7 @@ class RegistrationEmailControllerISpec extends IntegrationSpecBase with LoginStu
 
       stubAuthorisation()
       stubSuccessfulLogin(userId = userId, otherParamsForAuth = Some(Json.obj("name" -> Json.obj("name" -> "testName"))))
-      stubKeystore(SessionId, regId)
+      cacheSessionData[String](DataKey("registrationID"), "test")
       val emailResponseFromCr =
         """ {
           |  "address": "foo@bar.wibble",
@@ -122,14 +122,7 @@ class RegistrationEmailControllerISpec extends IntegrationSpecBase with LoginStu
           |
           | }
         """.stripMargin
-      val data: String =
-        """
-          |{
-          | "registrationID" : "test"
-          |}
-        """.stripMargin
       stubGet("/company-registration/corporation-tax-registration/test/retrieve-email", 200, emailResponseFromCr)
-      stubKeystoreGetWithJson(SessionId, regId, 200, data)
       val res = await(buildClient(controllers.reg.routes.RegistrationEmailController.show.url)
         .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
         .get())
@@ -153,14 +146,8 @@ class RegistrationEmailControllerISpec extends IntegrationSpecBase with LoginStu
           |
           | }
         """.stripMargin
-      val data: String =
-        """
-          |{
-          | "registrationID" : "test"
-          |}
-        """.stripMargin
       stubGet("/company-registration/corporation-tax-registration/test/retrieve-email", 200, emailResponseFromCr)
-      stubKeystoreGetWithJson(SessionId, regId, 200, data)
+      cacheSessionData[String](DataKey("registrationID"), "test")
       val res = await(buildClient(controllers.reg.routes.RegistrationEmailController.show.url)
         .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
         .get())
@@ -183,14 +170,8 @@ class RegistrationEmailControllerISpec extends IntegrationSpecBase with LoginStu
           |
           | }
         """.stripMargin
-      val data: String =
-        """
-          |{
-          | "registrationID" : "test"
-          |}
-        """.stripMargin
       stubGet("/company-registration/corporation-tax-registration/test/retrieve-email", 200, emailResponseFromCr)
-      stubKeystoreGetWithJson(SessionId, regId, 200, data)
+      cacheSessionData[String](DataKey("registrationID"), "test")
       stubVerifyEmail(201)
       stubPut("/company-registration/corporation-tax-registration/test/update-email", 200,
         """ {
@@ -224,14 +205,8 @@ class RegistrationEmailControllerISpec extends IntegrationSpecBase with LoginStu
           |
           | }
         """.stripMargin
-      val data: String =
-        """
-          |{
-          | "registrationID" : "test"
-          |}
-        """.stripMargin
       stubGet("/company-registration/corporation-tax-registration/test/retrieve-email", 200, emailResponseFromCr)
-      stubKeystoreGetWithJson(SessionId, regId, 200, data)
+      cacheSessionData[String](DataKey("registrationID"), "test")
       stubVerifyEmail(409)
       stubPut("/company-registration/corporation-tax-registration/test/update-email", 200,
         """ {
@@ -273,14 +248,8 @@ class RegistrationEmailControllerISpec extends IntegrationSpecBase with LoginStu
           |
           | }
         """.stripMargin
-      val data: String =
-        """
-          |{
-          | "registrationID" : "test"
-          |}
-        """.stripMargin
       stubGet("/company-registration/corporation-tax-registration/test/retrieve-email", 200, emailResponseFromCr)
-      stubKeystoreGetWithJson(SessionId, regId, 200, data)
+      cacheSessionData[String](DataKey("registrationID"), "test")
       stubKeystoreCache(SessionId, "RegEmail", 200)
       val res = await(buildClient(controllers.reg.routes.RegistrationEmailController.submit.url)
         .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
@@ -307,14 +276,8 @@ class RegistrationEmailControllerISpec extends IntegrationSpecBase with LoginStu
           |
           | }
         """.stripMargin
-      val data: String =
-        """
-          |{
-          | "registrationID" : "test"
-          |}
-        """.stripMargin
       stubGet("/company-registration/corporation-tax-registration/test/retrieve-email", 200, emailResponseFromCr)
-      stubKeystoreGetWithJson(SessionId, regId, 200, data)
+      cacheSessionData[String](DataKey("registrationID"), "test")
 
       val res = await(buildClient(controllers.reg.routes.RegistrationEmailController.submit.url)
         .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")
@@ -332,7 +295,7 @@ class RegistrationEmailControllerISpec extends IntegrationSpecBase with LoginStu
     "return 303 to completion capacity if SCP Verified" in new Setup {
       stubAuthorisation()
       stubSuccessfulLogin(userId = userId, otherParamsForAuth = Some(nameAndCredId.deepMerge(Json.obj("emailVerified" -> true))))
-      stubKeystore(SessionId, regId)
+      cacheSessionData[String](DataKey("registrationID"), regId)
       stubPut("/company-registration/corporation-tax-registration/test/update-email", 200,
         """ {
           |  "address": "foo@bar.wibble",
@@ -353,15 +316,8 @@ class RegistrationEmailControllerISpec extends IntegrationSpecBase with LoginStu
           |
           | }
       """.stripMargin
-
-      val data: String =
-        """
-          |{
-          | "registrationID" : "test"
-          |}
-      """.stripMargin
       stubGet("/company-registration/corporation-tax-registration/test/retrieve-email", 200, emailResponseFromCr)
-      stubKeystoreGetWithJson(SessionId, regId, 200, data)
+      cacheSessionData[String](DataKey("registrationID"), "test")
 
       val res = await(buildClient(controllers.reg.routes.RegistrationEmailController.submit.url)
         .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")

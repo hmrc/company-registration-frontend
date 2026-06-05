@@ -17,31 +17,32 @@
 package controllers.groups
 
 import config.AppConfig
-import connectors.{CompanyRegistrationConnector, KeystoreConnector}
+import connectors.CompanyRegistrationConnector
 import controllers.auth.AuthenticatedController
 import controllers.reg.ControllerErrorHandler
 import forms.GroupReliefForm
-import javax.inject.{Inject, Singleton}
 import play.api.data.Form
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.GroupService
+import services.{GroupService, SessionCacheService}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import utils.SessionRegistration
 import views.html.groups.GroupReliefView
 
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
 @Singleton
-class GroupReliefController @Inject()(val authConnector: PlayAuthConnector,
-                                      val groupService: GroupService,
-                                      val compRegConnector: CompanyRegistrationConnector,
-                                      val keystoreConnector: KeystoreConnector,
-                                      val controllerComponents: MessagesControllerComponents,
-                                      val controllerErrorHandler: ControllerErrorHandler,
-                                      view: GroupReliefView
-                                     )(implicit val appConfig: AppConfig)
-  extends AuthenticatedController with SessionRegistration with I18nSupport {
+class GroupReliefController @Inject() (val authConnector: PlayAuthConnector,
+                                       val groupService: GroupService,
+                                       val compRegConnector: CompanyRegistrationConnector,
+                                       val sessionCacheService: SessionCacheService,
+                                       val controllerComponents: MessagesControllerComponents,
+                                       val controllerErrorHandler: ControllerErrorHandler,
+                                       view: GroupReliefView)(implicit val appConfig: AppConfig)
+    extends AuthenticatedController
+    with SessionRegistration
+    with I18nSupport {
 
   implicit val ec: ExecutionContext = controllerComponents.executionContext
 
@@ -49,7 +50,7 @@ class GroupReliefController @Inject()(val authConnector: PlayAuthConnector,
     ctAuthorised {
       checkStatus { regID =>
         for {
-          groups <- groupService.retrieveGroups(regID)
+          groups      <- groupService.retrieveGroups(regID)
           companyName <- compRegConnector.fetchCompanyName(regID)
         } yield {
           val form: Form[Boolean] = groups.fold(GroupReliefForm.form)(grps => GroupReliefForm.form.fill(grps.groupRelief))
@@ -62,21 +63,22 @@ class GroupReliefController @Inject()(val authConnector: PlayAuthConnector,
   val submit: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
       registered { regID =>
-        GroupReliefForm.form.bindFromRequest().fold(
-          errors =>
-            compRegConnector.fetchCompanyName(regID).map { cName =>
-              BadRequest(view(errors, cName))
-            },
-          relief => {
-            groupService.updateGroupRelief(relief, regID).map { _ =>
-              if (relief) {
-                Redirect(routes.GroupNameController.show)
-              } else {
-                Redirect(controllers.handoff.routes.GroupController.PSCGroupHandOff)
+        GroupReliefForm.form
+          .bindFromRequest()
+          .fold(
+            errors =>
+              compRegConnector.fetchCompanyName(regID).map { cName =>
+                BadRequest(view(errors, cName))
+              },
+            relief =>
+              groupService.updateGroupRelief(relief, regID).map { _ =>
+                if (relief) {
+                  Redirect(routes.GroupNameController.show)
+                } else {
+                  Redirect(controllers.handoff.routes.GroupController.PSCGroupHandOff)
+                }
               }
-            }
-          }
-        )
+          )
       }
     }
   }

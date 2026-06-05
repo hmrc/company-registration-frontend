@@ -16,12 +16,8 @@
 
 package test.www.takeovers
 
-import java.util.UUID
-
-import test.fixtures.Fixtures
 import forms.takeovers.WhoAgreedTakeoverForm._
-import test.itutil.servicestubs.TakeoverStub
-import test.itutil.{IntegrationSpecBase, LoginStub, RequestsFinder}
+import itutil.SessionStub
 import models.{NewAddress, TakeoverDetails}
 import org.jsoup.Jsoup
 import org.scalatestplus.mockito.MockitoSugar
@@ -29,8 +25,14 @@ import play.api.http.HeaderNames
 import play.api.libs.crypto.DefaultCookieSigner
 import play.api.libs.ws.WSResponse
 import play.api.test.Helpers._
+import test.fixtures.Fixtures
+import test.itutil.servicestubs.TakeoverStub
+import test.itutil.{IntegrationSpecBase, RequestsFinder}
+import uk.gov.hmrc.mongo.cache.DataKey
 
-class WhoAgreedTakeoverControllerISpec extends IntegrationSpecBase with LoginStub with MockitoSugar with RequestsFinder with TakeoverStub with Fixtures {
+import java.util.UUID
+
+class WhoAgreedTakeoverControllerISpec extends IntegrationSpecBase with SessionStub with MockitoSugar with RequestsFinder with TakeoverStub with Fixtures {
 
   val userId: String = "testUserId"
   val testRegId: String = "testRegId"
@@ -49,7 +51,7 @@ class WhoAgreedTakeoverControllerISpec extends IntegrationSpecBase with LoginStu
   "show" should {
     "display the page" in {
       stubAuthorisation()
-      stubKeystore(SessionId, testRegId)
+      cacheSessionData[String](DataKey("registrationID"), testRegId)
       stubGet(s"/company-registration/corporation-tax-registration/$testRegId/corporation-tax-registration", 200, statusResponseFromCR())
       stubGetTakeoverDetails(testRegId, OK, Some(testTakeoverDetails))
 
@@ -61,7 +63,7 @@ class WhoAgreedTakeoverControllerISpec extends IntegrationSpecBase with LoginStu
     }
     "display and prepop the page" in {
       stubAuthorisation()
-      stubKeystore(SessionId, testRegId)
+      cacheSessionData[String](DataKey("registrationID"), testRegId)
       stubGet(s"/company-registration/corporation-tax-registration/$testRegId/corporation-tax-registration", 200, statusResponseFromCR())
       stubGetTakeoverDetails(testRegId, OK, Some(testTakeoverDetails.copy(previousOwnersName = Some(testPreviousOwnersName))))
 
@@ -77,7 +79,7 @@ class WhoAgreedTakeoverControllerISpec extends IntegrationSpecBase with LoginStu
   "submit" should {
     "update the takeover block and redirect to previous owners address page" in {
       stubAuthorisation()
-      stubKeystore(SessionId, testRegId)
+      cacheSessionData[String](DataKey("registrationID"), testRegId)
       stubGet(s"/company-registration/corporation-tax-registration/$testRegId/corporation-tax-registration", 200, statusResponseFromCR())
       stubGetTakeoverDetails(testRegId, OK, Some(testTakeoverDetails))
       stubPutTakeoverDetails(testRegId, OK, testTakeoverDetails.copy(previousOwnersName = Some(testPreviousOwnersName)))

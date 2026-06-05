@@ -17,51 +17,48 @@
 package controllers.takeovers
 
 import config.AppConfig
-import connectors.{CompanyRegistrationConnector, KeystoreConnector}
+import connectors.CompanyRegistrationConnector
 import controllers.auth.AuthenticatedController
 import controllers.reg.ControllerErrorHandler
 import forms.takeovers.OtherBusinessNameForm
-import javax.inject.{Inject, Singleton}
 import models.TakeoverDetails
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.TakeoverService
+import services.{SessionCacheService, TakeoverService}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import utils.{SCRSFeatureSwitches, SessionRegistration}
 import views.html.takeovers.{OtherBusinessName => OtherBusinessNameView}
 
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class OtherBusinessNameController @Inject()(val authConnector: PlayAuthConnector,
-                                            val takeoverService: TakeoverService,
-                                            val compRegConnector: CompanyRegistrationConnector,
-                                            val keystoreConnector: KeystoreConnector,
-                                            val scrsFeatureSwitches: SCRSFeatureSwitches,
-                                            val controllerComponents: MessagesControllerComponents,
-                                            val controllerErrorHandler: ControllerErrorHandler,
-                                            view: OtherBusinessNameView
-                                           )(implicit val appConfig: AppConfig,
-                                             val ec: ExecutionContext
-                                           ) extends AuthenticatedController with SessionRegistration with I18nSupport {
+class OtherBusinessNameController @Inject() (val authConnector: PlayAuthConnector,
+                                             val takeoverService: TakeoverService,
+                                             val compRegConnector: CompanyRegistrationConnector,
+                                             val sessionCacheService: SessionCacheService,
+                                             val scrsFeatureSwitches: SCRSFeatureSwitches,
+                                             val controllerComponents: MessagesControllerComponents,
+                                             val controllerErrorHandler: ControllerErrorHandler,
+                                             view: OtherBusinessNameView)(implicit val appConfig: AppConfig, val ec: ExecutionContext)
+    extends AuthenticatedController
+    with SessionRegistration
+    with I18nSupport {
 
   val show: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
       checkStatus { regId =>
-
         for {
           optTakeoverInformation <- takeoverService.getTakeoverDetails(regId)
-        } yield {
-          optTakeoverInformation match {
-            case Some(TakeoverDetails(false, _, _, _, _)) =>
-              Redirect(controllers.reg.routes.AccountingDatesController.show)
-            case None =>
-              Redirect(controllers.takeovers.routes.ReplacingAnotherBusinessController.show)
-            case Some(TakeoverDetails(_, Some(businessName), _, _, _)) =>
-              Ok(view(OtherBusinessNameForm.form.fill(businessName)))
-            case _ =>
-              Ok(view(OtherBusinessNameForm.form))
-          }
+        } yield optTakeoverInformation match {
+          case Some(TakeoverDetails(false, _, _, _, _)) =>
+            Redirect(controllers.reg.routes.AccountingDatesController.show)
+          case None =>
+            Redirect(controllers.takeovers.routes.ReplacingAnotherBusinessController.show)
+          case Some(TakeoverDetails(_, Some(businessName), _, _, _)) =>
+            Ok(view(OtherBusinessNameForm.form.fill(businessName)))
+          case _ =>
+            Ok(view(OtherBusinessNameForm.form))
         }
       }
     }
@@ -70,15 +67,15 @@ class OtherBusinessNameController @Inject()(val authConnector: PlayAuthConnector
   val submit: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
       registered { regId =>
-        OtherBusinessNameForm.form.bindFromRequest().fold(
-          errors =>
-            Future.successful(BadRequest(view(errors))),
-          otherBusinessName => {
-            takeoverService.updateBusinessName(regId, otherBusinessName) map {
-              _ => Redirect(routes.OtherBusinessAddressController.show)
-            }
-          }
-        )
+        OtherBusinessNameForm.form
+          .bindFromRequest()
+          .fold(
+            errors => Future.successful(BadRequest(view(errors))),
+            otherBusinessName =>
+              takeoverService.updateBusinessName(regId, otherBusinessName) map { _ =>
+                Redirect(routes.OtherBusinessAddressController.show)
+              }
+          )
       }
     }
   }

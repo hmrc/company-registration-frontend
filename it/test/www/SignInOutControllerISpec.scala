@@ -18,14 +18,15 @@ package test.www
 
 import java.time.LocalDate
 import java.util.UUID
-
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
+import itutil.SessionStub
 import test.itutil._
 import play.api.http.HeaderNames
 import play.api.libs.crypto.DefaultCookieSigner
+import uk.gov.hmrc.mongo.cache.DataKey
 
-class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with RequestsFinder {
+class SignInOutControllerISpec extends IntegrationSpecBase with SessionStub with RequestsFinder {
 
   val userId = "/bar/foo"
   val testKeystoreKey = "testKey"
@@ -216,8 +217,8 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with R
       val csrfToken = UUID.randomUUID().toString
       val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
 
-      stubKeystoreCache(SessionId, "registrationID")
-      stubKeystoreGet(SessionId, regId)
+      cacheSessionData[String](DataKey("registrationID"), regId)
+      verifySessionCacheData[String](DataKey("registrationID"), Some(regId))
 
       stubGetRegistrationStatus(regId, "held")
       stubGet("/company-registration/throttle/check-user-access", 200, heldAndNoPaymeentRefsThrottle)
@@ -241,8 +242,8 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with R
       val csrfToken = UUID.randomUUID().toString
       val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
 
-      stubKeystoreCache(SessionId, "registrationID")
-      stubKeystoreGet(SessionId, regId)
+      cacheSessionData[String](DataKey("registrationID"), regId)
+      verifySessionCacheData[String](DataKey("registrationID"), Some(regId))
 
       stubGetRegistrationStatus(regId, "locked")
       stubGet("/company-registration/throttle/check-user-access", 200, lockedThrottle)
@@ -265,8 +266,8 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with R
       val csrfToken = UUID.randomUUID().toString
       val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
 
-      stubKeystoreCache(SessionId, "registrationID")
-      stubKeystoreGet(SessionId, regId)
+      cacheSessionData[String](DataKey("registrationID"), regId)
+      verifySessionCacheData[String](DataKey("registrationID"), Some(regId))
 
       stubGetRegistrationStatus(regId, "draft")
       stubGet("/company-registration/throttle/check-user-access", 200, throttleWithAnSCRSValidatedEmail)
@@ -290,8 +291,8 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with R
       val csrfToken = UUID.randomUUID().toString
       val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
 
-      stubKeystoreCache(SessionId, "registrationID")
-      stubKeystoreGet(SessionId, regId)
+      cacheSessionData[String](DataKey("registrationID"), regId)
+      verifySessionCacheData[String](DataKey("registrationID"), Some(regId))
 
       stubGetRegistrationStatus(regId, "draft")
       stubGet("/company-registration/throttle/check-user-access", 200, throttleWithOutAnSCRSValidatedEmail)
@@ -315,8 +316,8 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with R
       val csrfToken = UUID.randomUUID().toString
       val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
 
-      stubKeystoreCache(SessionId, "registrationID")
-      stubKeystoreGet(SessionId, regId)
+      cacheSessionData[String](DataKey("registrationID"), regId)
+      verifySessionCacheData[String](DataKey("registrationID"), Some(regId))
 
       stubGetRegistrationStatus(regId, "draft")
       stubGet("/company-registration/throttle/check-user-access", 200, throttleWithOutAnSCRSValidatedEmailButLinkSent)
@@ -351,8 +352,8 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with R
       val csrfToken = UUID.randomUUID().toString
       val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
 
-      stubKeystoreCache(SessionId, "registrationID")
-      stubKeystoreGet(SessionId, regId)
+      cacheSessionData[String](DataKey("registrationID"), regId)
+      verifySessionCacheData[String](DataKey("registrationID"), Some(regId))
 
       stubGetRegistrationStatus(regId, "draft")
       stubGet("/company-registration/throttle/check-user-access", 200, throttleWithOutAnSCRSValidatedEmailButLinkSent)
@@ -387,8 +388,8 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with R
       val csrfToken = UUID.randomUUID().toString
       val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
 
-      stubKeystoreCache(SessionId, "registrationID")
-      stubKeystoreGet(SessionId, regId)
+      cacheSessionData[String](DataKey("registrationID"), regId)
+      verifySessionCacheData[String](DataKey("registrationID"), Some(regId))
 
       stubGetRegistrationStatus(regId, "draft")
       stubGet("/company-registration/throttle/check-user-access", 200, throttleWithNoEmailAddressInEmailBlock)
@@ -466,11 +467,14 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with R
   }
 
   "Renew session" should {
+    val date = LocalDate.now()
     "update keystore and return an image with a status of 200 verifying the PUT to keystore" in {
       val csrfToken = UUID.randomUUID().toString
       val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
       stubAuthorisation()
-      stubKeystoreCache(SessionId, "lastActionTimestamp")
+
+      cacheSessionData[String](DataKey("registrationID"), regId)
+      cacheSessionData[LocalDate](DataKey("lastActionTimestamp"), date)
 
       val response = await(buildClient("/renew-session")
         .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie)
@@ -481,20 +485,20 @@ class SignInOutControllerISpec extends IntegrationSpecBase with LoginStub with R
       response.header("Content-Disposition") mustBe Some("""inline; filename="renewSession.jpg"""")
       response.header(HeaderNames.CACHE_CONTROL) mustBe Some("no-cache,no-store,max-age=0")
 
-      val request = getPUTRequestJsonBody(s"/keystore/company-registration-frontend/$SessionId/data/lastActionTimestamp")
-      request.as[String] mustBe LocalDate.now.toString
+      verifySessionCacheData[LocalDate](DataKey("lastActionTimestamp"), Some(date))
     }
 
-    "throw an exception when keystore update fails and return a 500" in {
+    "timestamp value is updated during renew session if it is not cached previously" in {
       val csrfToken = UUID.randomUUID().toString
       val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
       stubAuthorisation()
-      stubKeystoreCache(SessionId, "lastActionTimestamp", status = 500)
+      cacheSessionData[String](DataKey("registrationID"), regId)
       val response = await(buildClient("/renew-session")
         .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie)
         .get())
 
-      response.status mustBe 500
+      response.status mustBe 200
+      verifySessionCacheData[LocalDate](DataKey("lastActionTimestamp"), Some(date))
       response.header(HeaderNames.CACHE_CONTROL) mustBe Some("no-cache,no-store,max-age=0")
     }
   }

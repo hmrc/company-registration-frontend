@@ -44,7 +44,7 @@ class GroupReliefSpec extends SCRSSpec with UserDetailsFixture with AuthBuilder 
       mockAuthConnector,
       mockGroupService,
       mockCompanyRegistrationConnector,
-      mockKeystoreConnector,
+      mockSessionCacheService,
       app.injector.instanceOf[MessagesControllerComponents],
       app.injector.instanceOf[ControllerErrorHandler],
       app.injector.instanceOf[GroupReliefView]
@@ -72,7 +72,7 @@ class GroupReliefSpec extends SCRSSpec with UserDetailsFixture with AuthBuilder 
   "show" should {
     "display the Group Relief page with the correct elements passed into it" in new Setup {
 
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      mockSessionCacheGet("registrationID", Some("1"))
       CTRegistrationConnectorMocks.retrieveCTRegistration(ctDocFirstTimeThrough)
       when(mockCompanyRegistrationConnector.fetchCompanyName(any())(any(), any()))
         .thenReturn(Future.successful("testCompanyname1"))

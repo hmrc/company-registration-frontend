@@ -50,7 +50,7 @@ class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture wit
 
     val testController = new BasicCompanyDetailsController(
       mockAuthConnector,
-      mockKeystoreConnector,
+      mockSessionCacheService,
       mockHandOffService,
       mockCompanyRegistrationConnector,
       mockHandBackService,
@@ -79,7 +79,7 @@ class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture wit
     "return a 303 and redirect the user to the incorporation frontend stub" when {
       "meta data is fetched from business registration micro-service" in new Setup {
 
-        mockKeystoreFetchAndGet("registrationID", Some("1"))
+        mockSessionCacheGet("registrationID", Some("1"))
 
         when(mockCompanyRegistrationConnector.retrieveEmail(ArgumentMatchers.any())(ArgumentMatchers.any(),
           ArgumentMatchers.any())).thenReturn(Future.successful(Some(Email("foo", "bar", true, true, true))))
@@ -104,7 +104,7 @@ class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture wit
 
       val encryptedPayload = jweInstance().encrypt[CompanyNameHandOffIncoming](validCompanyNameHandBack).get
 
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      mockSessionCacheGet("registrationID", Some("1"))
       when(mockCompanyRegistrationConnector.retrieveEmail(ArgumentMatchers.any())(ArgumentMatchers.any(),
         ArgumentMatchers.any())).thenReturn(Future.successful(Some(Email("foo", "bar", true, true, true))))
       when(mockHandOffService.companyNamePayload(ArgumentMatchers.eq("1"), ArgumentMatchers.any(), ArgumentMatchers.any(),
@@ -125,7 +125,7 @@ class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture wit
 
     "return a 400 and display an error page when nothing is retrieved from user details" in new Setup {
 
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      mockSessionCacheGet("registrationID", Some("1"))
       when(mockCompanyRegistrationConnector.retrieveEmail(ArgumentMatchers.any())(ArgumentMatchers.any(),
         ArgumentMatchers.any())).thenReturn(Future.successful(Some(Email("foo", "bar", true, true, true))))
       when(mockHandOffService.companyNamePayload(ArgumentMatchers.eq("1"), ArgumentMatchers.any(),
@@ -139,7 +139,7 @@ class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture wit
     }
     "return a Redirect to post sign in if email block is None" in new Setup {
 
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      mockSessionCacheGet("registrationID", Some("1"))
       when(mockCompanyRegistrationConnector.retrieveEmail(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(None))
       showWithAuthorisedUserRetrieval(testController.basicCompanyDetails, authDetails) {
         result =>
@@ -161,7 +161,7 @@ class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture wit
 
     "return a 303 when hand back service decrypts the reverse hand off payload successfully (updating the stored language in CompReg BE)" in new Setup {
       val encryptedPayload = jweInstance().encrypt[JsValue](payload).get
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      mockSessionCacheGet("registrationID", Some("1"))
       when(mockHandBackService.processCompanyNameReverseHandBack(ArgumentMatchers.eq(encryptedPayload))(ArgumentMatchers.any[HeaderCarrier]))
         .thenReturn(Future.successful(Success(payload)))
       when(mockLanguageService.updateLanguage(ArgumentMatchers.eq("1"), ArgumentMatchers.eq(Lang(LangConstants.welsh)))(ArgumentMatchers.any[HeaderCarrier], ArgumentMatchers.any[ExecutionContext]))
@@ -175,7 +175,7 @@ class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture wit
 
     "return a 303 when the user is authorised and the query string contains requestData but keystore has expired" in new Setup {
       val encryptedPayload = jweInstance().encrypt[JsValue](payload).get
-      mockKeystoreFetchAndGet("registrationID", None)
+      mockSessionCacheGet("registrationID", None)
       when(mockHandBackService.processCompanyNameReverseHandBack(ArgumentMatchers.eq(encryptedPayload))(ArgumentMatchers.any[HeaderCarrier]))
         .thenReturn(Future.successful(Success(payload)))
 
@@ -187,7 +187,7 @@ class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture wit
     }
 
     "return a 400 when hand back service errors while decrypting the payload" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("12345"))
+      mockSessionCacheGet("registrationID", Some("12345"))
       val encryptedPayload = jweInstance().encrypt[JsValue](payload).get
 
       when(mockHandBackService.processCompanyNameReverseHandBack(ArgumentMatchers.eq(encryptedPayload))(ArgumentMatchers.any[HeaderCarrier]))
@@ -201,7 +201,7 @@ class BasicCompanyDetailsControllerSpec extends SCRSSpec with PayloadFixture wit
 
     "return a 400 when hand back service decrypts the payload successfully but the Json is malformed" in new Setup {
       val encryptedPayload = jweInstance().encrypt[JsValue](payload).get
-      mockKeystoreFetchAndGet("registrationID", Some("12345"))
+      mockSessionCacheGet("registrationID", Some("12345"))
 
       when(mockHandBackService.processCompanyNameReverseHandBack(ArgumentMatchers.eq(encryptedPayload))(ArgumentMatchers.any[HeaderCarrier]))
         .thenReturn(Future.successful(Failure(PayloadError)))

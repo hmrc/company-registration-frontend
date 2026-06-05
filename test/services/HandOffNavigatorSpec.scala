@@ -17,7 +17,6 @@
 package services
 
 import config.AppConfig
-import connectors.KeystoreConnector
 import helpers.SCRSSpec
 import mocks.NavModelRepoMock
 import models.handoff.{HandOffNavModel, NavLinks, Receiver, Sender}
@@ -35,13 +34,12 @@ import scala.concurrent.{ExecutionContext, Future}
 class HandOffNavigatorSpec extends SCRSSpec with MockitoSugar with GuiceOneAppPerSuite with NavModelRepoMock {
 
   val mockNavModelRepoObj = mockNavModelRepo
-  val mockKeyStoreConnector = mock[KeystoreConnector]
 
 
   class Setup(existsInKeystore: Boolean = true) {
 
     val navigator = new HandOffNavigator {
-      override val keystoreConnector = mockKeyStoreConnector
+      override val sessionCacheService = mockSessionCacheService
       override val navModelMongo = mockNavModelRepoObj
 
       override def fetchRegistrationID(implicit hc: HeaderCarrier, ec: ExecutionContext) = Future.successful("foo")
@@ -55,7 +53,7 @@ class HandOffNavigatorSpec extends SCRSSpec with MockitoSugar with GuiceOneAppPe
 
   class SetupWithMongoRepo {
     val navigator = new HandOffNavigator {
-      override val keystoreConnector = mockKeyStoreConnector
+      override val sessionCacheService = mockSessionCacheService
       override val navModelMongo = mockNavModelRepoObj
 
       override def fetchRegistrationID(implicit hc: HeaderCarrier, ec: ExecutionContext) = Future.successful("foo")
@@ -124,7 +122,7 @@ class HandOffNavigatorSpec extends SCRSSpec with MockitoSugar with GuiceOneAppPe
     "return a new initialised nav model when a nav model cannot be found in keystore OR Mongo" in new SetupWithMongoRepo {
       when(mockSCRSFeatureSwitches.legacyEnv).thenReturn(BooleanFeatureSwitch("", true))
       when(mockSCRSFeatureSwitches.cohoFirstHandOff).thenReturn(BooleanFeatureSwitch("", false))
-      when(mockKeyStoreConnector.fetchAndGet[HandOffNavModel](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockSessionCacheService.get[HandOffNavModel](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(None))
       mockGetNavModel(handOffNavModel = None)
       mockInsertNavModel()

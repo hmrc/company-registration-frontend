@@ -61,7 +61,7 @@ class PPOBControllerSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixtur
   trait Setup {
     val controller = new PPOBController(
       mockAuthConnector,
-      mockKeystoreConnector,
+      mockSessionCacheService,
       mockCompanyRegistrationConnector,
       mockHandOffService,
       mockBusinessRegConnector,
@@ -81,7 +81,7 @@ class PPOBControllerSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixtur
     )
 
     def mockCheckStatus(ret: Option[String] = Some(regId)) = {
-      when(mockKeystoreConnector.fetchAndGet[String](eqTo("registrationID"))(any(), any(), any()))
+      when(mockSessionCacheService.get[String](eqTo("registrationID"))(any(), any()))
         .thenReturn(Future.successful(ret))
       when(mockCompanyRegistrationConnector.retrieveCorporationTaxRegistration(eqTo(regId))(any(), any()))
         .thenReturn(Future.successful(buildCorporationTaxModel(rid = regId)))
@@ -94,7 +94,7 @@ class PPOBControllerSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixtur
   "back" should {
 
     "return a 303 an redirect back to post sign in when navmodel not found thrown" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("12345"))
+      mockSessionCacheGet("registrationID", Some("12345"))
       when(mockHandOffService.fetchNavModel(ArgumentMatchers.any[Boolean])(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.failed[HandOffNavModel](new NavModelNotFoundException))
 
       showWithAuthorisedUserRetrieval(controller.back, extID) {
@@ -117,7 +117,7 @@ class PPOBControllerSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixtur
       )
       when(mockJweCommon.encrypt[BackHandoff](ArgumentMatchers.any[BackHandoff])(ArgumentMatchers.any[Writes[BackHandoff]])).thenReturn(None)
 
-      mockKeystoreFetchAndGet("registrationID", Some("12345"))
+      mockSessionCacheGet("registrationID", Some("12345"))
       when(mockHandOffService.fetchNavModel(ArgumentMatchers.any[Boolean])(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(handOffNavModelData))
       when(mockHandOffService.buildBackHandOff(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(BackHandoff("ext-xxxx-xxxx", "12345", Json.obj(), Json.obj(), LangConstants.english, Json.obj())))
@@ -230,7 +230,7 @@ class PPOBControllerSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixtur
     val validCompanyDetails = CompanyDetails("TestLTD", validCHROAddress, PPOB("RO", None), "UK")
 
     "return a PPOBChoice with a value of PPOB if the supplied ppob option is defined" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("12345"))
+      mockSessionCacheGet("registrationID", Some("12345"))
       val alfId = "123"
 
       when(mockAddressLookupFrontendService.getAddress(ArgumentMatchers.eq(alfId))(ArgumentMatchers.any[HeaderCarrier]))
@@ -254,7 +254,7 @@ class PPOBControllerSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixtur
     }
 
     "return a an exception if the call does not have an id" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("12345"))
+      mockSessionCacheGet("registrationID", Some("12345"))
       mockAuthorisedUser(Future.successful({}))
       mockCheckStatus()
 

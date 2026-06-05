@@ -17,9 +17,9 @@
 package test.www.takeovers
 
 import java.util.UUID
-
 import test.fixtures.Fixtures
 import forms.takeovers.OtherBusinessNameForm._
+import itutil.SessionStub
 import test.itutil.servicestubs.TakeoverStub
 import test.itutil.{IntegrationSpecBase, LoginStub, RequestsFinder}
 import models.TakeoverDetails
@@ -29,8 +29,9 @@ import play.api.http.HeaderNames
 import play.api.libs.crypto.DefaultCookieSigner
 import play.api.libs.ws.WSResponse
 import play.api.test.Helpers._
+import uk.gov.hmrc.mongo.cache.DataKey
 
-class OtherBusinessNameControllerISpec extends IntegrationSpecBase with LoginStub with MockitoSugar with RequestsFinder with TakeoverStub with Fixtures {
+class OtherBusinessNameControllerISpec extends IntegrationSpecBase with SessionStub with MockitoSugar with RequestsFinder with TakeoverStub with Fixtures {
 
   class Setup {
     val userId: String = "testUserId"
@@ -45,7 +46,7 @@ class OtherBusinessNameControllerISpec extends IntegrationSpecBase with LoginStu
   "show" should {
     "display the page" in new Setup {
       stubAuthorisation()
-      stubKeystore(SessionId, testRegId)
+      cacheSessionData[String](DataKey("registrationID"), testRegId)
       stubGet(s"/company-registration/corporation-tax-registration/$testRegId/corporation-tax-registration", 200, statusResponseFromCR())
       stubGetTakeoverDetails(testRegId, OK, Some(TakeoverDetails(replacingAnotherBusiness = true)))
 
@@ -58,7 +59,7 @@ class OtherBusinessNameControllerISpec extends IntegrationSpecBase with LoginStu
 
     "display and prepop the page" in new Setup {
       stubAuthorisation()
-      stubKeystore(SessionId, testRegId)
+      cacheSessionData[String](DataKey("registrationID"), testRegId)
       stubGet(s"/company-registration/corporation-tax-registration/$testRegId/corporation-tax-registration", 200, statusResponseFromCR())
       val testPrepopBusinessName: String = "another test name"
       stubGetTakeoverDetails(testRegId, OK, Some(TakeoverDetails(replacingAnotherBusiness = true, Some(testPrepopBusinessName))))
@@ -75,7 +76,7 @@ class OtherBusinessNameControllerISpec extends IntegrationSpecBase with LoginStu
   "submit" should {
     "update the takeover data in the backend and redirect to next page" in new Setup {
       stubAuthorisation()
-      stubKeystore(SessionId, testRegId)
+      cacheSessionData[String](DataKey("registrationID"), testRegId)
       stubGet(s"/company-registration/corporation-tax-registration/$testRegId/corporation-tax-registration", 200, statusResponseFromCR())
       stubGetTakeoverDetails(testRegId, OK, Some(TakeoverDetails(replacingAnotherBusiness = true)))
       stubPutTakeoverDetails(testRegId, OK, TakeoverDetails(replacingAnotherBusiness = true, Some(testBusinessName)))

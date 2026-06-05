@@ -17,14 +17,16 @@
 package test.www
 
 import com.github.tomakehurst.wiremock.client.WireMock._
+import itutil.SessionStub
 import test.itutil.{IntegrationSpecBase, LoginStub}
 import org.jsoup.Jsoup
 import play.api.http.HeaderNames
 import play.api.libs.crypto.DefaultCookieSigner
+import uk.gov.hmrc.mongo.cache.DataKey
 
 import scala.concurrent.duration.FiniteDuration
 
-class VerifyYourEmailISpec extends IntegrationSpecBase with LoginStub {
+class VerifyYourEmailISpec extends IntegrationSpecBase with SessionStub {
 
   val userId = "/wibble"
   lazy val defaultCookieSigner: DefaultCookieSigner = app.injector.instanceOf[DefaultCookieSigner]
@@ -62,7 +64,8 @@ class VerifyYourEmailISpec extends IntegrationSpecBase with LoginStub {
           | }
         """.stripMargin
       val email = "foo@bar.wibble"
-      stubKeystore(SessionId, "5", email)
+      cacheSessionData[String](DataKey("registrationID"), "5")
+      cacheSessionData[String](DataKey("email"), email)
       stubGet("/company-registration/corporation-tax-registration/5/retrieve-email", 200, emailResponseFromCr)
       val fResponse = buildClient("/sent-an-email").
         withHttpHeaders(HeaderNames.COOKIE -> getSessionCookie(userId = userId)).

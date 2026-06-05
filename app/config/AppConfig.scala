@@ -151,4 +151,6 @@ class AppConfig @Inject()(val servicesConfig: ServicesConfig, featureSwitch: SCR
 
   lazy val mongoDbDataCacheExpireAfterMinutes: Duration = servicesConfig.getInt("mongodb.dataCache.timeToLiveInMinutes").minutes
   lazy val appNameAsDataCacheDbCollection: String = servicesConfig.getString("appName") + "-data-cache"
+  lazy val mongoDbSessionCacheExpireAfterMinutes: Duration = servicesConfig.getInt("mongodb.sessionCache.timeToLiveInMinutes").minutes
+  lazy val appNameAsSessionCacheDbCollection: String = servicesConfig.getString("appName") + "-session-cache"
 }

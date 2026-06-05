@@ -25,7 +25,7 @@ class AccountingServiceSpec extends SCRSSpec with AccountingDetailsFixture {
   class Setup {
     val service = new AccountingService {
       val companyRegistrationConnector = mockCompanyRegistrationConnector
-      val keystoreConnector = mockKeystoreConnector
+      val sessionCacheService = mockSessionCacheService
     }
   }
 
@@ -33,27 +33,27 @@ class AccountingServiceSpec extends SCRSSpec with AccountingDetailsFixture {
 
   "fetchAccountingDetails" should {
     "return an AccountingDatesModel for when registered" in new Setup {
-        mockKeystoreFetchAndGet("registrationID", Some("12345"))
+        mockSessionCacheGet("registrationID", Some("12345"))
         CTRegistrationConnectorMocks.retrieveAccountingDetails(AccountingDetailsSuccessResponse(AccountingDetails("WHEN_REGISTERED", Some("1-2-3"), Links(Some("")))))
         await(service.fetchAccountingDetails) mustBe AccountingDatesModel("whenRegistered", Some("1"), Some("2"), Some("3"))
       }
     "return an AccountingDatesModel for future date" in new Setup {
-        mockKeystoreFetchAndGet("registrationID", Some("12345"))
+        mockSessionCacheGet("registrationID", Some("12345"))
         CTRegistrationConnectorMocks.retrieveAccountingDetails(AccountingDetailsSuccessResponse(AccountingDetails("FUTURE_DATE", Some("1-2-3"), Links(Some("")))))
         await(service.fetchAccountingDetails) mustBe AccountingDatesModel("futureDate", Some("1"), Some("2"), Some("3"))
       }
     "return an AccountingDatesModel for not planning to yet" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("12345"))
+      mockSessionCacheGet("registrationID", Some("12345"))
       CTRegistrationConnectorMocks.retrieveAccountingDetails(AccountingDetailsSuccessResponse(AccountingDetails("NOT_PLANNING_TO_YET", Some("1-2-3"), Links(Some("")))))
       await(service.fetchAccountingDetails) mustBe AccountingDatesModel("notPlanningToYet", Some("1"), Some("2"), Some("3"))
     }
     "return an AccountingDatesModel for undefined" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("12345"))
+      mockSessionCacheGet("registrationID", Some("12345"))
       CTRegistrationConnectorMocks.retrieveAccountingDetails(AccountingDetailsSuccessResponse(AccountingDetails("", Some("1-2-3"), Links(Some("")))))
       await(service.fetchAccountingDetails) mustBe AccountingDatesModel("", Some("1"), Some("2"), Some("3"))
     }
     "return an empty AccountingDatesModel when there isn't already a model in MongoDB" in new Setup {
-        mockKeystoreFetchAndGet("registrationID", Some("12345"))
+        mockSessionCacheGet("registrationID", Some("12345"))
         CTRegistrationConnectorMocks.retrieveAccountingDetails(AccountingDetailsNotFoundResponse)
         await(service.fetchAccountingDetails) mustBe AccountingDatesModel("", None, None, None)
       }
@@ -61,7 +61,7 @@ class AccountingServiceSpec extends SCRSSpec with AccountingDetailsFixture {
 
   "updateAccountingDetails" should {
     "return an AccountingDatesModel" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("12345"))
+      mockSessionCacheGet("registrationID", Some("12345"))
       CTRegistrationConnectorMocks.updateAccountingDetails(AccountingDetailsSuccessResponse(AccountingDetails("test", Some("1-2-3"), Links(Some("other")))))
       await(service.updateAccountingDetails(
         AccountingDetails("test2", Some("3-2-1"), Links(Some("other"))))

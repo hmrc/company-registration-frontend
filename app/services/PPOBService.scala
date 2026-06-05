@@ -17,9 +17,7 @@
 package services
 
 import audit.events._
-import connectors.{CompanyRegistrationConnector, KeystoreConnector}
-
-import javax.inject.Inject
+import connectors.CompanyRegistrationConnector
 import models.{Address => OldAddress, _}
 import play.api.i18n.Messages
 import play.api.libs.json.JsValue
@@ -28,56 +26,47 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.{AuditConnector, AuditResult}
 import utils.SCRSExceptions
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class PPOBServiceImpl @Inject()(val compRegConnector: CompanyRegistrationConnector,
-                                val keystoreConnector: KeystoreConnector,
-                                val auditConnector: AuditConnector)(implicit val ec: ExecutionContext) extends PPOBService
+class PPOBServiceImpl @Inject() (val compRegConnector: CompanyRegistrationConnector,
+                                 val sessionCacheService: SessionCacheService,
+                                 val auditConnector: AuditConnector)(implicit val ec: ExecutionContext)
+    extends PPOBService
 
 trait PPOBService extends SCRSExceptions with AuditService {
-  val keystoreConnector: KeystoreConnector
+  val sessionCacheService: SessionCacheService
   val compRegConnector: CompanyRegistrationConnector
-  val auditConnector : AuditConnector
+  val auditConnector: AuditConnector
 
-  def retrieveCompanyDetails(regID: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[CompanyDetails] = {
-    for {
-      companyDetails <- compRegConnector.retrieveCompanyDetails(regID)
-    } yield {
-      companyDetails match {
-        case Some(details) => details
-        case None => throw CompanyDetailsNotFoundException
-      }
-    }
-  }
-
-  def getAddresses(address:(Option[CHROAddress], Option[NewAddress], PPOBChoice))(implicit hc: HeaderCarrier, mc: Messages): Map[String, Any]  = {
+  def getAddresses(address: (Option[CHROAddress], Option[NewAddress], PPOBChoice))(implicit hc: HeaderCarrier, mc: Messages): Map[String, Any] =
     address match {
       case (None, None, _) =>
         Map("Other" -> Messages("page.reg.ppob.differentAddress"))
       case (None, Some(_), _) =>
-        Map("PPOB" -> address._2.getOrElse(throw new InternalError("Address not found2")),
-          "Other" -> Messages("page.reg.ppob.differentAddress"))
+        Map("PPOB" -> address._2.getOrElse(throw new InternalError("Address not found2")), "Other" -> Messages("page.reg.ppob.differentAddress"))
       case (Some(_), None, _) =>
-        Map("RO" -> address._1.getOrElse(throw new InternalError("Address not found1")),
-          "Other" -> Messages("page.reg.ppob.differentAddress"))
+        Map("RO" -> address._1.getOrElse(throw new InternalError("Address not found1")), "Other" -> Messages("page.reg.ppob.differentAddress"))
       case (Some(_), Some(_), _) =>
-        if(address._1.toString == address._2.toString) {
+        if (address._1.toString == address._2.toString) {
           Map(
-            "RO" -> address._1.getOrElse(throw new InternalError("Address not found1")),
+            "RO"    -> address._1.getOrElse(throw new InternalError("Address not found1")),
             "Other" -> Messages("page.reg.ppob.differentAddress")
           )
         } else {
-          Map("RO" -> address._1.getOrElse(throw new InternalError("Address not found1")),
-            "PPOB" -> address._2.getOrElse(throw new InternalError("Address not found2")),
-            "Other" -> Messages("page.reg.ppob.differentAddress"))
+          Map(
+            "RO"    -> address._1.getOrElse(throw new InternalError("Address not found1")),
+            "PPOB"  -> address._2.getOrElse(throw new InternalError("Address not found2")),
+            "Other" -> Messages("page.reg.ppob.differentAddress")
+          )
         }
     }
-  }
 
-  def fetchAddressesAndChoice(regId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[(Option[CHROAddress], Option[NewAddress], PPOBChoice)] = {
+  def fetchAddressesAndChoice(
+      regId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[(Option[CHROAddress], Option[NewAddress], PPOBChoice)] =
     compRegConnector.retrieveCorporationTaxRegistration(regId) flatMap { ctReg =>
-      val ro = (ctReg \\ "cHROAddress").head.as[CHROAddress]
-      val ppob = ctReg.asOpt(NewAddress.ppobFormats)
+      val ro     = (ctReg \\ "cHROAddress").head.as[CHROAddress]
+      val ppob   = ctReg.asOpt(NewAddress.ppobFormats)
       val choice = addressChoice(ppob, ctReg)
 
       compRegConnector.checkROValidPPOB(regId, ro) map {
@@ -85,33 +74,43 @@ trait PPOBService extends SCRSExceptions with AuditService {
         case _       => (None, ppob, choice)
       }
     }
-  }
 
-  private[services] def addressChoice(ppob: Option[_], ctReg: JsValue) = {
+  private[services] def addressChoice(ppob: Option[_], ctReg: JsValue) =
     (ppob, ctReg) match {
-      case (ppob, ctReg) if ctReg.as[String](NewAddress.readAddressType) == "PPOB"  => PPOBChoice("PPOB")
-      case (ppob, ctReg) if ctReg.as[String](NewAddress.readAddressType) == "RO" => PPOBChoice("RO")
-      case _ => PPOBChoice("")
+      case (ppob, ctReg) if ctReg.as[String](NewAddress.readAddressType) == "PPOB" => PPOBChoice("PPOB")
+      case (ppob, ctReg) if ctReg.as[String](NewAddress.readAddressType) == "RO"   => PPOBChoice("RO")
+      case _                                                                       => PPOBChoice("")
     }
-  }
 
-  def auditROAddress(regId: String, credID: String, companyName: String, chro: CHROAddress)
-                    (implicit hc: HeaderCarrier, ec: ExecutionContext, request: Request[AnyContent]): Future[AuditResult] =
+  def auditROAddress(regId: String, credID: String, companyName: String, chro: CHROAddress)(implicit
+      hc: HeaderCarrier,
+      ec: ExecutionContext,
+      request: Request[AnyContent]): Future[AuditResult] =
     sendEvent(
       auditType = "ROAddress",
       detail = ROUsedAsPPOBAuditEventDetail(regId, credID, companyName, chro)
     )
 
-  private def retrieveNewAddress(regId : String, cD: CompanyDetails, addressType : String, optAddress : Option[NewAddress])
-                                (implicit hc : HeaderCarrier, ec: ExecutionContext): Future[Option[NewAddress]] =
-    (addressType, optAddress) match {
-      case ("RO", _) => compRegConnector.checkROValidPPOB(regId, cD.cHROAddress)
-      case ("PPOB", a) => Future.successful(a)
-      case _ => Future.successful(None)
+  def saveAddress(regId: String, addressType: String, address: Option[NewAddress] = None)(implicit
+      hc: HeaderCarrier,
+      ec: ExecutionContext): Future[CompanyDetails] =
+    for {
+      details    <- retrieveCompanyDetails(regId)
+      newDetails <- buildAddress(regId, details, addressType, address)
+      _          <- compRegConnector.updateCompanyDetails(regId, newDetails)
+    } yield newDetails
+
+  def retrieveCompanyDetails(regID: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[CompanyDetails] =
+    for {
+      companyDetails <- compRegConnector.retrieveCompanyDetails(regID)
+    } yield companyDetails match {
+      case Some(details) => details
+      case None          => throw CompanyDetailsNotFoundException
     }
 
-  def buildAddress(regId : String, cD: CompanyDetails, addressType: String, optAddress: Option[NewAddress])
-                  (implicit hc : HeaderCarrier, ec: ExecutionContext): Future[CompanyDetails] = {
+  def buildAddress(regId: String, cD: CompanyDetails, addressType: String, optAddress: Option[NewAddress])(implicit
+      hc: HeaderCarrier,
+      ec: ExecutionContext): Future[CompanyDetails] =
     retrieveNewAddress(regId, cD, addressType, optAddress) map { result =>
       result map { a =>
         OldAddress(
@@ -136,15 +135,13 @@ trait PPOBService extends SCRSExceptions with AuditService {
         cD.jurisdiction
       )
     }
-  }
 
-  def saveAddress(regId: String, addressType: String, address: Option[NewAddress] = None)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[CompanyDetails] = {
-    for {
-      details     <- retrieveCompanyDetails(regId)
-      newDetails  <- buildAddress(regId, details, addressType, address)
-      _           <- compRegConnector.updateCompanyDetails(regId, newDetails)
-    } yield {
-      newDetails
+  private def retrieveNewAddress(regId: String, cD: CompanyDetails, addressType: String, optAddress: Option[NewAddress])(implicit
+      hc: HeaderCarrier,
+      ec: ExecutionContext): Future[Option[NewAddress]] =
+    (addressType, optAddress) match {
+      case ("RO", _)   => compRegConnector.checkROValidPPOB(regId, cD.cHROAddress)
+      case ("PPOB", a) => Future.successful(a)
+      case _           => Future.successful(None)
     }
-  }
 }

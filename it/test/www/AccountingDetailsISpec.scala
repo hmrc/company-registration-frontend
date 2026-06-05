@@ -16,19 +16,21 @@
 
 package test.www
 
-import java.time.LocalDate
-import java.util.UUID
-
 import com.github.tomakehurst.wiremock.client.WireMock._
-import test.fixtures.Fixtures
-import test.itutil.{IntegrationSpecBase, LoginStub}
+import itutil.SessionStub
 import org.jsoup.Jsoup
 import play.api.http.HeaderNames
 import play.api.libs.crypto.DefaultCookieSigner
 import play.api.libs.json.Json
+import test.fixtures.Fixtures
+import test.itutil.IntegrationSpecBase
+import uk.gov.hmrc.mongo.cache.DataKey
+
+import java.time.LocalDate
+import java.util.UUID
 
 
-class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fixtures {
+class AccountingDetailsISpec extends IntegrationSpecBase with SessionStub with Fixtures {
   val userId = "/bar/foo"
   lazy val defaultCookieSigner: DefaultCookieSigner = app.injector.instanceOf[DefaultCookieSigner]
 
@@ -39,7 +41,7 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fix
       stubAuthorisation()
       stubSuccessfulLogin(userId = userId)
 
-      stubKeystore(SessionId, "5")
+      cacheSessionData[String](DataKey("registrationID"), "5")
 
       stubGet("/company-registration/corporation-tax-registration/5/accounting-details", 404, "")
       val fResponse = buildClient(controllers.reg.routes.AccountingDatesController.show.url).
@@ -68,7 +70,8 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fix
       stubAuthorisation()
       stubSuccessfulLogin(userId = userId)
 
-      stubKeystore(SessionId, "5")
+      cacheSessionData[String](DataKey("registrationID"), "5")
+
       stubGet("/company-registration/corporation-tax-registration/5/accounting-details", 404, "")
       stubGet("/company-registration/corporation-tax-registration/5/corporation-tax-registration", 200, statusResponseFromCR())
       val crResponse = """{"accountingDateStatus":"FUTURE_DATE", "startDateOfBusiness":"2018-01-02", "links": {}}"""
@@ -96,7 +99,7 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fix
       stubAuthorisation()
       stubSuccessfulLogin(userId = userId)
 
-      stubKeystore(SessionId, "5")
+      cacheSessionData[String](DataKey("registrationID"), "5")
       stubGet("/company-registration/corporation-tax-registration/5/accounting-details", 404, "")
       stubGet("/company-registration/corporation-tax-registration/5/corporation-tax-registration", 200, statusResponseFromCR(status = "NOTDRAFT"))
       val crResponse = """{"accountingDateStatus":"FUTURE_DATE", "startDateOfBusiness":"2019-01-02", "links": {}}"""
@@ -122,7 +125,7 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fix
       val csrfToken = UUID.randomUUID().toString
       val testYear = LocalDate.now.getYear + 1
 
-      stubKeystore(SessionId, "5")
+      cacheSessionData[String](DataKey("registrationID"), "5")
 
       val crResponse = """{"accountingDateStatus":"WHEN_REGISTERED", "links": {}}"""
       stubPut("/company-registration/corporation-tax-registration/5/accounting-details", 200, crResponse)
@@ -152,7 +155,7 @@ class AccountingDetailsISpec extends IntegrationSpecBase with LoginStub with Fix
     }
     "return a 400 showing error messages to the user" in {
       stubAuthorisation()
-      stubKeystore(SessionId, "5")
+      cacheSessionData[String](DataKey("registrationID"), "5")
       val csrfToken = UUID.randomUUID().toString
       val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
 

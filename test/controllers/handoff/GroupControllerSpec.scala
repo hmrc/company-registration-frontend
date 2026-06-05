@@ -51,7 +51,7 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
   class Setup {
     val testController = new GroupController(
       mockAuthConnector,
-      mockKeystoreConnector,
+      mockSessionCacheService,
       mockHandOffService,
       mockCompanyRegistrationConnector,
       mockHandBackService,
@@ -84,7 +84,7 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
       "shareholder list contains shareholder data" should {
         "redirect to the GroupRelief page" in new Setup {
           mockFetchTxID
-          mockKeystoreFetchAndGet("registrationID", Some("1"))
+          mockSessionCacheGet("registrationID", Some("1"))
           mockSuccessfullyUpdateLanguage
 
           private val shareholders = List(Shareholder("foo", None, None, None, CHROAddress("", "", None, "", "", None, None, None)))
@@ -103,7 +103,7 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
       "shareholder list is empty" should {
         "redirect to the PSCGroupHandOff page" in new Setup {
           mockFetchTxID
-          mockKeystoreFetchAndGet("registrationID", Some("1"))
+          mockSessionCacheGet("registrationID", Some("1"))
           mockSuccessfullyUpdateLanguage
 
           private val emptyShareholders = List.empty[Shareholder]
@@ -123,7 +123,7 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
     "processGroupsHandBack returns a successful response and 'has_corporate_shareholders' flag is 'false'" should {
       "redirect to the PSCGroupHandOff page" in new Setup {
         mockFetchTxID
-        mockKeystoreFetchAndGet("registrationID", Some("1"))
+        mockSessionCacheGet("registrationID", Some("1"))
         mockSuccessfullyUpdateLanguage
         mockDropGroups
 
@@ -142,7 +142,7 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
 
     "processGroupsHandBack returns a successful response but payload does not contain corporate shareholders data" should {
       "return a Bad Request" in new Setup {
-        mockKeystoreFetchAndGet("registrationID", Some("1"))
+        mockSessionCacheGet("registrationID", Some("1"))
         when(mockHandBackService.processGroupsHandBack(any[String]())(any(), any()))
           .thenReturn(Future.successful(Success(baseGroupHandbackModel)))
 
@@ -154,7 +154,7 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
 
     "processGroupsHandBack returns a failure" should {
       "return a Bad Request" in new Setup {
-        mockKeystoreFetchAndGet("registrationID", Some("1"))
+        mockSessionCacheGet("registrationID", Some("1"))
         when(mockHandBackService.processGroupsHandBack(any[String]())(any(), any()))
           .thenReturn(Future.successful(Failure(new Exception("foo"))))
 
@@ -166,7 +166,7 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
 
     "processGroupsHandBack throws a NavModelNotFoundException" should {
       "redirect to the post sign in page" in new Setup {
-        mockKeystoreFetchAndGet("registrationID", Some("1"))
+        mockSessionCacheGet("registrationID", Some("1"))
         when(mockHandBackService.processGroupsHandBack(any[String]())(any(), any()))
           .thenReturn(Future.failed(new NavModelNotFoundException(Some("1"))))
 
@@ -179,7 +179,7 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
 
     "processGroupsHandBack throws a non-NavModelNotFoundException exception" should {
       "throw the exception" in new Setup {
-        mockKeystoreFetchAndGet("registrationID", Some("1"))
+        mockSessionCacheGet("registrationID", Some("1"))
         when(mockHandBackService.processGroupsHandBack(any[String]())(any(), any()))
           .thenReturn(Future.failed(new Exception("foo")))
 
@@ -200,7 +200,7 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
 
     "keystore returns nothing" should {
       "redirect to the post sign in page" in new Setup {
-        mockKeystoreFetchAndGet("registrationID", None)
+        mockSessionCacheGet("registrationID", None)
 
         showWithAuthorisedUser(testController.groupHandBack("")) { result =>
           status(result) mustBe 303
@@ -219,7 +219,7 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
     }
 
     "return a 303 and redirect to post sign due to keystore returning nothing" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", None)
+      mockSessionCacheGet("registrationID", None)
       showWithAuthorisedUserRetrieval(testController.PSCGroupHandOff(), Some("extID")) { result =>
         status(result) mustBe 303
         redirectLocation(result).get mustBe controllers.reg.routes.SignInOutController.postSignIn(None, None, None).url
@@ -227,7 +227,7 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
     }
 
     "return a 400 when buildPSCPayload returns a None" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      mockSessionCacheGet("registrationID", Some("1"))
       when(mockGroupService.retrieveGroups(any())(any(), any()))
         .thenReturn(Future.successful(None))
       when(mockHandOffService.buildPSCPayload(any(), any(), any(), any())(any(), any()))
@@ -239,7 +239,7 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
     }
 
     "return a redirect to the 3.2 hand off if buildPSCPayload returns Some" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      mockSessionCacheGet("registrationID", Some("1"))
       when(mockGroupService.retrieveGroups(any())(any(), any()))
         .thenReturn(Future.successful(None))
       when(mockHandOffService.buildPSCPayload(any(), any(), any(), any())(any(), any()))
@@ -255,7 +255,7 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
 
     "return a redirect to the 3.2 hand off if buildPSCPayload returns Some and groups is Some and feature switch on" in new Setup {
       val groups: Groups = Groups(groupRelief = false, None, None, None)
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      mockSessionCacheGet("registrationID", Some("1"))
       when(mockGroupService.retrieveGroups(any())(any(), any()))
         .thenReturn(Future.successful(Some(groups)))
 
@@ -271,7 +271,7 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
     }
 
     "redirect to post sign in if nav model is not found NavModelNotFoundException" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      mockSessionCacheGet("registrationID", Some("1"))
       when(mockGroupService.retrieveGroups(any())(any(), any()))
         .thenReturn(Future.successful(None))
       when(mockHandOffService.buildPSCPayload(any(), any(), any(), any())(any(), any()))
@@ -285,7 +285,7 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
     }
 
     "throw an exception if buildPSCPayload returns an exception" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      mockSessionCacheGet("registrationID", Some("1"))
       when(mockHandOffService.buildPSCPayload(any(), any(), any(), any())(any(), any()))
         .thenReturn(Future.failed(new Exception()))
 
@@ -317,8 +317,8 @@ class GroupControllerSpec extends SCRSSpec with LoginFixture with GuiceOneAppPer
 
     "redirect to post sign in if no navModel exists" in new Setup {
       when(
-        mockKeystoreConnector
-          .fetchAndGet[String](ArgumentMatchers.eq("registrationID"))(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+        mockSessionCacheService
+          .get[String](ArgumentMatchers.eq("registrationID"))(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some("12354")))
       when(mockHandOffService.fetchNavModel(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.failed(new NavModelNotFoundException))

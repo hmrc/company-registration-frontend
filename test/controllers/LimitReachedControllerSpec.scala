@@ -37,7 +37,7 @@ class LimitReachedControllerSpec extends UnitSpec with SCRSSpec with AuthBuilder
   class Setup {
     val controller = new LimitReachedController(
       mockAuthConnector,
-      mockKeystoreConnector,
+      mockSessionCacheService,
       mockMcc,
       mockLimitReachedView
     )(

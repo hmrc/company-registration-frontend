@@ -42,7 +42,7 @@ class RegistrationUnsuccessfulControllerSpec extends SCRSSpec with GuiceOneAppPe
 
     val controller = new RegistrationUnsuccessfulController (
       mockAuthConnector,
-      mockKeystoreConnector,
+      mockSessionCacheService,
       mockCompanyRegistrationConnector,
       mockDeleteSubmissionService,
       mockMcc,
@@ -54,7 +54,7 @@ class RegistrationUnsuccessfulControllerSpec extends SCRSSpec with GuiceOneAppPe
   }
   "show" should {
     "return a 200 when the address type is RO" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("12345"))
+      mockSessionCacheGet("registrationID", Some("12345"))
       when(mockDeleteSubmissionService.deleteSubmission(ArgumentMatchers.eq("12345"))(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(true))
 
@@ -67,10 +67,10 @@ class RegistrationUnsuccessfulControllerSpec extends SCRSSpec with GuiceOneAppPe
 
   "submit" should {
     "return a 303" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("12345"))
+      mockSessionCacheGet("registrationID", Some("12345"))
       when(mockDeleteSubmissionService.deleteSubmission(ArgumentMatchers.eq("12345"))(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(true))
-      when(mockKeystoreConnector.remove()(ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockSessionCacheService.clear()(ArgumentMatchers.any()))
         .thenReturn(Future.successful(HttpResponse(200, "")))
 
       submitWithAuthorisedUser(controller.submit, FakeRequest().withFormUrlEncodedBody(Nil: _*)) {

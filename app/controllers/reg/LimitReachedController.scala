@@ -17,26 +17,28 @@
 package controllers.reg
 
 import config.AppConfig
-import connectors.KeystoreConnector
 import controllers.auth.AuthenticatedController
-import javax.inject.{Inject, Singleton}
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.CommonService
+import services.{CommonService, SessionCacheService}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import utils.SCRSExceptions
 import views.html.reg.{LimitReached => LimitReachedView}
 
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class LimitReachedController @Inject()(val authConnector: PlayAuthConnector,
-                                       val keystoreConnector: KeystoreConnector,
-                                       val controllerComponents: MessagesControllerComponents,
-                                       view: LimitReachedView)(implicit val appConfig: AppConfig, implicit val ec: ExecutionContext)
-  extends AuthenticatedController with CommonService with SCRSExceptions with I18nSupport {
+class LimitReachedController @Inject() (val authConnector: PlayAuthConnector,
+                                        val sessionCacheService: SessionCacheService,
+                                        val controllerComponents: MessagesControllerComponents,
+                                        view: LimitReachedView)(implicit val appConfig: AppConfig, implicit val ec: ExecutionContext)
+    extends AuthenticatedController
+    with CommonService
+    with SCRSExceptions
+    with I18nSupport {
 
-  val cohoUrl = appConfig.servicesConfig.getConfString("coho-service.web-incs", throw new Exception("Couldn't find Coho url"))
+  val cohoUrl: String = appConfig.servicesConfig.getConfString("coho-service.web-incs", throw new Exception("Couldn't find Coho url"))
 
   val show: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {

@@ -16,10 +16,11 @@
 
 package utils
 
-import connectors.{CompanyRegistrationConnector, KeystoreConnector}
+import connectors.CompanyRegistrationConnector
 import play.api.libs.json.JsValue
 import play.api.mvc.Result
 import play.api.mvc.Results.Redirect
+import services.SessionCacheService
 import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -28,11 +29,11 @@ trait SessionRegistration extends Logging {
 
   implicit val ec: ExecutionContext
 
-  val keystoreConnector: KeystoreConnector
+  val sessionCacheService: SessionCacheService
   val compRegConnector: CompanyRegistrationConnector
 
-  def withOptionalRegId(f: => Option[String] => Future[Result])(implicit hc: HeaderCarrier) =
-    keystoreConnector.fetchAndGet[String]("registrationID") flatMap f
+  def withOptionalRegId(f: => Option[String] => Future[Result])(implicit hc: HeaderCarrier): Future[Result] =
+    sessionCacheService.get[String]("registrationID") flatMap f
 
   def registered(f: => String => Future[Result])(implicit hc: HeaderCarrier): Future[Result] = registered()(f)
 
@@ -41,9 +42,9 @@ trait SessionRegistration extends Logging {
   }
 
   private def registered(handOff: Option[String] = None, payload: Option[String] = None)(f: => String => Future[Result])(implicit hc: HeaderCarrier): Future[Result] = {
-    keystoreConnector.fetchAndGet[String]("registrationID") flatMap {
+    sessionCacheService.get[String]("registrationID") flatMap {
       case Some(regId) => f(regId)
-      case None => logger.error("[registered] returned None from keystore when fetching a registrationID")
+      case None => logger.error("[registered] returned None from session cache mongo store when fetching a registrationID")
         Future.successful(Redirect(controllers.reg.routes.SignInOutController.postSignIn(None, handOff, payload)))
     }
   }
@@ -65,7 +66,7 @@ trait SessionRegistration extends Logging {
     }
   }
 
-    def checkSCRSVerified(fullCorpModel: JsValue): Boolean = {
+    private def checkSCRSVerified(fullCorpModel: JsValue): Boolean = {
       (fullCorpModel \ "verifiedEmail" \ "verified").asOpt[Boolean].fold {
         logger.info("[checkSCRSVerified] User does not have an Email Block redirecting to post sign in")
         false

@@ -53,7 +53,7 @@ class DashboardControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Aut
 
     val controller = new DashboardController(
       mockAuthConnector,
-      mockKeystoreConnector,
+      mockSessionCacheService,
       mockCompanyRegistrationConnector,
       mockDashboardService,
       mockMcc,
@@ -94,7 +94,7 @@ class DashboardControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Aut
 
     "return a 200 and render the dashboard view" when {
       "the dashboard has a held registration and the incorporation is not rejected" in new Setup {
-        mockKeystoreFetchAndGet("registrationID", Some(regId))
+        mockSessionCacheGet("registrationID", Some(regId))
         when(mockDashboardService.buildDashboard(eqTo(regId), any())(any(), any()))
           .thenReturn(Future.successful(DashboardBuilt(dashboard)))
         when(mockDashboardService.checkForEmailMismatch(any(), any())(any(), any(), any()))
@@ -115,7 +115,7 @@ class DashboardControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Aut
 
     "return a 200 and render the Registration unsuccessful view" when {
       "the users incorporation is rejected" in new Setup {
-        mockKeystoreFetchAndGet("registrationID", Some(regId))
+        mockSessionCacheGet("registrationID", Some(regId))
         when(mockDashboardService.buildDashboard(eqTo(regId), any())(any(), any()))
           .thenReturn(Future.successful(RejectedIncorp))
         when(mockDashboardService.checkForEmailMismatch(any(), any())(any(), any(), any()))
@@ -136,7 +136,7 @@ class DashboardControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Aut
 
     "return a 303 and redirect to HO1" when {
       "the dashboard case class could not be created, i.e. the ct document is in draft" in new Setup {
-        mockKeystoreFetchAndGet("registrationID", Some(regId))
+        mockSessionCacheGet("registrationID", Some(regId))
         when(mockDashboardService.buildDashboard(eqTo(regId), any())(any(), any()))
           .thenReturn(Future.successful(CouldNotBuild))
         when(mockDashboardService.checkForEmailMismatch(any(), any())(any(), any(), any()))
@@ -155,7 +155,7 @@ class DashboardControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Aut
 
     "return a 500" when {
       "building the dashboard returns something unexpected" in new Setup {
-        mockKeystoreFetchAndGet("registrationID", Some(regId))
+        mockSessionCacheGet("registrationID", Some(regId))
         when(mockDashboardService.buildDashboard(eqTo(regId), any())(any(), any()))
           .thenReturn(Future.failed(new Exception("")))
         when(mockDashboardService.checkForEmailMismatch(any(), any())(any(), any(), any()))

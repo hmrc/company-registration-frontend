@@ -58,7 +58,7 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
   trait Setup {
     val service = new DashboardService {
       override val companyRegistrationConnector = mockCompanyRegistrationConnector
-      override val keystoreConnector = mockKeystoreConnector
+      override val sessionCacheService = mockSessionCacheService
       override val incorpInfoConnector = mockIncorpInfoConnector
       override val payeConnector = mockServiceConnector
       override val vatConnector = mockServiceConnector
@@ -82,7 +82,7 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
   class SetupWithDash(dash: IncorpAndCTDashboard) {
     val service = new DashboardService {
       override val companyRegistrationConnector = mockCompanyRegistrationConnector
-      override val keystoreConnector = mockKeystoreConnector
+      override val sessionCacheService = mockSessionCacheService
       override val incorpInfoConnector = mockIncorpInfoConnector
       override val payeConnector = mockServiceConnector
       override val vatConnector = mockServiceConnector
@@ -437,7 +437,7 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
   "checkForEmailMismatch" should {
     "send an email mismatch audit event" when {
       "there has been no email mismatch audit event sent in the session, and the emails mismatch" in new Setup {
-        when(mockKeystoreConnector.fetchAndGet(eqTo("emailMismatchAudit"))(any(), any(), any()))
+        when(mockSessionCacheService.get(eqTo("emailMismatchAudit"))(any(), any()))
           .thenReturn(Future.successful(None))
 
 
@@ -448,8 +448,8 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
         when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any()))
           .thenReturn(Future.successful(Some(email)))
 
-        when(mockKeystoreConnector.cache(eqTo("emailMismatchAudit"), any())(any(), any(), any()))
-          .thenReturn(Future.successful(CacheMap("x", Map())))
+        when(mockSessionCacheService.save[Boolean](eqTo("emailMismatchAudit"), any())(any(), any()))
+          .thenReturn(Future.successful(true))
 
         await(service.checkForEmailMismatch(regId, authDetails)) mustBe true
       }
@@ -459,14 +459,14 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
       "there has been no email mismatch audit event sent in the session, and the emails do not mismatch" in new Setup {
         val matchingEmail = "matchingEmail"
 
-        when(mockKeystoreConnector.fetchAndGet(eqTo("emailMismatchAudit"))(any(), any(), any()))
+        when(mockSessionCacheService.get(eqTo("emailMismatchAudit"))(any(), any()))
           .thenReturn(Future.successful(None))
 
         when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any()))
           .thenReturn(Future.successful(Some(email.copy(address = matchingEmail))))
 
-        when(mockKeystoreConnector.cache(eqTo("emailMismatchAudit"), any())(any(), any(), any()))
-          .thenReturn(Future.successful(CacheMap("x", Map())))
+        when(mockSessionCacheService.save[String](eqTo("emailMismatchAudit"), any())(any(), any()))
+          .thenReturn(Future.successful("x"))
 
         await(service.checkForEmailMismatch(regId, authDetails.copy(email = matchingEmail))) mustBe false
 
@@ -474,7 +474,7 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
       }
 
       "there has been no email mismatch audit event sent in the session, and there is no verified email in CR" in new Setup {
-        when(mockKeystoreConnector.fetchAndGet(eqTo("emailMismatchAudit"))(any(), any(), any()))
+        when(mockSessionCacheService.get(eqTo("emailMismatchAudit"))(any(), any()))
           .thenReturn(Future.successful(None))
 
         when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any()))
@@ -486,14 +486,14 @@ class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthB
       }
 
       "there has been an email mismatch audit event sent in the session, and it mismatched" in new Setup {
-        when(mockKeystoreConnector.fetchAndGet[Boolean](eqTo("emailMismatchAudit"))(any(), any(), any()))
+        when(mockSessionCacheService.get[Boolean](eqTo("emailMismatchAudit"))(any(), any()))
           .thenReturn(Future.successful(Some(true)))
 
         await(service.checkForEmailMismatch(regId, authDetails)) mustBe true
       }
 
       "there has been an email mismatch audit event sent in the session, and it did not mismatch" in new Setup {
-        when(mockKeystoreConnector.fetchAndGet[Boolean](eqTo("emailMismatchAudit"))(any(), any(), any()))
+        when(mockSessionCacheService.get[Boolean](eqTo("emailMismatchAudit"))(any(), any()))
           .thenReturn(Future.successful(Some(false)))
 
         await(service.checkForEmailMismatch(regId, authDetails)) mustBe false

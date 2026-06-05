@@ -18,17 +18,19 @@ package test.www
 
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, stubFor, urlMatching}
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
+import itutil.SessionStub
 import test.itutil.{IntegrationSpecBase, LoginStub}
 import models.handoff._
 import play.api.http.HeaderNames
 import play.api.libs.crypto.DefaultCookieSigner
 import play.api.libs.json.{JsObject, Json}
 import repositories.NavModelRepoImpl
+import uk.gov.hmrc.mongo.cache.DataKey
 import utils.JweCommon
 
 import java.util.UUID
 
-class BasicCompanyDetailsControllerISpec extends IntegrationSpecBase with LoginStub {
+class BasicCompanyDetailsControllerISpec extends IntegrationSpecBase with SessionStub {
 
   lazy val defaultCookieSigner: DefaultCookieSigner = app.injector.instanceOf[DefaultCookieSigner]
 
@@ -172,7 +174,7 @@ class BasicCompanyDetailsControllerISpec extends IntegrationSpecBase with LoginS
       val csrfToken = UUID.randomUUID().toString
       val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
       stubGet(s"/company-registration/corporation-tax-registration/$regId/retrieve-email", 200, emailResponseFromCr)
-      stubKeystore(SessionId, regId)
+      cacheSessionData[String](DataKey("registrationID"), regId)
       await(repo.insertNavModel(regId, handOffNavModel))
 
       stubGetUserDetails(userId)
@@ -201,7 +203,7 @@ class BasicCompanyDetailsControllerISpec extends IntegrationSpecBase with LoginS
       val csrfToken = UUID.randomUUID().toString
       val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
 
-      stubKeystore(SessionId, regId)
+      cacheSessionData[String](DataKey("registrationID"), regId)
 
       val fResponse = buildClient(returnEncryptedRequest(app.injector.instanceOf[JweCommon].encrypt[JsObject](returnPayloadJson).get)).
         withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").
@@ -221,7 +223,7 @@ class BasicCompanyDetailsControllerISpec extends IntegrationSpecBase with LoginS
       val csrfToken = UUID.randomUUID().toString
       val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
 
-      stubKeystore(SessionId, regId)
+      cacheSessionData[String](DataKey("registrationID"), regId)
 
       val fResponse = buildClient(returnEncryptedRequest("malformed-encrypted-json")).
         withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck").

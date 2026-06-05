@@ -38,7 +38,7 @@ class GroupServiceSpec()(implicit messagesProvider: MessagesProvider) extends Un
   class Setup {
     val messagesApi: MessagesApi = app.injector.instanceOf[MessagesApi]
     val service: GroupService = new GroupService(
-      mockKeystoreConnector,
+      mockSessionCacheService,
       mockCompanyRegistrationConnector,
       mockIncorpInfoConnector,
       messagesApi

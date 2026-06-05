@@ -48,7 +48,7 @@ class CorporationTaxDetailsControllerSpec extends SCRSSpec with PayloadFixture w
 
     val testController = new CorporationTaxDetailsController (
       mockAuthConnector,
-      mockKeystoreConnector,
+      mockSessionCacheService,
       mockHandOffService,
       mockCompanyRegistrationConnector,
       mockHandBackService,
@@ -87,7 +87,7 @@ class CorporationTaxDetailsControllerSpec extends SCRSSpec with PayloadFixture w
     }
 
     "return a BAD_REQUEST if sending an empty request with authorisation" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      mockSessionCacheGet("registrationID", Some("1"))
       when(mockHandBackService.processCompanyDetailsHandBack(ArgumentMatchers.eq(""))(ArgumentMatchers.any[HeaderCarrier], ArgumentMatchers.any[ExecutionContext]))
         .thenReturn(Failure(DecryptionError))
 
@@ -99,7 +99,7 @@ class CorporationTaxDetailsControllerSpec extends SCRSSpec with PayloadFixture w
     }
 
     "return a BAD_REQUEST if a payload error is returned from hand back service" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      mockSessionCacheGet("registrationID", Some("1"))
       when(mockHandBackService.processCompanyDetailsHandBack(ArgumentMatchers.eq(payloadEncrypted.get))(ArgumentMatchers.any[HeaderCarrier], ArgumentMatchers.any[ExecutionContext]))
         .thenReturn(Failure(PayloadError))
 
@@ -111,7 +111,7 @@ class CorporationTaxDetailsControllerSpec extends SCRSSpec with PayloadFixture w
     }
 
     "return a SEE_OTHER if submitting with request data and with authorisation (updating the stored language in CompReg BE)" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      mockSessionCacheGet("registrationID", Some("1"))
       when(mockHandBackService.processCompanyDetailsHandBack(ArgumentMatchers.eq(payloadEncrypted.get))(ArgumentMatchers.any[HeaderCarrier], ArgumentMatchers.any[ExecutionContext]))
         .thenReturn(Future.successful(Success(handBackPayload)))
       when(mockLanguageService.updateLanguage(ArgumentMatchers.eq("1"), ArgumentMatchers.eq(Lang(LangConstants.english)))(ArgumentMatchers.any[HeaderCarrier], ArgumentMatchers.any[ExecutionContext]))
@@ -126,7 +126,7 @@ class CorporationTaxDetailsControllerSpec extends SCRSSpec with PayloadFixture w
     }
 
     "return a SEE_OTHER if submitting with request data and with authorisation but keystore has expired" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", None)
+      mockSessionCacheGet("registrationID", None)
       when(mockHandBackService.processCompanyDetailsHandBack(ArgumentMatchers.eq(payloadEncrypted.get))(ArgumentMatchers.any[HeaderCarrier], ArgumentMatchers.any[ExecutionContext]))
         .thenReturn(Future.successful(Success(handBackPayload)))
 

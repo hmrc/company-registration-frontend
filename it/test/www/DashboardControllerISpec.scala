@@ -17,15 +17,18 @@
 package test.www
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import test.itutil.{IntegrationSpecBase, LoginStub}
+import itutil.SessionStub
+import test.itutil.IntegrationSpecBase
 import org.jsoup.Jsoup
 import play.api.http.HeaderNames
 import play.api.libs.crypto.DefaultCookieSigner
+import play.api.libs.json.{JsValue, Json}
+import uk.gov.hmrc.mongo.cache.DataKey
 
 import java.time.LocalDate
 import java.util.UUID
 
-class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
+class DashboardControllerISpec extends IntegrationSpecBase with SessionStub {
 
   val regId = "5"
   val localDate = LocalDate.now()
@@ -174,8 +177,9 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
       stubSuccessfulLogin(userId = userId)
       setupSimpleAuthWithEnrolmentsMocks(enrolmentsURI)
 
-      stubKeystoreDashboard(SessionId, regId, "|||fake|||email")
-      stubKeystoreCache(SessionId, "emailMismatchAudit")
+      cacheSessionData[String](DataKey("registrationID"), regId)
+      cacheSessionData[String](DataKey("email"), "|||fake|||email")
+      cacheSessionData[Option[Boolean]](DataKey("emailMismatchAudit"), None)
 
       stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR("held", regId))
       stubGet(s"/incorporation-information/txid-1/company-profile", 200, companyProfileExpectedResponse)
@@ -213,7 +217,9 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
 
       stubSuccessfulLogin(userId = userId)
       setupSimpleAuthWithEnrolmentsMocks(enrolmentsURI)
-      stubKeystoreDashboardMismatchedResult(SessionId, regId, "|||fake|||email", true)
+      cacheSessionData[String](DataKey("registrationID"), regId)
+      cacheSessionData[String](DataKey("email"), "|||fake|||email")
+      cacheSessionData[Option[Boolean]](DataKey("emailMismatchAudit"), Some(true))
       stubGet(s"/incorporation-information/txid-1/company-profile", 200, companyProfileExpectedResponse)
 
       stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR("held", regId))
@@ -240,8 +246,9 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
     "not display the VAT block when the vat feature switch is OFF" in {
       stubSuccessfulLogin(userId = userId)
       setupSimpleAuthWithEnrolmentsMocks(enrolmentsURI)
-      stubKeystoreDashboard(SessionId, regId, "|||fake|||email")
-      stubKeystoreCache(SessionId, "emailMismatchAudit")
+      cacheSessionData[String](DataKey("registrationID"), regId)
+      cacheSessionData[String](DataKey("email"), "|||fake|||email")
+      cacheSessionData[Option[Boolean]](DataKey("emailMismatchAudit"), None)
 
       stubGet(s"/incorporation-information/txid-1/company-profile", 200, companyProfileExpectedResponse)
       stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR("submitted", regId))
@@ -267,8 +274,9 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
 
         stubSuccessfulLogin(userId = userId)
         setupSimpleAuthWithEnrolmentsMocks(enrolmentsURI)
-        stubKeystoreDashboard(SessionId, regId, "|||fake|||email")
-        stubKeystoreCache(SessionId, "emailMismatchAudit")
+        cacheSessionData[String](DataKey("registrationID"), regId)
+        cacheSessionData[String](DataKey("email"), "|||fake|||email")
+        cacheSessionData[Option[Boolean]](DataKey("emailMismatchAudit"), None)
 
         stubGet(s"/incorporation-information/txid-1/company-profile", 200, companyProfileExpectedResponse)
         stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR("submitted", regId))
@@ -291,8 +299,9 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
 
         stubSuccessfulLogin(userId = userId)
         setupSimpleAuthWithEnrolmentsMocks(enrolmentsURI)
-        stubKeystoreDashboard(SessionId, regId, "|||fake|||email")
-        stubKeystoreCache(SessionId, "emailMismatchAudit")
+        cacheSessionData[String](DataKey("registrationID"), regId)
+        cacheSessionData[String](DataKey("email"), "|||fake|||email")
+        cacheSessionData[Option[Boolean]](DataKey("emailMismatchAudit"), None)
 
         stubGet(s"/incorporation-information/txid-1/company-profile", 200, companyProfileExpectedResponse)
         stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR("held", regId))
@@ -315,8 +324,9 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
 
         stubSuccessfulLogin(userId = userId)
         setupSimpleAuthWithEnrolmentsMocks(enrolmentsURI)
-        stubKeystoreDashboard(SessionId, regId, "|||fake|||email")
-        stubKeystoreCache(SessionId, "emailMismatchAudit")
+        cacheSessionData[String](DataKey("registrationID"), regId)
+        cacheSessionData[String](DataKey("email"), "|||fake|||email")
+        cacheSessionData[Option[Boolean]](DataKey("emailMismatchAudit"), None)
 
         stubGet(s"/incorporation-information/txid-1/company-profile", 200, companyProfileExpectedResponse)
         stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR("held", regId))
@@ -342,8 +352,9 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
 
         stubSuccessfulLogin(userId = userId)
         setupSimpleAuthWithEnrolmentsMocks(enrolmentsURI)
-        stubKeystoreDashboard(SessionId, regId, "|||fake|||email")
-        stubKeystoreCache(SessionId, "emailMismatchAudit")
+        cacheSessionData[String](DataKey("registrationID"), regId)
+        cacheSessionData[String](DataKey("email"), "|||fake|||email")
+        cacheSessionData[Option[Boolean]](DataKey("emailMismatchAudit"), None)
 
         stubGet(s"/incorporation-information/txid-1/company-profile", 200, companyProfileExpectedResponse)
         stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR("submitted", regId))
@@ -366,8 +377,9 @@ class DashboardControllerISpec extends IntegrationSpecBase with LoginStub {
 
         stubSuccessfulLogin(userId = userId)
         setupSimpleAuthWithEnrolmentsMocks(enrolmentsURI)
-        stubKeystoreDashboard(SessionId, regId, "|||fake|||email")
-        stubKeystoreCache(SessionId, "emailMismatchAudit")
+        cacheSessionData[String](DataKey("registrationID"), regId)
+        cacheSessionData[String](DataKey("email"), "|||fake|||email")
+        cacheSessionData[Option[Boolean]](DataKey("emailMismatchAudit"), None)
 
         stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR("submitted", regId))
         stubGet(s"/incorporation-information/txid-1/company-profile", 200, companyProfileExpectedResponse)

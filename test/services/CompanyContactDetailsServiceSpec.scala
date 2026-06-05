@@ -34,7 +34,7 @@ class CompanyContactDetailsServiceSpec extends SCRSSpec with CompanyContactDetai
     val service = new CompanyContactDetailsService {
       val businessRegConnector = mockBusRegConnector
       override val companyRegistrationConnector = mockCompanyRegistrationConnector
-      override val keystoreConnector = mockKeystoreConnector
+      override val sessionCacheService = mockSessionCacheService
       val auditConnector = mockAuditConnector
     }
   }
@@ -43,7 +43,7 @@ class CompanyContactDetailsServiceSpec extends SCRSSpec with CompanyContactDetai
 
   "fetchContactDetails" should {
     "return a company contact model if a record exists" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("12345"))
+      mockSessionCacheGet("registrationID", Some("12345"))
       CTRegistrationConnectorMocks.retrieveContactDetails(CompanyContactDetailsSuccessResponse(validCompanyContactDetailsResponse))
       when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any())).thenReturn(Future.successful(Some(Email("verified@email", "GG", true, true, true))))
 
@@ -51,14 +51,14 @@ class CompanyContactDetailsServiceSpec extends SCRSSpec with CompanyContactDetai
     }
 
     "return a generated company contact model when no contact details record exists but user details retrieves a record" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("12345"))
+      mockSessionCacheGet("registrationID", Some("12345"))
       CTRegistrationConnectorMocks.retrieveContactDetails(CompanyContactDetailsNotFoundResponse)
       when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any())).thenReturn(Future.successful(Some(Email("verified@email", "GG", true, true, true))))
       await(service.fetchContactDetails) mustBe companyContactModelFromUserDetails
     }
 
     "return a company contact model with no email when a record is retrieved from user details with a DES invalid email" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("12345"))
+      mockSessionCacheGet("registrationID", Some("12345"))
       CTRegistrationConnectorMocks.retrieveContactDetails(CompanyContactDetailsNotFoundResponse)
       when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any())).thenReturn(Future.successful(Some(Email("invalid+des@email.com", "GG", true, true, true))))
 
@@ -69,7 +69,7 @@ class CompanyContactDetailsServiceSpec extends SCRSSpec with CompanyContactDetai
 
       val email71chars = randStr(60) + "@bar.wibble"
 
-      mockKeystoreFetchAndGet("registrationID", Some("12345"))
+      mockSessionCacheGet("registrationID", Some("12345"))
       CTRegistrationConnectorMocks.retrieveContactDetails(CompanyContactDetailsNotFoundResponse)
       when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any())).thenReturn(Future.successful(Some(Email(email71chars, "GG", true, true, true))))
 
@@ -82,7 +82,7 @@ class CompanyContactDetailsServiceSpec extends SCRSSpec with CompanyContactDetai
       CTRegistrationConnectorMocks.retrieveCTRegistration()
 
       when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any())).thenReturn(Future.successful(None))
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      mockSessionCacheGet("registrationID", Some("1"))
       CompanyContactDetailsServiceMocks.fetchContactDetails(validCompanyContactDetailsModel)
 
       intercept[NoSuchElementException](await(service.fetchContactDetails))
@@ -92,7 +92,7 @@ class CompanyContactDetailsServiceSpec extends SCRSSpec with CompanyContactDetai
 
   "updateContactDetails" should {
     "return a company contact details response" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("12345"))
+      mockSessionCacheGet("registrationID", Some("12345"))
       CTRegistrationConnectorMocks.updateContactDetails(CompanyContactDetailsSuccessResponse(validCompanyContactDetailsResponse))
 
       await(service.updateContactDetails(validCompanyContactDetailsModel)) mustBe CompanyContactDetailsSuccessResponse(validCompanyContactDetailsResponse)

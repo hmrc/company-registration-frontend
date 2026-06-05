@@ -48,7 +48,7 @@ class CorporationTaxSummaryControllerSpec extends SCRSSpec with LoginFixture wit
 
     val testController = new  CorporationTaxSummaryController (
       mockAuthConnector,
-      mockKeystoreConnector,
+      mockSessionCacheService,
       mockHandOffService,
       mockCompanyRegistrationConnector,
       mockHandBackService,
@@ -85,7 +85,7 @@ class CorporationTaxSummaryControllerSpec extends SCRSSpec with LoginFixture wit
     }
 
     "return a BAD_REQUEST if sending an empty request with authorisation" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      mockSessionCacheGet("registrationID", Some("1"))
       when(mockHandBackService.processSummaryPage1HandBack(ArgumentMatchers.eq(""))(ArgumentMatchers.any[HeaderCarrier], ArgumentMatchers.any[ExecutionContext]))
         .thenReturn(Future.successful(Failure(DecryptionError)))
 
@@ -97,7 +97,7 @@ class CorporationTaxSummaryControllerSpec extends SCRSSpec with LoginFixture wit
     }
 
     "return a BAD_REQUEST if a payload error is returned from hand back service during decryption" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      mockSessionCacheGet("registrationID", Some("1"))
       val encryptedPayload = jweInstance().encrypt[SummaryPage1HandOffIncoming](handBackPayload).get
 
       when(mockHandBackService.processSummaryPage1HandBack(ArgumentMatchers.eq(encryptedPayload))(ArgumentMatchers.any[HeaderCarrier], ArgumentMatchers.any[ExecutionContext]))
@@ -111,7 +111,7 @@ class CorporationTaxSummaryControllerSpec extends SCRSSpec with LoginFixture wit
     }
 
     "return a SEE_OTHER if submitting with request data and with authorisation" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      mockSessionCacheGet("registrationID", Some("1"))
       val encryptedPayload = jweInstance().encrypt[SummaryPage1HandOffIncoming](handBackPayload).get
 
       when(mockHandBackService.processSummaryPage1HandBack(ArgumentMatchers.eq(encryptedPayload))(ArgumentMatchers.any[HeaderCarrier], ArgumentMatchers.any[ExecutionContext]))
@@ -127,7 +127,7 @@ class CorporationTaxSummaryControllerSpec extends SCRSSpec with LoginFixture wit
       }
     }
     "return a 303 when the user is authorised and the query string contains requestData but keystore has expired" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", None)
+      mockSessionCacheGet("registrationID", None)
       val encryptedPayload = jweInstance().encrypt[SummaryPage1HandOffIncoming](handBackPayload).get
 
       when(mockHandBackService.processSummaryPage1HandBack(ArgumentMatchers.eq(encryptedPayload))(ArgumentMatchers.any[HeaderCarrier], ArgumentMatchers.any[ExecutionContext]))

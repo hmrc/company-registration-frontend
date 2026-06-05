@@ -38,7 +38,7 @@ class PPOBServiceSpec extends SCRSSpec with CompanyDetailsFixture with SCRSExcep
   trait Setup {
     val service = new PPOBService {
       override val compRegConnector = mockCompanyRegistrationConnector
-      override val keystoreConnector = mockKeystoreConnector
+      override val sessionCacheService = mockSessionCacheService
       val auditConnector = mockAuditConnector
     }
   }
@@ -76,14 +76,14 @@ class PPOBServiceSpec extends SCRSSpec with CompanyDetailsFixture with SCRSExcep
 
   "retrieveCompanyDetails" should {
     "return a CompanyDetailsResponse if there is data" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("12345"))
+      mockSessionCacheGet("registrationID", Some("12345"))
       CTRegistrationConnectorMocks.retrieveCompanyDetails(Some(validCompanyDetailsResponse))
 
       await(service.retrieveCompanyDetails("12345")) mustBe validCompanyDetailsResponse
     }
 
     "throw a NotFound exception if there is no data" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("12345"))
+      mockSessionCacheGet("registrationID", Some("12345"))
       CTRegistrationConnectorMocks.retrieveCompanyDetails(None)
 
       intercept[SCRSException](await(service.retrieveCompanyDetails("12345")))

@@ -46,7 +46,7 @@ class GroupUtrSpec extends SCRSSpec with UserDetailsFixture
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
     val controller = new GroupUtrController(
       mockAuthConnector,
-      mockKeystoreConnector,
+      mockSessionCacheService,
       mockGroupService,
       mockCompanyRegistrationConnector,
       app.injector.instanceOf[MessagesControllerComponents],
@@ -82,7 +82,7 @@ class GroupUtrSpec extends SCRSSpec with UserDetailsFixture
       val testGroups = Groups(groupRelief = true, Some(GroupCompanyName("testGroupCompanyname1", "type")),
         Some(GroupsAddressAndType("type", NewAddress("l1", "l2", None, None, None, None, None))),
         None)
-      mockKeystoreFetchAndGet("registrationID", Some(testRegId))
+      mockSessionCacheGet("registrationID", Some(testRegId))
       CTRegistrationConnectorMocks.retrieveCTRegistration(ctDocFirstTimeThrough)
       when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any()))
         .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
@@ -104,7 +104,7 @@ class GroupUtrSpec extends SCRSSpec with UserDetailsFixture
       val testGroups = Groups(groupRelief = true, Some(GroupCompanyName("testGroupCompanyname1", "type")),
         Some(GroupsAddressAndType("type", NewAddress("l1", "l2", None, None, None, None, None))),
         Some(GroupUTR(Some("1234567890"))))
-      mockKeystoreFetchAndGet("registrationID", Some(testRegId))
+      mockSessionCacheGet("registrationID", Some(testRegId))
       CTRegistrationConnectorMocks.retrieveCTRegistration(ctDocFirstTimeThrough)
       when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any()))
         .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))

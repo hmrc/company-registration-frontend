@@ -17,11 +17,11 @@
 package test.www.takeovers
 
 import java.util.UUID
-
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, stubFor, urlEqualTo}
 import controllers.takeovers.PreviousOwnersAddressController._
 import test.fixtures.Fixtures
 import forms.takeovers.HomeAddressForm.homeAddressKey
+import itutil.SessionStub
 import test.itutil.servicestubs.{ALFStub, BusinessRegistrationStub, TakeoverStub}
 import test.itutil.{IntegrationSpecBase, LoginStub, RequestsFinder}
 import models._
@@ -31,9 +31,10 @@ import play.api.libs.crypto.DefaultCookieSigner
 import play.api.libs.json.Json
 import play.api.libs.ws.WSResponse
 import play.api.test.Helpers._
+import uk.gov.hmrc.mongo.cache.DataKey
 
 class PreviousOwnersAddressControllerISpec extends IntegrationSpecBase
-  with LoginStub
+  with SessionStub
   with MockitoSugar
   with RequestsFinder
   with TakeoverStub
@@ -62,7 +63,7 @@ class PreviousOwnersAddressControllerISpec extends IntegrationSpecBase
   "show" should {
     "display the page" in {
       stubAuthorisation()
-      stubKeystore(SessionId, testRegId)
+      cacheSessionData[String](DataKey("registrationID"), testRegId)
       stubGet(s"/company-registration/corporation-tax-registration/$testRegId/corporation-tax-registration", 200, statusResponseFromCR())
       stubGetTakeoverDetails(testRegId, OK, Some(testTakeoverDetails))
       stubRetrieveCRCompanyDetails(testRegId, OK, Json.toJson(testCompanyDetails).toString())
@@ -79,7 +80,7 @@ class PreviousOwnersAddressControllerISpec extends IntegrationSpecBase
 
     "display and prepop the page" in {
       stubAuthorisation()
-      stubKeystore(SessionId, testRegId)
+      cacheSessionData[String](DataKey("registrationID"), testRegId)
       stubGet(s"/company-registration/corporation-tax-registration/$testRegId/corporation-tax-registration", 200, statusResponseFromCR())
       stubGetTakeoverDetails(testRegId, OK, Some(testTakeoverDetails.copy(previousOwnersAddress = Some(testPreviousOwnersAddress))))
       stubRetrieveCRCompanyDetails(testRegId, OK, Json.toJson(testCompanyDetails).toString())
@@ -98,7 +99,7 @@ class PreviousOwnersAddressControllerISpec extends IntegrationSpecBase
   "submit" should {
     "redirect to who agreed takeover page" in {
       stubAuthorisation()
-      stubKeystore(SessionId, testRegId)
+      cacheSessionData[String](DataKey("registrationID"), testRegId)
       stubGet(s"/company-registration/corporation-tax-registration/$testRegId/corporation-tax-registration", 200, statusResponseFromCR())
       stubGetTakeoverDetails(testRegId, OK, Some(testTakeoverDetails))
       stubPutTakeoverDetails(testRegId, OK, testTakeoverDetails.copy(previousOwnersAddress = Some(testPreviousOwnersAddress)))
@@ -121,7 +122,7 @@ class PreviousOwnersAddressControllerISpec extends IntegrationSpecBase
 
     "redirect to ALF" in {
       stubAuthorisation()
-      stubKeystore(SessionId, testRegId)
+      cacheSessionData[String](DataKey("registrationID"), testRegId)
       stubGet(s"/company-registration/corporation-tax-registration/$testRegId/corporation-tax-registration", 200, statusResponseFromCR())
       stubGetTakeoverDetails(testRegId, OK, Some(testTakeoverDetails))
       stubInitAlfJourney(redirectLocation = "/test")
@@ -264,7 +265,7 @@ class PreviousOwnersAddressControllerISpec extends IntegrationSpecBase
       val testAlfId = "testAlfId"
 
       stubAuthorisation()
-      stubKeystore(SessionId, testRegId)
+      cacheSessionData[String](DataKey("registrationID"), testRegId)
       stubGet(s"/company-registration/corporation-tax-registration/$testRegId/corporation-tax-registration", 200, statusResponseFromCR())
       stubGetTakeoverDetails(testRegId, OK, Some(testTakeoverDetails))
       stubPutTakeoverDetails(testRegId, OK, testTakeoverDetails.copy(previousOwnersAddress = Some(testPreviousOwnersAddress.copy(postcode = None))))

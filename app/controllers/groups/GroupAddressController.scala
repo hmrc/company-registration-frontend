@@ -17,47 +17,46 @@
 package controllers.groups
 
 import config.AppConfig
-import connectors.{CompanyRegistrationConnector, KeystoreConnector}
+import connectors.CompanyRegistrationConnector
 import controllers.auth.AuthenticatedController
 import controllers.groups.GroupAddressController._
-import controllers.reg.ControllerErrorHandler
 import forms.GroupAddressForm
-
-import javax.inject.{Inject, Singleton}
 import models._
 import play.api.i18n.{Messages, MessagesProvider}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import services.{AddressLookupFrontendService, GroupService}
+import services.{AddressLookupFrontendService, GroupService, SessionCacheService}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.http.{HeaderCarrier, InternalServerException}
 import utils.SessionRegistration
-import views.html.groups.{GroupAddressView}
+import views.html.groups.GroupAddressView
 
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class GroupAddressController @Inject()(val authConnector: PlayAuthConnector,
-                                       val groupService: GroupService,
-                                       val compRegConnector: CompanyRegistrationConnector,
-                                       val keystoreConnector: KeystoreConnector,
-                                       val addressLookupFrontendService: AddressLookupFrontendService,
-                                       val controllerComponents: MessagesControllerComponents,
-                                       view: GroupAddressView
-                                      )(implicit val appConfig: AppConfig, implicit val ec: ExecutionContext)
-  extends SessionRegistration with AuthenticatedController {
+class GroupAddressController @Inject() (val authConnector: PlayAuthConnector,
+                                        val groupService: GroupService,
+                                        val compRegConnector: CompanyRegistrationConnector,
+                                        val sessionCacheService: SessionCacheService,
+                                        val addressLookupFrontendService: AddressLookupFrontendService,
+                                        val controllerComponents: MessagesControllerComponents,
+                                        view: GroupAddressView)(implicit val appConfig: AppConfig, implicit val ec: ExecutionContext)
+    extends SessionRegistration
+    with AuthenticatedController {
 
   val show: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
       checkStatus { regID =>
         groupService.retrieveGroups(regID).flatMap {
-          case Some(groups@Groups(true, Some(companyName), optAddressAndType, _)) =>
+          case Some(groups @ Groups(true, Some(companyName), optAddressAndType, _)) =>
             (companyName.nameType, optAddressAndType) match {
               case ("Other", Some(addressAndType)) =>
-                Future.successful(Ok(view(
-                  GroupAddressForm.form.fill(GroupAddressChoice(addressAndType.addressType)),
-                  Map("ALF" -> addressAndType.address.toString),
-                  companyName.name))
-                )
+                Future.successful(
+                  Ok(
+                    view(
+                      GroupAddressForm.form.fill(GroupAddressChoice(addressAndType.addressType)),
+                      Map("ALF" -> addressAndType.address.toString),
+                      companyName.name)))
               case ("Other", None) => alfRedirect(regID, groups)
               case _ =>
                 groupService.retreiveValidatedTxApiAddress(groups, regID).flatMap {
@@ -65,10 +64,11 @@ class GroupAddressController @Inject()(val authConnector: PlayAuthConnector,
                   case Some(address) =>
                     groupService.dropOldFields(groups, address, regID).flatMap { updatedGroups =>
                       Future.successful(Ok(view(
-                        updatedGroups.addressAndType.fold(GroupAddressForm.form)(address => GroupAddressForm.form.fill(GroupAddressChoice(address.addressType))),
+                        updatedGroups.addressAndType.fold(GroupAddressForm.form)(address =>
+                          GroupAddressForm.form.fill(GroupAddressChoice(address.addressType))),
                         groupService.createAddressMap(updatedGroups.addressAndType, address),
-                        companyName.name))
-                      )
+                        companyName.name
+                      )))
                     }
                 }
             }
@@ -81,34 +81,30 @@ class GroupAddressController @Inject()(val authConnector: PlayAuthConnector,
     }
   }
 
-
   val submit: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
       checkStatus { regID =>
         groupService.retrieveGroups(regID).flatMap {
-          case Some(groups@Groups(true, Some(companyName), optAddressAndType, _)) =>
-            GroupAddressForm.form.bindFromRequest().fold(
-              errors => {
-                groupService.retreiveValidatedTxApiAddress(groups, regID).flatMap {
-                  case Some(address) => Future.successful(BadRequest(view(
-                    errors,
-                    groupService.createAddressMap(optAddressAndType, address),
-                    companyName.name)))
-                  case None => alfRedirect(regID, groups)
-                }
-              },
-              success => {
-                success.choice match {
-                  case "TxAPI" => groupService.saveTxShareHolderAddress(groups, regID).flatMap {
-                    _.fold(
-                      _ => alfRedirect(regID, groups),
-                      _ => Future.successful(Redirect(controllers.groups.routes.GroupUtrController.show)))
+          case Some(groups @ Groups(true, Some(companyName), optAddressAndType, _)) =>
+            GroupAddressForm.form
+              .bindFromRequest()
+              .fold(
+                errors =>
+                  groupService.retreiveValidatedTxApiAddress(groups, regID).flatMap {
+                    case Some(address) =>
+                      Future.successful(BadRequest(view(errors, groupService.createAddressMap(optAddressAndType, address), companyName.name)))
+                    case None => alfRedirect(regID, groups)
+                  },
+                success =>
+                  success.choice match {
+                    case "TxAPI" =>
+                      groupService.saveTxShareHolderAddress(groups, regID).flatMap {
+                        _.fold(_ => alfRedirect(regID, groups), _ => Future.successful(Redirect(controllers.groups.routes.GroupUtrController.show)))
+                      }
+                    case "Other" => alfRedirect(regID, groups)
+                    case _       => Future.successful(Redirect(controllers.groups.routes.GroupUtrController.show))
                   }
-                  case "Other" => alfRedirect(regID, groups)
-                  case _ => Future.successful(Redirect(controllers.groups.routes.GroupUtrController.show))
-                }
-              }
-            )
+              )
           case _ =>
             Future.failed(new InternalServerException("[GroupAddressController] [submit] Missing prerequisite group data"))
         }
@@ -116,36 +112,36 @@ class GroupAddressController @Inject()(val authConnector: PlayAuthConnector,
     }
   }
 
-  def handbackFromALF(alfId: Option[String]): Action[AnyContent] = Action.async {
-    implicit request =>
-      ctAuthorised {
-        checkStatus { regID =>
-          alfId match {
-            case Some(id) =>
-              for {
-                address <- addressLookupFrontendService.getAddress(id)
-                _ <- groupService.updateGroupAddress(GroupsAddressAndType("ALF", address), regID)
-              } yield Redirect(controllers.groups.routes.GroupUtrController.show)
-            case None =>
-              throw new InternalServerException("[GroupsAddressController] [handbackFromALF] 'id' query string missing from ALF handback")
-          }
+  def handbackFromALF(alfId: Option[String]): Action[AnyContent] = Action.async { implicit request =>
+    ctAuthorised {
+      checkStatus { regID =>
+        alfId match {
+          case Some(id) =>
+            for {
+              address <- addressLookupFrontendService.getAddress(id)
+              _       <- groupService.updateGroupAddress(GroupsAddressAndType("ALF", address), regID)
+            } yield Redirect(controllers.groups.routes.GroupUtrController.show)
+          case None =>
+            throw new InternalServerException("[GroupsAddressController] [handbackFromALF] 'id' query string missing from ALF handback")
         }
       }
+    }
   }
 
-  private def alfRedirect(regID: String, groups: Groups)(implicit hc: HeaderCarrier, messagesProvider: MessagesProvider): Future[Result] = {
+  private def alfRedirect(regID: String, groups: Groups)(implicit hc: HeaderCarrier, messagesProvider: MessagesProvider): Future[Result] =
     groups.nameOfCompany match {
       case Some(groupCompanyName) =>
-        addressLookupFrontendService.initialiseAlfJourney(
-          handbackLocation = controllers.groups.routes.GroupAddressController.handbackFromALF(None),
-          specificJourneyKey = groupsKey,
-          lookupPageHeading = Messages("page.addressLookup.Groups.lookup.heading", groupCompanyName.name),
-          confirmPageHeading = Messages("page.addressLookup.Groups.confirm.description", groupCompanyName.name)
-        ).map(Redirect(_))
+        addressLookupFrontendService
+          .initialiseAlfJourney(
+            handbackLocation = controllers.groups.routes.GroupAddressController.handbackFromALF(None),
+            specificJourneyKey = groupsKey,
+            lookupPageHeading = Messages("page.addressLookup.Groups.lookup.heading", groupCompanyName.name),
+            confirmPageHeading = Messages("page.addressLookup.Groups.confirm.description", groupCompanyName.name)
+          )
+          .map(Redirect(_))
       case None =>
         throw new Exception("[GroupsAddressController] [alfRedirect] user attempted to skip to ALF without saving a group name")
     }
-  }
 }
 
 object GroupAddressController {

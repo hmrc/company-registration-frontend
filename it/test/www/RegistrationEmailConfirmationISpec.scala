@@ -17,16 +17,17 @@
 package test.www
 
 import java.util.UUID
-
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
+import itutil.SessionStub
 import test.itutil.{IntegrationSpecBase, LoginStub, RequestsFinder}
 import play.api.http.HeaderNames
 import play.api.libs.crypto.DefaultCookieSigner
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.{JsObject, JsValue, Json}
+import uk.gov.hmrc.mongo.cache.DataKey
 
 
-class RegistrationEmailConfirmationISpec extends IntegrationSpecBase with LoginStub with RequestsFinder {
+class RegistrationEmailConfirmationISpec extends IntegrationSpecBase with SessionStub with RequestsFinder {
 
   val userId = "/bar/foo"
   val csrfToken = () => UUID.randomUUID().toString
@@ -60,18 +61,16 @@ class RegistrationEmailConfirmationISpec extends IntegrationSpecBase with LoginS
           |
           | }
         """.stripMargin
-      val data: String =
+      val data: JsValue = Json.parse(
         """
           |{
-          | "RegEmail" : {
           |   "currentEmail" : "foo",
           |   "differentEmail" : "foo"
-          | },
-          | "registrationID" : "test"
-          |}
-        """.stripMargin
+          | }
+        """.stripMargin)
       stubGet("/company-registration/corporation-tax-registration/test/retrieve-email", 200, emailResponseFromCr)
-      stubKeystoreGetWithJson(SessionId, "5", 200, data)
+      cacheSessionData[String](DataKey("registrationID"), "test")
+      cacheSessionData[JsValue](DataKey("RegEmail"), data)
       val fResponse = buildClient("/companies-house-email-confirm").
         withHttpHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck").
         get()
@@ -108,17 +107,15 @@ class RegistrationEmailConfirmationISpec extends IntegrationSpecBase with LoginS
           |  "verified": true
           | }
         """.stripMargin)
-      val data: String =
+      val data: JsValue = Json.parse(
         """
           |{
-          | "RegEmail" : {
           |   "currentEmail" : "foo",
           |   "differentEmail" : "foo"
-          | },
-          | "registrationID" : "test"
-          |}
-        """.stripMargin
-      stubKeystoreGetWithJson(SessionId, "5", 200, data)
+          | }
+        """.stripMargin)
+      cacheSessionData[String](DataKey("registrationID"), "test")
+      cacheSessionData[JsValue](DataKey("RegEmail"), data)
       val fResponse = buildClient("/companies-house-email-confirm").
         withHttpHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck").
         post(Map(
@@ -159,17 +156,15 @@ class RegistrationEmailConfirmationISpec extends IntegrationSpecBase with LoginS
           |  "verified": false
           | }
         """.stripMargin)
-      val data: String =
+      val data: JsValue = Json.parse(
         """
           |{
-          | "RegEmail" : {
           |   "currentEmail" : "foo",
           |   "differentEmail" : "foo"
-          | },
-          | "registrationID" : "test"
-          |}
-        """.stripMargin
-      stubKeystoreGetWithJson(SessionId, "5", 200, data)
+          | }
+        """.stripMargin)
+      cacheSessionData[String](DataKey("registrationID"), "test")
+      cacheSessionData[JsValue](DataKey("RegEmail"), data)
       val fResponse = buildClient("/companies-house-email-confirm").
         withHttpHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck").
         post(Map(
@@ -204,17 +199,15 @@ class RegistrationEmailConfirmationISpec extends IntegrationSpecBase with LoginS
           |  "verified": false
           | }
         """.stripMargin)
-      val data: String =
+      val data: JsValue = Json.parse(
         """
           |{
-          | "RegEmail" : {
           |   "currentEmail" : "foo",
           |   "differentEmail" : "foo"
-          | },
-          | "registrationID" : "test"
-          |}
-        """.stripMargin
-      stubKeystoreGetWithJson(SessionId, "5", 200, data)
+          | }
+        """.stripMargin)
+      cacheSessionData[String](DataKey("registrationID"), "test")
+      cacheSessionData[JsValue](DataKey("RegEmail"), data)
       val fResponse = buildClient("/companies-house-email-confirm").
         withHttpHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck").
         post(Map(
@@ -248,17 +241,15 @@ class RegistrationEmailConfirmationISpec extends IntegrationSpecBase with LoginS
           |  "verified": false
           | }
         """.stripMargin)
-      val data: String =
+      val data: JsValue = Json.parse(
         """
           |{
-          | "RegEmail" : {
           |   "currentEmail" : "foo",
           |   "differentEmail" : "foo"
-          | },
-          | "registrationID" : "test"
-          |}
-        """.stripMargin
-      stubKeystoreGetWithJson(SessionId, "5", 200, data)
+          | }
+        """.stripMargin)
+      cacheSessionData[String](DataKey("registrationID"), "test")
+      cacheSessionData[JsValue](DataKey("RegEmail"), data)
       val fResponse = buildClient("/companies-house-email-confirm").
         withHttpHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck").
         post(Map(
@@ -284,10 +275,8 @@ class RegistrationEmailConfirmationISpec extends IntegrationSpecBase with LoginS
           | }
         """.stripMargin
       stubGet("/company-registration/corporation-tax-registration/test/retrieve-email", 200, emailResponseFromCr)
-      val data: String =
-        """{
-          | "registrationID" : "test"}""".stripMargin
-      stubKeystoreGetWithJson(SessionId, "5", 200, data)
+
+      cacheSessionData[String](DataKey("registrationID"), "test")
       val fResponse = buildClient("/companies-house-email-confirm").
         withHttpHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck").
         post(Map(
@@ -313,17 +302,15 @@ class RegistrationEmailConfirmationISpec extends IntegrationSpecBase with LoginS
           | }
         """.stripMargin
       stubGet("/company-registration/corporation-tax-registration/test/retrieve-email", 200, emailResponseFromCr)
-      val data: String =
+      val data: JsValue = Json.parse(
         """
           |{
-          | "RegEmail" : {
           |   "currentEmail" : "foo",
           |   "differentEmail" : "foo"
-          | },
-          | "registrationID" : "test"
-          |}
-        """.stripMargin
-      stubKeystoreGetWithJson(SessionId, "5", 200, data)
+          | }
+        """.stripMargin)
+      cacheSessionData[String](DataKey("registrationID"), "test")
+      cacheSessionData[JsValue](DataKey("RegEmail"), data)
       stubKeystoreSave(SessionId, "5", 200)
       val fResponse = buildClient("/companies-house-email-confirm").
         withHttpHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck").

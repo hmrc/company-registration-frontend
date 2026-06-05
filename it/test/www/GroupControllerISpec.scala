@@ -18,6 +18,7 @@ package test.www
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import config.LangConstants
+import itutil.SessionStub
 import test.fixtures.{Fixtures, HandOffFixtures}
 import test.itutil._
 import models.handoff.{NavLinks, PSCHandOff}
@@ -27,11 +28,12 @@ import play.api.http.HeaderNames
 import play.api.libs.crypto.DefaultCookieSigner
 import play.api.libs.json.{JsObject, Json}
 import repositories.NavModelRepoImpl
+import uk.gov.hmrc.mongo.cache.DataKey
 import utils.{BooleanFeatureSwitch, JweCommon, SCRSFeatureSwitches}
 
 import java.util.UUID
 
-class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandOffFixtures with Fixtures with RequestsFinder with MongoHelper {
+class GroupControllerISpec extends IntegrationSpecBase with SessionStub with HandOffFixtures with Fixtures with RequestsFinder with MongoHelper {
 
   val userId = "test-user-id"
   val regId = "12345"
@@ -102,7 +104,7 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
     "return 303 when a valid payload is passed in with the shareholders flag and updates NavModel successfully" in new Setup {
       stubSuccessfulLogin(userId = userId)
       stubFootprint(200, footprintResponse(regId))
-      stubKeystore(SessionId, regId)
+      cacheSessionData[String](DataKey("registrationID"), regId)
       stubGet(s"/company-registration/corporation-tax-registration/$regId/confirmation-references", 200,
         s"""{
            |        "acknowledgement-reference" : "ABCD00000000001",
@@ -126,7 +128,7 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
     "return 400 when a valid payload is passed in without flag (this does not happen any more)" in new Setup {
       stubSuccessfulLogin(userId = userId)
       stubFootprint(200, footprintResponse(regId))
-      stubKeystore(SessionId, regId)
+      cacheSessionData[String](DataKey("registrationID"), regId)
       await(repo.insertNavModel(regId, handOffNavModelDataUpTo3))
       await(repo.count) mustBe 1
 
@@ -141,7 +143,7 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
     "return 400 when payload contains invalid data" in new Setup {
       stubSuccessfulLogin(userId = userId)
       stubFootprint(200, footprintResponse(regId))
-      stubKeystore(SessionId, regId)
+      cacheSessionData[String](DataKey("registrationID"), regId)
       await(repo.insertNavModel(regId, handOffNavModelDataUpTo3))
       await(repo.count) mustBe 1
 
@@ -158,7 +160,7 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
     "redirect to group utr with full group block" in new Setup {
       stubSuccessfulLogin(userId = userId)
       stubFootprint(200, footprintResponse(regId))
-      stubKeystore(SessionId, regId)
+      cacheSessionData[String](DataKey("registrationID"), regId)
       stubGet(s"/company-registration/corporation-tax-registration/$regId/confirmation-references", 200,
         s"""  {
            |        "acknowledgement-reference" : "ABCD00000000001",
@@ -203,7 +205,7 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
     "redirect to group relief with relief == false" in new Setup {
       stubSuccessfulLogin(userId = userId)
       stubFootprint(200, footprintResponse(regId))
-      stubKeystore(SessionId, regId)
+      cacheSessionData[String](DataKey("registrationID"), regId)
       stubGet(s"/company-registration/corporation-tax-registration/$regId/confirmation-references", 200,
         s"""  {
            |        "acknowledgement-reference" : "ABCD00000000001",
@@ -236,7 +238,7 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
       stubGet(s"/company-registration/corporation-tax-registration/$regId/groups", 204, "")
       stubSuccessfulLogin(userId = userId, otherParamsForAuth = Some(Json.obj("externalId" -> "foo")))
       stubFootprint(200, footprintResponse(regId))
-      stubKeystore(SessionId, regId)
+      cacheSessionData[String](DataKey("registrationID"), regId)
       await(repo.insertNavModel(regId, handOffNavModelDataWithJust3_2Requirements))
       await(repo.count) mustBe 1
 
@@ -287,7 +289,7 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
       stubGet(s"/company-registration/corporation-tax-registration/$regId/groups", 200, groups)
       stubSuccessfulLogin(userId = userId, otherParamsForAuth = Some(Json.obj("externalId" -> "foo")))
       stubFootprint(200, footprintResponse(regId))
-      stubKeystore(SessionId, regId)
+      cacheSessionData[String](DataKey("registrationID"), regId)
       await(repo.insertNavModel(regId, handOffNavModelDataWithJust3_2Requirements))
       await(repo.count) mustBe 1
 
@@ -313,7 +315,7 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
       stubGet(s"/company-registration/corporation-tax-registration/$regId/groups", 200, groups)
       stubSuccessfulLogin(userId = userId, otherParamsForAuth = Some(Json.obj("externalId" -> "foo")))
       stubFootprint(200, footprintResponse(regId))
-      stubKeystore(SessionId, regId)
+      cacheSessionData[String](DataKey("registrationID"), regId)
       await(repo.insertNavModel(regId, handOffNavModelDataWithJust3_2Requirements))
       await(repo.count) mustBe 1
       val fResponse = buildClient(controllers.handoff.routes.GroupController.PSCGroupHandOff.url).
@@ -333,7 +335,7 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
       stubGet(s"/company-registration/corporation-tax-registration/$regId/groups", 204, "")
       stubSuccessfulLogin(userId = userId, otherParamsForAuth = Some(Json.obj("externalId" -> "foo")))
       stubFootprint(200, footprintResponse(regId))
-      stubKeystore(SessionId, regId)
+      cacheSessionData[String](DataKey("registrationID"), regId)
       await(repo.count) mustBe 0
 
       val fResponse = buildClient(controllers.handoff.routes.GroupController.PSCGroupHandOff.url).
@@ -350,7 +352,7 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
     "return 200 and pre populate page" in new Setup {
       stubSuccessfulLogin(userId = userId, otherParamsForAuth = Some(Json.obj("externalId" -> "foo")))
       stubFootprint(200, footprintResponse(regId))
-      stubKeystore(SessionId, regId)
+      cacheSessionData[String](DataKey("registrationID"), regId)
       val expected = Json.parse(
         """{
           |   "groupRelief": true,
@@ -409,7 +411,7 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
           |}""".stripMargin).toString
       stubSuccessfulLogin(userId = userId, otherParamsForAuth = Some(Json.obj("externalId" -> "foo")))
       stubFootprint(200, footprintResponse(regId))
-      stubKeystore(SessionId, regId)
+      cacheSessionData[String](DataKey("registrationID"), regId)
       stubGet(s"/incorporation-information/shareholders/$txid", 200, listOfShareHoldersFromII)
       stubGet(s"/company-registration/corporation-tax-registration/$regId/groups", 200, expected)
       stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR)
@@ -440,7 +442,7 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
           |}""".stripMargin).toString
       stubSuccessfulLogin(userId = userId, otherParamsForAuth = Some(Json.obj("externalId" -> "foo")))
       stubFootprint(200, footprintResponse(regId))
-      stubKeystore(SessionId, regId)
+      cacheSessionData[String](DataKey("registrationID"), regId)
       stubGet(s"/incorporation-information/shareholders/$txid", 200, listOfShareHoldersFromII)
       stubGet(s"/company-registration/corporation-tax-registration/$regId/groups", 200, expected)
       stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR)
@@ -470,7 +472,7 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
           |}""".stripMargin).toString
       stubSuccessfulLogin(userId = userId, otherParamsForAuth = Some(Json.obj("externalId" -> "foo")))
       stubFootprint(200, footprintResponse(regId))
-      stubKeystore(SessionId, regId)
+      cacheSessionData[String](DataKey("registrationID"), regId)
       stubGet(s"/incorporation-information/shareholders/$txid", 200, listOfShareHoldersFromII)
       stubGet(s"/company-registration/corporation-tax-registration/$regId/groups", 200, expected)
       stubPut(s"/company-registration/corporation-tax-registration/$regId/groups", 200, """{"groupRelief": true}""")
@@ -499,7 +501,7 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
     "return 200 and pre populate page with address stored in CR that is ALF" in new Setup {
       stubSuccessfulLogin(userId = userId, otherParamsForAuth = Some(Json.obj("externalId" -> "foo")))
       stubFootprint(200, footprintResponse(regId))
-      stubKeystore(SessionId, regId)
+      cacheSessionData[String](DataKey("registrationID"), regId)
       stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR)
 
       val jsonToBeParsed = Json.parse(
@@ -539,7 +541,7 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
     "call coho to get the latest address for TxAPI and address already exists in DB (ALF Address)" in new Setup {
       stubSuccessfulLogin(userId = userId, otherParamsForAuth = Some(Json.obj("externalId" -> "foo")))
       stubFootprint(200, footprintResponse(regId))
-      stubKeystore(SessionId, regId)
+      cacheSessionData[String](DataKey("registrationID"), regId)
       stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR)
       stubGet(s"/company-registration/corporation-tax-registration/$regId/confirmation-references", 200,
         s"""  {
@@ -586,7 +588,7 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
     "redirect to alf if II returns non 2xx on submit" in new Setup {
       stubSuccessfulLogin(userId = userId, otherParamsForAuth = Some(Json.obj("externalId" -> "foo")))
       stubFootprint(200, footprintResponse(regId))
-      stubKeystore(SessionId, regId)
+      cacheSessionData[String](DataKey("registrationID"), regId)
       stubGet(s"/company-registration/corporation-tax-registration/$regId/confirmation-references", 200,
         s"""  {
            |        "acknowledgement-reference" : "ABCD00000000001",
@@ -636,7 +638,7 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
     "save address to backend updating existing groups block" in new Setup {
       stubSuccessfulLogin(userId = userId, otherParamsForAuth = Some(Json.obj("externalId" -> "foo")))
       stubFootprint(200, footprintResponse(regId))
-      stubKeystore(SessionId, regId)
+      cacheSessionData[String](DataKey("registrationID"), regId)
       stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR)
       val jsonToBeParsed = Json.parse(
         """{
@@ -700,7 +702,7 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
     "return 200 and pre populate page" in new Setup {
       stubSuccessfulLogin(userId = userId, otherParamsForAuth = Some(Json.obj("externalId" -> "foo")))
       stubFootprint(200, footprintResponse(regId))
-      stubKeystore(SessionId, regId)
+      cacheSessionData[String](DataKey("registrationID"), regId)
       stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR)
       val jsonToBeParsed = Json.parse(
         """{
@@ -739,7 +741,7 @@ class GroupControllerISpec extends IntegrationSpecBase with LoginStub with HandO
     "return 303" in new Setup {
       stubSuccessfulLogin(userId = userId, otherParamsForAuth = Some(Json.obj("externalId" -> "foo")))
       stubFootprint(200, footprintResponse(regId))
-      stubKeystore(SessionId, regId)
+      cacheSessionData[String](DataKey("registrationID"), regId)
       stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR)
       val jsonToBeParsed = Json.parse(
         """{

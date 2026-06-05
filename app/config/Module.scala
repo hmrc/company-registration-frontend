@@ -46,7 +46,6 @@ class Module extends AbstractModule {
     bind(classOf[DynamicStubConnector]).to(classOf[DynamicStubConnectorImpl]).asEagerSingleton()
     bind(classOf[EmailVerificationConnector]).to(classOf[EmailVerificationConnectorImpl]).asEagerSingleton()
     bind(classOf[SessionCache]).to(classOf[SCRSSessionCache]).asEagerSingleton()
-    bind(classOf[KeystoreConnector]).to(classOf[KeystoreConnectorImpl]).asEagerSingleton()
 
     bind(classOf[SendTemplatedEmailConnector]).to(classOf[SendTemplatedEmailConnectorImpl]).asEagerSingleton()
     bind(classOf[PAYEConnector]).to(classOf[PAYEConnectorImpl]).asEagerSingleton()

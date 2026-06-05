@@ -49,13 +49,13 @@ class CompletionCapacityControllerSpec extends SCRSSpec with GuiceOneAppPerSuite
   lazy val mockCompletionCapacityView = app.injector.instanceOf[CompletionCapacityView]
   override lazy val mockAppConfig = app.injector.instanceOf[AppConfig]
   lazy val mockMetaDataServiceImpl : MetaDataServiceImpl = new MetaDataServiceImpl(mockBusinessRegConnector,
-    mockKeystoreConnector,mockAuditConnector)
+    mockSessionCacheService,mockAuditConnector)
 
   class Setup {
     val controller = new CompletionCapacityController(
 
       mockAuthConnector,
-      mockKeystoreConnector,
+      mockSessionCacheService,
       mockBusinessRegConnector,
       MetricServiceMock,
       mockMetaDataService,
@@ -80,7 +80,7 @@ class CompletionCapacityControllerSpec extends SCRSSpec with GuiceOneAppPerSuite
     }
 
     "display the page whilst the user is authorised but with no registration id in session" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", None)
+      mockSessionCacheGet("registrationID", None)
       when(mockBusinessRegConnector.retrieveMetadata(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
         .thenReturn(Future.successful(BusinessRegistrationSuccessResponse(validBusinessRegistrationResponse)))
 
@@ -94,7 +94,7 @@ class CompletionCapacityControllerSpec extends SCRSSpec with GuiceOneAppPerSuite
     }
 
     "display the page whilst the user is authorised" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      mockSessionCacheGet("registrationID", Some("1"))
       CTRegistrationConnectorMocks.retrieveCTRegistration()
       when(mockBusinessRegConnector.retrieveMetadata(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any()))
         .thenReturn(Future.successful(BusinessRegistrationSuccessResponse(validBusinessRegistrationResponse)))
@@ -106,7 +106,7 @@ class CompletionCapacityControllerSpec extends SCRSSpec with GuiceOneAppPerSuite
     }
 
     "return a 303 if the user has entered valid data" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("foo"))
+      mockSessionCacheGet("registrationID", Some("foo"))
       when(mockMetaDataService.updateCompletionCapacity(ArgumentMatchers.eq(AboutYouChoiceForm("director", "")))(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(validBusinessRegistrationResponse))
 
@@ -121,7 +121,7 @@ class CompletionCapacityControllerSpec extends SCRSSpec with GuiceOneAppPerSuite
 
 
     "return a 303 if the user has no entry in keystore but has valid data" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", None)
+      mockSessionCacheGet("registrationID", None)
       when(mockMetaDataService.updateCompletionCapacity(ArgumentMatchers.eq(AboutYouChoiceForm("director", "")))(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(validBusinessRegistrationResponse))
 
@@ -134,7 +134,7 @@ class CompletionCapacityControllerSpec extends SCRSSpec with GuiceOneAppPerSuite
       }
     }
     "return a 400 if the user has entered invalid data" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("foo"))
+      mockSessionCacheGet("registrationID", Some("foo"))
       submitWithAuthorisedUser(controller.submit, FakeRequest().withFormUrlEncodedBody(
         "complete" -> "director"
       )) {
@@ -144,7 +144,7 @@ class CompletionCapacityControllerSpec extends SCRSSpec with GuiceOneAppPerSuite
     }
   }
   "return a 400 if the user has entered other and ` for data" in new Setup {
-    mockKeystoreFetchAndGet("registrationID", Some("foo"))
+    mockSessionCacheGet("registrationID", Some("foo"))
     submitWithAuthorisedUser(controller.submit, FakeRequest().withFormUrlEncodedBody(
       "completionCapacity" -> "other",
       "completionCapacityOther" -> "`"
@@ -157,7 +157,7 @@ class CompletionCapacityControllerSpec extends SCRSSpec with GuiceOneAppPerSuite
   "return a 303 if the user has entered valid data with Audit" in new Setup {
     val testControllerWithAudit = new CompletionCapacityController(
       mockAuthConnector,
-      mockKeystoreConnector,
+      mockSessionCacheService,
       mockBusinessRegConnector,
       MetricServiceMock,
       mockMetaDataServiceImpl,
@@ -168,7 +168,7 @@ class CompletionCapacityControllerSpec extends SCRSSpec with GuiceOneAppPerSuite
       ec,
       mockAppConfig
     )
-    mockKeystoreFetchAndGet("registrationID", Some("foo"))
+    mockSessionCacheGet("registrationID", Some("foo"))
 
     when(mockBusinessRegConnector.retrieveAndUpdateCompletionCapacity(ArgumentMatchers.any(),
       ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier]()))

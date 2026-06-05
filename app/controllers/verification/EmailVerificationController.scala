@@ -17,11 +17,11 @@
 package controllers.verification
 
 import config.AppConfig
-import connectors.{CompanyRegistrationConnector, KeystoreConnector}
+import connectors.CompanyRegistrationConnector
 import controllers.auth.AuthenticatedController
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import services.EmailVerificationService
+import services.{EmailVerificationService, SessionCacheService}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.play.bootstrap.binders._
 import utils.SessionRegistration
@@ -31,78 +31,70 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class EmailVerificationController @Inject()(val authConnector: PlayAuthConnector,
-                                            val keystoreConnector: KeystoreConnector,
-                                            val emailVerificationService: EmailVerificationService,
-                                            val compRegConnector: CompanyRegistrationConnector,
-                                            val controllerComponents: MessagesControllerComponents,
-                                            verifyYourEmail: verifyYourEmail,
-                                            CreateGGWAccount: CreateGGWAccount,
-                                            CreateNewGGWAccount: CreateNewGGWAccount,
-                                            createNewAccount: createNewAccount
-                                           )(implicit val appConfig: AppConfig,
-                                             implicit val ec: ExecutionContext) extends AuthenticatedController with SessionRegistration with I18nSupport {
+class EmailVerificationController @Inject() (val authConnector: PlayAuthConnector,
+                                             val sessionCacheService: SessionCacheService,
+                                             val emailVerificationService: EmailVerificationService,
+                                             val compRegConnector: CompanyRegistrationConnector,
+                                             val controllerComponents: MessagesControllerComponents,
+                                             verifyYourEmail: verifyYourEmail,
+                                             CreateGGWAccount: CreateGGWAccount,
+                                             CreateNewGGWAccount: CreateNewGGWAccount,
+                                             createNewAccount: createNewAccount)(implicit val appConfig: AppConfig, implicit val ec: ExecutionContext)
+    extends AuthenticatedController
+    with SessionRegistration
+    with I18nSupport {
 
-  lazy val createGGWAccountUrl = appConfig.servicesConfig.getConfString("gg-reg-fe.url", throw new Exception("Could not find config for gg-reg-fe url"))
-  lazy val callbackUrl = appConfig.servicesConfig.getConfString("auth.login-callback.url", throw new Exception("Could not find config for callback url"))
-  lazy val frontEndUrl = appConfig.self
+  lazy val createGGWAccountUrl: String =
+    appConfig.servicesConfig.getConfString("gg-reg-fe.url", throw new Exception("Could not find config for gg-reg-fe url"))
+  lazy val callbackUrl: String =
+    appConfig.servicesConfig.getConfString("auth.login-callback.url", throw new Exception("Could not find config for callback url"))
+  lazy val frontEndUrl: String = appConfig.self
 
-  val verifyShow: Action[AnyContent] = Action.async {
-    implicit request =>
-      ctAuthorised {
-        keystoreConnector.fetchAndGet[String]("registrationID").flatMap {
-          _.fold(
-            Future.successful(Redirect(controllers.reg.routes.SignInOutController.postSignIn(None)))) { rId =>
-            val emailBlock = emailVerificationService.fetchEmailBlock(rId)
+  val verifyShow: Action[AnyContent] = Action.async { implicit request =>
+    ctAuthorised {
+      sessionCacheService.get[String]("registrationID").flatMap {
+        _.fold(Future.successful(Redirect(controllers.reg.routes.SignInOutController.postSignIn(None)))) { rId =>
+          val emailBlock = emailVerificationService.fetchEmailBlock(rId)
 
-            emailBlock.map(_.fold(
-              Redirect(controllers.reg.routes.SignInOutController.postSignIn(None)))
-            (email => Ok(verifyYourEmail(email.address)))
+          emailBlock.map(_.fold(Redirect(controllers.reg.routes.SignInOutController.postSignIn(None)))(email => Ok(verifyYourEmail(email.address))))
 
-            )
-
-          }
         }
       }
+    }
   }
 
   val verifySubmit: Action[AnyContent] = Action.async { implicit request =>
     Future.successful(Ok)
   }
 
-  val resendVerificationLink: Action[AnyContent] = Action.async {
-    implicit request =>
-      ctAuthorisedEmailCredsExtId { (email, creds, extId) =>
-        keystoreConnector.fetchAndGet[String]("registrationID").flatMap {
-          _.fold(
-            Future.successful(Redirect(controllers.reg.routes.SignInOutController.postSignIn(None)))) { rId =>
-            val emailBlock = emailVerificationService.fetchEmailBlock(rId)
+  val resendVerificationLink: Action[AnyContent] = Action.async { implicit request =>
+    ctAuthorisedEmailCredsExtId { (email, creds, extId) =>
+      sessionCacheService.get[String]("registrationID").flatMap {
+        _.fold(Future.successful(Redirect(controllers.reg.routes.SignInOutController.postSignIn(None)))) { rId =>
+          val emailBlock = emailVerificationService.fetchEmailBlock(rId)
 
-            emailBlock.flatMap(
-              emailBlockv => emailBlockv.fold[Future[Result]](
-                Future.successful(Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))))
-                (email =>
-                  emailVerificationService.sendVerificationLink(email.address, rId, creds, extId).map { _ => Redirect(controllers.verification.routes.EmailVerificationController.verifyShow) }))
-          }
+          emailBlock.flatMap(emailBlockv =>
+            emailBlockv.fold[Future[Result]](Future.successful(Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))))(email =>
+              emailVerificationService.sendVerificationLink(email.address, rId, creds, extId).map { _ =>
+                Redirect(controllers.verification.routes.EmailVerificationController.verifyShow)
+              }))
         }
       }
+    }
   }
 
-
-  val createShow: Action[AnyContent] = Action.async {
-    implicit request =>
-      Future.successful(Ok(createNewAccount()))
+  val createShow: Action[AnyContent] = Action.async { implicit request =>
+    Future.successful(Ok(createNewAccount()))
   }
 
   val createSubmit: Action[AnyContent] = Action.async { implicit request =>
     Future.successful(Redirect(controllers.reg.routes.ReturningUserController.show))
   }
 
-  val createGGWAccountAffinityShow: Action[AnyContent] = Action.async {
-    implicit request =>
-      val redirect = controllers.reg.routes.ReturningUserController.show.url
-      val url = controllers.reg.routes.SignInOutController.signOut(Some(RedirectUrl(s"$frontEndUrl$redirect"))).url
-      Future.successful(Ok(CreateGGWAccount(url)))
+  val createGGWAccountAffinityShow: Action[AnyContent] = Action.async { implicit request =>
+    val redirect = controllers.reg.routes.ReturningUserController.show.url
+    val url      = controllers.reg.routes.SignInOutController.signOut(Some(RedirectUrl(s"$frontEndUrl$redirect"))).url
+    Future.successful(Ok(CreateGGWAccount(url)))
 
   }
 
@@ -110,15 +102,13 @@ class EmailVerificationController @Inject()(val authConnector: PlayAuthConnector
     Future.successful(Redirect(controllers.reg.routes.SignInOutController.signOut(None)).withNewSession)
   }
 
-  val createNewGGWAccountShow: Action[AnyContent] = Action.async {
-    implicit request =>
-      val redirect = controllers.reg.routes.ReturningUserController.show.url
-      val url = controllers.reg.routes.SignInOutController.signOut(Some(RedirectUrl(s"$frontEndUrl$redirect"))).url
-      Future.successful(Ok(CreateNewGGWAccount(url)))
+  val createNewGGWAccountShow: Action[AnyContent] = Action.async { implicit request =>
+    val redirect = controllers.reg.routes.ReturningUserController.show.url
+    val url      = controllers.reg.routes.SignInOutController.signOut(Some(RedirectUrl(s"$frontEndUrl$redirect"))).url
+    Future.successful(Ok(CreateNewGGWAccount(url)))
   }
 
-  val startAgain: Action[AnyContent] = Action.async {
-    implicit request =>
-      Future.successful(Redirect(controllers.reg.routes.ReturningUserController.show).withNewSession)
+  val startAgain: Action[AnyContent] = Action.async { implicit request =>
+    Future.successful(Redirect(controllers.reg.routes.ReturningUserController.show).withNewSession)
   }
 }
