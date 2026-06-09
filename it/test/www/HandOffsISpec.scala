@@ -16,12 +16,14 @@
 
 package test.www
 
-import test.fixtures.HandOffFixtures
-import test.itutil.{IntegrationSpecBase, LoginStub}
+import itutil.SessionStub
 import play.api.http.HeaderNames
 import play.api.libs.crypto.DefaultCookieSigner
+import test.fixtures.HandOffFixtures
+import test.itutil.IntegrationSpecBase
+import uk.gov.hmrc.mongo.cache.DataKey
 
-class HandOffsISpec extends IntegrationSpecBase with LoginStub with HandOffFixtures {
+class HandOffsISpec extends IntegrationSpecBase with SessionStub with HandOffFixtures {
 
   def followRequest(path: String) = ws.url(s"http://localhost:$port$path").withFollowRedirects(false)
 
@@ -79,7 +81,7 @@ class HandOffsISpec extends IntegrationSpecBase with LoginStub with HandOffFixtu
       stubCorporationTaxRegistration(regId)
 
       And("Keystore has expired")
-      stubKeystore(SessionId, regId, 404)
+      clearSessionCache()
 
       When(s"A GET request is made to $url with a payload")
       val response = await(buildClient(s"$url?request=$payload")
@@ -92,8 +94,7 @@ class HandOffsISpec extends IntegrationSpecBase with LoginStub with HandOffFixtu
       redirect mustBe s"/register-your-company/post-sign-in?handOffID=$num&payload=$payload"
 
       And("A new keystore entry is created")
-      stubKeystoreSave(SessionId, regId, 200)
-      stubKeystore(SessionId, regId)
+      cacheSessionData[String](DataKey("registrationID"), regId)
 
 
       Then(s"The request is redirected back to $url with the payload as a query string")

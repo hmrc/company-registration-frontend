@@ -19,6 +19,7 @@ package test.www
 import java.util.UUID
 import com.github.tomakehurst.wiremock.client.WireMock.{containing, findAll, notContaining, postRequestedFor, urlEqualTo, urlMatching, verify}
 import config.AppConfig
+import itutil.SessionStub
 import test.itutil.{IntegrationSpecBase, LoginStub, RequestsFinder}
 import org.jsoup.Jsoup
 import play.api.http.HeaderNames
@@ -26,8 +27,9 @@ import play.api.i18n.{Lang, MessagesApi}
 import play.api.libs.crypto.DefaultCookieSigner
 import play.api.libs.json.{JsObject, Json}
 import play.api.test.FakeRequest
+import uk.gov.hmrc.mongo.cache.DataKey
 
-class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with LoginStub with RequestsFinder {
+class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with SessionStub with RequestsFinder {
 
 
 
@@ -78,7 +80,7 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
 
     "return 200 when no data is returned from backend" in {
       stubSuccessfulLogin(userId = userId)
-      stubKeystore(SessionId, regId)
+      cacheSessionData[String](DataKey("registrationID"), regId)
       stubGet(s"/company-registration/corporation-tax-registration/$regId/retrieve-email", 200, emailResponseFromCRLowLevel)
       stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR())
       stubGet(s"/company-registration/corporation-tax-registration/$regId/contact-details", 404, "")
@@ -104,7 +106,7 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
 
       stubAuthorisation()
       stubSuccessfulLogin(userId = userId)
-      stubKeystore(SessionId, regId)
+      cacheSessionData[String](DataKey("registrationID"), regId)
       stubGet(s"/company-registration/corporation-tax-registration/$regId/retrieve-email", 200, emailResponseFromCRLowLevel)
       stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR())
       stubGet(s"/company-registration/corporation-tax-registration/$regId/contact-details", 200, contactDetailsResp.toString())
@@ -121,7 +123,7 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
 
     "render the ISE error template when an unexpected error occurs" in {
       stubSuccessfulLogin(userId = userId)
-      stubKeystore(SessionId, regId)
+      cacheSessionData[String](DataKey("registrationID"), regId)
       stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 404, "")
 
       val fResponse = await(buildClient(controllers.reg.routes.CompanyContactDetailsController.show.url)
@@ -150,7 +152,7 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
         """.stripMargin)
 
       stubSuccessfulLogin(userId = userId, otherParamsForAuth = Some(nameAndCredId))
-      stubKeystore(SessionId, regId)
+      cacheSessionData[String](DataKey("registrationID"), regId)
       stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR())
       stubPut(s"/company-registration/corporation-tax-registration/$regId/contact-details", 200, contactDetailsResp.toString())
       stubContactDetails(regId, 200)
@@ -173,7 +175,7 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
     "return 400 data is invalid" in {
       stubAuthorisation()
       stubSuccessfulLogin(userId = userId, otherParamsForAuth = Some(nameAndCredId))
-      stubKeystore(SessionId, regId)
+      cacheSessionData[String](DataKey("registrationID"), regId)
       stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR())
       val response = await(buildClient(controllers.reg.routes.CompanyContactDetailsController.submit.url).
         withHttpHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck").post(
@@ -197,7 +199,7 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
 
       stubAuthorisation()
       stubSuccessfulLogin(userId = userId, otherParamsForAuth = Some(nameAndCredId))
-      stubKeystore(SessionId, regId)
+      cacheSessionData[String](DataKey("registrationID"), regId)
       stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR())
       stubPut(s"/company-registration/corporation-tax-registration/$regId/contact-details", 200, contactDetailsResp.toString())
       stubContactDetails(regId, 200)
@@ -231,7 +233,7 @@ class CompanyContactDetailsControllerISpec extends IntegrationSpecBase with Logi
 
       stubAuthorisation()
       stubSuccessfulLogin(userId = userId, otherParamsForAuth = Some(nameAndCredId))
-      stubKeystore(SessionId, regId)
+      cacheSessionData[String](DataKey("registrationID"), regId)
       stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR())
       stubPut(s"/company-registration/corporation-tax-registration/$regId/contact-details", 200, contactDetailsResp.toString())
       stubContactDetails(regId, 200)

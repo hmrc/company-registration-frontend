@@ -17,40 +17,44 @@
 package controllers.reg
 
 import config.AppConfig
-import connectors.{CompanyRegistrationConnector, KeystoreConnector}
+import connectors.CompanyRegistrationConnector
 import controllers.auth.AuthenticatedController
-import javax.inject.{Inject, Singleton}
 import play.api.i18n.I18nSupport
-import play.api.mvc.{MessagesControllerComponents}
-import services.DeleteSubmissionService
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.{DeleteSubmissionService, SessionCacheService}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import utils.SessionRegistration
 import views.html.reg.{RegistrationUnsuccessful => RegistrationUnsuccessfulView}
 
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class RegistrationUnsuccessfulController @Inject()(val authConnector: PlayAuthConnector,
-                                                   val keystoreConnector: KeystoreConnector,
-                                                   val compRegConnector: CompanyRegistrationConnector,
-                                                   val deleteSubService: DeleteSubmissionService,
-                                                   val controllerComponents: MessagesControllerComponents,
-                                                   viewRegistrationUnsuccessful: RegistrationUnsuccessfulView)
-                                                  (implicit val appConfig: AppConfig, implicit val ec: ExecutionContext) extends AuthenticatedController with SessionRegistration with I18nSupport {
+class RegistrationUnsuccessfulController @Inject() (
+    val authConnector: PlayAuthConnector,
+    val sessionCacheService: SessionCacheService,
+    val compRegConnector: CompanyRegistrationConnector,
+    val deleteSubService: DeleteSubmissionService,
+    val controllerComponents: MessagesControllerComponents,
+    viewRegistrationUnsuccessful: RegistrationUnsuccessfulView)(implicit val appConfig: AppConfig, implicit val ec: ExecutionContext)
+    extends AuthenticatedController
+    with SessionRegistration
+    with I18nSupport {
 
-  def show = Action.async { implicit request =>
+  def show: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
       Future.successful(Ok(viewRegistrationUnsuccessful()))
     }
   }
 
-  def submit = Action.async { implicit request =>
+  def submit: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
       registered { regId =>
         deleteSubService.deleteSubmission(regId) flatMap {
-          case true => keystoreConnector.remove() map {
-            _ => Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))
-          }
+          case true =>
+            sessionCacheService.clear() map { _ =>
+              Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))
+            }
           case false => Future.successful(InternalServerError)
         }
       }

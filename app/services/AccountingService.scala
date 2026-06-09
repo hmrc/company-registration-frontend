@@ -16,45 +16,42 @@
 
 package services
 
-import javax.inject.Inject
-import connectors.{CompanyRegistrationConnector, KeystoreConnector}
+import connectors.CompanyRegistrationConnector
 import models.AccountingDatesModel.{FUTURE_DATE, NOT_PLANNING_TO_YET, WHEN_REGISTERED}
 import models.{AccountingDatesModel, AccountingDetailsRequest, AccountingDetailsResponse, AccountingDetailsSuccessResponse}
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.SCRSExceptions
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class AccountingServiceImpl @Inject()(val companyRegistrationConnector: CompanyRegistrationConnector,
-                                      val keystoreConnector: KeystoreConnector)(implicit val ec: ExecutionContext) extends AccountingService
+class AccountingServiceImpl @Inject() (val companyRegistrationConnector: CompanyRegistrationConnector, val sessionCacheService: SessionCacheService)(
+    implicit val ec: ExecutionContext)
+    extends AccountingService
 
 trait AccountingService extends CommonService with SCRSExceptions {
 
   val companyRegistrationConnector: CompanyRegistrationConnector
 
-  def fetchAccountingDetails(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[AccountingDatesModel] = {
+  def fetchAccountingDetails(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[AccountingDatesModel] =
     for {
-      registrationID <- fetchRegistrationID
+      registrationID    <- fetchRegistrationID
       accountingDetails <- companyRegistrationConnector.retrieveAccountingDetails(registrationID)
-    } yield {
-      accountingDetails match {
-        case AccountingDetailsSuccessResponse(details) => details.copy(details.accountingDateStatus match {
-          case WHEN_REGISTERED => "whenRegistered"
-          case FUTURE_DATE => "futureDate"
+    } yield accountingDetails match {
+      case AccountingDetailsSuccessResponse(details) =>
+        details.copy(details.accountingDateStatus match {
+          case WHEN_REGISTERED     => "whenRegistered"
+          case FUTURE_DATE         => "futureDate"
           case NOT_PLANNING_TO_YET => "notPlanningToYet"
-          case _ => ""
+          case _                   => ""
         })
-        case _ => AccountingDatesModel("", None, None, None)
-      }
+      case _ => AccountingDatesModel("", None, None, None)
     }
-  }
 
-  def updateAccountingDetails(accountingDetails: AccountingDatesModel)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[AccountingDetailsResponse] = {
+  def updateAccountingDetails(
+      accountingDetails: AccountingDatesModel)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[AccountingDetailsResponse] =
     for {
       registrationID <- fetchRegistrationID
       accDetailsResp <- companyRegistrationConnector.updateAccountingDetails(registrationID, AccountingDetailsRequest.toRequest(accountingDetails))
-    } yield {
-      accDetailsResp
-    }
-  }
+    } yield accDetailsResp
 }

@@ -17,61 +17,63 @@
 package controllers.test
 
 import config.AppConfig
-import connectors.{CompanyRegistrationConnector, DynamicStubConnector, KeystoreConnector}
+import connectors.{CompanyRegistrationConnector, DynamicStubConnector}
 import forms.test.ETMPPost
-import javax.inject.{Inject, Singleton}
 import models.test.{ETMPAcknowledgment, ETMPCTRecordUpdates, ETMPNotification}
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.CommonService
+import services.{CommonService, SessionCacheService}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import utils.SCRSExceptions
 import views.html.test.{EMTPPostView, CTUpdatesDisplay => CTUpdatesDisplayView}
 
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class ETMPNotificationTestController @Inject()(val brdsConnector: DynamicStubConnector,
-                                               val crConnector: CompanyRegistrationConnector,
-                                               val keystoreConnector: KeystoreConnector,
-                                               mcc: MessagesControllerComponents,
-                                               viewEMTPPostView: EMTPPostView,
-                                               viewCTUpdatesDisplayView: CTUpdatesDisplayView)
-                                              (implicit val appConfig: AppConfig, implicit val ec: ExecutionContext)
-  extends FrontendController(mcc) with CommonService with SCRSExceptions with I18nSupport {
+class ETMPNotificationTestController @Inject() (
+    val brdsConnector: DynamicStubConnector,
+    val crConnector: CompanyRegistrationConnector,
+    val sessionCacheService: SessionCacheService,
+    mcc: MessagesControllerComponents,
+    viewEMTPPostView: EMTPPostView,
+    viewCTUpdatesDisplayView: CTUpdatesDisplayView)(implicit val appConfig: AppConfig, implicit val ec: ExecutionContext)
+    extends FrontendController(mcc)
+    with CommonService
+    with SCRSExceptions
+    with I18nSupport {
 
-  def show: Action[AnyContent] = Action.async {
-    implicit request =>
-      Future.successful(Ok(viewEMTPPostView(ETMPPost.form.fill(ETMPNotification("", "", "", Some(""), "")))))
+  def show: Action[AnyContent] = Action.async { implicit request =>
+    Future.successful(Ok(viewEMTPPostView(ETMPPost.form.fill(ETMPNotification("", "", "", Some(""), "")))))
   }
 
-  def submit: Action[AnyContent] = Action.async {
-    implicit request =>
-      ETMPPost.form.bindFromRequest().fold(
+  def submit: Action[AnyContent] = Action.async { implicit request =>
+    ETMPPost.form
+      .bindFromRequest()
+      .fold(
         errors => Future.successful(BadRequest(viewEMTPPostView(errors))),
         valid =>
-          brdsConnector.postETMPNotificationData(valid) map {
-            _ => Ok
+          brdsConnector.postETMPNotificationData(valid) map { _ =>
+            Ok
           }
       )
   }
 
-  def showCTRecordUpdates: Action[AnyContent] = Action.async {
-    implicit request =>
-      for {
-        regId <- fetchRegistrationID
-        ctRecord <- crConnector.retrieveCorporationTaxRegistration(regId)
-      } yield {
+  def showCTRecordUpdates: Action[AnyContent] = Action.async { implicit request =>
+    for {
+      regId    <- fetchRegistrationID
+      ctRecord <- crConnector.retrieveCorporationTaxRegistration(regId)
+    } yield {
 
-        val acknowledgementRefs = (ctRecord \\ "acknowledgementReferences").head.as[ETMPAcknowledgment]
-        val rootStatus = (ctRecord \ "status").as[String]
-        val fetchedData = ETMPCTRecordUpdates(
-          rootStatus,
-          acknowledgementRefs.ctUtr,
-          acknowledgementRefs.timestamp,
-          acknowledgementRefs.status
-        )
-        Ok(viewCTUpdatesDisplayView(fetchedData))
-      }
+      val acknowledgementRefs = (ctRecord \\ "acknowledgementReferences").head.as[ETMPAcknowledgment]
+      val rootStatus          = (ctRecord \ "status").as[String]
+      val fetchedData = ETMPCTRecordUpdates(
+        rootStatus,
+        acknowledgementRefs.ctUtr,
+        acknowledgementRefs.timestamp,
+        acknowledgementRefs.status
+      )
+      Ok(viewCTUpdatesDisplayView(fetchedData))
+    }
   }
 }

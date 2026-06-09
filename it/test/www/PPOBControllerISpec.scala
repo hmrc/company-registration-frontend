@@ -16,15 +16,17 @@
 
 package test.www
 
-import java.util.UUID
+import itutil.SessionStub
 
+import java.util.UUID
 import test.fixtures.Fixtures
 import test.itutil.{IntegrationSpecBase, LoginStub, RequestsFinder}
 import models._
 import play.api.http.HeaderNames
 import play.api.libs.crypto.DefaultCookieSigner
+import uk.gov.hmrc.mongo.cache.DataKey
 
-class PPOBControllerISpec extends IntegrationSpecBase with LoginStub with Fixtures with RequestsFinder {
+class PPOBControllerISpec extends IntegrationSpecBase with SessionStub with Fixtures with RequestsFinder {
   val userId = "test-user-id"
   val regId = "12345"
 
@@ -42,7 +44,7 @@ class PPOBControllerISpec extends IntegrationSpecBase with LoginStub with Fixtur
     stubFootprint(200, footprintResponse(regId))
     stubGet(s"/company-registration/corporation-tax-registration/$regId/corporation-tax-registration", 200, statusResponseFromCR(rID = "12345"))
 
-    stubKeystore(SessionId, regId)
+    cacheSessionData[String](DataKey("registrationID"), regId)
     stubPost("/api/v2/init", 200, "{}", responseHeader = ("Location", "foo"))
     val fResponse = buildClient(controllers.reg.routes.PPOBController.submit.url)
       .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie(), "Csrf-Token" -> "nocheck")

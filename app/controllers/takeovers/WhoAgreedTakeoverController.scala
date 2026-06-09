@@ -17,14 +17,14 @@
 package controllers.takeovers
 
 import config.AppConfig
-import connectors.{CompanyRegistrationConnector, KeystoreConnector}
+import connectors.CompanyRegistrationConnector
 import controllers.auth.AuthenticatedController
 import controllers.reg.{ControllerErrorHandler, routes => regRoutes}
 import forms.takeovers.WhoAgreedTakeoverForm
 import models.TakeoverDetails
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.TakeoverService
+import services.{SessionCacheService, TakeoverService}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import utils.{SCRSFeatureSwitches, SessionRegistration}
 import views.html.takeovers.WhoAgreedTakeover
@@ -33,16 +33,17 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class WhoAgreedTakeoverController @Inject()(val authConnector: PlayAuthConnector,
-                                            val takeoverService: TakeoverService,
-                                            val compRegConnector: CompanyRegistrationConnector,
-                                            val keystoreConnector: KeystoreConnector,
-                                            val scrsFeatureSwitches: SCRSFeatureSwitches,
-                                            val controllerComponents: MessagesControllerComponents,
-                                            val controllerErrorHandler: ControllerErrorHandler,
-                                            view: WhoAgreedTakeover
-                                           )(implicit val appConfig: AppConfig, val ec: ExecutionContext
-                                           ) extends AuthenticatedController with SessionRegistration with I18nSupport {
+class WhoAgreedTakeoverController @Inject() (val authConnector: PlayAuthConnector,
+                                             val takeoverService: TakeoverService,
+                                             val compRegConnector: CompanyRegistrationConnector,
+                                             val sessionCacheService: SessionCacheService,
+                                             val scrsFeatureSwitches: SCRSFeatureSwitches,
+                                             val controllerComponents: MessagesControllerComponents,
+                                             val controllerErrorHandler: ControllerErrorHandler,
+                                             view: WhoAgreedTakeover)(implicit val appConfig: AppConfig, val ec: ExecutionContext)
+    extends AuthenticatedController
+    with SessionRegistration
+    with I18nSupport {
 
   val show: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
@@ -68,20 +69,21 @@ class WhoAgreedTakeoverController @Inject()(val authConnector: PlayAuthConnector
   val submit: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
       registered { regId =>
-        WhoAgreedTakeoverForm.form.bindFromRequest().fold(
-          formWithErrors =>
-            takeoverService.getTakeoverDetails(regId).flatMap {
-              case Some(TakeoverDetails(_, Some(businessName), _, _, _)) =>
-                Future.successful(BadRequest(view(formWithErrors, businessName)))
-              case _ =>
-                Future.successful(Redirect(routes.WhoAgreedTakeoverController.show))
-            },
-          previousOwnersName => {
-            takeoverService.updatePreviousOwnersName(regId, previousOwnersName).map {
-              _ => Redirect(routes.PreviousOwnersAddressController.show)
-            }
-          }
-        )
+        WhoAgreedTakeoverForm.form
+          .bindFromRequest()
+          .fold(
+            formWithErrors =>
+              takeoverService.getTakeoverDetails(regId).flatMap {
+                case Some(TakeoverDetails(_, Some(businessName), _, _, _)) =>
+                  Future.successful(BadRequest(view(formWithErrors, businessName)))
+                case _ =>
+                  Future.successful(Redirect(routes.WhoAgreedTakeoverController.show))
+              },
+            previousOwnersName =>
+              takeoverService.updatePreviousOwnersName(regId, previousOwnersName).map { _ =>
+                Redirect(routes.PreviousOwnersAddressController.show)
+              }
+          )
       }
     }
   }

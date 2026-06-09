@@ -28,7 +28,7 @@ import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.http.HeaderNames.CACHE_CONTROL
-import play.api.libs.json.Json
+import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{MessagesControllerComponents, Results}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentType, _}
@@ -61,7 +61,7 @@ class SignInOutControllerSpec extends SCRSSpec
       mockHandOffService,
       mockEmailService,
       MetricServiceMock,
-      mockKeystoreConnector,
+      mockSessionCacheService,
       mockEnrolmentsService,
       mockControllerErrorHandler,
       mockMcc,
@@ -76,6 +76,7 @@ class SignInOutControllerSpec extends SCRSSpec
   }
 
   val cacheMap = CacheMap("", Map("" -> Json.toJson("")))
+
   val authDetails = new ~(
     new ~(
       new ~(
@@ -114,7 +115,7 @@ class SignInOutControllerSpec extends SCRSSpec
         .thenReturn(Future.successful(None))
 
       when(mockHandOffService.cacheRegistrationID(ArgumentMatchers.eq(registrationID))(ArgumentMatchers.any(), ArgumentMatchers.any()))
-        .thenReturn(Future.successful(cacheMap))
+        .thenReturn(Future.successful(""))
 
       showWithAuthorisedUserRetrieval(controller.postSignIn(None), authDetails) {
         result =>
@@ -169,7 +170,7 @@ class SignInOutControllerSpec extends SCRSSpec
         .thenReturn(Future.successful(None))
 
       when(mockHandOffService.cacheRegistrationID(ArgumentMatchers.eq(registrationID))(ArgumentMatchers.any(), ArgumentMatchers.any()))
-        .thenReturn(Future.successful(cacheMap))
+        .thenReturn(Future.successful(""))
 
       when(mockEmailService.checkEmailStatus(ArgumentMatchers.any(), ArgumentMatchers.any(),
         ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
@@ -195,11 +196,11 @@ class SignInOutControllerSpec extends SCRSSpec
         .thenReturn(Future.successful(None))
 
       when(mockHandOffService.cacheRegistrationID(ArgumentMatchers.eq(registrationID))(ArgumentMatchers.any(), ArgumentMatchers.any()))
-        .thenReturn(Future.successful(cacheMap))
+        .thenReturn(Future.successful(""))
 
-      mockKeystoreCache(registrationID, registrationID, cacheMap)
-      when(mockKeystoreConnector.cache(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
-        .thenReturn(Future.successful(cacheMap))
+      mockSessionCacheGet(registrationID, Some(""))
+      when(mockSessionCacheService.save[String](ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
+        .thenReturn(Future.successful(""))
 
       showWithAuthorisedUserRetrieval(controller.postSignIn(None), authDetails) {
         result =>
@@ -221,7 +222,7 @@ class SignInOutControllerSpec extends SCRSSpec
         .thenReturn(Future.successful(Some("locked")))
 
       when(mockHandOffService.cacheRegistrationID(ArgumentMatchers.eq(registrationID))(ArgumentMatchers.any(), ArgumentMatchers.any()))
-        .thenReturn(Future.successful(cacheMap))
+        .thenReturn(Future.successful(""))
 
       showWithAuthorisedUserRetrieval(controller.postSignIn(None), authDetails) {
         result =>
@@ -243,7 +244,7 @@ class SignInOutControllerSpec extends SCRSSpec
         .thenReturn(Future.successful(Some("held")))
 
       when(mockHandOffService.cacheRegistrationID(ArgumentMatchers.eq(registrationID))(ArgumentMatchers.any(), ArgumentMatchers.any()))
-        .thenReturn(Future.successful(cacheMap))
+        .thenReturn(Future.successful(""))
 
       showWithAuthorisedUserRetrieval(controller.postSignIn(None), authDetails) {
         result =>
@@ -262,7 +263,7 @@ class SignInOutControllerSpec extends SCRSSpec
         .thenReturn(Future.successful(Some("held")))
 
       when(mockHandOffService.cacheRegistrationID(ArgumentMatchers.eq(registrationID))(ArgumentMatchers.any(), ArgumentMatchers.any()))
-        .thenReturn(Future.successful(cacheMap))
+        .thenReturn(Future.successful(""))
 
       showWithAuthorisedUserRetrieval(controller.postSignIn(None), authDetails) {
         result =>
@@ -288,7 +289,7 @@ class SignInOutControllerSpec extends SCRSSpec
         .thenReturn(Future.successful(None))
 
       when(mockHandOffService.cacheRegistrationID(ArgumentMatchers.eq(registrationID))(ArgumentMatchers.any(), ArgumentMatchers.any()))
-        .thenReturn(Future.successful(cacheMap))
+        .thenReturn(Future.successful(""))
 
       showWithAuthorisedUserRetrieval(controller.postSignIn(None), authDetails) {
         result =>
@@ -370,7 +371,7 @@ class SignInOutControllerSpec extends SCRSSpec
     val throttleResponse = ThrottleResponse(regId, created = true, confRefs = false, paymentRefs = false)
 
     "process a deferred hand off 1 back" in new Setup {
-      mockCacheRegistrationID(regId, mockKeystoreConnector)
+      mockCacheRegistrationID(regId, mockSessionCacheService)
       val handOffID = "HO1b"
       val result = await(controller.processDeferredHandoff(Some(handOffID), Some(payload), throttleResponse)(Future.successful(Results.Ok)))
       status(result) mustBe 303
@@ -378,7 +379,7 @@ class SignInOutControllerSpec extends SCRSSpec
     }
 
     "process a deferred hand off 2" in new Setup {
-      mockCacheRegistrationID(regId, mockKeystoreConnector)
+      mockCacheRegistrationID(regId, mockSessionCacheService)
       val handOffID = "HO2"
       val result = await(controller.processDeferredHandoff(Some(handOffID), Some(payload), throttleResponse)(Future.successful(Results.Ok)))
       status(result) mustBe 303
@@ -386,7 +387,7 @@ class SignInOutControllerSpec extends SCRSSpec
     }
 
     "process a deferred hand off 3 back" in new Setup {
-      mockCacheRegistrationID(regId, mockKeystoreConnector)
+      mockCacheRegistrationID(regId, mockSessionCacheService)
       val handOffID = "HO3b"
       val result = await(controller.processDeferredHandoff(Some(handOffID), Some(payload), throttleResponse)(Future.successful(Results.Ok)))
       status(result) mustBe 303
@@ -394,14 +395,14 @@ class SignInOutControllerSpec extends SCRSSpec
     }
 
     "process a deferred hand off 3-1" in new Setup {
-      mockCacheRegistrationID(regId, mockKeystoreConnector)
+      mockCacheRegistrationID(regId, mockSessionCacheService)
       val handOffID = "HO3-1"
       val result = await(controller.processDeferredHandoff(Some(handOffID), Some(payload), throttleResponse)(Future.successful(Results.Ok)))
       status(result) mustBe 303
       redirectLocation(result) mustBe Some(s"http://localhost:9970/register-your-company/groups-handback?request=$payload")
     }
     "process a deferred hand off 3b-1" in new Setup {
-      mockCacheRegistrationID(regId, mockKeystoreConnector)
+      mockCacheRegistrationID(regId, mockSessionCacheService)
       val handOffID = "HO3b-1"
       val result = await(controller.processDeferredHandoff(Some(handOffID), Some(payload), throttleResponse)(Future.successful(Results.Ok)))
       status(result) mustBe 303
@@ -409,7 +410,7 @@ class SignInOutControllerSpec extends SCRSSpec
     }
 
     "process a deferred hand off 4" in new Setup {
-      mockCacheRegistrationID(regId, mockKeystoreConnector)
+      mockCacheRegistrationID(regId, mockSessionCacheService)
       val handOffID = "HO4"
       val result = await(controller.processDeferredHandoff(Some(handOffID), Some(payload), throttleResponse)(Future.successful(Results.Ok)))
       status(result) mustBe 303
@@ -417,7 +418,7 @@ class SignInOutControllerSpec extends SCRSSpec
     }
 
     "process a deferred hand off 5 back" in new Setup {
-      mockCacheRegistrationID(regId, mockKeystoreConnector)
+      mockCacheRegistrationID(regId, mockSessionCacheService)
       val handOffID = "HO5b"
       val result = await(controller.processDeferredHandoff(Some(handOffID), Some(payload), throttleResponse)(Future.successful(Results.Ok)))
       status(result) mustBe 303
@@ -425,26 +426,26 @@ class SignInOutControllerSpec extends SCRSSpec
     }
 
     "execute the call by name parameter if a handOffID and payload are both not present" in new Setup {
-      mockCacheRegistrationID(regId, mockKeystoreConnector)
+      mockCacheRegistrationID(regId, mockSessionCacheService)
       val result = await(controller.processDeferredHandoff(None, None, throttleResponse)(Future.successful(Results.Ok)))
       status(result) mustBe OK
     }
 
     "execute the call by name parameter if a handOffID is not present" in new Setup {
-      mockCacheRegistrationID(regId, mockKeystoreConnector)
+      mockCacheRegistrationID(regId, mockSessionCacheService)
       val result = await(controller.processDeferredHandoff(None, Some(payload), throttleResponse)(Future.successful(Results.Ok)))
       status(result) mustBe OK
     }
 
     "execute the call by name parameter if a payload is not present" in new Setup {
-      mockCacheRegistrationID(regId, mockKeystoreConnector)
+      mockCacheRegistrationID(regId, mockSessionCacheService)
       val handOffID = "HO1b"
       val result = await(controller.processDeferredHandoff(Some(handOffID), None, throttleResponse)(Future.successful(Results.Ok)))
       status(result) mustBe OK
     }
 
     "NoSuchElementException if the handOffID is missing from the map" in new Setup {
-      mockCacheRegistrationID(regId, mockKeystoreConnector)
+      mockCacheRegistrationID(regId, mockSessionCacheService)
       val handOffID = "xxx"
       val ex = intercept[NoSuchElementException](await(controller.processDeferredHandoff(Some(handOffID), Some(payload), throttleResponse)(Future.successful(Results.Ok))))
       ex.getMessage mustBe s"key not found: $handOffID"
@@ -453,9 +454,9 @@ class SignInOutControllerSpec extends SCRSSpec
 
   "renewSession" should {
     "return 200 when hit with Authorised User" in new Setup {
-      when(mockKeystoreConnector.cache(ArgumentMatchers.contains("lastActionTimestamp"),
-        ArgumentMatchers.any[LocalDate]())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any(), ArgumentMatchers.any()))
-        .thenReturn(Future.successful(cacheMap))
+      when(mockSessionCacheService.save[LocalDate](ArgumentMatchers.any(), ArgumentMatchers.any())
+      (ArgumentMatchers.any(), ArgumentMatchers.any()))
+        .thenReturn(Future.successful(LocalDate.now))
 
       showWithAuthorisedUser(controller.renewSession()) { a =>
         status(a) mustBe 200
@@ -468,9 +469,9 @@ class SignInOutControllerSpec extends SCRSSpec
     }
 
     "return CORS headers when a cors host is supplied" in new Setup(Some("http://localhost:12345")) {
-      when(mockKeystoreConnector.cache(ArgumentMatchers.contains("lastActionTimestamp"),
-        ArgumentMatchers.any[LocalDate]())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any(), ArgumentMatchers.any()))
-        .thenReturn(Future.successful(cacheMap))
+      when(mockSessionCacheService.save[LocalDate](ArgumentMatchers.any(), ArgumentMatchers.any())
+        (ArgumentMatchers.any(), ArgumentMatchers.any()))
+        .thenReturn(Future.successful(LocalDate.now))
 
       showWithAuthorisedUser(controller.renewSession()) { a =>
         status(a) mustBe 200

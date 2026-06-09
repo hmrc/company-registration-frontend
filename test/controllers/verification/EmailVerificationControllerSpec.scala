@@ -19,7 +19,7 @@ package controllers.verification
 import builders.AuthBuilder
 import config.AppConfig
 import helpers.SCRSSpec
-import mocks.{CompanyRegistrationConnectorMock, KeystoreMock, SCRSMocks}
+import mocks.{CompanyRegistrationConnectorMock, SCRSMocks, SessionCacheServiceMock}
 import models.Email
 import org.apache.pekko.actor.ActorSystem
 import org.apache.pekko.stream.Materializer
@@ -40,7 +40,7 @@ import scala.concurrent.ExecutionContext
 
 
 class EmailVerificationControllerSpec extends SCRSSpec with CompanyRegistrationConnectorMock with MockitoSugar with SCRSMocks
-  with GuiceOneAppPerSuite with KeystoreMock with AuthBuilder {
+  with GuiceOneAppPerSuite with SessionCacheServiceMock with AuthBuilder {
 
   object Selectors extends BaseSelectors
 
@@ -62,7 +62,7 @@ class EmailVerificationControllerSpec extends SCRSSpec with CompanyRegistrationC
   class Setup {
     val controller = new EmailVerificationController(
       mockAuthConnector,
-      mockKeystoreConnector,
+      mockSessionCacheService,
       mockEmailService,
       mockCompanyRegistrationConnector,
       mockMcc,
@@ -94,7 +94,7 @@ class EmailVerificationControllerSpec extends SCRSSpec with CompanyRegistrationC
 
     "display Confirm your email address page" in new Setup {
       val email = "We are going to send a message to verified. Check your junk folder. If it’s not there, you’ll need to start again or we can resend it If we resend an email, any previous links will expire."
-      mockKeystoreFetchAndGet[String]("registrationID", Some("regid"))
+      mockSessionCacheGet[String]("registrationID", Some("regid"))
 
       when(mockEmailService.fetchEmailBlock(ArgumentMatchers.eq("regid"))(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]())).
         thenReturn(Some(testVerifiedEmail))
@@ -121,7 +121,7 @@ class EmailVerificationControllerSpec extends SCRSSpec with CompanyRegistrationC
     )
     "redirect to email verification page when resend is link is clicked" in new Setup {
       val email = "unverified"
-      mockKeystoreFetchAndGet[String]("registrationID", Some("regid"))
+      mockSessionCacheGet[String]("registrationID", Some("regid"))
 
       when(mockEmailService.fetchEmailBlock(ArgumentMatchers.eq("regid"))(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]())).
         thenReturn(Some(testUnVerifiedEmail))

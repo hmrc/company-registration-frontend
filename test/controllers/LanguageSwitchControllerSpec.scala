@@ -41,7 +41,7 @@ class LanguageSwitchControllerSpec extends SCRSSpec with GuiceOneAppPerSuite wit
     app.injector.instanceOf[LanguageUtils],
     mockAuthConnector,
     app.injector.instanceOf[MessagesControllerComponents],
-    mockKeystoreConnector,
+    mockSessionCacheService,
     mockCompanyRegistrationConnector,
     mockLanguageService
   )
@@ -65,7 +65,7 @@ class LanguageSwitchControllerSpec extends SCRSSpec with GuiceOneAppPerSuite wit
                 "call the backend to update the Language, redirect to the URL of the referer and set the language cookie" in {
 
                   mockAuthorisedUser(Future.successful({}))
-                  mockKeystoreFetchAndGet("registrationID", Some(regId))
+                  mockSessionCacheGet("registrationID", Some(regId))
 
                   when(mockAppConfig.languageMap).thenReturn(Map(
                     LangConstants.english -> Lang(LangConstants.english),
@@ -96,7 +96,7 @@ class LanguageSwitchControllerSpec extends SCRSSpec with GuiceOneAppPerSuite wit
                 "call the backend to update the Language, redirect to the fallback URL and set the language cookie" in {
 
                   mockAuthorisedUser(Future.successful({}))
-                  mockKeystoreFetchAndGet("registrationID", Some(regId))
+                  mockSessionCacheGet("registrationID", Some(regId))
 
                   when(mockAppConfig.languageMap).thenReturn(Map(
                     LangConstants.english -> Lang(LangConstants.english),
@@ -128,7 +128,7 @@ class LanguageSwitchControllerSpec extends SCRSSpec with GuiceOneAppPerSuite wit
               "redirect to the URL and set the language cookie without calling the backend to update" in {
 
                 mockAuthorisedUser(Future.successful({}))
-                mockKeystoreFetchAndGet("registrationID", None)
+                mockSessionCacheGet("registrationID", None)
 
                 when(mockAppConfig.languageMap).thenReturn(Map(
                   LangConstants.english -> Lang(LangConstants.english),

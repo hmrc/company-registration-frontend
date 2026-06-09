@@ -49,7 +49,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
   class Setup {
     val controller = new DashboardController (
       mockAuthConnector,
-      mockKeystoreConnector,
+      mockSessionCacheService,
       mockCompanyRegistrationConnector,
       mockDashboardService,
       mockControllerComponents,
@@ -95,7 +95,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
         ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
       )
 
-      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockSessionCacheService.get[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
       when(mockDashboardService.buildDashboard(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
@@ -144,7 +144,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
         ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
       )
 
-      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockSessionCacheService.get[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
       when(mockDashboardService.buildDashboard(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
@@ -185,7 +185,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
         ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
       )
 
-      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockSessionCacheService.get[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
       when(mockDashboardService.buildDashboard(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
@@ -222,7 +222,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
         ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
       )
 
-      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockSessionCacheService.get[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
       when(mockDashboardService.buildDashboard(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
@@ -261,7 +261,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
           ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
         )
 
-        when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+        when(mockSessionCacheService.get[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(Some(regId)))
 
         when(mockDashboardService.buildDashboard(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
@@ -299,7 +299,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
           ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
         )
 
-        when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+        when(mockSessionCacheService.get[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(Some(regId)))
 
         when(mockDashboardService.buildDashboard(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
@@ -338,7 +338,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
           ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
         )
 
-        when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+        when(mockSessionCacheService.get[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(Some(regId)))
 
         when(mockDashboardService.buildDashboard(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
@@ -378,7 +378,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
           ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
         )
 
-        when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+        when(mockSessionCacheService.get[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(Some(regId)))
 
         when(mockDashboardService.buildDashboard(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
@@ -417,7 +417,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
         ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
       )
 
-      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockSessionCacheService.get[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
       when(mockDashboardService.buildDashboard(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
@@ -445,7 +445,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
         ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
       )
 
-      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockSessionCacheService.get[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
       when(mockDashboardService.buildDashboard(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
@@ -473,7 +473,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
         ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
       )
 
-      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockSessionCacheService.get[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
       when(mockDashboardService.buildDashboard(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
@@ -501,7 +501,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
         ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
       )
 
-      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockSessionCacheService.get[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
       when(mockDashboardService.buildDashboard(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
@@ -530,7 +530,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
         ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
       )
 
-      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockSessionCacheService.get[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
       when(mockDashboardService.buildDashboard(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
@@ -564,7 +564,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
         ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
       )
 
-      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockSessionCacheService.get[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
       when(mockDashboardService.buildDashboard(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
@@ -599,7 +599,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
         ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
       )
 
-      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockSessionCacheService.get[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
       when(mockDashboardService.buildDashboard(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
@@ -630,7 +630,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
           hasVATCred = false
         )
 
-        when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+        when(mockSessionCacheService.get[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(Some(regId)))
 
         when(mockDashboardService.buildDashboard(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
@@ -659,7 +659,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
         ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
       )
 
-      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockSessionCacheService.get[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
       when(mockDashboardService.buildDashboard(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
@@ -689,7 +689,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
         ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
       )
 
-      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockSessionCacheService.get[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
       when(mockDashboardService.buildDashboard(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
@@ -717,7 +717,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
         hasVATCred = false
       )
 
-      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockSessionCacheService.get[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
       when(mockDashboardService.buildDashboard(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
@@ -748,7 +748,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
           hasVATCred = false
         )
 
-        when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+        when(mockSessionCacheService.get[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
           .thenReturn(Future.successful(Some(regId)))
 
         when(mockDashboardService.buildDashboard(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
@@ -777,7 +777,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
         hasVATCred = false
       )
 
-      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockSessionCacheService.get[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
       when(mockDashboardService.buildDashboard(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
@@ -805,7 +805,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
         hasVATCred = true
       )
 
-      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockSessionCacheService.get[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
       when(mockDashboardService.buildDashboard(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
@@ -840,7 +840,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
         hasVATCred = false
       )
 
-      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockSessionCacheService.get[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
       when(mockDashboardService.buildDashboard(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
@@ -877,7 +877,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
         ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
       )
 
-      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockSessionCacheService.get[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
       when(mockDashboardService.buildDashboard(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
@@ -912,7 +912,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
         ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
       )
 
-      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockSessionCacheService.get[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
       when(mockDashboardService.buildDashboard(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
@@ -950,7 +950,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
         ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
       )
 
-      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockSessionCacheService.get[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
       when(mockDashboardService.buildDashboard(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
@@ -976,7 +976,7 @@ class DashboardSpec extends SCRSSpec with GuiceOneAppPerSuite with AuthBuilder {
         ServiceDashboard("submitted", None, Some("ack123"), ServiceLinks("vatURL", "otrsUrl", None, Some("foo")), Some(vatThresholds))
       )
 
-      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockSessionCacheService.get[String](ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(regId)))
 
       when(mockDashboardService.buildDashboard(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))

@@ -80,7 +80,7 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with GuiceOneAppP
     val controller = new SummaryController (
       mockAuthConnector,
       mockCompanyRegistrationConnector,
-      mockKeystoreConnector,
+      mockSessionCacheService,
       mockMetaDataService,
       mockTakeoverService,
       mockHandOffService,
@@ -156,7 +156,7 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with GuiceOneAppP
 
     "return a 200 whilst authorised " in new Setup {
 
-      mockKeystoreFetchAndGet("registrationID", Some(testRegId))
+      mockSessionCacheGet("registrationID", Some(testRegId))
       mockGetTakeoverDetails(testRegId)(Future.successful(None))
 
       when(mockSummaryService.getCompanyDetailsBlock(ArgumentMatchers.eq(testRegId))(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any())).thenReturn(
@@ -185,7 +185,9 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with GuiceOneAppP
     }
 
     "return a 303 and redirect to the Takeover Information Needed page if Takeover information is missing but replacingAnotherBusiness is true" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some(testRegId))
+
+      mockFetchForm("HandBackData", Some(validCompanyNameHandBack))
+      mockSessionCacheGet("registrationID", Some(testRegId))
       mockGetTakeoverDetails(testRegId)(Future.successful(Some(TakeoverDetails(replacingAnotherBusiness = true))))
 
       when(mockSummaryService.getCompanyDetailsBlock(ArgumentMatchers.eq(testRegId))(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any())).thenReturn(
@@ -218,7 +220,8 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with GuiceOneAppP
   "Post to the Summary Controller" should {
     "return a 303 whilst authorised " in new Setup {
 
-      mockKeystoreFetchAndGet("registrationID", Some(testRegId))
+      mockFetchForm("HandBackData", Some(validCompanyNameHandBack))
+      mockSessionCacheGet("registrationID", Some(testRegId))
       mockGetTakeoverDetails(testRegId)(Future.successful(None))
 
       when(mockSummaryService.getCompanyDetailsBlock(ArgumentMatchers.eq(testRegId))(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any())).thenReturn(
@@ -249,7 +252,8 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with GuiceOneAppP
     }
     "return a 303 and redirect to the Takeover Information Needed page if Takeover information is missing but replacingAnotherBusiness is true " in new Setup {
 
-      mockKeystoreFetchAndGet("registrationID", Some(testRegId))
+      mockFetchForm("HandBackData", Some(validCompanyNameHandBack))
+      mockSessionCacheGet("registrationID", Some(testRegId))
       mockGetTakeoverDetails(testRegId)(
         Future.successful(Some(TakeoverDetails(
           replacingAnotherBusiness = true,
@@ -290,7 +294,7 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with GuiceOneAppP
 
   "back" should {
     "redirect to post sign in if no navModel exists" in new Setup {
-      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.eq("registrationID"))(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockSessionCacheService.get[String](ArgumentMatchers.eq("registrationID"))(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(testRegId)))
       when(mockHandOffService.fetchNavModel(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.failed(new NavModelNotFoundException))
       showWithAuthorisedUserRetrieval(controller.back, Some("extID")) {
@@ -302,7 +306,7 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with GuiceOneAppP
     "redirect to the previous stub page" in new Setup {
       val request = FakeRequest().withFormUrlEncodedBody()
 
-      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.eq("registrationID"))(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockSessionCacheService.get[String](ArgumentMatchers.eq("registrationID"))(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(testRegId)))
       when(mockJweCommon.encrypt[BackHandoff](ArgumentMatchers.any[BackHandoff]())(ArgumentMatchers.any[Writes[BackHandoff]])).thenReturn(Some("foo"))
 
@@ -333,7 +337,7 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with GuiceOneAppP
           jump = Map("testJumpKey" -> "testJumpLink")
         )
       )
-      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.eq("registrationID"))(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockSessionCacheService.get[String](ArgumentMatchers.eq("registrationID"))(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(testRegId)))
       when(mockHandOffService.fetchNavModel(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(navModel))
       when(mockJweCommon.encrypt[JsObject](ArgumentMatchers.any[JsObject]())(ArgumentMatchers.any[Writes[JsObject]])).thenReturn(Some("foo"))
@@ -353,7 +357,7 @@ class SummaryControllerSpec extends SCRSSpec with SCRSFixtures with GuiceOneAppP
         Sender(Map("1" -> NavLinks("testForwardLinkFromSender1", "testReverseLinkFromSender1"))),
         Receiver(Map("0" -> NavLinks("testForwardLinkFromReceiver0", "testReverseLinkFromReceiver0")))
       )
-      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.eq("registrationID"))(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any()))
+      when(mockSessionCacheService.get[String](ArgumentMatchers.eq("registrationID"))(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(testRegId)))
       when(mockJweCommon.encrypt[JsObject](ArgumentMatchers.any[JsObject]())(ArgumentMatchers.any[Writes[JsObject]])).thenReturn(Some("foo"))
       when(mockHandOffService.fetchNavModel(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(handOffNavModel))

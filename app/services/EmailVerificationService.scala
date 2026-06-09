@@ -17,110 +17,100 @@
 package services
 
 import config.AppConfig
-import connectors.{CompanyRegistrationConnector, EmailVerificationConnector, KeystoreConnector, SendTemplatedEmailConnector}
-
-import javax.inject.Inject
+import connectors.{CompanyRegistrationConnector, EmailVerificationConnector, SendTemplatedEmailConnector}
 import models.Email.GG
 import models.auth.AuthDetails
-import models.{Email, _}
+import models._
 import play.api.mvc.{AnyContent, Request, Result, Results}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NoStackTrace
 
 private[services] class EmailBlockNotFound extends NoStackTrace
 
 sealed trait EmailVerified
-case class NoEmail() extends EmailVerified
-case class VerifiedEmail() extends EmailVerified
+case class NoEmail()          extends EmailVerified
+case class VerifiedEmail()    extends EmailVerified
 case class NotVerifiedEmail() extends EmailVerified
 
-class EmailVerificationServiceImpl @Inject()(val emailConnector: EmailVerificationConnector,
-                                             val crConnector: CompanyRegistrationConnector,
-                                             val keystoreConnector: KeystoreConnector,
-                                             val auditConnector: AuditConnector,
-                                             val handOffService: HandOffService,
-                                             val appConfig: AppConfig,
-                                             val templatedEmailConnector: SendTemplatedEmailConnector,
-                                            val auditService: AuditService)(implicit val ec: ExecutionContext) extends EmailVerificationService {
-  lazy val returnUrl = appConfig.self
-  lazy val sendTemplatedEmailURL = appConfig.servicesConfig.getConfString("email.returnToSCRSURL", throw new Exception("email.returnToSCRSURL not found"))
+class EmailVerificationServiceImpl @Inject() (val emailConnector: EmailVerificationConnector,
+                                              val crConnector: CompanyRegistrationConnector,
+                                              val sessionCacheService: SessionCacheService,
+                                              val auditConnector: AuditConnector,
+                                              val handOffService: HandOffService,
+                                              val appConfig: AppConfig,
+                                              val templatedEmailConnector: SendTemplatedEmailConnector,
+                                              val auditService: AuditService)(implicit val ec: ExecutionContext)
+    extends EmailVerificationService {
+  lazy val returnUrl: String = appConfig.self
+  lazy val sendTemplatedEmailURL: String =
+    appConfig.servicesConfig.getConfString("email.returnToSCRSURL", throw new Exception("email.returnToSCRSURL not found"))
 }
 
 trait EmailVerificationService {
 
-  val emailVerificationTemplate = "register_your_company_verification_email"
+  val emailVerificationTemplate        = "register_your_company_verification_email"
   val registerYourCompanyEmailTemplate = "register_your_company_welcome_email"
   val returnUrl: String
 
   val emailConnector: EmailVerificationConnector
   val templatedEmailConnector: SendTemplatedEmailConnector
   val crConnector: CompanyRegistrationConnector
-  val keystoreConnector : KeystoreConnector
-  val auditConnector : AuditConnector
-  val sendTemplatedEmailURL : String
-  val handOffService : HandOffService
+  val sessionCacheService: SessionCacheService
+  val auditConnector: AuditConnector
+  val sendTemplatedEmailURL: String
+  val handOffService: HandOffService
   val auditService: AuditService
 
-
-  private def emailChecks(compRegEmailOpt: Option[Email], rId:String, authDetails: AuthDetails)(implicit hc: HeaderCarrier, ec: ExecutionContext,req: Request[AnyContent]): Future[Option[Email]] = {
-  compRegEmailOpt match {
-    case _ if authDetails.email == "" => Future.successful(None)
-    case Some(Email(address,_,_,_,_)) if address == "" => Future.successful(None)
-    case None if authDetails.email != "" => noEmailBlock(rId,authDetails).map(e =>  Some(e))
-
-    case em@Some(e) => Future.successful(em)
-  }
-}
-  private def noEmailBlock(regId:String, authDetails: AuthDetails)(implicit hc: HeaderCarrier, ec: ExecutionContext,req: Request[AnyContent]) = {
-    val email = Email(authDetails.email, "GG", linkSent = false, verified = false, returnLinkEmailSent = false)
-    saveEmailBlock(regId, email,authDetails.authProviderId, authDetails.externalId) map { x =>
-      email
-    }
-  }
-
-  def checkEmailStatus(rId: String, oEmail: Option[Email], authDetails : AuthDetails)
-  (implicit hc: HeaderCarrier, ec: ExecutionContext, req: Request[AnyContent]): Future[EmailVerified] = {
+  def checkEmailStatus(rId: String, oEmail: Option[Email], authDetails: AuthDetails)(implicit
+      hc: HeaderCarrier,
+      ec: ExecutionContext,
+      req: Request[AnyContent]): Future[EmailVerified] = {
 
     def cacheReg(emv: EmailVerified) = handOffService.cacheRegistrationID(rId).map(_ => emv)
 
     emailChecks(oEmail, rId, authDetails) flatMap {
-        case None => Future.successful(NoEmail())
+      case None => Future.successful(NoEmail())
 
-        case Some(Email(address, _, _, scrsVerified@true, _)) => cacheReg(VerifiedEmail())
+      case Some(Email(address, _, _, scrsVerified @ true, _)) => cacheReg(VerifiedEmail())
 
-        case Some(Email(address, _, linkSent@true, _, _)) =>
-          verifyEmailAddressAndSaveEmailBlockWithFlag(address, rId, authDetails.authProviderId,authDetails.externalId) flatMap  {
-            case Some(true) => cacheReg(VerifiedEmail())
-            case _ => cacheReg(NotVerifiedEmail())
+      case Some(Email(address, _, linkSent @ true, _, _)) =>
+        verifyEmailAddressAndSaveEmailBlockWithFlag(address, rId, authDetails.authProviderId, authDetails.externalId) flatMap {
+          case Some(true) => cacheReg(VerifiedEmail())
+          case _          => cacheReg(NotVerifiedEmail())
         }
-        case Some(Email(address, _, linkSent@false, _, _)) => cacheReg(NotVerifiedEmail())
+      case Some(Email(address, _, linkSent @ false, _, _)) => cacheReg(NotVerifiedEmail())
+    }
+  }
+
+  def verifyEmailAddressAndSaveEmailBlockWithFlag(address: String, rId: String, authProviderId: String, externalId: String)(implicit
+      hc: HeaderCarrier,
+      ec: ExecutionContext,
+      req: Request[AnyContent]): Future[Option[Boolean]] =
+    emailConnector.checkVerifiedEmail(address) flatMap { emailVerified =>
+      saveEmailBlock(
+        rId,
+        Email(address, GG, linkSent = true, verified = emailVerified, returnLinkEmailSent = false),
+        authProviderId,
+        externalId) map { _ =>
+        Some(emailVerified)
       }
-  }
-
-
-  def verifyEmailAddressAndSaveEmailBlockWithFlag(address: String, rId: String, authProviderId: String, externalId: String)
-                                                                   (implicit hc: HeaderCarrier, ec: ExecutionContext, req: Request[AnyContent]): Future[Option[Boolean]] = {
-      emailConnector.checkVerifiedEmail(address) flatMap { emailVerified =>
-        saveEmailBlock(rId, Email(address, GG, linkSent = true, verified = emailVerified, returnLinkEmailSent = false), authProviderId, externalId) map {
-          _ => Some(emailVerified)
-        }
     }
-  }
 
-  def sendVerificationLink(address: String, rId: String, authProviderId: String, externalId:String)
-                                            (implicit hc: HeaderCarrier, ec: ExecutionContext, req: Request[AnyContent]): Future[Option[Boolean]] = {
-      emailConnector.requestVerificationEmailReturnVerifiedEmailStatus(generateEmailRequest(address)) flatMap {
-        verified =>
-          saveEmailBlock(rId, Email(address, GG, !verified, verified, false),authProviderId,externalId) map { seb =>
-            Some(verified)
-          }
+  def sendVerificationLink(address: String, rId: String, authProviderId: String, externalId: String)(implicit
+      hc: HeaderCarrier,
+      ec: ExecutionContext,
+      req: Request[AnyContent]): Future[Option[Boolean]] =
+    emailConnector.requestVerificationEmailReturnVerifiedEmailStatus(generateEmailRequest(address)) flatMap { verified =>
+      saveEmailBlock(rId, Email(address, GG, !verified, verified, false), authProviderId, externalId) map { seb =>
+        Some(verified)
+      }
     }
-  }
 
-  private[services] def generateEmailRequest(address: String): EmailVerificationRequest = {
+  private[services] def generateEmailRequest(address: String): EmailVerificationRequest =
     EmailVerificationRequest(
       email = address,
       templateId = emailVerificationTemplate,
@@ -128,41 +118,57 @@ trait EmailVerificationService {
       linkExpiryDuration = "P3D",
       continueUrl = s"$returnUrl/register-your-company/post-sign-in"
     )
-  }
-  def fetchEmailBlock(regId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext):Future[Option[Email]] ={
-    crConnector.retrieveEmail(regId)
-  }
 
-  def emailVerifiedStatusInSCRS(rId:String, f: () => Future[Result])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Result] = {
-
-    fetchEmailBlock(rId).flatMap {
-      e =>
-        if(e.exists(_.verified) || e.isEmpty) {
-          Future.successful(Results.Redirect(controllers.reg.routes.SignInOutController.postSignIn(None)))
-        } else {
-          f()
-        }
-    }
-  }
-
-  def saveEmailBlock(regId: String, email: Email, authProviderId: String, externalId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext, req: Request[AnyContent]): Future[Option[Email]] = {
-    crConnector.updateEmail(regId, email)
+  def saveEmailBlock(regId: String, email: Email, authProviderId: String, externalId: String)(implicit
+      hc: HeaderCarrier,
+      ec: ExecutionContext,
+      req: Request[AnyContent]): Future[Option[Email]] =
+    crConnector
+      .updateEmail(regId, email)
       .flatMap { emailFromUpdate =>
-        if(email.verified) {
+        if (email.verified) {
           emailAuditing(regId, email.address, authProviderId, externalId).map(_ => emailFromUpdate)
         } else {
           Future.successful(emailFromUpdate)
         }
       }
-  }
 
-  private def emailAuditing(rId : String, emailAddress : String, authProviderId: String, externalId: String)
-                           (implicit hc : HeaderCarrier, ec: ExecutionContext, req: Request[AnyContent]) = {
+  private def emailAuditing(rId: String, emailAddress: String, authProviderId: String, externalId: String)(implicit
+      hc: HeaderCarrier,
+      ec: ExecutionContext,
+      req: Request[AnyContent]) =
     for {
-      result <- auditService.emailVerifiedEventDetail(externalId,
-        authProviderId,
-        rId,
-        emailAddress)
+      result <- auditService.emailVerifiedEventDetail(externalId, authProviderId, rId, emailAddress)
     } yield result
+
+  def emailVerifiedStatusInSCRS(rId: String, f: () => Future[Result])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Result] =
+    fetchEmailBlock(rId).flatMap { e =>
+      if (e.exists(_.verified) || e.isEmpty) {
+        Future.successful(Results.Redirect(controllers.reg.routes.SignInOutController.postSignIn(None)))
+      } else {
+        f()
+      }
+    }
+
+  def fetchEmailBlock(regId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[Email]] =
+    crConnector.retrieveEmail(regId)
+
+  private def emailChecks(compRegEmailOpt: Option[Email], rId: String, authDetails: AuthDetails)(implicit
+      hc: HeaderCarrier,
+      ec: ExecutionContext,
+      req: Request[AnyContent]): Future[Option[Email]] =
+    compRegEmailOpt match {
+      case _ if authDetails.email == ""                      => Future.successful(None)
+      case Some(Email(address, _, _, _, _)) if address == "" => Future.successful(None)
+      case None if authDetails.email != ""                   => noEmailBlock(rId, authDetails).map(e => Some(e))
+
+      case em @ Some(e) => Future.successful(em)
+    }
+
+  private def noEmailBlock(regId: String, authDetails: AuthDetails)(implicit hc: HeaderCarrier, ec: ExecutionContext, req: Request[AnyContent]) = {
+    val email = Email(authDetails.email, "GG", linkSent = false, verified = false, returnLinkEmailSent = false)
+    saveEmailBlock(regId, email, authDetails.authProviderId, authDetails.externalId) map { x =>
+      email
+    }
   }
 }

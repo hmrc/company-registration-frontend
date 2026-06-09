@@ -46,7 +46,7 @@ class AccountingDatesControllerSpec extends SCRSSpec with GuiceOneAppPerSuite wi
     val controller = new AccountingDatesController(
       mockAuthConnector,
       mockCompanyRegistrationConnector,
-      mockKeystoreConnector,
+      mockSessionCacheService,
       mockAccountingService,
       MetricServiceMock,
       timeServiceMock,
@@ -76,7 +76,7 @@ class AccountingDatesControllerSpec extends SCRSSpec with GuiceOneAppPerSuite wi
 
     "return a 200 whilst authorised and have data fetched" in new Setup {
       CTRegistrationConnectorMocks.retrieveCTRegistration()
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      mockSessionCacheGet("registrationID", Some("1"))
       AccountingServiceMocks.fetchAccountingDetails(validAccountingDetailsModel)
       showWithAuthorisedUser(controller.show) {
         result =>

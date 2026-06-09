@@ -49,7 +49,7 @@ class GroupReliefControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with M
       mockAuthConnector,
       mockGroupService,
       mockCompanyRegistrationConnector,
-      mockKeystoreConnector,
+      mockSessionCacheService,
       mockMcc,
       mockControllerErrorHandler,
       mockGroupReliefView
@@ -118,7 +118,7 @@ class GroupReliefControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with M
     "Redirect the user to post sign in if the user is authorised but has no registration id in session" in new Setup {
       val regID = "12345"
 
-      mockKeystoreFetchAndGet("registrationID", None)
+      mockSessionCacheGet("registrationID", None)
       when(mockCompanyRegistrationConnector.fetchCompanyName(any[String]())(any[HeaderCarrier](), any[ExecutionContext]()))
         .thenReturn(Future.successful("Company Name"))
       when(mockGroupService.retrieveGroups(any())(any(), any()))
@@ -134,7 +134,7 @@ class GroupReliefControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with M
     }
 
     "Redirect the user to post sign in if the user is authorised but with incorrect status" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("reg123"))
+      mockSessionCacheGet("registrationID", Some("reg123"))
 
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("held", ""))
       when(mockGroupService.retrieveGroups(any[String])(any[HeaderCarrier], any[ExecutionContext]))
@@ -154,7 +154,7 @@ class GroupReliefControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with M
 
     "display the page whilst the user is authorised and already has a group block saved" in new Setup {
       val groupBlock = """ ,"groups" : {"groupRelief" : true} """
-      mockKeystoreFetchAndGet("registrationID", Some("reg123"))
+      mockSessionCacheGet("registrationID", Some("reg123"))
 
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", groupBlock))
       when(mockGroupService.retrieveGroups(any[String])(any[HeaderCarrier], any[ExecutionContext]))
@@ -172,7 +172,7 @@ class GroupReliefControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with M
     }
 
     "display the page whilst the user is authorised and doesn't have a group block saved" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("reg123"))
+      mockSessionCacheGet("registrationID", Some("reg123"))
 
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
       when(mockGroupService.retrieveGroups(any[String])(any[HeaderCarrier], any[ExecutionContext]))
@@ -190,7 +190,7 @@ class GroupReliefControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with M
     }
 
     "return a 303 and redirect to Owning Company's Name page if the user has entered valid data" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("reg123"))
+      mockSessionCacheGet("registrationID", Some("reg123"))
 
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
       when(mockGroupService.retrieveGroups(any[String])(any[HeaderCarrier], any[ExecutionContext]))
@@ -208,7 +208,7 @@ class GroupReliefControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with M
     }
 
     "return a 303 and redirect to PSC if the user has entered valid data" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("reg123"))
+      mockSessionCacheGet("registrationID", Some("reg123"))
 
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
       when(mockGroupService.retrieveGroups(any[String])(any[HeaderCarrier], any[ExecutionContext]))
@@ -226,7 +226,7 @@ class GroupReliefControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with M
     }
 
     "return a bad request when the form submitted contains incorrect data" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("reg123"))
+      mockSessionCacheGet("registrationID", Some("reg123"))
 
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
       when(mockGroupService.retrieveGroups(any[String])(any[HeaderCarrier], any[ExecutionContext]))

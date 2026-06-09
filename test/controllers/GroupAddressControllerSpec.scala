@@ -57,7 +57,7 @@ class GroupAddressControllerSpec()(implicit lang: Lang) extends SCRSSpec with Gu
       mockAuthConnector,
       mockGroupService,
       mockCompanyRegistrationConnector,
-      mockKeystoreConnector,
+      mockSessionCacheService,
       mockAddressLookupService,
       mockMcc,
       mockGroupAddressView
@@ -75,7 +75,7 @@ class GroupAddressControllerSpec()(implicit lang: Lang) extends SCRSSpec with Gu
       val testGroups = Groups(groupRelief = true, Some(GroupCompanyName("testGroupCompanyname1", "Other")),
         Some(GroupsAddressAndType("ALF", testAddress)),
         None)
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      mockSessionCacheGet("registrationID", Some("1"))
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
       when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any()))
         .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
@@ -94,7 +94,7 @@ class GroupAddressControllerSpec()(implicit lang: Lang) extends SCRSSpec with Gu
       val testGroups = Groups(groupRelief = true, None,
         None,
         None)
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      mockSessionCacheGet("registrationID", Some("1"))
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
       when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any()))
         .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
@@ -111,7 +111,7 @@ class GroupAddressControllerSpec()(implicit lang: Lang) extends SCRSSpec with Gu
       val testGroups = Groups(groupRelief = true, Some(GroupCompanyName("testGroupCompanyname1", "Other")),
         None,
         None)
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      mockSessionCacheGet("registrationID", Some("1"))
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
       when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any()))
         .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
@@ -130,7 +130,7 @@ class GroupAddressControllerSpec()(implicit lang: Lang) extends SCRSSpec with Gu
       val testGroups = Groups(groupRelief = true, Some(GroupCompanyName("testGroupCompanyname1", "CohoEntered")),
         None,
         None)
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      mockSessionCacheGet("registrationID", Some("1"))
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
       when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any()))
         .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
@@ -151,7 +151,7 @@ class GroupAddressControllerSpec()(implicit lang: Lang) extends SCRSSpec with Gu
       val testGroups = Groups(groupRelief = true, Some(GroupCompanyName("testGroupCompanyname1", "CohoEntered")),
         None,
         None)
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      mockSessionCacheGet("registrationID", Some("1"))
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
       when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any()))
         .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
@@ -179,7 +179,7 @@ class GroupAddressControllerSpec()(implicit lang: Lang) extends SCRSSpec with Gu
       val testGroups = Groups(groupRelief = true, Some(GroupCompanyName("testGroupCompanyname1", "CohoEntered")),
         Some(GroupsAddressAndType("foo", testAddress)),
         None)
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      mockSessionCacheGet("registrationID", Some("1"))
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
       when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any()))
         .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
@@ -209,7 +209,7 @@ class GroupAddressControllerSpec()(implicit lang: Lang) extends SCRSSpec with Gu
       Some(GroupsAddressAndType("foo", testAddress)),
       None)
     "return 400 if invalid form is submitted by the user" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      mockSessionCacheGet("registrationID", Some("1"))
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
       when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any()))
         .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
@@ -226,7 +226,7 @@ class GroupAddressControllerSpec()(implicit lang: Lang) extends SCRSSpec with Gu
     }
 
     s"return 303 to ${controllers.groups.routes.GroupUtrController.show.url} if submission is TxAPI and saveShareholderAddress returns address" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      mockSessionCacheGet("registrationID", Some("1"))
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
       when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any()))
         .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
@@ -241,7 +241,7 @@ class GroupAddressControllerSpec()(implicit lang: Lang) extends SCRSSpec with Gu
     }
 
     "return 303 to ALF if submission is TxAPI and saveShareholderAddress returns nothing" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      mockSessionCacheGet("registrationID", Some("1"))
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
       when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any()))
         .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
@@ -257,7 +257,7 @@ class GroupAddressControllerSpec()(implicit lang: Lang) extends SCRSSpec with Gu
     }
 
     s"return 303 to ${controllers.groups.routes.GroupUtrController.show.url} if submission is ALF" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      mockSessionCacheGet("registrationID", Some("1"))
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
       when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any()))
         .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
@@ -271,7 +271,7 @@ class GroupAddressControllerSpec()(implicit lang: Lang) extends SCRSSpec with Gu
     }
 
     s"return 303 to ALF if submission is Other" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      mockSessionCacheGet("registrationID", Some("1"))
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
       when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any()))
         .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
@@ -286,7 +286,7 @@ class GroupAddressControllerSpec()(implicit lang: Lang) extends SCRSSpec with Gu
     }
 
     s"return 303 to ${controllers.groups.routes.GroupUtrController.show.url} if submission is CohoEntered" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      mockSessionCacheGet("registrationID", Some("1"))
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
       when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any()))
         .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
@@ -305,7 +305,7 @@ class GroupAddressControllerSpec()(implicit lang: Lang) extends SCRSSpec with Gu
       Some(GroupsAddressAndType("foo", NewAddress("l1", "l2", None, None, None, None, None))),
       None)
     s"return 303 to ${controllers.groups.routes.GroupUtrController.show.url}" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      mockSessionCacheGet("registrationID", Some("1"))
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
       when(mockCompanyRegistrationConnector.retrieveEmail(ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier], any()))

@@ -16,6 +16,7 @@
 
 package test.www
 
+import itutil.SessionStub
 import test.fixtures.HandOffFixtures
 import test.itutil.{IntegrationSpecBase, LoginStub, MongoHelper}
 import models.{CHROAddress, CompanyDetails, PPOB}
@@ -23,11 +24,12 @@ import play.api.http.HeaderNames
 import play.api.libs.crypto.DefaultCookieSigner
 import play.api.libs.json.Json
 import repositories.NavModelRepoImpl
+import uk.gov.hmrc.mongo.cache.DataKey
 import utils.JweCommon
 
 import java.util.UUID
 
-class CorporationTaxDetailsControllerISpec extends IntegrationSpecBase with LoginStub with HandOffFixtures with MongoHelper {
+class CorporationTaxDetailsControllerISpec extends IntegrationSpecBase with SessionStub with HandOffFixtures with MongoHelper {
 
   val userId = "test-user-id"
   val regId = "12345"
@@ -66,7 +68,7 @@ class CorporationTaxDetailsControllerISpec extends IntegrationSpecBase with Logi
 
   val companyDetails = Json.toJson(CompanyDetails("CompanyName", CHROAddress("premises", "line1", Some("line2"), "locality", "UK", None, None, None), PPOB("", None), "ENGLAND_AND_WALES")).toString
 
-  val repo = app.injector.instanceOf[NavModelRepoImpl].repository
+  val repoNav = app.injector.instanceOf[NavModelRepoImpl].repository
 
   val jweDecryptor = app.injector.instanceOf[JweCommon]
 
@@ -74,17 +76,17 @@ class CorporationTaxDetailsControllerISpec extends IntegrationSpecBase with Logi
     "return 303 when a valid payload is passed in updates NavModel successfully" in {
       stubSuccessfulLogin(userId = userId)
       stubFootprint(200, footprintResponse)
-      stubKeystore(SessionId, regId)
-      await(repo.drop)
-      await(repo.insertNavModel(regId, handOffNavModelDataUpTo1))
-      await(repo.count) mustBe 1
+      cacheSessionData[String](DataKey("registrationID"), regId)
+      await(repoNav.drop)
+      await(repoNav.insertNavModel(regId, handOffNavModelDataUpTo1))
+      await(repoNav.count) mustBe 1
       val csrfToken = UUID.randomUUID().toString
       val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
       stubRetrieveCRCompanyDetails(regId, 200, companyDetails)
       stubUpdateCRCompanyDetails(regId, 200, companyDetails)
       stubHandOffReference(regId, 200)
 
-      await(repo.getNavModel(regId)).get mustBe handOffNavModelDataUpTo1
+      await(repoNav.getNavModel(regId)).get mustBe handOffNavModelDataUpTo1
       val fResponse = buildClient(controllers.handoff.routes.CorporationTaxDetailsController.corporationTaxDetails(HO2_PAYLOAD).url)
         .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
         .get()
@@ -97,17 +99,17 @@ class CorporationTaxDetailsControllerISpec extends IntegrationSpecBase with Logi
     "return 400 when payload contains invalid data" in {
       stubSuccessfulLogin(userId = userId)
       stubFootprint(200, footprintResponse)
-      stubKeystore(SessionId, regId)
-      await(repo.drop)
-      await(repo.insertNavModel(regId, handOffNavModelDataUpTo1))
-      await(repo.count) mustBe 1
+      cacheSessionData[String](DataKey("registrationID"), regId)
+      await(repoNav.drop)
+      await(repoNav.insertNavModel(regId, handOffNavModelDataUpTo1))
+      await(repoNav.count) mustBe 1
       val csrfToken = UUID.randomUUID().toString
       val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
       stubRetrieveCRCompanyDetails(regId, 200, companyDetails)
       stubUpdateCRCompanyDetails(regId, 200, companyDetails)
       stubHandOffReference(regId, 200)
 
-      await(repo.getNavModel(regId)).get mustBe handOffNavModelDataUpTo1
+      await(repoNav.getNavModel(regId)).get mustBe handOffNavModelDataUpTo1
       val fResponse = buildClient(controllers.handoff.routes.CorporationTaxDetailsController.corporationTaxDetails("").url)
         .withHttpHeaders(HeaderNames.COOKIE -> sessionCookie, "Csrf-Token" -> "nocheck")
         .get()

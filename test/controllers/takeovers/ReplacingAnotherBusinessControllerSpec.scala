@@ -57,7 +57,7 @@ class ReplacingAnotherBusinessControllerSpec extends SCRSSpec with GuiceOneAppPe
       mockAuthConnector,
       mockTakeoverService,
       mockCompanyRegistrationConnector,
-      mockKeystoreConnector,
+      mockSessionCacheService,
       mockSCRSFeatureSwitches,
       mockMcc,
       mockControllerErrorHandler,
@@ -71,7 +71,7 @@ class ReplacingAnotherBusinessControllerSpec extends SCRSSpec with GuiceOneAppPe
       "the user has not submitted takeover information before" should {
         "return 200 with the replacing another business page" in new Setup {
           mockAuthorisedUser(Future.successful({}))
-          mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
+          mockSessionCacheGet("registrationID", Some(testRegistrationId))
 
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
           mockGetTakeoverDetails(testRegistrationId)(Future.successful(None))
@@ -87,7 +87,7 @@ class ReplacingAnotherBusinessControllerSpec extends SCRSSpec with GuiceOneAppPe
       "the user has previously submitted takeover information" should {
         "return 200 with the replacing another business page" in new Setup {
           mockAuthorisedUser(Future.successful({}))
-          mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
+          mockSessionCacheGet("registrationID", Some(testRegistrationId))
 
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
@@ -111,7 +111,7 @@ class ReplacingAnotherBusinessControllerSpec extends SCRSSpec with GuiceOneAppPe
             FakeRequest().withFormUrlEncodedBody(replacingAnotherBusinessKey -> false.toString)
 
           mockAuthorisedUser(Future.successful({}))
-          mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
+          mockSessionCacheGet("registrationID", Some(testRegistrationId))
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
           val testTakeoverDetails: TakeoverDetails = TakeoverDetails(replacingAnotherBusiness = false)
@@ -127,7 +127,7 @@ class ReplacingAnotherBusinessControllerSpec extends SCRSSpec with GuiceOneAppPe
             FakeRequest().withFormUrlEncodedBody(replacingAnotherBusinessKey -> true.toString)
 
           mockAuthorisedUser(Future.successful({}))
-          mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
+          mockSessionCacheGet("registrationID", Some(testRegistrationId))
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
           val testTakeoverDetails: TakeoverDetails = TakeoverDetails(replacingAnotherBusiness = true)

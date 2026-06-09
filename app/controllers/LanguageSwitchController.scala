@@ -17,11 +17,11 @@
 package controllers
 
 import config.AppConfig
-import connectors.{CompanyRegistrationConnector, KeystoreConnector}
+import connectors.CompanyRegistrationConnector
 import controllers.auth.AuthenticatedController
 import play.api.i18n.{I18nSupport, Lang}
 import play.api.mvc.{Action, AnyContent, BaseController, ControllerComponents, Flash, MessagesControllerComponents, Request, Result}
-import services.LanguageService
+import services.{LanguageService, SessionCacheService}
 import uk.gov.hmrc.auth.core.AuthProvider.GovernmentGateway
 import uk.gov.hmrc.auth.core.{AuthConnector, AuthProviders, ConfidenceLevel, PlayAuthConnector}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -38,7 +38,7 @@ class LanguageSwitchController @Inject()(override val appConfig: AppConfig,
                                          languageUtils: LanguageUtils,
                                          override val authConnector: PlayAuthConnector,
                                          override val controllerComponents: MessagesControllerComponents,
-                                         override val keystoreConnector: KeystoreConnector,
+                                         override val sessionCacheService: SessionCacheService,
                                          override val compRegConnector: CompanyRegistrationConnector,
                                          languageService: LanguageService
                                         )(implicit val ec: ExecutionContext) extends AuthenticatedController with I18nSupport with SessionRegistration {

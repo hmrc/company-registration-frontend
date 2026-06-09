@@ -17,71 +17,68 @@
 package controllers.handoff
 
 import config.AppConfig
-import connectors.{CompanyRegistrationConnector, KeystoreConnector}
+import connectors.CompanyRegistrationConnector
 import controllers.auth.AuthenticatedController
 import controllers.reg.ControllerErrorHandler
-
-import javax.inject.Inject
-import play.api.i18n.{I18nSupport, Lang}
+import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.{HandBackService, HandOffService, LanguageService, NavModelNotFoundException}
+import services._
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import utils.{DecryptionError, PayloadError, SessionRegistration}
 import views.html.{error_template, error_template_restart}
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success}
 
-class BusinessActivitiesController @Inject()(val authConnector: PlayAuthConnector,
-                                             val keystoreConnector: KeystoreConnector,
-                                             val handOffService: HandOffService,
-                                             val compRegConnector: CompanyRegistrationConnector,
-                                             val handBackService: HandBackService,
-                                             val controllerComponents: MessagesControllerComponents,
-                                             val controllerErrorHandler: ControllerErrorHandler,
-                                             handOffUtils: HandOffUtils,
-                                             error_template: error_template,
-                                             error_template_restart: error_template_restart,
-                                             languageService: LanguageService)
-                                            (implicit val appConfig: AppConfig, implicit val ec: ExecutionContext)
-  extends AuthenticatedController with SessionRegistration with I18nSupport {
+class BusinessActivitiesController @Inject() (val authConnector: PlayAuthConnector,
+                                              val sessionCacheService: SessionCacheService,
+                                              val handOffService: HandOffService,
+                                              val compRegConnector: CompanyRegistrationConnector,
+                                              val handBackService: HandBackService,
+                                              val controllerComponents: MessagesControllerComponents,
+                                              val controllerErrorHandler: ControllerErrorHandler,
+                                              handOffUtils: HandOffUtils,
+                                              error_template: error_template,
+                                              error_template_restart: error_template_restart,
+                                              languageService: LanguageService)(implicit val appConfig: AppConfig, implicit val ec: ExecutionContext)
+    extends AuthenticatedController
+    with SessionRegistration
+    with I18nSupport {
 
-
-  //HO3
-  val businessActivities: Action[AnyContent] = Action.async {
-    implicit request =>
-      ctAuthorisedOptStr(Retrievals.externalId) { externalID =>
-        registered { regID =>
-          handOffService.buildBusinessActivitiesPayload(regID, externalID, handOffUtils.getCurrentLang(request)).map {
-            case Some((url, payload)) => Redirect(handOffService.buildHandOffUrl(url, payload))
-            case None => BadRequest(error_template("", "", ""))
-          }
-        } recover {
-          case ex: NavModelNotFoundException => Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))
+  // HO3
+  val businessActivities: Action[AnyContent] = Action.async { implicit request =>
+    ctAuthorisedOptStr(Retrievals.externalId) { externalID =>
+      registered { regID =>
+        handOffService.buildBusinessActivitiesPayload(regID, externalID, handOffUtils.getCurrentLang(request)).map {
+          case Some((url, payload)) => Redirect(handOffService.buildHandOffUrl(url, payload))
+          case None                 => BadRequest(error_template("", "", ""))
         }
+      } recover { case _: NavModelNotFoundException =>
+        Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))
       }
+    }
   }
 
-  //HO3b
-  def businessActivitiesBack(request: String): Action[AnyContent] = Action.async {
-    implicit _request =>
-      ctAuthorisedHandoff("HO3b", request) {
-        registeredHandOff("HO3b", request) { regId =>
-          handBackService.processBusinessActivitiesHandBack(request).flatMap {
-            case Success(payload) =>
-              val lang = handOffUtils.readLang(payload)
-              languageService.updateLanguage(regId, lang).map { _ =>
-                Redirect(controllers.reg.routes.TradingDetailsController.show).withLang(lang)
-              }
-            case Failure(PayloadError) =>
-              Future.successful(BadRequest(error_template_restart("3b", "PayloadError")))
-            case Failure(DecryptionError) =>
-              Future.successful(BadRequest(error_template_restart("3b", "DecryptionError")))
-            case _ =>
-              Future.successful(InternalServerError(controllerErrorHandler.defaultErrorPage))
-          }
+  // HO3b
+  def businessActivitiesBack(request: String): Action[AnyContent] = Action.async { implicit _request =>
+    ctAuthorisedHandoff("HO3b", request) {
+      registeredHandOff("HO3b", request) { regId =>
+        handBackService.processBusinessActivitiesHandBack(request).flatMap {
+          case Success(payload) =>
+            val lang = handOffUtils.readLang(payload)
+            languageService.updateLanguage(regId, lang).map { _ =>
+              Redirect(controllers.reg.routes.TradingDetailsController.show).withLang(lang)
+            }
+          case Failure(PayloadError) =>
+            Future.successful(BadRequest(error_template_restart("3b", "PayloadError")))
+          case Failure(DecryptionError) =>
+            Future.successful(BadRequest(error_template_restart("3b", "DecryptionError")))
+          case _ =>
+            Future.successful(InternalServerError(controllerErrorHandler.defaultErrorPage))
         }
       }
+    }
   }
 }

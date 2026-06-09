@@ -16,63 +16,103 @@
 
 package services
 
-import connectors.{CompanyRegistrationConnector, IncorpInfoConnector, KeystoreConnector}
-
-import javax.inject.{Inject, Singleton}
+import connectors.{CompanyRegistrationConnector, IncorpInfoConnector}
 import models._
 import play.api.i18n.{Messages, MessagesApi, MessagesProvider}
 import uk.gov.hmrc.http.{HeaderCarrier, InternalServerException}
 import utils.SCRSExceptions
 
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class GroupService @Inject()(val keystoreConnector: KeystoreConnector,
-                             val compRegConnector: CompanyRegistrationConnector,
-                             val incorpInfoConnector: IncorpInfoConnector,
-                             val messagesApi: MessagesApi
-                            )(implicit ec: ExecutionContext)
-  extends CommonService with SCRSExceptions {
+class GroupService @Inject() (val sessionCacheService: SessionCacheService,
+                              val compRegConnector: CompanyRegistrationConnector,
+                              val incorpInfoConnector: IncorpInfoConnector,
+                              val messagesApi: MessagesApi)(implicit ec: ExecutionContext)
+    extends CommonService
+    with SCRSExceptions {
 
   val votingRightsThreshold: Int = 75
 
-  def updateGroupRelief(groupRelief: Boolean, registrationId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Groups] = {
+  def updateGroupRelief(groupRelief: Boolean, registrationId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Groups] =
     compRegConnector.getGroups(registrationId).flatMap {
       case Some(groups) if groupRelief =>
         compRegConnector.updateGroups(registrationId, groups.copy(groupRelief = groupRelief))
       case _ =>
         compRegConnector.updateGroups(registrationId, Groups(groupRelief, None, None, None))
     }
-  }
 
-  def updateGroupName(groupCompanyName: GroupCompanyName, groups: Groups, registrationID: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Groups] = {
+  def updateGroupName(groupCompanyName: GroupCompanyName, groups: Groups, registrationID: String)(implicit
+      hc: HeaderCarrier,
+      ec: ExecutionContext): Future[Groups] =
     if (groups.nameOfCompany.contains(groupCompanyName)) {
       compRegConnector.updateGroups(
         registrationID,
         groups.copy(nameOfCompany = Some(groupCompanyName))
       )
-    }
-    else {
+    } else {
       compRegConnector.updateGroups(
         registrationID,
         groups.copy(nameOfCompany = Some(groupCompanyName), addressAndType = None, groupUTR = None)
       )
     }
-  }
 
-  def updateGroupUtr(groupUtr: GroupUTR, groups: Groups, registrationId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Groups] = {
+  def updateGroupUtr(groupUtr: GroupUTR, groups: Groups, registrationId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Groups] =
     compRegConnector.updateGroups(registrationId, groups.copy(groupUTR = Some(groupUtr)))
-  }
 
-  def retrieveGroups(registrationId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[Groups]] = {
-    compRegConnector.getGroups(registrationId)
-  }
+  def dropOldFields(groups: Groups, address: NewAddress, registrationId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Groups] =
+    groups.addressAndType match {
+      case Some(addressAndType) if addressAndType.address.toString != address.toString && addressAndType.addressType != "ALF" =>
+        compRegConnector.updateGroups(registrationId, groups.copy(addressAndType = None, groupUTR = None))
+      case _ => Future.successful(groups)
+    }
 
-  def dropGroups(registrationId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Boolean] = {
-    compRegConnector.deleteGroups(registrationId)
-  }
+  def createAddressMap(optPrepopAddressAndType: Option[GroupsAddressAndType], address: NewAddress)(implicit
+      messagesProvider: MessagesProvider): Map[String, String] =
+    optPrepopAddressAndType match {
+      case Some(prepopAddressAndType) =>
+        if (prepopAddressAndType.address.toString == address.toString) {
+          Map(prepopAddressAndType.addressType -> prepopAddressAndType.address.toString, "Other" -> Messages("page.reg.ppob.differentAddress"))
+        } else {
+          Map(
+            prepopAddressAndType.addressType -> prepopAddressAndType.address.toString,
+            "TxAPI"                          -> address.toString,
+            "Other"                          -> Messages("page.reg.ppob.differentAddress"))
+        }
+      case _ =>
+        Map("TxAPI" -> address.toString, "Other" -> Messages("page.reg.ppob.differentAddress"))
+    }
 
-  def retreiveValidatedTxApiAddress(groups: Groups, registrationId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[NewAddress]] = {
+  def updateGroupAddress(address: GroupsAddressAndType, registrationId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Groups] =
+    compRegConnector.getGroups(registrationId).flatMap {
+      case Some(groups) =>
+        val updatedGroupsBlock =
+          if (groups.addressAndType.contains(address)) {
+            groups.copy(addressAndType = Some(address))
+          } else {
+            groups.copy(addressAndType = Some(address), groupUTR = None)
+          }
+        compRegConnector.updateGroups(registrationId, updatedGroupsBlock)
+      case None =>
+        Future.failed(new InternalServerException("[GroupService] [updateGroupAddress] Missing prerequisite takeover data"))
+    }
+
+  def saveTxShareHolderAddress(groups: Groups, registrationID: String)(implicit
+      hc: HeaderCarrier,
+      ec: ExecutionContext): Future[Either[Exception, Groups]] =
+    retreiveValidatedTxApiAddress(groups, registrationID).flatMap {
+      case Some(address) =>
+        val updatedGroups = groups.copy(addressAndType = Some(GroupsAddressAndType("CohoEntered", address)))
+        compRegConnector.updateGroups(registrationID, updatedGroups).map(groups => Right(groups))
+      case None =>
+        Future.successful(
+          Left(new InternalServerException("[GroupService] [saveTxShareHolderAddress] Attempted to save TxApiAddress but none was found")))
+    }
+
+  def retreiveValidatedTxApiAddress(groups: Groups, registrationId: String)(implicit
+      hc: HeaderCarrier,
+      ec: ExecutionContext): Future[Option[NewAddress]] =
     groups.nameOfCompany match {
       case Some(groupCompanyName) =>
         returnAddressFromTxAPI(groupCompanyName, registrationId).flatMap { eitherAddress =>
@@ -91,117 +131,59 @@ class GroupService @Inject()(val keystoreConnector: KeystoreConnector,
       case None =>
         throw new InternalServerException("[GroupService] [retreiveTxApiAddress] attempted to find txApi address without prerequesite data")
     }
-  }
 
-  def dropOldFields(groups: Groups, address: NewAddress, registrationId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Groups] = {
-    groups.addressAndType match {
-      case Some(addressAndType) if addressAndType.address.toString != address.toString && addressAndType.addressType != "ALF" =>
-        compRegConnector.updateGroups(registrationId, groups.copy(addressAndType = None, groupUTR = None))
-      case _ => Future.successful(groups)
+  def returnAddressFromTxAPI(groupCompanyName: GroupCompanyName, registrationId: String)(implicit
+      hc: HeaderCarrier,
+      ec: ExecutionContext): Future[Either[Exception, Option[CHROAddress]]] =
+    fetchTxID(registrationId).flatMap { txId =>
+      returnListOfShareholders(txId).map { eitherShareholders =>
+        eitherShareholders.fold(
+          error => Left(error),
+          iiShareholders =>
+            Right(
+              iiShareholders
+                .map(shareholder => (shareholder.corporate_name, shareholder.address))
+                .find(companyName => companyName._1 == groupCompanyName.name)
+                .map(address => address._2))
+        )
+      }
     }
-  }
 
-  def createAddressMap(optPrepopAddressAndType: Option[GroupsAddressAndType], address: NewAddress)(implicit messagesProvider: MessagesProvider): Map[String, String] = {
-    optPrepopAddressAndType match {
-      case Some(prepopAddressAndType) =>
-        if (prepopAddressAndType.address.toString == address.toString) {
-          Map(prepopAddressAndType.addressType -> prepopAddressAndType.address.toString, "Other" -> Messages("page.reg.ppob.differentAddress"))
-        }
-        else {
-          Map(prepopAddressAndType.addressType -> prepopAddressAndType.address.toString,
-            "TxAPI" -> address.toString, "Other" -> Messages("page.reg.ppob.differentAddress"))
-        }
-      case _ =>
-        Map("TxAPI" -> address.toString, "Other" -> Messages("page.reg.ppob.differentAddress"))
-    }
-  }
-
-  def updateGroupAddress(address: GroupsAddressAndType, registrationId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Groups] = {
-    compRegConnector.getGroups(registrationId).flatMap {
-      case Some(groups) =>
-        val updatedGroupsBlock =
-          if (groups.addressAndType.contains(address)) {
-            groups.copy(addressAndType = Some(address))
-          }
-          else {
-            groups.copy(addressAndType = Some(address), groupUTR = None)
-          }
-        compRegConnector.updateGroups(registrationId, updatedGroupsBlock)
-      case None =>
-        Future.failed(new InternalServerException("[GroupService] [updateGroupAddress] Missing prerequisite takeover data"))
-    }
-  }
-
-  def saveTxShareHolderAddress(groups: Groups, registrationID: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[Exception, Groups]] = {
-    retreiveValidatedTxApiAddress(groups, registrationID).flatMap {
-      case Some(address) =>
-        val updatedGroups = groups.copy(addressAndType = Some(GroupsAddressAndType("CohoEntered", address)))
-        compRegConnector.updateGroups(registrationID, updatedGroups).map(groups => Right(groups))
-      case None =>
-        Future.successful(Left(new InternalServerException("[GroupService] [saveTxShareHolderAddress] Attempted to save TxApiAddress but none was found")))
-    }
-  }
-
-  def returnListOfShareholders(txId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[Exception, List[Shareholder]]] = {
-    incorpInfoConnector.returnListOfShareholdersFromTxApi(txId).map { list =>
-      list.fold[Either[Exception, List[Shareholder]]](
-        e => Left(e),
-        r => Right(r.collect {
-          case shareholder@Shareholder(_, Some(vote), Some(_), Some(_), _) if vote >= votingRightsThreshold => shareholder
-        })
-      )
-    }
-  }
-
-  def dropOldGroups(eitherShareholders: Either[Exception, List[Shareholder]], regId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[List[Shareholder]] = {
+  def dropOldGroups(eitherShareholders: Either[Exception, List[Shareholder]], regId: String)(implicit
+      hc: HeaderCarrier,
+      ec: ExecutionContext): Future[List[Shareholder]] =
     eitherShareholders.fold(
       error => Future.successful(List.empty),
-      listShareholders => {
+      listShareholders =>
         if (listShareholders.isEmpty) {
           dropGroups(regId).map(_ => listShareholders)
-        }
-        else {
+        } else {
           compRegConnector.shareholderListValidationEndpoint(listShareholders.map(_.corporate_name)).flatMap { validShareholders =>
             retrieveGroups(regId).flatMap {
-              case Some(groups) if groups.nameOfCompany.exists(nameAndType => !validShareholders.contains(nameAndType.name) && nameAndType.nameType != "Other") =>
+              case Some(groups)
+                  if groups.nameOfCompany.exists(nameAndType => !validShareholders.contains(nameAndType.name) && nameAndType.nameType != "Other") =>
                 dropGroups(regId).map(_ => listShareholders)
               case _ =>
                 Future.successful(listShareholders)
             }
           }
         }
-      }
     )
-  }
 
-  def fetchTxID(registrationId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[String] = {
-    compRegConnector.fetchConfirmationReferences(registrationId).map {
-      case ConfirmationReferencesSuccessResponse(refs) => refs.transactionId
-      case _ => throw new InternalServerException(s"[GroupService] no txId returned for $registrationId")
-    }
-  }
+  def retrieveGroups(registrationId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Option[Groups]] =
+    compRegConnector.getGroups(registrationId)
 
-  def returnAddressFromTxAPI(groupCompanyName: GroupCompanyName, registrationId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[Exception, Option[CHROAddress]]] = {
-    fetchTxID(registrationId).flatMap { txId =>
-      returnListOfShareholders(txId).map { eitherShareholders =>
-        eitherShareholders.fold(
-          error => Left(error),
-          iiShareholders =>
-          Right(iiShareholders
-            .map(shareholder => (shareholder.corporate_name, shareholder.address))
-            .find(companyName => companyName._1 == groupCompanyName.name).map(address => address._2)
-          )
-        )
-      }
-    }
-  }
+  def dropGroups(registrationId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Boolean] =
+    compRegConnector.deleteGroups(registrationId)
 
-  def returnValidShareholdersAndUpdateGroups(groups: Groups, registrationId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[(List[String], Groups)] = {
+  def returnValidShareholdersAndUpdateGroups(groups: Groups, registrationId: String)(implicit
+      hc: HeaderCarrier,
+      ec: ExecutionContext): Future[(List[String], Groups)] =
     fetchTxID(registrationId).flatMap { txId =>
       returnListOfShareholders(txId).flatMap { eitherShareholders =>
         eitherShareholders.fold(
           error => Future.successful((List.empty, groups)),
-          iiShareholders => {
+          iiShareholders =>
             compRegConnector.shareholderListValidationEndpoint(iiShareholders.map(_.corporate_name)).flatMap { validShareholders =>
               groups.nameOfCompany match {
                 case Some(nameAndType) if nameAndType.nameType.equals("Other") || validShareholders.contains(nameAndType.name) =>
@@ -212,9 +194,24 @@ class GroupService @Inject()(val keystoreConnector: KeystoreConnector,
                     .map(updatedGroups => (validShareholders.distinct, updatedGroups))
               }
             }
-          }
         )
       }
     }
-  }
+
+  def returnListOfShareholders(txId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Either[Exception, List[Shareholder]]] =
+    incorpInfoConnector.returnListOfShareholdersFromTxApi(txId).map { list =>
+      list.fold[Either[Exception, List[Shareholder]]](
+        e => Left(e),
+        r =>
+          Right(r.collect {
+            case shareholder @ Shareholder(_, Some(vote), Some(_), Some(_), _) if vote >= votingRightsThreshold => shareholder
+          })
+      )
+    }
+
+  def fetchTxID(registrationId: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[String] =
+    compRegConnector.fetchConfirmationReferences(registrationId).map {
+      case ConfirmationReferencesSuccessResponse(refs) => refs.transactionId
+      case _                                           => throw new InternalServerException(s"[GroupService] no txId returned for $registrationId")
+    }
 }

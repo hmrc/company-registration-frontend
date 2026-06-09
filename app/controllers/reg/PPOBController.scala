@@ -16,7 +16,7 @@
 
 package controllers.reg
 
-import _root_.connectors.{BusinessRegistrationConnector, CompanyRegistrationConnector, KeystoreConnector}
+import _root_.connectors.{BusinessRegistrationConnector, CompanyRegistrationConnector}
 import config.AppConfig
 import controllers.auth.AuthenticatedController
 import controllers.handoff.HandOffUtils
@@ -26,135 +26,71 @@ import models._
 import models.handoff.BackHandoff
 import play.api.i18n.Messages
 import play.api.mvc._
-import repositories.NavModelRepo
+import repositories.{NavModelRepo, NavModelRepoMongo}
 import services._
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.http.HeaderCarrier
-import utils.{Logging, _}
+import utils._
 import views.html.reg.{PrinciplePlaceOfBusiness => PrinciplePlaceOfBusinessView}
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class PPOBController @Inject()(val authConnector: PlayAuthConnector,
-                               val keystoreConnector: KeystoreConnector,
-                               val compRegConnector: CompanyRegistrationConnector,
-                               val handOffService: HandOffService,
-                               val businessRegConnector: BusinessRegistrationConnector,
-                               val navModelRepo: NavModelRepo,
-                               val jwe: JweCommon,
-                               val addressLookupFrontendService: AddressLookupFrontendService,
-                               val pPOBService: PPOBService,
-                               val scrsFeatureSwitches: SCRSFeatureSwitches,
-                               val controllerComponents: MessagesControllerComponents,
-                               val controllerErrorHandler: ControllerErrorHandler,
-                               handOffUtils: HandOffUtils,
-                               view: PrinciplePlaceOfBusinessView)
-                              (implicit val appConfig: AppConfig, implicit val ec: ExecutionContext) extends AuthenticatedController
-  with SessionRegistration with Logging {
-  lazy val navModelMongo = navModelRepo.repository
+class PPOBController @Inject() (val authConnector: PlayAuthConnector,
+                                val sessionCacheService: SessionCacheService,
+                                val compRegConnector: CompanyRegistrationConnector,
+                                val handOffService: HandOffService,
+                                val businessRegConnector: BusinessRegistrationConnector,
+                                val navModelRepo: NavModelRepo,
+                                val jwe: JweCommon,
+                                val addressLookupFrontendService: AddressLookupFrontendService,
+                                val pPOBService: PPOBService,
+                                val scrsFeatureSwitches: SCRSFeatureSwitches,
+                                val controllerComponents: MessagesControllerComponents,
+                                val controllerErrorHandler: ControllerErrorHandler,
+                                handOffUtils: HandOffUtils,
+                                view: PrinciplePlaceOfBusinessView)(implicit val appConfig: AppConfig, implicit val ec: ExecutionContext)
+    extends AuthenticatedController
+    with SessionRegistration
+    with Logging {
+  lazy val navModelMongo: NavModelRepoMongo = navModelRepo.repository
 
-  def show: Action[AnyContent] = Action.async {
-    implicit request =>
-      ctAuthorised {
-        checkStatus { regId =>
-          for {
-            addresses <- pPOBService.fetchAddressesAndChoice(regId)
-            choice = addresses._3
-            form = PPOBForm.aLFForm.fill(choice)
-          } yield {
-            val addressMap = pPOBService.getAddresses(addresses)
-              .collect { case (id, address) =>  id -> address.toString }
-            Ok(view(form, addressMap))
-          }
+  def show: Action[AnyContent] = Action.async { implicit request =>
+    ctAuthorised {
+      checkStatus { regId =>
+        for {
+          addresses <- pPOBService.fetchAddressesAndChoice(regId)
+          choice = addresses._3
+          form   = PPOBForm.aLFForm.fill(choice)
+        } yield {
+          val addressMap = pPOBService
+            .getAddresses(addresses)
+            .collect { case (id, address) => id -> address.toString }
+          Ok(view(form, addressMap))
         }
       }
+    }
   }
 
-  def saveALFAddress(alfId: Option[String]): Action[AnyContent] = Action.async {
-    implicit request =>
-      ctAuthorised {
-        checkStatus {
-          regId =>
-            alfId match {
-              case Some(id) => for {
-                address <- addressLookupFrontendService.getAddress(id)
-                _ <- pPOBService.saveAddress(regId, ppobKey, Some(address))
-                _ <- updatePrePopAddress(regId, address)
-              } yield {
-                Redirect(controllers.reg.routes.CompanyContactDetailsController.show)
-              }
-              case None =>
-                throw new Exception("[PPOBController][ALF Handback] 'id' query string missing from ALF handback")
-            }
-
+  def saveALFAddress(alfId: Option[String]): Action[AnyContent] = Action.async { implicit request =>
+    ctAuthorised {
+      checkStatus { regId =>
+        alfId match {
+          case Some(id) =>
+            for {
+              address <- addressLookupFrontendService.getAddress(id)
+              _       <- pPOBService.saveAddress(regId, ppobKey, Some(address))
+              _       <- updatePrePopAddress(regId, address)
+            } yield Redirect(controllers.reg.routes.CompanyContactDetailsController.show)
+          case None =>
+            throw new Exception("[PPOBController][ALF Handback] 'id' query string missing from ALF handback")
         }
-      }
-  }
 
-  def submit = Action.async {
-    implicit request =>
-      ctAuthorisedCredID { credID =>
-        checkStatus { regId =>
-          PPOBForm.aLFForm.bindFromRequest().fold[Future[Result]](
-            errors => {
-              for {
-                addresses <- pPOBService.fetchAddressesAndChoice(regId)
-              } yield {
-                val addressMap = pPOBService.getAddresses(addresses)
-                  .collect { case (id, chAddress) =>  id -> chAddress.toString }
-                BadRequest(view(errors, addressMap))
-              }
-            },
-            success => {
-              success.choice match {
-                case "ROAddress" =>
-                  for {
-                    _ <- pPOBService.saveAddress(regId, "RO")
-                    companyDetails <- pPOBService.retrieveCompanyDetails(regId)
-                    _ <- pPOBService.auditROAddress(regId, credID, companyDetails.companyName, companyDetails.cHROAddress)
-                  } yield {
-                    Redirect(controllers.reg.routes.CompanyContactDetailsController.show)
-                  }
-                case "PPOBAddress" =>
-                  Future.successful(Redirect(controllers.reg.routes.CompanyContactDetailsController.show))
-                case "OtherAddress" =>
-                  addressLookupFrontendService.initialiseAlfJourney(
-                    handbackLocation = controllers.reg.routes.PPOBController.saveALFAddress(None),
-                    specificJourneyKey = ppobKey,
-                    lookupPageHeading = Messages("page.addressLookup.PPOB.lookup.heading"),
-                    confirmPageHeading = Messages("page.addressLookup.PPOB.confirm.description")
-                  ).map(Redirect(_))
-                case unexpected =>
-                  logger.warn(s"[Submit] '$unexpected' address choice submitted for reg ID: $regId")
-                  Future.successful(BadRequest(controllerErrorHandler.defaultErrorPage))
-              }
-            }
-          )
-        }
       }
+    }
   }
-
-  def back: Action[AnyContent] = Action.async {
-    implicit request =>
-      ctAuthorisedOptStr(Retrievals.externalId) { externalID =>
-        registered { _ =>
-          (for {
-            navModel <- handOffService.fetchNavModel()
-            backPayload <- handOffService.buildBackHandOff(externalID, handOffUtils.getCurrentLang(request))
-          } yield {
-            val payload = jwe.encrypt[BackHandoff](backPayload).getOrElse("")
-            val url = navModel.receiver.nav("2").reverse
-            Redirect(handOffService.buildHandOffUrl(url, payload))
-          }).recover {
-            case ex: NavModelNotFoundException => Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))
-          }
-        }
-      }
-  }
-
 
   private[controllers] def updatePrePopAddress(regId: String, address: NewAddress)(implicit hc: HeaderCarrier): Future[Boolean] = {
     val a = Address(
@@ -171,8 +107,68 @@ class PPOBController @Inject()(val authConnector: PlayAuthConnector,
 
     businessRegConnector.updatePrePopAddress(regId, a)
   }
+
+  def submit: Action[AnyContent] = Action.async { implicit request =>
+    ctAuthorisedCredID { credID =>
+      checkStatus { regId =>
+        PPOBForm.aLFForm
+          .bindFromRequest()
+          .fold[Future[Result]](
+            errors =>
+              for {
+                addresses <- pPOBService.fetchAddressesAndChoice(regId)
+              } yield {
+                val addressMap = pPOBService
+                  .getAddresses(addresses)
+                  .collect { case (id, chAddress) => id -> chAddress.toString }
+                BadRequest(view(errors, addressMap))
+              },
+            success =>
+              success.choice match {
+                case "ROAddress" =>
+                  for {
+                    _              <- pPOBService.saveAddress(regId, "RO")
+                    companyDetails <- pPOBService.retrieveCompanyDetails(regId)
+                    _              <- pPOBService.auditROAddress(regId, credID, companyDetails.companyName, companyDetails.cHROAddress)
+                  } yield Redirect(controllers.reg.routes.CompanyContactDetailsController.show)
+                case "PPOBAddress" =>
+                  Future.successful(Redirect(controllers.reg.routes.CompanyContactDetailsController.show))
+                case "OtherAddress" =>
+                  addressLookupFrontendService
+                    .initialiseAlfJourney(
+                      handbackLocation = controllers.reg.routes.PPOBController.saveALFAddress(None),
+                      specificJourneyKey = ppobKey,
+                      lookupPageHeading = Messages("page.addressLookup.PPOB.lookup.heading"),
+                      confirmPageHeading = Messages("page.addressLookup.PPOB.confirm.description")
+                    )
+                    .map(Redirect(_))
+                case unexpected =>
+                  logger.warn(s"[Submit] '$unexpected' address choice submitted for reg ID: $regId")
+                  Future.successful(BadRequest(controllerErrorHandler.defaultErrorPage))
+              }
+          )
+      }
+    }
+  }
+
+  def back: Action[AnyContent] = Action.async { implicit request =>
+    ctAuthorisedOptStr(Retrievals.externalId) { externalID =>
+      registered { _ =>
+        (for {
+          navModel    <- handOffService.fetchNavModel()
+          backPayload <- handOffService.buildBackHandOff(externalID, handOffUtils.getCurrentLang(request))
+        } yield {
+          val payload = jwe.encrypt[BackHandoff](backPayload).getOrElse("")
+          val url     = navModel.receiver.nav("2").reverse
+          Redirect(handOffService.buildHandOffUrl(url, payload))
+        }).recover { case _: NavModelNotFoundException =>
+          Redirect(controllers.reg.routes.SignInOutController.postSignIn(None))
+        }
+      }
+    }
+  }
 }
 
 object PPOBController {
-  val ppobKey = "PPOB"
+  private val ppobKey = "PPOB"
 }

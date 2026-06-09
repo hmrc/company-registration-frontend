@@ -79,7 +79,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
     val controller = new TestEndpointController (
       mockAuthConnector,
       mockDataCacheService,
-      mockKeystoreConnector,
+      mockSessionCacheService,
       mockCompanyRegistrationConnector,
       mockSCRSFeatureSwitches,
       mockMetaDataService,
@@ -134,7 +134,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
     val corporationTaxModel = buildCorporationTaxModel()
 
     "Return a 200" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("12345"))
+      mockSessionCacheGet("registrationID", Some("12345"))
       when(mockMetaDataService.getApplicantData(ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(applicantData))
       CTRegistrationConnectorMocks.retrieveCompanyDetails(Some(validCompanyDetailsResponse))
@@ -154,7 +154,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
     }
 
     "Return a 200 even if nothing is returned" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("12345"))
+      mockSessionCacheGet("registrationID", Some("12345"))
       when(mockMetaDataService.getApplicantData(ArgumentMatchers.any())(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(applicantDataEmpty))
       CTRegistrationConnectorMocks.retrieveCompanyDetails(None)
@@ -186,7 +186,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
   "postAllS4LEntries" should {
 
     "Return a 303" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("12345"))
+      mockSessionCacheGet("registrationID", Some("12345"))
       when(mockMetaDataService.updateApplicantDataEndpoint(ArgumentMatchers.eq(applicantData))(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]()))
         .thenReturn(Future.successful(validBusinessRegistrationResponse))
       mockSaveForm[CompanyNameHandOffIncoming]("HandBackData", cacheItem)
@@ -214,7 +214,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
 
   "clearKeystore" should {
     "remove all elements in the users keystore collection" in new Setup {
-      mockKeystoreClear()
+      mockSessionCacheClear()
 
       showWithAuthorisedUserRetrieval(controller.clearKeystore, internalID) {
         result =>
@@ -318,7 +318,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
     ))
 
     "return a 200 and a successful email response" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some(registrationId))
+      mockSessionCacheGet("registrationID", Some(registrationId))
       when(mockCompanyRegistrationConnector.retrieveEmail(ArgumentMatchers.eq(registrationId))(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(email)))
       when(mockCompanyRegistrationConnector.verifyEmail(ArgumentMatchers.eq(registrationId), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
@@ -334,7 +334,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
     }
 
     "return a 200 and an unsuccessful email response if an email couldn't be found" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some(registrationId))
+      mockSessionCacheGet("registrationID", Some(registrationId))
       when(mockBusinessRegistrationConnector.retrieveMetadata(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(brResponse))
       when(mockCompanyRegistrationConnector.retrieveEmail(ArgumentMatchers.eq(registrationId))(ArgumentMatchers.any(), ArgumentMatchers.any()))
@@ -389,7 +389,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
 
       val response = ConfirmationReferencesSuccessResponse(ConfirmationReferences(transId, Some("pay-ref-123"), Some("12"), ""))
 
-      mockKeystoreFetchAndGet("registrationID", Some(registrationID))
+      mockSessionCacheGet("registrationID", Some(registrationID))
 
       when(mockCompanyRegistrationConnector.updateReferences(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(response))
@@ -404,7 +404,7 @@ class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with Mockito
 
       val response = ConfirmationReferencesBadRequestResponse
 
-      mockKeystoreFetchAndGet("registrationID", Some(registrationID))
+      mockSessionCacheGet("registrationID", Some(registrationID))
 
       when(mockCompanyRegistrationConnector.updateReferences(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(response))

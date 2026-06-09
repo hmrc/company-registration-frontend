@@ -46,7 +46,7 @@ class CompanyContactDetailsControllerSpec extends SCRSSpec with UserDetailsFixtu
       mockAuthConnector,
       MetricServiceMock,
       mockCompanyRegistrationConnector,
-      mockKeystoreConnector,
+      mockSessionCacheService,
       mockCompanyContactDetailsService,
       mockSCRSFeatureSwitches,
       mockMcc,
@@ -76,7 +76,7 @@ class CompanyContactDetailsControllerSpec extends SCRSSpec with UserDetailsFixtu
     "return a 200 when fetchContactDetails returns a model from S4L" in new Setup {
       CTRegistrationConnectorMocks.retrieveCTRegistration()
       when(mockCompanyRegistrationConnector.fetchCompanyName(any())(any(), any())).thenReturn(Future.successful("foo"))
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      mockSessionCacheGet("registrationID", Some("1"))
       CompanyContactDetailsServiceMocks.fetchContactDetails(validCompanyContactDetailsModel)
 
       showWithAuthorisedUser(controller.show) {
@@ -88,7 +88,7 @@ class CompanyContactDetailsControllerSpec extends SCRSSpec with UserDetailsFixtu
     "return a 200 when fetchContactDetails returns nothing from S4L but returns a model from UserDetailsService" in new Setup {
       CTRegistrationConnectorMocks.retrieveCTRegistration()
       when(mockCompanyRegistrationConnector.fetchCompanyName(any())(any(), any())).thenReturn(Future.successful("foo"))
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      mockSessionCacheGet("registrationID", Some("1"))
       CompanyContactDetailsServiceMocks.fetchContactDetails(validCompanyContactDetailsModel)
 
       showWithAuthorisedUser(controller.show) {
@@ -110,7 +110,7 @@ class CompanyContactDetailsControllerSpec extends SCRSSpec with UserDetailsFixtu
 
   "submit" should {
     "return a 303 with a valid form and redirect to the accounting dates controller" in new Setup {
-      when(mockKeystoreConnector.fetchAndGet[String](any())(any(), any(), any()))
+      when(mockSessionCacheService.get[String](any())(any(), any()))
         .thenReturn(Future.successful(Some("test")))
       CompanyContactDetailsServiceMocks.updateContactDetails(CompanyContactDetailsSuccessResponse(validCompanyContactDetailsResponse))
       when(mockCompanyContactDetailsService.checkIfAmendedDetails(any(), any(), any(), any())(any(), any(), any()))
@@ -130,7 +130,7 @@ class CompanyContactDetailsControllerSpec extends SCRSSpec with UserDetailsFixtu
     "return a 400 with an invalid form" in new Setup {
       when(mockCompanyRegistrationConnector.fetchCompanyName(any())(any(), any())).thenReturn(Future.successful("foo"))
       CTRegistrationConnectorMocks.retrieveCTRegistration()
-      when(mockKeystoreConnector.fetchAndGet[String](any())(any(), any(), any()))
+      when(mockSessionCacheService.get[String](any())(any(), any()))
         .thenReturn(Future.successful(Some("test")))
       when(mockCompanyContactDetailsService.updatePrePopContactDetails(any(), any())(any()))
         .thenReturn(Future.successful(true))

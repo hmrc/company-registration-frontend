@@ -49,7 +49,7 @@ class CancelRegistrationControllerSpec extends SCRSSpec with MockitoSugar with G
     val controller = new CancelRegistrationController (
       mockPAYEConnector,
       mockVATConnector,
-      mockKeystoreConnector,
+      mockSessionCacheService,
       mockAuthConnector,
       mockCompanyRegistrationConnector,
       mockMcc,
@@ -73,7 +73,7 @@ class CancelRegistrationControllerSpec extends SCRSSpec with MockitoSugar with G
 
     "display the page if the user is logged in and has a registration id where the registration is not" +
       " draft / rejected (same permissions as dashboard) & cancelURL exists" in new Setup(r = FakeRequest()) {
-      mockKeystoreFetchAndGet("registrationID", Some(testRegID))
+      mockSessionCacheGet("registrationID", Some(testRegID))
       CTRegistrationConnectorMocks.retrieveCTRegistration(buildCorporationTaxModel(status = "foo"))
       getStatusMock(testRegID)(SuccessfulResponse(validStatus))
       canStatusBeCancelledMock(testRegID)(Future.successful("foo"))
@@ -85,27 +85,27 @@ class CancelRegistrationControllerSpec extends SCRSSpec with MockitoSugar with G
     }
 
     "not display the page and should redirect if the user is logged in and does not have a registration id " in new Setup(r = FakeRequest()) {
-      mockKeystoreFetchAndGet("registrationID", None)
+      mockSessionCacheGet("registrationID", None)
 
       val res = await(controller.showCancelService(mockServiceConnector, cancelPayeView(CancelForm.form.fill(false))))
       status(res) mustBe SEE_OTHER
     }
     "not display the page if user:logged in, has regID,regID is draft" in new Setup(r = FakeRequest()) {
-      mockKeystoreFetchAndGet("registrationID", Some(testRegID))
+      mockSessionCacheGet("registrationID", Some(testRegID))
       CTRegistrationConnectorMocks.retrieveCTRegistration()
 
       val res = await(controller.showCancelService(mockServiceConnector, cancelPayeView(CancelForm.form.fill(false))))
       status(res) mustBe SEE_OTHER
     }
     "not display the page if user:logged in, has regID,regID is rejected" in new Setup(r = FakeRequest()) {
-      mockKeystoreFetchAndGet("registrationID", Some(testRegID))
+      mockSessionCacheGet("registrationID", Some(testRegID))
       CTRegistrationConnectorMocks.retrieveCTRegistration(buildCorporationTaxModel(status = "rejected"))
 
       val res = await(controller.showCancelService(mockServiceConnector, cancelPayeView(CancelForm.form.fill(false))))
       status(res) mustBe SEE_OTHER
     }
     "not display the page if user:logged in, has regID,regID is not draft / rejected, no cancelURL is returned" in new Setup(r = FakeRequest()) {
-      mockKeystoreFetchAndGet("registrationID", Some(testRegID))
+      mockSessionCacheGet("registrationID", Some(testRegID))
       CTRegistrationConnectorMocks.retrieveCTRegistration(buildCorporationTaxModel(status = "foo"))
       getStatusMock(testRegID)(SuccessfulResponse(OtherRegStatus("", None, None, None, None)))
       canStatusBeCancelledMock(testRegID)(Future.failed(cantCancel))
@@ -116,7 +116,7 @@ class CancelRegistrationControllerSpec extends SCRSSpec with MockitoSugar with G
   }
   "showCancelPaye" should {
     "return 200 with authorised user & cancel url exists and registration is not draft / rejected" in new Setup(r = FakeRequest()) {
-      mockKeystoreFetchAndGet("registrationID", Some(testRegID))
+      mockSessionCacheGet("registrationID", Some(testRegID))
       CTRegistrationConnectorMocks.retrieveCTRegistration(buildCorporationTaxModel(status = "foo"))
       getStatusMock(testRegID)(SuccessfulResponse(validStatus))
       canStatusBeCancelledMock(testRegID)(Future.successful("foo"), mockPAYEConnector)
@@ -130,7 +130,7 @@ class CancelRegistrationControllerSpec extends SCRSSpec with MockitoSugar with G
   }
   "showCancelVAT" should {
     "return 200 with authorised user & cancel url exists and registration is not draft / rejected" in new Setup(r = FakeRequest()) {
-      mockKeystoreFetchAndGet("registrationID", Some(testRegID))
+      mockSessionCacheGet("registrationID", Some(testRegID))
       CTRegistrationConnectorMocks
         .retrieveCTRegistration(buildCorporationTaxModel(status = "foo"))
       getStatusMock(testRegID)(SuccessfulResponse(validStatus))
@@ -146,7 +146,7 @@ class CancelRegistrationControllerSpec extends SCRSSpec with MockitoSugar with G
   "submitCancelService" should {
     "redirect to dashboard if cancelURL does not exist by the time of the submission " +
       "(and user is logged in and has a registration id not = draft / rejected" in new Setup(r = FakeRequest().withFormUrlEncodedBody("cancelService" -> "true")) {
-      mockKeystoreFetchAndGet("registrationID", Some(testRegID))
+      mockSessionCacheGet("registrationID", Some(testRegID))
       CTRegistrationConnectorMocks.retrieveCTRegistration(buildCorporationTaxModel(status = "foo"))
       getStatusMock(testRegID)(SuccessfulResponse(OtherRegStatus("", None, None, None, None)))
       cancelRegMock(testRegID)(NotCancelled)
@@ -157,7 +157,7 @@ class CancelRegistrationControllerSpec extends SCRSSpec with MockitoSugar with G
 
     "redirect to dashboard if cancelURL does exist, the registration is cancelled successfully, " +
       "user is logged in, registrationID not = draft / rejected" in new Setup(r = FakeRequest().withFormUrlEncodedBody("cancelService" -> "true")) {
-      mockKeystoreFetchAndGet("registrationID", Some(testRegID))
+      mockSessionCacheGet("registrationID", Some(testRegID))
       CTRegistrationConnectorMocks.retrieveCTRegistration(buildCorporationTaxModel(status = "foo"))
       getStatusMock(testRegID)(SuccessfulResponse(OtherRegStatus("", None, None, Some("foo"), None)))
       cancelRegMock(testRegID)(Cancelled)
@@ -166,7 +166,7 @@ class CancelRegistrationControllerSpec extends SCRSSpec with MockitoSugar with G
       status(res) mustBe SEE_OTHER
     }
     "redirect to dashboard where user has reg id in draft state/cancelURL exists" in new Setup(r = FakeRequest().withFormUrlEncodedBody("cancelService" -> "true")) {
-      mockKeystoreFetchAndGet("registrationID", Some(testRegID))
+      mockSessionCacheGet("registrationID", Some(testRegID))
       CTRegistrationConnectorMocks.retrieveCTRegistration(buildCorporationTaxModel(status = "foo"))
       getStatusMock(testRegID)(SuccessfulResponse(OtherRegStatus("", None, None, Some("foo"), None)))
       cancelRegMock(testRegID)(Cancelled)
@@ -175,7 +175,7 @@ class CancelRegistrationControllerSpec extends SCRSSpec with MockitoSugar with G
       status(res) mustBe SEE_OTHER
     }
     "return redirect when all conditions are met to cancel a service, but user selects false" in new Setup(r = FakeRequest().withFormUrlEncodedBody("cancelService" -> "true")) {
-      mockKeystoreFetchAndGet("registrationID", Some(testRegID))
+      mockSessionCacheGet("registrationID", Some(testRegID))
       CTRegistrationConnectorMocks.retrieveCTRegistration(buildCorporationTaxModel(status = "foo"))
       getStatusMock(testRegID)(SuccessfulResponse(OtherRegStatus("", None, None, Some("foo"), None)))
 
@@ -185,7 +185,7 @@ class CancelRegistrationControllerSpec extends SCRSSpec with MockitoSugar with G
   }
   "submitCancelPaye" should {
     "return redirect when cancel is successful" in new Setup(r = FakeRequest()) {
-      mockKeystoreFetchAndGet("registrationID", Some(testRegID))
+      mockSessionCacheGet("registrationID", Some(testRegID))
       CTRegistrationConnectorMocks.retrieveCTRegistration(buildCorporationTaxModel(status = "foo"))
       getStatusMock(testRegID)(SuccessfulResponse(OtherRegStatus("", None, None, Some("foo"), None)), mockPAYEConnector)
       cancelRegMock(testRegID)(Cancelled, mockPAYEConnector)
@@ -198,7 +198,7 @@ class CancelRegistrationControllerSpec extends SCRSSpec with MockitoSugar with G
   }
   "submitCancelVAT" should {
     "return redirect when cancel is successful" in new Setup(r = FakeRequest()) {
-      mockKeystoreFetchAndGet("registrationID", Some(testRegID))
+      mockSessionCacheGet("registrationID", Some(testRegID))
       CTRegistrationConnectorMocks.retrieveCTRegistration(buildCorporationTaxModel(status = "foo"))
       getStatusMock(testRegID)(SuccessfulResponse(OtherRegStatus("", None, None, Some("foo"), None)), mockVATConnector)
       cancelRegMock(testRegID)(Cancelled, mockVATConnector)

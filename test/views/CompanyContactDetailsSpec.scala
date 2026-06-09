@@ -49,7 +49,7 @@ class CompanyContactDetailsSpec extends SCRSSpec with CompanyContactDetailsFixtu
       mockAuthConnector,
       mock[MetricsService],
       mockCompanyRegistrationConnector,
-      mockKeystoreConnector,
+      mockSessionCacheService,
       mockCompanyContactDetailsService,
       mockSCRSFeatureSwitches,
       mockControllerComponents,
@@ -84,7 +84,7 @@ class CompanyContactDetailsSpec extends SCRSSpec with CompanyContactDetailsFixtu
   "show" should {
     "display the CompanyContactDetails page with the correct elements passed into it" in new Setup {
       CompanyContactDetailsServiceMocks.fetchContactDetails(validCompanyContactDetailsModel)
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      mockSessionCacheGet("registrationID", Some("1"))
       CTRegistrationConnectorMocks.retrieveCTRegistration(ctDocFirstTimeThrough)
       when(mockCompanyRegistrationConnector.fetchCompanyName(any())(any(), any())).thenReturn(Future.successful("testCompanyname1"))
       when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any())).thenReturn(Future.successful(Some(Email("verified@email", "GG", true, true, true))))

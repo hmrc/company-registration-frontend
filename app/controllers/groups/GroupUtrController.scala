@@ -17,32 +17,33 @@
 package controllers.groups
 
 import config.AppConfig
-import connectors.{CompanyRegistrationConnector, KeystoreConnector}
+import connectors.CompanyRegistrationConnector
 import controllers.auth.AuthenticatedController
-import controllers.reg.ControllerErrorHandler
 import forms.GroupUtrForm
-import javax.inject.{Inject, Singleton}
 import models._
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.{CommonService, GroupService}
+import services.{CommonService, GroupService, SessionCacheService}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.http.InternalServerException
 import utils.{SCRSExceptions, SessionRegistration}
 import views.html.groups.GroupUtrView
 
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class GroupUtrController @Inject()(val authConnector: PlayAuthConnector,
-                                   val keystoreConnector: KeystoreConnector,
-                                   val groupService: GroupService,
-                                   val compRegConnector: CompanyRegistrationConnector,
-                                   val controllerComponents: MessagesControllerComponents,
-                                   val view: GroupUtrView
-                                  )(implicit val appConfig: AppConfig)
-  extends AuthenticatedController with CommonService
-    with SCRSExceptions with I18nSupport with SessionRegistration {
+class GroupUtrController @Inject() (val authConnector: PlayAuthConnector,
+                                    val sessionCacheService: SessionCacheService,
+                                    val groupService: GroupService,
+                                    val compRegConnector: CompanyRegistrationConnector,
+                                    val controllerComponents: MessagesControllerComponents,
+                                    val view: GroupUtrView)(implicit val appConfig: AppConfig)
+    extends AuthenticatedController
+    with CommonService
+    with SCRSExceptions
+    with I18nSupport
+    with SessionRegistration {
 
   implicit val ec: ExecutionContext = controllerComponents.executionContext
 
@@ -65,21 +66,20 @@ class GroupUtrController @Inject()(val authConnector: PlayAuthConnector,
     }
   }
 
-
   val submit: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
       registered { regID =>
         groupService.retrieveGroups(regID).flatMap {
-          case Some(groups@Groups(true, Some(companyName), Some(_), _)) =>
-            GroupUtrForm.form.bindFromRequest().fold(
-              errors =>
-                Future.successful(BadRequest(view(errors, companyName.name))),
-              groupUtr => {
-                groupService.updateGroupUtr(groupUtr, groups, regID).map { _ =>
-                  Redirect(controllers.handoff.routes.GroupController.PSCGroupHandOff)
-                }
-              }
-            )
+          case Some(groups @ Groups(true, Some(companyName), Some(_), _)) =>
+            GroupUtrForm.form
+              .bindFromRequest()
+              .fold(
+                errors => Future.successful(BadRequest(view(errors, companyName.name))),
+                groupUtr =>
+                  groupService.updateGroupUtr(groupUtr, groups, regID).map { _ =>
+                    Redirect(controllers.handoff.routes.GroupController.PSCGroupHandOff)
+                  }
+              )
           case _ =>
             Future.failed(new InternalServerException("[GroupUtrController] [submit] Missing prerequisite group data"))
         }

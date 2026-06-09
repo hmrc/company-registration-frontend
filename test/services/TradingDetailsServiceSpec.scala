@@ -34,16 +34,15 @@ class TradingDetailsServiceSpec extends SCRSSpec with SCRSMocks with TradingDeta
 
   class Setup {
     object TestService extends TradingDetailsService {
-      val keystoreConnector = mockKeystoreConnector
+      val sessionCacheService = mockSessionCacheService
       val compRegConnector = mockCompanyRegistrationConnector
     }
   }
 
   "Updating the trading details data for a given user" should {
     "return a TradingDetailsSuccessResponse" in new Setup {
-      when(mockKeystoreConnector.fetchAndGet[String](ArgumentMatchers.eq("registrationID"))(ArgumentMatchers.any[HeaderCarrier](),
-        ArgumentMatchers.any[ExecutionContext](), ArgumentMatchers.any[Format[String]]()))
-        .thenReturn(Future.successful(Some(regID)))
+      when(mockSessionCacheService.get[String](ArgumentMatchers.eq("registrationID"))(ArgumentMatchers.any[HeaderCarrier](),
+        ArgumentMatchers.any[Format[String]]())).thenReturn(Future.successful(Some(regID)))
 
       when(mockCommonService.fetchRegistrationID(ArgumentMatchers.any[HeaderCarrier](), ArgumentMatchers.any[ExecutionContext]())).thenReturn(Future.successful(regID))
 

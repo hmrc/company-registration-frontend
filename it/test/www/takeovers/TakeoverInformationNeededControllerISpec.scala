@@ -16,18 +16,21 @@
 
 package test.www.takeovers
 
-import java.util.UUID
-
-import test.fixtures.Fixtures
-import test.itutil.servicestubs.TakeoverStub
-import test.itutil.{IntegrationSpecBase, LoginStub, RequestsFinder}
+import itutil.SessionStub
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.HeaderNames
 import play.api.libs.crypto.DefaultCookieSigner
 import play.api.libs.ws.WSResponse
 import play.api.test.Helpers._
+import test.fixtures.Fixtures
+import test.itutil.servicestubs.TakeoverStub
+import test.itutil.{IntegrationSpecBase, RequestsFinder}
+import uk.gov.hmrc.mongo.cache.DataKey
 
-class TakeoverInformationNeededControllerISpec extends IntegrationSpecBase with LoginStub with MockitoSugar with RequestsFinder with TakeoverStub with Fixtures {
+import java.util.UUID
+
+class TakeoverInformationNeededControllerISpec extends IntegrationSpecBase with SessionStub with MockitoSugar
+  with RequestsFinder with TakeoverStub with Fixtures {
 
   class Setup {
     val userId: String = "testUserId"
@@ -42,7 +45,7 @@ class TakeoverInformationNeededControllerISpec extends IntegrationSpecBase with 
   "show" should {
     "retrieve the existing data from the backend and serve the page" in new Setup {
       stubAuthorisation()
-      stubKeystore(SessionId, testRegId)
+      cacheSessionData[String](DataKey("registrationID"), testRegId)
       stubGet(s"/company-registration/corporation-tax-registration/$testRegId/corporation-tax-registration", 200, statusResponseFromCR())
 
       val res: WSResponse = await(buildClient(controllers.takeovers.routes.TakeoverInformationNeededController.show.url)

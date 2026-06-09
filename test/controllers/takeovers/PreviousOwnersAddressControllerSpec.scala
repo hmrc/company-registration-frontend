@@ -72,7 +72,7 @@ class PreviousOwnersAddressControllerSpec()(implicit val lang: Lang) extends SCR
     mockAddressLookupFrontendService,
     mockCompanyRegistrationConnector,
     mockBusinessRegConnector,
-    mockKeystoreConnector,
+    mockSessionCacheService,
     mockSCRSFeatureSwitches,
     mockMcc,
     mockControllerErrorHandler,
@@ -84,7 +84,7 @@ class PreviousOwnersAddressControllerSpec()(implicit val lang: Lang) extends SCR
       "the user does not any associated TakeoverDetails" should {
         "return 303 with a redirect to replacing another business controller" in {
           mockAuthorisedUser(Future.successful({}))
-          mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
+          mockSessionCacheGet("registrationID", Some(testRegistrationId))
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
           mockGetTakeoverDetails(testRegistrationId)(Future.successful(None))
@@ -99,7 +99,7 @@ class PreviousOwnersAddressControllerSpec()(implicit val lang: Lang) extends SCR
       "the user indicated they are not doing a takeover" should {
         "return 303 with a redirect to accounting dates controller" in {
           mockAuthorisedUser(Future.successful({}))
-          mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
+          mockSessionCacheGet("registrationID", Some(testRegistrationId))
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
           val testTakeoverDetails: TakeoverDetails = TakeoverDetails(replacingAnotherBusiness = false)
@@ -115,7 +115,7 @@ class PreviousOwnersAddressControllerSpec()(implicit val lang: Lang) extends SCR
       "the user has not submitted a business name before" should {
         "return 303 with a redirect to other business name page" in {
           mockAuthorisedUser(Future.successful({}))
-          mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
+          mockSessionCacheGet("registrationID", Some(testRegistrationId))
 
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
@@ -132,7 +132,7 @@ class PreviousOwnersAddressControllerSpec()(implicit val lang: Lang) extends SCR
       "the user has not submitted a business address before" should {
         "return 303 with the other business address page" in {
           mockAuthorisedUser(Future.successful({}))
-          mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
+          mockSessionCacheGet("registrationID", Some(testRegistrationId))
 
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
@@ -154,7 +154,7 @@ class PreviousOwnersAddressControllerSpec()(implicit val lang: Lang) extends SCR
       "the user has not submitted a previous owners name before" should {
         "return 303 with the previous owners name page" in {
           mockAuthorisedUser(Future.successful({}))
-          mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
+          mockSessionCacheGet("registrationID", Some(testRegistrationId))
 
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
@@ -177,7 +177,7 @@ class PreviousOwnersAddressControllerSpec()(implicit val lang: Lang) extends SCR
       "the user has previously submitted a previous owners address" should {
         "return 200 with the previous owners address page prepopulated with the previously selected address" in {
           mockAuthorisedUser(Future.successful({}))
-          mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
+          mockSessionCacheGet("registrationID", Some(testRegistrationId))
 
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
@@ -208,7 +208,7 @@ class PreviousOwnersAddressControllerSpec()(implicit val lang: Lang) extends SCR
       "the user has previously submitted a previous owners address which is not in the same format as the stored address" should {
         "return 200 with the previous ownerss address page prepopulated with the previously selected address" in {
           mockAuthorisedUser(Future.successful({}))
-          mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
+          mockSessionCacheGet("registrationID", Some(testRegistrationId))
 
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
@@ -246,7 +246,7 @@ class PreviousOwnersAddressControllerSpec()(implicit val lang: Lang) extends SCR
       "the form contains valid data" should {
         "redirect to accounting dates page when submission is successful" in {
           mockAuthorisedUser(Future.successful({}))
-          mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
+          mockSessionCacheGet("registrationID", Some(testRegistrationId))
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
 
@@ -273,7 +273,7 @@ class PreviousOwnersAddressControllerSpec()(implicit val lang: Lang) extends SCR
       "the form contains valid data" should {
         "redirect to alf when the choice is Other" in {
           mockAuthorisedUser(Future.successful({}))
-          mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
+          mockSessionCacheGet("registrationID", Some(testRegistrationId))
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
           mockInitialiseAlfJourney(
@@ -297,7 +297,7 @@ class PreviousOwnersAddressControllerSpec()(implicit val lang: Lang) extends SCR
       "the form contains invalid data" should {
         "return a bad request and update the page with errors" in {
           mockAuthorisedUser(Future.successful({}))
-          mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
+          mockSessionCacheGet("registrationID", Some(testRegistrationId))
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
 
@@ -321,7 +321,7 @@ class PreviousOwnersAddressControllerSpec()(implicit val lang: Lang) extends SCR
           val testAlfId = "testAlfId"
 
           mockAuthorisedUser(Future.successful({}))
-          mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
+          mockSessionCacheGet("registrationID", Some(testRegistrationId))
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
           mockGetAddress(id = testAlfId)(Future.successful(testPreviousOwnersAddress))

@@ -16,31 +16,28 @@
 
 package services
 
-import javax.inject.Inject
-import connectors.{CompanyRegistrationConnector, KeystoreConnector}
+import connectors.CompanyRegistrationConnector
 import models.{TradingDetails, TradingDetailsResponse}
 import uk.gov.hmrc.http.HeaderCarrier
 import utils.SCRSExceptions
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class TradingDetailsServiceImpl @Inject()(val keystoreConnector: KeystoreConnector,
-                                          val compRegConnector: CompanyRegistrationConnector)(implicit val ec: ExecutionContext) extends TradingDetailsService
+class TradingDetailsServiceImpl @Inject() (val sessionCacheService: SessionCacheService, val compRegConnector: CompanyRegistrationConnector)(implicit
+    val ec: ExecutionContext)
+    extends TradingDetailsService
 
 trait TradingDetailsService extends CommonService with SCRSExceptions {
 
   val compRegConnector: CompanyRegistrationConnector
 
-  def updateCompanyInformation(tradingDetails : TradingDetails)(implicit hc: HeaderCarrier, ec: ExecutionContext) : Future[TradingDetailsResponse] = {
+  def updateCompanyInformation(tradingDetails: TradingDetails)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[TradingDetailsResponse] =
     for {
       regID <- fetchRegistrationID
-      tD <- compRegConnector.updateTradingDetails(regID, tradingDetails)
-    } yield {
-      tD
-    }
-  }
+      tD    <- compRegConnector.updateTradingDetails(regID, tradingDetails)
+    } yield tD
 
-  def retrieveTradingDetails(registrationID : String)(implicit hc: HeaderCarrier, ec: ExecutionContext) : Future[TradingDetails] = {
+  def retrieveTradingDetails(registrationID: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[TradingDetails] =
     compRegConnector.retrieveTradingDetails(registrationID).map(_.fold(TradingDetails())(t => t))
-  }
 }

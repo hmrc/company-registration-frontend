@@ -19,17 +19,19 @@ package test.www
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, stubFor, urlMatching}
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 import config.LangConstants
+import itutil.SessionStub
 import test.itutil.{IntegrationSpecBase, LoginStub}
 import models.handoff.{HandOffNavModel, NavLinks, Receiver, RegistrationConfirmationPayload, Sender}
 import play.api.http.HeaderNames
 import play.api.libs.crypto.DefaultCookieSigner
 import play.api.libs.json.{JsObject, Json}
 import repositories.NavModelRepoImpl
+import uk.gov.hmrc.mongo.cache.DataKey
 import utils.JweCommon
 
 import java.util.UUID
 
-class RegistrationConfirmationISpec extends IntegrationSpecBase with LoginStub {
+class RegistrationConfirmationISpec extends IntegrationSpecBase with SessionStub {
 
   private def client(path: String) = ws.url(s"http://localhost:$port/register-your-company$path").withFollowRedirects(false)
 
@@ -156,7 +158,7 @@ class RegistrationConfirmationISpec extends IntegrationSpecBase with LoginStub {
       val csrfToken = UUID.randomUUID().toString
       val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
 
-      stubKeystore(SessionId, regId)
+      cacheSessionData[String](DataKey("registrationID"), regId)
       await(repo.insertNavModel(regId, handOffNavModel))
 
       val crResponse =
@@ -207,7 +209,7 @@ class RegistrationConfirmationISpec extends IntegrationSpecBase with LoginStub {
       val csrfToken = UUID.randomUUID().toString
       val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
 
-      stubKeystore(SessionId, regId)
+      cacheSessionData[String](DataKey("registrationID"), regId)
       await(repo.insertNavModel(regId, handOffNavModel))
 
       val crResponse =
@@ -244,7 +246,7 @@ class RegistrationConfirmationISpec extends IntegrationSpecBase with LoginStub {
       val csrfToken = UUID.randomUUID().toString
       val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
 
-      stubKeystore(SessionId, regId)
+      cacheSessionData[String](DataKey("registrationID"), regId)
       await(repo.insertNavModel(regId, handOffNavModel))
 
       val crResponse =
@@ -281,7 +283,7 @@ class RegistrationConfirmationISpec extends IntegrationSpecBase with LoginStub {
       val csrfToken = UUID.randomUUID().toString
       val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
 
-      stubKeystore(SessionId, regId)
+      cacheSessionData[String](DataKey("registrationID"), regId)
       await(repo.insertNavModel(regId, handOffNavModel))
 
       val crResponse =
@@ -341,7 +343,7 @@ class RegistrationConfirmationISpec extends IntegrationSpecBase with LoginStub {
       val csrfToken = UUID.randomUUID().toString
       val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
 
-      stubKeystore(SessionId, regId)
+      cacheSessionData[String](DataKey("registrationID"), regId)
       await(repo.insertNavModel(regId, handOffNavModel))
 
       val crResponse =
@@ -371,7 +373,7 @@ class RegistrationConfirmationISpec extends IntegrationSpecBase with LoginStub {
       val csrfToken = UUID.randomUUID().toString
       val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
 
-      stubKeystore(SessionId, regId)
+      cacheSessionData[String](DataKey("registrationID"), regId)
       await(repo.insertNavModel(regId, handOffNavModel))
       stubPut(s"/company-registration/corporation-tax-registration/$regId/confirmation-references", 502, "")
 
@@ -392,7 +394,7 @@ class RegistrationConfirmationISpec extends IntegrationSpecBase with LoginStub {
       val csrfToken = UUID.randomUUID().toString
       val sessionCookie = getSessionCookie(Map("csrfToken" -> csrfToken), userId)
 
-      stubKeystore(SessionId, regId)
+      cacheSessionData[String](DataKey("registrationID"), regId)
       await(repo.insertNavModel(regId, handOffNavModel))
       stubPut(s"/company-registration/corporation-tax-registration/$regId/confirmation-references", 403, "")
 

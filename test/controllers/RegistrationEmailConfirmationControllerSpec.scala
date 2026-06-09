@@ -46,7 +46,7 @@ class RegistrationEmailConfirmationControllerSpec extends SCRSSpec with GuiceOne
     object TestController extends RegistrationEmailConfirmationController(
       mockEmailService,
       mockAuthConnector,
-      mockKeystoreConnector,
+      mockSessionCacheService,
       mockCompanyRegistrationConnector,
       controllerComponents,
       mockConfirmRegistrationEmailView
@@ -76,9 +76,9 @@ class RegistrationEmailConfirmationControllerSpec extends SCRSSpec with GuiceOne
 
   "Sending a GET request to the RegistrationEmailConfirmationController" should {
     "return a 200 with an authorised user where user has already been to the page before" in new Setup {
-      mockKeystoreFetchAndGet[String]("registrationID", Some("regid"))
-      mockKeystoreFetchAndGet[ConfirmRegistrationEmailModel]("ConfirmEmail", Some(ConfirmRegistrationEmailModel(true)))
-      mockKeystoreFetchAndGet[RegistrationEmailModel]("RegEmail", Some(RegistrationEmailModel("test@test.com", Some("tester@tester.com"))))
+      mockSessionCacheGet[String]("registrationID", Some("regid"))
+      mockSessionCacheGet[ConfirmRegistrationEmailModel]("ConfirmEmail", Some(ConfirmRegistrationEmailModel(true)))
+      mockSessionCacheGet[RegistrationEmailModel]("RegEmail", Some(RegistrationEmailModel("test@test.com", Some("tester@tester.com"))))
       val awaitedFun = await(TestController.showLogicFun())
 
       when(mockEmailService.emailVerifiedStatusInSCRS(ArgumentMatchers.any(),
@@ -92,10 +92,10 @@ class RegistrationEmailConfirmationControllerSpec extends SCRSSpec with GuiceOne
       }
     }
     "return a 200 with an authorised user where no data exists in keystore for this page" in new Setup {
-      mockKeystoreFetchAndGet[String]("registrationID", Some("regid"))
+      mockSessionCacheGet[String]("registrationID", Some("regid"))
       showWithAuthorisedUser(TestController.show) {
-        mockKeystoreFetchAndGet[ConfirmRegistrationEmailModel]("ConfirmEmail", None)
-        mockKeystoreFetchAndGet[RegistrationEmailModel]("RegEmail", Some(RegistrationEmailModel("test@test.com", Some("tester@tester.com"))))
+        mockSessionCacheGet[ConfirmRegistrationEmailModel]("ConfirmEmail", None)
+        mockSessionCacheGet[RegistrationEmailModel]("RegEmail", Some(RegistrationEmailModel("test@test.com", Some("tester@tester.com"))))
         val awaitedFun = await(TestController.showLogicFun())
 
         when(mockEmailService.emailVerifiedStatusInSCRS(ArgumentMatchers.any(),
@@ -110,10 +110,10 @@ class RegistrationEmailConfirmationControllerSpec extends SCRSSpec with GuiceOne
     }
     "return a 303 redirect with an authorised user because RegistrationEmailModel in keystore is None" in new Setup {
 
-      mockKeystoreFetchAndGet[String]("registrationID", Some("regid"))
+      mockSessionCacheGet[String]("registrationID", Some("regid"))
       showWithAuthorisedUser(TestController.show) {
-        mockKeystoreFetchAndGet[ConfirmRegistrationEmailModel]("ConfirmEmail", Some(ConfirmRegistrationEmailModel(true)))
-        mockKeystoreFetchAndGet[RegistrationEmailModel]("RegEmail", None)
+        mockSessionCacheGet[ConfirmRegistrationEmailModel]("ConfirmEmail", Some(ConfirmRegistrationEmailModel(true)))
+        mockSessionCacheGet[RegistrationEmailModel]("RegEmail", None)
         val awaitedFun = await(TestController.showLogicFun())
 
         when(mockEmailService.emailVerifiedStatusInSCRS(ArgumentMatchers.any(),
@@ -144,9 +144,9 @@ class RegistrationEmailConfirmationControllerSpec extends SCRSSpec with GuiceOne
     )
     "return a 303" when {
       "posting with valid data - YES redirect to completion capacity" in new Setup {
-        mockKeystoreFetchAndGet[String]("registrationID", Some("regid"))
+        mockSessionCacheGet[String]("registrationID", Some("regid"))
         val requestForTest = FakeRequest().withFormUrlEncodedBody("confirmRegistrationEmail" -> "true")
-        mockKeystoreFetchAndGet[RegistrationEmailModel]("RegEmail", Some(RegistrationEmailModel("test@test.com", Some("tester@tester.com"))))
+        mockSessionCacheGet[RegistrationEmailModel]("RegEmail", Some(RegistrationEmailModel("test@test.com", Some("tester@tester.com"))))
         when(mockEmailService.sendVerificationLink(ArgumentMatchers.any(), ArgumentMatchers.any(),
           ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(Some(true)))
         val awaitedFun = await(TestController.submitLogicFun(r = requestForTest))
@@ -161,9 +161,9 @@ class RegistrationEmailConfirmationControllerSpec extends SCRSSpec with GuiceOne
         }
       }
       "posting with valid data - NO and redirects and first page of email" in new Setup {
-        mockKeystoreFetchAndGet[String]("registrationID", Some("regid"))
+        mockSessionCacheGet[String]("registrationID", Some("regid"))
         val requestForTest = FakeRequest().withFormUrlEncodedBody("confirmRegistrationEmail" -> "false")
-        mockKeystoreFetchAndGet[RegistrationEmailModel]("RegEmail", Some(RegistrationEmailModel("test@test.com", Some("tester@tester.com"))))
+        mockSessionCacheGet[RegistrationEmailModel]("RegEmail", Some(RegistrationEmailModel("test@test.com", Some("tester@tester.com"))))
         val awaitedFun = await(TestController.submitLogicFun(r = requestForTest))
         when(mockEmailService.emailVerifiedStatusInSCRS(ArgumentMatchers.any(),
           ArgumentMatchers.argThat(funcMatcher(mockOfFunction)))(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(awaitedFun))
@@ -175,9 +175,9 @@ class RegistrationEmailConfirmationControllerSpec extends SCRSSpec with GuiceOne
         }
       }
       "posting with missing data from previous page" in new Setup {
-        mockKeystoreFetchAndGet[String]("registrationID", Some("regid"))
+        mockSessionCacheGet[String]("registrationID", Some("regid"))
         val requestForTest = FakeRequest().withFormUrlEncodedBody("confirmRegistrationEmail" -> "true")
-        mockKeystoreFetchAndGet[RegistrationEmailModel]("RegEmail", None)
+        mockSessionCacheGet[RegistrationEmailModel]("RegEmail", None)
         val awaitedFun = await(TestController.submitLogicFun(r = requestForTest))
         when(mockEmailService.emailVerifiedStatusInSCRS(ArgumentMatchers.any(),
           ArgumentMatchers.argThat(funcMatcher(mockOfFunction)))(ArgumentMatchers.any(), ArgumentMatchers.any())).thenReturn(Future.successful(awaitedFun))
@@ -190,9 +190,9 @@ class RegistrationEmailConfirmationControllerSpec extends SCRSSpec with GuiceOne
       }
       "return a 400" when {
         "posting with invalid data" in new Setup {
-          mockKeystoreFetchAndGet[String]("registrationID", Some("regid"))
+          mockSessionCacheGet[String]("registrationID", Some("regid"))
           val requestForTest = FakeRequest().withFormUrlEncodedBody("confirmRegistrationEmail" -> "sdkjfhksd")
-          mockKeystoreFetchAndGet[RegistrationEmailModel]("RegEmail", Some(RegistrationEmailModel("sfg@sdf.com", Some("sdgf@dfg.com"))))
+          mockSessionCacheGet[RegistrationEmailModel]("RegEmail", Some(RegistrationEmailModel("sfg@sdf.com", Some("sdgf@dfg.com"))))
           val awaitedFun = await(TestController.submitLogicFun(r = requestForTest))
           when(mockEmailService.emailVerifiedStatusInSCRS(ArgumentMatchers.any(),
             ArgumentMatchers.argThat(funcMatcher(mockOfFunction)))(ArgumentMatchers.any(),

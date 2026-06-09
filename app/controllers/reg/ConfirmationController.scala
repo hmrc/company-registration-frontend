@@ -17,41 +17,44 @@
 package controllers.reg
 
 import config.AppConfig
-import connectors.{CompanyRegistrationConnector, KeystoreConnector}
+import connectors.CompanyRegistrationConnector
 import controllers.auth.AuthenticatedController
 import forms.errors.DeskproForm
-import javax.inject.{Inject, Singleton}
 import models.ConfirmationReferencesSuccessResponse
-import utils.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.{CommonService, DeskproService}
+import services.{CommonService, DeskproService, SessionCacheService}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
-import utils.{SCRSExceptions, SessionRegistration}
+import utils.{Logging, SCRSExceptions, SessionRegistration}
+import views.html.errors.{deskproSubmitted => deskproSubmittedView, submissionFailed => submissionFailedView}
 import views.html.reg.{Confirmation => ConfirmationView}
-import views.html.errors.{submissionFailed => submissionFailedView}
-import views.html.errors.{deskproSubmitted => deskproSubmittedView}
 
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class ConfirmationController @Inject()(val authConnector: PlayAuthConnector,
-                                       val compRegConnector: CompanyRegistrationConnector,
-                                       val keystoreConnector: KeystoreConnector,
-                                       val deskproService: DeskproService,
-                                       val controllerComponents: MessagesControllerComponents,
-                                       val controllerErrorHandler: ControllerErrorHandler,
-                                       confirmationView: ConfirmationView,
-                                       submissionFailedView: submissionFailedView,
-                                       deskproSubmittedView: deskproSubmittedView
-                                      )(implicit val appConfig: AppConfig, implicit val ec: ExecutionContext) extends AuthenticatedController with SessionRegistration with CommonService
-  with SCRSExceptions with I18nSupport with Logging {
+class ConfirmationController @Inject() (
+    val authConnector: PlayAuthConnector,
+    val compRegConnector: CompanyRegistrationConnector,
+    val sessionCacheService: SessionCacheService,
+    val deskproService: DeskproService,
+    val controllerComponents: MessagesControllerComponents,
+    val controllerErrorHandler: ControllerErrorHandler,
+    confirmationView: ConfirmationView,
+    submissionFailedView: submissionFailedView,
+    deskproSubmittedView: deskproSubmittedView)(implicit val appConfig: AppConfig, implicit val ec: ExecutionContext)
+    extends AuthenticatedController
+    with SessionRegistration
+    with CommonService
+    with SCRSExceptions
+    with I18nSupport
+    with Logging {
 
   val show: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
       for {
-        regID <- fetchRegistrationID
+        regID      <- fetchRegistrationID
         references <- compRegConnector.fetchConfirmationReferences(regID)
       } yield references match {
         case ConfirmationReferencesSuccessResponse(ref) => Ok(confirmationView(ref))
@@ -77,13 +80,15 @@ class ConfirmationController @Inject()(val authConnector: PlayAuthConnector,
   val submitTicket: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorisedOptStr(Retrievals.userDetailsUri) { uri =>
       fetchRegistrationID.flatMap(regID =>
-        DeskproForm.form.bindFromRequest().fold(
-          errors => Future.successful(BadRequest(submissionFailedView(errors))),
-          success => deskproService.submitTicket(regID, success, uri) map {
-            _ => Redirect(controllers.reg.routes.ConfirmationController.submittedTicket)
-          }
-        )
-      )
+        DeskproForm.form
+          .bindFromRequest()
+          .fold(
+            errors => Future.successful(BadRequest(submissionFailedView(errors))),
+            success =>
+              deskproService.submitTicket(regID, success, uri) map { _ =>
+                Redirect(controllers.reg.routes.ConfirmationController.submittedTicket)
+              }
+          ))
     }
   }
 

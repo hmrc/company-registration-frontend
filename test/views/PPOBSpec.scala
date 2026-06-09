@@ -49,7 +49,7 @@ class PPOBSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixture with Nav
   class SetupPage {
     val controller = new PPOBController(
       mockAuthConnector,
-      mockKeystoreConnector,
+      mockSessionCacheService,
       mockCompanyRegistrationConnector,
       mockHandOffService,
       mockBusinessRegConnector,
@@ -72,7 +72,7 @@ class PPOBSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixture with Nav
   "PPOBController.show" should {
     "make sure that the PPOB page has the correct elements when only an RO address is provided to the view" in new SetupPage {
       CTRegistrationConnectorMocks.retrieveCTRegistration()
-      mockKeystoreFetchAndGet("registrationID", Some("12345"))
+      mockSessionCacheGet("registrationID", Some("12345"))
 
       when(mockPPOBService.fetchAddressesAndChoice(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(
@@ -99,7 +99,7 @@ class PPOBSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixture with Nav
     }
     "make sure that the PPOB page has the correct elements when only an RO and different PPOB address is provided to the view" in new SetupPage {
       CTRegistrationConnectorMocks.retrieveCTRegistration()
-      mockKeystoreFetchAndGet("registrationID", Some("12345"))
+      mockSessionCacheGet("registrationID", Some("12345"))
 
       when(mockPPOBService.fetchAddressesAndChoice(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(
@@ -126,7 +126,7 @@ class PPOBSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixture with Nav
 
     "make sure that the PPOB page has the correct elements when the RO address was selected before" in new SetupPage {
       CTRegistrationConnectorMocks.retrieveCTRegistration()
-      mockKeystoreFetchAndGet("registrationID", Some("12345"))
+      mockSessionCacheGet("registrationID", Some("12345"))
 
       when(mockPPOBService.fetchAddressesAndChoice(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(
@@ -153,7 +153,7 @@ class PPOBSpec()(implicit lang: Lang) extends SCRSSpec with PPOBFixture with Nav
 
     "make sure that PPOB page has the correct elements when an RO address is not provided to the view" in new SetupPage {
       CTRegistrationConnectorMocks.retrieveCTRegistration()
-      mockKeystoreFetchAndGet("registrationID", Some("12345"))
+      mockSessionCacheGet("registrationID", Some("12345"))
 
       when(mockPPOBService.fetchAddressesAndChoice(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(

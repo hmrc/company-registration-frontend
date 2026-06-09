@@ -17,12 +17,12 @@
 package controllers.reg
 
 import config.AppConfig
-import connectors.{BusinessRegistrationConnector, BusinessRegistrationSuccessResponse, CompanyRegistrationConnector, KeystoreConnector}
+import connectors.{BusinessRegistrationConnector, BusinessRegistrationSuccessResponse, CompanyRegistrationConnector}
 import controllers.auth.AuthenticatedController
 import forms.AboutYouForm
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import services.{MetaDataService, MetricsService}
+import services.{MetaDataService, MetricsService, SessionCacheService}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import utils.SessionRegistration
 import views.html.reg.{CompletionCapacity => CompletionCapacityView}
@@ -31,17 +31,19 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class CompletionCapacityController @Inject()(
-                                              val authConnector: PlayAuthConnector,
-                                              val keystoreConnector: KeystoreConnector,
-                                              val businessRegConnector: BusinessRegistrationConnector,
-                                              val metricsService: MetricsService,
-                                              val metaDataService: MetaDataService,
-                                              val compRegConnector: CompanyRegistrationConnector,
-                                              val controllerComponents: MessagesControllerComponents,
-                                              view: CompletionCapacityView
-                                            )(implicit val ec: ExecutionContext, implicit val appConfig: AppConfig) extends AuthenticatedController with SessionRegistration with I18nSupport {
-
+class CompletionCapacityController @Inject() (
+    val authConnector: PlayAuthConnector,
+    val sessionCacheService: SessionCacheService,
+    val businessRegConnector: BusinessRegistrationConnector,
+    val metricsService: MetricsService,
+    val metaDataService: MetaDataService,
+    val compRegConnector: CompanyRegistrationConnector,
+    val controllerComponents: MessagesControllerComponents,
+    view: CompletionCapacityView
+)(implicit val ec: ExecutionContext, implicit val appConfig: AppConfig)
+    extends AuthenticatedController
+    with SessionRegistration
+    with I18nSupport {
 
   def show(): Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
@@ -49,8 +51,8 @@ class CompletionCapacityController @Inject()(
         businessRegConnector.retrieveMetadata map {
           case BusinessRegistrationSuccessResponse(response) =>
             response.completionCapacity match {
-              case Some(cc) =>  Ok(view(AboutYouForm.populateForm(cc)))
-              case _ =>  Ok(view(AboutYouForm.aboutYouFilled))
+              case Some(cc) => Ok(view(AboutYouForm.populateForm(cc)))
+              case _        => Ok(view(AboutYouForm.aboutYouFilled))
             }
           case _ => Ok(view(AboutYouForm.aboutYouFilled))
         }
@@ -61,17 +63,18 @@ class CompletionCapacityController @Inject()(
   def submit: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
       registered { _ =>
-        AboutYouForm.form.bindFromRequest().fold(
-          errors => Future.successful(BadRequest(view(errors))),
-          success => {
-            val context = metricsService.saveCompletionCapacityToCRTimer.time()
-            metaDataService.updateCompletionCapacity(success) map {
-              _ =>
+        AboutYouForm.form
+          .bindFromRequest()
+          .fold(
+            errors => Future.successful(BadRequest(view(errors))),
+            success => {
+              val context = metricsService.saveCompletionCapacityToCRTimer.time()
+              metaDataService.updateCompletionCapacity(success) map { _ =>
                 context.stop()
                 Redirect(controllers.handoff.routes.BasicCompanyDetailsController.basicCompanyDetails)
+              }
             }
-          }
-        )
+          )
       }
     }
   }

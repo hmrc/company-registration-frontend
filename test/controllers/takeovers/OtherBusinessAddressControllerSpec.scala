@@ -71,7 +71,7 @@ class OtherBusinessAddressControllerSpec(implicit lang: Lang) extends SCRSSpec
     mockAddressLookupFrontendService,
     mockCompanyRegistrationConnector,
     mockBusinessRegConnector,
-    mockKeystoreConnector,
+    mockSessionCacheService,
     mockSCRSFeatureSwitches,
     mockMcc,
     mockControllerErrorHandler,
@@ -83,7 +83,7 @@ class OtherBusinessAddressControllerSpec(implicit lang: Lang) extends SCRSSpec
       "the user does not any associated TakeoverDetails" should {
         "return 303 with a redirect to replacing another business controller" in {
           mockAuthorisedUser(Future.successful({}))
-          mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
+          mockSessionCacheGet("registrationID", Some(testRegistrationId))
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
           mockGetTakeoverDetails(testRegistrationId)(Future.successful(None))
@@ -98,7 +98,7 @@ class OtherBusinessAddressControllerSpec(implicit lang: Lang) extends SCRSSpec
       "the user indicated they are not doing a takeover" should {
         "return 303 with a redirect to accounting dates controller" in {
           mockAuthorisedUser(Future.successful({}))
-          mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
+          mockSessionCacheGet("registrationID", Some(testRegistrationId))
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
           val testTakeoverDetails: TakeoverDetails = TakeoverDetails(replacingAnotherBusiness = false)
@@ -114,7 +114,7 @@ class OtherBusinessAddressControllerSpec(implicit lang: Lang) extends SCRSSpec
       "the user has not submitted a business name before" should {
         "return 303 with a redirect to other business name page" in {
           mockAuthorisedUser(Future.successful({}))
-          mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
+          mockSessionCacheGet("registrationID", Some(testRegistrationId))
 
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
@@ -131,7 +131,7 @@ class OtherBusinessAddressControllerSpec(implicit lang: Lang) extends SCRSSpec
       "the user has not submitted a business address before" should {
         "return 200 with the other business address page" in {
           mockAuthorisedUser(Future.successful({}))
-          mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
+          mockSessionCacheGet("registrationID", Some(testRegistrationId))
 
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
@@ -154,7 +154,7 @@ class OtherBusinessAddressControllerSpec(implicit lang: Lang) extends SCRSSpec
       "the user has previously submitted a business address" should {
         "return 200 with the other business address page prepopulated with the previously selected address" in {
           mockAuthorisedUser(Future.successful({}))
-          mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
+          mockSessionCacheGet("registrationID", Some(testRegistrationId))
 
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
@@ -182,7 +182,7 @@ class OtherBusinessAddressControllerSpec(implicit lang: Lang) extends SCRSSpec
       "the user has previously submitted a business address which is not in the same format as the stored address" should {
         "return 200 with the other business address page prepopulated with the previously selected address" in {
           mockAuthorisedUser(Future.successful({}))
-          mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
+          mockSessionCacheGet("registrationID", Some(testRegistrationId))
 
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
@@ -218,7 +218,7 @@ class OtherBusinessAddressControllerSpec(implicit lang: Lang) extends SCRSSpec
       "the form contains valid data" should {
         "redirect to who agreed takeover page when the service does not fail" in {
           mockAuthorisedUser(Future.successful({}))
-          mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
+          mockSessionCacheGet("registrationID", Some(testRegistrationId))
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
           implicit val request: Request[AnyContentAsFormUrlEncoded] =
@@ -242,7 +242,7 @@ class OtherBusinessAddressControllerSpec(implicit lang: Lang) extends SCRSSpec
       "the form contains valid data" should {
         "redirect to alf when the choice is Other" in {
           mockAuthorisedUser(Future.successful({}))
-          mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
+          mockSessionCacheGet("registrationID", Some(testRegistrationId))
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
           mockInitialiseAlfJourney(
@@ -265,7 +265,7 @@ class OtherBusinessAddressControllerSpec(implicit lang: Lang) extends SCRSSpec
       "the form contains invalid data" should {
         "return a bad request and update the page with errors" in {
           mockAuthorisedUser(Future.successful({}))
-          mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
+          mockSessionCacheGet("registrationID", Some(testRegistrationId))
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
 
@@ -290,7 +290,7 @@ class OtherBusinessAddressControllerSpec(implicit lang: Lang) extends SCRSSpec
           val testAlfId = "testAlfId"
 
           mockAuthorisedUser(Future.successful({}))
-          mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
+          mockSessionCacheGet("registrationID", Some(testRegistrationId))
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
           mockGetAddress(id = testAlfId)(Future.successful(testBusinessAddress))

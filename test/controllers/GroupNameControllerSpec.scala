@@ -50,7 +50,7 @@ class GroupNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Moc
       mockAuthConnector,
       mockGroupService,
       mockCompanyRegistrationConnector,
-      mockKeystoreConnector,
+      mockSessionCacheService,
       mockMcc,
       mockGroupNameView
     )(
@@ -120,7 +120,7 @@ class GroupNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Moc
 
 
   "Redirect the user to post sign in if the user is authorised but has no registration id in session" in new Setup {
-    mockKeystoreFetchAndGet("registrationID", None)
+    mockSessionCacheGet("registrationID", None)
 
     showWithAuthorisedUser(controller.show) {
       result => {
@@ -132,7 +132,7 @@ class GroupNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Moc
   }
 
   "Redirect the user to post sign in if the user is authorised but with incorrect status" in new Setup {
-    mockKeystoreFetchAndGet("registrationID", Some("reg123"))
+    mockSessionCacheGet("registrationID", Some("reg123"))
     CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("held", ""))
 
     when(mockGroupService.retrieveGroups(ArgumentMatchers.any[String])(ArgumentMatchers.any[HeaderCarrier], ArgumentMatchers.any[ExecutionContext]))
@@ -155,7 +155,7 @@ class GroupNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Moc
       Some(GroupsAddressAndType("type", NewAddress("l1", "l2", None, None, None, None, None))),
       None
     )
-    mockKeystoreFetchAndGet("registrationID", Some("1"))
+    mockSessionCacheGet("registrationID", Some("1"))
     CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
     when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any()))
       .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
@@ -177,7 +177,7 @@ class GroupNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Moc
       None,
       None
     )
-    mockKeystoreFetchAndGet("registrationID", Some("1"))
+    mockSessionCacheGet("registrationID", Some("1"))
     CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
     when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any()))
       .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
@@ -199,7 +199,7 @@ class GroupNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Moc
       Some(GroupsAddressAndType("type", NewAddress("l1", "l2", None, None, None, None, None))),
       None
     )
-    mockKeystoreFetchAndGet("registrationID", Some("1"))
+    mockSessionCacheGet("registrationID", Some("1"))
     CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
     when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any()))
       .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
@@ -227,7 +227,7 @@ class GroupNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Moc
       Some(GroupsAddressAndType("type", NewAddress("l1", "l2", None, None, None, None, None))),
       None
     )
-    mockKeystoreFetchAndGet("registrationID", Some("1"))
+    mockSessionCacheGet("registrationID", Some("1"))
     CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
     when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any()))
       .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
@@ -256,7 +256,7 @@ class GroupNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Moc
       Some(GroupsAddressAndType("type", NewAddress("l1", "l2", None, None, None, None, None))),
       None
     )
-    mockKeystoreFetchAndGet("registrationID", Some("1"))
+    mockSessionCacheGet("registrationID", Some("1"))
     CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
     when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any()))
       .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))

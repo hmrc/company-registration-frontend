@@ -47,7 +47,7 @@ class IncorporationSummaryControllerSpec extends SCRSSpec with PayloadFixture wi
 
     val testController = new IncorporationSummaryController (
       mockAuthConnector,
-      mockKeystoreConnector,
+      mockSessionCacheService,
       mockHandOffService,
       mockCompanyRegistrationConnector,
       mockHandBackService,
@@ -71,7 +71,7 @@ class IncorporationSummaryControllerSpec extends SCRSSpec with PayloadFixture wi
 
     "return a 303 if user details are retrieved" in new Setup {
       val payload = summaryEncryptedPayload(jweInstance())
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      mockSessionCacheGet("registrationID", Some("1"))
       when(mockHandOffService.summaryHandOff(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(("testLink", payload))))
 
@@ -89,7 +89,7 @@ class IncorporationSummaryControllerSpec extends SCRSSpec with PayloadFixture wi
     }
 
     "return a 400 if no link or payload are returned" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      mockSessionCacheGet("registrationID", Some("1"))
       when(mockHandOffService.summaryHandOff(ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(None))
 
@@ -111,7 +111,7 @@ class IncorporationSummaryControllerSpec extends SCRSSpec with PayloadFixture wi
     )
 
     "return a 303 when hand back service decrypts the reverse hand off payload successfully" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      mockSessionCacheGet("registrationID", Some("1"))
       val encryptedPayload = jweInstance().encrypt[JsValue](payload).get
 
       when(mockHandBackService.processCompanyNameReverseHandBack(ArgumentMatchers.eq(encryptedPayload))(ArgumentMatchers.any[HeaderCarrier]))
@@ -126,7 +126,7 @@ class IncorporationSummaryControllerSpec extends SCRSSpec with PayloadFixture wi
     }
 
     "return a 400 when hand back service errors while decrypting the payload" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      mockSessionCacheGet("registrationID", Some("1"))
       val encryptedPayload = jweInstance().encrypt[JsValue](payload).get
 
       when(mockHandBackService.processCompanyNameReverseHandBack(ArgumentMatchers.eq(encryptedPayload))(ArgumentMatchers.any[HeaderCarrier]))
@@ -139,7 +139,7 @@ class IncorporationSummaryControllerSpec extends SCRSSpec with PayloadFixture wi
     }
 
     "return a 400 when hand back service decrypts the payload successfully but the Json is malformed" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      mockSessionCacheGet("registrationID", Some("1"))
       val encryptedPayload = jweInstance().encrypt[JsValue](payload).get
 
       when(mockHandBackService.processCompanyNameReverseHandBack(ArgumentMatchers.eq(encryptedPayload))(ArgumentMatchers.any[HeaderCarrier]))
@@ -151,7 +151,7 @@ class IncorporationSummaryControllerSpec extends SCRSSpec with PayloadFixture wi
       }
     }
     "return a 303 when request is made with auth but keystore does not exist" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", None)
+      mockSessionCacheGet("registrationID", None)
       val encryptedPayload = jweInstance().encrypt[JsValue](payload).get
 
       when(mockHandBackService.processCompanyNameReverseHandBack(ArgumentMatchers.eq(encryptedPayload))(ArgumentMatchers.any[HeaderCarrier]))

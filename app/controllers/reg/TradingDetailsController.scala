@@ -17,65 +17,68 @@
 package controllers.reg
 
 import config.AppConfig
-import connectors.{CompanyRegistrationConnector, KeystoreConnector}
+import connectors.CompanyRegistrationConnector
 import controllers.auth.AuthenticatedController
 import forms.TradingDetailsForm
-import javax.inject.{Inject, Singleton}
 import models.{TradingDetailsErrorResponse, TradingDetailsForbiddenResponse, TradingDetailsNotFoundResponse, TradingDetailsSuccessResponse}
 import play.api.i18n.I18nSupport
-import play.api.mvc.MessagesControllerComponents
-import services.{MetricsService, TradingDetailsService}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.{MetricsService, SessionCacheService, TradingDetailsService}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import utils.SessionRegistration
 import views.html.reg.TradingDetailsView
 
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class TradingDetailsController @Inject()(val authConnector: PlayAuthConnector,
-                                         val tradingDetailsService: TradingDetailsService,
-                                         val metricsService: MetricsService,
-                                         val compRegConnector: CompanyRegistrationConnector,
-                                         val keystoreConnector: KeystoreConnector,
-                                         val controllerComponents: MessagesControllerComponents,
-                                         val controllerErrorHandler: ControllerErrorHandler,
-                                         view: TradingDetailsView)(implicit val appConfig: AppConfig, implicit val ec: ExecutionContext) extends AuthenticatedController with SessionRegistration with I18nSupport {
+class TradingDetailsController @Inject() (val authConnector: PlayAuthConnector,
+                                          val tradingDetailsService: TradingDetailsService,
+                                          val metricsService: MetricsService,
+                                          val compRegConnector: CompanyRegistrationConnector,
+                                          val sessionCacheService: SessionCacheService,
+                                          val controllerComponents: MessagesControllerComponents,
+                                          val controllerErrorHandler: ControllerErrorHandler,
+                                          view: TradingDetailsView)(implicit val appConfig: AppConfig, implicit val ec: ExecutionContext)
+    extends AuthenticatedController
+    with SessionRegistration
+    with I18nSupport {
 
-  val show = Action.async { implicit request =>
+  val show: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
       checkStatus { regID =>
         for {
           tradingDetails <- tradingDetailsService.retrieveTradingDetails(regID)
-        } yield {
-          Ok(view(TradingDetailsForm.form.fill(tradingDetails)))
-        }
+        } yield Ok(view(TradingDetailsForm.form.fill(tradingDetails)))
       }
     }
   }
 
-  val submit = Action.async { implicit request =>
+  val submit: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
       registered { _ =>
-        TradingDetailsForm.form.bindFromRequest().fold(
-          errors => Future.successful(BadRequest(view(errors))),
-          payments => {
-            val context = metricsService.saveTradingDetailsToCRTimer.time()
-            tradingDetailsService.updateCompanyInformation(payments).map {
-              case TradingDetailsSuccessResponse(_) =>
-                context.stop()
-                Redirect(controllers.handoff.routes.BusinessActivitiesController.businessActivities)
-              case TradingDetailsErrorResponse(_) =>
-                context.stop()
-                BadRequest(controllerErrorHandler.defaultErrorPage)
-              case TradingDetailsNotFoundResponse =>
-                context.stop()
-                BadRequest(controllerErrorHandler.defaultErrorPage)
-              case TradingDetailsForbiddenResponse =>
-                context.stop()
-                BadRequest(controllerErrorHandler.defaultErrorPage)
+        TradingDetailsForm.form
+          .bindFromRequest()
+          .fold(
+            errors => Future.successful(BadRequest(view(errors))),
+            payments => {
+              val context = metricsService.saveTradingDetailsToCRTimer.time()
+              tradingDetailsService.updateCompanyInformation(payments).map {
+                case TradingDetailsSuccessResponse(_) =>
+                  context.stop()
+                  Redirect(controllers.handoff.routes.BusinessActivitiesController.businessActivities)
+                case TradingDetailsErrorResponse(_) =>
+                  context.stop()
+                  BadRequest(controllerErrorHandler.defaultErrorPage)
+                case TradingDetailsNotFoundResponse =>
+                  context.stop()
+                  BadRequest(controllerErrorHandler.defaultErrorPage)
+                case TradingDetailsForbiddenResponse =>
+                  context.stop()
+                  BadRequest(controllerErrorHandler.defaultErrorPage)
+              }
             }
-          }
-        )
+          )
       }
     }
   }

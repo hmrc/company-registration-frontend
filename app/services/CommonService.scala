@@ -16,35 +16,29 @@
 
 package services
 
-import java.time.LocalDate
-import connectors.KeystoreConnector
-import utils.Logging
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.cache.client.CacheMap
-import utils.SCRSExceptions
+import utils.{Logging, SCRSExceptions}
 
+import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
 
 trait CommonService extends Logging {
-  self : SCRSExceptions =>
+  self: SCRSExceptions =>
 
-  val keystoreConnector: KeystoreConnector
+  val sessionCacheService: SessionCacheService
 
-  def fetchRegistrationID(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[String] = {
-    keystoreConnector.fetchAndGet[String]("registrationID").map {
+  def fetchRegistrationID(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[String] =
+    sessionCacheService.get[String]("registrationID").map {
       case Some(regID) => regID
       case None =>
         logger.error(s"[fetchRegistrationID] Could not find a registration ID in keystore")
         throw RegistrationIDNotFoundException
     }
-  }
 
-  def cacheRegistrationID(registrationID: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[CacheMap] = {
-    keystoreConnector.cache("registrationID", registrationID)
-  }
+  def cacheRegistrationID(registrationID: String)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[String] =
+    sessionCacheService.save("registrationID", registrationID)
 
-  def updateLastActionTimestamp()(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[CacheMap] = {
-    keystoreConnector.cache("lastActionTimestamp", LocalDate.now)
-  }
+  def updateLastActionTimestamp()(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[LocalDate] =
+    sessionCacheService.save("lastActionTimestamp", LocalDate.now)
 
 }

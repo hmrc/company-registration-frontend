@@ -51,7 +51,7 @@ class ConfirmationControllerSpec(implicit val messages: Messages) extends SCRSSp
     val controller = new ConfirmationController (
       mockAuthConnector,
       mockCompanyRegistrationConnector,
-      mockKeystoreConnector,
+      mockSessionCacheService,
       mockDeskproService,
       mockMcc,
       mockControllerErrorHandler,
@@ -70,7 +70,7 @@ class ConfirmationControllerSpec(implicit val messages: Messages) extends SCRSSp
     implicit val hc = HeaderCarrier()
 
     "Return a 200 and display the Confirmation page" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("testRegID"))
+      mockSessionCacheGet("registrationID", Some("testRegID"))
       CTRegistrationConnectorMocks.fetchAcknowledgementReference("testRegID", ConfirmationReferencesSuccessResponse(ConfirmationReferences("a", Some("b"), Some("c"), "ABCDEFG0000")))
       when(mockCompanyRegistrationConnector.retrieveCompanyDetails(ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Some(validCompanyDetailsResponse)))
@@ -84,7 +84,7 @@ class ConfirmationControllerSpec(implicit val messages: Messages) extends SCRSSp
 
   "submitTicket" should {
     "return 400 when an empty form is submitted" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("testRegID"))
+      mockSessionCacheGet("registrationID", Some("testRegID"))
 
       val request = FakeRequest().withFormUrlEncodedBody(
         "" -> ""
@@ -97,7 +97,7 @@ class ConfirmationControllerSpec(implicit val messages: Messages) extends SCRSSp
     }
 
     "return 400 when an invalid email is entered" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("testRegID"))
+      mockSessionCacheGet("registrationID", Some("testRegID"))
 
       val request = FakeRequest().withFormUrlEncodedBody(
         "name" -> "Michael Mouse",
@@ -112,7 +112,7 @@ class ConfirmationControllerSpec(implicit val messages: Messages) extends SCRSSp
     }
 
     "return 303" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some(regId))
+      mockSessionCacheGet("registrationID", Some(regId))
 
       val request = FakeRequest().withFormUrlEncodedBody(
         "name" -> "Michael Mouse",

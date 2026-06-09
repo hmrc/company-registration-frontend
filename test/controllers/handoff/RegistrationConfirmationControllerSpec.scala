@@ -53,7 +53,7 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
 
     val testController = new RegistrationConfirmationController(
       mockAuthConnector,
-      mockKeystoreConnector,
+      mockSessionCacheService,
       mockHandOffService,
       mockCompanyRegistrationConnector,
       mockHandBackService,
@@ -79,7 +79,7 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
     }
 
     "return a SEE_OTHER if sending a valid request with authorisation" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      mockSessionCacheGet("registrationID", Some("1"))
       val payloadEncr = confirmationPayload(jweInstance())
       when(mockHandBackService.decryptConfirmationHandback(ArgumentMatchers.eq(payloadEncr))(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Success(payload)))
@@ -101,7 +101,7 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
     }
 
     "redirect to next url if Handoff 5.1 and if sending a valid request with authorisation" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      mockSessionCacheGet("registrationID", Some("1"))
       val payloadEncr = confirmationPayload(jweInstance())
       when(mockHandBackService.decryptConfirmationHandback(ArgumentMatchers.eq(payloadEncr))(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Success(payload)))
@@ -127,7 +127,7 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
     }
 
     "redirect to signInOutController if no nav model is found" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      mockSessionCacheGet("registrationID", Some("1"))
       val payloadEncr = confirmationPayload(jweInstance())
       when(mockHandBackService.decryptConfirmationHandback(ArgumentMatchers.eq(payloadEncr))(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.failed(new NavModelNotFoundException))
@@ -140,7 +140,7 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
     }
 
     "return a BadRequest if a confirmation handoff cannot be built" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      mockSessionCacheGet("registrationID", Some("1"))
       val payloadEncr = confirmationPayload(jweInstance())
       when(mockHandBackService.decryptConfirmationHandback(ArgumentMatchers.eq(payloadEncr))(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Success(payload)))
@@ -163,7 +163,7 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
     }
 
     "return a SEE_OTHER if sending a request with authorisation but has a deskpro error" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      mockSessionCacheGet("registrationID", Some("1"))
       val payloadEncr = confirmationPayload(jweInstance())
       when(mockHandBackService.decryptConfirmationHandback(ArgumentMatchers.eq(payloadEncr))(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Success(payload)))
@@ -182,7 +182,7 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
     }
 
     "return a SEE_OTHER if sending a request with authorisation but is put into a retriable state" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      mockSessionCacheGet("registrationID", Some("1"))
       val payloadEncr = confirmationPayload(jweInstance())
       when(mockHandBackService.decryptConfirmationHandback(ArgumentMatchers.eq(payloadEncr))(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Success(payload)))
@@ -201,7 +201,7 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
     }
 
     "return a SEE_OTHER if sending a valid request with auth but keystore does not exist" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", None)
+      mockSessionCacheGet("registrationID", None)
       val payloadEncr = confirmationPayload(jweInstance())
       when(mockHandBackService.decryptConfirmationHandback(ArgumentMatchers.eq(payloadEncr))(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Success(payload)))
@@ -214,7 +214,7 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
     }
 
     "return a BAD_REQUEST if payload cant be decrypted" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      mockSessionCacheGet("registrationID", Some("1"))
       when(mockHandBackService.decryptConfirmationHandback(ArgumentMatchers.eq(""))(ArgumentMatchers.any[HeaderCarrier], ArgumentMatchers.any[ExecutionContext]))
         .thenReturn(Future.successful(Failure(DecryptionError)))
 
@@ -228,7 +228,7 @@ class RegistrationConfirmationControllerSpec extends SCRSSpec with PayloadFixtur
 
   "paymentConfirmation" should {
     "redirect to the Confirmation page" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      mockSessionCacheGet("registrationID", Some("1"))
       val payloadEncr = confirmationPayload(jweInstance())
       when(mockHandBackService.decryptConfirmationHandback(ArgumentMatchers.eq(payloadEncr))(ArgumentMatchers.any(), ArgumentMatchers.any()))
         .thenReturn(Future.successful(Success(payload)))

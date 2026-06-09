@@ -17,52 +17,54 @@
 package controllers.dashboard
 
 import config.AppConfig
-import connectors.{CompanyRegistrationConnector, KeystoreConnector}
+import connectors.CompanyRegistrationConnector
 import controllers.auth.AuthenticatedController
 import controllers.reg.ControllerErrorHandler
-import javax.inject.Inject
-import utils.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import services._
 import uk.gov.hmrc.auth.core.PlayAuthConnector
-import utils.{SCRSExceptions, SessionRegistration}
+import utils.{Logging, SCRSExceptions, SessionRegistration}
 import views.html.dashboard.{Dashboard => DashboardView}
 import views.html.reg.{RegistrationUnsuccessful => RegistrationUnsuccessfulView}
+
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class DashboardController @Inject()(val authConnector: PlayAuthConnector,
-                                        val keystoreConnector: KeystoreConnector,
-                                        val compRegConnector: CompanyRegistrationConnector,
-                                        val dashboardService: DashboardService,
-                                        val controllerComponents: MessagesControllerComponents,
-                                        val controllerErrorHandler: ControllerErrorHandler,
-                                        viewDashboard: DashboardView,
-                                        viewRegistrationUnsuccessful: RegistrationUnsuccessfulView)
-                                       (implicit val appConfig: AppConfig, implicit val ec: ExecutionContext) extends AuthenticatedController with CommonService with SCRSExceptions
-   with SessionRegistration with I18nSupport with Logging {
-  lazy val companiesHouseURL = appConfig.servicesConfig.getConfString("coho-service.sign-in", throw new Exception("Could not find config for coho-sign-in url"))
+class DashboardController @Inject() (
+    val authConnector: PlayAuthConnector,
+    val sessionCacheService: SessionCacheService,
+    val compRegConnector: CompanyRegistrationConnector,
+    val dashboardService: DashboardService,
+    val controllerComponents: MessagesControllerComponents,
+    val controllerErrorHandler: ControllerErrorHandler,
+    viewDashboard: DashboardView,
+    viewRegistrationUnsuccessful: RegistrationUnsuccessfulView)(implicit val appConfig: AppConfig, implicit val ec: ExecutionContext)
+    extends AuthenticatedController
+    with CommonService
+    with SCRSExceptions
+    with SessionRegistration
+    with I18nSupport
+    with Logging {
+  lazy val companiesHouseURL: String =
+    appConfig.servicesConfig.getConfString("coho-service.sign-in", throw new Exception("Could not find config for coho-sign-in url"))
 
-
-  val show: Action[AnyContent] = Action.async {
-    implicit request =>
-
-      ctAuthorisedPostSignIn { authDetails =>
-        registered { regId =>
-          dashboardService.checkForEmailMismatch(regId, authDetails) flatMap { _ =>
-            dashboardService.buildDashboard(regId, authDetails.enrolments) map {
-              case DashboardBuilt(dash) => Ok(viewDashboard(dash, companiesHouseURL))
-              case CouldNotBuild => Redirect(controllers.handoff.routes.BasicCompanyDetailsController.basicCompanyDetails)
-              case RejectedIncorp => Ok(viewRegistrationUnsuccessful())
-            } recover {
-              case ex => logger.error(s"[show] buildDashboard returned an error ${ex.getMessage}", ex)
-                InternalServerError(controllerErrorHandler.defaultErrorPage)
-            }
+  val show: Action[AnyContent] = Action.async { implicit request =>
+    ctAuthorisedPostSignIn { authDetails =>
+      registered { regId =>
+        dashboardService.checkForEmailMismatch(regId, authDetails) flatMap { _ =>
+          dashboardService.buildDashboard(regId, authDetails.enrolments) map {
+            case DashboardBuilt(dash) => Ok(viewDashboard(dash, companiesHouseURL))
+            case CouldNotBuild        => Redirect(controllers.handoff.routes.BasicCompanyDetailsController.basicCompanyDetails)
+            case RejectedIncorp       => Ok(viewRegistrationUnsuccessful())
+          } recover { case ex =>
+            logger.error(s"[show] buildDashboard returned an error ${ex.getMessage}", ex)
+            InternalServerError(controllerErrorHandler.defaultErrorPage)
           }
         }
       }
+    }
   }
-
 
   def submit: Action[AnyContent] = Action.async { implicit request =>
     Future.successful(Redirect(controllers.reg.routes.SignInOutController.postSignIn(None, None, None)))

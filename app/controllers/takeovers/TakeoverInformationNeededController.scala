@@ -17,31 +17,32 @@
 package controllers.takeovers
 
 import config.AppConfig
-import connectors.{CompanyRegistrationConnector, KeystoreConnector}
+import connectors.CompanyRegistrationConnector
 import controllers.auth.AuthenticatedController
 import controllers.reg.ControllerErrorHandler
-import javax.inject.{Inject, Singleton}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import services.SessionCacheService
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import utils.SessionRegistration
 import views.html.errors.{takeoverInformationNeeded => takeoverInformationNeededView}
 
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class TakeoverInformationNeededController @Inject()(val authConnector: PlayAuthConnector,
-                                                    val keystoreConnector: KeystoreConnector,
-                                                    val compRegConnector: CompanyRegistrationConnector,
-                                                    val controllerComponents: MessagesControllerComponents,
-                                                    val controllerErrorHandler: ControllerErrorHandler,
-                                                    view: takeoverInformationNeededView)
-                                                   (implicit val appConfig: AppConfig, val ec: ExecutionContext
-                                                   ) extends AuthenticatedController with SessionRegistration {
+class TakeoverInformationNeededController @Inject() (val authConnector: PlayAuthConnector,
+                                                     val sessionCacheService: SessionCacheService,
+                                                     val compRegConnector: CompanyRegistrationConnector,
+                                                     val controllerComponents: MessagesControllerComponents,
+                                                     val controllerErrorHandler: ControllerErrorHandler,
+                                                     view: takeoverInformationNeededView)(implicit val appConfig: AppConfig, val ec: ExecutionContext)
+    extends AuthenticatedController
+    with SessionRegistration {
 
   def show: Action[AnyContent] = Action.async { implicit request =>
     ctAuthorised {
-      checkStatus {
-        _ => Future.successful(Ok(view()))
+      checkStatus { _ =>
+        Future.successful(Ok(view()))
       }
     }
   }

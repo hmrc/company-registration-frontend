@@ -47,7 +47,7 @@ class GroupUtrControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Mock
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
     val controller = new GroupUtrController(
       mockAuthConnector,
-      mockKeystoreConnector,
+      mockSessionCacheService,
       mockGroupService,
       mockCompanyRegistrationConnector,
       mockMcc,
@@ -69,7 +69,7 @@ class GroupUtrControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Mock
 
 
     "Redirect the user to post sign in if the user is authorised but has no registration id in session" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", None)
+      mockSessionCacheGet("registrationID", None)
 
       showWithAuthorisedUser(controller.show) {
         result => {
@@ -81,7 +81,7 @@ class GroupUtrControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Mock
     }
 
     "Redirect the user to post sign in if the user is authorised but with incorrect status" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("reg123"))
+      mockSessionCacheGet("registrationID", Some("reg123"))
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("held", ""))
 
       when(mockGroupService.retrieveGroups(ArgumentMatchers.any[String])(ArgumentMatchers.any[HeaderCarrier], ArgumentMatchers.any[ExecutionContext]))
@@ -101,7 +101,7 @@ class GroupUtrControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Mock
       val testGroups = Groups(groupRelief = true, Some(GroupCompanyName("testGroupCompanyname1", "type")),
         Some(GroupsAddressAndType("type", NewAddress("l1", "l2", None, None, None, None, None))),
         None)
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      mockSessionCacheGet("registrationID", Some("1"))
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
       when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any()))
         .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
@@ -118,7 +118,7 @@ class GroupUtrControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Mock
       val testGroups = Groups(groupRelief = true, Some(GroupCompanyName("testGroupCompanyname1", "type")),
         Some(GroupsAddressAndType("type", NewAddress("l1", "l2", None, None, None, None, None))),
         Some(GroupUTR(None)))
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      mockSessionCacheGet("registrationID", Some("1"))
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
       when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any()))
         .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
@@ -136,7 +136,7 @@ class GroupUtrControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Mock
       val testGroups = Groups(groupRelief = true, Some(GroupCompanyName("testGroupCompanyname1", "type")),
         Some(GroupsAddressAndType("type", NewAddress("l1", "l2", None, None, None, None, None))),
         Some(GroupUTR(Some("1234567890"))))
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      mockSessionCacheGet("registrationID", Some("1"))
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
       when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any()))
         .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
@@ -155,7 +155,7 @@ class GroupUtrControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Mock
       val testGroups = Groups(groupRelief = true, Some(GroupCompanyName("testGroupCompanyname1", "type")),
         None,
         None)
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      mockSessionCacheGet("registrationID", Some("1"))
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
       when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any()))
         .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
@@ -173,7 +173,7 @@ class GroupUtrControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Mock
       val testGroups = Groups(groupRelief = true, None,
         None,
         None)
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      mockSessionCacheGet("registrationID", Some("1"))
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
       when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any()))
         .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
@@ -191,7 +191,7 @@ class GroupUtrControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Mock
       val testGroups = Groups(groupRelief = false, None,
         None,
         None)
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      mockSessionCacheGet("registrationID", Some("1"))
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
       when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any()))
         .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
@@ -211,7 +211,7 @@ class GroupUtrControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Mock
       val testGroups = Groups(groupRelief = true, Some(GroupCompanyName("testGroupCompanyname1", "type")),
         Some(GroupsAddressAndType("type", NewAddress("l1", "l2", None, None, None, None, None))),
         None)
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      mockSessionCacheGet("registrationID", Some("1"))
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
       when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any()))
         .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
@@ -234,7 +234,7 @@ class GroupUtrControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Mock
       val testGroups = Groups(groupRelief = true, Some(GroupCompanyName("testGroupCompanyname1", "type")),
         Some(GroupsAddressAndType("type", NewAddress("l1", "l2", None, None, None, None, None))),
         None)
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      mockSessionCacheGet("registrationID", Some("1"))
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
       when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any()))
         .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))
@@ -257,7 +257,7 @@ class GroupUtrControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with Mock
       val testGroups = Groups(groupRelief = true, Some(GroupCompanyName("testGroupCompanyname1", "type")),
         Some(GroupsAddressAndType("type", NewAddress("l1", "l2", None, None, None, None, None))),
         None)
-      mockKeystoreFetchAndGet("registrationID", Some("1"))
+      mockSessionCacheGet("registrationID", Some("1"))
       CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
       when(mockCompanyRegistrationConnector.retrieveEmail(any())(any(), any()))
         .thenReturn(Future.successful(Some(Email("verified@email", "GG", linkSent = true, verified = true, returnLinkEmailSent = true))))

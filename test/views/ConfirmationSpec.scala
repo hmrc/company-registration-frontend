@@ -50,7 +50,7 @@ class ConfirmationSpec extends SCRSSpec with CompanyDetailsFixture with GuiceOne
     val controller = new ConfirmationController (
       mockAuthConnector,
       mockCompanyRegistrationConnector,
-      mockKeystoreConnector,
+      mockSessionCacheService,
       mockDeskproService,
       mockControllerComponents,
       mockControllerErrorHandler,
@@ -67,7 +67,7 @@ class ConfirmationSpec extends SCRSSpec with CompanyDetailsFixture with GuiceOne
 
   "Confirmation.show" should {
     "make sure that the confirmation page has the correct elements" in new SetupPage {
-      mockKeystoreFetchAndGet("registrationID", Some("testRegID"))
+      mockSessionCacheGet("registrationID", Some("testRegID"))
       val payment = "pay"
       val paymentRef = "pref"
       val ackref = "ABCD00000000123"

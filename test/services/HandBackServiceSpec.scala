@@ -44,7 +44,7 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
   trait Setup {
     val service = new HandBackService {
       override val compRegConnector = mockCompanyRegistrationConnector
-      override val keystoreConnector = mockKeystoreConnector
+      override val sessionCacheService = mockSessionCacheService
       override val navModelMongo = mockNavModelRepo
       override val jwe = testJwe
       val continueUrl = mock[RedirectUrl]
@@ -154,8 +154,8 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
 
       val returnCacheMap = CacheMap("", Map("" -> Json.toJson(testNavModel)))
       val testRegId = "12345"
-      mockKeystoreFetchAndGet("registrationID", Some(testRegId))
-      mockKeystoreFetchAndGet("HandOffNavigation", Some(testNavModel))
+      mockSessionCacheGet("registrationID", Some(testRegId))
+      mockSessionCacheGet("HandOffNavigation", Some(testNavModel))
 
       mockCrRetrieve(testRegId, None)
       mockCrUpdate(testRegId, ho2UpdatedRequest)
@@ -196,7 +196,7 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
 
           val returnCacheMap = CacheMap("", Map("" -> Json.toJson(testNavModel)))
 
-          mockKeystoreFetchAndGet("registrationID", Some("12345"))
+          mockSessionCacheGet("registrationID", Some("12345"))
           mockNavRepoGet("12345", testNavModel)
 
           val r = simpleRequest() ++ companyDetails("Url Name") ++ links
@@ -223,7 +223,7 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
     }
 
     "Decrypt and store the CH payload" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("12345"))
+      mockSessionCacheGet("registrationID", Some("12345"))
 
       mockNavRepoGet("12345", testNavModel)
       mockNavRepoInsert("12345", testNavModel)
@@ -244,7 +244,7 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
         s"fail if the ${description} is invalid" in new Setup {
           val returnCacheMap = CacheMap("", Map("" -> Json.toJson(testNavModel)))
 
-          mockKeystoreFetchAndGet("registrationID", Some("12345"))
+          mockSessionCacheGet("registrationID", Some("12345"))
           mockNavRepoGet("12345", testNavModel)
 
           val encryptedRequest = testJwe.encrypt[JsValue](request)
@@ -292,7 +292,7 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
         NavLinks("/testForward", "/testReverse"),
         Some(true)
       )
-      mockKeystoreFetchAndGet("registrationID", Some("12345"))
+      mockSessionCacheGet("registrationID", Some("12345"))
       mockNavRepoGet("12345", testNavModel)
       mockNavRepoInsert("12345", testNavModel)
 
@@ -309,7 +309,7 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
         NavLinks("INVALIDXXX", "/testReverse"),
         Some(true)
       )
-      mockKeystoreFetchAndGet("registrationID", Some("12345"))
+      mockSessionCacheGet("registrationID", Some("12345"))
       mockNavRepoGet("12345", testNavModel)
       val encryptedGroupModel = testJwe.encrypt[GroupHandBackModel](groupModel)
       intercept[IllegalArgumentException](await(service.processGroupsHandBack(encryptedGroupModel.get)))
@@ -324,7 +324,7 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
         NavLinks("/forward", "/testReverse"),
         Some(true)
       )
-      mockKeystoreFetchAndGet("registrationID", Some("12345"))
+      mockSessionCacheGet("registrationID", Some("12345"))
       mockNavRepoGet("12345", testNavModel)
       when(mockNavModelRepo.insertNavModel(ArgumentMatchers.any(), ArgumentMatchers.any[HandOffNavModel]))
         .thenReturn(Future.successful(None))
@@ -342,7 +342,7 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
         NavLinks("/forward", "/testReverse"),
         Some(true)
         )
-        mockKeystoreFetchAndGet("registrationID", Some("12345"))
+      mockSessionCacheGet("registrationID", Some("12345"))
       when(mockNavModelRepo.getNavModel(ArgumentMatchers.any()))
         .thenReturn(Future.failed(new Exception("")))
       val encryptedGroupModel = testJwe.encrypt[GroupHandBackModel](groupModel)
@@ -375,7 +375,7 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
     }
 
     "return a RegistrationConfirmationPayload with a link and no payment reference and amount if it is a HO5.1" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("12345"))
+      mockSessionCacheGet("registrationID", Some("12345"))
       mockNavRepoGet("12345",testNavModel)
       mockNavRepoInsert("12345",testNavModel)
 

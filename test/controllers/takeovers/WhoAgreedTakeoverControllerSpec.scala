@@ -63,7 +63,7 @@ class WhoAgreedTakeoverControllerSpec extends SCRSSpec
     mockAuthConnector,
     mockTakeoverService,
     mockCompanyRegistrationConnector,
-    mockKeystoreConnector,
+    mockSessionCacheService,
     mockSCRSFeatureSwitches,
     mockMcc,
     mockControllerErrorHandler,
@@ -75,7 +75,7 @@ class WhoAgreedTakeoverControllerSpec extends SCRSSpec
       "the user does not any associated TakeoverDetails" should {
         "return 303 with a redirect to replacing another business controller" in {
           mockAuthorisedUser(Future.successful({}))
-          mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
+          mockSessionCacheGet("registrationID", Some(testRegistrationId))
 
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
@@ -91,7 +91,7 @@ class WhoAgreedTakeoverControllerSpec extends SCRSSpec
       "the user indicated they are not doing a takeover" should {
         "return 303 with a redirect to accounting dates controller" in {
           mockAuthorisedUser(Future.successful({}))
-          mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
+          mockSessionCacheGet("registrationID", Some(testRegistrationId))
 
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
@@ -107,7 +107,7 @@ class WhoAgreedTakeoverControllerSpec extends SCRSSpec
       "the user has not submitted a business name before" should {
         "return 303 with a redirect to other business name page" in {
           mockAuthorisedUser(Future.successful({}))
-          mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
+          mockSessionCacheGet("registrationID", Some(testRegistrationId))
 
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
@@ -123,7 +123,7 @@ class WhoAgreedTakeoverControllerSpec extends SCRSSpec
       "the user has not submitted a business address before" should {
         "return 303 with a redirect to other business address page" in {
           mockAuthorisedUser(Future.successful({}))
-          mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
+          mockSessionCacheGet("registrationID", Some(testRegistrationId))
 
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
@@ -144,7 +144,7 @@ class WhoAgreedTakeoverControllerSpec extends SCRSSpec
       "the user has not submitted a previous owners name before" should {
         "return 200 with the who agreed takeover page" in {
           mockAuthorisedUser(Future.successful({}))
-          mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
+          mockSessionCacheGet("registrationID", Some(testRegistrationId))
 
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
@@ -166,7 +166,7 @@ class WhoAgreedTakeoverControllerSpec extends SCRSSpec
       "the user has previously submitted a previous owners name" should {
         "return 200 with the who agreed takeover page" in {
           mockAuthorisedUser(Future.successful({}))
-          mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
+          mockSessionCacheGet("registrationID", Some(testRegistrationId))
 
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
@@ -193,7 +193,7 @@ class WhoAgreedTakeoverControllerSpec extends SCRSSpec
       "the form contains valid data" should {
         "redirect to previous owners home address page when the service succeeds" in {
           mockAuthorisedUser(Future.successful({}))
-          mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
+          mockSessionCacheGet("registrationID", Some(testRegistrationId))
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
 
@@ -226,7 +226,7 @@ class WhoAgreedTakeoverControllerSpec extends SCRSSpec
       "the form contains invalid data" should {
         "return a bad request and update the page with errors if the name does not pass validation" in {
           mockAuthorisedUser(Future.successful({}))
-          mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
+          mockSessionCacheGet("registrationID", Some(testRegistrationId))
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
 
@@ -249,7 +249,7 @@ class WhoAgreedTakeoverControllerSpec extends SCRSSpec
         }
         "return a bad request and update the page with errors if the name is empty" in {
           mockAuthorisedUser(Future.successful({}))
-          mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
+          mockSessionCacheGet("registrationID", Some(testRegistrationId))
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
 
@@ -273,7 +273,7 @@ class WhoAgreedTakeoverControllerSpec extends SCRSSpec
 
         "return a bad request and update the page with errors if the name is too long" in {
           mockAuthorisedUser(Future.successful({}))
-          mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
+          mockSessionCacheGet("registrationID", Some(testRegistrationId))
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
 

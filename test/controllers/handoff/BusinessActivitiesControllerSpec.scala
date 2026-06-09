@@ -48,7 +48,7 @@ class BusinessActivitiesControllerSpec extends SCRSSpec with PayloadFixture with
   class Setup {
     val controller = new BusinessActivitiesController(
       mockAuthConnector,
-      mockKeystoreConnector,
+      mockSessionCacheService,
       mockHandOffService,
       mockCompanyRegistrationConnector,
       mockHandBackService,
@@ -74,7 +74,7 @@ class BusinessActivitiesControllerSpec extends SCRSSpec with PayloadFixture with
       }
     }
     "return a 303 when keystore returns none but has authorisation" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", None)
+      mockSessionCacheGet("registrationID", None)
 
       when(mockHandOffService.buildBusinessActivitiesPayload(ArgumentMatchers.any(), ArgumentMatchers.any(),
         ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
@@ -89,7 +89,7 @@ class BusinessActivitiesControllerSpec extends SCRSSpec with PayloadFixture with
     "return a 303 if accessing with authorisation" in new Setup {
 
       val payload = validEncryptedBusinessActivities(jweInstance())
-      mockKeystoreFetchAndGet("registrationID", Some("12345"))
+      mockSessionCacheGet("registrationID", Some("12345"))
 
       when(mockHandOffService.buildBusinessActivitiesPayload(ArgumentMatchers.any(), ArgumentMatchers.any(),
         ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
@@ -107,7 +107,7 @@ class BusinessActivitiesControllerSpec extends SCRSSpec with PayloadFixture with
     }
 
     "return a bad request if a url and payload are not returned" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("12345"))
+      mockSessionCacheGet("registrationID", Some("12345"))
 
       when(mockHandOffService.buildBusinessActivitiesPayload(ArgumentMatchers.any(),
         ArgumentMatchers.any(), ArgumentMatchers.any())(ArgumentMatchers.any(), ArgumentMatchers.any()))
@@ -134,7 +134,7 @@ class BusinessActivitiesControllerSpec extends SCRSSpec with PayloadFixture with
 
     "return a 400 if sending an empty request with authorisation" in new Setup {
 
-      mockKeystoreFetchAndGet("registrationID", Some("12345"))
+      mockSessionCacheGet("registrationID", Some("12345"))
       when(mockHandBackService.processBusinessActivitiesHandBack(eqTo(""))(ArgumentMatchers.any[HeaderCarrier]))
         .thenReturn(Failure(DecryptionError))
 
@@ -146,7 +146,7 @@ class BusinessActivitiesControllerSpec extends SCRSSpec with PayloadFixture with
     }
 
     "return a 400 if a payload error is returned from hand back service" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("12345"))
+      mockSessionCacheGet("registrationID", Some("12345"))
       val payload = validEncryptedBusinessActivities(jweInstance())
       when(mockHandBackService.processBusinessActivitiesHandBack(eqTo(payload))(ArgumentMatchers.any[HeaderCarrier]))
         .thenReturn(Failure(PayloadError))
@@ -159,7 +159,7 @@ class BusinessActivitiesControllerSpec extends SCRSSpec with PayloadFixture with
     }
 
     "return a 303 if submitting with request data and with authorisation (updating the stored language in CompReg BE)" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", Some("12345"))
+      mockSessionCacheGet("registrationID", Some("12345"))
       val payload = validEncryptedBusinessActivities(jweInstance())
       when(mockHandBackService.processBusinessActivitiesHandBack(eqTo(payload))(ArgumentMatchers.any[HeaderCarrier]))
         .thenReturn(Future.successful(Success(Json.toJson(validBusinessActivitiesPayload))))
@@ -174,7 +174,7 @@ class BusinessActivitiesControllerSpec extends SCRSSpec with PayloadFixture with
       }
     }
     "return a 303 if submitting with request data with authorisation but keystore has expired" in new Setup {
-      mockKeystoreFetchAndGet("registrationID", None)
+      mockSessionCacheGet("registrationID", None)
       val payload = validEncryptedBusinessActivities(jweInstance())
       when(mockHandBackService.processBusinessActivitiesHandBack(eqTo(payload))(ArgumentMatchers.any[HeaderCarrier]))
         .thenReturn(Future.successful(Success(Json.toJson(validBusinessActivitiesPayload))))

@@ -58,7 +58,7 @@ class OtherBusinessNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
       mockAuthConnector,
       mockTakeoverService,
       mockCompanyRegistrationConnector,
-      mockKeystoreConnector,
+      mockSessionCacheService,
       mockSCRSFeatureSwitches,
       mockMcc,
       mockControllerErrorHandler,
@@ -72,7 +72,7 @@ class OtherBusinessNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
       "the user does not any associated TakeoverDetails" should {
         "return 303 with a redirect to replacing another business controller" in new Setup {
           mockAuthorisedUser(Future.successful({}))
-          mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
+          mockSessionCacheGet("registrationID", Some(testRegistrationId))
 
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
@@ -88,7 +88,7 @@ class OtherBusinessNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
       "the user indicated they are not doing a takeover" should {
         "return 303 with a redirect to accounting dates controller" in new Setup {
           mockAuthorisedUser(Future.successful({}))
-          mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
+          mockSessionCacheGet("registrationID", Some(testRegistrationId))
 
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
@@ -105,7 +105,7 @@ class OtherBusinessNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
       "the user has not submitted a business name before" should {
         "return 200 with the other business name page" in new Setup {
           mockAuthorisedUser(Future.successful({}))
-          mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
+          mockSessionCacheGet("registrationID", Some(testRegistrationId))
 
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
@@ -122,7 +122,7 @@ class OtherBusinessNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
       "the user has previously submitted a business name" should {
         "return 200 with the other business name page" in new Setup {
           mockAuthorisedUser(Future.successful({}))
-          mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
+          mockSessionCacheGet("registrationID", Some(testRegistrationId))
 
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
@@ -143,7 +143,7 @@ class OtherBusinessNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
       "the form contains valid data" should {
         "redirect to company address when the service does not fail" in new Setup {
           mockAuthorisedUser(Future.successful({}))
-          mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
+          mockSessionCacheGet("registrationID", Some(testRegistrationId))
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
 
@@ -163,7 +163,7 @@ class OtherBusinessNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
       "the form contains invalid data" should {
         "return a bad request and update the page with errors if name does not pass validation" in new Setup {
           mockAuthorisedUser(Future.successful({}))
-          mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
+          mockSessionCacheGet("registrationID", Some(testRegistrationId))
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
 
@@ -180,7 +180,7 @@ class OtherBusinessNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
 
         "return a bad request and update the page with errors if name is invalid" in new Setup {
           mockAuthorisedUser(Future.successful({}))
-          mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
+          mockSessionCacheGet("registrationID", Some(testRegistrationId))
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
 
@@ -197,7 +197,7 @@ class OtherBusinessNameControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
 
         "return a bad request and update the page with errors if name is too long" in new Setup {
           mockAuthorisedUser(Future.successful({}))
-          mockKeystoreFetchAndGet("registrationID", Some(testRegistrationId))
+          mockSessionCacheGet("registrationID", Some(testRegistrationId))
           CTRegistrationConnectorMocks.retrieveCTRegistration(cTDoc("draft", ""))
 
 
