@@ -24,18 +24,15 @@ import helpers.SCRSSpec
 import mocks.MetricServiceMock
 import models.{AccountingDetailsBadRequestResponse, AccountingDetailsNotFoundResponse}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.libs.json.Json
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import services.{AccountingService, TimeService}
-import uk.gov.hmrc.http.cache.client.CacheMap
 import views.html.reg.{AccountingDates => AccountingDatesView}
 
 class AccountingDatesControllerSpec extends SCRSSpec with GuiceOneAppPerSuite with AccountingDatesFixture with AccountingDetailsFixture
   with LoginFixture with AuthBuilder {
 
-  val cacheMap: CacheMap = CacheMap("", Map("" -> Json.toJson(validAccountingDatesModelCRN)))
   lazy val accountingDatesView = app.injector.instanceOf[AccountingDatesView]
   lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
   lazy val mockControllerErrorHandler = app.injector.instanceOf[ControllerErrorHandler]

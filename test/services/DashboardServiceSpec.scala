@@ -16,8 +16,6 @@
 
 package services
 
-import java.time.LocalDate
-
 import builders.AuthBuilder
 import config.AppConfig
 import connectors.{NotStarted, SuccessfulResponse}
@@ -25,7 +23,6 @@ import helpers.SCRSSpec
 import mocks.ServiceConnectorMock
 import models._
 import models.auth.AuthDetails
-import models.connectors.ConfirmationReferences
 import models.external.{OtherRegStatus, Statuses}
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
@@ -35,10 +32,10 @@ import play.api.libs.json.{JsObject, JsValue, Json}
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolment, EnrolmentIdentifier, Enrolments}
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.audit.http.connector.AuditResult.Success
 import utils.{BooleanFeatureSwitch, SCRSFeatureSwitches}
 
+import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
 
 class DashboardServiceSpec extends SCRSSpec with ServiceConnectorMock with AuthBuilder with GuiceOneAppPerSuite {

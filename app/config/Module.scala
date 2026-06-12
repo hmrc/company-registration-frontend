@@ -25,7 +25,6 @@ import repositories.{NavModelRepo, NavModelRepoImpl}
 import services._
 import services.internal.{TestIncorporationService, TestIncorporationServiceImpl}
 import uk.gov.hmrc.auth.core.PlayAuthConnector
-import uk.gov.hmrc.http.cache.client.SessionCache
 import utils._
 
 class Module extends AbstractModule {
@@ -45,7 +44,6 @@ class Module extends AbstractModule {
 
     bind(classOf[DynamicStubConnector]).to(classOf[DynamicStubConnectorImpl]).asEagerSingleton()
     bind(classOf[EmailVerificationConnector]).to(classOf[EmailVerificationConnectorImpl]).asEagerSingleton()
-    bind(classOf[SessionCache]).to(classOf[SCRSSessionCache]).asEagerSingleton()
 
     bind(classOf[SendTemplatedEmailConnector]).to(classOf[SendTemplatedEmailConnectorImpl]).asEagerSingleton()
     bind(classOf[PAYEConnector]).to(classOf[PAYEConnectorImpl]).asEagerSingleton()

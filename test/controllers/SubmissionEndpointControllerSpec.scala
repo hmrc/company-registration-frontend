@@ -23,15 +23,12 @@ import fixtures.SCRSFixtures
 import helpers.SCRSSpec
 import models._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.libs.json.Json
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.Helpers._
-import uk.gov.hmrc.http.cache.client.CacheMap
 import views.html.reg.{SubmissionEndpoint => SubmissionEndpointView}
 
 class SubmissionEndpointControllerSpec extends SCRSSpec with SCRSFixtures with GuiceOneAppPerSuite with AuthBuilder {
 
-  val cacheMap = CacheMap("", Map("" -> Json.toJson("")))
   lazy implicit val appConfig = app.injector.instanceOf[AppConfig]
   lazy val mockMcc = app.injector.instanceOf[MessagesControllerComponents]
   lazy val mockSubmissionEndpointView = app.injector.instanceOf[SubmissionEndpointView]

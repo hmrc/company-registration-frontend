@@ -17,10 +17,9 @@
 package fixtures
 
 import config.LangConstants
+import models._
 import models.handoff._
-import models.{CHROAddress, _}
 import play.api.libs.json.{JsObject, Json}
-import uk.gov.hmrc.http.cache.client.CacheMap
 import utils.JweCommon
 
 trait PayloadFixture extends AddressFixture with JweFixture {
@@ -54,10 +53,6 @@ trait PayloadFixture extends AddressFixture with JweFixture {
 
   lazy val emptyHandBackData =
     RegistrationConfirmationPayload("HMRC616","testReturnUrl","", Some(""), Some(""),Json.obj(),Json.obj(), LangConstants.english, Json.obj())
-
-  lazy val returnCacheMap = CacheMap("", Map("" -> Json.toJson(testHandBackData)))
-  lazy val returnCacheMap3 = CacheMap("", Map("" -> Json.toJson(testHandBackData3)))
-  lazy val returnEmptyCacheMap = CacheMap("", Map("" -> Json.toJson(emptyHandBackData)))
 
   lazy val payloadEncrypted = JweWithTestKey.encrypt(Json.toJson[CompanyNameHandOffIncoming](testHandBackData))
   lazy val payloadEncrypted3 = JweWithTestKey.encrypt(Json.toJson(testHandBackData3))

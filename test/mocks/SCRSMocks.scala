@@ -27,7 +27,6 @@ import play.api.i18n.MessagesApi
 import play.api.test.FakeRequest
 import services._
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.cache.client.SessionCache
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.play.audit.model.Audit
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
@@ -48,7 +47,6 @@ trait SCRSMocks
     with PrepopAddressConnectorMock
     with AddressLookupConnectorMock {
   this: MockitoSugar =>
-  lazy val mockSessionCache                  = mock[SessionCache]
   lazy val mockAudit                         = mock[Audit]
   lazy val mockAuditConnector                = mock[AuditConnector]
   lazy val mockAuditService                  = mock[AuditService]
@@ -90,7 +88,6 @@ trait SCRSMocks
     reset(mockDataCacheService)
     reset(mockHttpClientV2)
     reset(mockSessionCacheService)
-    reset(mockSessionCache)
     reset(mockCompanyRegistrationConnector)
     reset(mockHandBackService)
     reset(mockPPOBService)

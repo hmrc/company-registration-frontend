@@ -32,7 +32,6 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentAsString, _}
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, Name, ~}
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.cache.client.CacheMap
 import views.html.reg.{RegistrationEmail => RegistrationEmailView}
 
 import scala.concurrent.Future
@@ -315,8 +314,6 @@ class RegistrationEmailControllerSpec extends SCRSSpec with GuiceOneAppPerSuite 
           ), Some(Credentials("provId", "provType"))
         ), Some("extID")
       )
-
-      val cm = CacheMap("", Map())
 
       val req = FakeRequest().withFormUrlEncodedBody("registrationEmail" -> "differentEmail", "DifferentEmail" -> "my@email.com")
 

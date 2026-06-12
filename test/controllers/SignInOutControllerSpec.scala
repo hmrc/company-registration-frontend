@@ -28,15 +28,12 @@ import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.http.HeaderNames.CACHE_CONTROL
-import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.{MessagesControllerComponents, Results}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.{contentType, _}
 import services.{EnrolmentsService, VerifiedEmail}
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, ~}
 import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolments}
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.bootstrap.binders._
 import views.html.{timeout => timeoutView}
 
@@ -74,8 +71,6 @@ class SignInOutControllerSpec extends SCRSSpec
       override lazy val cRFEBaseUrl = "test-base-url"
     }
   }
-
-  val cacheMap = CacheMap("", Map("" -> Json.toJson("")))
 
   val authDetails = new ~(
     new ~(

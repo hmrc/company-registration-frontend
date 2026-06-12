@@ -26,7 +26,6 @@ import org.scalatestplus.mockito.MockitoSugar
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.libs.json.{JsObject, Json}
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.cache.client.CacheMap
 import utils.{BooleanFeatureSwitch, SCRSFeatureSwitches}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -111,8 +110,6 @@ class HandOffNavigatorSpec extends SCRSSpec with MockitoSugar with GuiceOneAppPe
 
   "fetchNavModel" should {
 
-    val cacheMap = CacheMap("testKey", Map("testkey" -> Json.obj()))
-
     "return the nav model found in Nav Model Repo" in new SetupWithMongoRepo {
       mockGetNavModel(handOffNavModel = Some(handOffNavModel))
       val res = await(navigator.fetchNavModel())
@@ -133,8 +130,6 @@ class HandOffNavigatorSpec extends SCRSSpec with MockitoSugar with GuiceOneAppPe
   }
 
   "cacheNavModel" should {
-
-    val cacheMap = CacheMap("HandOffNavigation", Map("testKey" -> Json.parse("""{"testKey":"testValue"}""")))
 
     "return a HandOffNavModel on a successful insert to mongo" in new SetupWithMongoRepo {
       mockInsertNavModel()

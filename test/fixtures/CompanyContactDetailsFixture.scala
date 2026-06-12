@@ -18,8 +18,6 @@ package fixtures
 
 import forms.CompanyContactForm
 import models.{CompanyContactDetails, CompanyContactDetailsApi, Links}
-import play.api.libs.json.Json
-import uk.gov.hmrc.http.cache.client.CacheMap
 
 import scala.language.implicitConversions
 
@@ -48,8 +46,6 @@ trait CompanyContactDetailsFixture {
     Some("0123456789"),
     Some("0123456789"),
     Links(Some("testLink")))
-
-  lazy val companyContactDetailsCacheMap = CacheMap("", Map("" -> Json.toJson("")))
 
   lazy val validCompanyContactDetailsFormData = Seq(
     "contactEmail" -> "foo@bar.wibble",

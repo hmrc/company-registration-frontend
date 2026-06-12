@@ -16,11 +16,10 @@
 
 package mocks
 
+import org.mockito.ArgumentMatchers
 import org.mockito.Mockito._
-import org.mockito.{ArgumentMatchers}
 import org.scalatestplus.mockito.MockitoSugar
 import services._
-import uk.gov.hmrc.http.cache.client.CacheMap
 
 import scala.concurrent.Future
 
@@ -30,9 +29,9 @@ trait HandOffServiceMock {
   lazy val mockHandOffService = mock[HandOffService]
 
   object HandOffServiceMocks {
-    def cacheRegistrationID(cacheMap: CacheMap) = {
+    def cacheRegistrationID(registrationId: String) = {
       when(mockHandOffService.cacheRegistrationID(ArgumentMatchers.anyString())(ArgumentMatchers.any(), ArgumentMatchers.any()))
-        .thenReturn(Future.successful(""))
+        .thenReturn(Future.successful(registrationId))
     }
   }
 
