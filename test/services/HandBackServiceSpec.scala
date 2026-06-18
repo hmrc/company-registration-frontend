@@ -26,7 +26,6 @@ import org.mockito.Mockito._
 import org.mockito.{ArgumentCaptor, ArgumentMatchers}
 import play.api.libs.json.{JsValue, Json}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.bootstrap.binders._
 import utils._
 
@@ -82,7 +81,6 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
   )
 
   val registrationID = "12345"
-  val cacheMap = CacheMap("", Map("" -> Json.toJson("12345")))
 
   val testNavModel = HandOffNavModel(
     Sender(Map(
@@ -152,7 +150,6 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
 
     "Decrypt and store the CH payload" in new Setup {
 
-      val returnCacheMap = CacheMap("", Map("" -> Json.toJson(testNavModel)))
       val testRegId = "12345"
       mockSessionCacheGet("registrationID", Some(testRegId))
       mockSessionCacheGet("HandOffNavigation", Some(testNavModel))
@@ -193,8 +190,6 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
     ).foreach{
       case (description, links) =>
         s"Fail if the ${description} is invalid" in new Setup {
-
-          val returnCacheMap = CacheMap("", Map("" -> Json.toJson(testNavModel)))
 
           mockSessionCacheGet("registrationID", Some("12345"))
           mockNavRepoGet("12345", testNavModel)
@@ -242,7 +237,6 @@ class HandBackServiceSpec extends SCRSSpec with PayloadFixture with CompanyDetai
     ).foreach {
       case (description, request) =>
         s"fail if the ${description} is invalid" in new Setup {
-          val returnCacheMap = CacheMap("", Map("" -> Json.toJson(testNavModel)))
 
           mockSessionCacheGet("registrationID", Some("12345"))
           mockNavRepoGet("12345", testNavModel)

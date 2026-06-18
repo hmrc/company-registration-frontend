@@ -16,7 +16,6 @@
 
 package controllers
 
-import java.time._
 import builders.AuthBuilder
 import config.AppConfig
 import connectors._
@@ -39,14 +38,19 @@ import play.api.test.Helpers._
 import repositories.NavModelRepo
 import services.{BankHolidaysService, DashboardService, DataCacheService, TimeService}
 import uk.gov.hmrc.auth.core.AuthConnector
-import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.mongo.cache.CacheItem
 import utils.BooleanFeatureSwitch
 import views.html.dashboard.{Dashboard => DashboardView}
 import views.html.reg.{TestEndpoint => TestEndpointView}
-import views.html.test.{FeatureSwitch => FeatureSwitchView, PrePopAddresses => PrePopAddressesView, PrePopContactDetails => PrePopContactDetailsView, TestEndpointSummary => TestEndpointSummaryView}
+import views.html.test.{
+  FeatureSwitch => FeatureSwitchView,
+  PrePopAddresses => PrePopAddressesView,
+  PrePopContactDetails => PrePopContactDetailsView,
+  TestEndpointSummary => TestEndpointSummaryView
+}
 
+import java.time._
 import scala.concurrent.{ExecutionContext, Future}
 
 class TestEndpointControllerSpec extends SCRSSpec with SCRSFixtures with MockitoSugar with CorporationTaxFixture with GuiceOneAppPerSuite with AuthBuilder {

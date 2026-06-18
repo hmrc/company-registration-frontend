@@ -16,16 +16,14 @@
 
 package services
 
-import java.time.LocalDate
 import helpers.SCRSSpec
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.when
 import play.api.libs.json.{JsValue, Json}
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.cache.client.CacheMap
 import utils.{SCRSException, SCRSExceptions}
 
-import scala.concurrent.{ExecutionContext, Future}
+import java.time.LocalDate
+import scala.concurrent.Future
 
 class CommonServiceSpec extends SCRSSpec {
 
@@ -34,8 +32,6 @@ class CommonServiceSpec extends SCRSSpec {
       override val sessionCacheService = mockSessionCacheService
     }
   }
-
-  val cacheMap = CacheMap("registrationID", Map("registrationID" -> Json.toJson("12345")))
 
 
   "fetchRegistration" should {

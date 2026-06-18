@@ -22,11 +22,9 @@ import models._
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.{any, eq => eqTo}
 import org.mockito.Mockito._
-import play.api.libs.json.Json
 import play.api.mvc.RequestHeader
 import play.api.test.FakeRequest
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.cache.client.CacheMap
 import uk.gov.hmrc.play.audit.http.connector.AuditResult.Success
 import utils.{SCRSException, SCRSExceptions}
 
@@ -59,7 +57,6 @@ class PPOBServiceSpec extends SCRSSpec with CompanyDetailsFixture with SCRSExcep
 
   val registrationID = "12345"
 
-  val returnCacheMap = CacheMap("", Map("" -> Json.toJson("")))
   def setupMocks(existingDetails: CompanyDetails, ppobModel: PPOBModel, expectedDetails: CompanyDetails): Unit = {
 
     when(mockCompanyRegistrationConnector.retrieveCompanyDetails(ArgumentMatchers.eq(registrationID))(ArgumentMatchers.any[HeaderCarrier](), any()))

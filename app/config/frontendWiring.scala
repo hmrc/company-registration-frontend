@@ -19,7 +19,6 @@ package config
 import play.api.Configuration
 import uk.gov.hmrc.auth.core.PlayAuthConnector
 import uk.gov.hmrc.crypto.ApplicationCrypto
-import uk.gov.hmrc.http.cache.client.SessionCache
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.hooks.HttpHooks
 import uk.gov.hmrc.play.audit.http.HttpAuditing
@@ -39,13 +38,4 @@ class CryptoInitialiserImpl @Inject() (val applicationCrypto: ApplicationCrypto)
 trait CryptoInitialiser {
   lazy val cryptoInstance = applicationCrypto
   val applicationCrypto: ApplicationCrypto
-}
-
-class SCRSSessionCache @Inject() (appConfig: AppConfig, val httpClientV2: HttpClientV2, val appNameConfiguration: Configuration)
-    extends SessionCache {
-  override lazy val defaultSource = appConfig.servicesConfig.getString("appName")
-  override lazy val baseUri       = appConfig.servicesConfig.baseUrl("cachable.session-cache")
-  override lazy val domain = appConfig.servicesConfig.getConfString(
-    "cachable.session-cache.domain",
-    throw new Exception(s"Could not find config 'cachable.session-cache.domain'"))
 }
