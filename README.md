@@ -38,16 +38,16 @@ sbt 'run 9973'
 ```
 
 ## Test the application
-
 To test the application execute:
 
 ```
 sbt test it/test
 ```
-
 * To run unit and integration tests respectively
    - `test`
    - `it/test`
+or 
+```./run-all-tests.sh```
 
 ## Run acceptance tests
 * [Acceptance tests](https://github.com/hmrc/company-registration-acceptance-tests)

@@ -16,14 +16,13 @@
 
 package test.www.takeovers
 
-import java.util.UUID
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, stubFor, urlEqualTo}
 import controllers.takeovers.PreviousOwnersAddressController._
-import test.fixtures.Fixtures
 import forms.takeovers.HomeAddressForm.homeAddressKey
 import itutil.SessionStub
+import test.fixtures.Fixtures
 import test.itutil.servicestubs.{ALFStub, BusinessRegistrationStub, TakeoverStub}
-import test.itutil.{IntegrationSpecBase, LoginStub, RequestsFinder}
+import test.itutil.{IntegrationSpecBase, RequestsFinder}
 import models._
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.HeaderNames
@@ -32,6 +31,8 @@ import play.api.libs.json.Json
 import play.api.libs.ws.WSResponse
 import play.api.test.Helpers._
 import uk.gov.hmrc.mongo.cache.DataKey
+
+import java.util.UUID
 
 class PreviousOwnersAddressControllerISpec extends IntegrationSpecBase
   with SessionStub
@@ -156,7 +157,7 @@ class PreviousOwnersAddressControllerISpec extends IntegrationSpecBase
           alphaPhase = false,
           showBackButtons = true,
           includeHMRCBranding = false,
-          disableTranslations = true,
+          disableTranslations = false,
 
           selectPageConfig = SelectPageConfig(
             proposalListLimit = 30,
@@ -254,7 +255,6 @@ class PreviousOwnersAddressControllerISpec extends IntegrationSpecBase
         )
         )
       )
-
 
       onRampConfig mustBe expectedConfig
     }

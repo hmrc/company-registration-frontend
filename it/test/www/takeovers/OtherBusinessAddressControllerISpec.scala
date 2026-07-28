@@ -159,7 +159,7 @@ class OtherBusinessAddressControllerISpec extends IntegrationSpecBase
           alphaPhase = false,
           showBackButtons = true,
           includeHMRCBranding = false,
-          disableTranslations = true,
+          disableTranslations = false,
 
           selectPageConfig = SelectPageConfig(
             proposalListLimit = 30,
