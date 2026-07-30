@@ -63,7 +63,7 @@ class PPOBControllerISpec extends IntegrationSpecBase with SessionStub with Fixt
         alphaPhase = false,
         showBackButtons = true,
         includeHMRCBranding = false,
-        disableTranslations = true,
+        disableTranslations = false,
 
         selectPageConfig = SelectPageConfig(
           proposalListLimit = 30,
