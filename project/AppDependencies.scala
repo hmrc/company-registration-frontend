@@ -5,7 +5,7 @@ private object AppDependencies {
 
   val playVersion      = "-play-30"
   val bootstrapVersion = "10.7.0"
-  val hmrcMongoVersion = "2.12.0"
+  val hmrcMongoVersion = "2.13.0"
 
   val compile: Seq[ModuleID] = Seq(
     ws,
@@ -15,7 +15,6 @@ private object AppDependencies {
     "uk.gov.hmrc"       %% s"play-conditional-form-mapping$playVersion" % "3.5.0",
     "org.bitbucket.b_c"  % "jose4j"                                     % "0.9.6",
     "commons-validator"  % "commons-validator"                          % "1.10.1",
-    "uk.gov.hmrc"       %% "play-language"                              % "8.1.0",
     "uk.gov.hmrc"       %% s"play-frontend-hmrc$playVersion"            % "12.32.1"
   )
 
