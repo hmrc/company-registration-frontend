@@ -87,8 +87,14 @@ trait IncorpInfoConnector extends Logging {
   }
 
   def injectTestIncorporationUpdate(transId: String, isSuccess: Boolean)(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[Boolean] = {
-    val queryString = s"txId=$transId&date=2018-01-01${if(isSuccess) "&crn=12345678" else ""}&success=$isSuccess"
-    val url = url"$incorpInfoUrl/test-only/add-incorp-update/?$queryString"
+/*    val queryString = s"txId=$transId&date=2018-01-01${if(isSuccess) "&crn=12345678" else ""}&success=$isSuccess"
+    val url = url"$incorpInfoUrl/test-only/add-incorp-update/?$queryString"*/
+
+    val url = if (isSuccess) {
+      url"$incorpInfoUrl/test-only/add-incorp-update/?txId=$transId&date=2018-01-01&crn=12345678&success=$isSuccess"
+     } else {
+      url"$incorpInfoUrl/test-only/add-incorp-update/?txId=$transId&date=2018-01-01&success=$isSuccess"
+    }
 
     httpClientV2
       .get(url)
