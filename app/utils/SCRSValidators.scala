@@ -31,8 +31,7 @@ object SCRSValidators {
   private val phoneNumberRegex = """^[0-9 ]{1,20}$""".r
   private val completionCapacityRegex = """^[A-Za-z0-9 '\-]{1,100}$""".r
   private val utrRegex = """^[0-9]{0,10}$"""
-  private val emailRegex = """^(?!.{71,})([-0-9a-zA-Z.+_]+@[-0-9a-zA-Z.+_]+\.[a-zA-Z]{1,11})$"""
-  private val emailRegexDes = """^[A-Za-z0-9\-_.@]{1,70}$"""
+  private val emailRegex = """^(?!.{71,})([0-9a-zA-Z._-]+@[-0-9a-zA-Z.+_]+\.[a-zA-Z]{1,11})$"""
   val datePatternRegex = """([12]\d{3}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01]))"""
   val shareholderNameRegex = """[A-Z a-z 0-9\\'-]{1,20}$"""
   val whoAgreedTakeoverRegex = """[A-Z a-z 0-9\\'-]{1,100}$"""
@@ -121,7 +120,7 @@ object SCRSValidators {
   val emailValidation: Constraint[String] = Constraint("constraints.emailCheck")({
     text =>
       val errors = text match {
-        case t if t.matches(emailRegex) && t.matches(emailRegexDes) => Nil
+        case t if t.matches(emailRegex) => Nil
         case t if t.length > 70 => Seq(ValidationError("validation.emailtoolong"))
         case _ => Seq(ValidationError("validation.email"))
       }

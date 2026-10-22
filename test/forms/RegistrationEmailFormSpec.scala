@@ -44,13 +44,15 @@ class RegistrationEmailFormSpec extends UnitSpec {
 
       result.errors.head.message mustBe "error.DifferentEmail.required"
     }
-    "return form error with differentEmail invalid special chars " in {
-      val result = fillForm("differentEmail", Option("abc^@def.co.uk"))
+    Seq("^", "+", ";").foreach { exampleInvalidChars =>
+      s"return form error with differentEmail when invalid character '$exampleInvalidChars' is present" in {
+        val result = fillForm("differentEmail", Option(s"abc$exampleInvalidChars@def.co.uk"))
 
-      result.data("registrationEmail") mustBe "differentEmail"
-      result.data("DifferentEmail") mustBe "abc^@def.co.uk"
-      result.errors.head.key mustBe "DifferentEmail"
-      result.errors.head.message mustBe "validation.email"
+        result.data("registrationEmail") mustBe "differentEmail"
+        result.data("DifferentEmail") mustBe s"abc$exampleInvalidChars@def.co.uk"
+        result.errors.head.key mustBe "DifferentEmail"
+        result.errors.head.message mustBe "validation.email"
+      }
     }
     "return form error with DifferentEmail length over 70 characters " in {
       val result = fillForm("differentEmail", Option("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.co.uk"))
