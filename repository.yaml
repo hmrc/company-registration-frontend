@@ -4,3 +4,4 @@ test-repositories:
   - company-registration-performance-tests
   - company-registration-acceptance-tests
   - scrs-ui-journey-tests
+serviceNowMapping: SNSVC0005869
