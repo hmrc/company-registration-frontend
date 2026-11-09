@@ -14,13 +14,15 @@
  * limitations under the License.
  *@
 
+@import config.UrBannerUtil
+
 @this(layout: views.html.templates.layout,
       h1: components.h1,
       p: components.p)
 
 @(pageTitle: String, heading: String, message: String)(implicit request: RequestHeader, messages: Messages, appConfig: config.AppConfig)
 
- @layout(pageTitle = Some(pageTitle)) {
+ @layout(pageTitle = Some(pageTitle), urBanner = Some(UrBannerUtil.getUrBanner(hideCloseButton = false))) {
 
   @h1(heading)
 

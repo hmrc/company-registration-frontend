@@ -17,6 +17,8 @@
 @import models.Ticket
 @import views.ViewUtils._
 
+@import config.UrBannerUtil
+
 @this(layout: templates.layout,
         errorSummary: components.errorSummary,
         h1: components.h1,
@@ -24,7 +26,7 @@
 
 @(deskproForm: Form[Ticket])(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
-@layout(Some(titleNoForm(messages("errorPages.failedSubmission.description")))) {
+@layout(Some(titleNoForm(messages("errorPages.failedSubmission.description"))), urBanner = Some(UrBannerUtil.getUrBanner(hideCloseButton = false))) {
 
     @errorSummary(deskproForm.errors)
 

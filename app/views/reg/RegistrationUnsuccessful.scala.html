@@ -17,6 +17,8 @@
 @import uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
 @import views.ViewUtils._
 
+@import config.UrBannerUtil
+
 @this(layout: templates.layout,
         h1: components.h1,
         p: components.p,
@@ -25,7 +27,7 @@
 
 @()(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
-@layout(pageTitle = Some(titleNoForm(messages("page.reg.registrationUnsuccessful.title")))) {
+@layout(pageTitle = Some(titleNoForm(messages("page.reg.registrationUnsuccessful.title"))), urBanner = Some(UrBannerUtil.getUrBanner(hideCloseButton = false))) {
 
     @h1(messages("page.reg.registrationUnsuccessful.header"))
 
