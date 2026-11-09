@@ -24,6 +24,7 @@ import play.api.{Application, Environment, Mode}
 import utils.{FeatureSwitch, FeatureSwitchManager, SCRSFeatureSwitches}
 import WiremockHelper._
 import org.scalatestplus.play.PlaySpec
+import uk.gov.hmrc.mongo.test.MongoSupport
 import play.api.libs.ws.WSResponse
 import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
 
@@ -37,7 +38,8 @@ trait IntegrationSpecBase extends PlaySpec
   with BeforeAndAfterAll
   with FutureAwaits
   with DefaultAwaitTimeout
-  with IntegrationPatience {
+  with IntegrationPatience
+  with MongoSupport {
 
   val testkey = "Fak3-t0K3n-f0r-pUBLic-r3p0SiT0rY"
 
@@ -47,6 +49,7 @@ trait IntegrationSpecBase extends PlaySpec
     .build
 
   def config: Map[String, String] = Map(
+    "mongodb.uri" -> s"$mongoUri",
     "play.filters.csrf.header.bypassHeaders.X-Requested-With" -> "*",
     "play.filters.csrf.header.bypassHeaders.Csrf-Token" -> "nocheck",
     "auditing.consumer.baseUri.host" -> s"$wiremockHost",
