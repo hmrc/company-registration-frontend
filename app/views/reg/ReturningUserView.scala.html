@@ -17,6 +17,8 @@
 @import uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
 @import views.ViewUtils.title
 
+@import config.UrBannerUtil
+
 @this(layout: templates.layout,
         errorSummary: components.errorSummary,
         yesNoRadio: components.yesNoRadio,
@@ -32,7 +34,7 @@
     }
 }
 
-@layout(pageTitle = Some(title(returningUser, messages("page.reg.returningUser.title"))), signOutLink = false) {
+@layout(pageTitle = Some(title(returningUser, messages("page.reg.returningUser.title"))), signOutLink = false, urBanner = Some(UrBannerUtil.getUrBanner(hideCloseButton = false))) {
 
     @errorSummary(returningUser.errors)
 

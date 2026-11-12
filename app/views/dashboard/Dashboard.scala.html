@@ -28,6 +28,8 @@
 @import java.time._
 @import java.time.format.DateTimeFormatter
 
+@import config.UrBannerUtil
+
 @this(layout: templates.layout,
         h1: components.h1,
         h2: components.h2,
@@ -190,7 +192,7 @@
 }
 }
 
-@layout(pageTitle = Some(titleNoForm(messages("page.reg.Dashboard.description")))) {
+@layout(pageTitle = Some(titleNoForm(messages("page.reg.Dashboard.description"))), urBanner = Some(UrBannerUtil.getUrBanner(hideCloseButton = false))) {
 
     @headingWithCaption(messages("page.reg.Dashboard.description"), dash.companyName)
 

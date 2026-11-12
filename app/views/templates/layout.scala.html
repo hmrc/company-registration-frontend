@@ -20,15 +20,18 @@
 @import uk.gov.hmrc.hmrcfrontend.views.config.StandardBetaBanner
 @import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcStandardPage
 @import uk.gov.hmrc.hmrcfrontend.views.viewmodels.hmrcstandardpage._
+@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.userresearchbanner.UserResearchBanner
+@import uk.gov.hmrc.hmrcfrontend.views.html.components.HmrcUserResearchBanner
 @import uk.gov.hmrc.govukfrontend.views.html.components._
 
 @this(
     hmrcTimeoutDialog: HmrcTimeoutDialog,
     standardBetaBanner: StandardBetaBanner,
-    hmrcStandardPage: HmrcStandardPage
+    hmrcStandardPage: HmrcStandardPage,
+    hmrcUserResearchBanner: HmrcUserResearchBanner
 )
 
-@(pageTitle: Option[String] = None, beforeContentBlock: Option[Html] = None, backLink: Boolean = true, signOutLink: Boolean = true, timeout: Boolean = true, backlinkUrl: String = "#")(contentBlock: Html)(implicit request: RequestHeader, messages: Messages, appConfig: config.AppConfig)
+@(pageTitle: Option[String] = None, beforeContentBlock: Option[Html] = None, backLink: Boolean = true, signOutLink: Boolean = true, timeout: Boolean = true, backlinkUrl: String = "#", urBanner: Option[UserResearchBanner] = None)(contentBlock: Html)(implicit request: RequestHeader, messages: Messages, appConfig: config.AppConfig)
 
 @head = {
     <!--[if lte IE 8]><link href=' @controllers.routes.Assets.at("stylesheets/application-ie-8.css")' rel="stylesheet" type="text/css" /><![endif]-->
@@ -70,7 +73,7 @@
             signOutUrl = if (signOutLink) Some(controllers.reg.routes.SignInOutController.signOut().url) else None,
             accessibilityStatementUrl = Some(appConfig.accessibilityStatementUrl),
         ),
-        banners = Banners(displayHmrcBanner = false, phaseBanner = Some(standardBetaBanner(url = appConfig.betaFeedbackUrl))),
+        banners = Banners(displayHmrcBanner = false, phaseBanner = Some(standardBetaBanner(url = appConfig.betaFeedbackUrl)), additionalBannersBlock = urBanner.filter(_ => appConfig.userResearchBannerEnabled).map(hmrcUserResearchBanner(_))),
         serviceName = Some(messages("service.name")),
         pageTitle = pageTitle,
         backLink = if(backLink) Some(BackLink("#")) else None,

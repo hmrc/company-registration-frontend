@@ -14,11 +14,13 @@
  * limitations under the License.
  *@
 
+@import config.UrBannerUtil
+
 @this(layout: templates.layout)
 @(handOffNumber: String, errorType: String)(implicit request: RequestHeader, messages: Messages, appConfig: config.AppConfig)
 
 
-@layout(pageTitle = Some("Error")) {
+@layout(pageTitle = Some("Error"), urBanner = Some(UrBannerUtil.getUrBanner(hideCloseButton = false))) {
 
     <script type="text/javascript" src=@controllers.routes.Assets.at("javascripts/LoggingService.js")></script>
 
