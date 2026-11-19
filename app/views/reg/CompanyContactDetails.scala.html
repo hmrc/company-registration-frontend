@@ -16,16 +16,19 @@
 
 @import config.AppConfig
 @import models.CompanyContactDetailsApi
-@import uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
+@import uk.gov.hmrc.govukfrontend.views.html.components._
 @import views.ViewUtils.title
 
-@this(layout: templates.layout,
-        errorSummary: components.errorSummary,
-        formWithCsrf: FormWithCSRF,
-        inputText: components.inputText,
-        h1: components.h1,
-        p: components.p,
-        button: components.button)
+@this(
+    layout: templates.layout,
+    errorSummary: components.errorSummary,
+    formWithCsrf: FormWithCSRF,
+    inputText: components.inputText,
+    h1: components.h1,
+    p: components.p,
+    button: components.button,
+    govukFieldset : GovukFieldset
+)
 
 @(contactDetails: Form[CompanyContactDetailsApi], companyName: String)(implicit request: Request[_], messages: Messages, appConfig: AppConfig)
 
@@ -33,45 +36,56 @@
 
     @errorSummary(contactDetails.errors)
 
-    @h1(messages("page.reg.company-contact-details.description", companyName))
-
-
     @formWithCsrf(action = controllers.reg.routes.CompanyContactDetailsController.submit) {
 
-        @p{
-            @messages("page.reg.company-contact-details.helpMessage")
-        }
-
-                @inputText(
-                    form = contactDetails,
-                    name = "contactDaytimeTelephoneNumber",
-                    id = "contactDaytimeTelephoneNumber",
-                    label = messages("page.reg.company-contact-details.label-three"),
-                    isPageHeading = false,
-                    classes = Some("govuk-input--width-20"),
-                    attributes = Map("autocomplete" -> "tel")
-                )
-                @inputText(
-                    form = contactDetails,
-                    name = "contactEmail",
-                    id = "contactEmail",
-                    label = messages("page.reg.company-contact-details.label-two"),
-                    hint = Some(Html(messages("page.reg.company-contact-details.label-two-hint"))),
-                    isPageHeading = false,
-                    classes = Some("govuk-input--width-20")
-                )
-
-            @inputText(
-                form = contactDetails,
-                name = "contactMobileNumber",
-                id = "contactMobileNumber",
-                label = messages("page.reg.company-contact-details.label-four"),
-                isPageHeading = false,
-                classes = Some("govuk-input--width-20"),
-                attributes = Map("autocomplete" -> "tel")
-            )
+        @govukFieldset(Fieldset(
+            legend = Some(Legend(
+                content = HtmlContent(legendContent),
+                classes = "govuk-fieldset__legend--l",
+                isPageHeading = false
+            )),
+            html = fieldsetContent
+        ))
 
         @button(messages("common.button.snc"))
     }
 
+}
+
+@legendContent = {
+    @h1(messages("page.reg.company-contact-details.description", companyName))
+
+    @p{@messages("page.reg.company-contact-details.helpMessage")}
+}
+
+@fieldsetContent = {
+    @inputText(
+        form = contactDetails,
+        name = "contactDaytimeTelephoneNumber",
+        id = "contactDaytimeTelephoneNumber",
+        label = messages("page.reg.company-contact-details.label-three"),
+        isPageHeading = false,
+        classes = Some("govuk-input--width-20"),
+        attributes = Map("autocomplete" -> "tel")
+    )
+    
+    @inputText(
+        form = contactDetails,
+        name = "contactEmail",
+        id = "contactEmail",
+        label = messages("page.reg.company-contact-details.label-two"),
+        hint = Some(Html(messages("page.reg.company-contact-details.label-two-hint"))),
+        isPageHeading = false,
+        classes = Some("govuk-input--width-20")
+    )
+
+    @inputText(
+        form = contactDetails,
+        name = "contactMobileNumber",
+        id = "contactMobileNumber",
+        label = messages("page.reg.company-contact-details.label-four"),
+        isPageHeading = false,
+        classes = Some("govuk-input--width-20"),
+        attributes = Map("autocomplete" -> "tel")
+    )
 }
