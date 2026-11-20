@@ -58,5 +58,5 @@
     fieldset = Some(Fieldset(legend = Some(legendBlock))),
     hint = hint.map { hint => Hint(content = HtmlContent(hint)) },
     items = items,
-    errorMessage = form(fieldName).error.map(err => ErrorMessage(content = Text(messages(err.message, err.args: _*))))
+    errorMessage = form(fieldName).error.map(err => ErrorMessage.errorMessageWithDefaultStringsTranslated(content = Text(messages(err.message, err.args: _*))))
 ))

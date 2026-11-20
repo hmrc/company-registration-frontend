@@ -93,7 +93,7 @@
                 hint = Some(Hint(content = Text(messages("page.reg.ct61.radioNoText"))))
             )
         ),
-        errorMessage = tradingDetails.errors.headOption.map { error => ErrorMessage(content = Text(messages(error.message, error.args: _*)))}
+        errorMessage = tradingDetails.errors.headOption.map { error => ErrorMessage.errorMessageWithDefaultStringsTranslated(content = Text(messages(error.message, error.args: _*)))}
       ))
 
       @button(messages("common.button.save"))
