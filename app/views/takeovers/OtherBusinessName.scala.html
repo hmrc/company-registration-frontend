@@ -20,8 +20,6 @@
 @this(layout: templates.layout,
         errorSummary: components.errorSummary,
         inputText: components.inputText,
-        h1: components.h1,
-        p: components.p,
         button: components.button,
         formWithCsrf: FormWithCSRF)
 
@@ -31,20 +29,14 @@
 
     @errorSummary(businessName.errors)
 
-    @h1(messages("page.takeovers.otherBusinessName.heading"))
-
-    @p {
-        @messages("page.takeovers.otherBusinessName.paragraph")
-    }
-
     @formWithCsrf(action = controllers.takeovers.routes.OtherBusinessNameController.submit) {
         @inputText(
             form = businessName,
             name = "otherBusinessName",
             id = "otherBusinessName",
-            label = "",
-            isPageHeading = false,
-            attributes = Map("aria-label" -> messages("page.takeovers.otherBusinessName.heading"))
+            label = "page.takeovers.otherBusinessName.heading",
+            hint = Some(Html(messages("page.takeovers.otherBusinessName.paragraph"))),
+            isPageHeading = true
         )
 
         @button(messages("common.button.snc"))
