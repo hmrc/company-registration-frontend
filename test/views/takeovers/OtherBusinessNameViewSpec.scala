@@ -43,7 +43,7 @@ class OtherBusinessNameViewSpec extends UnitSpec with GuiceOneAppPerSuite with I
 
     lazy val title = "What is the name of the other business?"
     lazy val heading = "What is the name of the other business?"
-    lazy val paragraph = "Give the name that’s registered with HMRC for tax purposes."
+    lazy val hint = "Give the name that’s registered with HMRC for tax purposes."
     lazy val saveAndContinue = "Save and continue"
 
     s"have an expected title: $title" in {
@@ -54,8 +54,8 @@ class OtherBusinessNameViewSpec extends UnitSpec with GuiceOneAppPerSuite with I
       doc.select(Selectors.h1).text mustBe heading
     }
 
-    s"have an expected paragraph: $paragraph" in {
-      doc.select(Selectors.p(1)).text mustBe paragraph
+    s"have an expected paragraph: $hint" in {
+      doc.getElementById("otherBusinessName-hint").text mustBe hint
     }
 
     s"have a $saveAndContinue button" in {
