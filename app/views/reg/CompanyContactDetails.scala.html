@@ -17,11 +17,14 @@
 @import config.AppConfig
 @import models.CompanyContactDetailsApi
 @import uk.gov.hmrc.govukfrontend.views.html.components.FormWithCSRF
+@import uk.gov.hmrc.govukfrontend.views.html.components.GovukErrorMessage
+@import uk.gov.hmrc.govukfrontend.views.Aliases.{ErrorMessage, Text}
 @import views.ViewUtils.title
 
 @this(layout: templates.layout,
         errorSummary: components.errorSummary,
         formWithCsrf: FormWithCSRF,
+        govukErrorMessage: GovukErrorMessage,
         inputText: components.inputText,
         h1: components.h1,
         p: components.p,
@@ -41,6 +44,19 @@
         @p{
             @messages("page.reg.company-contact-details.helpMessage")
         }
+
+        <div class="govuk-form-group @if(contactDetails.hasGlobalErrors){govuk-form-group--error}">
+            <fieldset class="govuk-fieldset" @if(contactDetails.hasGlobalErrors){aria-describedby="contact-details-error"}>
+                <legend class="govuk-fieldset__legend govuk-visually-hidden">
+                    @messages("page.reg.company-contact-details.description", companyName)
+                </legend>
+
+                @contactDetails.globalErrors.map { error =>
+                    @govukErrorMessage(ErrorMessage.errorMessageWithDefaultStringsTranslated(
+                        id = Some("contact-details-error"),
+                        content = Text(messages(error.message, error.args: _*))
+                    ))
+                }
 
                 @inputText(
                     form = contactDetails,
@@ -70,6 +86,9 @@
                 classes = Some("govuk-input--width-20"),
                 attributes = Map("autocomplete" -> "tel")
             )
+
+            </fieldset>
+        </div>
 
         @button(messages("common.button.snc"))
     }
