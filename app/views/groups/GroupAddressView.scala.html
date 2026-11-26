@@ -33,17 +33,12 @@
 
     @errorSummary(groupAddress.errors)
 
-    @h1(messages("page.groups.groupAddress.heading", companyName))
-
-    @p {
-        @messages("page.groups.groupAddress.helpText")
-    }
-
     @formWithCsrf(action = controllers.groups.routes.GroupAddressController.submit) {
         @inputRadio(
             form = groupAddress,
             fieldName = "groupAddress",
-            legend = messages("pages.correspondenceAddress.description"),
+            legend = messages("page.groups.groupAddress.heading", companyName),
+            hint = Some(Html(messages("page.groups.groupAddress.helpText"))),
             items = mapOfAddresses.toList.zipWithIndex.collect {
                 case ((id, desc), idx) =>
                     RadioItem(
@@ -53,8 +48,6 @@
                         id = if(idx == 0) { Some("groupAddress") } else Some(s"${id}")
                     )
             },
-            legendAsHeading = false,
-            classes = "govuk-visually-hidden"
         )
 
         @button("common.button.save")
