@@ -42,7 +42,7 @@
 
 @layout(pageTitle = Some(title(shareholdersForm, messages(s"page.groups.groupName.title")))) {
 
-    @errorSummary(shareholdersForm.errors)
+    @errorSummary(shareholdersForm.errors, errorLinks = Map("groupName" -> (if(shareholderNames.nonEmpty) "groupName-0" else "otherNameOption")))
 
     @formWithCsrf(action = controllers.groups.routes.GroupNameController.submit) {
 

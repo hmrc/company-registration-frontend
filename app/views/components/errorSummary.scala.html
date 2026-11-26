@@ -21,7 +21,7 @@
 
 @this(govukErrorSummary: GovukErrorSummary)
 
-@(errors: Seq[FormError], errorFieldSuffix: Option[String] = None, errorId: Option[String] = None)(implicit messages: Messages)
+@(errors: Seq[FormError], errorFieldSuffix: Option[String] = None, errorId: Option[String] = None, errorLinks: Map[String, String] = Map.empty)(implicit messages: Messages)
 
 @if(errors.nonEmpty) {
     @defining(errors.map { error =>
@@ -33,7 +33,7 @@
             errorId.getOrElse("")
         }
         ErrorLink(
-            href = if(error.args) { Some(s"#${error.args.head}") } else Some(s"#$id"),
+            href = errorLinks.get(error.key).map(target => s"#$target").orElse(if(error.args) { Some(s"#${error.args.head}") } else Some(s"#$id")),
             content = Text(messages(error.message, error.args.lastOption.getOrElse(""))),
             attributes = Map("id" -> s"$id-error")
         )
