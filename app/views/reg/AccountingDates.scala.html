@@ -37,14 +37,10 @@
 @(accountingDatesForm : Form[AccountingDatesModel], date: String)(implicit request: Request[_], messages: Messages, appConfig: config.AppConfig)
 
 @hiddenContent = {
-    @p {
-        @messages("page.reg.accountingDates.help")
-    }
-
     @inputDate(
         form = accountingDatesForm,
         id = "futureDate",
-        legendContent = "",
+        legendContent = "page.reg.accountingDates.help",
         legendAsPageHeading = false,
         hintText = Some(messages("common.dateExample", date))
     )
