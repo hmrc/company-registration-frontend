@@ -34,7 +34,7 @@
 
 @layout(pageTitle = Some(title(otherBusinessAddressForm, messages("page.takeovers.otherBusinessAddress.title", previousOwnerName)))) {
 
-    @errorSummary(otherBusinessAddressForm.errors)
+    @errorSummary(otherBusinessAddressForm.errors, errorLinks = Map("otherBusinessAddress" -> "otherBusinessAddress-0"))
 
     @h1(messages("page.takeovers.otherBusinessAddress.heading", previousOwnerName))
 

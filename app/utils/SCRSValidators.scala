@@ -199,7 +199,7 @@ trait SCRSValidatorsT {
     ).flatten
 
     Seq("day", "month", "year").filterNot(definedFields.contains(_)).map {
-      fieldName => ValidationError(s"page.reg.accountingDates.$fieldName.notFound", s"dateNotFound${fieldName.capitalize}")
+      fieldName => ValidationError(s"page.reg.accountingDates.$fieldName.notFound", s"futureDate.${fieldName.capitalize}")
     }
   }
 
